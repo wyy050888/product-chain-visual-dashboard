@@ -1,0 +1,64 @@
+
+
+// Auditable demo ledger; no connection to live reports, attendance or project systems.
+function pwwRate(actual,expected){const value=expected>0?actual/expected*100:null;return {actual,expected,value,tone:value===null?'muted':actual>=expected?'green':value>=95?'orange':'red'};}
+function pwwDelay(days){return days>=3?'red':days>=1?'orange':'green';}
+function pwwStamp(date,time='23:59:59'){return date+'T'+time+'+08:00';}
+function pwwDayDiff(a,b){return Math.round((Date.parse(b)-Date.parse(a))/86400000);}
+function pwwReportStats(records,asOf){const eligible=records.filter(r=>!r.exempt),due=eligible.filter(r=>Date.parse(r.deadline)<=Date.parse(asOf)),onTime=due.filter(r=>r.submitted&&Date.parse(r.submitted)<=Date.parse(r.deadline));return {...pwwRate(onTime.length,due.length),scheduled:eligible.length,pending:eligible.length-due.length,late:due.filter(r=>r.submitted&&Date.parse(r.submitted)>Date.parse(r.deadline)).length,missing:due.filter(r=>!r.submitted).length,exempt:records.length-eligible.length};}
+function pwwTaskCheck(t,cutoff){const at=pwwStamp(cutoff),seen=d=>!!d&&Date.parse(d)<=Date.parse(at),marked=seen(t.completedAt),evidence=seen(t.evidenceAt),accepted=seen(t.acceptedAt),valid=marked&&evidence&&accepted,closedAt=valid?[t.completedAt,t.evidenceAt,t.acceptedAt].sort((a,b)=>Date.parse(a)-Date.parse(b)).at(-1):null,delay=Math.max(0,pwwDayDiff(t.due,(closedAt||at).slice(0,10))),reasons=[];
+ if(marked&&!evidence)reasons.push('已完成但未上传成果物');
+ if(seen(t.closedAt)&&!accepted)reasons.push('已闭环但验收未通过');
+ if(seen(t.closedAt)&&seen(t.reopenedAt)){const days=pwwDayDiff(t.closedAt.slice(0,10),t.reopenedAt.slice(0,10));if(days>=0&&days<=7)reasons.push('闭环后7天内复发');}
+ const progressGap=Math.abs(t.reportProgress-t.actualProgress);if(progressGap>20)reasons.push('报告与台账进度偏差 '+fmt(progressGap,1)+'%');
+ return {...t,marked,evidence,accepted,valid,delay,delayTone:pwwDelay(delay),falseReasons:reasons,missing:!evidence,progressGap};
+}
+function pwwDemoLedger(owner,index,start,cutoff){
+ const daily=[],weekly=[],tasks=[],asOf=pwwStamp(cutoff),year=+start.slice(0,4),ordinal=date=>pwwDayDiff('2020-01-01',date),holidays=['01-01','05-01','09-10'];
+ for(let date=start;date<=cutoff;date=shiftDate(date,1)){
+  const dow=new Date(date+'T00:00:00Z').getUTCDay(),n=ordinal(date),exempt=dow===0||dow===6?'休息日':holidays.includes(date.slice(5))?'公司统一假期（测试）':index>0&&(n+index*7)%47===0?'请假':'';
+  const deadline=pwwStamp(shiftDate(date,1),'09:00:00'),miss=index>1&&(n+index*3)%(index%3===0?8:23)===0,late=index>0&&(n+index*5)%(index===1?41:19)===0;
+  let submitted=exempt||miss?null:pwwStamp(shiftDate(date,1),late?'09:30:00':'08:30:00');if(submitted&&Date.parse(submitted)>Date.parse(asOf))submitted=null;
+  daily.push({date,deadline,submitted,exempt,source:'日报'});
+ }
+ // A natural week is Monday–Sunday. Weeks intersecting the period are counted once.
+ const weekday=(new Date(start+'T00:00:00Z').getUTCDay()+6)%7;
+ for(let monday=shiftDate(start,-weekday);monday<=cutoff;monday=shiftDate(monday,7)){
+  const sunday=shiftDate(monday,6),n=Math.floor(ordinal(monday)/7),deadline=pwwStamp(sunday,'17:00:00'),miss=index>2&&(n+index)%5===0,late=index>1&&(n+index)%7===0;
+  let submitted=miss?null:pwwStamp(sunday,late?'18:00:00':'16:00:00');if(submitted&&Date.parse(submitted)>Date.parse(asOf))submitted=null;
+  weekly.push({date:monday+' — '+sunday,deadline,submitted,exempt:'',source:'周报'});
+ }
+ for(let due=year+'-01-03',j=0;due<=cutoff;due=shiftDate(due,7),j++){
+  if(due<start)continue;
+  const mode=index===0?0:index===1?(j%9===0?1:0):(j+index*2)%8,late=mode===1?1+index%2:mode===2?4:0,completedAt=mode===7?null:pwwStamp(shiftDate(due,late),'15:00:00'),evidenceAt=[3,7].includes(mode)?null:completedAt,acceptedAt=[3,4,7].includes(mode)?null:completedAt;
+  const task={key:'WF-'+year+'-'+index+'-'+j,name:['供应商资料归档','报价核验整改','交付异常跟进','样品评审整改'][j%4],source:['日报','周报','会议记录','项目台账'][j%4],due,completedAt,evidenceAt,acceptedAt,closedAt:mode===4?completedAt:acceptedAt,reopenedAt:mode===5? pwwStamp(shiftDate(due,5),'10:00:00'):null,reportProgress:mode===6?90:mode===7?40:100,actualProgress:mode===6?60:mode===7?40:100,document:['供应商资料附件','报价复核表','交付验收单','评审整改报告'][j%4]};tasks.push(pwwTaskCheck(task,cutoff));
+ }
+ return {daily,weekly,tasks};
+}
+function pwwRows(includeNormal=false){const b=bounds();return pbPeople.map((owner,index)=>{
+ const chain=index%4,s=pbSupplierFor(chain,index),ledger=pwwDemoLedger(owner,index,b.start,b.cutoff),daily=pwwReportStats(ledger.daily,pwwStamp(b.cutoff)),weekly=pwwReportStats(ledger.weekly,pwwStamp(b.cutoff)),closure=pwwRate(ledger.tasks.filter(t=>t.valid).length,ledger.tasks.length),lateTasks=ledger.tasks.filter(t=>t.delay>0),maxDelay=Math.max(0,...lateTasks.map(t=>t.delay)),missing=ledger.tasks.filter(t=>t.missing),falseTasks=ledger.tasks.filter(t=>t.falseReasons.length),delayTone=pwwDelay(maxDelay),tones=[daily.tone,weekly.tone,closure.tone,delayTone,missing.length?'red':'green',falseTasks.length?'red':'green'],tone=tones.includes('red')?'red':tones.includes('orange')?'orange':'green';
+ const issues=[daily.tone==='red'?'日报提报率低于95%':daily.tone==='orange'?'日报提报黄灯关注':'',weekly.tone==='red'?'周报提报率低于95%':weekly.tone==='orange'?'周报提报黄灯关注':'',closure.tone==='red'?'闭环率低于95%':closure.tone==='orange'?'闭环率黄灯关注':'',lateTasks.length?'延期 '+lateTasks.length+' 项（最长 '+maxDelay+' 天）':'',missing.length?'缺失文件 '+missing.length+' 项':'',falseTasks.length?'虚假闭环 '+falseTasks.length+' 项':''].filter(Boolean);
+ return {key:'WORKFLOW-'+periodKey()+'-'+owner,kind:'workflow-warning',name:owner+' · 工作流程',owner,chain,tier:s.tier,date:b.cutoff,due:shiftDate(b.cutoff,5),ledger,daily,weekly,closure,lateTasks,maxDelay,delayTone,missing,falseTasks,tone,level:tone==='red'?'高危':tone==='orange'?'中风险':'低风险',metric:issues.length+' 项异常',issue:issues.join('；'),source:'日报 / 周报 / 会议记录 / 各项台账（测试数据）'};
+ }).filter(pbScope).filter(r=>includeNormal||r.tone!=='green').sort((a,b)=>(b.tone==='red')-(a.tone==='red')||b.falseTasks.length-a.falseTasks.length||b.maxDelay-a.maxDelay);}
+function pwwPercent(s){return s.value===null?'—':fmt(s.value,1)+'%';}
+function pwwRateHTML(s,unit='次'){return `<strong class="${s.tone}">${s.value===null?'—':'● '+pwwPercent(s)}</strong><small>${s.value===null?'暂无到期记录':s.actual+' / '+s.expected+' '+unit}${s.pending?' · '+s.pending+' 次未到期':''}</small>`;}
+const pwwHeads=['采购人员','日报提报率','周报提报率','延期闭环','闭环质量','缺失文件','虚假闭环标记','操作'];
+function pwwCells(r){return [esc(r.owner),pwwRateHTML(r.daily),pwwRateHTML(r.weekly),`<strong class="${r.delayTone}">● ${r.lateTasks.length} 项</strong><small>最长 ${r.maxDelay} 天</small>`,`<strong class="${r.closure.tone}">${r.closure.value===null?'—':'● '+pwwPercent(r.closure)}</strong><small>有效闭环 ${r.closure.actual} / ${r.closure.expected} 项</small>`,`<strong class="${r.missing.length?'red':'green'}">${r.missing.length} 项</strong>`,`<strong class="${r.falseTasks.length?'red':'green'}">${r.falseTasks.length?'已标记 '+r.falseTasks.length+' 项':'无'}</strong>`,pbBtn('查看详情','detail',r.key)];}
+function pwwRules(){return `<details class="pww-rules"><summary>指标口径与数据说明</summary><div class="pww-rule-grid"><div><b>日报 / 周报</b><p>按时提交次数 ÷ 已到截止时间的应提交次数。日报剔除休息日、请假及公司统一假期，次日9:00截止；周报按周一至周日自然周，每周日17:00截止。逾期补交不计按时提交，未到期单独展示。</p></div><div><b>闭环质量 / 延期</b><p>闭环率＝有效闭环 ÷ 本期计划完成任务。有效闭环须同时满足：标记完成、上传成果物、责任人验收通过。延期从计划完成日起算，至三条件满足日或统计截止日。</p></div><div><b>红黄绿灯</b><p>提报率、闭环率：100%绿灯；95%至不足100%黄灯关注；低于95%红灯预警。延期≥3天红灯，1–2天黄灯，0天绿灯。无应提交或应闭环记录显示“—”。</p></div><div><b>文件缺失 / 虚假闭环</b><p>缺成果物即文件缺失。已完成无成果物、已闭环未验收通过、闭环后7天内复发、报告与台账进度偏差＞20%，任一命中即标记虚假闭环。同一任务只计一次，原因可多项。</p></div></div><p>数据来源：日报、周报、会议记录、各项台账。目前为测试台账；工作日、请假和公司假期均为演示设置，未接入真实考勤。统计截至所选日期23:59（北京时间）。</p></details>`;}
+function pwwOpen(context={period:{...pbPeriod('risk')}}){pbModalSection='risk';const rows=pnrRun(context,()=>pwwRows().filter(r=>!pbClosed(r)));let page=1;
+ openModal('工作流程预警 · 全部',`<div class="pww-toolbar"><span>${periodLabel(context.period)} · 截至 ${bounds(context.period).cutoff}</span><span>红灯预警 / 黄灯关注 · 测试数据</span></div><div id="pww-table"></div><div id="pww-pages"></div>${pwwRules()}`,false,'按采购人员汇总');$('#dialog').classList.add('pww-dialog');
+ function fill(){const pages=Math.max(1,Math.ceil(rows.length/DRAWER_PAGE_SIZE));page=Math.max(1,Math.min(page,pages));pnrRun(context,()=>rows.forEach(pbRemember));$('#pww-table').innerHTML=rows.length?table(pwwHeads,rows.slice((page-1)*DRAWER_PAGE_SIZE,page*DRAWER_PAGE_SIZE).map(pwwCells)):'<div class="empty">当前周期及范围暂无流程预警</div>';$('#pww-table').querySelectorAll('table').forEach(rdTable);mountListPager($('#pww-pages'),rows.length,page,next=>{page=next;fill()});$('#pww-table').onclick=e=>{const btn=e.target.closest('[data-pb-action="detail"]');if(!btn)return;e.stopPropagation();pwwDetail(rows.find(r=>r.key===btn.dataset.key),context)};}
+ fill();
+}
+function pwwDisplayTime(t){return t?t.slice(0,16).replace('T',' '):'未提交';}
+function pwwDetail(r,context={period:{...pbPeriod('risk')}}){if(!r)return;pbModalSection='risk';let tab='task',page=1;
+ const metrics=[['日报提报率',pwwRateHTML(r.daily)],['周报提报率',pwwRateHTML(r.weekly)],['闭环质量',pwwRateHTML(r.closure,'项')],['延期闭环',`<strong class="${r.delayTone}">${r.lateTasks.length} 项</strong><small>最长 ${r.maxDelay} 天</small>`],['缺失文件',`<strong class="${r.missing.length?'red':'green'}">${r.missing.length} 项</strong>`],['虚假闭环',`<strong class="${r.falseTasks.length?'red':'green'}">${r.falseTasks.length} 项</strong>`]];
+ openModal(r.owner+' · 工作流程预警详情',`<div class="pww-toolbar"><b>${esc(r.owner)} · ${esc(chains[r.chain])}</b><span>${periodLabel(context.period)} · 截至 ${bounds(context.period).cutoff} · 测试数据</span></div><div class="pww-metrics">${metrics.map(([label,value])=>`<div><span>${label}</span>${value}</div>`).join('')}</div><div class="pww-toolbar"><div class="tabs"><button data-pww-tab="task" class="active">闭环任务</button><button data-pww-tab="daily">日报记录</button><button data-pww-tab="weekly">周报记录</button></div><span id="pww-evidence-note"></span></div><div id="pww-evidence"></div><div id="pww-evidence-pages"></div>${pwwRules()}`,false,'流程核查');$('#dialog').classList.add('pww-dialog');$('#dialogactions').insertAdjacentHTML('afterbegin','<button class="btn small" id="pww-back">返回榜单</button><button class="btn primary" id="pww-dispatch">'+(pbTask(r)?'跟进任务':'下发整改任务')+'</button>');$('#pww-back').onclick=()=>pwwOpen(context);$('#pww-dispatch').onclick=()=>pnrRun(context,()=>{pbRemember(r);pbDispatch(r)});
+ function fill(){const task=tab==='task',cutoff=bounds(context.period).cutoff,rows=task?[...r.ledger.tasks].sort((a,b)=>b.falseReasons.length-a.falseReasons.length||b.delay-a.delay):r.ledger[tab],pages=Math.max(1,Math.ceil(rows.length/DRAWER_PAGE_SIZE));page=Math.min(page,pages);
+  const heads=task?['任务 / 来源','计划完成','完成标记','成果物 / 验收','延期','核查结果']:['报告周期','提交截止时间','实际提交时间','判定'];
+  const cells=rows.slice((page-1)*DRAWER_PAGE_SIZE,page*DRAWER_PAGE_SIZE).map(t=>{if(task)return [`${esc(t.name)}<small>${t.key} · ${t.source}</small>`,t.due,t.marked?'已完成':'未完成',`${t.evidence?esc(t.document):'<span class="red">缺失：'+esc(t.document)+'</span>'}<small>${t.accepted?'验收通过':'验收未通过'}</small>`,`<strong class="${t.delayTone}">● ${t.delay} 天</strong>`,`${t.falseReasons.length?'<span class="red">'+t.falseReasons.map(esc).join('<br>')+'</span>':t.valid?'<span class="green">有效闭环</span>':'待闭环'}${t.reopenedAt&&Date.parse(t.reopenedAt)<=Date.parse(pwwStamp(cutoff))?'<small>复发：'+t.reopenedAt.slice(0,10)+'</small>':''}${t.progressGap>20?'<small>报告 '+t.reportProgress+'% / 台账 '+t.actualProgress+'%</small>':''}`];const pending=Date.parse(t.deadline)>Date.parse(pwwStamp(cutoff)),onTime=t.submitted&&Date.parse(t.submitted)<=Date.parse(t.deadline),status=t.exempt|| (pending?'未到期':onTime?'按时提交':t.submitted?'逾期补交':'未提交');return [t.date,pwwDisplayTime(t.deadline),t.exempt?'—':pwwDisplayTime(t.submitted),`<span class="${t.exempt||pending?'muted':onTime?'green':'red'}">${status}</span>`];});
+  $('#pww-evidence').innerHTML=rows.length?table(heads,cells):'<div class="empty">当前周期暂无记录</div>';$('#pww-evidence').querySelectorAll('table').forEach(rdTable);$('#pww-evidence-note').textContent=task?'有效闭环须三条件同时满足':tab==='daily'?'剔除 '+r.daily.exempt+' 天 · 未到期 '+r.daily.pending+' 次':'自然周 '+r.weekly.scheduled+' 周 · 未到期 '+r.weekly.pending+' 周';mountListPager($('#pww-evidence-pages'),rows.length,page,next=>{page=next;fill()});
+ }
+ document.querySelectorAll('[data-pww-tab]').forEach(btn=>btn.onclick=()=>{tab=btn.dataset.pwwTab;page=1;document.querySelectorAll('[data-pww-tab]').forEach(n=>n.classList.toggle('active',n===btn));fill()});fill();
+}
+const pwwPreviousLists=pbRiskLists;pbRiskLists=function(includeClosed=false){const lists=pwwPreviousLists(includeClosed);lists[6]=pwwRows().filter(r=>includeClosed||!pbClosed(r));lists[6].forEach(pbRemember);return lists;};

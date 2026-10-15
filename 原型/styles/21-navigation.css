@@ -1,0 +1,64 @@
+/* 模块导航紧接主菜单；主菜单的背景和管理员区域保持原样。 */
+.page { padding-top: 0; }
+.navigation-toolbar {
+  flex-wrap: nowrap;
+  min-height: 48px;
+  gap: 16px;
+  padding: 6px 0;
+  margin: 0 0 16px;
+  box-shadow: none;
+}
+.navigation-toolbar .jumpnav {
+  flex: 1 1 auto;
+  gap: 4px;
+}
+.navigation-toolbar .jumpnav a { padding: 5px 10px; }
+.navigation-actions {
+  flex-wrap: nowrap;
+  gap: 4px;
+  margin-left: 0;
+  padding-left: 12px;
+  border-left: 1px solid #e1e7f0;
+}
+.navigation-actions .btn.navigation-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 32px;
+  padding: 5px 9px;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  background: transparent;
+  color: #71819b;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 20px;
+  box-shadow: none;
+  transition: background .15s, color .15s;
+}
+.navigation-actions .btn.navigation-action:hover {
+  background: #eaf1fc;
+  color: #1677ff;
+  border-color: transparent;
+}
+.navigation-actions .btn.navigation-action:focus-visible {
+  outline: 2px solid #1677ff;
+  outline-offset: 2px;
+}
+.navigation-action svg {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+@media (max-width: 700px) {
+  .navigation-toolbar { gap: 6px; }
+  .navigation-actions { gap: 2px; padding-left: 6px; }
+  .navigation-actions .btn.navigation-action { width: 32px; padding: 5px; }
+  .navigation-action-label { display: none; }
+}

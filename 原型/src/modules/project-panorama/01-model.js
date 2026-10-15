@@ -1,0 +1,53 @@
+// 项目全景只适配明确来源字段；日报、项目经理不能代替风险台账及责任链主。
+const ppStages={
+ '自研开发':['立项筹备期','研发评审期','产品研发期','打样验证期','开模试产期','首批上线期'],
+ '自选开发':['产品寻源期','整改测试期','首批上线期'],
+ '品质整改':['整改立项','样机制作与测试','改善品生产期','销售与数据回收','改善大货退货率监控数据'],
+ '产品迭代':['提需规划期','迭代开发期','首批上线期'],
+ '研发创新':['第一阶段：创新需求收集与技术研判','第二阶段：技术可行性评审','第三阶段：创新难点预研','第四阶段：功能手板评审&测试','第五阶段：创新模块评审','第六阶段：专利申请']
+};
+const ppProjectStates=['进行中','已完成','已暂停/取消','未开始'];
+const ppDepartments=['产品部','研发部','采购部','品质部'];
+const ppState={category:[],type:[],projectState:['进行中'],brand:[],light:[],stage:[],department:[],owner:'',query:'',plan:null,page:1,distribution:'type',departmentDistribution:'type',riskDepartment:'全部',link:null};
+const ppValues=value=>[...new Set((Array.isArray(value)?value:[value]).filter(v=>v!=null&&v!==''&&v!=='—'))];
+const ppDate=value=>/^\d{4}-\d{2}-\d{2}$/.test(value||'')?value:null;
+function ppAdapt(source,cutoff){
+ source=ppSampleQuotes(source);
+ const type=({'自研':'自研开发','自选':'自选开发','创新研发':'研发创新','创新项目':'研发创新'})[source.type]||source.type;
+ const ledger=(Array.isArray(source.riskLedger)?source.riskLedger:ppSampleLedger(source)).filter(r=>!r.recordedAt||r.recordedAt.slice(0,10)<=cutoff);
+ const stages=ppValues(String(source.stage||'').split(/[,，、]/)).filter(s=>(ppStages[type]||[]).includes(s));
+ const actual=ppDate(source.actual)&&source.actual<=cutoff?source.actual:null,plan=ppDate(source.plan);
+ const delay=plan&&(actual||source.projectState!=='已完成')?Math.max(0,Math.round((Date.parse(actual||cutoff)-Date.parse(plan))/86400000)):null;
+ return {...source,type,category:pfCategory(source),stages,ledger,actual,delay,
+  departments:ppValues(ledger.filter(r=>r.status!=='已闭环').flatMap(r=>ppValues(r.department))).filter(d=>ppDepartments.includes(d)),
+  responsible:ppValues(ledger.map(r=>r.owner))};
+}
+function ppRows(){const cutoff=bounds().cutoff;return [...new Map(projects().filter(p=>!ppDate(p.started)||p.started<=cutoff).map(p=>[p.id,ppAdapt(p,cutoff)])).values()]}
+function ppScope(rows){return rows.filter(p=>pfIncludes(ppState.category,p.category)&&pfIncludes(ppState.type,p.type)&&pfIncludes(ppState.projectState,p.projectState))}
+function ppFiltered(rows){
+ const s=ppState,q=s.query.trim().toLowerCase(),owner=s.owner.trim().toLowerCase(),range=s.plan?nspLaunchRange(s.plan.mode,s.plan.year,s.plan.value):null;
+ const includesAny=(filter,values)=>!filter.length||values.some(v=>filter.includes(v));
+ return rows.filter(p=>pfIncludes(s.brand,p.brand)&&pfIncludes(s.light,p.status)&&(!s.stage.length||s.stage.some(path=>path.type===p.type&&p.stages.includes(path.stage)))&&includesAny(s.department,p.departments)&&(!owner||p.responsible.some(name=>String(name).toLowerCase().includes(owner)))
+  &&(!q||String(p.name||'').toLowerCase().includes(q))
+  &&(!range||(p.plan>=range.start&&p.plan<=range.end))&&ppLinked(p,s.link))
+  .sort((a,b)=>(({红灯:0,黄灯:1,绿灯:2})[a.status]??3)-(({红灯:0,黄灯:1,绿灯:2})[b.status]??3)||(b.delay||0)-(a.delay||0)||a.id-b.id);
+}
+function ppLinked(p,link){if(!link)return true;if(link.kind==='light')return link.value==='红黄灯'?['红灯','黄灯'].includes(p.status):p.status===link.value;if(link.kind==='departmentRisk')return p[link.type]===link.value&&ppDepartmentRiskRecords(p,link.department).length>0;if(link.kind==='department')return p.departments.includes(link.value);return p[link.kind]===link.value&&['红灯','黄灯'].includes(p.status)}
+function ppCounts(rows){const red=rows.filter(p=>p.status==='红灯').length,yellow=rows.filter(p=>p.status==='黄灯').length,total=rows.length;return {total,red,yellow,rate:n=>total?(n/total*100).toFixed(1)+'%':'—'}}
+function ppDepartmentFacts(rows,department){
+ const records=rows.flatMap(p=>p.ledger.filter(r=>r.status!=='已闭环'&&ppValues(r.department).includes(department)).map(r=>({project:p,risk:r})));
+ const red=records.filter(x=>x.risk.light==='红灯'),yellow=records.filter(x=>x.risk.light==='黄灯');
+ const redProjects=[...new Map(records.filter(x=>x.project.status==='红灯').map(x=>[x.project.id,x.project])).values()];
+ return {records,red,yellow,redProjects};
+}
+function ppQuoteLines(p,key){
+ const rows=p[key];
+ if(Array.isArray(rows))return rows.flatMap(r=>{
+  const version=r.version&&r.version!=='无'?r.version+'－':'';
+  const fields=key==='targetPrices'?[['price','目标售价']]:[['factory','工厂供价'],['channel','渠道供价'],['company','公司供价']];
+  return fields.filter(([k])=>typeof r[k]==='number'&&Number.isFinite(r[k])).map(([k,label])=>version+label+'：'+r[k].toFixed(2)+'元');
+ });
+ // 导入表仅有单一金额时如实展示；不补造版本、供价类型或最终报价。
+ const legacy=key==='targetCosts'?p.cost:key==='targetPrices'?p.price:null;
+ return typeof legacy==='number'&&Number.isFinite(legacy)?[legacy.toFixed(2)+'元']:[];
+}

@@ -1,0 +1,1312 @@
+{
+  "version": 1,
+  "entry": "index.html",
+  "template": "src/page.html",
+  "scripts": [
+    {
+      "file": "src/modules/performance/01-cache.js",
+      "module": "有界计算缓存"
+    },
+    {
+      "file": "src/data/sample-spus.js",
+      "module": "统一参考样例"
+    },
+    {
+      "file": "src/data/sample-shops.js",
+      "module": "统一参考样例"
+    },
+    {
+      "file": "src/data/sample-projects-1.js",
+      "module": "统一参考样例"
+    },
+    {
+      "file": "src/data/sample-projects-2.js",
+      "module": "统一参考样例"
+    },
+    {
+      "file": "src/data/sample-projects-3.js",
+      "module": "统一参考样例"
+    },
+    {
+      "file": "src/data/sample-projects-4.js",
+      "module": "统一参考样例"
+    },
+    {
+      "file": "src/modules/core/01.js",
+      "module": "公共工具与基础看板"
+    },
+    {
+      "file": "src/modules/list-pagination/01.js",
+      "module": "统一列表分页"
+    },
+    {
+      "file": "src/modules/core/02.js",
+      "module": "公共工具与基础看板"
+    },
+    {
+      "file": "src/modules/core/03.js",
+      "module": "公共工具与基础看板"
+    },
+    {
+      "file": "src/modules/period/01.js",
+      "module": "统计周期"
+    },
+    {
+      "file": "src/modules/period-data/01.js",
+      "module": "周期样例数据"
+    },
+    {
+      "file": "src/modules/sample-reference/01.js",
+      "module": "参考样例适配"
+    },
+    {
+      "file": "src/modules/sample-reference/04-shop-events.js",
+      "module": "店铺非品质处罚样例"
+    },
+    {
+      "file": "src/modules/sample-reference/03-shop-sales.js",
+      "module": "店铺SPU销量样例"
+    },
+    {
+      "file": "src/modules/sample-reference/02-products.js",
+      "module": "SPU产品与品质样例"
+    },
+    {
+      "file": "src/modules/startup/01.js",
+      "module": "初始化与周期事件"
+    },
+    {
+      "file": "src/data/product-images.js",
+      "module": "产品图片"
+    },
+    {
+      "file": "src/modules/images/01.js",
+      "module": "产品图片"
+    },
+    {
+      "file": "src/modules/ai-overview/01.js",
+      "module": "全局AI诊断"
+    },
+    {
+      "file": "src/modules/navigation/01.js",
+      "module": "锚点导航与工具栏"
+    },
+    {
+      "file": "src/modules/task-feedback/01.js",
+      "module": "通知与任务反馈"
+    },
+    {
+      "file": "src/modules/product-media/01.js",
+      "module": "产品图片展示"
+    },
+    {
+      "file": "src/modules/sales-target/01.js",
+      "module": "销售目标分配"
+    },
+    {
+      "file": "src/modules/sales-target/02.js",
+      "module": "销售目标分配"
+    },
+    {
+      "file": "src/modules/sales-overview/01.js",
+      "module": "销售达成汇总"
+    },
+    {
+      "file": "src/modules/report-evidence/01.js",
+      "module": "日报证据与诊断"
+    },
+    {
+      "file": "src/modules/project-attribution/01.js",
+      "module": "项目归属"
+    },
+    {
+      "file": "src/modules/lifecycle-task/01.js",
+      "module": "生命周期任务"
+    },
+    {
+      "file": "src/modules/risk-workflow/01.js",
+      "module": "风险闭环"
+    },
+    {
+      "file": "src/modules/project-ledger/01.js",
+      "module": "项目台账"
+    },
+    {
+      "file": "src/modules/project-stages/01.js",
+      "module": "项目阶段与任务"
+    },
+    {
+      "file": "src/modules/project-detail/01.js",
+      "module": "项目详情与风险"
+    },
+    {
+      "file": "src/modules/project-detail/02.js",
+      "module": "项目详情与风险"
+    },
+    {
+      "file": "src/modules/lifecycle-products/01.js",
+      "module": "生命周期产品与新品趋势"
+    },
+    {
+      "file": "src/modules/lifecycle-products/02.js",
+      "module": "生命周期产品与新品趋势"
+    },
+    {
+      "file": "src/modules/matrix-controls/01.js",
+      "module": "产品矩阵筛选"
+    },
+    {
+      "file": "src/modules/inventory-detail/00-ledger.js",
+      "module": "SPU库存主台账"
+    },
+    {
+      "file": "src/modules/inventory-detail/01.js",
+      "module": "库存分配与明细"
+    },
+    {
+      "file": "src/modules/shared-classification/01.js",
+      "module": "品类与矩阵口径"
+    },
+    {
+      "file": "src/modules/shared-fixtures/01.js",
+      "module": "跨模块样例数据"
+    },
+    {
+      "file": "src/modules/channel-allocation/01.js",
+      "module": "渠道分配"
+    },
+    {
+      "file": "src/modules/product-workspace/01.js",
+      "module": "产品总监工作台"
+    },
+    {
+      "file": "src/modules/product-workspace/02.js",
+      "module": "产品总监工作台"
+    },
+    {
+      "file": "src/modules/new-product-facts/01.js",
+      "module": "新品上市数据"
+    },
+    {
+      "file": "src/modules/director-quadrants/01.js",
+      "module": "总监四象限"
+    },
+    {
+      "file": "src/modules/director-quadrants/02.js",
+      "module": "总监四象限"
+    },
+    {
+      "file": "src/modules/director-quadrants/03.js",
+      "module": "总监四象限"
+    },
+    {
+      "file": "src/modules/director-quadrants/04.js",
+      "module": "总监四象限"
+    },
+    {
+      "file": "src/modules/department-tabs/01.js",
+      "module": "部门切换"
+    },
+    {
+      "file": "src/modules/procurement-workspace/01.js",
+      "module": "采购总监工作台"
+    },
+    {
+      "file": "src/modules/procurement-workspace/02.js",
+      "module": "采购总监工作台"
+    },
+    {
+      "file": "src/modules/procurement-workspace/03.js",
+      "module": "采购总监工作台"
+    },
+    {
+      "file": "src/modules/procurement-workspace/04.js",
+      "module": "采购总监工作台"
+    },
+    {
+      "file": "src/modules/procurement-workspace/05.js",
+      "module": "采购总监工作台"
+    },
+    {
+      "file": "src/modules/procurement-navigation/01.js",
+      "module": "采购导航与验收"
+    },
+    {
+      "file": "src/modules/project-status/01.js",
+      "module": "项目状态"
+    },
+    {
+      "file": "src/modules/quality-risk/01.js",
+      "module": "品质风险"
+    },
+    {
+      "file": "src/modules/quality-risk/02.js",
+      "module": "品质风险"
+    },
+    {
+      "file": "src/modules/shop-loss/01.js",
+      "module": "店铺与亏损排行"
+    },
+    {
+      "file": "src/modules/shop-links/01.js",
+      "module": "店铺关联"
+    },
+    {
+      "file": "src/modules/inventory-risk/01.js",
+      "module": "高风险库存"
+    },
+    {
+      "file": "src/modules/inventory-risk/02.js",
+      "module": "高风险库存"
+    },
+    {
+      "file": "src/modules/slow-products/01.js",
+      "module": "滞销产品"
+    },
+    {
+      "file": "src/modules/delayed-projects/01.js",
+      "module": "延期项目"
+    },
+    {
+      "file": "src/modules/return-comparison/01.js",
+      "module": "退货对比"
+    },
+    {
+      "file": "src/modules/risk-period/01.js",
+      "module": "风险统计周期"
+    },
+    {
+      "file": "src/modules/quality-monthly/00-non-quality-events.js",
+      "module": "非品质违规样例"
+    },
+    {
+      "file": "src/modules/quality-monthly/01.js",
+      "module": "品质月度规则"
+    },
+    {
+      "file": "src/modules/quality-monthly/02.js",
+      "module": "品质月度规则"
+    },
+    {
+      "file": "src/modules/shop-scoring/01.js",
+      "module": "店铺评分"
+    },
+    {
+      "file": "src/modules/matrix-diagnosis/01.js",
+      "module": "矩阵诊断"
+    },
+    {
+      "file": "src/modules/inventory-period/01.js",
+      "module": "库存周期指标"
+    },
+    {
+      "file": "src/modules/supplier-assessment/01.js",
+      "module": "供应商评估"
+    },
+    {
+      "file": "src/modules/supplier-assessment/02.js",
+      "module": "供应商评估"
+    },
+    {
+      "file": "src/modules/supplier-pool/01.js",
+      "module": "供应商品类池"
+    },
+    {
+      "file": "src/modules/supplier-pool/02.js",
+      "module": "供应商品类池"
+    },
+    {
+      "file": "src/modules/supplier-pool/03.js",
+      "module": "供应商品类池"
+    },
+    {
+      "file": "src/modules/procurement-assignment/01.js",
+      "module": "采购风险指派"
+    },
+    {
+      "file": "src/modules/procurement-assignment/02.js",
+      "module": "采购风险指派"
+    },
+    {
+      "file": "src/modules/shared-lists/01.js",
+      "module": "共享列表与数量核对"
+    },
+    {
+      "file": "src/modules/shared-lists/02.js",
+      "module": "共享列表与数量核对"
+    },
+    {
+      "file": "src/modules/supplier-warnings/01.js",
+      "module": "供应预警与项目依赖"
+    },
+    {
+      "file": "src/modules/cost-evaluation/01.js",
+      "module": "降本评估"
+    },
+    {
+      "file": "src/modules/cost-import/01.js",
+      "module": "降本样例与导入"
+    },
+    {
+      "file": "src/modules/cost-import/02.js",
+      "module": "降本样例与导入"
+    },
+    {
+      "file": "src/modules/cost-import/03.js",
+      "module": "降本样例与导入"
+    },
+    {
+      "file": "src/modules/shared-ranking/01.js",
+      "module": "共享排行"
+    },
+    {
+      "file": "src/modules/procurement-delivery/01.js",
+      "module": "采购交付"
+    },
+    {
+      "file": "src/modules/new-product-returns/01.js",
+      "module": "新品销售与退货"
+    },
+    {
+      "file": "src/modules/selection-warnings/01.js",
+      "module": "选品预警"
+    },
+    {
+      "file": "src/modules/work-report/01.js",
+      "module": "日报与出勤"
+    },
+    {
+      "file": "src/modules/work-report/02.js",
+      "module": "日报与出勤"
+    },
+    {
+      "file": "src/modules/procurement-ai/01.js",
+      "module": "采购AI诊断"
+    },
+    {
+      "file": "src/modules/procurement-ai/02.js",
+      "module": "采购AI诊断"
+    },
+    {
+      "file": "src/modules/procurement-metrics/01.js",
+      "module": "采购管理指标"
+    },
+    {
+      "file": "src/modules/procurement-metrics/02.js",
+      "module": "采购管理指标"
+    },
+    {
+      "file": "src/modules/director-components/01.js",
+      "module": "总监共享组件"
+    },
+    {
+      "file": "src/modules/worklist-export/01.js",
+      "module": "工作清单"
+    },
+    {
+      "file": "src/modules/product-isolation/01.js",
+      "module": "产品部门视图"
+    },
+    {
+      "file": "src/modules/project-rd/01.js",
+      "module": "项目与研发视图"
+    },
+    {
+      "file": "src/modules/director-risk/01.js",
+      "module": "总监风险汇总"
+    },
+    {
+      "file": "src/modules/director-assessment/01.js",
+      "module": "总监新品评估"
+    },
+    {
+      "file": "src/modules/project-date-filter/01.js",
+      "module": "项目日期筛选"
+    },
+    {
+      "file": "src/modules/project-period-data/01.js",
+      "module": "项目周期样例"
+    },
+    {
+      "file": "src/modules/director-sales/01.js",
+      "module": "总监销售台账"
+    },
+    {
+      "file": "src/modules/report-analysis/01.js",
+      "module": "日报分析"
+    },
+    {
+      "file": "src/modules/report-analysis/02.js",
+      "module": "日报分析"
+    },
+    {
+      "file": "src/modules/quality-metrics/01.js",
+      "module": "品质指标"
+    },
+    {
+      "file": "src/modules/company-metrics/01.js",
+      "module": "公司汇总指标"
+    },
+    {
+      "file": "src/modules/director-projects/01.js",
+      "module": "总监项目台账"
+    },
+    {
+      "file": "src/modules/director-risk-detail/01.js",
+      "module": "总监风险明细"
+    },
+    {
+      "file": "src/modules/director-risk-detail/02.js",
+      "module": "总监风险明细"
+    },
+    {
+      "file": "src/modules/risk-date/01.js",
+      "module": "风险日期模型"
+    },
+    {
+      "file": "src/modules/risk-date/02-inventory.js",
+      "module": "日范围库存指标适配"
+    },
+    {
+      "file": "src/modules/risk-range/01-data.js",
+      "module": "风险区间数据聚合"
+    },
+    {
+      "file": "src/modules/risk-range/02-context.js",
+      "module": "风险日期上下文"
+    },
+    {
+      "file": "src/modules/loss-performance/01-data.js",
+      "module": "亏损SPU公司汇总与渠道台账"
+    },
+    {
+      "file": "src/modules/loss-performance/02-detail.js",
+      "module": "亏损详情渠道分析"
+    },
+    {
+      "file": "src/modules/risk-calendar/01.js",
+      "module": "风险双月日历"
+    },
+    {
+      "file": "src/modules/risk-card-filters/01.js",
+      "module": "风险卡片筛选布局"
+    },
+    {
+      "file": "src/modules/header-menu/01.js",
+      "module": "顶部菜单与部门切换"
+    },
+    {
+      "file": "src/modules/metric-rules/01.js",
+      "module": "指标口径字典"
+    },
+    {
+      "file": "src/modules/metric-tooltip/01.js",
+      "module": "指标悬浮提示"
+    },
+    {
+      "file": "src/modules/card-metric-help/01.js",
+      "module": "榜单公共指标说明"
+    },
+    {
+      "file": "src/modules/page-presentation/01.js",
+      "module": "页面文案整理"
+    },
+    {
+      "file": "src/modules/ui-controls/01.js",
+      "module": "公共控件交互"
+    },
+    {
+      "file": "src/modules/filter-layout/01.js",
+      "module": "统一筛选区布局"
+    },
+    {
+      "file": "src/modules/drawers/01-profiles.js",
+      "module": "抽屉内容分组"
+    },
+    {
+      "file": "src/modules/drawers/02-controller.js",
+      "module": "统一抽屉与标签切换"
+    },
+    {
+      "file": "src/modules/list-pagination/02-drawer-tables.js",
+      "module": "抽屉表格分页"
+    },
+    {
+      "file": "src/modules/risk-ranking-tabs/01.js",
+      "module": "六榜完整榜单切换"
+    },
+    {
+      "file": "src/modules/drawers/03-stack.js",
+      "module": "抽屉层级与返回状态"
+    },
+    {
+      "file": "src/modules/drawers/04-platforms.js",
+      "module": "抽屉横向平台切换"
+    },
+    {
+      "file": "src/modules/fullscreen/01.js",
+      "module": "全屏与最终渲染"
+    },
+    {
+      "file": "src/modules/new-products/00-samples.js",
+      "module": "新品固定上线计划样例"
+    },
+    {
+      "file": "src/modules/unified-product/01-ledger.js",
+      "module": "统一SPU产品详情"
+    },
+    {
+      "file": "src/modules/unified-product/01-aggregates.js",
+      "module": "统一台账月度前缀聚合"
+    },
+    {
+      "file": "src/modules/unified-product/02-operating-adapters.js",
+      "module": "统一SPU产品详情"
+    },
+    {
+      "file": "src/modules/unified-product/03-stock-adapters.js",
+      "module": "统一SPU产品详情"
+    },
+    {
+      "file": "src/modules/unified-product/04-model.js",
+      "module": "统一SPU产品详情"
+    },
+    {
+      "file": "src/modules/unified-product/04-ai-context.js",
+      "module": "产品AI全量历史与当前执行上下文"
+    },
+    {
+      "file": "src/modules/unified-product/04-ai-demo.js",
+      "module": "汇报演示成本、业务单据与工作记录"
+    },
+    {
+      "file": "src/modules/unified-product/04-ai-policy.js",
+      "module": "单品SABC评级、成本和行动规则"
+    },
+    {
+      "file": "src/modules/unified-product/04-ai-analysis.js",
+      "module": "产品全平台经营问题分析"
+    },
+    {
+      "file": "src/modules/unified-product/04-ai-summary.js",
+      "module": "产品AI总结与提示词"
+    },
+    {
+      "file": "src/modules/unified-product/05-sales-trend.js"
+    },
+    {
+      "file": "src/modules/unified-product/05-quality-trend.js"
+    },
+    {
+      "file": "src/modules/unified-product/05-violation-details.js"
+    },
+    {
+      "file": "src/modules/unified-product/05-quality-view.js"
+    },
+    {
+      "file": "src/modules/unified-product/05-operating-view.js",
+      "module": "统一SPU产品详情"
+    },
+    {
+      "file": "src/modules/unified-product/06-stock-model.js"
+    },
+    {
+      "file": "src/modules/unified-product/06-stock-view.js",
+      "module": "统一SPU产品详情"
+    },
+    {
+      "file": "src/modules/unified-product/07-todo-diagnosis.js"
+    },
+    {
+      "file": "src/modules/unified-product/07-todo-model.js"
+    },
+    {
+      "file": "src/modules/unified-product/07-todo-samples.js"
+    },
+    {
+      "file": "src/modules/unified-product/07-todo-batch.js"
+    },
+    {
+      "file": "src/modules/unified-product/07-todo-people.js",
+      "module": "待办人员输入匹配"
+    },
+    {
+      "file": "src/modules/unified-product/07-todo-description.js"
+    },
+    {
+      "file": "src/modules/unified-product/07-todo-inline.js"
+    },
+    {
+      "file": "src/modules/unified-product/07-todo-dialog.js"
+    },
+    {
+      "file": "src/modules/unified-product/07-todo-view.js"
+    },
+    {
+      "file": "src/modules/unified-product/07-storage.js"
+    },
+    {
+      "file": "src/modules/drawers/05-period.js"
+    },
+    {
+      "file": "src/modules/unified-product/07-controller.js",
+      "module": "统一SPU产品详情"
+    },
+    {
+      "file": "src/modules/unified-product/08-targets.js",
+      "module": "统一SPU产品详情"
+    },
+    {
+      "file": "src/modules/unified-product/09-calendar.js",
+      "module": "统一SPU产品详情"
+    },
+    {
+      "file": "src/modules/unified-product/10-entries.js",
+      "module": "统一SPU产品详情"
+    },
+    {
+      "file": "src/modules/product-filters/00-net-estimate.js",
+      "module": "毛利减10pp净利测算"
+    },
+    {
+      "file": "src/modules/product-filters/00-categories.js",
+      "module": "产品类目与三合一属性组件"
+    },
+    {
+      "file": "src/modules/product-filters/00-multiselect.js",
+      "module": "品牌类目公共多选控件"
+    },
+    {
+      "file": "src/modules/product-filters/01-model.js",
+      "module": "统一产品属性筛选"
+    },
+    {
+      "file": "src/modules/risk-presentation/01-fields.js",
+      "module": "六榜字段与分层展示"
+    },
+    {
+      "file": "src/modules/risk-presentation/01-quality.js",
+      "module": "品质榜试版字段与卡片"
+    },
+    {
+      "file": "src/modules/risk-presentation/01-shop.js",
+      "module": "店铺期间指标与评分展示"
+    },
+    {
+      "file": "src/modules/risk-presentation/02-shop-card.js",
+      "module": "店铺身份与卡片视图"
+    },
+    {
+      "file": "src/modules/risk-presentation/01-loss.js",
+      "module": "亏损榜展示字段"
+    },
+    {
+      "file": "src/modules/risk-presentation/01-stock.js",
+      "module": "库存与呆滞榜展示"
+    },
+    {
+      "file": "src/modules/risk-presentation/02-stock-card.js",
+      "module": "库存与呆滞榜卡片"
+    },
+    {
+      "file": "src/modules/risk-presentation/01-return.js",
+      "module": "退货恶化榜字段与卡片"
+    },
+    {
+      "file": "src/modules/risk-presentation/02-loss-card.js",
+      "module": "亏损榜卡片"
+    },
+    {
+      "file": "src/modules/risk-presentation/02-platforms.js",
+      "module": "六榜首页平台联动"
+    },
+    {
+      "file": "src/modules/risk-presentation/02-platform-menu.js",
+      "module": "榜单平台图标下拉"
+    },
+    {
+      "file": "src/modules/risk-presentation/02-cards.js",
+      "module": "六榜字段与分层展示"
+    },
+    {
+      "file": "src/modules/risk-presentation/02-render.js",
+      "module": "六榜一次渲染与指标说明复用"
+    },
+    {
+      "file": "src/modules/risk-presentation/03-columns.js",
+      "module": "六榜字段与分层展示"
+    },
+    {
+      "file": "src/modules/risk-presentation/03-filters.js",
+      "module": "六榜业务筛选"
+    },
+    {
+      "file": "src/modules/risk-presentation/03-trends.js",
+      "module": "六榜近7日趋势"
+    },
+    {
+      "file": "src/modules/risk-presentation/03-trend-tooltip.js",
+      "module": "七日趋势即时悬浮提示"
+    },
+    {
+      "file": "src/modules/risk-presentation/03-sort.js",
+      "module": "榜单抽屉原始数值排序"
+    },
+    {
+      "file": "src/modules/risk-presentation/04-sticky-header.js",
+      "module": "六榜表头吸附与生命周期清理"
+    },
+    {
+      "file": "src/modules/risk-presentation/04-lists.js",
+      "module": "六榜字段与分层展示"
+    },
+    {
+      "file": "src/modules/risk-presentation/05-media.js",
+      "module": "六榜字段与分层展示"
+    },
+    {
+      "file": "src/modules/risk-presentation/06-details.js",
+      "module": "六榜字段与分层展示"
+    },
+    {
+      "file": "src/modules/ui-controls/02-search-layout.js",
+      "module": "全局搜索与筛选组件布局"
+    },
+    {
+      "file": "src/modules/product-filters/03-confirmed-risk.js",
+      "module": "已确认品质与库存规则"
+    },
+    {
+      "file": "src/modules/product-filters/04-display.js",
+      "module": "文档规范与销售达成"
+    },
+    {
+      "file": "src/modules/sales-review/00-samples.js",
+      "module": "销售经营样例数据"
+    },
+    {
+      "file": "src/modules/sales-review/01-model.js",
+      "module": "文档规范与销售达成"
+    },
+    {
+      "file": "src/modules/sales-review/02-trend.js",
+      "module": "文档规范与销售达成"
+    },
+    {
+      "file": "src/modules/sales-review/02-view.js",
+      "module": "文档规范与销售达成"
+    },
+    {
+      "file": "src/modules/sales-review/03-drawer.js",
+      "module": "文档规范与销售达成"
+    },
+    {
+      "file": "src/modules/shop-detail/01-operating.js",
+      "module": "店铺详情"
+    },
+    {
+      "file": "src/modules/shop-detail/01-diagnosis.js",
+      "module": "店铺详情"
+    },
+    {
+      "file": "src/modules/shop-detail/01-model.js",
+      "module": "店铺详情"
+    },
+    {
+      "file": "src/modules/shop-detail/01-ai-context.js",
+      "module": "店铺AI全量历史及近期对比上下文"
+    },
+    {
+      "file": "src/modules/shop-detail/02-views.js",
+      "module": "店铺详情"
+    },
+    {
+      "file": "src/modules/shop-detail/02-violations.js",
+      "module": "店铺详情"
+    },
+    {
+      "file": "src/modules/shop-detail/03-controller.js",
+      "module": "店铺详情"
+    },
+    {
+      "file": "src/modules/new-products/01-success.js",
+      "module": "新品销售成功率"
+    },
+    {
+      "file": "src/modules/new-products/01-model.js",
+      "module": "新品专项管控"
+    },
+    {
+      "file": "src/modules/new-products/02-launch-picker.js",
+      "module": "新品上线期间筛选"
+    },
+    {
+      "file": "src/modules/new-products/02-success-picker.js",
+      "module": "新品成功季度筛选"
+    },
+    {
+      "file": "src/modules/new-products/02-view.js",
+      "module": "新品专项管控"
+    },
+    {
+      "file": "src/modules/ui-controls/03-cell-tooltip.js",
+      "module": "表格截断原文悬浮展示"
+    },
+    {
+      "file": "src/modules/ui-controls/04-column-model.js",
+      "module": "全局表格列宽与本地偏好"
+    },
+    {
+      "file": "src/modules/ui-controls/05-column-resize.js",
+      "module": "全局表格拖拽调整列宽"
+    },
+    {
+      "file": "src/modules/project-panorama/00-samples.js",
+      "module": "项目风险演示台账"
+    },
+    {
+      "file": "src/modules/project-panorama/01-model.js",
+      "module": "项目红绿灯全景管控"
+    },
+    {
+      "file": "src/modules/project-panorama/02-overview.js",
+      "module": "项目红绿灯全景管控"
+    },
+    {
+      "file": "src/modules/project-panorama/03-table.js",
+      "module": "项目红绿灯全景管控"
+    },
+    {
+      "file": "src/modules/project-panorama/06-stage-cascader.js",
+      "module": "项目卡点阶段级联筛选"
+    },
+    {
+      "file": "src/modules/project-panorama/07-department-risks.js",
+      "module": "责任部门风险数分组"
+    },
+    {
+      "file": "src/modules/project-panorama/05-ledger-popover.js",
+      "module": "项目风险台账悬浮表格"
+    },
+    {
+      "file": "src/modules/project-panorama/04-controller.js",
+      "module": "项目红绿灯全景管控"
+    },
+    {
+      "file": "src/modules/startup/02-render.js",
+      "module": "统一首屏渲染"
+    }
+  ],
+  "styles": [
+    {
+      "file": "styles/01-rules.css",
+      "originalLines": [
+        1,
+        2
+      ]
+    },
+    {
+      "file": "styles/02-rules.css",
+      "originalLines": [
+        2,
+        17
+      ]
+    },
+    {
+      "file": "styles/03-rules.css",
+      "originalLines": [
+        17,
+        39
+      ]
+    },
+    {
+      "file": "styles/04-rules.css",
+      "originalLines": [
+        39,
+        50
+      ]
+    },
+    {
+      "file": "styles/05-rules.css",
+      "originalLines": [
+        50,
+        56
+      ]
+    },
+    {
+      "file": "styles/06-rules.css",
+      "originalLines": [
+        56,
+        68
+      ]
+    },
+    {
+      "file": "styles/07-rules.css",
+      "originalLines": [
+        68,
+        97
+      ]
+    },
+    {
+      "file": "styles/08-rules.css",
+      "originalLines": [
+        97,
+        124
+      ]
+    },
+    {
+      "file": "styles/09-rules.css",
+      "originalLines": [
+        124,
+        136
+      ]
+    },
+    {
+      "file": "styles/10-rules.css",
+      "originalLines": [
+        136,
+        156
+      ]
+    },
+    {
+      "file": "styles/11-rules.css",
+      "originalLines": [
+        156,
+        173
+      ]
+    },
+    {
+      "file": "styles/12-rules.css",
+      "originalLines": [
+        173,
+        194
+      ]
+    },
+    {
+      "file": "styles/13-rules.css",
+      "originalLines": [
+        194,
+        227
+      ]
+    },
+    {
+      "file": "styles/14-rules.css",
+      "originalLines": [
+        227,
+        239
+      ]
+    },
+    {
+      "file": "styles/15-rules.css",
+      "originalLines": [
+        239,
+        295
+      ]
+    },
+    {
+      "file": "styles/16-rules.css",
+      "originalLines": [
+        295,
+        320
+      ]
+    },
+    {
+      "file": "styles/17-rules.css",
+      "originalLines": [
+        320,
+        350
+      ]
+    },
+    {
+      "file": "styles/18-rules.css",
+      "originalLines": [
+        350,
+        377
+      ]
+    },
+    {
+      "file": "styles/19-header.css"
+    },
+    {
+      "file": "styles/20-presentation.css"
+    },
+    {
+      "file": "styles/21-navigation.css"
+    },
+    {
+      "file": "styles/22-controls.css"
+    },
+    {
+      "file": "styles/23-panels.css"
+    },
+    {
+      "file": "styles/24-filters.css"
+    },
+    {
+      "file": "styles/25-section-headers.css"
+    },
+    {
+      "file": "styles/26-risk-controls.css"
+    },
+    {
+      "file": "styles/27-drawers.css"
+    },
+    {
+      "file": "styles/28-risk-rows.css"
+    },
+    {
+      "file": "styles/29-ranking-tabs.css"
+    },
+    {
+      "file": "styles/30-list-pagination.css"
+    },
+    {
+      "file": "styles/31-drawer-layers.css"
+    },
+    {
+      "file": "styles/32-loss-performance.css"
+    },
+    {
+      "file": "styles/33-unified-product.css"
+    },
+    {
+      "file": "styles/34-risk-presentation.css"
+    },
+    {
+      "file": "styles/35-risk-reading.css"
+    },
+    {
+      "file": "styles/36-list-trends.css"
+    },
+    {
+      "file": "styles/37-product-filters.css"
+    },
+    {
+      "file": "styles/38-document-review.css",
+      "module": "文档规范与销售达成"
+    },
+    {
+      "file": "styles/39-multiselect.css"
+    },
+    {
+      "file": "styles/40-quality-preview.css"
+    },
+    {
+      "file": "styles/41-platform-menu.css"
+    },
+    {
+      "file": "styles/42-shop-preview.css"
+    },
+    {
+      "file": "styles/43-loss-preview.css"
+    },
+    {
+      "file": "styles/44-risk-card-alignment.css"
+    },
+    {
+      "file": "styles/45-stock-preview.css"
+    },
+    {
+      "file": "styles/46-product-todos.css"
+    },
+    {
+      "file": "styles/47-shop-detail.css"
+    },
+    {
+      "file": "styles/48-new-products.css"
+    },
+    {
+      "file": "styles/49-cell-tooltip.css"
+    },
+    {
+      "file": "styles/50-project-panorama.css",
+      "module": "项目红绿灯全景管控"
+    },
+    {
+      "file": "styles/51-column-resize.css",
+      "module": "全局表格列宽调整"
+    }
+  ],
+  "images": [
+    "assets/reference-images/image1.png",
+    "assets/reference-images/image2.png",
+    "assets/reference-images/image3.png",
+    "assets/reference-images/image4.png",
+    "assets/reference-images/image5.jpeg",
+    "assets/reference-images/image6.png",
+    "assets/reference-images/image7.png",
+    "assets/reference-images/image8.png",
+    "assets/reference-images/image9.jpeg",
+    "assets/reference-images/image10.jpeg",
+    "assets/reference-images/image11.png",
+    "assets/reference-images/image12.png",
+    "assets/reference-images/image13.png",
+    "assets/reference-images/image14.png",
+    "assets/reference-images/image15.png",
+    "assets/reference-images/image16.png",
+    "assets/reference-images/image17.png",
+    "assets/reference-images/image18.png",
+    "assets/reference-images/image19.png",
+    "assets/reference-images/image20.png",
+    "assets/reference-images/image21.png",
+    "assets/reference-images/image22.png",
+    "assets/reference-images/image23.png",
+    "assets/reference-images/image24.png",
+    "assets/reference-images/image25.png",
+    "assets/reference-images/image26.png",
+    "assets/reference-images/image27.png",
+    "assets/reference-images/image28.png",
+    "assets/reference-images/image29.png",
+    "assets/reference-images/image30.png",
+    "assets/reference-images/image31.png",
+    "assets/reference-images/image32.png",
+    "assets/reference-images/image33.png",
+    "assets/reference-images/image34.jpeg",
+    "assets/reference-images/image35.png",
+    "assets/reference-images/image36.png",
+    "assets/reference-images/image37.png",
+    "assets/reference-images/image38.png",
+    "assets/reference-images/image39.png",
+    "assets/reference-images/image40.png",
+    "assets/reference-images/image41.png",
+    "assets/reference-images/image42.jpeg",
+    "assets/reference-images/image43.png",
+    "assets/reference-images/image44.png",
+    "assets/reference-images/image45.png",
+    "assets/reference-images/image46.png",
+    "assets/reference-images/image47.png",
+    "assets/reference-images/image48.png",
+    "assets/reference-images/image49.png",
+    "assets/reference-images/image50.png",
+    "assets/reference-images/image51.png",
+    "assets/reference-images/image52.png",
+    "assets/reference-images/image53.jpeg",
+    "assets/reference-images/image54.png",
+    "assets/reference-images/image55.png",
+    "assets/reference-images/image56.jpeg",
+    "assets/reference-images/image57.png",
+    "assets/reference-images/image58.png",
+    "assets/reference-images/image59.jpeg",
+    "assets/reference-images/image60.png",
+    "assets/reference-images/image61.png",
+    "assets/reference-images/image62.jpeg",
+    "assets/reference-images/image63.png",
+    "assets/reference-images/image64.png",
+    "assets/reference-images/image65.png",
+    "assets/reference-images/image66.png",
+    "assets/reference-images/image67.png",
+    "assets/reference-images/image68.png",
+    "assets/reference-images/image69.png",
+    "assets/reference-images/image70.png",
+    "assets/reference-images/image71.png",
+    "assets/reference-images/image72.png",
+    "assets/reference-images/image73.png",
+    "assets/reference-images/image74.png",
+    "assets/reference-images/image75.png",
+    "assets/reference-images/image76.png",
+    "assets/reference-images/image77.jpeg",
+    "assets/reference-images/image78.png",
+    "assets/reference-images/image79.png",
+    "assets/reference-images/image80.png",
+    "assets/reference-images/image81.png",
+    "assets/reference-images/image82.png",
+    "assets/reference-images/image83.png",
+    "assets/reference-images/image84.png",
+    "assets/reference-images/image85.png",
+    "assets/reference-images/image86.png",
+    "assets/reference-images/image87.jpeg",
+    "assets/reference-images/image88.png",
+    "assets/reference-images/image89.png",
+    "assets/reference-images/image90.png",
+    "assets/reference-images/image91.png",
+    "assets/reference-images/image92.png",
+    "assets/reference-images/image93.png",
+    "assets/reference-images/image94.png",
+    "assets/reference-images/image95.png",
+    "assets/reference-images/image96.png",
+    "assets/reference-images/image97.png",
+    "assets/reference-images/image98.png",
+    "assets/reference-images/image99.png",
+    "assets/reference-images/image100.png",
+    "assets/reference-images/image101.png",
+    "assets/reference-images/image102.png",
+    "assets/reference-images/image103.png",
+    "assets/reference-images/image104.png",
+    "assets/reference-images/image105.png",
+    "assets/reference-images/image106.png",
+    "assets/reference-images/image107.png",
+    "assets/reference-images/image108.png",
+    "assets/reference-images/image109.png",
+    "assets/reference-images/image110.png",
+    "assets/reference-images/image111.png",
+    "assets/reference-images/image112.png",
+    "assets/reference-images/image113.png",
+    "assets/reference-images/image114.png",
+    "assets/reference-images/image115.png",
+    "assets/reference-images/image116.png",
+    "assets/reference-images/image117.png",
+    "assets/reference-images/image118.png",
+    "assets/reference-images/image119.png",
+    "assets/reference-images/image120.png",
+    "assets/reference-images/image121.png",
+    "assets/reference-images/image122.png",
+    "assets/reference-images/image123.png",
+    "assets/reference-images/image124.png",
+    "assets/reference-images/image125.png",
+    "assets/reference-images/image126.png",
+    "assets/reference-images/image127.png",
+    "assets/spu-images/spu-01.png",
+    "assets/spu-images/spu-02.png",
+    "assets/spu-images/spu-03.png",
+    "assets/spu-images/spu-04.png",
+    "assets/spu-images/spu-05.png",
+    "assets/spu-images/spu-06.png",
+    "assets/spu-images/spu-07.png",
+    "assets/spu-images/spu-09.png",
+    "assets/spu-images/spu-10.png",
+    "assets/spu-images/spu-11.png",
+    "assets/spu-images/spu-12.png",
+    "assets/spu-images/spu-13.png",
+    "assets/spu-images/spu-14.png",
+    "assets/spu-images/spu-15.png",
+    "assets/spu-images/spu-16.png",
+    "assets/spu-images/spu-17.png",
+    "assets/spu-images/spu-20.png",
+    "assets/spu-images/spu-23.png",
+    "assets/spu-images/spu-24.png",
+    "assets/spu-images/spu-25.png",
+    "assets/spu-images/spu-26.png",
+    "assets/spu-images/spu-27.png",
+    "assets/spu-images/spu-28.png",
+    "assets/spu-images/spu-32.png",
+    "assets/spu-images/spu-33.png",
+    "assets/spu-images/spu-34.png",
+    "assets/spu-images/spu-35.png",
+    "assets/spu-images/spu-36.png",
+    "assets/spu-images/spu-37.png",
+    "assets/spu-images/spu-38.png",
+    "assets/spu-images/spu-39.png",
+    "assets/spu-images/spu-40.png",
+    "assets/spu-images/spu-42.png",
+    "assets/spu-images/spu-43.png",
+    "assets/spu-images/spu-46.png",
+    "assets/spu-images/spu-47.png",
+    "assets/spu-images/spu-48.png",
+    "assets/spu-images/spu-49.png",
+    "assets/spu-images/spu-50.png",
+    "assets/platform-logos/douyin.png",
+    "assets/platform-logos/kuaishou.png",
+    "assets/platform-logos/channels.png",
+    "assets/platform-logos/tmall.png",
+    "assets/platform-logos/jd.png",
+    "assets/platform-logos/pinduoduo.png",
+    "assets/risk-decorations/quality.svg",
+    "assets/risk-decorations/shop.svg",
+    "assets/risk-decorations/loss.svg",
+    "assets/risk-decorations/inventory.svg",
+    "assets/risk-decorations/stagnant.svg",
+    "assets/risk-decorations/return.svg",
+    "assets/risk-decorations/global-warning.svg"
+  ],
+  "originalSha256": "ee64a8161727a016eb644c668739fcaf853751fa7756e004029e0dee79361004"
+}

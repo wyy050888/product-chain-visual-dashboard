@@ -1,0 +1,69 @@
+/* 删除展示层冗余文案，同时保留脚本需要的节点及必要日期、金额和状态。 */
+.presentation-suppressed { display: none !important; }
+#rules, #timerules, #dp-rules, #pb-rules, [data-rules] { display: none !important; }
+.lifehead { justify-content: flex-end; }
+.metric-help {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  margin-left: 5px;
+  vertical-align: 1px;
+  flex: 0 0 14px;
+  border: 1px solid #a7b7cf;
+  border-radius: 50%;
+  color: #8395ae;
+  background: #fff;
+  font-size: 10px;
+  line-height: 1;
+  font-weight: 500;
+  cursor: help;
+}
+.metric-help::before { content: '?'; }
+.metric-help:hover, .metric-help:focus-visible { color: #1966ff; border-color: #1966ff; outline: 2px solid #dbe8ff; outline-offset: 2px; }
+.metric-tooltip {
+  position: fixed;
+  z-index: 1000;
+  width: max-content;
+  max-width: min(320px, calc(100vw - 16px));
+  padding: 11px 13px;
+  border: 1px solid #dde6f2;
+  border-radius: 6px;
+  color: #34425b;
+  background: #fff;
+  box-shadow: 0 5px 20px #263e6826;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.65;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.metric-tooltip[hidden] { display: none !important; }
+.sectionhead .titlegroup { gap: 8px; }
+.ai-detail-heading:has(h3.presentation-suppressed) { min-height: 0; }
+.period-note { min-height: 0; }
+
+/* 六榜标题提示：分组标题、条件列表与排序步骤。 */
+.metric-tooltip.metric-tooltip-card {
+  box-sizing: border-box;
+  width: 460px;
+  padding: 16px 18px;
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.75;
+  max-width: calc(100vw - 16px);
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  white-space: normal;
+}
+.rhead h3 > .card-metric-help { margin-left: 7px; vertical-align: 2px; }
+
+.metric-tooltip-card .metric-rule-section+ .metric-rule-section {margin-top:14px;padding-top:14px;border-top:1px solid #e8eef6}
+.metric-tooltip-card .metric-rule-section h4 {display:flex;align-items:center;gap:7px;margin:0 0 8px;font-size:14px;font-weight:600;line-height:22px;color:#203650}
+.metric-tooltip-card .metric-rule-section h4::before {content:"";width:3px;height:13px;border-radius:2px;background:#1677ff;flex:none}
+.metric-tooltip-card .metric-rule-section p {margin:0 0 8px;padding:7px 10px;border-radius:5px;background:#f5f8fc;color:#677a93;font-size:12px}
+.metric-tooltip-card .metric-rule-section :is(ul,ol) {margin:0;padding-left:20px}
+.metric-tooltip-card .metric-rule-section li {padding-left:3px;margin:0 0 7px}
+.metric-tooltip-card .metric-rule-section li:last-child {margin-bottom:0}
+.metric-tooltip-card .metric-rule-section li::marker {color:#6988b4;font-weight:600}

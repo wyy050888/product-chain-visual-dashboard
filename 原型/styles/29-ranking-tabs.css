@@ -1,0 +1,7 @@
+/* 完整榜单的六个切换标签，详情抽屉沿用原有样式。 */
+#dialog.risk-ranking-drawer .drawer-tabs { gap:24px; background:#fafcff; }
+#dialog.risk-ranking-drawer .drawer-tabs button { font-size:13px; }
+#dialog.risk-ranking-drawer .drawer-tabs button.selected { font-weight:600; }
+@media(max-width:700px) {
+ #dialog.risk-ranking-drawer .drawer-tabs { gap:20px; }
+}

@@ -1,0 +1,63 @@
+
+
+// Project detail, task schedule, risk ledger and assignment share one snapshot.
+const projectDispatchKey='product-chain-project-dispatch-reference-20261010';
+let projectDispatches={};try{const saved=JSON.parse(localStorage.getItem(projectDispatchKey)||'{}');if(saved&&typeof saved==='object'&&!Array.isArray(saved))projectDispatches=saved}catch(_){}
+function projectControlModel(p){
+ const issue=projectIssueRecord(p),cutoff=bounds().cutoff,red=p.status==='红灯',yellow=p.status==='黄灯',green=p.status==='绿灯';
+ const mapping={'产品部':[0,6],'采购部':[0,5],'研发部':[1,0],'品质部':[1,0],'项目部':[2,0]},[riskStage,riskTask]=p.controlNode||mapping[p.dept],currentStage=green?2:riskStage,currentTask=green?1:riskTask;
+ const phaseNames=aiFlowStages.map(s=>s.name),root=phaseNames[currentStage]+' / '+aiFlowStages[currentStage].tasks[currentTask];
+ let conclusion=red?`计划上线 ${p.plan}，截至 ${cutoff} 仍未上线，已延期 ${p.delay} 天；「${root}」未完成，关键交付条件未满足。`:yellow?issue.review?`原问题已完成整改，但闭环验证尚未通过；「${root}」仍未满足放行条件，保留黄灯跟进。`:`尚未超过计划上线日期 ${p.plan}，但「${root}」存在未解除的依赖风险，可能影响后续节点。`:`当前无逾期未完成的关键任务，未发现阻塞风险；项目按计划推进，计划上线 ${p.plan}。`;
+ if(p.reference)conclusion='源表状态：'+p.status+'；当前阶段：'+p.stage+'。'+(p.report?p.report.replace(/\s+/g,' ').slice(0,100)+(p.report.length>100?'…':''):'项目日报待补录。');
+ const stageData=aiFlowStages.map((phase,si)=>{
+  const tasks=phase.tasks.map((name,ti)=>{
+   const target=si===currentStage&&ti===currentTask,done=si<currentStage||(si===currentStage&&ti<currentTask),later=si>currentStage||(si===currentStage&&ti>currentTask);
+   const end=done?shiftDate(cutoff,-28+si*8+ti):target?(red?shiftDate(p.plan,-3):yellow?issue.due:shiftDate(cutoff,4)):si===currentStage?shiftDate(red?p.plan:cutoff,6+(ti-currentTask)*2):shiftDate(red?p.plan:cutoff,10+(si-currentStage)*10+ti*2);
+   const duration=(si===0&&ti===4)?15:target?10:3,start=shiftDate(end,1-duration),actual=done?end:'',delay=done?0:Math.max(0,aiFlowDayDiff(end,cutoff));
+   const light=done||green?'绿灯':delay?'红灯':'黄灯';
+   const dept=target?p.dept:si===0?['采购部','产品部','品质部','产品部','品质部','采购部','产品部'][ti]:si===1?['品质部','采购部','产品部','品质部','产品部'][ti]:si===2?['采购部','品质部'][ti]:'品质部';
+   const taskOwner=target?p.owner:({'采购部':'唐琪','产品部':issue.chainOwner,'品质部':'刘畅','研发部':'王磊','项目部':'沈舟'}[dept]);
+   return{id:si+'-'+ti,name,stage:phase.name,si,ti,target,done,later,start,end,duration,actual,delay,light,dept,owner:taskOwner,state:done?'已完成':target?(green?'进行中':issue.review?'待闭环验证':'未完成'):green?'待启动':'待前置完成',problem:done?'无遗留问题':green?'当前无异常':target?(issue.review?'整改材料已提交，尚缺独立验证通过记录。':issue.description):`受「${root}」影响，前置交付条件尚未确认。`,action:done?'已确认交付结果':green?'按计划提交交付物并完成节点验收。':target?issue.review?'安排验证责任人复核整改材料，通过后再确认放行。':issue.t.action:'并行完成可先行的准备工作，前置条件确认后更新执行计划。'};
+  });
+  const light=tasks.some(t=>t.light==='红灯')?'红灯':tasks.some(t=>t.light==='黄灯')?'黄灯':'绿灯';
+  const start=tasks.map(t=>t.start).sort()[0],end=tasks.map(t=>t.end).sort().at(-1),done=tasks.filter(t=>t.done).length;
+  return{name:phase.name,tasks,light,start,end,done,total:tasks.length,delay:Math.max(0,...tasks.map(t=>t.delay)),actual:done===tasks.length?tasks.map(t=>t.actual).sort().at(-1):'',duration:aiFlowDayDiff(start,end)+1};
+ });
+ return{p,issue,cutoff,red,yellow,green,currentStage,currentTask,root,conclusion,stageData,key:periodKey()+'|'+cutoff+'|'+(p.reference?p.sourceKey:p.model),period:periodLabel(),tab:'risk',stage:currentStage,taskStatus:'all',taskLight:'all'};
+}
+function projectControlPlan(m){return m.green?`1. 按原计划推进「${m.root}」，每日确认任务进度与交付物。\n2. 项目负责人跟踪关键物料、验证和资源到位情况，有新增异常及时登记。\n3. 节点完成后上传验收证据，更新实际完成日期；维持现有风险等级直至复核。`:`1. 核实卡点：${m.issue.description}\n2. 纠正措施：${m.issue.review?'安排独立验证，补齐验证结论。':m.issue.t.action}\n3. 交付要求：${m.issue.t.proof}。\n4. 项目部复核证据并协调下游排期；验证通过后更新任务实际完成日期和风险台账。`}
+function projectControlRisk(m){
+ const r=m.issue,p=m.p,fields=projectIssueFields(r).map(([label,value])=>[label,label==='项目任务'?(r.hasIssue?aiFlowStages[{'产品部':0,'采购部':0,'研发部':1,'品质部':1,'项目部':2}[p.dept]].name+' / '+r.t.task:m.root):label==='问题描述'&&r.review?'整改已提交，尚未完成闭环验证；原问题：'+r.description:value]);
+ return `<div class="pc-ledger-head"><h3>风险台账 <span class="tag ${m.green?'green':m.red?'red':'orange'}">${m.green?r.closed?'历史问题已闭环':'无待整改风险':r.state}</span></h3><span>问题编号 ${r.hasIssue?'ISS-'+p.model:'—'}</span></div>${r.closed?'<p class="pc-history-note">以下为已闭环历史问题；当前项目为绿灯，后续任务按计划推进。</p>':''}<dl class="pc-risk-grid">${fields.map(([label,value])=>`<div class="${['项目任务','问题描述'].includes(label)?'pc-wide':''}"><dt>${label}</dt><dd class="${label==='红黄绿灯状态'?(m.red?'red':m.yellow?'orange':'green'):''}">${esc(value)}</dd></div>`).join('')}</dl><div class="pc-verification"><strong>闭环验证要求</strong><p>${r.hasIssue?esc(r.t.proof)+'齐全，由 '+esc(r.t.validator)+' 复核并记录结论。':'当前无需整改验证，按原计划完成节点验收。'}</p><small>${r.closed?'验收记录 YS-'+p.model+' · '+r.verified+'（演示记录）':r.review?'整改材料已提交，独立验证结论待补充。':r.active?'仅完成指派不代表风险已解除，需依据实际整改与验证结果更新。':'未发现待闭环异常。'}</small></div>`;
+}
+function projectControlTasks(m){
+ const stage=m.stageData[m.stage],list=stage.tasks.filter(t=>(m.taskStatus==='all'||!t.done)&&(m.taskLight==='all'||t.light===m.taskLight));
+ const headers=['序号','任务名称','任务状态','负责人 / 部门','计划开始','计划结束','计划工期','实际结束','工期偏差','问题描述','纠正措施','操作'];
+ return `<div class="pc-task-filters"><label>任务状态<select id="pc-task-status"><option value="all">全部</option><option value="open" ${m.taskStatus==='open'?'selected':''}>未完成</option></select></label><label>任务红绿灯<select id="pc-task-light">${['all','红灯','黄灯','绿灯'].map(v=>`<option value="${v}" ${v===m.taskLight?'selected':''}>${v==='all'?'全部':v}</option>`).join('')}</select></label><span>点击上方阶段切换任务</span></div><div class="af-panel-heading"><div><h3>${stage.name} ${traffic(stage.light)}</h3><p>计划 ${stage.start} — ${stage.end} · 工期 ${stage.duration} 天 · 实际结束 ${stage.actual||'—（未完成）'}</p></div><span>总任务 ${stage.total} · 已完成 ${stage.done} · 当前展示 ${list.length}</span></div><div class="pc-task-scroll"><table><thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${list.length?list.map(t=>`<tr class="${t.target&&!m.green?'pc-task-highlight':''}">${[t.ti+1,`<strong>${t.name}</strong>${traffic(t.light)}`,t.state,esc(t.owner)+'<small>'+esc(t.dept)+'</small>',t.start,t.end,t.duration+' 天',t.actual||'—',t.delay?`<strong class="red">延期 ${t.delay} 天</strong>`:t.done?'<span class="green">按期完成</span>':'未到期',esc(t.problem),esc(t.action),`<button class="link" data-pc-task="${t.id}">${t.done?'安排复核':'指派跟进'}</button>`].map(v=>`<td>${v}</td>`).join('')}</tr>`).join(''):'<tr><td colspan="12" class="empty">该阶段暂无符合条件的任务。</td></tr>'}</tbody></table></div>`;
+}
+function projectDispatchNotice(m,v){return `【项目${m.green?'跟进':'风险处理'}】${m.p.name} ${m.p.model}\n项目状态：${m.p.status}\n来源周期：${m.period} · 数据截至 ${m.cutoff}\n阶段 / 任务：${v.target}\n指派人员：${v.assignee}\n通知相关人员：${v.recipients.join('、')}\n预计完成日期：${v.due||'待填写'}\n处理方案：\n${v.plan}\n请反馈执行结果与验收证据。`}
+function projectControlAssign(m){
+ const target=m.assignTarget||m.currentStage+'-'+m.currentTask,selected=m.stageData.flatMap(s=>s.tasks).find(t=>t.id===target),saved=projectDispatches[m.key+'|'+target];
+ const suggested=selected.target?projectControlPlan(m):`1. 跟进任务：${selected.stage} / ${selected.name}。\n2. 当前情况：${selected.problem}。\n3. 建议行动：${selected.action}\n4. 由 ${selected.dept} 提交交付与验收记录，项目负责人复核后更新任务进度。`;
+ return `<div class="pc-ledger-head"><h3>${m.green?'安排项目跟进':'指派处理与通知'}</h3><span>${saved?'已保存本地任务 · '+esc(saved.id):'尚未创建处理任务'}</span></div><form id="pc-dispatch-form"><div class="ai-form-grid"><label class="ai-field ai-field-wide">阶段 / 项目任务<select id="pc-dispatch-target">${m.stageData.map(s=>`<optgroup label="${s.name}">${s.tasks.map(t=>`<option value="${t.id}" ${t.id===target?'selected':''}>${s.name} / ${t.name}${projectDispatches[m.key+'|'+t.id]?' · 已指派':''}</option>`).join('')}</optgroup>`).join('')}</select></label><label class="ai-field">指派人员 <span class="red">*</span><select id="pc-assignee" required><option value="">请选择人员</option>${people.map(name=>`<option ${name===(saved?.assignee||selected.owner)?'selected':''}>${esc(name)}</option>`).join('')}</select></label><label class="ai-field">预计完成日期 <span class="red">*</span><input id="pc-due" type="date" required min="${aiToday()}" value="${esc(saved?.due||'')}"></label><label class="ai-field ai-field-wide">处理方案 / 跟进要求 <span class="red">*</span><textarea id="pc-plan" rows="6" maxlength="3000" required>${esc(saved?.plan||suggested)}</textarea><small>可编辑 AI 建议，保存后同步用于任务及通知内容。</small></label></div><fieldset class="risk-collaborators"><legend>通知相关人员（负责人自动包含）</legend>${people.map(name=>`<label><input type="checkbox" name="pc-recipient" value="${name}" ${(saved?.collaborators||[m.issue.chainOwner]).includes(name)?'checked':''}>${name}</label>`).join('')}</fieldset><div class="risk-ding"><label><input id="pc-notify" type="checkbox" ${saved?.notify===false?'':'checked'}> 钉钉通知负责人及相关人员</label><p class="note">保存后生成通知待发记录；当前页面尚未接入钉钉，消息不会实际发送。</p><details open><summary>通知内容预览</summary><pre id="pc-notice-preview"></pre></details></div><p id="pc-dispatch-error" class="red" role="alert"></p><div id="pc-dispatch-feedback" role="status">${saved?`<div class="risk-task-receipt">已指派：${esc(saved.assignee)} · 预计完成 ${esc(saved.due)}<br>${saved.notify?'钉钉通知待发送，尚未实际发送。':'未开启钉钉通知。'}</div>`:''}</div><button class="btn primary" type="submit" id="pc-dispatch-save">保存任务并加入通知待发</button></form>`;
+}
+function bindProjectDispatch(m){
+ const form=$('#pc-dispatch-form');if(!form)return;
+ const read=()=>{const targetId=$('#pc-dispatch-target').value,t=m.stageData.flatMap(s=>s.tasks).find(t=>t.id===targetId),assignee=$('#pc-assignee').value,collaborators=$$('input[name="pc-recipient"]:checked').map(i=>i.value).filter(n=>n!==assignee);return{targetId,target:t.stage+' / '+t.name,assignee,due:$('#pc-due').value,plan:$('#pc-plan').value.trim(),collaborators,recipients:[...new Set([assignee,...collaborators].filter(Boolean))],notify:$('#pc-notify').checked}};
+ const preview=()=>{const v=read();$('#pc-notice-preview').textContent=projectDispatchNotice(m,v);$('#pc-dispatch-save').textContent=v.notify?'保存任务并加入通知待发':'保存本地任务'};
+ form.addEventListener('input',preview);form.addEventListener('change',preview);preview();
+ $('#pc-dispatch-target').onchange=e=>{m.assignTarget=e.target.value;renderProjectControlPanel(m)};
+ form.onsubmit=e=>{e.preventDefault();if(!form.reportValidity())return;const v=read();if(!people.includes(v.assignee)||v.due<aiToday()||!v.plan){$('#pc-dispatch-error').textContent='请填写有效的负责人、预计完成日期和处理方案。';return}
+ const saveKey=m.key+'|'+v.targetId,prev=projectDispatches[saveKey],task={...v,id:prev?.id||'PRJ-'+Date.now().toString(36).toUpperCase(),model:m.p.model,period:m.period,cutoff:m.cutoff,status:'local_pending',notificationStatus:v.notify?'pending_integration':'not_requested',notice:projectDispatchNotice(m,v),updatedAt:new Date().toISOString()},updated={...projectDispatches,[saveKey]:task};
+ try{localStorage.setItem(projectDispatchKey,JSON.stringify(updated))}catch(_){$('#pc-dispatch-error').textContent='本地保存失败，任务及通知未保存，请检查浏览器存储权限。';return}
+ projectDispatches=updated;$('#pc-dispatch-error').textContent='';$('#pc-dispatch-feedback').innerHTML=`<div class="risk-task-receipt">已保存任务 ${esc(task.id)}，指派给 ${esc(v.assignee)}，预计 ${esc(v.due)} 完成。<br>${v.notify?'钉钉通知已加入本地待发，尚未实际发送。':'未开启钉钉通知。'} 项目灯色仍以整改与验证结果为准。</div>`;
+ };
+}
+function renderProjectControlPanel(m){
+ $$('#pc-tabs [data-pc-tab]').forEach(b=>{b.classList.toggle('active',b.dataset.pcTab===m.tab);b.setAttribute('aria-selected',String(b.dataset.pcTab===m.tab))});
+ $('#pc-panel').innerHTML=m.tab==='risk'?projectControlRisk(m):m.tab==='tasks'?projectControlTasks(m):m.tab==='dispatch'?projectControlAssign(m):`<div class="pc-daily"><h3>项目日报 · ${m.cutoff}</h3><p class="note">跟进人：${esc(m.p.owner)} · ${esc(m.p.dept)} · 演示记录</p><dl><dt>当前进展</dt><dd>${esc(m.conclusion)}</dd><dt>问题与依赖</dt><dd>${esc(m.green?'当前暂无新增异常，持续关注节点交付。':m.issue.review?'整改已提交，待独立验证通过。':m.issue.description)}</dd><dt>下一步工作</dt><dd>${esc(m.green?'按原排期交付并完成节点验收。':m.issue.t.action)}</dd><dt>需要协调</dt><dd>${esc(m.green?'当前无需升级协调，按计划确认资源到位情况。':'链主协调'+m.p.dept+'与上下游部门，确认资源、交付日期和验收责任。')}</dd></dl></div>`;
+ if(m.p.reference&&m.tab==='daily')$('#pc-panel').innerHTML=`<div class="pc-daily"><h3>项目日报</h3><p class="note">${esc(m.p.owner)} · ${m.p.sourceKey}</p><p style="white-space:pre-wrap">${esc(m.p.report||'项目日报待补录')}</p></div>`;
+ $('#pc-panel').setAttribute('aria-labelledby','pc-tab-'+m.tab);
+ if(m.tab==='tasks'){for(const [id,key] of [['pc-task-status','taskStatus'],['pc-task-light','taskLight']])$('#'+id).onchange=e=>{m[key]=e.target.value;renderProjectControlPanel(m)}}
+ if(m.tab==='dispatch')bindProjectDispatch(m);
+}

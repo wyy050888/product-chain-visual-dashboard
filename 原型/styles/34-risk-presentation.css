@@ -1,0 +1,110 @@
+/* 六榜直接读TOP6：共用主指标列头，条目只用分隔线，辅助指标保持可见。 */
+#riskrail {align-items:stretch;gap:16px}
+#riskrail .riskcard {padding:14px 16px;min-height:0;background:#fff}
+#riskrail .rhead {min-height:32px;gap:10px}
+#riskrail .rhead h3 {font-size:16px;white-space:nowrap}
+#riskrail .risk-card-subtitle {margin:4px 0 8px;color:#7b8aa0;font-size:12px}
+#riskrail .rp-card-columns {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding:7px 10px;background:#f1f5fa;color:#617188;font-size:12px;line-height:18px;border-radius:4px}
+#riskrail .rp-entry {margin:0;padding:10px 10px 9px;border:0;border-bottom:1px solid #e7edf4;border-radius:0;background:transparent;box-shadow:none}
+#riskrail .rp-entry:last-child {border-bottom:0}
+#riskrail .rp-entry:hover {background:#f6f9ff}
+#riskrail .rp-entry>header {display:flex;align-items:center;gap:8px;min-height:40px}
+#riskrail .rp-entry>header>.rank {flex:0 0 20px;font-size:13px}
+.rp-identity {display:flex;align-items:center;gap:8px;min-width:0}
+.rp-identity>.risk-thumb {flex:none;width:36px;height:36px;border-radius:5px;object-fit:contain;border:1px solid #e8edf5;background:#fff}
+.rp-identity>div {min-width:0}
+.rp-identity b {display:block;line-height:20px;color:#203652;font-weight:500;font-size:14px;overflow-wrap:anywhere}
+.rp-identity small {display:block;color:#7f8da0;font-size:12px;line-height:17px;margin-top:0;overflow-wrap:anywhere}
+#riskrail .rp-entry-context {display:flex;flex-direction:column;align-items:flex-end;justify-content:center;flex:none;gap:2px;margin:0;font-size:12px}
+#riskrail .rp-entry-context>.link {margin-left:auto;font-size:12px;white-space:nowrap;padding:0;min-height:0;line-height:18px}
+.rp-risk {display:inline-flex;align-items:center;border-radius:4px;padding:1px 5px;font-size:12px;background:#fff1f3;color:#d24b63;white-space:nowrap}
+.rp-risk.orange {background:var(--orange-soft);color:var(--orange)}
+#riskrail .rp-key-metrics {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:6px;padding:0;min-height:0;border:0}
+#riskrail .rp-item {min-width:0}
+#riskrail .rp-key-metrics .rp-item {display:flex;align-items:baseline;flex-wrap:wrap;gap:0 6px}
+#riskrail .rp-key-metrics em {display:inline;line-height:22px}
+.rp-value {display:block;font-size:14px;line-height:22px;font-weight:500;font-variant-numeric:tabular-nums;color:#273e5a;overflow-wrap:anywhere}
+.rp-value.red {color:#e9516b}.rp-value.green {color:#00a486}.rp-value.orange {color:var(--orange)}
+.rp-item em,.rp-list-value em {display:block;font-size:12px;color:#8290a4;font-style:normal;line-height:18px;margin:0}
+#riskrail .rp-visually-hidden {position:absolute;width:1px;height:1px;clip-path:inset(50%);overflow:hidden;white-space:nowrap}
+#riskrail .rp-support-metrics {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px 12px;margin-top:4px}
+#riskrail .rp-support-metrics .rp-item {display:flex;align-items:baseline;flex-wrap:wrap;gap:0 6px;line-height:22px}
+#riskrail .rp-support-metrics small {font-size:12px;color:#75859b;line-height:22px}
+#riskrail .rp-support-metrics .rp-value {display:inline;font-size:14px;line-height:22px}
+#riskrail .rp-support-metrics em {font-size:12px;line-height:22px}
+#riskrail .rp-support-metrics [data-rp-field="causes"] {flex-wrap:nowrap;grid-column:1 / -1}
+#riskrail .rp-support-metrics [data-rp-field="causes"] small {flex:none}
+#riskrail .rp-support-metrics [data-rp-field="causes"] .rp-value {overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.rp-preview-image {cursor:zoom-in}.rp-preview-image:focus-visible {outline:2px solid #1677ff;outline-offset:2px}
+/* 列表先读核心字段，完整字段保留全部规划字段。 */
+#dialogbody .rp-list-tools {display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+#dialogbody .rp-list-tools>label:not(.unified-input-group) {display:flex;align-items:center;gap:8px;color:#8290a6;font-size:12px}
+#dialogbody .rp-platform-tools {display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+#dialogbody .rp-platform-tools :is(#qrb-list-config,#rp-shop-type-config) {margin-left:auto}
+#dialogbody .rp-list-tools>label:not(.unified-input-group) :is(select,input) {font-size:12px;height:32px;min-height:32px}
+#dialogbody .rp-list-tools [data-rp-reset] {margin-left:auto;white-space:nowrap;font-size:12px}
+.rp-group-context {color:#8c99ae;font-size:12px;margin:12px 0}
+#dialogbody :is(#qr-list-table,#rf-list-table).rp-list-table {overflow:auto;max-width:100%;position:relative;border-block:1px solid #e8edf5;border-inline:0;border-radius:6px}
+#dialogbody :is(#qr-list-table,#rf-list-table).rp-list-table table {table-layout:auto!important;min-width:100%!important;max-width:none!important;border-collapse:separate;border-spacing:0;width:100%;font-size:12px}
+#dialogbody :is(#qr-list-table,#rf-list-table).rp-list-table :is(th,td) {width:auto;min-width:115px!important;padding:12px;line-height:1.65;border-bottom:1px solid #eef2f7;vertical-align:middle;text-align:left;box-sizing:border-box}
+#dialogbody :is(#qr-list-table,#rf-list-table).rp-list-table th {background:#f5f8fc;white-space:nowrap;color:#8190a6;font-weight:500}
+#dialogbody :is(#qr-list-table,#rf-list-table).rp-list-table td {background:white}
+#dialogbody :is(#qr-list-table,#rf-list-table).rp-list-table tr:hover td {background:#f9fbff}
+#dialogbody :is(#qr-list-table,#rf-list-table).rp-list-table :is(th,td):first-child {min-width:48px!important;width:48px;position:sticky;left:0;z-index:1}
+#dialogbody :is(#qr-list-table,#rf-list-table).rp-list-table :is(th,td):nth-child(2) {min-width:255px!important;width:255px;position:sticky;left:48px;z-index:1;border-right:1px solid #edf1f7}
+#dialogbody :is(#qr-list-table,#rf-list-table).rp-list-table :is(th,td):last-child {min-width:95px!important;position:sticky;right:0;z-index:1;border-left:1px solid #edf1f7}
+#dialogbody :is(#qr-list-table,#rf-list-table).rp-list-table td:has(.rp-list-risks) {min-width:230px;max-width:320px}
+#dialogbody .rp-list-value .rp-value {font-size:13px;font-weight:500;white-space:nowrap}
+#dialogbody .rp-list-risks {display:flex;align-items:flex-start;gap:7px;font-size:11px;color:#8b6670;max-width:280px}
+#dialogbody :is(#qr-list-table,#rf-list-table).rp-list-table .rp-identity {max-width:260px}
+#dialogbody :is(#qr-list-table,#rf-list-table).rp-list-table .rp-identity small {font-size:11px}
+/* 榜单与分组明细共用大缩略图，保持完整比例，平台标识独立。 */
+#dialogbody .rp-list-table .rp-identity>.risk-thumb {width:48px;height:48px;flex:none;object-fit:contain}
+/* 详情紧凑分区；大数字只保留适度字号，减少空白与视觉权重竞争。 */
+#dialogbody .up-hero {padding:14px;margin-bottom:14px;gap:12px}
+#dialogbody .up-hero h2 {font-size:17px;margin-bottom:8px}
+#dialogbody .up-toolbar {margin-bottom:14px}
+#dialogbody .up-metrics {grid-template-columns:repeat(4,minmax(0,1fr));gap:0;margin-bottom:16px;border:1px solid #e5ebf3;border-radius:6px;overflow:hidden;background:#fff}
+#dialogbody .up-metric {padding:11px 13px;border:0;border-right:1px solid #edf1f6;border-bottom:1px solid #edf1f6;border-radius:0;background:#fff;min-height:68px}
+#dialogbody .up-metric small {font-size:11px;line-height:18px}
+#dialogbody .up-metric strong {font-size:14px;line-height:22px;margin-top:3px;font-weight:500}
+#dialogbody .up-detail h3 {margin:18px 0 10px;font-size:13px}
+#dialogbody .up-charts {margin-bottom:16px;gap:12px}
+#dialogbody .up-chart {padding:12px}
+#dialogbody .up-chart svg {max-height:190px}
+#dialogbody .rp-compact-metrics {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+#dialogbody .rp-compact-metrics>div {padding:11px 13px;min-height:70px}
+#dialogbody .rp-compact-metrics strong {font-size:14px;line-height:22px;margin:3px 0 0;font-weight:500}
+#dialogbody .rp-compact-metrics>div>span {display:none}
+#dialogbody .rp-stock-age {color:#8290a6;font-size:12px;margin:12px 0}
+#dialogbody .rp-stock-age summary {cursor:pointer;color:#1677ff}
+/* 图片直接呈现在蒙版上；仅保留关闭入口，不展示弹窗头尾或说明。 */
+#product-image-viewer {position:fixed;inset:0;margin:0;padding:0;width:100vw;height:100dvh;max-width:none;max-height:none;background:transparent;border:0;border-radius:0;box-shadow:none;overflow:hidden;color:#fff}
+#product-image-viewer[open] {display:flex;align-items:center;justify-content:center}
+#product-image-viewer::backdrop {background:#111827bf}
+#product-image-viewer .rp-image-close {position:absolute;top:16px;right:20px;z-index:1;width:36px;height:36px;padding:0;border:0;border-radius:50%;background:#0004;font-size:28px;line-height:36px;color:#fff;cursor:pointer}
+#product-image-viewer .rp-image-close:focus-visible {outline:2px solid #fff;outline-offset:3px}
+#product-image-viewer .rp-image-canvas {display:flex;align-items:center;justify-content:center;width:min(900px,calc(100vw - 64px));height:min(85dvh,900px);padding:0;background:transparent;overflow:hidden;position:relative}
+#product-image-viewer img {display:block;width:100%;height:100%;max-width:100%;max-height:100%;object-fit:contain;transform-origin:center;cursor:zoom-in}
+#product-image-viewer .rp-image-error {position:absolute;text-align:center;color:#fff}
+@media(max-width:1450px) {#riskrail .risk-card-actions {gap:8px}#riskrail .rhead h3 {font-size:15px}#riskrail .rp-value {font-size:14px}}
+@media(max-width:700px) {
+ #riskrail .rp-entry {padding:10px 4px}#riskrail .rp-key-metrics,#riskrail .rp-card-columns {gap:8px}#riskrail .rp-value {font-size:14px}
+ #dialogbody .up-metrics,#dialogbody .rp-compact-metrics {grid-template-columns:repeat(2,minmax(0,1fr))}
+ #dialogbody .up-metric {padding:9px 11px;min-height:62px}#dialogbody .up-metric strong {font-size:14px}
+ #dialogbody :is(#qr-list-table,#rf-list-table).rp-list-table :is(th,td):nth-child(2) {min-width:200px!important;width:200px;position:static}
+ #dialogbody :is(#qr-list-table,#rf-list-table).rp-list-table :is(th,td):last-child {position:static}
+ #dialogbody .rp-list-tools [data-rp-reset] {margin-left:0}
+ #product-image-viewer .rp-image-canvas {width:calc(100vw - 32px);height:80dvh}
+}
+
+#riskrail .rp-entry>header>.rp-identity {flex:1}
+#riskrail .rp-entry .rp-identity b {display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:18px}
+#riskrail .rp-entry .rp-identity small {line-height:17px;font-size:12px}
+
+#dialogbody .up-metric em {display:block;font-size:10px;line-height:15px;color:#94a0b3;font-style:normal;margin-top:2px}
+
+/* 完整榜单及分组明细使用右上角关闭，底部不再占用列表空间。 */
+#dialog.business-drawer:has(>#dialogbody .rp-list-table)>.dialogfoot {display:none}
+
+#dialogbody .rp-list-tools :is(.unified-input-group,.pf-multi):has([data-rp-filter="chain"][aria-label="核心主营产品类目"]) {min-width:230px}

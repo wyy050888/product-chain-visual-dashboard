@@ -1,0 +1,37 @@
+const assert=require('node:assert/strict');
+const {chromium}=require('C:/Users/嗡嗡/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+(async()=>{const b=await chromium.launch({headless:true,executablePath:'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'});try{
+const p=await b.newPage({viewport:{width:1920,height:1080}}),errors=[];p.on('pageerror',e=>errors.push(e.message));await p.goto('file:///E:/需求合集/产品链目视化看板/原型/index.html');
+await p.waitForTimeout(500);assert.deepEqual(errors,[]);
+assert.equal(await p.locator('.pf-main-scope>.pf-attribute').count(),1);assert.equal(await p.locator('.pf-main-scope>label').count(),2);
+assert.deepEqual(await p.locator('.pf-main-scope [data-pf-filter="chain"] option').allTextContents(),['全部','个护类','环境类','清洁类','厨电类','健康类']);
+await p.locator('.pf-main-scope .pf-attribute summary').click();
+await p.locator('.pf-main-scope [data-pf-attribute-key="clearance"][data-pf-attribute-choice="yes"]').click();
+assert.ok((await p.locator('#inventorymetrics').innerText()).includes('0'));
+await p.locator('.pf-main-scope>.link').click();assert.equal(await p.locator('.pf-main-scope .pf-attribute-value').innerText(),'全部');
+await p.locator('#riskrail [data-risk="0"]').click();await p.locator('#dialogbody .pf-attribute summary').click();
+await p.locator('#dialogbody [data-pf-attribute-key="isNew"][data-pf-attribute-choice="yes"]').click();
+assert.equal(await p.locator('#dialogbody [data-rp-filter="isNew"]').inputValue(),'yes');
+assert.equal(await p.locator('#dialogbody [data-rp-filter="attribute"]').inputValue(),'all');
+await p.locator('#dialogbody [data-rp-reset]').click();assert.equal(await p.locator('#dialogbody .pf-attribute-value').innerText(),'全部');
+assert.equal(await p.locator('#dialogbody .list-pagination').getAttribute('data-list-size'),'20');
+await p.locator('#close').click();await p.locator('#sales').scrollIntoViewIfNeeded();await p.waitForTimeout(150);
+assert.equal(await p.locator('#salescards .ms-card').count(),5);assert.ok(!(await p.locator('#sales').innerText()).includes('SKU 总数'));assert.equal(await p.locator('#sales-config').isVisible(),false);
+const initial=await p.evaluate(()=>window.dashboardSalesReviewSnapshot());assert.ok(initial.progress>0&&initial.progress<100);assert.equal(initial.company.scaleRate,null);assert.equal(initial.platforms.length,9);assert.ok(initial.platforms.filter(r=>r.unmapped).every(r=>r.sale===null));
+await p.screenshot({path:'E:/需求合集/产品链目视化看板/outputs/risk-revision-20261013/docx-sales.png'});
+await p.locator('#salescards [data-si-toggle="-1"][data-si-mode="platform"]').click();assert.equal(await p.locator('#si-panel--1 .ms-breakdown-row').count(),9);
+await p.locator('#salescards [data-sales="-1"]').click();assert.equal(await p.locator('#drawer-tabs button').count(),5);
+assert.equal(await p.locator('#ms-drawer-table tbody tr').count(),brandsCount=initial.brands.length);
+await p.locator('#ms-search').fill('创维');assert.equal(await p.locator('#ms-drawer-table tbody tr').count(),1);assert.ok((await p.locator('#ms-drawer-table tbody').innerText()).includes('创维'));
+await p.locator('#ms-search').fill('');await p.locator('[data-ms-view="platform"]').click();assert.equal(await p.locator('#ms-drawer-table tbody tr').count(),9);
+await p.locator('[data-ms-mode="year"]').click();assert.ok((await p.locator('#ms-drawer-table thead').innerText()).includes('26年GSV'));
+await p.locator('[data-drawer-tab="ms-chain-0"]').click();assert.ok((await p.locator('#drawer-tabs [aria-selected="true"]').innerText()).includes('清洁'));
+assert.equal(await p.locator('#ms-drawer-pages .list-pagination').getAttribute('data-list-size'),'20');
+assert.equal((await p.evaluate(()=>window.dashboardSalesReviewSnapshot())).period.mode,initial.period.mode);
+await p.screenshot({path:'E:/需求合集/产品链目视化看板/outputs/risk-revision-20261013/docx-sales-drawer.png'});
+await p.locator('#close').click();await p.setViewportSize({width:390,height:844});await p.evaluate(()=>scrollTo(0,0));await p.locator('.pf-main-scope .pf-attribute summary').click();
+await p.screenshot({path:'E:/需求合集/产品链目视化看板/outputs/risk-revision-20261013/docx-filter-mobile.png'});
+assert.ok(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));assert.deepEqual(errors,[]);
+console.log('3-in-1 AND filters / category choices / reset / 20 rows / sales dimensions, search, periods and missing targets / desktop & mobile passed');
+}finally{await b.close()}})().catch(e=>{console.error(e);process.exitCode=1});
+

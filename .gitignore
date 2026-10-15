@@ -1,0 +1,27 @@
+# Dependencies and local caches
+node_modules/
+__pycache__/
+*.py[cod]
+/.artifact-build-*/
+
+# Local credentials
+.env
+.env.*
+!.env.example
+!.env.sample
+
+# Temporary files and diagnostics
+*.log
+*.tmp
+*.cpuprofile
+~$*
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Generated screenshots; keep source code and deliverable documents
+/outputs/**/*.png
+/outputs/**/*.jpg
+/outputs/**/*.jpeg
+/outputs/**/*.webp
+/outputs/**/*.inspect.ndjson

@@ -1,0 +1,21 @@
+/* 库存与呆滞均为五指标，沿用品质榜列头与等高布局。 */
+#riskrail :is(.rp-stock-columns-3,.rp-stock-values-3) {grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+#riskrail :is(.rp-stock-columns-4,.rp-stock-values-4) {grid-template-columns:minmax(82px,.95fr) minmax(110px,1.25fr) minmax(80px,.9fr) minmax(110px,1.25fr) minmax(104px,1.15fr);gap:8px}
+#riskrail .rp-stock-columns>span {white-space:nowrap}
+#dialogbody #rf-list-table.rp-stock-table table {min-width:2080px!important}
+#dialogbody #rf-list-table.rp-stock-table.rp-stock-grouped table {min-width:1320px!important}
+@media(max-width:1799px) and (min-width:901px),(max-width:600px){
+ #riskrail .rp-stock-columns {display:none}
+ #riskrail :is(.rp-stock-values-3,.rp-stock-values-4) {grid-template-columns:repeat(3,minmax(0,1fr));gap:10px 8px}
+ #riskrail .rp-stock-values-4 [data-rp-field="dailyNet15"] {grid-column:span 2}
+}
+
+/* 单位使用正常字重，数值保留原有强调。 */
+#riskrail .rp-stock-entry .rp-stock-unit {font-weight:400}
+
+/* 辅助占比在中等宽度可在标签与数值之间换行，保持文字完整。 */
+#riskrail .rp-stock-values-4 :is([data-rp-field="staleValue"],[data-rp-field="age"],[data-rp-field="warehouse"]) small {white-space:normal}
+#riskrail .rp-stock-values-4 :is([data-rp-field="staleValue"],[data-rp-field="age"],[data-rp-field="warehouse"]) .rp-comparison-label {white-space:nowrap}
+
+/* 数值与单位始终作为整体，不在“天 / 件 / %”前拆行。 */
+#riskrail .rp-stock-values-4 .rp-comparison-value {white-space:nowrap}

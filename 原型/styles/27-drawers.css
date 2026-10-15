@@ -1,0 +1,46 @@
+/* 仅覆盖业务对话框，保留页面与日期浮层的既有样式。 */
+#overlay { justify-content:flex-end; align-items:stretch; padding:0; background:rgba(24,36,55,.32); backdrop-filter:none; }
+#dialog.drawer.business-drawer { position:fixed; inset:0 0 0 auto; width:min(1180px,76vw); max-width:100vw; height:100dvh; max-height:100dvh; border:0; border-radius:0; box-shadow:-12px 0 38px #172e4f1c; overflow:hidden; animation:none; }
+#dialog.business-drawer .dialoghead { flex:none; min-height:56px; box-sizing:border-box; padding:12px 24px; align-items:center; background:#fff; border-bottom:1px solid #e5eaf2; }
+#dialog.business-drawer .dialoghead>div { display:flex; flex-wrap:wrap; align-items:center; gap:4px 16px; min-width:0; }
+#dialog.business-drawer .dialoghead h2 { font-size:18px; font-weight:600; line-height:1.5; margin:0; min-width:0; max-width:100%; overflow-wrap:anywhere; }
+#dialog.business-drawer #dialogsub { margin:0; min-width:0; max-width:100%; font-size:12px; line-height:1.5; color:#8390a5; overflow-wrap:anywhere; }
+#dialog.business-drawer #dialogsub:empty { display:none; }
+#dialog.business-drawer #close { flex:none; font-size:24px; width:32px; height:32px; margin-left:16px; color:#66758c; }
+#dialog.business-drawer #dialogbody { flex:1; min-height:0; padding:22px 24px; overflow:auto; background:#fff; scrollbar-gutter:stable; }
+#dialog.business-drawer .dialogfoot { flex:none; padding:12px 24px; background:#fff; border-top:1px solid #e5eaf2; }
+#dialog.business-drawer .drawer-tabs { display:flex; flex:none; gap:26px; padding:0 24px; min-height:49px; border-bottom:1px solid #e5eaf2; overflow-x:auto; background:#fff; }
+#dialog.business-drawer .drawer-tabs button { position:relative; flex:none; border:0; background:none; border-radius:0; padding:14px 0; font:inherit; font-size:13px; color:#738096; cursor:pointer; white-space:nowrap; }
+#dialog.business-drawer .drawer-tabs button:hover { color:#1677ff; }
+#dialog.business-drawer .drawer-tabs button.selected { color:#1677ff; font-weight:500; }
+#dialog.business-drawer .drawer-tabs button.selected:after { content:''; position:absolute; bottom:0; left:0; right:0; height:2px; background:#1677ff; }
+#dialog.business-drawer .drawer-tabs button:focus-visible { outline:2px solid #91bcff; outline-offset:-3px; }
+#dialogbody .drawer-pane-off { display:none!important; }
+/* 榜单与产品、店铺详情共用表头规范，避免各业务表格的字号和间距覆盖。 */
+#dialog.business-drawer #dialogbody :is(.rp-list-table,.up-detail) thead th {
+ font-size:13px; font-weight:500; line-height:1.65; color:#708199;
+ background:#f5f8fc; padding:12px; border-bottom:1px solid #eef2f7;
+ text-align:left; vertical-align:middle; white-space:nowrap; box-sizing:border-box;
+}
+#dialogbody :is(.pc-hero,.na-hero,.md-hero,.ipd-hero,.qr-detail,.ai-detail-hero,.sr-detail-top,.od-hero,.cw-detail-top) { background:#f8faff; border-radius:6px; }
+#dialogbody :is(.risk-context,.detailgrid,.ai-context-grid,.ipd-base) { font-size:13px; }
+#dialogbody :is(.risk-detail-metrics,.qr-detail-metrics,.ipd-metrics,.na-metrics,.md-kpis,.pc-metrics) { margin-top:18px; }
+#dialogbody :is(.risk-analysis,.pc-ai,.na-verdict,.md-verdict) { margin:18px 0; }
+#dialogbody .drawer-pane-off+.pc-stages { margin-top:0; }
+
+@media(min-width:1700px) { #dialog.drawer.business-drawer { width:min(1200px,68vw); } }
+@media(max-width:1100px) { #dialog.drawer.business-drawer { width:90vw; } }
+@media(max-width:700px) {
+ #dialog.drawer.business-drawer { width:100vw; }
+ #dialog.business-drawer :is(.dialoghead,#dialogbody,.dialogfoot) { padding-left:16px; padding-right:16px; }
+ #dialog.business-drawer .drawer-tabs { padding:0 16px; gap:22px; }
+ #dialog.business-drawer .dialoghead h2 { font-size:16px; }
+ #dialog.business-drawer #dialogsub { flex-basis:100%; }
+ #dialogbody :is(.pc-stages,.na-actions,.pc-metrics,.md-kpis,.risk-detail-metrics,.qr-detail-metrics) { grid-template-columns:repeat(2,minmax(0,1fr)); }
+ #dialogbody .detailgrid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media(prefers-reduced-motion:reduce) { #dialog.drawer.business-drawer { animation:none; } }
+
+#dialogbody .sr-evidence:has(.drawer-pane-off) { grid-template-columns:1fr; }
+#dialogbody details.rd-fold[open]:has(>section h3)>summary { display:none; }
+#dialogbody details.rd-fold[open] { margin-top:12px; }

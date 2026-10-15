@@ -1,0 +1,23 @@
+/* 店铺详情复用产品指标与违规配色；仅布局在本模块内定义。 */
+#dialogbody .sd-operating-overview{display:grid;grid-template-columns:minmax(220px,.8fr) minmax(0,2.4fr);gap:20px;margin:20px 0 26px;align-items:stretch}
+#dialogbody .sd-detail .sd-kpis{display:grid;grid-template-columns:1fr;gap:12px;margin:0}
+#dialogbody .sd-detail .sd-kpis .up-metric{padding:15px 16px;border:0;background:#f8faff;border-radius:6px}
+#dialogbody .sd-detail .sd-kpis small{font-size:12px;color:#8390a5}
+#dialogbody .sd-detail .sd-kpis strong{font-size:22px;font-weight:500}
+#dialogbody .sd-detail .sd-kpis .up-operating-value{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-top:9px}
+#dialogbody .sd-detail .sd-kpis .up-operating-value>span{font-size:11px}
+#dialogbody .sd-detail .sd-kpis .rp-quality-green{color:#00a486}#dialogbody .sd-detail .sd-kpis .rp-quality-red{color:#ff3157}#dialogbody .sd-detail .sd-kpis .rp-quality-gray{color:#8693a4}
+#dialogbody .sd-operating-overview .up-sales-trend{margin:0;padding:0 10px;border:0;min-width:0;align-self:center}
+#dialogbody .sd-operating-overview .up-sales-trend svg{min-width:560px}
+.sd-diagnosis-dimension{display:block;margin-bottom:9px}.sd-diagnosis-dimension>b{display:inline-block;margin-right:10px;font-weight:500;color:#435d7c}
+.sd-detail .up-ai-actions p{white-space:pre-line}
+.sd-spu-identity{display:flex;align-items:center;gap:12px}.sd-spu-identity>div{min-width:0}.sd-spu-identity small{display:block;margin-top:4px;color:#8390a5}.sd-spu-identity img{object-fit:contain}
+.sd-detail .sd-violation-stats{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));background:#f8faff;border-radius:6px;margin:18px 0 22px;padding:16px 0}
+#dialogbody .sd-violation-stats .up-quality-metric{border-radius:0;background:transparent;padding:0 16px;border-right:1px solid #e8edf5}
+#dialogbody .sd-violation-stats .up-quality-metric:last-child{border:0}
+.sd-violation-filters{display:flex;align-items:center;flex-wrap:wrap;gap:14px;margin-bottom:18px}.sd-violation-filters>div{display:flex;flex-wrap:wrap;gap:8px}
+.sd-violation-filters input[type=search],.up-violation-filters input[type=search]{width:270px;max-width:100%;padding:9px 12px;border:1px solid #dce4f1;border-radius:5px;color:#34455e;font:inherit}
+.sd-violation-filters .active{background:#edf5ff;color:#1677ff;border-color:#91bfff}
+.sd-detail [data-sd-violation-table] table{min-width:1400px}.sd-detail [data-sd-violation-table] td{line-height:1.7;vertical-align:top}
+.sd-violation-cell{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;white-space:pre-line;min-width:85px;max-width:230px}
+@media(max-width:700px){#dialogbody .sd-operating-overview{grid-template-columns:1fr}.sd-detail .sd-violation-stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}.sd-detail .up-hero>div{min-width:0}}

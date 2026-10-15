@@ -1,0 +1,45 @@
+/* 公共控件与状态颜色；主菜单、轻量顶部工具按钮沿用既有样式。 */
+:root { --blue:#1677ff; --purple:#6e66d8; --ink:#24334b; --muted:#7b8ba3; --line:#e8edf5; --red:#dc4b60; --green:#159c78; --orange:#fbbd23; }
+.page :is(input,select,textarea),.dialog :is(input,select,textarea) {
+  border:1px solid #dbe3ef; border-radius:6px; background:#fff; color:#34455f;
+  padding:6px 10px; min-height:34px; font-size:13px; transition:border-color .15s,box-shadow .15s;
+}
+.page :is(input,select,textarea):hover,.dialog :is(input,select,textarea):hover { border-color:#a8bfdf; }
+.page :is(input,select,textarea):focus,.dialog :is(input,select,textarea):focus { outline:none; border-color:#1677ff; box-shadow:0 0 0 3px #1677ff12; }
+.page input::placeholder,.dialog input::placeholder { color:#9aa8bb; }
+.page select.ui-filter-active { color:#1669d5; background-color:#f5f9ff; border-color:#aecdf5; }
+.page .btn:not(.navigation-action),.dialog .btn { min-height:32px; padding:5px 12px; border-radius:6px; border:1px solid #dbe3ef; background:#fff; color:#526680; font-size:13px; transition:background .15s,border-color .15s; }
+.page .btn:not(.navigation-action):hover,.dialog .btn:hover { background:#f3f8ff; color:#1669d5; border-color:#a7c9f7; }
+.page .btn.primary:not(.navigation-action),.dialog .btn.primary { background:#1677ff; border-color:#1677ff; color:#fff; }
+.page .btn.primary:not(.navigation-action):hover,.dialog .btn.primary:hover { background:#0968e8; border-color:#0968e8; }
+.page .btn.soft,.dialog .btn.soft { color:#1669d5; background:#edf5ff; border-color:#d4e6ff; }
+.page .link,.dialog .link { border-radius:4px; min-height:28px; padding:3px 5px; color:#1677ff; font-size:13px; }
+.page .link:hover,.dialog .link:hover { color:#095dc8; background:#edf5ff; }
+.page button:disabled,.dialog button:disabled { opacity:.45; cursor:not-allowed; box-shadow:none; }
+.page .btn:disabled:hover,.dialog .btn:disabled:hover { color:#8592a6; background:#fff; border-color:#dbe3ef; }
+.page .link:disabled { color:#9ba8ba; background:none; }
+.page :is(button,a):focus-visible,.dialog :is(button,a):focus-visible { outline:2px solid #1677ff; outline-offset:2px; }
+.page .tag,.dialog .tag { min-height:22px; padding:1px 7px; border-radius:4px; font-size:12px; line-height:20px; font-weight:500; background:#edf5ff; color:#3973bf; }
+.page .tag.red,.dialog .tag.red { background:#fff0f2; color:#cf3f53; }
+.page .tag.orange,.dialog .tag.orange { background:var(--orange-soft); color:var(--orange); }
+.page .tag.green,.dialog .tag.green { background:#eaf7f1; color:#158363; }
+.page .tag.br-p3,.dialog .tag.br-p3 { background:#f0f3f8; color:#6c7b91; }
+.page .period-segment { background:#edf1f7; border-radius:6px; padding:3px; }
+.page .period-segment button,.dialog .period-segment button { min-height:30px; font-size:13px; padding:4px 12px; border-radius:4px; }
+.page .period-segment button[aria-pressed="true"],.dialog .period-segment button[aria-pressed="true"] { background:#fff; color:#1677ff; box-shadow:0 1px 4px #24334b12; }
+.page .tabs { display:flex; align-items:center; gap:4px; flex-wrap:wrap; }
+.page .tabs button,.dialog .tabs button { padding:6px 12px; font-size:13px; min-height:32px; border-radius:5px; color:#72839d; }
+.page .tabs button:hover,.dialog .tabs button:hover { background:#f3f7fd; color:#1677ff; }
+.page .tabs button.active,.dialog .tabs button.active { background:#eaf3ff; color:#1677ff; font-weight:600; }
+.page .pagination button { width:30px; height:30px; padding:0; font-size:18px; border:1px solid #e1e8f2; background:#fff; }
+.page .pagination button:not(:disabled):hover { background:#edf5ff; color:#1677ff; border-color:#b4d1f7; }
+.ui-search-field { position:relative; display:flex; align-items:center; margin-left:auto; }
+.ui-search-field input { width:230px!important; padding-right:30px!important; }
+.ui-search-clear { position:absolute; right:6px; width:24px; height:24px; border-radius:4px; color:#8b9bb1; font-size:18px; line-height:1; }
+.ui-search-clear:hover { background:#edf3fb; color:#1677ff; }
+.ui-search-clear[hidden] { display:none; }
+.ui-filter-reset { white-space:nowrap; flex-shrink:0; }
+@media(prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } .page *, .dialog * { transition:none!important; } }
+
+/* 警示文字与填充统一使用用户指定的亮黄色。 */
+.track,.ms-progress,.dot.orange{--orange:var(--orange-fill)}

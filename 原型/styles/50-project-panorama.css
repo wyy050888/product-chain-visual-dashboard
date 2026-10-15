@@ -1,0 +1,131 @@
+/* 项目全景独立布局；不影响各部门复用的旧版项目组件。 */
+#projects.pp-main .pp-legacy{display:none!important}
+#projects.pp-main>.sectionhead{padding:16px 18px;gap:14px;flex-wrap:wrap}
+#projects.pp-main>.sectionhead>.module-header-time{display:none}
+#projects.pp-main .titlegroup{gap:14px;flex-wrap:wrap}
+#projects.pp-main .pp-scope{display:flex;gap:10px;align-items:center}
+#projects.pp-main .pp-scope .pf-multi{width:146px}
+#projects.pp-main .pp-scope .pf-multi:last-child{width:190px}
+#projects.pp-main .pp-scope .unified-field-name{display:none}
+#projects.pp-main .pp-layout{display:grid;grid-template-columns:340px minmax(0,1fr);gap:22px;padding:20px 18px 0;align-items:stretch}
+#projects.pp-main #pp-overview{display:flex;flex-direction:column;gap:14px;min-width:0}
+#projects.pp-main .pp-card{border:1px solid #e1e9f5;border-radius:10px;padding:20px;background:#fff}
+#projects.pp-main .pp-card-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:16px}
+#projects.pp-main .pp-card-head h3,#projects.pp-main .pp-card-head h4{font-size:15px;margin:0;font-weight:600;color:#203951}
+#projects.pp-main .pp-card-head>span,#projects.pp-main .pp-card-head>small{font-size:11px;color:#7b8ea9;white-space:nowrap}
+#projects.pp-main .pp-card-head .dot{margin-right:3px}
+#projects.pp-main .pp-rate{background:linear-gradient(120deg,#f5f8ff,#fbfcff);border-color:transparent}
+#projects.pp-main .pp-link{display:block;width:100%;border:1px solid transparent;border-radius:6px;background:transparent;padding:8px;text-align:left;color:#304b6e;font:inherit;font-size:12px;line-height:1.5;cursor:pointer}
+#projects.pp-main .pp-link:hover{background:#f3f7ff}
+#projects.pp-main .pp-link.selected{border-color:#b7d2ff;background:#edf4ff}
+#projects.pp-main .pp-rate>.pp-link{display:grid;grid-template-columns:1fr auto;align-items:center}
+#projects.pp-main .pp-rate strong{font-size:29px;font-weight:650;line-height:1.4;color:#213b5a;grid-row:1/3;grid-column:2}
+#projects.pp-main .pp-rate small{font-size:11px;color:#8090a9;margin-top:6px}
+#projects.pp-main .pp-rate-split{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid #e4ebf7;padding-top:12px;margin-top:12px;gap:12px}
+#projects.pp-main .pp-rate-split button{display:flex;flex-direction:column;gap:7px}
+#projects.pp-main .pp-rate-split b{font-size:23px;font-weight:600;line-height:1.3}
+#projects.pp-main .pp-tabs{display:flex;background:#f3f6fc;border-radius:6px;padding:3px;margin-bottom:14px}
+#projects.pp-main .pp-tabs button{flex:1;border:0;background:transparent;color:#7d8ea8;border-radius:4px;padding:8px 2px;font:inherit;font-size:12px;cursor:pointer}
+#projects.pp-main .pp-tabs button.active{background:#fff;color:#1677ff;box-shadow:0 1px 4px #dfe6f3}
+#projects.pp-main .pp-bars{display:flex;flex-direction:column;gap:8px}
+#projects.pp-main .pp-bar-label{display:block;font-size:12px;line-height:1.6;margin-bottom:8px}
+#projects.pp-main .pp-bar-line{display:flex;align-items:center;gap:12px;font-size:11px}
+#projects.pp-main .pp-bar-line>span:last-child{min-width:52px;text-align:right}
+#projects.pp-main .pp-bar-line b{font-weight:500}
+#projects.pp-main .pp-track{display:flex;flex:1;height:18px;border-radius:5px;overflow:hidden;background:#f0f3f9}
+#projects.pp-main .pp-track i{display:block;height:100%}
+#projects.pp-main .pp-red{background:#ff6174}
+#projects.pp-main .pp-yellow{background:var(--orange-fill)}
+#projects.pp-main .pp-departments{flex:1}
+#projects.pp-main .pp-dept-options{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:3px;margin:0 0 12px}
+#projects.pp-main .pp-dept-options button{padding:6px 2px;border:1px solid #e1e9f5;border-radius:4px;font-size:11px;white-space:nowrap;color:#7589a7}
+#projects.pp-main .pp-dept-options button[aria-pressed=true]{background:#edf4ff;border-color:#91bfff;color:#1677ff}
+#projects.pp-main .pp-note{font-size:11px;color:#8293ae;line-height:1.7;margin:15px 0 0}
+#projects.pp-main .pp-main-table{min-width:0;display:flex;flex-direction:column}
+#projects.pp-main .pp-filters{display:flex;flex-direction:column;gap:12px;margin-bottom:14px}
+#projects.pp-main .pp-filter-row{display:grid;grid-template-columns:minmax(220px,2fr) minmax(130px,1fr) minmax(250px,2fr);gap:12px;align-items:center}
+#projects.pp-main .pp-filter-row+.pp-filter-row{grid-template-columns:repeat(4,minmax(130px,1fr)) minmax(220px,2fr) auto}
+#projects.pp-main .pp-filter-row>label,#projects.pp-main .pp-filter-row>.pf-multi{min-width:0;max-width:none;width:100%;margin:0}
+#projects.pp-main .pp-filter-row input[type=search]{width:100%;height:36px;border:0;background:transparent;padding:0 10px}
+#projects.pp-main .pp-filter-row .ui-search-field{border:1px solid #d7e0ee;border-radius:6px;display:flex;align-items:center;height:36px}
+#projects.pp-main .pp-filter-row .pf-multi-menu{min-width:220px;max-width:min(420px,85vw)}
+#projects.pp-main .pp-filter-row .pf-multi-option{white-space:normal;line-height:1.5}
+#projects.pp-main .pp-plan{position:relative;min-width:0}
+/* 项目类型 → 阶段；两列独立滚动，长阶段名称完整换行。 */
+#projects.pp-main .pp-stage-cascader{position:relative;min-width:0;width:100%}
+#projects.pp-main .pp-stage-cascader[open]{z-index:100}
+#projects.pp-main .pp-stage-cascader summary{display:flex;align-items:center;gap:10px;height:36px;padding:0 12px;border:1px solid #d7e0ee;border-radius:6px;background:#fff;font-size:12px;list-style:none;cursor:pointer}
+#projects.pp-main .pp-stage-cascader summary::-webkit-details-marker{display:none}
+#projects.pp-main .pp-stage-cascader summary>span:first-child{flex:none}
+#projects.pp-main .pp-stage-value{flex:1;min-width:0;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#projects.pp-main .pp-stage-cascader summary>i{flex:none;width:12px;height:12px;background:var(--filter-chevron) center/contain no-repeat}
+#projects.pp-main .pp-stage-cascader[open] summary,#projects.pp-main .pp-stage-cascader summary:focus-visible{border-color:#1677ff;outline:2px solid #1677ff12}
+#projects.pp-main .pp-stage-menu{position:absolute;top:calc(100% + 6px);right:0;display:grid;grid-template-columns:120px minmax(0,1fr);width:100%;min-width:290px;max-width:calc(100vw - 48px);background:white;border:1px solid #dce5f0;border-radius:6px;box-shadow:0 6px 24px #213b5b24;overflow:hidden}
+#projects.pp-main .pp-stage-types,#projects.pp-main .pp-stage-options{padding:6px;max-height:300px;overflow:auto}
+#projects.pp-main .pp-stage-types{border-right:1px solid #edf0f6}
+#projects.pp-main .pp-stage-types button{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:36px;padding:7px 9px;text-align:left;border-radius:4px;font-size:12px}
+#projects.pp-main .pp-stage-types button[aria-pressed=true],#projects.pp-main .pp-stage-types button:hover,#projects.pp-main .pp-stage-option:hover{background:#f4f8ff;color:#1677ff}
+#projects.pp-main .pp-stage-option{display:flex;align-items:flex-start;gap:8px;padding:8px;border-radius:4px;font-size:12px;line-height:20px;cursor:pointer}
+#projects.pp-main .pp-stage-option input{flex:none;width:14px;height:14px;margin:3px 0 0;accent-color:#1677ff}
+#projects.pp-main .pp-plan-trigger{display:flex;align-items:center;gap:10px;width:100%;height:36px;border:1px solid #d7e0ee;border-radius:6px;background:white;color:#304b6e;padding:0 12px;font:inherit;font-size:12px;cursor:pointer}
+#projects.pp-main .pp-plan-trigger>span:nth-child(2){color:#7387a7;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;flex:1;text-align:left}
+#projects.pp-main .pp-plan-trigger i{font-style:normal;margin-right:16px}
+#projects.pp-main [data-pp-plan-clear]{position:absolute;right:8px;top:8px;background:#fff;border:0;color:#8498b6;cursor:pointer}
+#projects.pp-main .pp-reset{padding:0 8px;white-space:nowrap}
+#projects.pp-main .pp-table-scroll{width:100%;overflow:auto;border:1px solid #e4ebf7;border-radius:7px;flex:1;background:white}
+#projects.pp-main .pp-table{table-layout:fixed;min-width:2606px;width:100%;border-collapse:separate;border-spacing:0}
+#projects.pp-main .pp-table th{font-size:12px;color:#7589a7;font-weight:500;height:44px;white-space:nowrap;background:#f5f8fc;padding:12px 14px}
+#projects.pp-main .pp-table td{height:86px;padding:14px;vertical-align:middle;border-bottom:1px solid #e9eff8;font-size:12px;color:#354c70;white-space:normal;line-height:1.7;overflow:visible}
+#projects.pp-main .pp-table>thead>tr>th:first-child,#projects.pp-main .pp-table>tbody>tr>td:first-child{position:sticky;left:0;z-index:2;border-right:1px solid #e8eef8;background:#fff}
+#projects.pp-main .pp-table>thead>tr>th:first-child{background:#f5f8fc;z-index:3}
+#projects.pp-main .pp-table>tbody>tr:hover>td{background:#f8fbff}
+#projects.pp-main .pp-product{display:flex;gap:10px;align-items:center;width:100%;text-align:left;background:none;border:0;padding:0;color:#294565;font:inherit;cursor:pointer}
+#projects.pp-main .pp-product>img,#projects.pp-main .pp-placeholder{width:38px;height:38px;object-fit:contain;border:1px solid #e5ebf8;border-radius:5px;background:#fff;flex:none}
+#projects.pp-main .pp-placeholder{display:grid;place-items:center;color:#8396b6}
+#projects.pp-main .pp-product b{font-weight:500;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+#projects.pp-main .pp-product small,#projects.pp-main .pp-root-cause small{display:block;color:#8598b7;font-size:11px;margin-top:5px}
+#projects.pp-main .pp-product:hover b{color:#1677ff}
+#projects.pp-main .pp-wrap{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;white-space:normal;overflow-wrap:anywhere}
+#projects.pp-main .pp-root-cause{font:inherit;color:#1677ff;text-align:left;background:none;border:0;padding:0;cursor:pointer;width:100%}
+#projects.pp-main .pp-root-cause.muted{color:#8494ad}
+#projects.pp-main .pp-pages{padding:18px 0 0;margin-top:auto}
+#projects.pp-main .pp-pages .list-pagination{margin:0}
+#projects.pp-main .pp-ai{margin:20px 18px;border:1px solid #e1e9f5;border-radius:10px;padding:20px;background:linear-gradient(120deg,#f7f9ff,#fff)}
+#projects.pp-main .pp-ai-heading{display:flex;justify-content:space-between;align-items:center;gap:12px}
+#projects.pp-main .pp-ai-heading h3{font-size:16px;margin:0}
+#projects.pp-main .pp-ai-heading h3>span{font-size:12px;color:#6175ef;background:#e9edff;padding:4px 6px;border-radius:5px;margin-right:6px}
+#projects.pp-main .pp-ai-heading small{font-size:11px;color:#8293ae}
+#projects.pp-main .pp-ai-summary{font-size:13px;line-height:1.8;color:#526c90;margin:14px 0}
+#projects.pp-main .pp-ai-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+#projects.pp-main .pp-ai-grid>article{background:#fff;padding:16px;border:1px solid #e6ecf8;border-radius:7px;min-width:0}
+#projects.pp-main .pp-ai-grid h4{font-size:13px}
+#projects.pp-main .pp-ai-grid .pp-card-head{margin-bottom:12px}
+#projects.pp-main .pp-ai-grid p,#projects.pp-main .pp-ai-grid ul{font-size:12px;line-height:1.8;margin:8px 0}
+#projects.pp-main .pp-ai-grid ul{padding-left:18px}
+#projects.pp-main .pp-ai-grid li{margin-bottom:10px}
+#projects.pp-main .pp-ai-grid small{display:block;color:#8b9bb4}
+#projects.pp-main .pp-ai-action b{display:block;margin-bottom:5px}
+#projects.pp-main .pp-ai-grid summary{font-size:12px;color:#1677ff;cursor:pointer}
+#projects.pp-main button:focus-visible{outline:2px solid #83b7ff;outline-offset:2px}
+@media(max-width:1450px){#projects.pp-main .pp-layout{grid-template-columns:290px minmax(0,1fr);gap:16px}#projects.pp-main .pp-filter-row{grid-template-columns:minmax(180px,1.5fr) minmax(105px,1fr) minmax(225px,1.5fr);gap:8px}#projects.pp-main .pp-filter-row+.pp-filter-row{grid-template-columns:repeat(4,minmax(105px,1fr)) minmax(180px,1.5fr) auto}#projects.pp-main .pp-card{padding:16px}}
+@media(max-width:1100px){#projects.pp-main .pp-layout{grid-template-columns:1fr}#projects.pp-main #pp-overview{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch}#projects.pp-main .pp-ai-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#projects.pp-main .pp-rate-split{gap:0}}
+@media(max-width:700px){#projects.pp-main #pp-overview{grid-template-columns:1fr}#projects.pp-main .pp-filter-row,#projects.pp-main .pp-filter-row+.pp-filter-row{grid-template-columns:repeat(2,minmax(0,1fr))}#projects.pp-main .pp-filter-row>.ui-search-field,#projects.pp-main .pp-plan,#projects.pp-main .pp-stage-cascader{grid-column:1/-1}#projects.pp-main .pp-scope{flex-wrap:wrap}#projects.pp-main .pp-ai-grid{grid-template-columns:1fr}#projects.pp-main .pp-ai-heading{align-items:flex-start;flex-direction:column}}
+
+/* 根因分析悬浮表格：内容可移入阅读，窄屏在浮层内部横向滚动。 */
+#pp-ledger-popover{position:fixed;inset:auto;margin:0;width:min(1100px,calc(100vw - 24px));max-height:calc(100vh - 24px);padding:12px;border:1px solid #dfe6f1;border-radius:5px;background:white;color:#354c70;box-shadow:0 3px 16px #253a5b24;overflow:visible}
+#pp-ledger-popover::before{content:'';position:absolute;left:var(--pp-arrow-left);width:9px;height:9px;background:#fff;border:1px solid #dfe6f1;transform:translateX(-50%) rotate(45deg)}
+#pp-ledger-popover[data-side=below]::before{top:-5px;border-right:0;border-bottom:0}
+#pp-ledger-popover[data-side=above]::before{bottom:-5px;border-left:0;border-top:0}
+#pp-ledger-popover .pp-ledger{max-height:calc(100vh - 50px);overflow:auto}
+#pp-ledger-popover .pp-card-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:10px;color:#7b8ea9;font-size:11px}
+#pp-ledger-popover h4{margin:0;color:#354c70;font-size:12px;font-weight:500}
+#pp-ledger-popover table{width:100%;min-width:850px;border-collapse:collapse;table-layout:fixed}
+#pp-ledger-popover th,#pp-ledger-popover td{border:1px solid #e5ebf6;padding:10px 9px;text-align:left;font-size:12px;line-height:1.7;white-space:normal;overflow-wrap:anywhere}
+#pp-ledger-popover th{background:#f5f7fb;color:#7286a6;font-weight:400}
+#pp-ledger-popover th:first-child{width:5%}
+#pp-ledger-popover th:nth-child(2){width:19%}
+#pp-ledger-popover th:nth-child(3){width:27%}
+#pp-ledger-popover th:nth-child(4){width:27%}
+#pp-ledger-popover th:nth-child(5){width:11%}
+#pp-ledger-popover th:nth-child(6){width:11%}
+#pp-ledger-popover .pp-empty-ledger{text-align:center;padding:24px;color:#8494ad}

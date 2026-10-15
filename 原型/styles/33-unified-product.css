@@ -1,0 +1,287 @@
+/* 统一SPU详情，仅作用于当前业务抽屉。 */
+#dialogbody .up-detail {color:#21344f;min-width:0}
+#dialogbody .up-hero {display:flex;align-items:flex-start;gap:14px;padding:20px;background:#f5f8ff;border:1px solid #e5ecf7;border-radius:8px;margin-bottom:18px;flex-wrap:wrap}
+#dialogbody .up-hero>.risk-thumb {width:56px;height:56px;flex:none}
+#dialogbody .up-hero>div {flex:1;min-width:240px}
+#dialogbody .up-hero h2 {margin:0 0 12px;font-size:19px;line-height:1.45}
+#dialogbody .up-hero dl {display:flex;gap:8px 22px;flex-wrap:wrap;margin:0}
+#dialogbody .up-hero dl>div {display:flex;gap:7px;font-size:12px}
+#dialogbody .up-hero dt {color:#8390a5}
+#dialogbody .up-hero dd {margin:0;color:#42516a;overflow-wrap:anywhere}
+#dialogbody .up-hero .risk-date-trigger {margin-left:auto;background:white;height:34px;gap:8px;white-space:nowrap}
+#dialogbody .up-toolbar {display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:22px}
+/* 库存始终使用公司快照；其他标签切回时保留原平台选择。 */
+#dialogbody .up-detail[data-up-tab="stock"]>.up-toolbar {display:none}
+#dialogbody .up-metrics {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:22px}
+#dialogbody .up-metric {background:white;border:1px solid #e4eaf5;border-radius:7px;padding:16px;min-width:0}
+#dialogbody .up-metric small {display:flex;align-items:center;gap:4px;font-size:12px;color:#8390a5;line-height:20px}
+#dialogbody .up-metric strong {display:block;margin-top:12px;font-size:24px;font-weight:600;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+#dialogbody .up-targets .up-metric {background:#f8fbff}
+#dialogbody .up-detail h3 {font-size:14px;margin:22px 0 13px;font-weight:600}
+#dialogbody .up-charts {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:22px}
+#dialogbody .up-chart {border:1px solid #e4eaf5;border-radius:7px;padding:14px;min-width:0;background:#fff}
+#dialogbody .up-chart h3 {margin:0 0 10px}
+#dialogbody .up-chart svg {display:block;width:100%;height:auto}
+#dialogbody .up-chart svg text {font-size:11px;fill:#8b97ad}
+#dialogbody :is(.up-table,.up-comparison) {overflow:auto;max-width:100%}
+#dialogbody .up-detail table {width:100%;font-size:12px;border-collapse:collapse}
+#dialogbody .up-detail th {background:#f5f8fc;color:#8390a5;font-weight:400;white-space:nowrap;text-align:left;padding:13px 12px}
+#dialogbody .up-detail td {padding:14px 12px;border-bottom:1px solid #edf1f7;line-height:1.7;min-width:60px}
+#dialogbody .up-detail tbody tr:hover {background:#f8fbff}
+#dialogbody .up-violation-shop{display:block;min-width:150px;white-space:normal;line-height:1.7}
+#dialogbody .up-violation-shop small{display:block;margin-top:4px;font-size:11px;color:#8390a5;white-space:nowrap}
+#dialogbody .up-empty {padding:26px;text-align:center;background:#fafbfd;color:#95a0b2;border-radius:6px}
+#dialogbody .up-risk-tags {display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+#dialogbody .up-risk-tags span {background:#fff2f3;color:#d94b65;padding:5px 9px;border-radius:4px;font-size:12px}
+#dialogbody .up-daily {margin:20px 0}
+#dialogbody .up-daily summary {font-size:13px;color:#1677ff;cursor:pointer;margin-bottom:14px}
+#dialogbody .up-form {padding:18px;border:1px solid #e4eaf5;border-radius:8px;background:#fafcff;margin-top:22px}
+#dialogbody .up-form h3 {margin-top:0}
+#dialogbody .up-form label {display:flex;flex-direction:column;gap:8px;margin-bottom:15px;color:#697b94;font-size:13px}
+#dialogbody .up-form textarea {resize:vertical;width:100%;padding:12px;border:1px solid #dce4f1;border-radius:5px;background:#fff;font:inherit;line-height:1.8}
+#dialogbody .up-form-row {display:grid;grid-template-columns:1fr 1fr;gap:16px}
+#dialogbody .up-form :is(select,input[type=date]) {width:100%;min-height:36px}
+#dialogbody .up-form select[multiple] {height:108px}
+#dialogbody .up-form .up-notify {flex-direction:row;align-items:center}
+#dialogbody #up-form-message {color:#1677ff;font-size:13px}
+#dialogbody .up-target-fields {display:grid;grid-template-columns:1fr 1fr;gap:18px}
+#dialogbody .up-target-fields label {display:flex;align-items:center;gap:12px;color:#697b94}
+#dialogbody .up-target-fields input {width:120px}
+#dialogbody .up-detail .list-pager {justify-content:flex-end}
+#dialogbody .up-product-link {font-weight:500;text-align:left;line-height:1.6}
+.up-calendar {z-index:5000!important}
+@media(max-width:700px) {
+ #dialogbody .up-hero {padding:14px;gap:10px}
+ #dialogbody .up-hero>div {min-width:190px}
+ #dialogbody .up-hero .risk-date-trigger {margin-left:0}
+ #dialogbody .up-hero dl {gap:8px 12px}
+ #dialogbody .up-toolbar {justify-content:flex-start}
+ #dialogbody .up-metrics {grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ #dialogbody .up-metric {padding:12px}
+ #dialogbody .up-metric strong {font-size:20px}
+ #dialogbody .up-charts,#dialogbody .up-form-row,#dialogbody .up-target-fields {grid-template-columns:1fr}
+}
+
+/* 详情先看基础资料，再切换业务页；头部时间控件与外侧同款。 */
+#dialog.business-drawer .dialoghead:has(.period-picker)>div {gap:8px 20px}
+#dialog.business-drawer .dialoghead:has(.period-picker) #dialogsub {margin-left:auto}
+#dialog.business-drawer #dialogsub .period-picker {flex-wrap:wrap;justify-content:flex-end;font-size:12px}
+/* 抵消抽屉正文的22px顶部内边距，标签吸附在固定标题下方。 */
+#dialogbody .up-detail>.drawer-tabs {position:sticky;top:-22px;z-index:30;background:#fff;padding:0;gap:28px;margin:0 0 18px;min-height:46px}
+#dialogbody .up-detail>.up-hero {margin-bottom:0}
+/* 业绩上部左右分区：八项指标 + 参考销售卡片的达成样式。 */
+#dialogbody .up-operating-overview {display:grid;grid-template-columns:minmax(0,2.1fr) minmax(300px,1fr);gap:16px;align-items:stretch}
+#dialogbody .up-detail .up-operating-kpis .up-metrics {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;border:0;background:none;margin:0;height:100%}
+#dialogbody .up-detail .up-operating-kpis .up-metric {padding:16px;border:1px solid #e5ebf3;border-radius:7px;background:#f8faff;min-height:94px;box-sizing:border-box}
+#dialogbody .up-detail .up-operating-kpis .up-metric strong {font-size:22px;line-height:30px;font-weight:500;margin-top:9px}
+#dialogbody .up-operating-value {display:flex;align-items:baseline;justify-content:space-between;gap:6px 8px;flex-wrap:wrap;margin-top:9px}
+#dialogbody .up-detail .up-operating-kpis .up-operating-value strong {margin-top:0}
+#dialogbody .up-operating-comparison {font-size:11px;line-height:18px;white-space:nowrap}
+#dialogbody .up-operating-comparison .rp-comparison-label {color:#8693a4}
+#dialogbody .up-operating-kpis .rp-quality-red {color:#ff3157}
+#dialogbody .up-operating-kpis .rp-quality-green {color:#00a486}
+#dialogbody .up-operating-kpis .rp-quality-yellow {color:var(--orange)}
+#dialogbody .up-operating-kpis .rp-quality-gray {color:#8693a4}
+#dialogbody .up-attainment {min-width:0;padding:18px;border:1px solid #e2e2ff;border-radius:7px;background:#f6f5ff;font-variant-numeric:tabular-nums}
+#dialogbody .up-attainment-primary {display:grid;grid-template-columns:1fr 1fr;gap:16px}
+#dialogbody .up-attainment-primary small {display:block;font-size:12px;color:#8390a5;line-height:20px}
+#dialogbody .up-attainment-primary strong {display:block;font-size:24px;font-weight:500;line-height:32px;margin-top:6px;overflow-wrap:anywhere}
+#dialogbody .up-attainment-delta {font-size:11px;color:#8390a5;margin-top:4px;line-height:18px}
+#dialogbody .up-attainment-goal,#dialogbody .up-attainment-rate {display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:12px;line-height:20px}
+#dialogbody .up-attainment-goal {background:#eeedff;color:#7c88b3;padding:7px 8px;margin:14px -6px 10px;border-radius:4px}
+#dialogbody .up-attainment-rate {margin-bottom:8px}
+#dialogbody .up-attainment-progress {height:5px;background:#e7e5f5;border-radius:4px;overflow:hidden}
+#dialogbody .up-attainment-progress i {display:block;height:100%;background:#7465ff;border-radius:4px}
+@media(max-width:1100px){#dialogbody .up-operating-overview{grid-template-columns:1fr}}
+#dialogbody .up-sales-trend {border:1px solid #e5ebf3;border-radius:7px;padding:0 18px 12px;margin:18px 0;background:#fff}
+#dialogbody .up-trend-heading {display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+#dialogbody .up-trend-legend {display:flex;gap:18px}
+#dialogbody .up-trend-legend button {display:flex;align-items:center;gap:6px;border:0;background:none;font:inherit;font-size:12px;color:#65768c;cursor:pointer;padding:6px 0}
+#dialogbody .up-trend-legend i {width:16px;height:3px;background:var(--series-color);border-radius:2px}
+#dialogbody .up-trend-legend [aria-pressed="false"] {opacity:.4}
+#dialogbody .up-trend-scroll {overflow:auto}
+#dialogbody .up-sales-trend svg {display:block;width:100%;min-width:760px}
+#dialogbody .up-sales-trend svg text {font-size:11px;fill:#8693a4}
+#dialogbody .up-sales-trend [data-up-series] text {fill:var(--series-color)}
+@media(max-width:700px){
+ #dialog.business-drawer .dialoghead:has(.period-picker) #dialogsub {margin-left:0}
+ #dialog.business-drawer #dialogsub .period-picker {justify-content:flex-start;max-width:100%}
+ #dialogbody .up-detail .up-operating-kpis .up-metrics {grid-template-columns:repeat(2,minmax(0,1fr))}
+ #dialogbody .up-detail .up-operating-kpis .up-metric {padding:10px}
+}
+
+/* 产品详情：品质/库存卡片、部门待办与流转记录。 */
+#dialogbody .up-detail .up-kpi-cards .up-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;border:0;background:none}
+#dialogbody .up-detail .up-kpi-cards .up-metric{border:1px solid #e5ebf3;border-radius:7px;background:#f8faff;padding:16px;min-height:95px}
+#dialogbody .up-detail .up-kpi-cards .up-metric strong{font-size:21px;font-weight:500;margin-top:8px}
+#dialogbody .up-return-trend .up-trend-legend span{display:flex;align-items:center;gap:6px;font-size:12px;color:#65768c}
+@media(max-width:700px){#dialogbody .up-detail .up-kpi-cards .up-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}#dialogbody .up-trend-heading select{max-width:210px}}
+
+#dialogbody .up-kpi-cards .rp-quality-red{color:#ff3157}#dialogbody .up-kpi-cards .rp-quality-yellow{color:var(--orange)}#dialogbody .up-kpi-cards .rp-quality-green{color:#00aaa6}
+
+/* 产品经营摘要：约400字三段，收起时仅保留经营结论。 */
+#dialogbody .up-ai-summary{flex:0 0 100%;min-width:0;border-top:1px solid #e2e9f5;padding-top:14px;margin-top:2px;font-size:13px;line-height:1.9;color:#586b85}
+#dialogbody .up-ai-heading{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+#dialogbody .up-ai-heading>strong{color:#5263ba;font-size:13px;font-weight:600}
+#dialogbody .up-ai-scope{font-size:11px;color:#8390a5}
+#dialogbody .up-ai-controls{display:flex;gap:18px;margin-left:auto}
+#dialogbody .up-ai-controls button{font-size:12px;padding:0}
+#dialogbody .up-ai-controls button:focus-visible{outline:2px solid #1677ff;outline-offset:3px}
+#dialogbody .up-ai-section{display:grid;grid-template-columns:64px minmax(0,1fr);gap:14px;margin-top:12px}
+#dialogbody .up-ai-section>strong{color:#425b7a;font-size:13px;font-weight:600}
+#dialogbody .up-ai-section p{margin:0;overflow-wrap:anywhere}
+#dialogbody .up-ai-verdict b{color:#243e5c;font-weight:600;margin-right:8px}
+#dialogbody .up-ai-actions{border-top:1px solid #e2e9f5;padding-top:12px}
+#dialogbody .up-ai-actions p{white-space:pre-line}
+#dialogbody .up-ai-mark{font-weight:600}
+#dialogbody .up-ai-mark.decision{color:#3c5fd4}
+#dialogbody .up-ai-mark.risk{color:#bf4051}
+#dialogbody .up-ai-mark:is(.attention,.owner){color:#7050a0}
+#dialogbody .up-ai-prompt-dialog{width:min(560px,calc(100vw - 32px));max-width:none;max-height:min(560px,80vh);padding:0;border:1px solid #e0e6f2;border-radius:10px;background:#fff;color:#586b85;box-shadow:0 16px 56px #172c4b30;overflow:hidden;box-sizing:border-box}
+#dialogbody .up-ai-prompt-dialog[open]{display:flex;flex-direction:column}
+#dialogbody .up-ai-prompt-dialog::backdrop{background:rgba(25,40,63,.28)}
+#dialogbody .up-ai-prompt-dialog>header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 18px;border-bottom:1px solid #e8edf5;flex:none}
+#dialogbody .up-ai-prompt-dialog h4{font-size:14px;font-weight:600;color:#243e5c;margin:0}
+#dialogbody .up-ai-prompt-dialog header button{width:28px;height:28px;border:0;border-radius:4px;background:transparent;color:#8390a5;font-size:23px;line-height:1;cursor:pointer}
+#dialogbody .up-ai-prompt-dialog header button:hover{background:#f0f4fa;color:#1677ff}
+#dialogbody .up-ai-prompt-dialog :focus-visible{outline:2px solid #1677ff;outline-offset:-2px}
+#dialogbody .up-ai-prompt-dialog pre{min-height:0;white-space:pre-wrap;overflow-wrap:anywhere;font-family:inherit;line-height:1.85;font-size:13px;padding:16px 20px;overflow:auto;margin:0;color:#586b85;overscroll-behavior:contain}
+#dialogbody .up-ai-summary [hidden]{display:none!important}
+@media(max-width:600px){#dialogbody .up-ai-heading{gap:6px 12px}#dialogbody .up-ai-scope{order:3;flex-basis:100%}#dialogbody .up-ai-section{grid-template-columns:minmax(0,1fr);gap:2px}}
+
+/* 品质退货只分退货率数据、产品违规两块，以留白和一条分隔线区分。 */
+#dialogbody [data-up-panel="quality"] .up-quality-region{padding:0;margin:0;min-width:0}
+#dialogbody [data-up-panel="quality"] .up-quality-region+.up-quality-region{margin-top:28px;padding-top:24px;border-top:1px solid #edf1f7}
+#dialogbody .up-quality-region>h3{margin:0 0 16px;font-size:14px}
+#dialogbody .up-quality-overview{display:grid;grid-template-columns:minmax(220px,1fr) minmax(0,2.6fr);gap:20px;align-items:stretch}
+#dialogbody #up-return-chart{min-width:0}
+#dialogbody .up-return-metrics{min-width:0;display:grid;grid-template-rows:repeat(3,1fr);gap:10px}
+#dialogbody .up-quality-metric{border:0;border-radius:7px;background:#f8faff;padding:13px 16px;min-width:0;font-variant-numeric:tabular-nums}
+#dialogbody .up-quality-metric>small{display:block;color:#8390a5;font-size:12px;line-height:20px}
+#dialogbody .up-quality-metric>div{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:7px}
+#dialogbody .up-quality-metric strong{font-size:22px;line-height:30px;font-weight:500}
+#dialogbody .up-quality-comparison{font-size:11px;line-height:18px;white-space:nowrap}
+#dialogbody .up-quality-comparison .rp-comparison-label{color:#8693a4}
+#dialogbody .up-quality-metric .rp-quality-red{color:#ff3157}
+#dialogbody .up-quality-metric .rp-quality-green{color:#00a486}
+#dialogbody .up-quality-metric .rp-quality-yellow{color:var(--orange)}
+#dialogbody .up-quality-metric .rp-quality-gray{color:#8693a4}
+#dialogbody .up-return-trend{margin:0;padding:0;border:0;min-width:0}
+#dialogbody .up-return-trend h3{margin:0;font-size:13px}
+#dialogbody .up-return-trend .up-trend-legend{margin:12px 0 8px}
+#dialogbody .up-return-trend svg{min-width:0;width:100%;height:240px}
+#dialogbody .up-violation-stats-scroll{overflow:auto;margin-bottom:22px;background:#f8faff;border-radius:6px}
+#dialogbody .up-violation-stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0;min-width:750px;padding:16px 0}
+#dialogbody .up-violation-stats .up-quality-metric{padding:0 18px;border-radius:0;background:transparent}
+#dialogbody .up-violation-stats .up-quality-metric+.up-quality-metric{border-left:1px solid #e5ebf3}
+#dialogbody .up-violation-filters{display:flex;align-items:center;flex-wrap:wrap;gap:12px 28px;margin-bottom:16px}
+#dialogbody .up-violation-tags{display:flex;flex-wrap:wrap;gap:8px}
+#dialogbody .up-violation-quality-check{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:#34455e;cursor:pointer;white-space:nowrap}
+#dialogbody .up-violation-quality-check input{width:14px;height:14px;min-height:14px;padding:0;margin:0;accent-color:#1677ff}
+#dialogbody .up-violation-tags button{padding:5px 12px;border:1px solid #e1e8f2;border-radius:5px;background:#fff;color:#65768c;font-size:12px;cursor:pointer}
+#dialogbody .up-violation-tags button[aria-pressed="true"]{border-color:#91beff;background:#edf5ff;color:#1677ff}
+#dialogbody .up-violation-tags button:focus-visible{outline:2px solid #1677ff;outline-offset:2px}
+#dialogbody .up-violation-platform{min-width:0;margin-top:16px}
+#dialogbody .up-violation-platform h4{margin:0 0 10px;font-size:13px;font-weight:500}
+#dialogbody .up-violation-platform .up-table{max-width:100%;overflow:auto}
+#dialogbody .up-violation-platform table{min-width:1450px;table-layout:auto}
+#dialogbody .up-violation-platform th{white-space:nowrap}
+#dialogbody .up-violation-platform td{min-width:110px;max-width:270px;white-space:pre-line;overflow-wrap:anywhere;vertical-align:top;font-size:12px;line-height:1.8}
+#dialogbody .up-violation-platform td:first-child{min-width:160px}
+#dialogbody .up-violation-platform td:nth-last-child(-n+2){min-width:155px}
+#dialog.business-drawer:has(>#dialogbody .up-detail)>.dialogfoot{display:none}
+@media(max-width:900px){#dialogbody .up-quality-overview{grid-template-columns:minmax(0,1fr)}#dialogbody .up-return-metrics{grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:auto}}
+@media(max-width:600px){#dialogbody .up-return-metrics{grid-template-columns:1fr}#dialogbody .up-return-trend svg{height:auto;min-width:450px}}
+
+/* 库存状态徽章：形状、文字与颜色共同区分，位于标题旁。 */
+#dialogbody .up-stock-heading{display:flex;align-items:center;justify-content:flex-start;gap:16px;flex-wrap:wrap;margin:0 0 16px;min-height:40px}
+#dialogbody .up-stock-heading h3{margin:0}
+#dialogbody .up-stock-risk{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+#dialogbody .up-stock-risk-tag{display:inline-flex;align-items:center;gap:8px;padding:4px 13px 4px 5px;border:1px solid var(--risk-line);border-radius:10px;background:var(--risk-bg);color:var(--risk-ink);font-size:13px;font-weight:650;line-height:24px;white-space:nowrap}
+#dialogbody .up-stock-risk-tag.shortage{--risk-ink:#ca334b;--risk-bg:#fff1f3;--risk-line:#ffd2da;--risk-fill:#e34b65}
+#dialogbody .up-stock-risk-tag.transfer{--risk-ink:#2264ce;--risk-bg:#edf5ff;--risk-line:#cbdfff;--risk-fill:#377fe5}
+#dialogbody .up-stock-risk-tag.stagnant{--risk-ink:var(--orange);--risk-bg:var(--orange-soft);--risk-line:var(--orange-line);--risk-fill:var(--orange-fill)}
+#dialogbody .up-stock-risk-icon{display:grid;place-items:center;width:29px;height:29px;background:var(--risk-fill);color:#fff;border-radius:7px;box-shadow:inset 0 1px 0 #ffffff35}
+#dialogbody .up-stock-risk-icon svg{width:23px;height:23px}
+#dialogbody .up-stock-cards{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+#dialogbody .up-stock-card{min-width:0;background:#f8faff;border:1px solid #e2e9f3;border-radius:7px;padding:16px}
+#dialogbody .up-stock-card h4{font-size:13px;color:#314c6a;font-weight:500;margin:0 0 14px}
+#dialogbody .up-stock-card-value{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-top:10px;font-size:11px;flex-wrap:wrap}
+#dialogbody .up-stock-card-value>span{color:#8390a5}
+#dialogbody .up-stock-card-value strong{font-size:14px;font-weight:500;color:#294561;font-variant-numeric:tabular-nums}
+#dialogbody .up-stock-card-value.primary{display:block;margin-bottom:12px}
+#dialogbody .up-stock-card-value.primary>span{display:none}
+#dialogbody .up-stock-card-value.primary strong{font-size:23px;line-height:32px}
+#dialogbody .up-stock-sku-section{margin-top:20px;padding:16px;border:0;border-radius:0;background:#fff;min-width:0}
+#dialogbody .up-stock-sku-section>h3{margin:0 0 14px}
+#dialogbody #up-stock-skus{overflow:auto;max-width:100%;position:relative}
+#dialogbody .up-stock-sku-table{min-width:1640px;border-collapse:separate;border-spacing:0}
+#dialogbody .up-stock-sku-table :is(th,td){white-space:nowrap;font-size:12px;padding:13px 14px}
+#dialogbody .up-stock-sku-table :is(th,td):first-child{position:sticky;left:0;z-index:1;min-width:230px;max-width:270px;white-space:normal;background:#fff;border-right:1px solid #edf1f7}
+#dialogbody .up-stock-sku-table th:first-child{background:#f5f8fc}
+#dialogbody .up-stock-sku-table tbody tr:hover td{background:#f8fbff}
+@media(max-width:1100px){#dialogbody .up-stock-cards{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:600px){#dialogbody .up-stock-cards{grid-template-columns:repeat(2,minmax(0,1fr))}#dialogbody .up-stock-card{padding:12px}#dialogbody .up-stock-card-value.primary strong{font-size:20px}#dialogbody .up-stock-sku-section{padding:12px}#dialogbody .up-stock-sku-table :is(th,td):first-child{position:static}}
+
+/* 销售趋势即时悬浮提示置于抽屉上方，避免滚动容器裁切。 */
+#dialogbody .up-channel-gsv{margin:18px 0 22px;padding:18px;border:1px solid #e5ebf3;border-radius:7px;background:#fff}
+#dialogbody .up-channel-gsv header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+#dialogbody .up-channel-gsv h3{margin:0;font-size:14px}
+#dialogbody .up-channel-gsv header>span{font-size:12px;color:#8190a5}
+#dialogbody .up-channel-gsv ul{display:grid;gap:16px;list-style:none;padding:0;margin:0}
+#dialogbody .up-channel-gsv li{display:grid;grid-template-columns:62px minmax(0,1fr) 100px;align-items:center;gap:16px;min-height:24px;font-size:13px;color:#304968}
+#dialogbody .up-channel-track{height:18px;position:relative;background:#f5f6fc;border-radius:3px}
+#dialogbody .up-channel-bar{position:absolute;height:100%;border-radius:3px;background:#9185f6}
+#dialogbody .up-channel-bar.is-negative{background:#ed8499}
+#dialogbody .up-channel-zero{position:absolute;top:-3px;bottom:-3px;width:1px;background:#dfe5ef}
+#dialogbody .up-channel-gsv strong{text-align:right;font-size:14px;font-weight:500;font-variant-numeric:tabular-nums}
+@media(max-width:600px){#dialogbody .up-channel-gsv{padding:14px}#dialogbody .up-channel-gsv li{grid-template-columns:48px minmax(0,1fr) 76px;gap:10px}}
+/* 渠道图与经营明细并排，表格按可用宽度分配列宽，窄屏允许文字换行。 */
+#dialogbody .up-channel-comparison{display:grid;grid-template-columns:minmax(280px,.85fr) minmax(0,2fr);gap:16px;margin:18px 0 22px;align-items:stretch}
+#dialogbody .up-channel-comparison .up-channel-gsv{margin:0;min-width:0;display:flex;flex-direction:column}
+#dialogbody .up-channel-comparison .up-channel-gsv header{gap:6px;margin-bottom:16px;align-items:flex-start;flex-direction:column}
+#dialogbody .up-channel-comparison .up-channel-gsv header>span{font-size:11px}
+#dialogbody .up-channel-comparison .up-channel-gsv ul{flex:1;grid-auto-rows:minmax(32px,1fr);gap:8px}
+#dialogbody .up-channel-comparison .up-channel-gsv li{grid-template-columns:64px minmax(0,1fr) 62px;gap:10px;font-size:12px}
+#dialogbody .up-channel-comparison .up-channel-gsv strong{font-size:12px}
+#dialogbody .up-platform-performance{min-width:0;padding:18px;border:1px solid #e5ebf3;border-radius:7px;background:#fff}
+#dialogbody .up-platform-performance>h3{margin:0 0 16px;font-size:14px}
+#dialogbody .up-platform-performance table{min-width:0;width:100%;table-layout:fixed}
+#dialog.business-drawer #dialogbody .up-detail .up-platform-performance :is(th,td){min-width:0;padding:14px 7px;font-size:12px;white-space:normal;overflow-wrap:anywhere}
+#dialogbody .up-platform-performance th:first-child{width:12%}
+#dialogbody .up-platform-performance th:nth-child(4){width:14%}
+@media(max-width:1000px){#dialogbody .up-channel-comparison{grid-template-columns:minmax(0,1fr)}#dialogbody .up-channel-comparison .up-channel-gsv ul{gap:12px}#dialogbody .up-channel-comparison .up-channel-gsv li{grid-template-columns:64px minmax(0,1fr) 76px}}
+.up-sales-tooltip{z-index:5100;min-width:174px;pointer-events:none}
+.up-sales-tooltip-date{display:block;margin-bottom:7px;font-size:12px;font-weight:500;color:#718198}
+.up-sales-tooltip-row{display:flex;align-items:center;justify-content:space-between;gap:24px;margin:5px 0}
+.up-sales-tooltip-row>span{display:flex;align-items:center;gap:7px}
+.up-sales-tooltip-row i{width:7px;height:7px;border-radius:50%;background:var(--point-color)}
+.up-sales-tooltip-row i.up-tooltip-target{width:12px;height:0;border-radius:0;background:none;border-top:2px dashed var(--point-color)}
+.up-sales-tooltip-row b{font-size:13px;font-weight:500;font-variant-numeric:tabular-nums;color:#243e5c}
+#dialogbody :is([data-up-trend-point],[data-up-return-point]){outline:none}
+#dialogbody .up-sales-trend .up-trend-active{fill:rgba(22,119,255,.06)}
+
+#dialogbody .up-return-trend .up-trend-legend{flex-wrap:wrap;gap:8px 18px}
+#dialogbody .up-return-trend .up-target-legend{height:0;background:none;border-top:2px dashed var(--series-color)}
+
+#dialogbody [data-up-return-scroll]{overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:thin}
+#dialogbody [data-up-return-scroll]:focus-visible{outline:2px solid #91beff;outline-offset:2px}
+
+/* 库存分类环图与卡片主数值并排，数量和占比复用即时悬浮层。 */
+#dialogbody .up-stock-card-chart{position:relative}
+#dialogbody .up-stock-card-chart h4,#dialogbody .up-stock-card-chart .primary{padding-right:74px}
+#dialogbody .up-stock-donut{position:absolute;right:9px;top:13px;width:76px;height:76px;border-radius:50%;cursor:default}
+#dialogbody .up-stock-donut svg{display:block;width:100%;height:100%}
+#dialogbody .up-stock-donut:focus-visible{outline:2px solid #1677ff;outline-offset:2px}
+#dialogbody .up-stock-donut-value{font-size:12px;font-weight:650;fill:#314c6a}
+#dialogbody .up-stock-donut-label{font-size:9px;fill:#8390a5}
+@media(max-width:600px){#dialogbody .up-stock-donut{width:60px;height:60px;right:5px;top:14px}#dialogbody .up-stock-card-chart h4,#dialogbody .up-stock-card-chart .primary{padding-right:52px}#dialogbody .up-stock-card-chart .primary strong{font-size:18px}}
+
+.metric-tooltip .stock-tooltip-line{display:block;white-space:nowrap;line-height:24px}
+.metric-tooltip .stock-tooltip-line+.stock-tooltip-line{margin-top:4px}
+
+#dialogbody .up-violation-tags[hidden]{display:none}
+
+#dialogbody .up-hero .up-product-heading{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;margin-bottom:12px}
+#dialogbody .up-hero .up-product-heading h2{margin:0}
+#dialogbody .up-product-heading .up-project-link{margin-left:auto;flex-shrink:0;font-size:13px;font-weight:400}

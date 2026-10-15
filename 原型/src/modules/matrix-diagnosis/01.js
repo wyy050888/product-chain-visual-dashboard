@@ -1,0 +1,30 @@
+
+
+// Director diagnosis derives from the same 30-day ledger as the ABCD table.
+function matrixDiagnosisFacts(p,rows){
+ const profit=r=>r.sales*r.profit/100,sum=(list,key)=>list.reduce((n,r)=>n+(key==='profit'?profit(r):r[key]),0);
+ const groups=[['全部关键产品',rows],['同品类',rows.filter(r=>r.chain===p.chain)],['同渠道',rows.filter(r=>r.channel===p.channel)]];
+ const median=list=>{const sorted=list.map(r=>r.returnRate).sort((a,b)=>a-b),n=sorted.length;return n?(sorted[Math.floor(n/2)]+sorted[Math.floor((n-1)/2)])/2:null};
+ const benchmarks=groups.map(([name,list])=>{const sales=sum(list,'sales'),amount=sum(list,'profit');return{name,count:list.length,sales,profit:amount,margin:sales?amount/sales*100:null,returnMedian:median(list),rank:1+list.filter(r=>r.sales>p.sales).length,share:sales?p.sales/sales*100:null}});
+ return{p,grade:category(p),benchmarks,profit:profit(p),marginGap:p.profit-config.profit,profitGap:Math.max(0,p.sales*(config.profit-p.profit)/100),onePoint:p.sales/100,returnGap:p.returnRate-benchmarks[1].returnMedian};
+}
+function openMatrixDiagnosis(id){withPeriod('matrix',()=>{
+ const period={...periodFor()},rows=productRows(false),p=rows.find(r=>r.id===+id);if(!p)return;
+ const f=matrixDiagnosisFacts(p,rows),cutoff=bounds().cutoff,start=shiftDate(cutoff,-29),company=f.benchmarks[0],peer=f.benchmarks[1],gradeNames={A:'高销高利',B:'高销低利',C:'低销高利',D:'低销低利'},money=v=>fmt(v,2)+' 万元',pct=v=>v===null?'—':fmt(v,1)+'%',signed=v=>(v>0?'+':'')+fmt(v,1)+'%';
+ const priority=f.grade==='D'?'优先止损评审':f.grade==='B'?'优先提升利润':f.grade==='C'?'验证增长机会':'保障核心供给';
+ const judgement={A:'销售规模和利润率均达到分界，具备继续经营和复制的基础。优先保供，并以退货表现验证放量质量。',B:'销售规模达到分界，但利润率不足。先拆解采购、促销与售后成本，再决定投放和补货强度。',C:'利润率达到分界，销售规模尚未达标。先验证渠道需求与转化，再决定增量资源投入。',D:'销售规模和利润率均未达标。应优先验证整改可行性，并评估收缩投入、清库或下市。'}[f.grade];
+ const actions=[
+  {title:f.marginGap<0?'先补利润缺口':'守住利润质量',owner:'品类链主 + 财务 + 采购',time:'3 个工作日完成成本核查',evidence:`当前利润率 ${pct(p.profit)}，分界 ${pct(config.profit)}；${f.profitGap?`按当前销售规模，距利润率分界对应的利润额差 ${money(f.profitGap)}。`:'已达到利润率分界。'}`,plan:'拆分采购价、渠道费用、促销、物流及售后费用；核对单品利润口径，给出可执行的成本或价格方案。',check:`提交经财务复核的成本明细与试行方案；同口径利润率达到 ${pct(config.profit)} 后复盘。`},
+  {title:f.returnGap>0?'核查偏高退货':'持续监控退货',owner:'品质 + 运营 + 客服',time:'2 个工作日完成原因拆分',evidence:`总退货率 ${pct(p.returnRate)}，同品类中位数 ${pct(peer.returnMedian)}，相差 ${signed(f.returnGap)}。`,plan:f.returnGap>0?'按渠道、批次和退货原因定位贡献项，区分质量、描述预期和物流问题，确定验证样本。':'维持批次与渠道监测；新增异常时按原因、订单和售后证据追溯，不以单次波动直接认定质量问题。',check:'提交退货原因与样本验证记录；用后续同口径周期复核改善。中位数仅用于对比，不替代产品退货率目标。'},
+  {title:{A:'确认保供与复制方案',B:'经营规模与利润同步评审',C:'开展限额增长试验',D:'提交保留 / 整改 / 退出评审'}[f.grade],owner:'产品部负责人 + 渠道负责人',time:'7 天内提交经营方案',evidence:`同品类销售排名 ${peer.rank}/${peer.count}，贡献同品类销售 ${pct(peer.share)}；${p.channel} 为当前产品记录渠道。`,plan:{A:'核对库存与供给能力，优先保障成熟渠道，再验证同系列复制机会。',B:'控制低利润促销扩张，以利润改善结果决定补货和投放节奏。',C:'选择小范围渠道试验，预先确定预算、目标和退出条件，通过验证后再扩大。',D:'核对剩余库存、合同与售后责任，对比限期整改、清库和下市方案后提交审批。'}[f.grade],check:'提交方案、责任人、预算与复盘日期；用销售额、利润率、退货率共同评估，不以销量单项验收。'}
+ ];
+ const metrics=[['近30天销售额',money(p.sales),`全部关键产品销售贡献 ${pct(company.share)}`],['利润额（测算）',money(f.profit),'销售额 × 单品利润率'],['单品利润率',pct(p.profit),`较利润率分界 ${signed(f.marginGap)}`],['总退货率',pct(p.returnRate),`较同品类中位数 ${signed(f.returnGap)}`],['同品类销售排名',`${peer.rank} / ${peer.count}`,`同品类销售贡献 ${pct(peer.share)}`],['利润达标差额（测算）',money(f.profitGap),`按 ${pct(config.profit)} 利润率分界测算`]];
+ const comparisonHeaders=['对照范围','产品数','销售额（万元）','本品销售贡献','本品销售排名','加权利润率','退货率中位数'];
+ const comparisonRows=f.benchmarks.map(r=>[r.name,r.count,fmt(r.sales,2),pct(r.share),r.rank+' / '+r.count,pct(r.margin),pct(r.returnMedian)]);
+ openModal('关键产品 AI 诊断 · '+p.model,`<article class="md-diagnosis"><header class="md-hero"><div>${riskThumbnail(p.name)}<div><h2>${esc(p.name)}</h2><p>${esc(p.model)} · ${esc(chains[p.chain])} · ${esc(p.brand)} · 渠道 ${esc(p.channel)}</p></div></div><span class="tag ${f.grade==='D'?'red':f.grade==='B'?'orange':'green'}">${f.grade} · ${gradeNames[f.grade]}</span></header><section class="md-verdict"><div class="md-title"><span class="ai-logo">✧ AI</span><h3>总监决策摘要</h3><span>${priority}</span></div><p>${judgement}</p><p>本品近30天销售 ${money(p.sales)}，占全部关键产品销售 ${pct(company.share)}；利润额测算 ${money(f.profit)}。${f.returnGap>0?'退货率高于同品类中位数，建议并行核查售后问题。':'退货率未高于同品类中位数，继续跟踪后续表现。'}</p></section><div class="md-kpis">${metrics.map(([label,value,note])=>`<div><small>${label}</small><strong>${value}</strong><p>${note}</p></div>`).join('')}</div><section class="md-section"><h3>经营对照 · 看贡献，也看经营质量</h3><div class="tablewrap">${table(comparisonHeaders,comparisonRows)}</div><p class="md-note">范围为当前快照全部 ${rows.length} 款关键产品，不代表公司全部业务；同品类与同渠道统计包含本品。排名按销售额降序，同额同名次；利润率按销售额加权。</p></section><section class="md-scenario"><h3>改善价值测算</h3><strong>利润率每提升 1%，对应利润增加 ${money(f.onePoint)}</strong><p>假设销售额不变，仅作敏感性测算。${f.profitGap?`若达到当前利润率分界，利润额需提升 ${money(f.profitGap)}。`:'当前利润率已达到分界，应优先守住现有盈利质量。'}实际收益需结合价格、成本和销量变化复核。</p></section><section class="md-section"><h3>建议行动与验收标准</h3><div class="md-actions">${actions.map((a,i)=>`<section><div><span class="tag">0${i+1}</span><h4>${a.title}</h4></div><p class="md-evidence">${a.evidence}</p><p>${a.plan}</p><dl><dt>建议牵头</dt><dd>${a.owner}</dd><dt>建议时限</dt><dd>${a.time}</dd><dt>验收依据</dt><dd>${a.check}</dd></dl></section>`).join('')}</div></section><p class="md-note">诊断依据：当前关键产品经营演示数据及 ABCD 分级规则。退货金额、库存占款与净现金贡献暂无同口径明细，不推算实际损失；以上为基于数据规则生成的诊断示例。</p></article>`);
+ $('#dialogsub').textContent='公司总监视角 · '+start+' — '+cutoff+' · 近30天经营数据';
+ 
+ $('#dialogactions').insertAdjacentHTML('afterbegin','<button class="btn small" id="md-open-trend">查看趋势</button>');
+ $('#md-open-trend').onclick=()=>{const old=localPeriods.matrix;localPeriods.matrix=period;try{openNewProductTrends(p.id,false,'matrix')}finally{if(old)localPeriods.matrix=old;else delete localPeriods.matrix}};
+ });}
+document.addEventListener('click',e=>{const button=e.target.closest('[data-matrix-diagnosis],[data-dp-matrix-diagnosis]');if(!button)return;if(button.dataset.dpMatrixDiagnosis!==undefined)dpLegacy('matrix','matrix',()=>openMatrixDiagnosis(button.dataset.dpMatrixDiagnosis));else openMatrixDiagnosis(button.dataset.matrixDiagnosis)});

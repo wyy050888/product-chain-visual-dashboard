@@ -1,0 +1,48 @@
+/* 店铺榜沿用品质榜的头部、盾牌序号与指标色；身份评分独立排版。 */
+#riskrail .rp-shop-columns,#riskrail .rp-shop-values {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+#riskrail .rp-shop-columns {padding:8px 0;background:#f6f8fb;border-radius:5px;color:#7e8b9e;font-size:11px;line-height:16px}
+#riskrail .rp-shop-entry {padding:10px 0}
+#riskrail .rp-shop-entry .rp-entry-main>header {margin-bottom:8px;min-height:42px;gap:8px}
+#riskrail .rp-shop-entry .rp-shop-identity b {font-size:15px;font-weight:400;line-height:22px}
+#riskrail .rp-shop-entry .rp-shop-identity small {display:block;font-size:10px;line-height:17px;margin-top:3px}
+.rp-shop-identity .rp-platform-name {display:flex;align-items:center;gap:6px;min-width:0}
+.rp-shop-identity .rp-platform-name>span {overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rp-shop-identity .rp-identity-title {display:flex;align-items:center;gap:5px}
+.rp-shop-identity .rp-identity-title>b {flex:0 1 auto;min-width:0}
+.rp-shop-identity .rp-platform-mark {flex:none;width:16px;height:16px}
+.rp-shop-assessed {display:inline-flex;align-items:center;justify-content:center;flex:none;width:22px;height:24px;vertical-align:middle;filter:drop-shadow(0 1px 1px #43658b20)}
+.rp-shop-assessed {cursor:help}
+.rp-shop-assessed:focus-visible {outline:2px solid #b6cbe5;outline-offset:2px;border-radius:3px}
+.rp-shop-assessed>svg {display:block;width:22px;height:24px}
+#riskrail .rp-shop-scores {display:grid;grid-template-columns:repeat(4,36px);gap:5px;flex:none;text-align:center}
+#riskrail .rp-shop-scores small {display:block;color:#8693a4;font-size:10px;line-height:17px}
+#riskrail .rp-shop-scores strong {display:block;color:#52657d;font-size:13px;font-weight:500;line-height:21px;font-variant-numeric:tabular-nums}
+#riskrail .rp-shop-metric {min-width:0;font-variant-numeric:tabular-nums}
+#riskrail .rp-shop-metric strong {display:block;font-size:16px;font-weight:600;line-height:26px;white-space:nowrap;color:#52657d}
+#riskrail .rp-shop-metric small {display:block;color:#8693a4;font-size:11px;line-height:17px;white-space:nowrap}
+#riskrail .rp-shop-mobile-label {display:none}
+#dialogbody #rf-list-table.rp-shop-table table {table-layout:fixed!important;min-width:2450px!important}
+#dialogbody #rf-list-table.rp-shop-table :is(th,td) {min-width:0!important;width:128px;padding:12px 14px}
+#dialogbody #rf-list-table.rp-shop-table :is(th,td):first-child {width:48px;min-width:48px!important;padding-inline:8px}
+#dialogbody #rf-list-table.rp-shop-table :is(th,td):nth-child(2) {width:310px;min-width:310px!important;left:48px}
+#dialogbody #rf-list-table.rp-shop-table :is(th,td):nth-child(3) {width:300px;min-width:300px!important}
+#dialogbody #rf-list-table.rp-shop-table :is(th,td):nth-child(6) {width:160px}
+#dialogbody #rf-list-table.rp-shop-table :is(th,td):last-child {width:96px;min-width:96px!important}
+#dialogbody .rp-shop-table .rp-list-value strong {font-size:13px;line-height:22px}
+#dialogbody .rp-shop-table .rp-list-value em {font-size:11px;white-space:nowrap;margin-top:2px}
+#dialogbody .rp-shop-table .rp-identity b {font-size:13px;font-weight:400;line-height:20px}
+#dialogbody .rp-shop-table .rp-identity small {font-size:10px;line-height:17px;margin-top:3px}
+#dialogbody .rp-shop-table .rp-identity>.risk-thumb {width:48px;height:48px}
+#dialogbody .rp-shop-spu b {display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+@media(max-width:1799px) and (min-width:1201px),(max-width:600px){
+ #riskrail .rp-shop-entry .rp-entry-main>header {flex-wrap:wrap}
+ #riskrail .rp-shop-entry .rp-shop-identity {flex-basis:calc(100% - 40px)}
+ #riskrail .rp-shop-scores {margin-left:32px;flex-basis:calc(100% - 32px);grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;text-align:left}
+ #riskrail .rp-shop-scores>div {min-width:0}
+}
+
+@media(max-width:600px){
+ #riskrail .rp-shop-columns {display:none}
+ #riskrail .rp-shop-values {grid-template-columns:repeat(2,minmax(0,1fr));row-gap:12px}
+ #riskrail .rp-shop-mobile-label {display:block;color:#8693a4;font-size:11px;line-height:18px}
+}

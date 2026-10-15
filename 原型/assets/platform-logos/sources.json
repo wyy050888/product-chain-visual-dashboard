@@ -1,0 +1,83 @@
+{
+  "verified": "2026-10-13",
+  "logos": [
+    {
+      "key": "douyin",
+      "name": "抖音",
+      "page": "https://www.douyin.com/",
+      "asset": "https://www.douyin.com/favicon.ico",
+      "file": "assets/platform-logos/douyin.png",
+      "size": [
+        32,
+        32
+      ],
+      "sha256": "e67348e3ab54fa207e1ce4be78e8399d1b73a794d819a17d8656ea2b17a1109d",
+      "note": "Official asset pixels preserved; ICO largest image converted to PNG without redrawing."
+    },
+    {
+      "key": "kuaishou",
+      "name": "快手",
+      "page": "https://www.kuaishou.com/about/",
+      "asset": "https://s2-11673.kwimgs.com/udata/pkg/fe/favicon.70ff1fcc.ico",
+      "file": "assets/platform-logos/kuaishou.png",
+      "size": [
+        48,
+        48
+      ],
+      "sha256": "bf5395b95b48de26617dcc05a1cd826f0e29e643ef862569285127992c1e26f1",
+      "note": "Official asset pixels preserved; ICO largest image converted to PNG without redrawing."
+    },
+    {
+      "key": "channels",
+      "name": "视频号",
+      "page": "https://channels.weixin.qq.com/",
+      "asset": "https://res.wx.qq.com/t/wx_fed/finder/helper/finder-helper-web/res/favicon-v2.ico",
+      "file": "assets/platform-logos/channels.png",
+      "size": [
+        32,
+        32
+      ],
+      "sha256": "f27ed8a51c12055714e2867bc346e6c8fe5e31719ef7d8675e9f23422ca0b92d",
+      "note": "Official asset pixels preserved; ICO largest image converted to PNG without redrawing."
+    },
+    {
+      "key": "tmall",
+      "name": "天猫",
+      "page": "https://www.tmall.com/",
+      "asset": "https://img.alicdn.com/tfs/TB1XlF3RpXXXXc6XXXXXXXXXXXX-16-16.png",
+      "file": "assets/platform-logos/tmall.png",
+      "size": [
+        16,
+        16
+      ],
+      "sha256": "46fc26e5398bc35cb6836d3d50b2f7eed0b2f9138e8bf6362201c2211d04b9ee",
+      "note": "Official asset pixels preserved; ICO largest image converted to PNG without redrawing."
+    },
+    {
+      "key": "jd",
+      "name": "京东",
+      "page": "https://www.jd.com/",
+      "asset": "https://storage.360buyimg.com/retail-mall/mall-common-component/favicon.ico",
+      "file": "assets/platform-logos/jd.png",
+      "size": [
+        96,
+        96
+      ],
+      "sha256": "d71bcae7214e3401d42af8b8f4a288da25fdc72601e7592586e5596e45f481ba",
+      "note": "Official asset pixels preserved; ICO largest image converted to PNG without redrawing."
+    },
+    {
+      "key": "pinduoduo",
+      "name": "拼多多",
+      "page": "https://www.pinduoduo.com/",
+      "asset": "https://www.pinduoduo.com/favicon.png",
+      "file": "assets/platform-logos/pinduoduo.png",
+      "size": [
+        48,
+        48
+      ],
+      "sha256": "b4f29e73875ca7d6aa5d1bfcfdb2aa5893cd3602a4f3fd873c59acf1d49cbe53",
+      "note": "Official asset pixels preserved; ICO largest image converted to PNG without redrawing."
+    }
+  ]
+}

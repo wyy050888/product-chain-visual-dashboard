@@ -1,0 +1,33 @@
+/* 多列看板统一卡片和六条记录的高度；保留内容的最小高度，避免裁切指标。 */
+@media(min-width:901px){
+ #riskrail {align-items:stretch;grid-auto-rows:1fr}
+ #riskrail .riskcard .rp-items {flex:1;display:grid;grid-template-rows:repeat(6,minmax(min-content,1fr));align-content:stretch}
+ #riskrail .riskcard .rp-items:has(>.rp-quality-columns,>.rp-shop-columns) {grid-template-rows:32px repeat(6,minmax(min-content,1fr))}
+ #riskrail .riskcard .rp-entry {display:flex;flex-direction:column;justify-content:center;min-height:106px;padding-block:7px}
+ #riskrail .rp-shop-entry .rp-entry-main>header {min-height:40px;margin-bottom:7px}
+ #riskrail .rp-items>.empty {grid-row:1/-1;align-self:center}
+}
+/* 中等桌面宽度下，品质/亏损指标换行并自带名称，不保留隐藏列头的网格行。 */
+@media(max-width:1799px) and (min-width:1201px){
+ #riskrail .riskcard .rp-items:has(>.rp-quality-columns) {grid-template-rows:repeat(6,minmax(min-content,1fr))}
+}
+/* 单列窄屏按内容自然展开，避免为跨卡片对齐留下大块空白。 */
+
+/* 六榜阅读层级：核心风险沿用业务色，店铺评分独立强调。 */
+#riskrail [data-rp-kind="0"] :is([data-rp-field="return"],[data-rp-field="received"])>strong,
+#riskrail [data-rp-kind="1"] [data-rp-field="sanctions"]>strong,
+#riskrail [data-rp-kind="2"] [data-rp-field="loss"]>strong,
+#riskrail [data-rp-kind="3"] :is([data-rp-field="total"],[data-rp-field="turn"])>strong,
+#riskrail [data-rp-kind="4"] :is([data-rp-field="staleUnits"],[data-rp-field="staleValue"],[data-rp-field="age"])>strong,
+#riskrail [data-rp-kind="6"] :is([data-rp-field="return"],[data-rp-field="received"])>strong {font-size:16px;font-weight:600}
+#riskrail .rp-shop-scores {grid-template-columns:repeat(4,44px);gap:4px}
+#riskrail .rp-shop-scores [data-rp-field="score"] strong {font-size:14px;font-weight:600}
+@media(max-width:1799px) and (min-width:1201px),(max-width:600px){
+ #riskrail .rp-shop-scores {grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+}
+
+/* 主数值与辅助指标分行留白，六榜统一；不影响店铺评分和抽屉。 */
+#riskrail :is(.rp-quality-metric,.rp-shop-metric)>small {margin-top:6px}
+
+/* 主信息与指标之间留出独立间距，保留指标内部两行间距。 */
+#riskrail :is(.rp-quality-entry,.rp-shop-entry) .rp-entry-main>header {margin-bottom:13px}

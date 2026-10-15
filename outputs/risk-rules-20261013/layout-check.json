@@ -1,0 +1,47 @@
+{
+  "rows": 331,
+  "blocks": [
+    {
+      "name": "品质风险榜",
+      "start": 11,
+      "end": 75,
+      "metricCount": 29,
+      "cardCount": 11
+    },
+    {
+      "name": "高危店铺榜",
+      "start": 78,
+      "end": 134,
+      "metricCount": 25,
+      "cardCount": 5
+    },
+    {
+      "name": "亏损产品榜",
+      "start": 137,
+      "end": 175,
+      "metricCount": 13,
+      "cardCount": 6
+    },
+    {
+      "name": "库存风险榜",
+      "start": 178,
+      "end": 226,
+      "metricCount": 21,
+      "cardCount": 5
+    },
+    {
+      "name": "滞销产品榜",
+      "start": 229,
+      "end": 271,
+      "metricCount": 15,
+      "cardCount": 5
+    },
+    {
+      "name": "退货恶化榜",
+      "start": 274,
+      "end": 329,
+      "metricCount": 26,
+      "cardCount": 7
+    }
+  ]
+}

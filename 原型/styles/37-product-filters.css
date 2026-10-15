@@ -1,0 +1,9 @@
+/* 产品属性共享筛选；复用全局字段+组件样式，不新造输入框结构。 */
+.pf-tools{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:12px 0}
+.pf-main-scope{background:#fff;border:1px solid #e1e8f3;border-radius:6px;padding:12px 16px;margin:12px 0 16px}
+.pf-scope-title{font-size:13px;color:#7f8da5;margin-right:4px}
+.pf-tools>label{display:inline-flex;align-items:center;white-space:nowrap}
+.pf-tools .unified-input-group{height:36px}
+#riskrail .qr-card-filter{display:flex;gap:8px;flex-wrap:wrap}
+#riskrail .qr-card-filter label{display:flex;align-items:center;gap:6px;font-size:12px;color:#8391a8}
+@media(max-width:700px){.pf-tools{gap:8px}.pf-main-scope{padding:10px}.pf-tools .unified-input-group{flex:1;min-width:140px}.pf-scope-title{width:100%}}

@@ -1,0 +1,157 @@
+/* 全部模块采用同一筛选区：日期、统计范围、业务条件紧邻并左对齐。 */
+.page .unified-filter-bar,
+#ai-inline-controls.unified-filter-bar {
+  display:flex; align-items:center; justify-content:flex-start; flex-wrap:wrap;
+  gap:12px 16px; width:100%; margin:0 0 18px; padding:12px 0 16px;
+  border-bottom:1px solid #e8edf5;
+}
+:is(.page :is(.unified-filter-bar,.module-header-time),.ui-business-filters) .period-picker { gap:8px; flex-wrap:wrap; }
+:is(.page :is(.unified-filter-bar,.module-header-time),.ui-business-filters) .period-note {
+  flex:0 1 auto; min-width:0; margin:0; padding:0; text-align:left; line-height:1.5;
+}
+:is(.page :is(.unified-filter-bar,.module-header-time),.ui-business-filters) .period-range,:is(.page :is(.unified-filter-bar,.module-header-time),.ui-business-filters) .ai-range-label {
+  display:inline-flex; align-items:center; gap:0; color:#8090a9; font-size:11px;
+  white-space:nowrap; margin:0; padding:0;
+}
+:is(.page :is(.unified-filter-bar,.module-header-time),.ui-business-filters) .period-range em,
+.page .ai-range-label > .tag { display:none; }
+:is(.page :is(.unified-filter-bar,.module-header-time),.ui-business-filters) .sales-time-controls {
+  display:flex; align-items:center; justify-content:flex-start; gap:12px 16px; flex-wrap:wrap;
+}
+.page .unified-filter-extras,.page .unified-ai-extra-filters {
+  display:flex; align-items:center; flex-wrap:wrap; justify-content:flex-start; gap:12px;
+}
+.page .unified-filter-field {
+  display:inline-flex; align-items:center; gap:6px; margin:0; padding:0; white-space:nowrap;
+  font-size:12px; font-weight:400; color:#8190a7;
+}
+.page .unified-filter-field select { max-width:180px; }
+:is(.page :is(.unified-filter-bar,.module-header-time),.ui-business-filters) .ui-search-field { margin-left:0; }
+:is(.page :is(.unified-filter-bar,.module-header-time),.ui-business-filters) .ai-time-main {
+  flex:0 1 auto; width:auto; margin:0; padding:0; gap:10px; justify-content:flex-start;
+}
+:is(.page :is(.unified-filter-bar,.module-header-time),.ui-business-filters) .ai-dimension-filters {
+  flex:0 1 auto; width:auto; margin:0; padding:0; gap:12px; justify-content:flex-start;
+}
+:is(.page :is(.unified-filter-bar,.module-header-time),.ui-business-filters) .ai-dimension-filters label:not(.unified-input-group) {
+  display:inline-flex; flex-direction:row; align-items:center; gap:6px; font-size:12px;
+}
+:is(.page :is(.unified-filter-bar,.module-header-time),.ui-business-filters) .ai-dimension-filters select { min-height:34px; }
+.page .sectionhead > .inline:not(:has(button,select,input,a)) { display:none; }
+#snapshot,#inventorydate,.page .sectionhead .period { display:none; }
+#ai-inline-details .ap-tools { justify-content:space-between; }
+@media(max-width:1100px) {
+  .page .unified-filter-bar { gap:10px 12px; }
+  .page .unified-filter-extras,.page .unified-ai-extra-filters { gap:10px; }
+}
+@media(max-width:700px) {
+  .page .unified-filter-bar { align-items:flex-start; padding:10px 0 14px; }
+  .page .unified-filter-extras { width:100%; }
+  :is(.page :is(.unified-filter-bar,.module-header-time),.ui-business-filters) .ui-search-field { flex:1 1 180px; }
+  :is(.page :is(.unified-filter-bar,.module-header-time),.ui-business-filters) .period-note { flex-basis:100%; }
+  :is(.page :is(.unified-filter-bar,.module-header-time),.ui-business-filters) .ai-time-main { width:100%; }
+}
+
+#ai-inline-controls.unified-filter-bar { border-top:0; }
+
+/* 一体化字段：边界包住字段名和输入值，原生日期与下拉交互保持不变。 */
+:is(.page :is(.unified-filter-bar,.module-header-time),.ui-business-filters) .unified-input-group {
+  display:inline-flex; flex-direction:row; align-items:center; flex:0 1 auto;
+  gap:0; min-width:0; min-height:36px; margin:0; padding:0;
+  border:1px solid #e0e3e8; border-radius:6px; background:#fff;
+  color:#24334b; transition:border-color .15s,box-shadow .15s;
+}
+:is(.page :is(.unified-filter-bar,.module-header-time),.ui-business-filters) .unified-input-group:hover { border-color:#a8bfdf; }
+:is(.page :is(.unified-filter-bar,.module-header-time),.ui-business-filters) .unified-input-group:focus-within {
+  border-color:#1677ff; box-shadow:0 0 0 3px #1677ff12;
+}
+:is(.page :is(.unified-filter-bar,.module-header-time),.ui-business-filters) .unified-field-name {
+  display:flex; align-items:center; flex:0 0 auto; padding:0 10px;
+  border:0; border-radius:0;
+  background:transparent; color:#34455f; font-size:12px; font-weight:400;
+  line-height:1.3; white-space:nowrap; cursor:pointer;
+}
+:is(.page :is(.unified-filter-bar,.module-header-time),.ui-business-filters) .unified-input-group > :is(select,input) {
+  flex:1 1 auto; min-width:0; min-height:34px; height:34px;
+  margin:0; padding:6px 10px; border:0; border-radius:0 5px 5px 0;
+  background-color:transparent; box-shadow:none; color:#24334b; font-size:13px;
+}
+:is(.page :is(.unified-filter-bar,.module-header-time),.ui-business-filters) .unified-input-group > select { min-width:78px; max-width:175px; }
+:is(.page :is(.unified-filter-bar,.module-header-time),.ui-business-filters) .unified-input-group > input[type=date] { width:139px; }
+:is(.page :is(.unified-filter-bar,.module-header-time),.ui-business-filters) .unified-input-group > input[type=month] { width:143px; }
+:is(.page :is(.unified-filter-bar,.module-header-time),.ui-business-filters) .unified-input-group:has(.ui-filter-active) {
+  border-color:#afcdf8; background:#fff;
+}
+:is(.page :is(.unified-filter-bar,.module-header-time),.ui-business-filters) .unified-input-group:has(.ui-filter-active) > .unified-field-name {
+  color:#34455f; background:transparent; border:0;
+}
+:is(.page :is(.unified-filter-bar,.module-header-time),.ui-business-filters) .ui-search-field.unified-input-group > input {
+  width:210px!important; padding-right:30px!important;
+}
+:is(.page :is(.unified-filter-bar,.module-header-time),.ui-business-filters) .ai-day-range { flex-wrap:wrap; gap:8px; }
+@media(max-width:700px) {
+  :is(.page :is(.unified-filter-bar,.module-header-time),.ui-business-filters) .ui-search-field.unified-input-group { max-width:100%; }
+  :is(.page :is(.unified-filter-bar,.module-header-time),.ui-business-filters) .ui-search-field.unified-input-group > input { width:160px!important; }
+  :is(.page :is(.unified-filter-bar,.module-header-time),.ui-business-filters) .unified-field-name { padding:0 8px; }
+}
+
+:root { --filter-chevron:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='m3 4.5 3 3 3-3' fill='none' stroke='%2365758a' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); }
+
+/* 下拉值在可选区域居中，箭头独立占位，搜索与日期输入不改对齐。 */
+:is(.page :is(.unified-filter-bar,.module-header-time),.ui-business-filters) .unified-input-group > select,
+:is(.page :is(.unified-filter-bar,.module-header-time),.ui-business-filters,.qr-card-filter,.risk-card-actions) select {
+  appearance:none; text-align:center; text-align-last:center;
+  padding-left:22px; padding-right:22px;
+  background-image:var(--filter-chevron);
+  background-position:right 8px center; background-size:12px 12px; background-repeat:no-repeat;
+}
+
+/* 搜索没有字段名分栏，所有业务列表使用相同图标、内边距和焦点样式。 */
+:is(.page :is(.unified-filter-bar,.module-header-time),.ui-business-filters) .ui-search-field.unified-input-group {
+  align-items:center; position:relative;
+}
+:is(.page :is(.unified-filter-bar,.module-header-time),.ui-business-filters) .ui-search-field.unified-input-group::before {
+  content:""; position:absolute; left:11px; top:50%; transform:translateY(-50%);
+  width:16px; height:16px; pointer-events:none;
+  background:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%238290a6%22%20stroke-width%3D%221.8%22%20stroke-linecap%3D%22round%22%3E%3Ccircle%20cx%3D%2210.5%22%20cy%3D%2210.5%22%20r%3D%226.5%22%2F%3E%3Cpath%20d%3D%22m15.5%2015.5%205%205%22%2F%3E%3C%2Fsvg%3E") center / contain no-repeat;
+}
+:is(.page :is(.unified-filter-bar,.module-header-time),.ui-business-filters) .ui-search-field.unified-input-group > input {
+  padding-left:35px!important; border-radius:5px;
+}
+
+/* 标题行只放时间；下方只放业务条件，重置跟在最后一个条件右侧。 */
+.page .module-timebar[hidden] { display:none; }
+.page .sectionhead { flex-wrap:wrap; align-items:center; gap:12px 16px; margin-bottom:12px; }
+.page .module-header-time {
+  display:flex; align-items:center; justify-content:flex-end; flex-wrap:wrap;
+  gap:10px; min-width:0; max-width:100%; margin-left:auto;
+}
+.page .module-header-time .period-picker {
+  display:flex; align-items:center; flex-wrap:wrap; gap:8px;
+}
+.page .module-header-time .period-note {
+  flex:0 1 auto; min-width:0; margin:0; padding:0; text-align:left;
+}
+.page .module-header-time :is(.period-range,.ai-range-label) {
+  display:inline-flex; margin:0; padding:0; color:#8090a9; font-size:11px; white-space:nowrap;
+}
+.page .module-header-time .ai-time-main {
+  display:flex; flex-wrap:wrap; justify-content:flex-end; align-items:center;
+  gap:10px; width:auto; margin:0; padding:0;
+}
+.page .module-header-time #ai-month { border-radius:5px; }
+.page .module-header-time .ai-date-label:has(#ai-month) .unified-field-name { display:none; }
+.page .unified-filter-bar, #ai-inline-controls.unified-filter-bar { padding:4px 0 14px; gap:12px; }
+.page .section:has(> .module-timebar[hidden]) > .sectionhead {
+  padding-bottom:16px; margin-bottom:18px; border-bottom:1px solid #e8edf5;
+}
+.page .module-header-time .ai-day-range { justify-content:flex-end; }
+@media(max-width:900px) {
+  .page .module-header-time { flex:1 1 100%; }
+}
+@media(max-width:700px) {
+  .page .module-header-time, .page .module-header-time .ai-time-main {
+    justify-content:flex-start; margin-left:0;
+  }
+  .page .module-header-time .ai-day-range { justify-content:flex-start; }
+}

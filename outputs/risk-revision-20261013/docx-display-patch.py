@@ -1,0 +1,20 @@
+from pathlib import Path
+import json
+root=Path('原型')
+p=root/'src/modules/sales-review/01-model.js';s=p.read_text(encoding='utf-8-sig').replace('rows.map(msFacts)','rows.map(r=>msFacts(r))');p.write_text(s,encoding='utf-8')
+p=root/'src/modules/risk-presentation/01-fields.js';s=p.read_text(encoding='utf-8-sig')
+s=s.replace("fmt(r.qualityFine)+'元'",'pfMoneyYuan(r.qualityFine)').replace("fmt(r.frozenAmount)+'元'",'pfMoneyYuan(r.frozenAmount)')
+s=s.replace("(m.fine>=10000?fmt(m.fine/10000,2)+'万':fmt(m.fine)+'元')",'pfMoneyYuan(m.fine)').replace("(m.frozen>=10000?fmt(m.frozen/10000,2)+'万':fmt(m.frozen)+'元')",'pfMoneyYuan(m.frozen)')
+s=s.replace("fmt(m.fine)+'元'",'pfMoneyYuan(m.fine)').replace("fmt(m.frozen)+'元'",'pfMoneyYuan(m.frozen)')
+p.write_text(s,encoding='utf-8')
+p=root/'src/modules/risk-presentation/02-cards.js';s=p.read_text(encoding='utf-8-sig')
+s=s.replace("${r.channel} · ${rpShopType(r)} · ID ${r.shopId}","ID ${r.shopId} · ${rpShopType(r)}")
+s=s.replace("${esc(r.name)}</b>","${esc(r.name)}${k===1&&drawerPlatformLogos[r.channel]?'<img class=\"rp-shop-platform-mark\" src=\"assets/platform-logos/'+drawerPlatformLogos[r.channel]+'.png\" alt=\"'+esc(r.channel)+'\" title=\"'+esc(r.channel)+'\">':''}</b>")
+p.write_text(s,encoding='utf-8')
+p=root/'src/modules/ui-controls/02-search-layout.js';s=p.read_text(encoding='utf-8-sig').replace('.pf-tools\';','.pf-tools,.ms-drawer-toolbar\';');p.write_text(s,encoding='utf-8')
+p=root/'src/modules/product-filters/02-scopes.js';s=p.read_text(encoding='utf-8-sig').replace("pfRefreshScope()};","for(const b of pfMainBar.querySelectorAll('[role=radio]'))b.setAttribute('aria-checked',String(b.dataset.pfAttributeChoice==='all'));pfMainBar.querySelector('.pf-attribute-value').textContent='全部';pfRefreshScope()};");p.write_text(s,encoding='utf-8')
+p=root/'src/modules/risk-presentation/04-lists.js';s=p.read_text(encoding='utf-8-sig').replace("setPage(1);fill()};\n  if(quality)","for(const b of document.querySelectorAll('#dialogbody .pf-attribute [role=radio]'))b.setAttribute('aria-checked',String(b.dataset.pfAttributeChoice==='all'));const v=document.querySelector('#dialogbody .pf-attribute-value');if(v)v.textContent='全部';setPage(1);fill()};\n  if(quality)");p.write_text(s,encoding='utf-8')
+p=root/'manifest.json';m=json.loads(p.read_text(encoding='utf-8-sig'));i=next(i for i,x in enumerate(m['scripts']) if x['file'].endswith('startup/02-render.js'))
+m['scripts'][i:i]=[{'file':f'src/modules/{f}','module':'文档规范与销售达成'} for f in ['product-filters/04-display.js','sales-review/01-model.js','sales-review/02-view.js','sales-review/03-drawer.js']]
+m['styles'].append('styles/38-document-review.css')
+p.write_text(json.dumps(m,ensure_ascii=False,indent=2),encoding='utf-8')

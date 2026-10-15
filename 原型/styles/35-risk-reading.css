@@ -1,0 +1,99 @@
+/* 看板视觉层：统一页面层级；风险条目中的名称和值始终保持相邻。 */
+body:has(main.page > #risk) {background:radial-gradient(ellipse at 0 0,#e9f1fb 0,transparent 45%),linear-gradient(120deg,#f2f5fa,#f6f8fb 60%,#eef5f7)}
+.page {padding-top:12px;--module-header-background:linear-gradient(105deg,#f7faff,#fff 80%)}
+.head.portal-header {background:#fff;border-bottom-color:#e3e9f1;box-shadow:0 1px 8px #20355005}
+.page>.jumpnav {background:#ffffffde;border:1px solid #e2e8f1;border-radius:8px;padding:8px 10px;box-shadow:0 2px 6px #26436604}
+.page>.jumpnav a {font-size:13px;color:#63748a;border-radius:5px}
+.page>.jumpnav a.active {background:#eaf2ff;color:#1767de}
+.page>.section {padding:18px;border:1px solid #e0e7f0;border-radius:9px;background:#fff;box-shadow:0 2px 6px #25446304;margin-bottom:18px}
+.page>.section>.sectionhead,.page>.section:has(>.module-timebar[hidden])>.sectionhead {min-height:54px;margin:-18px -18px 16px;padding:12px 18px;background:var(--module-header-background);border-bottom:1px solid #e7edf4;border-radius:9px 9px 0 0}
+.page>.section>.sectionhead h2 {font-size:18px;line-height:26px;color:#203650}
+/* 标题旁说明不展示；保留节点供各模块刷新数据时使用。 */
+.page>.section>.sectionhead .titlegroup>.sub {display:none}
+.page>#risk {padding:18px;border:1px solid #e0e7f0;border-radius:9px;background:#fff;box-shadow:0 2px 6px #25446304}
+/* 高危总览头部：浅红向白色渐隐，装饰与内容共用容器，不增加红框。 */
+.page>#risk>.sectionhead {position:relative;isolation:isolate;margin:-18px -18px 16px;padding:12px 18px;min-height:54px;background:radial-gradient(ellipse at 48% 0,#ffe8ed99,transparent 70%),linear-gradient(180deg,#fff7f8,#fff 100%);border:0;border-radius:9px 9px 0 0;gap:12px 18px}
+#risk>.sectionhead h2 {display:inline-flex;align-items:center;gap:8px;font-size:18px}
+#risk>.sectionhead .risk-title-alert {display:block;width:18px;height:18px;flex:none;color:#df465c;pointer-events:none}
+/* 六榜共用自然高度；身份、核心异常、辅助数据依次阅读。 */
+#riskrail {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:start;gap:16px}
+#riskrail .riskcard {display:flex;flex-direction:column;padding:12px 14px 4px;min-width:0;min-height:0;background:#fff;border:1px solid #dfe7f1;border-radius:9px;box-shadow:none}
+#riskrail .rhead {display:flex;min-height:26px;align-items:center;gap:10px;margin:0}
+#riskrail .rhead h3 {font-size:16px;color:#203652;line-height:24px;font-weight:600}
+#riskrail .riskbadge {background:#4d82d9;width:3px;height:15px;border-radius:3px}
+#riskrail .rhead>.link {margin-left:auto;font-size:12px;white-space:nowrap}
+#riskrail .rp-card-toolbar {display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px 8px;margin:3px 0 7px;min-height:28px}
+#riskrail .risk-card-subtitle {font-size:11px;line-height:18px;color:#8a98ab;margin:0}
+#riskrail .rp-card-toolbar .qr-card-filter {display:flex;justify-content:flex-end;gap:6px;margin:0;min-height:0;flex-wrap:wrap}
+/* 紧凑下拉不继承普通输入框的上下内边距，给原生文字留足垂直居中空间。 */
+#riskrail .rp-card-toolbar select {height:28px;min-height:28px;max-width:120px;padding:0 24px 0 10px;line-height:normal;font-size:12px;text-align:center;text-align-last:center;border-color:#e0e6ef;background-color:#fff;background-position:right 8px center}
+#riskrail .rp-items {display:block;min-width:0;flex:none;border-top:1px solid #edf1f6}
+#riskrail .rp-entry {display:block;box-sizing:border-box;min-width:0;padding:5px 0;min-height:0;margin:0;border:0;border-bottom:1px solid #e9edf3;border-radius:0;box-shadow:none;background:transparent;transition:background-color 100ms ease}
+#riskrail .rp-entry:last-child {border-bottom:0}
+#riskrail .rp-entry:hover {background:#f8faff}
+#riskrail .rp-entry-main {display:block;min-width:0}
+#riskrail .rp-entry-main>header {display:flex;align-items:center;gap:8px;min-height:30px;margin-bottom:5px}
+#riskrail .rp-entry-main>header>.rank {flex:0 0 17px;font-size:12px;color:#8c9aae;font-weight:500;font-style:normal}
+#riskrail .rp-entry:first-child> .rp-entry-main>header>.rank {color:#345e93;font-weight:700}
+#riskrail .rp-entry-main .rp-identity {flex:1;min-width:0;gap:8px}
+#riskrail .rp-entry-main .risk-thumb {width:40px;height:40px;border-radius:5px;border-color:#e9edf3}
+#riskrail .rp-entry-main .rp-identity b {font-size:13px;font-weight:600;line-height:18px;white-space:nowrap;display:block;overflow:hidden;text-overflow:ellipsis}
+#riskrail .rp-entry-main .rp-identity b.rp-platform-name {display:flex;align-items:center;gap:8px}
+#riskrail .rp-entry-main .rp-platform-mark {width:16px;height:16px;flex:none}
+#riskrail .rp-entry-main .rp-identity small {font-size:11px;line-height:14px;color:#8a97aa;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#riskrail .rp-identity>div {flex:1;min-width:0}
+#riskrail .rp-identity-title {display:flex;align-items:center;gap:10px;min-width:0}
+#riskrail .rp-identity-title>b {flex:0 1 auto;min-width:0}
+#riskrail .rp-detail-link {flex:none;white-space:nowrap;font-size:12px;line-height:18px;padding:0;min-height:0;color:#577fae}
+#riskrail .rp-detail-link:focus-visible {outline:2px solid #1677ff;outline-offset:3px;border-radius:2px}
+#riskrail .rp-key-metrics {display:grid;grid-template-columns:repeat(var(--rp-primary-columns,3),minmax(0,1fr));gap:3px 8px;padding:0;margin:0 0 0 25px;min-height:0;border:0;border-radius:0;background:transparent}
+#riskrail .rp-entry-bottom {display:block;margin:3px 0 0 25px}
+#riskrail .rp-support-metrics {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:2px 8px;padding:0;margin:0}
+#riskrail .rp-item,#riskrail .rp-key-metrics .rp-item {display:flex;flex-direction:column;align-items:flex-start;gap:0;min-width:0;line-height:18px;text-align:left}
+#riskrail .rp-item small {font-size:12px;line-height:14px;color:#75859a;white-space:nowrap}
+#riskrail .rp-item-value {display:flex;flex-wrap:wrap;align-items:baseline;gap:0 4px;min-width:0}
+#riskrail .rp-value {display:inline;font-size:14px;line-height:19px;font-weight:500;white-space:nowrap;font-variant-numeric:tabular-nums;color:#28415f}
+#riskrail .rp-value.red {color:#c8475e!important}
+#riskrail .rp-value.orange {color:var(--orange)!important}
+#riskrail .rp-item.rp-normal .rp-value {color:#7b8898!important;font-weight:400}
+#riskrail .rp-item em,#riskrail .rp-key-metrics em {display:inline;font-size:11px;line-height:17px;font-style:normal;color:#8591a2;white-space:nowrap}
+#riskrail .rp-support-metrics .rp-item {flex-direction:row;flex-wrap:wrap;align-items:baseline;gap:0 5px}
+#riskrail .rp-support-metrics .rp-value {font-size:14px;line-height:18px;color:#60738c}
+#riskrail .rp-support-metrics .rp-item small {font-size:12px;line-height:18px;color:#8a96a5}
+#riskrail .rp-key-metrics [data-rp-field="gsv"] .rp-value {color:#60738c;font-weight:400}
+#riskrail .rp-entry:first-child .rp-key-metrics .rp-alert .rp-value {font-weight:650}
+#riskrail [data-rp-kind="2"] [data-rp-field="loss"] .rp-value,
+#riskrail [data-rp-kind="4"] [data-rp-field="staleValue"] .rp-value {font-weight:600}
+#riskrail .rp-entry:first-child[data-rp-kind="2"] [data-rp-field="loss"] .rp-value {font-weight:750}
+@media(max-width:1499px) and (min-width:1201px) {
+ #riskrail .rp-key-metrics {margin-left:0}
+ #riskrail .rp-entry-bottom {margin-left:0}
+ #riskrail .rp-entry[style*="--rp-primary-columns:4"] .rp-key-metrics {grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+/* 详情沿用同一字号，减少指标框面积和视觉分割。 */
+#dialogbody .up-hero {background:#f6f9fd;border:1px solid #e9eef5;border-radius:7px;padding:12px 14px;margin-bottom:12px}
+#dialogbody .up-metrics {border-color:#e5ebf3;border-radius:7px;margin-bottom:14px}
+#dialogbody .up-metric {padding:9px 12px;min-height:60px;background:#fff}
+#dialogbody .up-metric small {font-size:12px;color:#8592a5}
+#dialogbody .up-metric strong {font-size:14px;line-height:22px}
+#dialogbody .up-detail h3 {font-size:14px;color:#34506f;margin:16px 0 9px}
+#dialogbody .rp-list-tools {padding:10px 0;margin:0;gap:12px}
+#dialogbody .rp-list-table th {color:#708199}
+#dialogbody .rp-list-table :is(th,td) {font-size:13px}
+@media(max-width:1200px) and (min-width:901px) {#riskrail {grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:900px) {#riskrail {grid-template-columns:minmax(0,1fr)}}
+@media(max-width:600px) {
+ .page>.section,.page>#risk {padding:14px}
+ .page>.section>.sectionhead,.page>.section:has(>.module-timebar[hidden])>.sectionhead,#risk>.sectionhead {margin:-14px -14px 12px;padding:10px 14px}
+ #risk>.sectionhead {align-items:flex-start;flex-wrap:wrap}
+ #riskrail .riskcard {padding:10px 10px 4px}
+ #riskrail .rhead h3 {font-size:15px}
+ #riskrail .rp-key-metrics {gap:3px 8px;margin-left:0}
+ #riskrail .rp-entry[style*="--rp-primary-columns:4"] .rp-key-metrics {grid-template-columns:repeat(2,minmax(0,1fr))}
+ #riskrail .rp-entry-bottom {margin-left:0}
+ #riskrail .rp-support-metrics .rp-item {flex-direction:column;align-items:flex-start}
+ #riskrail .rp-entry-main>header {gap:5px}
+ #riskrail .rp-entry-main .rp-identity {gap:6px}
+ #riskrail .rp-identity-title {gap:6px}
+}
+@media(prefers-reduced-motion:reduce) {#riskrail .rp-entry {transition:none}}

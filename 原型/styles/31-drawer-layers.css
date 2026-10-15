@@ -1,0 +1,39 @@
+/* 宽榜单 + 加宽详情；背景层仅展示上一层，不阻挡逐层返回。 */
+#dialog.drawer.business-drawer.risk-ranking-drawer {width:min(1540px,84vw)}
+#dialog.drawer.business-drawer[data-drawer-depth]:not([data-drawer-depth="0"]) {width:min(1370px,76vw)}
+#dialog.business-drawer .drawer-back {flex:none;border:0;background:none;color:#1677ff;font:inherit;font-size:13px;cursor:pointer;padding:6px 12px 6px 0;margin-right:6px;white-space:nowrap}
+#dialog.business-drawer .drawer-back[hidden] {display:none}
+#dialog.business-drawer .dialoghead>div {flex:1}
+.drawer-parent-layer {position:fixed;inset:0;pointer-events:none}
+.drawer-parent-preview {animation:none!important;position:fixed;inset:0 0 0 auto;display:flex;flex-direction:column;height:100dvh;max-height:100dvh;border:0;border-radius:0;background:#fff;overflow:hidden;pointer-events:none;box-shadow:-12px 0 38px #172e4f1c}
+/* 父层内容独立堆叠，吸附表头和固定列不能越过整层遮罩。 */
+.drawer-parent-preview>.dialogbody {isolation:isolate}
+.drawer-parent-preview:after {content:'';position:absolute;inset:0;background:rgba(24,36,55,.22);pointer-events:none;z-index:1}
+.drawer-parent-preview .dialoghead {flex:none;min-height:56px;box-sizing:border-box;padding:12px 24px;border-bottom:1px solid #e5eaf2;background:#fff}
+.drawer-parent-preview .dialogbody {flex:1;min-height:0;padding:22px 24px;overflow:auto;scrollbar-gutter:stable;background:#fff}
+.drawer-parent-preview .drawer-tabs {display:flex;flex:none;gap:26px;min-height:49px;padding:0 24px;border-bottom:1px solid #e5eaf2;background:#fff}
+.drawer-parent-preview .drawer-tabs button {border:0;background:none;padding:14px 0;font:inherit;font-size:13px;color:#738096}
+.drawer-parent-preview .drawer-tabs .selected {color:#1677ff;border-bottom:2px solid #1677ff}
+.drawer-parent-preview .drawer-pane-off {display:none!important}
+.drawer-parent-preview .dialogfoot {flex:none;padding:12px 24px;background:#fff;border-top:1px solid #e5eaf2}
+:is(#dialogbody,.drawer-parent-preview .dialogbody) .platform-source-label {display:none!important}
+:is(#dialogbody,.drawer-parent-preview .dialogbody) .drawer-platform-switch {display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:0;min-width:0}
+:is(#dialogbody,.drawer-parent-preview .dialogbody) .drawer-platform-switch .platform-button {display:inline-flex;align-items:center;justify-content:center;gap:6px;height:32px;padding:0 11px;border:1px solid #dce3ee;border-radius:4px;background:#fff;color:#66758c;font:inherit;font-size:13px;white-space:nowrap;cursor:pointer}
+:is(#dialogbody,.drawer-parent-preview .dialogbody) .drawer-platform-switch .platform-button:hover {color:#1677ff;border-color:#91bcff;background:#f5f9ff}
+:is(#dialogbody,.drawer-parent-preview .dialogbody) .drawer-platform-switch .platform-button:is(.active,[aria-pressed="true"]) {color:#1677ff;border-color:#1677ff;background:#eef5ff;box-shadow:none}
+:is(#dialogbody,.drawer-parent-preview .dialogbody) .drawer-platform-switch .platform-button:focus-visible {outline:2px solid #91bcff;outline-offset:2px}
+:is(#dialogbody,.drawer-parent-preview .dialogbody) .platform-mark {display:block;flex:none;width:16px;height:16px;object-fit:contain;background:transparent;border:0;border-radius:0}
+:is(#dialogbody,.drawer-parent-preview .dialogbody) .platform-mark[hidden] {display:none}
+:is(#dialogbody,.drawer-parent-preview .dialogbody) .qr-platform-tabs.drawer-platform-switch {margin:16px 0}
+:is(#dialogbody,.drawer-parent-preview .dialogbody) :is(.qr-list-tools,.br-list-tools) {gap:16px;flex-wrap:wrap}
+/* 目标配置入口独立靠右，平台按钮保持居左。 */
+:is(#dialogbody,.drawer-parent-preview .dialogbody) .qr-list-tools #qrb-list-config {margin-left:auto;flex-shrink:0}
+@media(max-width:1100px) {
+ #dialog.drawer.business-drawer.risk-ranking-drawer {width:94vw}
+ #dialog.drawer.business-drawer[data-drawer-depth]:not([data-drawer-depth="0"]) {width:86vw}
+}
+@media(max-width:700px) {
+ #dialog.drawer.business-drawer.risk-ranking-drawer,#dialog.drawer.business-drawer[data-drawer-depth]:not([data-drawer-depth="0"]) {width:100vw}
+ :is(#dialogbody,.drawer-parent-preview .dialogbody) .drawer-platform-switch {gap:12px}
+ :is(#dialogbody,.drawer-parent-preview .dialogbody) .drawer-platform-switch .platform-button {padding:0 8px}
+}

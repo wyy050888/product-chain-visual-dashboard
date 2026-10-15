@@ -1,0 +1,351 @@
+{
+  "columns": {
+    "label": "全局表格拖拽调整列宽",
+    "keywords": ["列宽", "调整列宽", "表格拖拽"],
+    "sources": ["src/modules/ui-controls/04-column-model.js", "src/modules/ui-controls/05-column-resize.js"],
+    "styles": ["styles/51-column-resize.css"],
+    "checks": ["columnResize"]
+  },
+  "multiFilters": {
+    "label": "六榜及新品多选筛选",
+    "keywords": [
+      "多选"
+    ],
+    "sources": [
+      "src/modules/product-filters/00-multiselect.js",
+      "src/modules/product-filters/00-categories.js",
+      "src/modules/risk-presentation/02-platforms.js",
+      "src/modules/risk-presentation/03-filters.js"
+    ],
+    "styles": [
+      "styles/39-multiselect.css",
+      "styles/41-platform-menu.css"
+    ],
+    "checks": [
+      "smoke",
+      "multiFilters"
+    ]
+  },
+  "filters": {
+    "label": "品牌、类目、产品类型、搜索及筛选外观",
+    "keywords": [
+      "筛选",
+      "品牌",
+      "类目",
+      "多选",
+      "搜索"
+    ],
+    "sources": [
+      "src/modules/product-filters/00-multiselect.js",
+      "src/modules/product-filters/01-model.js",
+      "src/modules/product-filters/00-categories.js",
+      "src/modules/ui-controls/02-search-layout.js",
+      "src/modules/filter-layout/01.js"
+    ],
+    "styles": [
+      "styles/24-filters.css",
+      "styles/39-multiselect.css"
+    ],
+    "checks": [
+      "smoke",
+      "filters"
+    ]
+  },
+  "risk": {
+    "label": "六榜卡片、完整榜单、指标与趋势",
+    "keywords": [
+      "榜单",
+      "卡片",
+      "趋势",
+      "表头",
+      "店铺"
+    ],
+    "sources": [
+      "src/modules/risk-presentation/02-cards.js",
+      "src/modules/risk-card-filters/01.js",
+      "src/modules/risk-presentation/01-fields.js",
+      "src/modules/risk-presentation/01-quality.js",
+      "src/modules/risk-presentation/03-filters.js",
+      "src/modules/risk-presentation/03-columns.js",
+      "src/modules/risk-presentation/03-sort.js",
+      "src/modules/risk-presentation/04-lists.js",
+      "src/modules/risk-presentation/04-sticky-header.js",
+      "src/modules/risk-presentation/03-trends.js"
+    ],
+    "styles": [
+      "styles/34-risk-presentation.css",
+      "styles/35-risk-reading.css",
+      "styles/36-list-trends.css"
+    ],
+    "checks": [
+      "smoke",
+      "risk"
+    ]
+  },
+  "media": {
+    "label": "图片直接放大及关闭",
+    "keywords": [
+      "图片",
+      "预览",
+      "放大"
+    ],
+    "sources": [
+      "src/modules/risk-presentation/05-media.js"
+    ],
+    "styles": [
+      "styles/34-risk-presentation.css"
+    ],
+    "checks": [
+      "smoke"
+    ],
+    "manual": [
+      "图片遮罩、关闭与抽屉状态；涉及此功能时仍需专项检查"
+    ]
+  },
+  "format": {
+    "label": "金额、百分比、精度和编号文案",
+    "keywords": [
+      "金额",
+      "百分比",
+      "精度",
+      "编号"
+    ],
+    "sources": [
+      "src/modules/product-filters/04-display.js",
+      "src/modules/core/01.js",
+      "src/modules/risk-presentation/02-cards.js"
+    ],
+    "styles": [],
+    "checks": [
+      "smoke"
+    ],
+    "manual": [
+      "金额边界、比例与计算口径；涉及此功能时仍需专项检查"
+    ]
+  },
+  "detail": {
+    "label": "统一SPU详情、表单和多层抽屉",
+    "keywords": [
+      "详情",
+      "抽屉",
+      "表单"
+    ],
+    "sources": [
+      "src/modules/unified-product/07-controller.js",
+      "src/modules/unified-product/04-ai-analysis.js",
+      "src/modules/unified-product/04-ai-summary.js",
+      "src/modules/unified-product/10-entries.js",
+      "src/modules/risk-presentation/06-details.js",
+      "src/modules/drawers/03-stack.js",
+      "src/modules/drawers/05-period.js",
+      "src/modules/unified-product/05-sales-trend.js",
+      "src/modules/unified-product/05-operating-view.js",
+      "src/modules/unified-product/05-quality-trend.js",
+      "src/modules/unified-product/05-quality-view.js",
+      "src/modules/unified-product/05-violation-details.js",
+      "src/modules/unified-product/06-stock-view.js",
+      "src/modules/unified-product/06-stock-model.js",
+      "src/modules/unified-product/07-todo-diagnosis.js",
+      "src/modules/unified-product/07-todo-model.js",
+      "src/modules/unified-product/07-todo-view.js",
+      "src/modules/unified-product/07-todo-samples.js",
+      "src/modules/unified-product/07-todo-batch.js",
+      "src/modules/unified-product/07-todo-inline.js",
+      "src/modules/unified-product/07-todo-description.js",
+      "src/modules/unified-product/07-todo-dialog.js",
+      "src/modules/unified-product/07-todo-people.js",
+      "src/modules/unified-product/04-ai-policy.js",
+      "src/modules/unified-product/04-ai-demo.js",
+      "src/modules/unified-product/04-ai-context.js",
+      "src/modules/page-presentation/01.js"
+    ],
+    "styles": [
+      "styles/31-drawer-layers.css",
+      "styles/33-unified-product.css",
+      "styles/46-product-todos.css"
+    ],
+    "checks": [
+      "smoke",
+      "detailOperating",
+      "detailQualityTodos"
+    ],
+    "manual": [
+      "真实AI服务、组织权限、跨端协作和通知发送尚未接入"
+    ]
+  },
+  "sales": {
+    "label": "销售达成与经营明细",
+    "keywords": [
+      "销售",
+      "达成",
+      "利润率"
+    ],
+    "sources": [
+      "src/modules/sales-review/00-samples.js",
+      "src/modules/sales-review/01-model.js",
+      "src/modules/sales-review/02-trend.js",
+      "src/modules/sales-review/02-view.js",
+      "src/modules/sales-review/03-drawer.js"
+    ],
+    "styles": [
+      "styles/38-document-review.css"
+    ],
+    "checks": [
+      "smoke",
+      "salesCards"
+    ],
+    "manual": [
+      "经营比率、目标缺失与销售抽屉；涉及此功能时仍需专项检查"
+    ]
+  },
+  "styles": {
+    "label": "全局控件与表格外观",
+    "keywords": [
+      "样式",
+      "布局",
+      "边框"
+    ],
+    "sources": [
+      "src/modules/ui-controls/02-search-layout.js",
+      "src/modules/ui-controls/03-cell-tooltip.js"
+    ],
+    "styles": [
+      "styles/23-panels.css",
+      "styles/24-filters.css",
+      "styles/38-document-review.css",
+      "styles/39-multiselect.css",
+      "styles/49-cell-tooltip.css"
+    ],
+    "checks": [
+      "smoke"
+    ]
+  },
+  "period": {
+    "label": "时间控件、年度聚合与切换性能",
+    "keywords": [
+      "时间",
+      "年份",
+      "季度",
+      "卡顿",
+      "缓存"
+    ],
+    "sources": [
+      "src/modules/period/01.js",
+      "src/modules/unified-product/01-ledger.js",
+      "src/modules/unified-product/01-aggregates.js",
+      "src/modules/risk-presentation/02-render.js"
+    ],
+    "styles": [],
+    "checks": [
+      "smoke",
+      "periodPerformance"
+    ]
+  },
+  "shopDetail": {
+    "label": "店铺详情、渠道岗位、店铺诊断与风险待办",
+    "keywords": [
+      "店铺详情",
+      "店铺负责人",
+      "店铺违规"
+    ],
+    "sources": [
+      "src/modules/shop-detail/01-model.js",
+      "src/modules/shop-detail/02-views.js",
+      "src/modules/shop-detail/03-controller.js",
+      "src/modules/shop-detail/01-operating.js",
+      "src/modules/shop-detail/01-ai-context.js",
+      "src/modules/shop-detail/01-diagnosis.js",
+      "src/modules/shop-detail/02-violations.js"
+    ],
+    "styles": [
+      "styles/47-shop-detail.css"
+    ],
+    "checks": [
+      "smoke",
+      "shopDetail"
+    ],
+    "manual": [
+      "组织岗位为原型样例，真实登录权限和外部业务接口尚未接入"
+    ]
+  },
+  "newProducts": {
+    "label": "新品专项管控、计划样例与明细筛选",
+    "keywords": [
+      "新品",
+      "上线",
+      "销售成功率"
+    ],
+    "sources": [
+      "src/modules/new-products/00-samples.js",
+      "src/modules/new-products/01-model.js",
+      "src/modules/new-products/02-launch-picker.js",
+      "src/modules/new-products/02-success-picker.js",
+      "src/modules/new-products/02-view.js",
+      "src/modules/new-product-facts/01.js",
+      "src/modules/unified-product/01-ledger.js",
+      "src/modules/filter-layout/01.js"
+    ],
+    "styles": [
+      "styles/48-new-products.css"
+    ],
+    "checks": [
+      "smoke",
+      "newProducts"
+    ]
+  },
+  "aiSummary": {
+    "label": "产品链副总单品AI总结",
+    "keywords": [
+      "AI总结",
+      "产品决策",
+      "提示词"
+    ],
+    "sources": [
+      "src/modules/unified-product/04-ai-analysis.js",
+      "src/modules/unified-product/04-ai-summary.js",
+      "src/modules/unified-product/04-ai-policy.js",
+      "src/modules/unified-product/07-todo-diagnosis.js",
+      "src/modules/unified-product/04-ai-demo.js",
+      "src/modules/unified-product/04-ai-context.js",
+      "src/modules/page-presentation/01.js"
+    ],
+    "styles": [
+      "styles/33-unified-product.css"
+    ],
+    "checks": [
+      "aiSummary"
+    ],
+    "manual": [
+      "当前为完整的汇报模拟资料及本地规则推演；真实AI和企业系统未连接"
+    ]
+  },
+  "projects": {
+    "label": "项目红绿灯全景管控",
+    "keywords": [
+      "项目",
+      "红黄灯率",
+      "风险台账",
+      "卡点阶段",
+      "根因分析"
+    ],
+    "sources": [
+      "src/modules/project-panorama/00-samples.js",
+      "src/modules/project-panorama/01-model.js",
+      "src/modules/project-panorama/02-overview.js",
+      "src/modules/project-panorama/03-table.js",
+      "src/modules/project-panorama/04-controller.js",
+      "src/modules/project-panorama/05-ledger-popover.js",
+      "src/modules/project-panorama/06-stage-cascader.js",
+      "src/modules/project-panorama/07-department-risks.js"
+    ],
+    "styles": [
+      "styles/50-project-panorama.css"
+    ],
+    "checks": [
+      "projectPanorama"
+    ],
+    "manual": [
+      "项目缺失台账和报价已有演示数据，真实数据尚未接入；风险台账第7列待确认。"
+    ]
+  }
+}

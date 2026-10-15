@@ -1,0 +1,80 @@
+/* 分区、表格与弹窗布局，维持全部判断指标外显。 */
+.page .section { border-color:#e4eaf3; border-radius:10px; margin-bottom:18px; padding:22px; }
+.page .sectionhead { gap:14px; margin-bottom:20px; }
+.page .sectionhead h2 { font-size:20px; letter-spacing:0; line-height:1.4; }
+.page .sectionhead .inline { flex-wrap:wrap; justify-content:flex-end; }
+.page .riskcard { border-color:#e4eaf3; border-radius:8px; background:linear-gradient(180deg,#f9fbff 0,#fff 150px); }
+#riskrail .qf-rank-row:hover,#riskrail .rf-rank-row:hover { background:#f3f8ff; border-radius:5px; }
+#riskrail .qf-product b,#riskrail .rf-product b { font-weight:500; }
+.page .stat { border:1px solid transparent; background:#f7f9fd; border-radius:7px; }
+.page .stat:hover { border-color:#c8dcf7; background:#f3f8ff; }
+.page .stat.selected { border-color:#9ac4fd; background:#edf5ff; }
+.page .stat strong { font-size:28px; }
+#ai .aicard { border:1px solid #e4eaf3!important; border-radius:8px; padding:14px 16px; background:#fff; }
+#ai .aicard:hover { border-color:#b6d2f6!important; background:#f8fbff; }
+#ai .aicard.selected { border-color:#91bffd!important; background:#edf5ff; }
+#ai .aicard.selected h3 { color:#1677ff; }
+#ai .aicard::after { display:none!important; content:none!important; }
+#ai .aicard h3 { font-size:14px; line-height:1.5; }
+#ai .aicard .an { margin:10px 0 0; font-size:30px; }
+#ai-inline-controls { gap:12px; padding-bottom:16px; }
+#ai-inline-summary { background:#f1f6fe; border:1px solid #e6eefb; border-radius:7px; }
+.ai-detail-heading .ai-detail-index { display:none; }
+.page .contextstrip { flex-wrap:wrap; gap:10px; margin:16px 0 12px; }
+.page .tablewrap { border-block:1px solid #e7edf5; border-inline:0; border-radius:7px; }
+.page :is(.tablewrap,.ap-table,.dp-table) table { border-collapse:separate; border-spacing:0; }
+.page :is(.tablewrap,.ap-table,.dp-table) th { background:#f5f8fc; color:#74839a; font-size:12px; font-weight:500; padding:11px 12px; }
+.page :is(.tablewrap,.ap-table,.dp-table) td { font-size:13px; padding:13px 12px; border-bottom:1px solid #edf1f7; vertical-align:middle; }
+.page :is(.tablewrap,.ap-table,.dp-table) tbody tr:last-child td { border-bottom:0; }
+.page :is(.tablewrap,.ap-table,.dp-table) tbody tr:hover td { background:#f8fbff; }
+#projecttable table { table-layout:fixed; width:100%; min-width:1280px; }
+#projecttable :is(th,td):nth-child(1) { width:235px; white-space:normal; }
+#projecttable :is(th,td):nth-child(2) { width:82px; }
+#projecttable :is(th,td):nth-child(3) { width:90px; }
+#projecttable :is(th,td):nth-child(4) { width:180px; white-space:normal; overflow-wrap:anywhere; }
+#projecttable :is(th,td):nth-child(5),#projecttable :is(th,td):nth-child(6) { width:108px; }
+#projecttable :is(th,td):nth-child(7) { width:84px; }
+#projecttable :is(th,td):nth-child(8),#projecttable :is(th,td):nth-child(9) { width:86px; }
+#projecttable :is(th,td):nth-child(10) { width:110px; white-space:normal; }
+#projecttable :is(th,td):last-child { width:96px; position:sticky; right:0; background:#fff; border-left:1px solid #e9eef6; }
+#projecttable th:last-child { background:#f5f8fc; z-index:2; }
+#projecttable .prodname { min-width:0; }
+#projecttable .prodname>div { min-width:0; }
+#projecttable .prodname strong { white-space:normal; font-weight:500; }
+#newtable :is(th,td):last-child,#inventorytable :is(th,td):last-child { position:sticky; right:0; background:#fff; border-left:1px solid #e9eef6; }
+#newtable th:last-child,#inventorytable th:last-child { background:#f5f8fc; }
+.page .dept { border-color:#e4eaf3; border-radius:7px; padding:14px; }
+.page .dept:hover { background:#f8fbff; border-color:#b6d2f6; }
+.page .dept.active,.page .dept.selected { background:#edf5ff; border-color:#91bffd; }
+.page .dept small { line-height:1.65; }
+.page .empty,.dialog .empty { padding:32px 16px; color:#8a99ad; background:#fbfcfe; border-radius:6px; }
+.dialog { border:1px solid #dfe7f1; border-radius:10px; box-shadow:0 18px 70px #1c2e4b30; }
+.dialoghead { background:#fff; padding:18px 22px; align-items:flex-start; }
+.dialoghead h2 { font-size:18px; line-height:1.5; }
+.dialoghead .iconbtn { display:grid; place-items:center; width:30px; height:30px; border-radius:5px; color:#8a98ad; }
+.dialoghead .iconbtn:hover { background:#f0f5fc; color:#1677ff; }
+.dialogbody { padding:22px; overscroll-behavior:contain; }
+.dialogfoot { background:#fafcff; padding:12px 22px; justify-content:flex-end; }
+#dialogactions { flex-wrap:wrap; justify-content:flex-end; gap:8px; }
+@media(max-width:1100px) { .page .section { padding:18px; } .page .statrow { gap:10px; } }
+@media(max-width:700px) {
+  .page .section { padding:16px; } .page .sectionhead { align-items:flex-start; flex-wrap:wrap; margin-bottom:16px; }
+  .page .sectionhead h2 { font-size:18px; } .page .sectionhead .inline { justify-content:flex-start; }
+  .page .contextstrip>.tabs { flex-basis:100%; } .ui-search-field { margin-left:0; flex:1; }
+  .ui-search-field input { width:100%!important; } .page .statrow { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .page .stat strong { font-size:24px; } .dialogbody { padding:16px; } .dialoghead,.dialogfoot { padding:14px 16px; }
+}
+
+/* 已隐藏的重复标题，不再留下孤立序号和数量标签。 */
+.ai-detail-heading:has(h3.presentation-suppressed):not(:has(button,a,input,select)) { display:none; }
+
+
+/* 全局表格只去掉左右外框；行线、表头和内部列线继续保留。 */
+:is(.page,.dialog,.drawer-parent-preview) :is(
+  table,.tablewrap,.ai-detail-table,.deviation-table,.department-cause-table,
+  #target-edit-table,.af-task-scroll,.pc-task-scroll,.life-products-table,
+  .nt-daily-scroll,.ipd-table,.dp-table,.ns-platform-table,.wf-table,.rp-list-table
+) { border-left:0; border-right:0; }
+:is(.page,.dialog,.drawer-parent-preview) table > :is(thead,tbody,tfoot) > tr { border-left:0!important; border-right:0!important; }
+:is(.page,.dialog,.drawer-parent-preview) table :is(th,td):first-child { border-left:0!important; }
+:is(.page,.dialog,.drawer-parent-preview) table :is(th,td):last-child { border-right:0!important; }

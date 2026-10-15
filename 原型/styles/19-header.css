@@ -1,0 +1,155 @@
+/* 顶部栏沿用运营罗盘的浅蓝背景，样式仅作用于 header。 */
+.head.portal-header {
+  position: sticky;
+  top: 0;
+  z-index: 60;
+  padding: 0;
+  overflow: visible;
+  color: #233044;
+  background: #f0f5ff;
+  border-bottom: 1px solid #d5e1f4;
+}
+.head.portal-header::before,
+.head.portal-header::after { display: none; }
+.head.portal-header .topline {
+  height: 59px;
+  max-width: none;
+  width: 100%;
+  padding: 0 28px;
+  gap: 0;
+  justify-content: flex-start;
+}
+.head.portal-header .brand {
+  flex: 0 0 196px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #202833;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-decoration: none;
+}
+.head.portal-header .brand-logo { flex: 0 0 29px; }
+.head.portal-header .portal-navigation {
+  display: flex;
+  align-items: stretch;
+  flex: 1;
+  min-width: 0;
+  height: 59px;
+}
+.head.portal-header .chain-switch { position: relative; flex: 0 0 128px; }
+.head.portal-header .chain-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  height: 59px;
+  padding: 0 12px;
+  border: 0;
+  border-bottom: 2px solid #1966ff;
+  border-radius: 0;
+  background: transparent;
+  color: #1966ff;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.head.portal-header .chain-trigger:hover,
+.head.portal-header .chain-trigger[aria-expanded="true"] { background: #e7efff; }
+.head.portal-header .chain-trigger svg { transition: transform .15s; }
+.head.portal-header .chain-trigger[aria-expanded="true"] svg { transform: rotate(180deg); }
+.head.portal-header .portal-main-links {
+  display: flex;
+  align-items: stretch;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.head.portal-header .portal-main-links::-webkit-scrollbar { display: none; }
+.head.portal-header .portal-main-links > span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 96px;
+  padding: 0 12px;
+  color: #697790;
+  font-size: 14px;
+  font-weight: 400;
+  white-space: nowrap;
+}
+.head.portal-header .headright {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  margin-left: 20px;
+  color: #66738a;
+  font-size: 13px;
+}
+.head.portal-header .headright > .admin-account {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+}
+.head.portal-header .nav.chain-menu {
+  position: absolute;
+  top: 65px;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 176px;
+  min-width: 0;
+  padding: 6px;
+  gap: 3px;
+  overflow: visible;
+  background: #fff;
+  border: 1px solid #e5ebf4;
+  border-radius: 6px;
+  box-shadow: 0 8px 26px #263e6826;
+}
+.head.portal-header .nav.chain-menu[hidden] { display: none !important; }
+.head.portal-header .nav.chain-menu button {
+  width: 100%;
+  min-width: 0;
+  min-height: 38px;
+  padding: 10px 14px;
+  border: 0;
+  border-radius: 4px;
+  text-align: left;
+  background: transparent;
+  color: #34425b;
+  font-size: 14px;
+  font-weight: 400;
+}
+.head.portal-header .nav.chain-menu button:hover:not(:disabled),
+.head.portal-header .nav.chain-menu button:focus-visible { background: #f0f5ff; color: #1966ff; }
+.head.portal-header .nav.chain-menu button.active { background: #eaf2ff; color: #1966ff; font-weight: 500; }
+.head.portal-header .nav.chain-menu button:first-child { margin-bottom: 3px; border-bottom: 1px solid #edf1f7; }
+.head.portal-header .nav.chain-menu button:disabled { color: #a3adbd; opacity: 1; cursor: default; }
+.head.portal-header button:focus-visible,
+.head.portal-header .brand:focus-visible { outline: 2px solid #85afff; outline-offset: -3px; }
+/* 二级模块导航固定在顶部栏下方，避免锚点与标题被遮挡。 */
+.navigation-toolbar, .dp-nav { top: 60px; }
+@media (max-width: 1100px) {
+  .head.portal-header .topline { padding: 0 20px; }
+  .head.portal-header .brand { flex-basis: 176px; font-size: 22px; }
+  .head.portal-header .portal-main-links > span { flex-basis: 86px; font-size: 13px; }
+  .head.portal-header .headright { margin-left: 12px; }
+}
+@media (max-width: 700px) {
+  .head.portal-header .topline { padding: 0 12px; }
+  .head.portal-header .brand { flex-basis: 156px; }
+  .head.portal-header .brand-logo, .head.portal-header .headright { display: flex; }
+  .head.portal-header .headright > .admin-account { display: inline-flex; }
+  .head.portal-header .portal-main-links { display: none; }
+  .head.portal-header .chain-switch { flex-basis: 120px; }
+}
+@media (max-width: 500px) {
+  .head.portal-header .brand { flex-basis: 42px; }
+  .head.portal-header .brand-name { display: none; }
+  .head.portal-header .headright { margin-left: 10px; font-size: 12px; }
+}
+

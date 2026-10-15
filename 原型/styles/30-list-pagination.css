@@ -1,0 +1,22 @@
+.list-pagination{display:flex;justify-content:flex-end;align-items:center;gap:14px;width:100%;padding:18px 0 4px;box-sizing:border-box;color:#74829b;font-size:12px;flex-wrap:wrap}
+.list-pagination .list-page-total{white-space:nowrap}
+.list-pagination .list-page-size{background:#f5f7fa;border-radius:4px;padding:8px 12px;white-space:nowrap;color:#8190a5}
+.list-pagination .list-page-numbers{display:flex;align-items:center;gap:5px}
+.list-pagination .list-page-button{min-width:30px;height:30px;padding:0 6px;border:0;border-radius:50%;background:transparent;color:#435777;cursor:pointer;font:inherit;transition:background .15s,color .15s}
+.list-pagination .list-page-button:hover:not(:disabled){background:#edf4ff;color:#1677ff}
+.list-pagination .list-page-button.selected{background:#1677ff;color:#fff}
+.list-pagination .list-page-arrow{background:#f0f6ff;color:#1677ff;font-size:21px;line-height:1}
+.list-pagination .list-page-button:disabled{color:#bcc7d8;background:#f7f9fc;cursor:default}
+.list-pagination .list-page-button:focus-visible,.list-pagination input:focus-visible{outline:2px solid #8fbaff;outline-offset:2px}
+.list-pagination .list-page-ellipsis{padding:0 5px;line-height:30px}
+.list-pagination .list-page-jump{display:flex;align-items:center;gap:7px;margin-left:8px;white-space:nowrap;color:#74829b}
+.list-pagination .list-page-jump input{width:46px;height:28px;min-height:0;box-sizing:border-box;padding:0 5px;border:1px solid #e4eaf3;border-radius:4px;background:#fafbfc;text-align:center;color:#435777;font:inherit;appearance:textfield;-moz-appearance:textfield}
+.list-pagination input::-webkit-inner-spin-button,.list-pagination input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+#dialogbody .list-pagination{margin:0;flex-shrink:0}
+@media(max-width:600px){.list-pagination{gap:9px;row-gap:12px}.list-pagination .list-page-numbers{gap:2px}.list-pagination .list-page-button{min-width:28px;height:28px}.list-pagination .list-page-jump{margin-left:0}}
+
+#dialogbody .drawer-list-hidden{display:none!important}
+#dialogbody .drawer-table-pagination{width:100%;min-width:0}
+#dialogbody .ipd-pagination,#dialogbody .life-products-pagination{display:block;padding:0;border:0}
+#projectpages{width:100%;justify-content:flex-end}
+#projectpages .list-pagination{padding:0}

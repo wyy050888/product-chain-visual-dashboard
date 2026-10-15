@@ -1,0 +1,22 @@
+
+
+// The delayed-project ranking and project panorama use the same project records.
+function drRows(){return projects().filter(p=>p.delay>config.delay).map(p=>{const m=projectControlModel(p);return {...p,attribute:srAttribute(p.name),chainOwner:m.issue.chainOwner,blockStage:p.reference?p.stage:aiFlowStages[m.currentStage].name,blockTask:p.reference?'复核项目日报与调整计划':aiFlowStages[m.currentStage].tasks[m.currentTask],level:p.delay>=30?'P1':p.delay>=15?'P2':'P3',value:p.delay+' 天',metric:p.delay,desc:m.root,cause:m.issue.description}}).sort((a,b)=>b.delay-a.delay||a.id-b.id)}
+const drPreviousRows=riskRows;riskRows=function(k){return k===5?srSeasonFilter(5,drRows()):drPreviousRows(k)};
+function drRun(context,fn){const old=localPeriods.risk;if(context?.period)localPeriods.risk={...context.period};try{return withPeriod('risk',fn)}finally{if(old)localPeriods.risk=old;else delete localPeriods.risk}}
+function drContextRows(context){const rows=drRows();return rows.filter(r=>(!context?.ids||context.ids.includes(r.id))&&((context?.season||riskSeasonState[5])==='all'||r.attribute===(context?.season||riskSeasonState[5])))}
+function drOpenList(context=null){context=context||{period:{...periodFor('risk')},season:riskSeasonState[5]};return drRun(context,()=>{
+ const rows=drContextRows(context),cutoff=bounds().cutoff,heads=['序号','项目名称','产品缩略图','所属品类','责任部门','链主责任人','延迟天数','卡点阶段','风险等级','季度（产品属性）','操作'];let page=1;
+ openModal('高危延期项目榜 · 完整榜单',`<div class="br-list-tools"><label>产品属性 <select data-risk-season="5" data-season-list="true">${srSeasonOptions(5,context.season,!context.procurement)}</select></label><span class="note">截至 ${bounds().cutoff} · 按延迟天数排序</span></div><div class="br-table dr-table" id="dr-list-table"></div><div id="dr-pagination"></div><details class="br-rules"><summary>指标口径</summary><p>延迟天数＝统计截止日期 − 原计划上线日期，仅统计尚未上线且超过预警阈值 ${config.delay} 天的项目。P1：延期≥30天；P2：延期15—29天；P3：延期不足15天。分级为演示管理规则。“季度（产品属性）”指夏季品、冬季品、四季品，与模块统计时间独立。</p></details>`,false,'延期项目、责任与卡点追踪');
+ 
+ function fill(){const pages=Math.max(1,Math.ceil(rows.length/DRAWER_PAGE_SIZE));page=Math.max(1,Math.min(page,pages));$('#dr-list-table').innerHTML=rows.length?table(heads,rows.slice((page-1)*DRAWER_PAGE_SIZE,page*DRAWER_PAGE_SIZE).map((r,i)=>[(page-1)*DRAWER_PAGE_SIZE+i+1,`<b>${esc(r.name)}</b><small class="qr-sub">${r.model}</small>`,riskThumbnail(r.name),chains[r.chain],r.dept,r.chainOwner,`<strong class="red">${r.delay} 天</strong>`,`<b>${r.blockStage}</b><small class="qr-sub">${r.blockTask}</small>`,brLevel(r.level),`<span class="tag ${r.attribute==='四季品'?'':'orange'}">${r.attribute}</span>`,`<button class="link" data-riskitem="5,${r.id}">查看详情</button>`])):'<div class="empty">当前产品属性暂无高危延期项目</div>';mountListPager($('#dr-pagination'),rows.length,page,next=>{page=next;fill()});}
+ fill();
+ const season=$('#dialogbody [data-risk-season]');season.onchange=e=>{e.stopPropagation();context.season=e.target.value;if(context.procurement){pdrSeason=context.season;renderPurchasing()}else{riskSeasonState[5]=context.season;renderRisks()}drOpenList(context)};
+ $('#dr-list-table').onclick=e=>{const b=e.target.closest('[data-riskitem]');if(!b)return;e.stopPropagation();drOpenDetail(+b.dataset.riskitem.split(',')[1],context)};
+ })};
+const drPreviousOpen=openRisk;openRisk=function(k){return k===5?drOpenList():drPreviousOpen(k)};
+function drOpenDetail(id,context=null){return drRun(context,()=>{const r=drRows().find(p=>p.id===+id&&(!context?.ids||context.ids.includes(p.id)));if(!r){toast('当前周期未找到该延期项目');return}projectDetail(r.id);$('#dialogtitle').textContent=r.name+' · 延期项目详情';$('.pc-hero').insertAdjacentHTML('afterend',`<div class="dr-detail-summary"><span>所属品类：<b>${chains[r.chain]}</b></span><span>责任部门：<b>${r.dept}</b></span><span>链主责任人：<b>${r.chainOwner}</b></span><span>季度属性：<b>${r.attribute}</b></span><span>风险等级：${brLevel(r.level)}</span></div>`);$('.pc-verdict>strong').textContent='延期归因 · '+r.blockStage+' / '+r.blockTask;
+ $('.pc-ai').insertAdjacentHTML('beforeend',`<p class="dr-season-advice"><b>${r.attribute} · 排期建议：</b>${r.attribute==='夏季品'?'结合夏季销售窗口评估延期损失，优先确认首批交付和渠道备货；错过窗口时重新评审投产数量。':r.attribute==='冬季品'?'倒排冬季备货及渠道入仓日期，协调认证、物料与试产资源，提前锁定验收时段。':'评估在售衔接、渠道承诺与首批产能，先解除关键卡点，再确认获批的恢复排期。'}调整后上线日期由跨部门评审确认，保留原计划作为延期依据。</p>`);
+ })};
+const drPreviousDetail=riskDetail;riskDetail=function(k,id){return k===5?drOpenDetail(id):drPreviousDetail(k,id)};
+window.delayedProjectRiskSnapshot=()=>withPeriod('risk',()=>riskRows(5));

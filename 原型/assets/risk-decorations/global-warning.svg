@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 110" fill="none">
+<defs><linearGradient id="fade" x1="0" y1="0" x2="0" y2="110" gradientUnits="userSpaceOnUse"><stop stop-color="#f2a1ac" stop-opacity=".55"/><stop offset=".6" stop-color="#f4b3bc" stop-opacity=".3"/><stop offset="1" stop-color="#f8cdd3" stop-opacity="0"/></linearGradient></defs>
+<g fill="#fce3e7" fill-opacity=".45" stroke="url(#fade)" stroke-width="7" stroke-linejoin="round"><path d="M320-27 423 131H217Z"/><path d="m470 40 42 69H428Z"/></g>
+<g stroke="url(#fade)" stroke-linecap="round"><path d="M320 30v35" stroke-width="12"/><path d="M470 65v16" stroke-width="6"/></g>
+<g fill="url(#fade)"><circle cx="320" cy="84" r="7"/><circle cx="470" cy="91" r="3.5"/></g>
+</svg>

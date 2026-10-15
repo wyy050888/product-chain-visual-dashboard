@@ -1,0 +1,53 @@
+
+
+// Director quality risk: one dated observation per SPU and platform.
+const qrPlatforms=['抖音','快手','视频号','天猫','京东','拼多多'];
+const qrState={platform:'抖音',listPlatform:'all',listPage:1,sort:'risk'},qrDrafts=new Map();let qrDetailState=null;
+const qrSum=(rows,key)=>rows.reduce((n,r)=>n+r[key],0),qrRate=(n,d)=>d?n/d*100:0;
+function qrCatalog(){return riskRows(0)}
+function qrWindow(){const end=bounds().cutoff;return {start:shiftDate(end,-29),end}}
+const qrObservationPoints=boundedCache(1600,100000);
+function qrObservation(p,platform,start,end,includePoints=true){
+ const ci=qrPlatforms.indexOf(platform),days=Math.round((Date.parse(end)-Date.parse(start))/86400000)+1,seed=p.id*19+ci*31,profile=(p.id+ci)%6,normal=profile>=3,key=p.id+'|'+platform+'|'+start+'|'+end;
+ // 月度适配器只取身份和原因时，不重复展开已被统一台账替代的旧逐日数据。
+ let points=includePoints?qrObservationPoints.get(key):[];
+ if(!points){points=[];
+ for(let i=0;i<days;i++){const date=shiftDate(start,i),ordinal=Math.floor(Date.parse(date)/86400000),wave=Math.sin((ordinal+seed)*.31),orders=Math.max(8,Math.round((43+(p.id%9)*7)*[1.18,.69,.48,1.06,.91,.83][ci]*(1+wave*.22))),sales=orders+Math.floor(orders*.14),returned=Math.round(sales*(normal?.02+(seed%3)*.007:profile===0?.13+Math.max(0,wave)*.015:.055+(seed%7)*.015+Math.max(0,wave)*.015)),contacts=Math.round(orders*(normal?.05+(seed%4)*.012:profile===2?.20+Math.max(0,wave)*.025:.08+(seed%9)*.018+Math.max(0,wave)*.025)),reviews=Math.max(1,Math.round(orders*.52)),bad=Math.round(reviews*(normal?.02+(seed%3)*.008:profile===1?.14:.04+(seed%6)*.021));
+  points.push({date,orders,sales,returned,contacts,reviews,bad,returnRate:qrRate(returned,sales),contactRate:qrRate(contacts,orders)});
+ }
+ qrObservationPoints.set(key,points,points.length);}
+ const o={...p,platform,key:p.id+':'+ci,start,end,points,orders:qrSum(points,'orders'),sales:qrSum(points,'sales'),returned:qrSum(points,'returned'),contacts:qrSum(points,'contacts'),reviews:qrSum(points,'reviews'),bad:qrSum(points,'bad')};
+ o.returnRate=qrRate(o.returned,o.sales);o.contactRate=qrRate(o.contacts,o.orders);o.badRate=qrRate(o.bad,o.reviews);
+ o.penalty=!normal&&seed%11===0;o.offShelf=!normal&&seed%17===0;o.risks=[...(o.penalty?['平台处罚']:[]),...(o.offShelf?['下架']:[]),...(o.returnRate>=10?['高退货']:[]),...(o.badRate>=8?['高差评']:[]),...(o.contactRate>=15?['高进线']:[])];
+ o.cause=['功能异常与批次一致性待复测','包装防护不足，运输破损集中','商品描述与使用预期存在偏差','温升、噪声体验引发售后咨询'][p.chain];o.platformCause=o.penalty?'平台品质投诉处罚，待提交申诉材料':o.offShelf?'商品因品质投诉下架，待整改审核':'售后问题集中，需结合订单与实物复核';
+ if(!o.risks.length)o.platformCause='当前平台未触发预警阈值，保持趋势跟踪';o.score=(o.penalty?1000:0)+(o.offShelf?500:0)+o.returnRate*3+o.badRate*2+o.contactRate;return o;
+}
+function qrRows(platform=qrState.platform,start=qrWindow().start,end=qrWindow().end){return qrCatalog().flatMap(p=>(platform==='all'?qrPlatforms:[platform]).map(c=>qrObservation(p,c,start,end))).filter(r=>r.risks.length).sort((a,b)=>b.score-a.score||a.id-b.id||qrPlatforms.indexOf(a.platform)-qrPlatforms.indexOf(b.platform))}
+function qrPlatformOptions(value,includeAll=false){return [...(includeAll?['all']:[]),...qrPlatforms].map(n=>`<option value="${n}" ${value===n?'selected':''}>${n==='all'?'全平台':n}</option>`).join('')}
+function qrRiskTags(o){return o.risks.length?o.risks.map(n=>`<span class="tag red">${n}</span>`).join(' '):'<span class="tag green">正常</span>'}
+function qrCard(){const rows=qrRows(),w=qrWindow();return `<div class="rhead"><h3><i class="riskbadge"></i>高危品质风险榜</h3><button class="link" data-risk="0">全部 ${rows.length} ›</button></div><div class="qr-card-filter"><select id="qr-card-platform" aria-label="品质风险平台">${qrPlatformOptions(qrState.platform)}</select><span>近30天 · 进线率</span></div>${rows.slice(0,6).map((o,i)=>`<button class="qr-rank-row" title="${esc(o.risks.join(' / ')+'；'+o.cause)}" data-qr-detail="${o.key}"><span class="rank ${i<3?'top':''}">${String(i+1).padStart(2,'0')}</span>${riskThumbnail(o.name)}<span class="qr-rank-info"><b>${esc(o.name)}</b><small>${o.platform} · ${o.model}</small><em>${o.penalty?'处罚 · ':o.offShelf?'下架 · ':''}退货 ${fmt(o.returnRate,1)}% · 差评 ${fmt(o.badRate,1)}%</em></span><strong class="red">${fmt(o.contactRate,1)}%</strong></button>`).join('')||'<div class="empty">当前平台暂无风险</div>'}<div class="qr-card-date">${w.start} — ${w.end}</div>`}
+const qrOriginalRender=renderRisks;renderRisks=function(){qrOriginalRender();withPeriod('risk',()=>{const card=$('#riskrail .riskcard');card.classList.add('qr-card');card.innerHTML=qrCard()})};
+const qrOriginalOpen=openRisk;openRisk=function(k){if(k!==0)return qrOriginalOpen(k);withPeriod('risk',qrOpenList)};
+// Platform disposition is separate from abnormal quality metrics.
+function qrPenaltyLevel(o){return o.penalty?{label:'高风险 · 已处罚',color:'red'}:o.offShelf?{label:'中风险 · 下架',color:'orange'}:{label:'无处罚',color:'green'}}
+function qrListRate(value,threshold){return `<b class="${value>=threshold?'red':'green'}">${fmt(value,1)}%</b>`}
+function qrOpenList(){
+ openModal('高危品质风险榜 · 完整榜单',`<div class="qr-list-tools"><label>平台 <select id="qr-list-platform">${qrPlatformOptions(qrState.platform)}</select></label><label>排序 <select id="qr-list-sort"><option value="risk">平台处罚 / 下架优先</option><option value="bad">差评率从高到低</option><option value="returns">退货率从高到低</option><option value="contact">进线率从高到低</option></select></label><span class="note">${qrWindow().start} — ${qrWindow().end}</span></div><div id="qr-list-table"></div><details class="qr-rules"><summary>指标口径</summary><p>差评率＝差评条数 ÷ 有效评价条数；退货率＝退货件数 ÷ 发货件数；进线率＝售后进线订单数 ÷ 发货订单数。平台处罚风险等级采用演示管理分级：已处罚为高风险，下架为中风险，无处罚或下架记录时显示绿色“无处罚”；品质指标异常与平台处罚分开判断，分级不代表平台官方规则。</p></details>`,false,'按产品 SPU × 平台展示风险');
+ const fill=()=>withPeriod('risk',()=>{
+  let rows=qrRows();const sortKey={contact:'contactRate',returns:'returnRate',bad:'badRate'}[qrState.sort];if(sortKey)rows.sort((a,b)=>b[sortKey]-a[sortKey]);
+  const pages=Math.max(1,Math.ceil(rows.length/DRAWER_PAGE_SIZE));qrState.listPage=Math.max(1,Math.min(qrState.listPage,pages));
+  $('#qr-list-table').innerHTML=table(['序号','产品 SPU 名称','产品缩略图','型号','所属渠道','差评率','退货率','进线率','平台处罚风险等级','操作'],rows.slice((qrState.listPage-1)*DRAWER_PAGE_SIZE,qrState.listPage*DRAWER_PAGE_SIZE).map((o,i)=>{const penalty=qrPenaltyLevel(o);return [(qrState.listPage-1)*DRAWER_PAGE_SIZE+i+1,`<b>${esc(o.name)}</b>`,riskThumbnail(o.name),o.model,o.platform,qrListRate(o.badRate,8),qrListRate(o.returnRate,10),qrListRate(o.contactRate,15),`<span class="tag ${penalty.color}">${penalty.label}</span>`,`<button class="link" data-qr-detail="${o.key}">查看详情</button>`]}))+listPager(rows.length,qrState.listPage);
+  bindListPager($('#qr-list-table'),next=>{qrState.listPage=next;fill()});
+  
+ });
+ $('#qr-list-sort').value=qrState.sort;$('#qr-list-sort').onchange=e=>{qrState.sort=e.target.value;qrState.listPage=1;fill()};$('#qr-list-platform').onchange=e=>{qrState.platform=e.target.value;qrState.listPage=1;renderRisks();fill()};fill();
+}
+function qrChart(o,kind){const percent=kind==='returnRate',points=o.points,max=Math.max(1,...points.map(r=>r[kind]))*1.15,x=i=>44+i*470/Math.max(1,points.length-1),y=v=>164-v/max*123,step=Math.max(1,Math.ceil(points.length/6)),color=percent?(o.risks.length?'#e56570':'#29ae88'):'#7885f5';return `<svg viewBox="0 0 548 207" role="img" aria-label="${o.platform}${percent?'退货率':'销量'}趋势"><text x="12" y="15">${percent?'%':'件'}</text>${[0,max/2,max].map(n=>`<line x1="44" x2="520" y1="${y(n)}" y2="${y(n)}" stroke="#eaf0f7"/><text x="36" y="${y(n)+4}" text-anchor="end">${fmt(n,percent?1:0)}</text>`).join('')}<path d="M44,164 L${points.map((p,i)=>x(i)+','+y(p[kind])).join(' L')} L514,164Z" fill="${color}" opacity=".07"/><polyline points="${points.map((p,i)=>x(i)+','+y(p[kind])).join(' ')}" fill="none" stroke="${color}" stroke-width="2"/>${points.map((p,i)=>`<circle cx="${x(i)}" cy="${y(p[kind])}" r="${points.length>70?1.8:3}" fill="${color}"><title>${p.date} · ${o.platform} · ${percent?'退货率 '+fmt(p.returnRate,1)+'%（'+p.returned+' / '+p.sales+' 件）':'销量 '+p.sales+' 件'}</title></circle>${i%step===0||i===points.length-1?`<text x="${x(i)}" y="192" text-anchor="middle">${p.date.slice(5)}</text>`:''}`).join('')}</svg>`}
+function qrAnalysis(o){if(!o.risks.length)return `${o.platform}平台进线率 ${fmt(o.contactRate,1)}%、退货率 ${fmt(o.returnRate,1)}%、差评率 ${fmt(o.badRate,1)}%，均在正常范围内；未发现平台处罚或下架记录。当前无需整改，保持日常监测。`;return `${o.platform}平台：${o.contacts} 笔售后进线 / ${o.orders} 笔发货订单，进线率 ${fmt(o.contactRate,1)}%；退货 ${o.returned} / 发货 ${o.sales} 件，退货率 ${fmt(o.returnRate,1)}%；差评 ${o.bad} / 有效评价 ${o.reviews} 条，差评率 ${fmt(o.badRate,1)}%。${o.penalty?'存在平台处罚，优先核对处罚单与申诉截止时间。':''}${o.offShelf?'商品处于下架风险，整改审核通过前应暂停相关投放。':''}${o.risks.length?'售后标签显示“'+o.cause+'”':'当前平台未触发预警阈值，持续观察后续订单'}，需结合订单、批次与复测证据确认根因，不能仅凭比率认定产品缺陷。`}
+function qrPlan(o){return `处理范围：${o.name} / ${o.model} / ${o.platform}\n统计区间：${o.start} 至 ${o.end}\n\n1. 核实订单与平台风险（负责人牵头，运营 / 客服协同）\n整理 ${o.platform} 进线、退货及差评订单，去重后按问题、批次、仓库分类；${o.penalty||o.offShelf?'核对处罚或下架通知及申诉截止时间，保留平台凭证。':'核对平台工单，确认异常影响范围。'}交付：异常订单清单与风险凭证。\n\n2. 定位根因（品质 / 研发协同）\n针对“${o.cause}”抽取关联批次复测，分别排查产品功能、运输包装和描述预期差异。交付：复测记录、确认根因及批次影响范围。\n\n3. 执行整改（处理负责人组织）\n根据验证结论修订工艺、包装或商品说明；安排异常客户处理与相关批次复检。${o.penalty||o.offShelf?'补齐整改材料，提交平台申诉或恢复上架审核；未经审核不得自行认定恢复。':''}交付：整改前后证据、客户处理记录及平台回执。\n\n4. 验证与复盘（品质负责人验收）\n复测通过后观察后续7天进线率、退货率和差评率，按同口径复核订单样本；仍异常则升级处理。交付：验收结论、趋势对比及未解决问题清单。\n\n各步骤由负责人按预计处理日期倒排节点，协调人员确认后执行。`}
+function qrTaskKey(o){return `quality:${o.model}:${o.platform}:${o.start}:${o.end}`}
+function qrValues(){return {plan:$('#qr-plan').value.trim(),assignee:$('#qr-assignee').value,due:$('#qr-due').value,collaborators:$$('[name="qr-collaborator"]:checked').map(n=>n.value).filter(n=>n!==$('#qr-assignee').value),notify:$('#qr-notify').checked}}
+function qrPreserve(){if(qrDetailState&&$('#qr-plan'))qrDrafts.set(qrTaskKey(qrCurrent()),qrValues())}
+function qrCurrent(){const s=qrDetailState;return qrObservation(s.product,s.platform,s.start,s.end)}
+function qrNotify(v,o){return `【品质风险处理】${o.name}（${o.model}）\n平台：${o.platform}\n统计区间：${o.start} — ${o.end}\n风险：${o.risks.join('、')||'持续观察'}\n进线率 ${fmt(o.contactRate,1)}% / 退货率 ${fmt(o.returnRate,1)}% / 差评率 ${fmt(o.badRate,1)}%\n处理负责人：${v.assignee||'待选择'}\n协调人员：${v.collaborators.join('、')||'无'}\n预计处理日期：${v.due||'待填写'} 23:59（北京时间）\n\n处理方案：\n${v.plan}`}
+function qrOpenDetail(key){const [id,ci]=key.split(':').map(Number),product=qrCatalog().find(p=>p.id===id);if(!product)return;const w=qrWindow();qrDetailState={product,platform:qrPlatforms[ci],...w,limit:bounds().cutoff,mode:'30'};qrRenderDetail()}
