@@ -500,6 +500,10 @@
       "module": "指标口径字典"
     },
     {
+      "file": "src/modules/page-presentation/00-demo-copy.js",
+      "module": "展示文案清理"
+    },
+    {
       "file": "src/modules/metric-tooltip/01.js",
       "module": "指标悬浮提示"
     },
@@ -889,6 +893,12 @@
       "module": "项目风险台账悬浮表格"
     },
     {
+      "file": "src/modules/project-panorama/08-analysis-model.js"
+    },
+    {
+      "file": "src/modules/project-panorama/09-analysis-view.js"
+    },
+    {
       "file": "src/modules/project-panorama/04-controller.js",
       "module": "项目红绿灯全景管控"
     },
@@ -1125,6 +1135,9 @@
     {
       "file": "styles/51-column-resize.css",
       "module": "全局表格列宽调整"
+    },
+    {
+      "file": "styles/52-project-analysis.css"
     }
   ],
   "images": [

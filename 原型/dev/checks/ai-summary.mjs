@@ -115,7 +115,7 @@ export async function aiSummary(page){
  await visibleActions();
  await table.locator('[data-todo-open="detail"]').first().click();
  const dialog=page.locator('.up-todo-dialog'),body=await dialog.innerText();
- assert(body.includes('方案演示'));assert(body.includes('判断理由：'));assert(body.includes('统计期间：'));
+ assert(!body.includes('方案演示'));assert(body.includes('判断理由：'));assert(body.includes('统计期间：'));
  assert(!/问题批次|按批次|PR1015|甲厂/.test(body));
  await page.keyboard.press('Escape');
  for(const tab of ['quality','stock','operating']){await page.locator('[data-drawer-tab="'+tab+'"]').click();await visibleActions();}

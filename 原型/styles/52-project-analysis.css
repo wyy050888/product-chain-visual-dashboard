@@ -1,0 +1,50 @@
+/* 部门根因分析：指标、归纳结论与台账追溯各自独立。 */
+#projects.pp-main .pp-ai{background:#f8faff;padding:22px}
+#projects.pp-main .pp-ai-heading{margin-bottom:20px}
+#projects.pp-main .pp-ai-heading h3{font-size:17px;color:#203951}
+#projects.pp-main .pp-ai-grid{gap:16px;align-items:stretch}
+#projects.pp-main .pp-ai-grid>article{display:flex;flex-direction:column;padding:20px;border-radius:10px;box-shadow:0 2px 8px #29456504}
+#projects.pp-main .pp-ai-grid .pp-card-head{margin-bottom:18px;gap:8px}
+#projects.pp-main .pp-ai-grid h4{font-size:15px}
+#projects.pp-main .pp-ai-grid .pp-card-head small{white-space:nowrap;font-size:11px}
+#projects.pp-main .pp-analysis-metrics{display:grid;grid-template-columns:1fr 1.2fr 1fr;gap:8px;padding-bottom:18px;border-bottom:1px solid #edf1f7}
+#projects.pp-main .pp-analysis-metrics>button,#projects.pp-main .pp-analysis-metrics>div{min-width:0;display:flex;flex-direction:column;gap:8px;padding:6px 2px;text-align:left;background:transparent;border:0;font:inherit;border-radius:5px}
+#projects.pp-main .pp-analysis-metrics>button{cursor:pointer}
+#projects.pp-main .pp-analysis-metrics>button:hover{background:#f3f7ff}
+#projects.pp-main .pp-analysis-metrics span{font-size:11px;color:#7b8ba3;white-space:nowrap}
+#projects.pp-main .pp-analysis-metrics strong{font-size:25px;line-height:1.2;font-weight:650;color:#304b6e;font-variant-numeric:tabular-nums}
+#projects.pp-main .pp-analysis-metrics button:first-child strong{color:#e65c70}
+#projects.pp-main .pp-ai-grid h5{margin:18px 0 6px;font-size:12px;letter-spacing:.2px;color:#6b7d97;font-weight:500}
+#projects.pp-main .pp-root-list{flex:1}
+#projects.pp-main .pp-root-item{display:flex;align-items:flex-start;gap:10px;padding:13px 0;width:100%;text-align:left;border:0;border-bottom:1px solid #f0f3f8;border-radius:0;background:transparent;cursor:pointer;font:inherit}
+#projects.pp-main .pp-root-item:last-child{border-bottom:0}
+#projects.pp-main .pp-root-item:hover .pp-root-content>b{color:#1677ff}
+#projects.pp-main .pp-root-rank{display:grid;place-items:center;flex:0 0 22px;height:22px;border-radius:5px;background:#eef2fb;color:#6d7eab;font-size:11px;font-weight:600}
+#projects.pp-main .pp-root-item:first-child .pp-root-rank{background:#fff0f2;color:#df6577}
+#projects.pp-main .pp-root-content{display:block;min-width:0;flex:1}
+#projects.pp-main .pp-root-content>b{display:block;font-size:13px;font-weight:600;line-height:22px;color:#304b6e}
+#projects.pp-main .pp-root-summary{display:block;font-size:12px;line-height:1.75;color:#7b8ba3;margin:5px 0 8px}
+#projects.pp-main .pp-root-content small{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px;font-size:11px;color:#8394ad;line-height:1.8}
+#projects.pp-main .pp-root-content em{font-style:normal;color:#377ecc;white-space:nowrap}
+#projects.pp-main .pp-analysis-all{display:flex;justify-content:space-between;align-items:center;background:#f6f8fc;border:0;border-radius:6px;padding:10px 12px;margin-top:16px;color:#4e78ac;font-size:12px;cursor:pointer}
+#projects.pp-main .pp-analysis-all:hover{background:#edf4ff;color:#1677ff}
+#projects.pp-main .pp-analysis-empty{padding:32px 0;color:#95a2b7;font-size:12px;text-align:center}
+#dialogbody .pp-analysis-detail{color:#344b6b}
+#dialogbody .pp-analysis-conclusion{padding:18px 20px;border:1px solid #e4eafa;border-radius:8px;background:#f7f9ff;margin-bottom:20px}
+#dialogbody .pp-analysis-conclusion h3{margin:0 0 8px;font-size:16px}
+#dialogbody .pp-analysis-conclusion p{margin:0;font-size:13px;line-height:1.8;color:#6c7f9c}
+#dialogbody .pp-analysis-total{font-size:12px;color:#7890ad;margin-bottom:12px}
+#dialogbody .pp-analysis-table{overflow:auto;border:1px solid #e5ecf7;border-radius:6px}
+#dialogbody .pp-analysis-table table{table-layout:fixed;border-collapse:collapse;width:100%;min-width:960px}
+#dialogbody .pp-analysis-table th,#dialogbody .pp-analysis-table td{padding:14px 12px;font-size:12px;line-height:1.8;text-align:left;border-bottom:1px solid #e9eef7;white-space:normal;overflow-wrap:anywhere}
+#dialogbody .pp-analysis-table th{background:#f5f8fc;color:#7a8da9;font-weight:500}
+#dialogbody .pp-analysis-table th:first-child{width:19%}
+#dialogbody .pp-analysis-table th:nth-child(2){width:11%}
+#dialogbody .pp-analysis-table th:last-child{width:7%}
+#dialogbody .pp-analysis-table td b{font-weight:400}
+#dialogbody .pp-analysis-table td small{display:block;color:#8b9ab0;margin-top:6px}
+#dialogbody .pp-analysis-empty{text-align:center;padding:50px;color:#8b9ab0}
+@media(max-width:1550px){#projects.pp-main .pp-ai-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){#projects.pp-main .pp-ai{padding:16px}#projects.pp-main .pp-ai-grid{grid-template-columns:minmax(0,1fr)}#projects.pp-main .pp-ai-grid>article{padding:16px}}
+
+#dialog:has(.pp-analysis-detail) #drawer-tabs{display:none}

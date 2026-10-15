@@ -1,10 +1,21 @@
 {
   "columns": {
     "label": "全局表格拖拽调整列宽",
-    "keywords": ["列宽", "调整列宽", "表格拖拽"],
-    "sources": ["src/modules/ui-controls/04-column-model.js", "src/modules/ui-controls/05-column-resize.js"],
-    "styles": ["styles/51-column-resize.css"],
-    "checks": ["columnResize"]
+    "keywords": [
+      "列宽",
+      "调整列宽",
+      "表格拖拽"
+    ],
+    "sources": [
+      "src/modules/ui-controls/04-column-model.js",
+      "src/modules/ui-controls/05-column-resize.js"
+    ],
+    "styles": [
+      "styles/51-column-resize.css"
+    ],
+    "checks": [
+      "columnResize"
+    ]
   },
   "multiFilters": {
     "label": "六榜及新品多选筛选",
@@ -336,16 +347,35 @@
       "src/modules/project-panorama/04-controller.js",
       "src/modules/project-panorama/05-ledger-popover.js",
       "src/modules/project-panorama/06-stage-cascader.js",
-      "src/modules/project-panorama/07-department-risks.js"
+      "src/modules/project-panorama/07-department-risks.js",
+      "src/modules/project-panorama/08-analysis-model.js",
+      "src/modules/project-panorama/09-analysis-view.js"
     ],
     "styles": [
-      "styles/50-project-panorama.css"
+      "styles/50-project-panorama.css",
+      "styles/52-project-analysis.css"
     ],
     "checks": [
       "projectPanorama"
     ],
     "manual": [
-      "项目缺失台账和报价已有演示数据，真实数据尚未接入；风险台账第7列待确认。"
+      "项目台账、归纳结果为本地样例，真实数据及在线 AI 服务尚未接入。"
+    ]
+  },
+  "project-analysis": {
+    "name": "部门风险根因分析",
+    "sources": [
+      "src/modules/project-panorama/08-analysis-model.js",
+      "src/modules/project-panorama/09-analysis-view.js"
+    ],
+    "styles": [
+      "styles/52-project-analysis.css"
+    ],
+    "checks": [
+      "projectAnalysis"
+    ],
+    "manual": [
+      "当前为本地归纳样例；在线 AI 服务和真实台账未接入。"
     ]
   }
 }

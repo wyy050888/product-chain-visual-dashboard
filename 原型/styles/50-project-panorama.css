@@ -36,15 +36,32 @@
 #projects.pp-main .pp-track i{display:block;height:100%}
 #projects.pp-main .pp-red{background:#ff6174}
 #projects.pp-main .pp-yellow{background:var(--orange-fill)}
+#projects.pp-main .pp-distribution{--pp-green-fill:#8bb8a8;--pp-green-text:#557c6d}
+#projects.pp-main .pp-green{background:var(--pp-green-fill)}
+#projects.pp-main .pp-distribution .green{color:var(--pp-green-text)}
+#projects.pp-main .pp-distribution .dot.green{background:var(--pp-green-fill)}
+#projects.pp-main .pp-distribution .pp-card-head{flex-wrap:wrap}
+#projects.pp-main .pp-distribution .pp-bar-line>span:last-child{min-width:76px;white-space:nowrap}
 #projects.pp-main .pp-departments{flex:1}
 #projects.pp-main .pp-dept-options{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:3px;margin:0 0 12px}
 #projects.pp-main .pp-dept-options button{padding:6px 2px;border:1px solid #e1e9f5;border-radius:4px;font-size:11px;white-space:nowrap;color:#7589a7}
 #projects.pp-main .pp-dept-options button[aria-pressed=true]{background:#edf4ff;border-color:#91bfff;color:#1677ff}
 #projects.pp-main .pp-note{font-size:11px;color:#8293ae;line-height:1.7;margin:15px 0 0}
+/* 概览压缩固定留白，剩余高度由两张分布卡片均匀分配。 */
+#projects.pp-main #pp-overview{gap:12px}
+#projects.pp-main #pp-overview>.pp-card{padding:16px}
+#projects.pp-main #pp-overview .pp-card-head{margin-bottom:12px}
+#projects.pp-main #pp-overview .pp-rate-split{padding-top:8px;margin-top:8px}
+#projects.pp-main #pp-overview .pp-rate-split button{gap:4px}
+#projects.pp-main #pp-overview .pp-rate small{margin-top:2px}
+#projects.pp-main #pp-overview :is(.pp-distribution,.pp-departments){display:flex;flex-direction:column;flex:1}
+#projects.pp-main #pp-overview .pp-tabs{margin-bottom:10px}
+#projects.pp-main #pp-overview .pp-bars{flex:1;justify-content:space-between;gap:4px}
+#projects.pp-main #pp-overview .pp-bars>.pp-link{padding:5px 8px}
+#projects.pp-main #pp-overview .pp-bar-label{margin-bottom:4px}
 #projects.pp-main .pp-main-table{min-width:0;display:flex;flex-direction:column}
-#projects.pp-main .pp-filters{display:flex;flex-direction:column;gap:12px;margin-bottom:14px}
-#projects.pp-main .pp-filter-row{display:grid;grid-template-columns:minmax(220px,2fr) minmax(130px,1fr) minmax(250px,2fr);gap:12px;align-items:center}
-#projects.pp-main .pp-filter-row+.pp-filter-row{grid-template-columns:repeat(4,minmax(130px,1fr)) minmax(220px,2fr) auto}
+#projects.pp-main .pp-filters{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:end;margin-bottom:14px}
+#projects.pp-main .pp-filter-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;align-items:center;min-width:0}
 #projects.pp-main .pp-filter-row>label,#projects.pp-main .pp-filter-row>.pf-multi{min-width:0;max-width:none;width:100%;margin:0}
 #projects.pp-main .pp-filter-row input[type=search]{width:100%;height:36px;border:0;background:transparent;padding:0 10px}
 #projects.pp-main .pp-filter-row .ui-search-field{border:1px solid #d7e0ee;border-radius:6px;display:flex;align-items:center;height:36px}
@@ -66,18 +83,24 @@
 #projects.pp-main .pp-stage-types button{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:36px;padding:7px 9px;text-align:left;border-radius:4px;font-size:12px}
 #projects.pp-main .pp-stage-types button[aria-pressed=true],#projects.pp-main .pp-stage-types button:hover,#projects.pp-main .pp-stage-option:hover{background:#f4f8ff;color:#1677ff}
 #projects.pp-main .pp-stage-option{display:flex;align-items:flex-start;gap:8px;padding:8px;border-radius:4px;font-size:12px;line-height:20px;cursor:pointer}
-#projects.pp-main .pp-stage-option input{flex:none;width:14px;height:14px;margin:3px 0 0;accent-color:#1677ff}
+/* 复选框不继承通用输入框的34px最小高度；与第一行文字居中对齐。 */
+#projects.pp-main .pp-stage-option input[type=checkbox]{flex:0 0 14px;width:14px;min-width:14px;height:14px;min-height:14px;max-height:14px;padding:0;margin:3px 0 0;box-sizing:border-box;accent-color:#1677ff}
+#projects.pp-main .pp-stage-option>span{min-width:0;overflow-wrap:anywhere}
 #projects.pp-main .pp-plan-trigger{display:flex;align-items:center;gap:10px;width:100%;height:36px;border:1px solid #d7e0ee;border-radius:6px;background:white;color:#304b6e;padding:0 12px;font:inherit;font-size:12px;cursor:pointer}
+#projects.pp-main .pp-plan-trigger>span:first-child{flex:none;white-space:nowrap}
 #projects.pp-main .pp-plan-trigger>span:nth-child(2){color:#7387a7;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;flex:1;text-align:left}
 #projects.pp-main .pp-plan-trigger i{font-style:normal;margin-right:16px}
 #projects.pp-main [data-pp-plan-clear]{position:absolute;right:8px;top:8px;background:#fff;border:0;color:#8498b6;cursor:pointer}
-#projects.pp-main .pp-reset{padding:0 8px;white-space:nowrap}
+#projects.pp-main .pp-reset{height:36px;padding:0 8px;white-space:nowrap}
 #projects.pp-main .pp-table-scroll{width:100%;overflow:auto;border:1px solid #e4ebf7;border-radius:7px;flex:1;background:white}
-#projects.pp-main .pp-table{table-layout:fixed;min-width:2606px;width:100%;border-collapse:separate;border-spacing:0}
+#projects.pp-main .pp-table{table-layout:fixed;min-width:2694px;width:100%;border-collapse:separate;border-spacing:0}
 #projects.pp-main .pp-table th{font-size:12px;color:#7589a7;font-weight:500;height:44px;white-space:nowrap;background:#f5f8fc;padding:12px 14px}
 #projects.pp-main .pp-table td{height:86px;padding:14px;vertical-align:middle;border-bottom:1px solid #e9eff8;font-size:12px;color:#354c70;white-space:normal;line-height:1.7;overflow:visible}
 #projects.pp-main .pp-table>thead>tr>th:first-child,#projects.pp-main .pp-table>tbody>tr>td:first-child{position:sticky;left:0;z-index:2;border-right:1px solid #e8eef8;background:#fff}
 #projects.pp-main .pp-table>thead>tr>th:first-child{background:#f5f8fc;z-index:3}
+/* 查看操作固定在右侧，横向滚动时仍可直接点击。 */
+#projects.pp-main .pp-table>thead>tr>th:last-child,#projects.pp-main .pp-table>tbody>tr>td[data-label="操作"]{position:sticky;right:0;z-index:2;background:#fff;text-align:center;border-left:1px solid #e8eef8;box-shadow:-4px 0 6px -5px #29456555}
+#projects.pp-main .pp-table>thead>tr>th:last-child{background:#f5f8fc;z-index:3}
 #projects.pp-main .pp-table>tbody>tr:hover>td{background:#f8fbff}
 #projects.pp-main .pp-product{display:flex;gap:10px;align-items:center;width:100%;text-align:left;background:none;border:0;padding:0;color:#294565;font:inherit;cursor:pointer}
 #projects.pp-main .pp-product>img,#projects.pp-main .pp-placeholder{width:38px;height:38px;object-fit:contain;border:1px solid #e5ebf8;border-radius:5px;background:#fff;flex:none}
@@ -107,9 +130,9 @@
 #projects.pp-main .pp-ai-action b{display:block;margin-bottom:5px}
 #projects.pp-main .pp-ai-grid summary{font-size:12px;color:#1677ff;cursor:pointer}
 #projects.pp-main button:focus-visible{outline:2px solid #83b7ff;outline-offset:2px}
-@media(max-width:1450px){#projects.pp-main .pp-layout{grid-template-columns:290px minmax(0,1fr);gap:16px}#projects.pp-main .pp-filter-row{grid-template-columns:minmax(180px,1.5fr) minmax(105px,1fr) minmax(225px,1.5fr);gap:8px}#projects.pp-main .pp-filter-row+.pp-filter-row{grid-template-columns:repeat(4,minmax(105px,1fr)) minmax(180px,1.5fr) auto}#projects.pp-main .pp-card{padding:16px}}
+@media(max-width:1450px){#projects.pp-main .pp-layout{grid-template-columns:290px minmax(0,1fr);gap:16px}#projects.pp-main .pp-filter-row{grid-template-columns:repeat(3,minmax(0,1fr))}#projects.pp-main .pp-card{padding:16px}}
 @media(max-width:1100px){#projects.pp-main .pp-layout{grid-template-columns:1fr}#projects.pp-main #pp-overview{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch}#projects.pp-main .pp-ai-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#projects.pp-main .pp-rate-split{gap:0}}
-@media(max-width:700px){#projects.pp-main #pp-overview{grid-template-columns:1fr}#projects.pp-main .pp-filter-row,#projects.pp-main .pp-filter-row+.pp-filter-row{grid-template-columns:repeat(2,minmax(0,1fr))}#projects.pp-main .pp-filter-row>.ui-search-field,#projects.pp-main .pp-plan,#projects.pp-main .pp-stage-cascader{grid-column:1/-1}#projects.pp-main .pp-scope{flex-wrap:wrap}#projects.pp-main .pp-ai-grid{grid-template-columns:1fr}#projects.pp-main .pp-ai-heading{align-items:flex-start;flex-direction:column}}
+@media(max-width:700px){#projects.pp-main #pp-overview{grid-template-columns:1fr}#projects.pp-main .pp-scope{flex-wrap:wrap}#projects.pp-main .pp-ai-grid{grid-template-columns:1fr}#projects.pp-main .pp-ai-heading{align-items:flex-start;flex-direction:column}}
 
 /* 根因分析悬浮表格：内容可移入阅读，窄屏在浮层内部横向滚动。 */
 #pp-ledger-popover{position:fixed;inset:auto;margin:0;width:min(1100px,calc(100vw - 24px));max-height:calc(100vh - 24px);padding:12px;border:1px solid #dfe6f1;border-radius:5px;background:white;color:#354c70;box-shadow:0 3px 16px #253a5b24;overflow:visible}
@@ -123,9 +146,15 @@
 #pp-ledger-popover th,#pp-ledger-popover td{border:1px solid #e5ebf6;padding:10px 9px;text-align:left;font-size:12px;line-height:1.7;white-space:normal;overflow-wrap:anywhere}
 #pp-ledger-popover th{background:#f5f7fb;color:#7286a6;font-weight:400}
 #pp-ledger-popover th:first-child{width:5%}
-#pp-ledger-popover th:nth-child(2){width:19%}
-#pp-ledger-popover th:nth-child(3){width:27%}
-#pp-ledger-popover th:nth-child(4){width:27%}
-#pp-ledger-popover th:nth-child(5){width:11%}
+#pp-ledger-popover th:nth-child(2){width:10%}
+#pp-ledger-popover th:nth-child(3){width:17%}
+#pp-ledger-popover th:nth-child(4){width:23%}
+#pp-ledger-popover th:nth-child(5){width:23%}
 #pp-ledger-popover th:nth-child(6){width:11%}
+#pp-ledger-popover th:nth-child(7){width:11%}
+#pp-ledger-popover td:nth-child(2){white-space:nowrap}
 #pp-ledger-popover .pp-empty-ledger{text-align:center;padding:24px;color:#8494ad}
+
+/* 查询项等宽，窄屏减少列数，重置按钮独立于字段网格。 */
+@media(max-width:900px){#projects.pp-main .pp-filter-row{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){#projects.pp-main .pp-filters{grid-template-columns:minmax(0,1fr)}#projects.pp-main .pp-filter-row{grid-template-columns:minmax(0,1fr)}#projects.pp-main .pp-reset{justify-self:end}}

@@ -88,6 +88,7 @@ function showMetricTooltip(help) {
   metricTooltip.classList.toggle('metric-tooltip-nsp-card', Boolean(help.dataset.nspKpi));
   metricTooltip.classList.toggle('metric-tooltip-period', help.classList.contains('nsp-period-help'));
   renderMetricTooltipContent(help);
+  cleanDemoPresentation(metricTooltip);
   metricTooltip.hidden = false;
   const anchor = help.getBoundingClientRect(), box = metricTooltip.getBoundingClientRect();
   const left = Math.max(8, Math.min(innerWidth - box.width - 8, anchor.left - 8));

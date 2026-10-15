@@ -1,0 +1,52 @@
+import assert from 'node:assert/strict';
+import {fileURLToPath} from 'node:url';
+export async function projectAnalysis(page){
+ await page.locator('a[href="#projects"]').click();await page.locator('[data-pp-reset]').click();
+ const audit=await page.evaluate(()=>projectPanoramaAudit()),rows=audit.scope;
+ const cards=page.locator('#pp-ai .pp-ai-grid>article');assert.equal(await cards.count(),4);
+ assert.doesNotMatch(await page.locator('#pp-ai').innerText(),/演示|原型|规则汇总|未调用|样例/);
+ for(const department of ['产品部','研发部','采购部','品质部']){
+  const card=page.locator(`[data-analysis-department="${department}"]`);
+  const owned=rows.filter(p=>Array.isArray(p.responsibleDepartments)?p.responsibleDepartments.includes(department):p.ledger.some(r=>(Array.isArray(r.department)?r.department:[r.department]).includes(department)));
+  const red=owned.filter(p=>p.status==='红灯'),high=red.filter(p=>p.delay>15);
+  const evidence=red.flatMap(p=>p.ledger.filter(r=>r.status!=='已闭环'&&(Array.isArray(r.department)?r.department:[r.department]).includes(department)));
+  assert.deepEqual(await card.locator('.pp-analysis-metrics strong').allTextContents(),[String(red.length),String(high.length),owned.length?(red.length/owned.length*100).toFixed(1)+'%':'—']);
+  assert.match(await card.locator('.pp-card-head small').innerText(),new RegExp(String(owned.length)));
+  for(const [mode,expected] of [['red',red.length],['high',high.length],['all',evidence.length]]){
+   await card.locator(`[data-mode="${mode}"]`).click();
+   assert.equal(await page.locator('.pp-analysis-table tbody tr').count(),expected||1);
+   if(mode==='high'&&expected){const delays=await page.locator('.pp-analysis-table tbody tr td:nth-child(3)').allTextContents();assert(delays.every(d=>parseInt(d)>15));}
+   await page.locator('#modalclose').click();
+  }
+  const rootButtons=card.locator('.pp-root-item');assert((await rootButtons.count())<=3);
+  let last=Infinity;
+  for(let i=0;i<await rootButtons.count();i++){
+   const button=rootButtons.nth(i),label=await button.locator('small').innerText(),count=Number(label.match(/(\d+) 条风险/)[1]);assert(count<=last);last=count;
+   await button.click();assert.equal(await page.locator('.pp-analysis-table tbody tr').count(),count);
+   assert.equal(await page.locator('.pp-analysis-conclusion h3').innerText(),await button.locator('b').innerText());
+   if(await button.getAttribute('data-mode')==='decision'){
+    const source=await page.locator('.pp-analysis-table tbody').innerText();assert.match(source,/关键需求尚未达成一致/);assert.match(source,/需求确认节点滞后/);
+   }
+   await page.locator('#modalclose').click();
+  }
+ }
+ await cards.first().locator('[data-mode="red"]').click();
+ await page.locator('[data-pp-analysis-view]').first().click();
+ assert.equal(await page.locator('.pp-analysis-detail').count(),0);assert(await page.locator('#dialogbody').innerText());
+ await page.locator('#modalclose').click();
+ assert(await page.locator('.pp-analysis-detail').isVisible());await page.locator('#modalclose').click();
+ const before=await cards.locator('.pp-analysis-metrics').allTextContents();
+ await page.locator('[data-pp-link="light"][data-value="红灯"]').click();assert.deepEqual(await cards.locator('.pp-analysis-metrics').allTextContents(),before);
+ await page.locator('[data-pp-reset]').click();
+ await page.locator('[data-pp-search]').fill('没有匹配的项目');assert.equal(await page.locator('.pp-analysis-empty').count(),4);
+ assert((await cards.locator('.pp-analysis-metrics strong').allTextContents()).every(v=>['0','—'].includes(v)));
+ await cards.first().locator('[data-mode="all"]').click();assert.match(await page.locator('.pp-analysis-detail').innerText(),/暂无相关记录/);await page.locator('#modalclose').click();
+ await page.locator('[data-pp-reset]').click();
+ for(const width of [1920,1440,900,600]){
+  await page.setViewportSize({width,height:1080});
+  assert(await cards.evaluateAll(els=>els.every(e=>e.scrollWidth<=e.clientWidth+1)));
+  assert(await page.locator('#pp-ai').evaluate(e=>e.getBoundingClientRect().right<=innerWidth+1));
+ }
+ await page.setViewportSize({width:1920,height:1080});await page.locator('#pp-ai').scrollIntoViewIfNeeded();
+ await page.locator('#pp-ai').screenshot({path:fileURLToPath(new URL('../../outputs/project-analysis.png',import.meta.url))});
+}

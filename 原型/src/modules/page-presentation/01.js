@@ -76,6 +76,7 @@ function cleanPresentation(root) {
   root.querySelectorAll('.sectionhead>.note').forEach(element => {
     if (!/\d{4}|截止|单位/.test(element.textContent)) suppressPresentation(element);
   });
+  cleanDemoPresentation(root);
   decorateMetricLabels(root);
   groupRiskCardMetricHelp(root, existingMetricRule);
 }
