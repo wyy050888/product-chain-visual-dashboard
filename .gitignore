@@ -25,3 +25,6 @@ Desktop.ini
 /outputs/**/*.jpeg
 /outputs/**/*.webp
 /outputs/**/*.inspect.ndjson
+
+/dist/
+.wrangler/
