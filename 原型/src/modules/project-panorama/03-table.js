@@ -24,7 +24,7 @@ function ppProjectRow(p){
  const reasons=ppValues(p.ledger.map(r=>r.rootCause||r.description)),stage=p.stages.length?p.stages.join('、'):'待核对';
  const cells=[
   `<button type="button" class="pp-product" data-pp-project="${p.id}">${p.image?`<img src="${esc(p.image)}" alt="">`:'<span class="pp-placeholder">项</span>'}<span><b>${esc(p.name)}</b><small>${esc(p.type)}</small></span></button>`,
-  traffic(p.status),esc(p.projectState||'—'),esc(p.plan||'—'),p.actual||'<span class="muted">'+(p.projectState==='已完成'?'待补录':'—')+'</span>',
+  traffic(p.status),esc(p.projectState||'—'),`<span class="pp-plan-dates"><span>${esc(p.plan||'—')}</span><small class="${p.revisedPlan?'orange':'muted'}">延期 ${esc(p.revisedPlan||'—')}</small></span>`,p.actual||'<span class="muted">'+(p.projectState==='已完成'?'待补录':'—')+'</span>',
   p.delay===null?'—':`<span class="${p.delay?'orange':''}">${p.delay}天</span>`,
   `<span class="pp-wrap" title="${esc(p.stage||'未提供阶段')}">${esc(stage)}</span>`,
   esc(p.departments.join('、')||'待补充'),
@@ -38,9 +38,20 @@ function ppTable(rows){
  ppHideLedger();
  const filtered=ppFiltered(rows),pages=Math.max(1,Math.ceil(filtered.length/10));ppState.page=Math.min(ppState.page,pages);
  const body=$('#pp-table-scroll'),scroll=body.scrollLeft;
- body.innerHTML=`<table class="pp-table"><colgroup>${[274,112,120,132,132,96,180,130,240,140,210,210,190,130,110,100,88].map(w=>`<col style="width:${w}px">`).join('')}</colgroup><thead><tr>${ppHeaders.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${filtered.length?filtered.slice((ppState.page-1)*10,ppState.page*10).map(ppProjectRow).join(''):'<tr><td colspan="17"><div class="empty">暂无匹配项目，请调整筛选条件。</div></td></tr>'}</tbody></table>`;
+ body.innerHTML=`<table class="pp-table"><colgroup>${[274,112,120,132,132,96,180,130,240,140,210,210,190,130,110,100,88].map(w=>`<col style="width:${w}px">`).join('')}</colgroup><thead><tr>${ppHeaders.map(ppTableHeader).join('')}</tr></thead><tbody>${filtered.length?filtered.slice((ppState.page-1)*10,ppState.page*10).map(ppProjectRow).join(''):'<tr><td colspan="17"><div class="empty">暂无匹配项目，请调整筛选条件。</div></td></tr>'}</tbody></table>`;
  body.scrollLeft=scroll;
  $('#pp-pages').innerHTML=listPager(filtered.length,ppState.page,10,{attr:'data-pp-page'});
  $('#pp-ai').innerHTML=ppAI(ppAnalysisRows());
  return filtered;
+}
+
+function ppSortButton(key,label){
+ const active=ppState.sort.key===key,direction=active?ppState.sort.direction:'',next=direction==='asc'?'降序':'升序';
+ return `<button type="button" class="rp-sort-header" data-pp-sort="${key}" data-direction="${direction}" aria-label="${label}：点击${next}">${label}<span class="rp-sort-arrows" aria-hidden="true"></span></button>`;
+}
+function ppTableHeader(label){
+ const key={'计划上线日期':'plan','实际上线日期':'actual','延期天数':'delay','立项日期':'started'}[label];
+ const active=ppState.sort.key===key||(key==='plan'&&ppState.sort.key==='revisedPlan');
+ const sort=active?(ppState.sort.direction==='asc'?'ascending':'descending'):'none';
+ return `<th${key?` aria-sort="${sort}"`:''}>${key==='plan'?`<div class="pp-plan-sort">${ppSortButton('plan',label)}${ppSortButton('revisedPlan','延期上线日期')}</div>`:key?ppSortButton(key,label):label}</th>`;
 }

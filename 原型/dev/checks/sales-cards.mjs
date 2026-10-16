@@ -62,8 +62,8 @@ export async function salesCards(page){
  assert.deepEqual((await company.locator('.ms-mini-deltas').first().locator(':scope > span').allTextContents()).map(t=>t.split(' ')[0]),['差额','差额','偏差']);
  const trend=company.locator('.ms-trend'),tip=trend.locator('[role=tooltip]');
  await trend.hover({position:{x:15,y:20}});assert(await tip.isVisible());assert.match(await tip.innerText(),/2026-07-\d{2}.*|GSV/s);
- await trend.focus();await page.keyboard.press('End');assert.match(await tip.innerText(),/2026-09-30/);
- await page.keyboard.press('Home');assert.match(await tip.innerText(),/2026-04-20 — 2026-04-26（周）/);
+ await trend.focus();await page.keyboard.press('End');assert.match(await tip.innerText(),/26\/09\/30/);
+ await page.keyboard.press('Home');assert.match(await tip.innerText(),/26\/04\/20 — 26\/04\/26（周）/);
  await page.keyboard.press('Escape');assert(!(await tip.isVisible()));
  await cards.nth(1).locator('[data-si-mode="platform"]').click();
  for(const card of await cards.all()){

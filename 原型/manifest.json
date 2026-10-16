@@ -516,6 +516,10 @@
       "module": "页面文案整理"
     },
     {
+      "file": "src/modules/page-presentation/02-dates.js",
+      "module": "全局日期显示格式"
+    },
+    {
       "file": "src/modules/ui-controls/01.js",
       "module": "公共控件交互"
     },

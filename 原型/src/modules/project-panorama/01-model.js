@@ -8,7 +8,7 @@ const ppStages={
 };
 const ppProjectStates=['进行中','已完成','已暂停/取消','未开始'];
 const ppDepartments=['产品部','研发部','采购部','品质部'];
-const ppState={category:[],type:[],projectState:['进行中'],brand:[],light:[],stage:[],department:[],owner:'',query:'',plan:null,started:null,page:1,distribution:'type',departmentDistribution:'type',riskDepartment:'全部',link:null};
+const ppState={category:[],type:[],projectState:['进行中'],brand:[],light:[],stage:[],department:[],owner:'',query:'',plan:null,started:null,page:1,distribution:'type',departmentDistribution:'type',riskDepartment:'全部',link:null,sort:{key:'revisedPlan',direction:'asc'}};
 const ppValues=value=>[...new Set((Array.isArray(value)?value:[value]).filter(v=>v!=null&&v!==''&&v!=='—'))];
 const ppDate=value=>/^\d{4}-\d{2}-\d{2}$/.test(value||'')?value:null;
 function ppAdapt(source,cutoff){
@@ -17,8 +17,9 @@ function ppAdapt(source,cutoff){
  const ledger=(Array.isArray(source.riskLedger)?source.riskLedger:ppSampleLedger(source)).filter(r=>!r.recordedAt||r.recordedAt.slice(0,10)<=cutoff).map(r=>({...r,taskNames:ppValues(r.taskNames).filter(name=>typeof name==='string')}));
  const stages=ppValues(String(source.stage||'').split(/[,，、]/)).filter(s=>(ppStages[type]||[]).includes(s));
  const actual=ppDate(source.actual)&&source.actual<=cutoff?source.actual:null,plan=ppDate(source.plan);
+ const revised=ppDate(source.revisedPlan),revisedPlan=revised&&(!plan||revised>plan)?revised:null;
  const delay=plan&&(actual||source.projectState!=='已完成')?Math.max(0,Math.round((Date.parse(actual||cutoff)-Date.parse(plan))/86400000)):null;
- return {...source,type,category:pfCategory(source),stages,ledger,actual,delay,
+ return {...source,type,category:pfCategory(source),stages,ledger,actual,delay,revisedPlan,
   departments:ppValues(ledger.filter(r=>r.status!=='已闭环').flatMap(r=>ppValues(r.department))).filter(d=>ppDepartments.includes(d)),
   responsible:ppValues(ledger.map(r=>r.owner))};
 }
@@ -31,7 +32,7 @@ function ppFiltered(rows,s=ppState){
  return rows.filter(p=>pfIncludes(s.brand,p.brand)&&pfIncludes(s.light,p.status)&&(!s.stage.length||s.stage.some(path=>path.type===p.type&&p.stages.includes(path.stage)))&&includesAny(s.department,p.departments)&&(!owner||p.responsible.some(name=>String(name).toLowerCase().includes(owner)))
   &&(!q||String(p.name||'').toLowerCase().includes(q))
   &&(!range||(p.plan>=range.start&&p.plan<=range.end))&&(!startedRange||(ppDate(p.started)&&p.started>=startedRange.start&&p.started<=startedRange.end))&&ppLinked(p,s.link))
-  .sort((a,b)=>(({红灯:0,黄灯:1,绿灯:2})[a.status]??3)-(({红灯:0,黄灯:1,绿灯:2})[b.status]??3)||(b.delay||0)-(a.delay||0)||a.id-b.id);
+  .sort((a,b)=>ppCompareProjects(a,b,s.sort));
 }
 function ppLinked(p,link){if(!link)return true;if(link.kind==='light')return link.value==='红黄灯'?['红灯','黄灯'].includes(p.status):p.status===link.value;if(link.kind==='departmentRisk')return p[link.type]===link.value&&ppDepartmentRiskRecords(p,link.department).length>0;if(link.kind==='department')return p.departments.includes(link.value);return p[link.kind]===link.value&&['红灯','黄灯','绿灯'].includes(p.status)}
 function ppCounts(rows){const red=rows.filter(p=>p.status==='红灯').length,yellow=rows.filter(p=>p.status==='黄灯').length,green=rows.filter(p=>p.status==='绿灯').length,total=rows.length;return {total,red,yellow,green,rate:n=>total?(n/total*100).toFixed(1)+'%':'—'}}
@@ -51,4 +52,12 @@ function ppQuoteLines(p,key){
  // 导入表仅有单一金额时如实展示；不补造版本、供价类型或最终报价。
  const legacy=key==='targetCosts'?p.cost:key==='targetPrices'?p.price:null;
  return typeof legacy==='number'&&Number.isFinite(legacy)?[legacy.toFixed(2)+'元']:[];
+}
+
+// 使用原始日期排序，缺失值在升降序中均置后；相同值按项目ID稳定排序。
+function ppCompareProjects(a,b,sort=ppState.sort){
+ const key=sort.key,value=p=>key==='delay'?p.delay:ppDate(p[key]),av=value(a),bv=value(b);
+ if(av==null||bv==null)return av==null&&bv==null?a.id-b.id:av==null?1:-1;
+ const compared=typeof av==='number'?av-bv:av.localeCompare(bv);
+ return compared*(sort.direction==='asc'?1:-1)||a.id-b.id;
 }

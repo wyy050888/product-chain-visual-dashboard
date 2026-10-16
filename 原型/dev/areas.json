@@ -364,7 +364,10 @@
   },
   "project-analysis": {
     "label": "部门风险根因分析",
-    "keywords": ["部门风险根因", "AI归因"],
+    "keywords": [
+      "部门风险根因",
+      "AI归因"
+    ],
     "sources": [
       "src/modules/project-panorama/08-analysis-model.js",
       "src/modules/project-panorama/09-analysis-view.js"
@@ -377,6 +380,26 @@
     ],
     "manual": [
       "当前为本地归纳样例；在线 AI 服务和真实台账未接入。"
+    ]
+  },
+  "dates": {
+    "label": "日期显示与项目排序",
+    "keywords": [
+      "日期格式",
+      "日期排序",
+      "延期上线日期"
+    ],
+    "sources": [
+      "src/modules/page-presentation/02-dates.js",
+      "src/modules/project-panorama/01-model.js",
+      "src/modules/project-panorama/03-table.js",
+      "src/modules/project-panorama/04-controller.js"
+    ],
+    "styles": [
+      "styles/50-project-panorama.css"
+    ],
+    "checks": [
+      "projectDates"
     ]
   }
 }

@@ -45,6 +45,7 @@ document.addEventListener('input',e=>{
 });
 document.addEventListener('click',e=>{
  const b=e.target.closest('#projects.pp-main button');if(!b)return;const d=b.dataset;
+ if(d.ppSort){ppState.sort={key:d.ppSort,direction:ppState.sort.key===d.ppSort&&ppState.sort.direction==='asc'?'desc':'asc'};ppState.page=1;ppRefreshTable();$('#pp-table-scroll [data-pp-sort="'+d.ppSort+'"]')?.focus({preventScroll:true});return}
  if(d.ppView!==undefined){toast('跳转项目详情');return}
  if(d.ppProject!==undefined)return withPeriod('projects',()=>projectDetail(Number(d.ppProject)));
  if(d.ppLedger!==undefined){ppShowLedger(b);return}
@@ -57,6 +58,6 @@ document.addEventListener('click',e=>{
  if(d.ppLink){const next={kind:d.ppLink,value:d.value,type:d.type||'',...(d.ppLink==='departmentRisk'?{department:ppState.riskDepartment}:{})};ppState.link=JSON.stringify(ppState.link)===JSON.stringify(next)?null:next;ppState.page=1;renderProjects();return}
  if(d.ppAiDepartment){ppState.link={kind:'department',value:d.ppAiDepartment};ppState.light=['红灯'];ppState.page=1;renderProjects();return}
  if(b.hasAttribute('data-pp-plan-clear')){ppState[d.ppPlanClear]=null;ppState.page=1;renderProjects();return}
- if(b.hasAttribute('data-pp-reset')){for(const key of ['brand','light','stage','department'])ppState[key]=[];ppState.projectState=['进行中'];ppState.query='';ppState.owner='';ppState.plan=null;ppState.started=null;ppState.link=null;ppState.page=1;renderProjects()}
+ if(b.hasAttribute('data-pp-reset')){for(const key of ['brand','light','stage','department'])ppState[key]=[];ppState.projectState=['进行中'];ppState.query='';ppState.owner='';ppState.plan=null;ppState.started=null;ppState.link=null;ppState.page=1;ppState.sort={key:'revisedPlan',direction:'asc'};renderProjects()}
 });
 window.projectPanoramaAudit=()=>withPeriod('projects',()=>({state:{...ppState},scope:ppScope(ppRows()),filtered:ppFiltered(ppScope(ppRows())),cutoff:bounds().cutoff}));

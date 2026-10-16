@@ -38,7 +38,7 @@ export async function shopDetail(page){
  await page.locator('#riskrail [data-risk="1"]').click();await page.locator('#dialogsub [data-drawer-time-mode="month"]').click();await page.locator('#dialogsub [data-drawer-time-value]').selectOption('9');
  await page.locator('#rf-list-table [data-riskitem]').first().click();assert.equal(await root.getAttribute('data-start'),'2026-09-01');
  const aiText=await root.locator('.up-ai-section p').allTextContents(),scope=await root.locator('.up-ai-scope').innerText();
- assert.equal(scope,'截至2026-10-10');assert(aiText.join('').includes('累计GSV')&&aiText.join('').includes('近30日GSV'));
+ assert.equal(scope,'截至26/10/10');assert(aiText.join('').includes('累计GSV')&&aiText.join('').includes('近30日GSV'));
  const september=await root.locator('.sd-kpis strong').first().textContent();
  await root.locator('[data-drawer-tab="violations"]').click();const qualityCount=Number((await root.locator('.sd-violation-stats strong').first().innerText()).replace('次',''));await root.locator('[data-sd-violation-quality]').uncheck();const allCount=Number((await root.locator('.sd-violation-stats strong').first().innerText()).replace('次',''));assert(allCount>qualityCount);
  await page.locator('#dialogsub [data-drawer-time-value]').selectOption('10');assert.equal(await root.getAttribute('data-start'),'2026-10-01');

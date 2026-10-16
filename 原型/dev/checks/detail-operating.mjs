@@ -49,7 +49,7 @@ export async function detailOperating(page){
  await point.hover();
  assert.equal(await page.locator('#up-sales-tooltip').isVisible(),true);
  assert.deepEqual(await page.locator('.up-sales-tooltip-row>span').allTextContents(),['GSV','销量','利润率']);
- assert.equal(await page.locator('.up-sales-tooltip-date').innerText(),await point.getAttribute('data-date'));
+ assert.equal(await page.locator('.up-sales-tooltip-date').innerText(),(await point.getAttribute('data-date')).slice(2).replaceAll('-','/'));
  assert.deepEqual(await page.locator('.up-sales-tooltip-row>b').allTextContents(),await point.evaluate(e=>[e.dataset.gsv,e.dataset.sales,e.dataset.margin]));
  await page.mouse.move(0,0);
  assert.equal(await page.locator('#up-sales-tooltip').isVisible(),false);

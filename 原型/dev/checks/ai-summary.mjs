@@ -86,7 +86,7 @@ export async function aiSummary(page){
  assert(sample.sections.join('').length<=600);
  assert(!/(?:QC|T|PO|PR|CF|RB|MT|PP|R)-\d/.test(sample.sections[2]));
  assert.equal(await summary.locator('.up-ai-actions p').evaluate(e=>getComputedStyle(e).whiteSpace),'pre-line');
- const scope=await summary.locator('.up-ai-scope').innerText();assert.match(scope,/^截至\d{4}-\d{2}-\d{2}$/);
+ const scope=await summary.locator('.up-ai-scope').innerText();assert.match(scope,/^截至\d{2}\/\d{2}\/\d{2}$/);
  await summary.locator('[data-up-ai-prompt]').click();
  const prompt=await page.locator('#up-ai-prompt pre').innerText();
  for(const word of ['产品链副总','不受页面时间或平台筛选影响','600万元','300万元','15%','5%—8%','渠道成本＝渠道供价','日周报','会议纪要','没有批次信息','运营决定','经营结论、问题分析、部门行动'])assert(prompt.includes(word),word);

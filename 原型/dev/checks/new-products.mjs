@@ -114,7 +114,7 @@ export async function newProducts(page){
  const launchCells=await page.locator('#newtable tbody tr').evaluateAll(rows=>rows.map(row=>({days:row.cells[1].textContent,date:row.cells[11].childNodes[0].textContent,delay:row.cells[11].querySelector('small')?.textContent||''})));
  for(const [i,cell] of launchCells.entries()){
   const p=first.visible[i],delay=Math.max(0,(Date.parse(p.actualLaunch)-Date.parse(p.plannedLaunch))/86400000);
-  assert.equal(cell.days,p.days+'天');assert.equal(cell.date,p.actualLaunch);
+  assert.equal(cell.days,p.days+'天');assert.equal(cell.date,p.actualLaunch.slice(2).replaceAll('-','/'));
   assert.equal(cell.delay,delay>0?'延期'+delay+'天':'','仅延期显示第二行');
  }
  assert.equal(await page.locator('[data-nsp-filter="channel"]').getAttribute('aria-label'),'新品销售渠道');
@@ -279,11 +279,11 @@ export async function newProducts(page){
  assert.deepEqual(stockValues,[values[5],coverageLabel.replace('可售天数 ','')],'库存和可售天数与产品详情一致');
  const launchInfo=()=>page.locator('[data-up-identity]').evaluate(dl=>Object.fromEntries([...dl.children].map(item=>[item.querySelector('dt').textContent,item.querySelector('dd').textContent])));
  let info=await launchInfo();
- assert.equal(info['新品上线日期'],data.visible[0].actualLaunch);
+ assert.equal(info['新品上线日期'],data.visible[0].actualLaunch.slice(2).replaceAll('-','/'));
  assert.equal(info['已上线天数'],data.visible[0].days+' 天');
  await page.locator('#dialogsub [data-drawer-time-value]').selectOption('3',{force:true});
  info=await launchInfo();
- assert.equal(info['新品上线日期'],data.visible[0].actualLaunch,'切换统计日期不改变上线日期');
+ assert.equal(info['新品上线日期'],data.visible[0].actualLaunch.slice(2).replaceAll('-','/'),'切换统计日期不改变上线日期');
  assert.equal(info['已上线天数'],String(Math.max(0,Math.round((Date.parse('2026-09-30')-Date.parse(data.visible[0].actualLaunch))/86400000)+1))+' 天','上线天数随统计截止日更新');
  await page.locator('#close').click();
 }

@@ -163,3 +163,7 @@
 /* 查询项等宽，窄屏减少列数，重置按钮独立于字段网格。 */
 @media(max-width:900px){#projects.pp-main .pp-filter-row{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){#projects.pp-main .pp-filters{grid-template-columns:minmax(0,1fr)}#projects.pp-main .pp-filter-row{grid-template-columns:minmax(0,1fr)}#projects.pp-main .pp-reset{justify-self:end}}
+
+#projects.pp-main .pp-plan-dates,#projects.pp-main .pp-plan-sort{display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+#projects.pp-main .pp-plan-dates small{font-size:11px;white-space:nowrap}
+#projects.pp-main .pp-plan-sort button+button{font-size:11px}
