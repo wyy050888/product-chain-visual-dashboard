@@ -36,7 +36,7 @@
 
 #projects.pp-main #pp-overview .pp-card-head h3{font-size:14px;line-height:1.4}
 #projects.pp-main #pp-overview .pp-card-head>span{line-height:1.5}
-#projects.pp-main #pp-overview .pp-rate{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));column-gap:3px}
+#projects.pp-main #pp-overview .pp-rate{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3px}
 #projects.pp-main .pp-rate .pp-card-head{grid-column:1/-1}
 #projects.pp-main #pp-overview .pp-rate-split{display:contents;border:0}
 #projects.pp-main .pp-rate>.pp-link,#projects.pp-main #pp-overview .pp-rate-split>.pp-link{display:flex;flex-direction:column;gap:4px;padding:5px 4px}

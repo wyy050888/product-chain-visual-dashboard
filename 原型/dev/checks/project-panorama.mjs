@@ -14,6 +14,7 @@ export async function projectPanorama(page){
   await stateMenu.locator('input[value="all"]').check();await stateMenu.locator(`input[value="${state}"]`).check();
   const result=await snapshot();assert.deepEqual(result.state.projectState,[state]);
   assert.equal(result.filtered.length,allStates.scope.filter(p=>p.projectState===state).length);
+  assert.equal(await page.locator('.pp-rate [data-value="高危红灯"] b').innerText(),'—','没有进行中项目时不显示虚假百分比');
  }
  await page.keyboard.press('Escape');await page.locator('[data-pp-reset]').click();
  assert.deepEqual((await snapshot()).state.projectState,['进行中']);
@@ -37,6 +38,18 @@ export async function projectPanorama(page){
  assert.equal(await page.locator('[data-pp-distribution="stage"]').count(),0);
  assert.equal(await page.locator('[data-pp-distribution]').count(),2);
  assert.equal(await page.locator('#pp-ai .pp-ai-grid>article').count(),4);
+ // 各灯色率共用进行中项目分母；高危是红灯子集，卡片点击可筛选并取消。
+ const highCount=initial.scope.filter(p=>p.status==='红灯'&&p.delay>15).length;
+ for(const [value,count] of [['高危红灯',highCount],['红灯',initial.scope.filter(p=>p.status==='红灯').length],['黄灯',initial.scope.filter(p=>p.status==='黄灯').length]]){
+  const card=page.locator(`.pp-rate [data-value="${value}"]`);
+  assert.equal(await card.locator('b').innerText(),(count/initial.scope.length*100).toFixed(1)+'%');
+  assert.equal(await card.locator('small').innerText(),count+' 个项目');
+ }
+ const highCard=page.locator('.pp-rate [data-value="高危红灯"]');
+ await highCard.click();let highResult=await snapshot();
+ assert.equal(highResult.filtered.length,highCount);assert(highResult.filtered.every(p=>p.status==='红灯'&&p.delay>15));
+ assert.equal(highResult.scope.length,initial.scope.length);await highCard.click();
+ assert.equal((await snapshot()).filtered.length,initial.scope.length);
  const combined=page.locator('[data-pp-link="light"][data-value="红黄灯"]');
  await combined.click();let current=await snapshot();
  assert.equal(current.scope.length,initial.scope.length,'图表联动不改变概览分母');
@@ -46,12 +59,12 @@ export async function projectPanorama(page){
  assert((await snapshot()).filtered.every(p=>p.status==='红灯'));await red.click();
  // 卡片与灯色下拉双向同步；多选期间菜单保持打开，概览分母不受影响。
  const lights=page.locator('.pf-multi').filter({has:page.locator('#pp-filter-light')});
- for(const [value,expected] of [['红黄灯',['红灯','黄灯']],['红灯',['红灯']],['黄灯',['黄灯']]]){
+ for(const [value,expected] of [['红黄灯',['红灯','黄灯']],['高危红灯',['高危红灯']],['红灯',['红灯']],['黄灯',['黄灯']]]){
   const card=page.locator(`[data-pp-link="light"][data-value="${value}"]`);
   await card.click();current=await snapshot();assert.deepEqual(current.state.light,expected);assert.equal(current.state.link,null);
   assert.deepEqual(await page.locator('#pp-filter-light').evaluate(el=>Array.from(el.selectedOptions,o=>o.value)),expected);
   assert.equal(await card.getAttribute('aria-pressed'),'true');assert.equal(current.scope.length,initial.scope.length);
-  assert.equal(current.filtered.length,initial.scope.filter(p=>expected.includes(p.status)).length);
+  assert.equal(current.filtered.length,initial.scope.filter(p=>expected.some(v=>v==='高危红灯'?p.status==='红灯'&&p.delay>15:p.status===v)).length);
   await card.click();assert.deepEqual((await snapshot()).state.light,[]);
  }
  await lights.locator('summary').click();await lights.locator('input[value="红灯"]').check();
