@@ -479,7 +479,13 @@ function renderModule(id){const f={risk:renderRisks,ai:renderAI,sales:renderSale
 
 // Monthly fixtures are additive; snapshots are deliberately never summed.
 function allocate(total,weights){const sum=weights.reduce((a,b)=>a+b,0),values=weights.map(w=>Math.floor(total*w/sum));values[values.length-1]+=total-values.reduce((a,b)=>a+b,0);return values}
-function salesMonth(chain,month,year){const s=baseSales[chain],q=Math.ceil(month/3),yearFactor=year===2025?.86:1;const quarterSales=[s.ytd-s.sale-[2820,2610,2010,1080][chain],[2820,2610,2010,1080][chain],s.sale,Math.round(s.annual*.27)][q-1];return allocate(Math.round(quarterSales*yearFactor),q===3&&year===2026?[38,40,22]:[31,33,36])[(month-1)%3]}
+function salesMonth(chain,month,year){
+ // 环境链10月采用销售落后样例；卡片、品牌、渠道和趋势共用这份月度数据。
+ if(year===2026&&month===10&&chain===2)return 402;
+ const s=baseSales[chain],q=Math.ceil(month/3),yearFactor=year===2025?.86:1;
+ const quarterSales=[s.ytd-s.sale-[2820,2610,2010,1080][chain],[2820,2610,2010,1080][chain],s.sale,Math.round(s.annual*.27)][q-1];
+ return allocate(Math.round(quarterSales*yearFactor),q===3&&year===2026?[38,40,22]:[31,33,36])[(month-1)%3];
+}
 function sales(){const p=periodFor(),b=bounds(p),ms=months(p);return baseSales.map((s,i)=>{const annual=Math.round(s.annual*(p.year===2025?.92:1)),targets=allocate(annual,Array(12).fill(1)),sale=ms.reduce((n,m)=>n+salesMonth(i,m,p.year),0),profit=ms.reduce((n,m)=>n+salesMonth(i,m,p.year)*(s.profit+(m-9)*.08),0)/sale;return {...s,name:chains[i],sku:Math.round(s.sku*snapshotFactor(p)),sale,target:targets.slice(b.first-1,b.last).reduce((a,b)=>a+b,0),profit,annual,ytd:months(p,true).reduce((n,m)=>n+salesMonth(i,m,p.year),0)}})}
 function lifeMonth(i,m,p=periodFor()){const full=[80,120,110,140,60,50,40,30][i],target=allocate(full,Array(12).fill(1))[m-1],ratio=[.84,.95,.96,1.04,.88,.9,.74,.97][i];return{target,actual:Math.max(0,Math.round(target*(ratio+(m%3-1)*.07)*(p.year===2025?.92:1)*(p.year===2026&&m===9?.6:1)))}}
 function lifeData(i){const p=periodFor(),b=bounds(p),ms=months(p);return{target:Array.from({length:b.last-b.first+1},(_,j)=>lifeMonth(i,b.first+j,p).target).reduce((a,b)=>a+b,0),actual:ms.reduce((n,m)=>n+lifeMonth(i,m,p).actual,0),yearTarget:[80,120,110,140,60,50,40,30][i],yearActual:months(p,true).reduce((n,m)=>n+lifeMonth(i,m,p).actual,0)}}

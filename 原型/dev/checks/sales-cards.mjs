@@ -37,6 +37,12 @@ export async function salesCards(page){
   if(mode==='month'&&value==='10'){
    assert(Math.abs(facts.snapshot.progress-10/31*100)<1e-9);
    assert(total.sale<total.target*.5,'月初样例不得提前计入整月实际');
+   const environment=chains.find(r=>r.name==='环境链'),card=cards.filter({has:page.locator('h3',{hasText:'环境链'})});
+   assert(environment.gsvDeviation< -10&&environment.scaleDeviation< -10,'环境链样例应达到红色预警阈值');
+   assert.equal(await card.locator(':scope > .ms-goal-line .ms-inline-deviation .red').innerText(),environment.gsvDeviation.toFixed(1)+'%');
+   assert.equal(await card.locator(':scope > .ms-attainment-highlight .ms-inline-deviation .red').innerText(),environment.scaleDeviation.toFixed(1)+'%');
+   const colors=await card.locator(':scope > .ms-attainment-highlight .red').evaluateAll(nodes=>nodes.map(n=>getComputedStyle(n).color));
+   assert(colors.every(c=>c==='rgb(220, 75, 96)'),'红色偏差及达成值使用现有红色');
   }
   assert(platforms.every(r=>r.sale>0&&r.target>0));assert(brands.every(r=>r.sale>0&&r.target>0));
 

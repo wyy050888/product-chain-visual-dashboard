@@ -363,7 +363,8 @@
     ]
   },
   "project-analysis": {
-    "name": "部门风险根因分析",
+    "label": "部门风险根因分析",
+    "keywords": ["部门风险根因", "AI归因"],
     "sources": [
       "src/modules/project-panorama/08-analysis-model.js",
       "src/modules/project-panorama/09-analysis-view.js"
