@@ -110,3 +110,15 @@
 #riskrail .riskcard[data-rp-board] .rhead::after {content:"";position:absolute;z-index:-1;top:0;right:0;width:116px;height:100%;border-radius:0 9px 0 0;background:var(--rp-header-art) right -18px top -30px / 128px 128px no-repeat;opacity:.35;mask-image:linear-gradient(180deg,#000 0%,#0008 25%,#0002 43%,#0002 65%,#0006 80%,transparent 100%);pointer-events:none}
 #riskrail .riskcard[data-rp-board] .rhead .rp-quality-actions>.link {background:radial-gradient(ellipse at center,#f5f9fddd 35%,#f5f9fd00 75%)}
 #riskrail .riskcard[data-rp-board] .rhead .rp-quality-actions {order:2}
+
+/* 表头口径提示：公式底色与来源定义分层，不改变卡片原有字号。 */
+#riskrail .rp-quality-rate-help {vertical-align:middle;margin-left:5px}
+.metric-tooltip.metric-tooltip-quality-rates {box-sizing:border-box;width:440px;max-width:calc(100vw - 16px);padding:16px 18px;white-space:normal;background:#fff;border:1px solid #dce6f2;border-radius:9px;box-shadow:0 8px 28px #193a6426;color:#536981;font-size:12px;line-height:1.7}
+.metric-tooltip-quality-rates>h4 {margin:0 0 12px;color:#203650;font-size:14px;font-weight:600}
+.metric-tooltip-quality-rates .qr-rate-tip-section+.qr-rate-tip-section {margin-top:14px;padding-top:12px;border-top:1px solid #e8eef6}
+.metric-tooltip-quality-rates h5 {margin:0 0 7px;color:#1677ff;font-size:13px;font-weight:600}
+.metric-tooltip-quality-rates .qr-rate-tip-formula {padding:9px 11px;border-radius:5px;background:#f0f6ff;color:#264f82;line-height:1.7}
+.metric-tooltip-quality-rates dl {display:grid;grid-template-columns:56px minmax(0,1fr);gap:7px 12px;margin:11px 0 0}
+.metric-tooltip-quality-rates dt {color:#8693a4}
+.metric-tooltip-quality-rates dd {margin:0;overflow-wrap:anywhere}
+.metric-tooltip-quality-rates p {margin:9px 0 0;color:#7e8b9e}

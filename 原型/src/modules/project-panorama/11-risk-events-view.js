@@ -1,11 +1,12 @@
 function ppRiskEventChart(){
- const range=ppEventRange(),dimension=ppEventState.dimension,groups=ppEventGroups(ppEventRows(),range,dimension),max=Math.max(1,...groups.flatMap(g=>[g.new.length,g.closed.length]));
- const bar=(g,kind)=>{const rows=g[kind],red=rows.filter(e=>e.risk.light==='红灯').length,yellow=rows.length-red,label=kind==='new'?'新增':'闭环';
-  return `<button type="button" class="pp-event-bar" data-pp-event-group="${esc(g.key)}" data-kind="${kind}" aria-label="${esc(g.key)}${label}：红灯${red}条，黄灯${yellow}条"><span>${label}</span><span class="pp-track"><i class="pp-red" style="width:${red/max*100}%"></i><i class="pp-yellow" style="width:${yellow/max*100}%"></i></span><span><b class="red">${red}</b> / <b class="orange">${yellow}</b></span></button>`};
+ const range=ppEventRange(),dimension=ppEventState.dimension,groups=ppEventGroups(ppEventRows(),range,dimension);
+ const countCell=(g,kind)=>{const rows=g[kind],red=rows.filter(e=>e.risk.light==='红灯').length,yellow=rows.length-red,label=kind==='new'?'新增':'闭环';
+  return `<button type="button" class="pp-event-count" data-pp-event-group="${esc(g.key)}" data-kind="${kind}" aria-label="${esc(g.key)}${label}：红灯${red}条，黄灯${yellow}条"><b class="red">${red}</b><span aria-hidden="true">/</span><b class="orange">${yellow}</b></button>`;
+ };
  return `<article class="pp-card pp-events"><div class="pp-card-head"><h3>风险新增与闭环</h3><span><i class="dot red"></i>红灯 <i class="dot orange"></i>黄灯</span></div>
  <div class="pp-event-date-control"><button type="button" class="pp-event-period" data-pp-event-period aria-label="风险统计日期筛选" aria-haspopup="dialog" aria-expanded="false" aria-controls="pp-event-period-panel"><span>风险统计日期</span><span class="pp-event-date-value">${ppEventState.all?'全部日期':ppEventState.period?uiNaturalPeriodLabel(ppEventState.period):range.start+' — '+range.end}</span><i aria-hidden="true">⌄</i></button><button type="button" class="pp-event-date-clear" data-pp-event-clear aria-label="清空风险统计日期" ${ppEventState.all?'hidden':''}>×</button><div id="pp-event-period-panel" class="nsp-period-panel ui-natural-period" popover="auto" role="dialog" aria-label="选择风险统计日期"></div></div>
  <div class="pp-tabs">${[['type','项目类型'],['category','类目']].map(([key,label])=>`<button type="button" data-pp-event-dimension="${key}" aria-pressed="${key===dimension}" class="${key===dimension?'active':''}">${label}</button>`).join('')}</div>
- <div class="pp-event-groups">${groups.map(g=>`<div class="pp-event-group"><b>${esc(g.key)}</b>${bar(g,'new')}${bar(g,'closed')}</div>`).join('')}</div></article>`;
+ <div class="pp-event-table-wrap"><table class="pp-event-table" aria-label="风险新增与闭环统计"><thead><tr><th scope="col">${dimension==='type'?'项目类型':'类目'}</th><th scope="col">新增风险</th><th scope="col">闭环风险</th></tr></thead><tbody>${groups.map(g=>`<tr><th scope="row">${esc(g.key)}</th><td>${countCell(g,'new')}</td><td>${countCell(g,'closed')}</td></tr>`).join('')}</tbody></table></div></article>`;
 }
 let ppEventPicker=null;
 function ppRenderEvents(){withPeriod('projects',()=>{const card=$('#pp-overview .pp-events');if(card){card.outerHTML=ppRiskEventChart();ppBindEventPeriod()}})}

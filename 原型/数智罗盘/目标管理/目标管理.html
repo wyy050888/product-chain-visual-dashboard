@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <title>数智罗盘 · 目标管理原型</title>
+    <link rel="stylesheet" href="styles/base.css?v=unmatched-red-1" />
+    <link rel="stylesheet" href="styles/filters.css" />
+    <link rel="stylesheet" href="styles/overview.css?v=root-dimensions-1" />
+    <link rel="stylesheet" href="styles/overview-table.css?v=all-scope-stores-1" />
+    <link rel="stylesheet" href="styles/dialogs.css?v=group-fields-1" />
+    <link rel="stylesheet" href="styles/import.css?v=demo-flow-31" />
+    <link rel="stylesheet" href="styles/history.css?v=cross-scope-group-1" />
+    <link rel="stylesheet" href="styles/date-range-picker.css?v=history-range-1" />
+    <link rel="stylesheet" href="styles/history-period-picker.css?v=history-period-1" />
+    <link rel="stylesheet" href="styles/dabo.css?v=dabo-route-25" />
+    <link rel="stylesheet" href="styles/editor-combobox.css?v=all-shops-5" />
+    <link rel="stylesheet" href="styles/link-picker.css?v=status-filter-9" />
+    <link rel="stylesheet" href="styles/entry.css?v=history-1" />
+    <link rel="stylesheet" href="styles/entry-filters.css" />
+    <link rel="stylesheet" href="styles/product-type-filter.css" />
+    <link rel="stylesheet" href="styles/period-picker.css?v=unified-1" />
+    <link rel="stylesheet" href="navigation.css?v=layout-date-4" />
+    <link rel="stylesheet" href="styles/goal-consumption.css?v=metrics-entry-2" />
+  </head>
+  <body>
+    <header class="top">
+      <a class="brand-home" href="./目标管理.html" aria-label="数智罗盘，一类目标总览">
+        <img class="brand-mark" src="logo.png" alt="" /><b class="logo">数智罗盘</b>
+      </a>
+      <nav class="top-nav" aria-label="主导航">
+        <span>首页</span><span>兴趣电商 <i>⌄</i></span><button type="button" id="goalConsumptionEntry" aria-label="一类电商，目标消费配置">一类电商 <i>⌄</i></button>
+        <span>直播</span><span>退货</span><span>财务</span><span>广告</span>
+        <span>库存</span><span>订单</span><span>店铺 <i>⌄</i></span>
+        <span>弹幕</span><span>报表</span><span class="selected" aria-current="page">设置 <i>⌄</i></span>
+      </nav>
+      <span class="account"><span class="account-avatar" aria-hidden="true">管</span>系统租户管理员 <i>⌄</i></span>
+    </header>
+    <div class="layout">
+      <aside class="nav" aria-label="设置菜单" id="settings-navigation"></aside>
+      <main class="content">
+        <section id="overview" class="page active">
+          <div class="overview">
+            <aside class="panel">
+              <div class="ptitle tree-heading">
+                <span>目标树</span>
+                <span class="tree-legend">
+                  <span><i class="tree-status ok" aria-hidden="true"></i>合理</span>
+                  <span><i class="tree-status no" aria-hidden="true"></i>不合理 <span id="treeHelp" class="info red" data-action="toggle-tip" tabindex="0" role="button" aria-label="查看渠道合理性说明">?</span></span>
+                </span>
+              </div>
+              <input
+                class="tree-search"
+                type="search" aria-label="搜索目标树" maxlength="100"
+                placeholder="搜索大区、品牌、渠道"
+              />
+              <label class="tree-only"><input id="treeOnlyAbnormal" type="checkbox">仅看不合理</label>
+              <div class="tree"></div>
+            </aside>
+            <section class="panel">
+              <div class="overview-heading">
+                <div class="overview-heading-text">
+                  <span id="vtitle"></span>
+                </div>
+              </div>
+              <div class="scope-bar">
+                <span id="overviewScope" class="cid" aria-label="目标口径"></span>
+                <div id="statPeriodBar" class="stat-period-bar">
+                <select id="statYear" class="stat-picker" aria-label="年度">
+                  <option>2024</option><option>2025</option><option selected>2026</option>
+                </select>
+                <select id="statSinglePeriod" class="stat-picker hidden" aria-label="选择月份"></select>
+                <div id="statMonthBox" class="stat-month-box">
+                  <button id="statMonthTrigger" class="stat-picker" type="button" aria-expanded="false" aria-controls="statMonthPanel">2026/09</button>
+                  <div id="statMonthPanel" class="stat-month-panel" aria-label="选择期间，至少保留一项"></div>
+                </div>
+                <div class="stat-segments" aria-label="时间范围">
+                  <button data-period="year">年</button>
+                  <button data-period="quarter">季</button>
+                  <button class="on" data-period="month">月</button>
+                </div>
+              </div>
+              </div>
+              <div class="overview-toolbar">
+                <div id="overviewRootTabs" class="tabs hidden" role="tablist" aria-label="一类电商汇总维度">
+                  <button class="tab on" data-root-tab="whole" role="tab" aria-selected="true" aria-controls="overviewTable">大区</button>
+                  <button class="tab" data-root-tab="wholeBrand" role="tab" aria-selected="false" aria-controls="overviewTable">品牌</button>
+                  <button class="tab" data-root-tab="wholeChannel" role="tab" aria-selected="false" aria-controls="overviewTable">渠道</button>
+                  <button class="tab" data-root-tab="wholeCategory" role="tab" aria-selected="false" aria-controls="overviewTable">类目</button>
+                  <button class="tab" data-root-tab="store" role="tab" aria-selected="false" aria-controls="overviewTable">店铺</button>
+                  <button class="tab" data-root-tab="product" role="tab" aria-selected="false" aria-controls="overviewTable">产品</button>
+                </div>
+                <div id="otabs" class="tabs hidden" role="tablist" aria-label="渠道目标明细">
+                  <button class="tab on" data-st="store" role="tab" aria-selected="true" aria-controls="overviewTable">店铺</button>
+                  <button class="tab" data-st="product" role="tab" aria-selected="false" aria-controls="overviewTable">产品</button>
+                  <button class="tab" data-st="link" role="tab" aria-selected="false" aria-controls="overviewTable">产品链接</button>
+                </div>
+                <div id="channelSummary" class="channel-summary hidden"></div>
+              </div>
+              <div id="ofilters" class="filters"></div>
+              <div id="overviewTable" class="table-wrap">
+                <table class="table overview-matrix">
+                  <thead id="ohead"></thead>
+                  <tbody id="osummary" aria-label="全部筛选结果汇总"></tbody>
+                  <tbody id="obody"></tbody>
+                </table>
+              </div>
+              <div id="opage"></div>
+            </section>
+          </div>
+        </section>
+        <section id="entry" class="page">
+          <section class="panel entry-panel">
+            <div class="entry-topbar">
+              <div class="tabs" role="tablist" aria-label="填报目标类型"><button class="tab on" data-et="product" role="tab">产品目标</button><button class="tab" data-et="link" role="tab">产品链接目标</button></div>
+              <span id="entryScope" class="cid" aria-label="填报目标口径"></span>
+              <div class="actions"><button class="btn" data-action="history">导入记录</button><button class="btn" data-action="import">批量导入</button><button id="entryAdd" class="btn primary" data-action="add" data-kind="ep">新增产品目标</button></div>
+            </div>
+            <div id="efilters" class="filters">
+              <div class="entry-filter-fields">
+                <div class="fl"><span>月份</span><div class="entry-period"><select id="entryYear" class="stat-picker" aria-label="填报年份"></select><button type="button" id="entryMonthTrigger" class="select calendar-trigger" aria-label="填报月份" aria-haspopup="dialog" aria-expanded="false" aria-controls="entryMonthPanel"></button></div></div>
+                <div id="entryDynamicFilters"></div>
+              </div>
+              <span class="actions"><button class="btn" data-entry-action="reset">重置</button></span>
+            </div>
+            <div class="table-wrap" id="entryTable"><table class="table entry-table"><thead id="ehead"></thead><tbody id="ebody"></tbody></table></div>
+            <div id="epage"></div>
+          </section>
+        </section>
+        <section id="dabo" class="page">
+          <div class="dabo-header">
+            <h2 class="dabo-title">达播目标填报</h2>
+            <div class="dabo-controls"><div id="daboMonths"></div><div id="daboPeriods" aria-label="达播统计周期"><button data-dabo-period="year">年</button><button data-dabo-period="quarter">季</button><button class="on" data-dabo-period="month">月</button></div><select id="daboYear" class="select" aria-label="达播年份"></select></div>
+          </div>
+          <div class="dabo-panel">
+            <div class="dabo-filters"><label>员工姓名 <input id="daboEmployee" placeholder="请输入" aria-label="达播员工姓名"></label><label>目标产品 <select id="daboProduct" aria-label="达播目标产品"></select></label></div>
+            <div class="dabo-table-wrap"><table class="dabo-table"><thead id="daboHead"></thead><tbody id="daboBody"></tbody></table></div>
+          </div>
+        </section>
+      </main>
+    </div>
+    <dialog id="historyDialog" class="history-drawer" aria-labelledby="historyTitle">
+      <header class="history-heading"><button id="historyBack" hidden aria-label="返回导入记录">‹ 返回</button><h2 id="historyTitle">导入记录</h2><button id="historyClose" aria-label="关闭记录">×</button></header>
+      <div id="historyContext" hidden></div>
+      <div id="historyScroll"><div id="historyBatchInfo"></div>
+        <div id="historyFilters" hidden>
+          <div id="historySearchBar" hidden><label for="historySearch">文件名称</label><div class="history-search-input"><input id="historySearch" class="input" type="search" placeholder="请输入文件名称" aria-label="搜索导入文件名称" autocomplete="off"><button id="historySearchClear" class="text-link" aria-label="清空文件名称" hidden>×</button></div></div>
+          <label><span>目标类型</span><select id="historyFilter-kind" class="select"><option value="">全部</option><option value="product">产品目标</option><option value="link">产品链接目标</option></select></label>
+          <label><span>目标口径</span><select id="historyFilter-cid" class="select"><option value="">全部</option></select></label>
+          <div class="history-period-filter"><span>导入周期</span><button id="historyPeriodTrigger" class="select" type="button" aria-label="选择导入周期" aria-haspopup="dialog" aria-expanded="false" aria-controls="historyPeriodPanel"><span id="historyPeriodText">全部</span></button></div>
+          <label><span>操作人</span><input id="historyFilter-actor" class="input" type="search" placeholder="请输入操作人姓名" autocomplete="off"></label>
+          <div class="history-date-range"><span>操作时间</span><button id="historyDateTrigger" class="select" type="button" aria-label="选择操作时间范围" aria-haspopup="dialog" aria-expanded="false" aria-controls="historyDatePanel"><span id="historyDateText">开始日期 至 结束日期</span><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" aria-hidden="true"><rect x="2" y="3" width="12" height="11" rx="1.5"/><path d="M5 1v4M11 1v4M2 7h12"/></svg></button></div>
+          <div class="history-filter-actions"><label><span>导入结果</span><select id="historyFilter-status" class="select"><option value="">全部</option><option value="success">成功</option><option value="failed">失败</option></select></label><button id="historyReset" class="btn">重置</button></div>
+        </div>
+        <div id="historyDetailFilters" hidden></div>
+        <div id="historyResults"></div>
+      </div>
+      <footer id="historyPager"></footer>
+      <div id="historyDatePanel" role="dialog" aria-label="选择操作时间范围" hidden></div>
+      <div id="historyPeriodPanel" role="dialog" aria-label="选择导入周期" hidden></div>
+    </dialog>
+    <dialog id="linkMonthlyDialog" class="monthly-dialog" aria-labelledby="linkMonthlyTitle">
+      <div class="monthly-heading"><h2 id="linkMonthlyTitle"></h2><button id="closeLinkMonthly" aria-label="关闭月度目标">×</button></div>
+      <p id="linkMonthlyIdentity"></p>
+      <div class="monthly-table-wrap"><table class="table"><thead><tr><th>月份</th><th>目标GSV</th><th>目标利润率</th><th>排名目标</th><th>点击率目标</th><th>转化率目标</th><th>费率目标</th></tr></thead><tbody id="linkMonthlyBody"></tbody></table></div>
+    </dialog>
+    <div id="entryNotice" role="status" aria-live="polite"></div>
+    <dialog id="drawer" class="drawer" aria-labelledby="dtitle">
+      <header class="dialog-heading"><div><h2 id="dtitle" tabindex="-1"></h2><p id="editScope"></p></div><button class="dialog-close" data-close-editor aria-label="关闭">×</button></header>
+      <form id="dform" novalidate></form>
+      <footer class="dialog-footer"><p id="editError" class="form-error" role="alert"></p><div class="actions"><button class="btn" data-close-editor>取消</button><button id="saveTarget" class="btn primary">保存</button></div></footer>
+    </dialog>
+    <dialog id="discardEdit" class="entry-modal discard-modal" aria-labelledby="discardTitle" aria-describedby="discardDescription">
+      <header class="dialog-heading"><h2 id="discardTitle">放弃本次修改?</h2></header>
+      <div class="dialog-body" id="discardDescription">当前填写内容尚未保存，关闭后将丢失。</div>
+      <footer class="dialog-footer"><div class="actions"><button id="discardCancel" class="btn" autofocus>继续填写</button><button id="discardConfirm" class="btn primary">放弃修改</button></div></footer>
+    </dialog>
+    <dialog id="refImport" class="entry-modal" aria-labelledby="importTitle">
+      <div id="importTemplateNotice" role="status" aria-live="polite" hidden></div>
+      <header class="dialog-heading"><h2 id="importTitle"></h2><button class="dialog-close" data-close-dialog aria-label="关闭">×</button></header>
+      <div class="dialog-body"><div class="import-tools"><label>目标口径 <select id="importCid" class="select"><option>一类不含 CID</option><option>一类含 CID</option></select></label><button id="importTemplate" class="text-link">下载模板</button></div>
+        <p class="import-scope-note">导入将全量覆盖当前目标类型、口径及文件中完整季度或全年的全部店铺数据；未包含的旧记录将被删除。更换店铺、产品或核心链接，按删除旧记录、新增新记录处理。</p>
+        <div id="importDrop">
+          <div class="import-file-row">
+            <span class="import-file-icon" aria-hidden="true"><svg viewBox="0 0 24 28" fill="none"><path d="M4 1h10l6 6v19H4z" stroke="currentColor" stroke-width="1.5"/><path d="M14 1v6h6M8 13h8M8 17h8M8 21h5" stroke="currentColor" stroke-width="1.5"/></svg></span>
+            <div class="import-file-info"><button id="importChoose" class="text-link"><span id="importFilename">选择文件或拖拽到此处</span></button><div class="import-file-meta"><span id="importFileSize"></span><span id="importFileState" role="status" hidden>已上传</span></div></div>
+            <button id="importReplace" class="text-link" hidden>更换文件</button>
+          </div>
+          <small class="import-file-help">支持 CSV、XLSX、XLS，单个文件不超过100MB</small>
+          <div id="importUpload" hidden><div class="import-progress-label"><span id="importUploadLabel" role="status">上传中</span><strong id="importUploadValue">0%</strong></div><progress id="importUploadBar" max="100" value="0" aria-label="文件上传进度（原型演示）"></progress></div>
+          <input id="importFile" type="file" accept=".csv,.xlsx,.xls" hidden>
+        </div>
+        <div id="importProgress" hidden><div class="import-progress-label"><span>导入进度</span><strong id="importProgressValue" aria-live="polite">0%</strong></div><progress id="importProgressBar" max="100" value="0" aria-label="导入进度（原型演示）"></progress></div>
+        <div id="importResult" role="status" aria-live="polite"></div><button id="importErrors" class="text-link" hidden>下载失败文件</button>
+      </div><footer class="dialog-footer"><div class="actions"><button id="importConfirm" class="btn primary" disabled>确认导入</button></div></footer>
+    </dialog>
+    <dialog id="importChoice" class="entry-modal" aria-labelledby="importChoiceTitle">
+      <header class="dialog-heading"><h2 id="importChoiceTitle">选择导入结果 <small>仅原型演示</small></h2><button id="importChoiceClose" class="dialog-close" aria-label="关闭结果选择">×</button></header>
+      <div class="dialog-body">进度已达100%，请选择本次演示结果。<p>实际开发不展示此弹窗，导入完成后直接显示结果页。</p></div>
+      <footer class="dialog-footer"><div class="actions"><button id="importChoiceFailure" class="btn">导入失败</button><button id="importChoiceSuccess" class="btn primary">导入成功</button></div></footer>
+    </dialog>
+    <dialog id="refDelete" class="entry-modal delete-modal" aria-labelledby="deleteTitle"><header class="dialog-heading"><h2 id="deleteTitle">删除目标</h2><button class="dialog-close" data-close-dialog aria-label="关闭">×</button></header><div class="dialog-body"><div id="deleteIdentity" class="edit-identity"></div><p id="deleteError" role="alert"></p></div><footer class="dialog-footer"><div class="actions"><button id="deleteLinks" class="btn primary">查看关联链接</button><button id="confirmDelete" class="btn danger">确认删除</button></div></footer></dialog>
+    <section id="goalConsumption" class="goal-consumption" aria-label="一类电商目标消费" hidden>
+      <img class="goal-consumption-background" src="assets/goal-consumption-background.png" alt="一类电商店铺列表背景" />
+      <button type="button" id="goalConsumptionConfigure" class="btn primary goal-consumption-configure">指标配置</button>
+      <div class="goal-consumption-actions"><button type="button" id="goalConsumptionBack" class="btn">返回目标管理</button></div>
+      <div id="goalConsumptionNotice" class="goal-consumption-notice" role="status" hidden></div>
+    </section>
+    <dialog id="goalConfigDialog" class="goal-config" aria-labelledby="goalConfigTitle">
+      <header class="goal-config-heading"><h2 id="goalConfigTitle">指标配置</h2><button type="button" id="goalConfigClose" class="goal-config-close" aria-label="关闭指标配置">×</button></header>
+      <div class="goal-config-body">
+        <section class="goal-config-options" aria-label="可选指标">
+          <label class="goal-config-search"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="10.5" cy="10.5" r="8"/><path d="m16.5 16.5 5 5"/></svg><input type="search" id="goalConfigSearch" placeholder="请搜索指标" aria-label="搜索配置指标" autocomplete="off" /></label>
+          <div id="goalConfigGroups" class="goal-config-groups"></div>
+        </section>
+        <section class="goal-config-selection" aria-label="已添加指标">
+          <div class="goal-config-selection-heading"><span>已添加（<span id="goalConfigCount">0</span>）</span><small>最少选择3个</small><button type="button" id="goalConfigReset" class="goal-config-reset">重置</button></div>
+          <ol id="goalConfigSelected" class="goal-config-selected" aria-label="已选指标，可拖动排序"></ol>
+        </section>
+      </div>
+      <footer class="goal-config-footer"><div id="goalConfigMessage" class="goal-config-message" role="status" aria-live="polite"></div><div><button type="button" id="goalConfigCancel">取消</button><button type="button" id="goalConfigConfirm" class="primary">确定</button></div></footer>
+    </dialog>
+    <script src="scripts/core.js?v=root-dimensions-1"></script>
+    <script src="scripts/calendar-grid.js?v=1"></script>
+    <script src="scripts/config.js?v=scope-dimensions-1"></script>
+    <script src="scripts/mock-data.js?v=seasonal-unreported-1"></script>
+    <script src="scripts/region-config.js?v=region-message-3"></script>
+    <script src="scripts/entry-schema.js?v=unmatched-products-1"></script>
+    <script src="scripts/target-audit.js?v=cross-scope-group-1"></script>
+    <script src="scripts/target-group.js?v=people-fallback-name-1"></script>
+    <script src="scripts/target-store.js?v=cross-scope-group-1"></script>
+    <script src="scripts/target-records.js?v=all-scope-stores-1"></script>
+    <script src="scripts/target-model.js?v=seasonal-unreported-1"></script>
+    <script src="scripts/dabo-data.js?v=dabo-1"></script>
+    <script src="scripts/dabo.js?v=dabo-route-25"></script>
+    <script src="scripts/product-type-filter.js?v=1"></script>
+    <script src="scripts/components.js?v=all-scope-stores-1"></script>
+    <script src="scripts/tooltips.js?v=seasonal-unreported-1"></script>
+    <script src="scripts/tree.js?v=dabo-route-25"></script>
+    <script src="scripts/overview-query.js?v=product-type-1"></script>
+    <script src="scripts/overview-period.js?v=unified-calendar-1"></script>
+    <script src="scripts/overview-dimensions.js?v=all-scope-stores-1"></script>
+    <script src="scripts/overview-data.js?v=root-dimensions-1"></script>
+    <script src="scripts/overview-table.js?v=scope-dimensions-1"></script>
+    <script src="scripts/link-monthly.js?v=period-matrix-1"></script>
+    <script src="scripts/overview.js?v=all-scope-stores-1"></script>
+    <script src="scripts/entry-view.js?v=unmatched-products-1"></script>
+    <script src="scripts/entry-filter-panels.js?v=product-type-1"></script>
+    <script src="scripts/entry.js?v=unmatched-products-1"></script>
+    <script src="scripts/editor-combobox.js?v=people-fallback-name-1"></script>
+    <script src="scripts/editor-metrics.js"></script>
+    <script src="scripts/link-picker.js?v=shop-links-11"></script>
+    <script src="scripts/target-people.js?v=people-fallback-name-1"></script>
+    <script src="scripts/editor-group.js?v=people-fallback-name-1"></script>
+    <script src="scripts/editor-links.js?v=people-fallback-name-1"></script>
+    <script src="scripts/editor.js?v=people-fallback-name-1"></script>
+    <script src="scripts/entry-delete.js"></script>
+    <script src="vendor/xlsx.full.min.js"></script>
+    <script src="scripts/entry-import-data.js?v=unmatched-products-1"></script>
+    <script src="scripts/import-source.js?v=inline-import-errors-28"></script>
+    <script src="scripts/import-flow.js?v=demo-flow-31"></script>
+    <script src="scripts/import.js?v=unmatched-products-1"></script>
+    <script src="scripts/period-picker.js?v=unified-1"></script>
+    <script src="scripts/month-field.js?v=1"></script>
+    <script src="scripts/history-examples.js?v=history-identity-1"></script>
+    <script src="scripts/history-view.js?v=cross-scope-group-1"></script>
+    <script src="scripts/date-range-picker.js?v=unified-calendar-1"></script>
+    <script src="scripts/history-period-picker.js?v=unified-calendar-1"></script>
+    <script src="scripts/history-filters.js?v=history-period-1"></script>
+    <script src="scripts/history-detail-filters.js?v=unified-calendar-1"></script>
+    <script src="scripts/history.js?v=cross-scope-group-1"></script>
+    <script src="scripts/goal-config-data.js?v=1"></script>
+    <script src="scripts/goal-config.js?v=1"></script>
+    <script src="scripts/goal-consumption.js?v=unmatched-products-1"></script>
+    <script src="scripts/app.js?v=goal-consumption-1"></script>
+    <script src="navigation.js?v=dabo-route-25"></script>
+  <script src="scripts/shop-link.js"></script>
+</body>
+</html>

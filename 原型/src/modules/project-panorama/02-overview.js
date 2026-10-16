@@ -1,6 +1,10 @@
 function ppHelp(label,text){return `<span class="metric-help" role="button" tabindex="0" aria-label="${esc(label)}说明" data-metric-rule="${esc(text)}"></span>`}
-function ppLightValues(value){return value==='红黄灯'?['红灯','黄灯']:[value]}
-function ppLightActive(value){const values=ppLightValues(value);return ppState.light.length===values.length&&values.every(light=>ppState.light.includes(light))}
+function ppLightValues(value){return value==='红黄灯'?['高危红灯','红灯','黄灯']:[value]}
+function ppLightActive(value){
+ // 红灯已包含高危；手动勾选红、黄灯与合计覆盖同一批项目。
+ if(value==='红黄灯')return ['红灯','黄灯'].every(light=>ppState.light.includes(light))&&!ppState.light.includes('绿灯');
+ const values=ppLightValues(value);return ppState.light.length===values.length&&values.every(light=>ppState.light.includes(light));
+}
 function ppLink(kind,value,label,body='',type=''){
  const active=kind==='light'?ppLightActive(value):['type','category'].includes(kind)?ppState[kind].includes(value):ppState.link?.kind===kind&&ppState.link.value===value&&(!type||ppState.link.type===type);
  return `<button type="button" class="pp-link ${active?'selected':''}" data-pp-link="${kind}" data-value="${esc(value)}" data-type="${esc(type)}" aria-pressed="${active}">${label}${body}</button>`;

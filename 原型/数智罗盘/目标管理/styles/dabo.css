@@ -1,0 +1,32 @@
+/* 保留旧达播页的横向月度表、筛选与右侧固定操作列。 */
+.dabo-header { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:14px 20px; background:#fff; border-radius:8px; margin-bottom:20px; min-height:60px; flex-wrap:wrap; }
+.dabo-title { margin:0; white-space:nowrap; font-size:16px; font-weight:600; color:#26364e; }
+.dabo-controls { display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-left:auto; }
+#daboMonths { display:flex; gap:12px; align-items:center; flex-wrap:wrap; font-size:12px; }
+#daboMonths label { display:flex; align-items:center; gap:4px; white-space:nowrap; }
+#daboMonths label:first-child {color:#2864ff;}
+#daboMonths input {accent-color:#2864ff; width:13px; height:13px; margin:0;}
+#daboPeriods {margin-left:10px; display:flex; border:1px solid #dce3ef; border-radius:4px; overflow:hidden;}
+#daboPeriods button {border:0; border-right:1px solid #dce3ef; background:#fff; width:45px; height:32px; color:#53657e; cursor:pointer;}
+#daboPeriods button.on {background:#2864ff;color:#fff;}
+#daboYear {width:92px; height:34px;}
+.dabo-panel {background:white; padding:20px; border-radius:8px;}
+.dabo-filters {display:flex;gap:16px; margin-bottom:34px; flex-wrap:wrap;}
+.dabo-filters label { display:flex; align-items:center; gap:20px; height:34px; border:1px solid #e0e3e8; border-radius:4px; padding:0 10px; width:410px; color:#555; font-size:14px; }
+.dabo-filters input,.dabo-filters select {border:0; outline:0; min-width:0; flex:1; color:#555; background:transparent; width:100%;}
+.dabo-table-wrap {overflow:auto; max-height:calc(100vh - 260px); min-height:280px;}
+.dabo-table {table-layout:fixed; border-collapse:separate; border-spacing:0; min-width:100%; width:max-content; color:#444; font-size:14px;}
+.dabo-table th,.dabo-table td {box-sizing:border-box; border-right:1px solid #e9edf5; border-bottom:1px solid #e9edf5; min-width:145px; width:145px; height:64px; padding:12px 8px; text-align:center; white-space:nowrap; background:#fff;}
+.dabo-table th {height:40px; background:#f6f7fb; font-weight:400; text-align:left; position:sticky; top:0; z-index:2;}
+.dabo-table thead tr:nth-child(2) th {top:40px;}
+.dabo-table th button:not(.text-link) {border:0;background:none;color:inherit;cursor:pointer;padding:0;}
+.dabo-table th small {color:#8b99ac;}
+.dabo-table .dabo-person {position:sticky;left:0;min-width:200px;width:200px;text-align:left;border-left:1px solid #e9edf5;z-index:3;}
+.dabo-table .dabo-actions {position:sticky;right:0;min-width:226px;width:226px;text-align:left;box-shadow:-5px 0 8px -8px #53657e;z-index:3;}
+.dabo-table thead .dabo-person,.dabo-table thead .dabo-actions {z-index:4;border-top:1px solid #e9edf5;}
+.dabo-person-inner {display:flex;align-items:center;gap:8px;}
+.dabo-avatar {width:40px;height:40px;border-radius:50%;background:#236dff;display:inline-grid;place-items:center;color:white;font-size:20px;flex-shrink:0;}
+.dabo-fold {border:0;background:transparent;color:#7c899a;cursor:pointer;width:12px;padding:0;}
+.dabo-indent {width:22px;flex-shrink:0;}
+.dabo-actions .text-link {font-size:14px; margin-right:10px;}
+.dabo-table .dabo-unset {color:#999;}

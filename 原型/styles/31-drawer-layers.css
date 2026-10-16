@@ -1,6 +1,6 @@
-/* 宽榜单 + 加宽详情；背景层仅展示上一层，不阻挡逐层返回。 */
+/* 产品、店铺详情无论从首页或榜单打开均同宽；背景层保留逐层返回。 */
 #dialog.drawer.business-drawer.risk-ranking-drawer {width:min(1540px,84vw)}
-#dialog.drawer.business-drawer[data-drawer-depth]:not([data-drawer-depth="0"]) {width:min(1370px,76vw)}
+#dialog.drawer.business-drawer:is([data-drawer-depth]:not([data-drawer-depth="0"]),:has(>#dialogbody>.up-detail)) {width:min(1370px,76vw)}
 #dialog.business-drawer .drawer-back {flex:none;border:0;background:none;color:#1677ff;font:inherit;font-size:13px;cursor:pointer;padding:6px 12px 6px 0;margin-right:6px;white-space:nowrap}
 #dialog.business-drawer .drawer-back[hidden] {display:none}
 #dialog.business-drawer .dialoghead>div {flex:1}
@@ -30,10 +30,10 @@
 :is(#dialogbody,.drawer-parent-preview .dialogbody) .qr-list-tools #qrb-list-config {margin-left:auto;flex-shrink:0}
 @media(max-width:1100px) {
  #dialog.drawer.business-drawer.risk-ranking-drawer {width:94vw}
- #dialog.drawer.business-drawer[data-drawer-depth]:not([data-drawer-depth="0"]) {width:86vw}
+ #dialog.drawer.business-drawer:is([data-drawer-depth]:not([data-drawer-depth="0"]),:has(>#dialogbody>.up-detail)) {width:86vw}
 }
 @media(max-width:700px) {
- #dialog.drawer.business-drawer.risk-ranking-drawer,#dialog.drawer.business-drawer[data-drawer-depth]:not([data-drawer-depth="0"]) {width:100vw}
+ #dialog.drawer.business-drawer.risk-ranking-drawer,#dialog.drawer.business-drawer:is([data-drawer-depth]:not([data-drawer-depth="0"]),:has(>#dialogbody>.up-detail)) {width:100vw}
  :is(#dialogbody,.drawer-parent-preview .dialogbody) .drawer-platform-switch {gap:12px}
  :is(#dialogbody,.drawer-parent-preview .dialogbody) .drawer-platform-switch .platform-button {padding:0 8px}
 }

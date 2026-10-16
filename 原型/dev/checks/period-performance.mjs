@@ -6,13 +6,13 @@ import vm from 'node:vm';
 function verifyAggregates(){
  const products=[{spuId:'a',sourceRow:1,chain:0,actualLaunch:'2024-02-29',profit:15},{spuId:'b',sourceRow:6,chain:1,actualLaunch:'2026-08-15',profit:12}];
  const platforms=['抖音','快手','视频号','天猫','京东','拼多多'];
- const fields=['sales','returned','received','orders','contacts','reviews','bad','gmvCents','refundCents','gsvCents','profitCents','costCents','expenseCents','targetCents','targetProfitCents'];
+ const fields=['sales','returned','received','orders','contacts','qualityContacts','experienceContacts','reviews','bad','gmvCents','refundCents','gsvCents','profitCents','costCents','expenseCents','targetCents','targetProfitCents'];
  const shift=(date,n)=>{const d=new Date(date+'T00:00:00Z');d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10)};
  const ctx=vm.createContext({sampleSpus:products,sampleProductRows:()=>products,withPeriod:(_,fn)=>fn(),brLossRows:()=>[],
   qrPlatforms:platforms,dpStore:{newTargets:[20,30],marginTarget:15},
   qrbMonthData:(_,platform,start,end)=>({points:Array.from({length:(Date.parse(end)-Date.parse(start))/86400000+1},(_,i)=>{
    const date=shift(start,i),sales=20+(+date.slice(8))%5+platforms.indexOf(platform);
-   return {date,sales,returned:3,received:2,orders:sales-1,contacts:4,reviews:10,bad:1};
+   return {date,sales,returned:3,received:2,orders:sales-1,contacts:4,qualityContacts:3,experienceContacts:1,reviews:10,bad:1};
   })}),
   riskMonthShift:(month,n)=>{const d=new Date(month+'-01T00:00:00Z');d.setUTCMonth(d.getUTCMonth()+n);return d.toISOString().slice(0,7)}
  });
@@ -31,6 +31,9 @@ function verifyAggregates(){
   for(const field of fields)assert.equal(summary[field],points.reduce((n,row)=>n+row[field],0),field);
   assert(summary.expenseCents>=0&&Number.isInteger(summary.expenseCents));
   assert.equal(summary.feeRate,summary.gsvCents?summary.expenseCents/summary.gsvCents*100:null);
+  assert.equal(summary.qualityContacts+summary.experienceContacts,summary.contacts);
+  assert.equal(summary.qualityContactRate,summary.sales?summary.qualityContacts/summary.sales*100:null);
+  assert.equal(summary.experienceContactRate,summary.sales?summary.experienceContacts/summary.sales*100:null);
   assert.equal(summary.returnRate,summary.sales?summary.returned/summary.sales*100:null);
   assert.equal(summary.profitRate,summary.gsvCents?summary.profitCents/summary.gsvCents*100:null);
  }

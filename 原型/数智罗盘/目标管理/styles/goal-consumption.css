@@ -1,0 +1,75 @@
+/* 目标消费入口使用用户提供的店铺列表底图，配置弹窗独立于目标填报。 */
+.goal-consumption { position: fixed; inset: 0; z-index: 210; background: #edf3fb; overflow: auto; }
+.goal-consumption[hidden] { display: none; }
+.goal-consumption-background { display: block; width: 100%; height: auto; }
+/* 与底图筛选行对齐，按图片宽度同比定位，避免遮挡表头。 */
+.goal-consumption-configure { position: absolute; right: 2.1%; top: 10.2vw; }
+.goal-consumption-actions { position: fixed; right: 28px; bottom: 24px; display: flex; gap: 10px; padding: 10px; background: #fff; border: 1px solid #e6ecf5; border-radius: 8px; box-shadow: 0 4px 20px #263b571a; }
+.goal-consumption-notice { position: fixed; top: 84px; left: 50%; transform: translateX(-50%); background: #fff; color: #168262; padding: 12px 24px; border-radius: 6px; box-shadow: 0 4px 24px #263b5720; }
+.goal-config { width: min(1440px,calc(100vw - 48px)); height: min(850px,calc(100dvh - 32px)); max-width: none; max-height: none; padding: 0; border: 0; border-radius: 6px; color: #242729; background: #fff; box-shadow: 0 20px 80px #1c293329; }
+.goal-config[open] { display: flex; flex-direction: column; }
+.goal-config::backdrop { background: #26343f66; }
+.goal-config-heading { display: flex; align-items: center; justify-content: space-between; padding: 24px 28px 16px; flex-shrink: 0; }
+.goal-config-heading h2 { margin: 0; font-size: 26px; font-weight: 500; }
+.goal-config-close { display: grid; place-items: center; border: 0; border-radius: 50%; width: 54px; height: 54px; background: #f5f6f7; color: #202426; font-size: 30px; font-weight: 300; cursor: pointer; }
+.goal-config-body { display: grid; grid-template-columns: minmax(0,1.9fr) minmax(300px,1fr); gap: clamp(32px,6vw,100px); padding: 8px 68px 36px; flex: 1; min-height: 0; }
+.goal-config-options,.goal-config-selection { display: flex; flex-direction: column; min-height: 0; min-width: 0; }
+.goal-config-search { display: flex; align-items: center; gap: 12px; flex-shrink: 0; height: 46px; border: 1px solid #d8dfe9; border-radius: 5px; padding: 0 14px; color: #a0a8b5; }
+.goal-config-search svg { flex-shrink: 0; }
+.goal-config-search input { border: 0; outline: none; width: 100%; min-width: 0; font-size: 18px; color: #30363e; background: transparent; }
+.goal-config-search:focus-within { border-color: #2864ff; }
+.goal-config-search input::placeholder { color: #a0a8b5; }
+.goal-config-groups { overflow-y: auto; flex: 1; margin-top: 30px; padding-right: 4px; }
+.goal-config-group { margin-bottom: 34px; }
+.goal-config-group-heading { display: flex; align-items: center; gap: 12px; background: #f0f5ff; border-radius: 8px; min-height: 52px; padding: 12px 20px; font-size: 19px; font-weight: 500; cursor: pointer; }
+.goal-config input[type="checkbox"] { appearance: none; display: grid; place-content: center; width: 20px; height: 20px; margin: 0; border: 1px solid #d8dfeb; border-radius: 2px; background: #fff; flex-shrink: 0; cursor: pointer; }
+.goal-config input[type="checkbox"]:checked,.goal-config input[type="checkbox"]:indeterminate { background: #2166ff; border-color: #2166ff; }
+.goal-config input[type="checkbox"]:checked::before { content: ''; width: 5px; height: 10px; border: solid #fff; border-width: 0 1.5px 1.5px 0; transform: translateY(-1px) rotate(45deg); }
+.goal-config input[type="checkbox"]:indeterminate::before { content: ''; width: 10px; height: 2px; border: 0; background: #fff; transform: none; }
+.goal-config-group-items { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 26px 18px; padding: 24px 20px 10px; }
+.goal-config-option { display: flex; gap: 12px; align-items: center; font-size: 17px; min-width: 0; cursor: pointer; }
+.goal-config-option span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.goal-config-selection-heading { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; min-height: 46px; margin-bottom: 14px; font-size: 19px; }
+.goal-config-selection-heading small { font-size: 15px; color: #999; }
+.goal-config-reset { margin-left: auto; padding: 0; border: 0; background: none; color: #2166ff; font-size: 18px; cursor: pointer; }
+.goal-config-selected { flex: 1; min-height: 0; overflow-y: auto; border: 1px solid #eceef1; border-radius: 5px; padding: 20px 24px; margin: 0; list-style: none; }
+.goal-config-selected li { display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 8px 12px; background: #f0f5ff; border-radius: 6px; margin-bottom: 14px; font-size: 17px; }
+.goal-config-selected li:last-child { margin-bottom: 0; }
+.goal-config-selected li.drag-over { box-shadow: inset 0 3px #2166ff; }
+.goal-config-selected li.dragging { opacity: .45; }
+.goal-config-selected li > span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.goal-config-drag,.goal-config-remove { flex-shrink: 0; border: 0; background: none; padding: 0; color: #8d959f; width: 20px; height: 24px; cursor: pointer; }
+.goal-config-drag { cursor: grab; font-size: 21px; touch-action: none; }
+.goal-config-remove { font-size: 24px; font-weight: 300; }
+.goal-config-footer { flex-shrink: 0; border-top: 1px solid #eceef1; padding: 18px 24px 24px; text-align: center; }
+.goal-config-message { min-height: 20px; margin-bottom: 8px; font-size: 13px; color: #d84d53; }
+.goal-config-footer > div:last-child { display: flex; justify-content: center; gap: 28px; }
+.goal-config-footer button { min-width: 164px; height: 54px; border-radius: 30px; border: 2px solid #2166ff; background: #fff; color: #2166ff; font-size: 20px; cursor: pointer; }
+.goal-config-footer button.primary { color: #fff; background: #2166ff; }
+.goal-config-footer button:disabled { opacity: .45; cursor: not-allowed; }
+.goal-config-empty { padding: 32px 0; color: #999; text-align: center; }
+.goal-config button:focus-visible,.goal-config input:focus-visible { outline: 2px solid #83a9ff; outline-offset: 3px; }
+.goal-config-search input:focus-visible { outline: none; }
+.top-nav > button { position: relative; display: inline-flex; align-items: center; gap: 9px; flex-shrink: 0; color: #44536c; white-space: nowrap; border: 0; padding: 0; background: none; cursor: pointer; }
+.top-nav > button:hover { color: #2166ff; }
+@media(min-width:1450px) { .goal-config-group-items { grid-template-columns: repeat(4,minmax(0,1fr)); } }
+@media(max-width:900px) {
+  .goal-config { width: calc(100vw - 24px); }
+  .goal-config-body { gap: 24px; padding: 8px 24px 24px; grid-template-columns: minmax(0,1.4fr) minmax(230px,1fr); }
+  .goal-config-group-items { grid-template-columns: repeat(2,minmax(0,1fr)); padding: 20px 10px; }
+  .goal-config-option,.goal-config-selected li { font-size: 14px; }
+  .goal-config-selected { padding: 16px 12px; }
+}
+@media(max-width:620px) {
+  .goal-config-heading { padding: 16px; }
+  .goal-config-heading h2 { font-size: 22px; }
+  .goal-config-close { width: 38px; height: 38px; }
+  .goal-config-body { display: flex; flex-direction: column; overflow-y: auto; padding: 0 16px 16px; gap: 20px; }
+  .goal-config-options,.goal-config-selection { flex-shrink: 0; }
+  .goal-config-groups { max-height: 300px; margin-top: 18px; }
+  .goal-config-group { margin-bottom: 16px; }
+  .goal-config-selected { flex: none; height: 200px; }
+  .goal-config-footer { padding: 8px 16px 16px; }
+  .goal-config-footer button { min-width: 120px; height: 42px; font-size: 17px; }
+  .goal-consumption-actions { right: 12px; bottom: 12px; }
+}

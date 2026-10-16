@@ -53,4 +53,18 @@
 #dialogbody .pp-analysis-table .pp-task-name+.pp-task-name{margin-top:4px}
 
 #projects.pp-main .pp-ai-heading h3>.metric-help{vertical-align:1px;padding:0;margin-left:6px;font-size:10px;background:#fff;color:#8395ae;border-radius:50%}
-body:has(#pp-ai .pp-ai-heading .metric-help[aria-describedby="metric-tooltip"]) #metric-tooltip{white-space:pre-line;max-width:min(400px,calc(100vw - 16px))}
+#metric-tooltip.metric-tooltip-project-analysis{box-sizing:border-box;width:440px;max-width:calc(100vw - 16px);max-height:calc(100vh - 16px);overflow:auto;padding:0;border:0;border-radius:12px;background:#fff;box-shadow:0 8px 32px #243f6826,0 1px 5px #243f6814;font-size:13px;line-height:1.65;white-space:normal;color:#52647d}
+#metric-tooltip .pp-analysis-tip-heading{padding:16px 20px 14px;background:#f6f8fc}
+#metric-tooltip .pp-analysis-tip-heading h4{margin:0 0 5px;color:#263e5b;font-size:15px;font-weight:600}
+#metric-tooltip .pp-analysis-tip-heading p{margin:0;color:#75869e;font-size:12px}
+#metric-tooltip .pp-analysis-tip-metrics{padding:0 20px}
+#metric-tooltip .pp-analysis-tip-metric{padding:13px 0}
+#metric-tooltip .pp-analysis-tip-metric+.pp-analysis-tip-metric{border-top:1px solid #eef2f7}
+#metric-tooltip .pp-analysis-tip-label{display:flex;align-items:center;gap:10px;margin-bottom:5px}
+#metric-tooltip .pp-analysis-tip-label h5{margin:0;color:#304b6e;font-size:13px;font-weight:600}
+#metric-tooltip .pp-analysis-tip-metric p{margin:0}
+#metric-tooltip .pp-analysis-tip-formula{display:flex;justify-content:center;align-items:center;gap:12px;margin:9px 0;padding:10px 12px;background:#f3f7fd;border-radius:6px;color:#3e638f;font-size:12px}
+#metric-tooltip .pp-analysis-tip-fraction{display:flex;flex-direction:column;text-align:center}
+#metric-tooltip .pp-analysis-tip-fraction>span:first-child{padding:0 6px 4px;border-bottom:1px solid #a8bbd5}
+#metric-tooltip .pp-analysis-tip-fraction>span:last-child{padding-top:4px}
+#metric-tooltip .pp-analysis-tip-note{padding:11px 20px;background:#f8fafc;color:#8492a7;font-size:12px}

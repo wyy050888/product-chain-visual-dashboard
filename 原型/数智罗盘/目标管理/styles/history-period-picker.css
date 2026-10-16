@@ -1,0 +1,9 @@
+.history-period-filter { display: flex; gap: 8px; align-items: center; min-width: 0; }
+.history-period-filter > span { width: 48px; flex-shrink: 0; }
+#historyPeriodTrigger { text-align: left; cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-right: 25px; }
+#historyPeriodPanel { position: fixed; z-index: 8; display: grid; grid-template-columns: 110px minmax(0,1fr); width: min(330px,calc(100vw - 16px)); padding: 6px 0; border: 1px solid #dce5f2; border-radius: 6px; box-shadow: 0 8px 28px #21365326; background: #fff; color: #526780; font-size: 12px; }
+.import-period-years,.import-period-options { max-height: min(280px,calc(100dvh - 32px)); overflow: auto; padding: 0 5px; }
+.import-period-years { border-right: 1px solid #e7edf6; }
+#historyPeriodPanel button { display: flex; align-items: center; justify-content: space-between; width: 100%; border: 0; border-radius: 4px; padding: 9px 12px; background: #fff; color: #526780; text-align: left; font-size: 12px; cursor: pointer; }
+#historyPeriodPanel button:hover { background: #f3f6fc; }
+#historyPeriodPanel button.selected { background: #eaf1ff; color: #2e65ef; }

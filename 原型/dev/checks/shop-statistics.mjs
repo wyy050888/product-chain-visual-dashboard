@@ -14,8 +14,8 @@ export async function shopStatistics(page){
  for(const key of ['violations','fine','frozen','offShelf','drop','limited'])assert(all.some((r,i)=>r[key]!==quality[i][key]),key+'切换应改变显示数据');
  for(const key of ['gsv','netSales','problemSpus','score','productScore','logisticsScore','serviceScore'])assert.deepEqual(all.map(r=>r[key]),quality.map(r=>r[key]),key+'不受统计口径影响');
  await table.locator('[data-rp-sort="fine"]').click();
- const amounts=(await snapshot()).map(r=>{const text=r.fine.split('\n')[0];return parseFloat(text.replaceAll(',',''))*(text.includes('w')?10000:1)});
- assert.deepEqual(amounts,[...amounts].sort((a,b)=>b-a));
+ const amounts=(await snapshot()).map(r=>{const text=r.fine.split('\n')[0];return text==='--'?null:parseFloat(text.replaceAll(',',''))*(text.includes('w')?10000:1)});
+ assert.deepEqual(amounts,[...amounts].sort((a,b)=>a===null?b===null?0:1:b===null?-1:b-a));
  await page.locator('[data-drawer-tab="ranking-0"]').click();
  assert(await check.isChecked(),'两个榜单独立保存统计口径');
  await page.locator('[data-drawer-tab="ranking-1"]').click();assert.equal(await check.isChecked(),false);

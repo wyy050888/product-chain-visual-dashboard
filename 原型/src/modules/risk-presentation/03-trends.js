@@ -1,6 +1,6 @@
 // 近7日固定以当前结束日回溯；按统一逐日基数计算，不生成另一套随机趋势。
 const rpTrendMetrics={gsv:'GSV',margin:'利润率',return:'总退',received:'已收退'};
-function rpTrendOptions(k){return k===0?{gsv:'GSV',netSales:'去退后销量',margin:'利润率',return:'总退',received:'已收退',violations:'违规次数',contact:'进线率',bad:'差评率'}:k===2?{gsv:'GSV',netSales:'去退后销量',margin:'净利润率',return:'总退',received:'已收退'}:[3,4,6].includes(k)?{gsv:'GSV',netSales:'去退后销量',margin:'利润率',return:'总退',received:'已收退'}:rpTrendMetrics}
+function rpTrendOptions(k){return k===0?{gsv:'GSV',netSales:'去退后销量',margin:'利润率',return:'总退',received:'已收退',violations:'违规次数',contact:'进线率',qualityContact:'品质问题进线率',experienceContact:'体验问题进线率',bad:'差评率'}:k===2?{gsv:'GSV',netSales:'去退后销量',margin:'净利润率',return:'总退',received:'已收退'}:[3,4,6].includes(k)?{gsv:'GSV',netSales:'去退后销量',margin:'利润率',return:'总退',received:'已收退'}:rpTrendMetrics}
 function rpTrendHeader(metric,k){
  return `<label class="rp-trend-heading"><span>近7日</span><select data-rp-trend aria-label="近7日趋势指标">${Object.entries(rpTrendOptions(k)).map(([key,name])=>`<option value="${key}" ${metric===key?'selected':''}>${name}</option>`).join('')}</select><span>趋势</span></label>`;
 }
@@ -11,11 +11,11 @@ function rpTrendPoints(k,record,qualityOnly=true){
  const source=record.rows||[record],identities=[...new Map(source.map(r=>upIdentity(r)).filter(Boolean).map(p=>[p.spuId,p])).values()];
  if(!identities.length)return [];
  const series=identities.map(p=>upSummary(p,start,end,platform).points);
- const events=k===0?rpQualityEvents(record,start,end,qualityOnly):[];
+ const events=k===0?rpPlatformViolationEvents(rpQualityEvents(record,start,end,qualityOnly),qrState.listPlatform,record.platform):[];
  return series[0].map((point,i)=>{
-  const totals={sales:0,returned:0,received:0,gsvCents:0,profitCents:0,contacts:0,reviews:0,bad:0};
-  for(const rows of series)for(const key of Object.keys(totals))totals[key]+=rows[i][key];
-  return {contact:totals.sales?totals.contacts/totals.sales*100:null,bad:totals.reviews?totals.bad/totals.reviews*100:null,date:point.date,gsv:totals.gsvCents,netSales:totals.sales-totals.returned,violations:events.filter(e=>e.date===point.date).length,margin:totals.gsvCents?totals.profitCents/totals.gsvCents*100-(k===2?10:0):null,return:totals.sales?totals.returned/totals.sales*100:null,received:totals.sales?totals.received/totals.sales*100:null};
+  const totals={sales:0,returned:0,received:0,gsvCents:0,profitCents:0,contacts:0,qualityContacts:0,experienceContacts:0,reviews:0,bad:0};
+  for(const rows of series)for(const key of Object.keys(totals))totals[key]+=rows[i][key]??0;
+  return {contact:totals.sales?totals.contacts/totals.sales*100:null,qualityContact:totals.sales?totals.qualityContacts/totals.sales*100:null,experienceContact:totals.sales?totals.experienceContacts/totals.sales*100:null,bad:totals.reviews?totals.bad/totals.reviews*100:null,date:point.date,gsv:totals.gsvCents,netSales:totals.sales-totals.returned,violations:events.filter(e=>e.date===point.date).length,margin:totals.gsvCents?totals.profitCents/totals.gsvCents*100-(k===2?10:0):null,return:totals.sales?totals.returned/totals.sales*100:null,received:totals.sales?totals.received/totals.sales*100:null};
  });
 }
 function rpTrendValue(value,metric,k){return value===null?'暂无数据':metric==='gsv'?([0,2,3,4,6].includes(k)?rpQualityMoney(value/100):upMoney(value)):metric==='netSales'?([0,2,3,4,6].includes(k)?fmt(value):rpCount(value)):metric==='violations'?(k===0?fmt(value):fmt(value)+'次'):upPercent(value)}

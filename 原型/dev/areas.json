@@ -76,17 +76,24 @@
       "src/modules/risk-card-filters/01.js",
       "src/modules/risk-presentation/01-fields.js",
       "src/modules/risk-presentation/01-quality.js",
+      "src/modules/quality-monthly/00-contact.js",
+      "src/modules/risk-presentation/01-shop.js",
+      "src/modules/risk-presentation/02-pdd-links.js",
       "src/modules/risk-presentation/03-filters.js",
       "src/modules/risk-presentation/03-columns.js",
       "src/modules/risk-presentation/03-sort.js",
       "src/modules/risk-presentation/04-lists.js",
       "src/modules/risk-presentation/04-sticky-header.js",
-      "src/modules/risk-presentation/03-trends.js"
+      "src/modules/risk-presentation/03-trends.js",
+      "src/modules/inventory-detail/01-coverage-samples.js",
+      "src/modules/unified-product/06-stock-model.js",
+      "src/modules/unified-product/06-stock-view.js"
     ],
     "styles": [
       "styles/34-risk-presentation.css",
       "styles/35-risk-reading.css",
-      "styles/36-list-trends.css"
+      "styles/36-list-trends.css",
+      "styles/42-shop-preview.css"
     ],
     "checks": [
       "smoke",
@@ -168,7 +175,10 @@
       "src/modules/unified-product/04-ai-policy.js",
       "src/modules/unified-product/04-ai-demo.js",
       "src/modules/unified-product/04-ai-context.js",
-      "src/modules/page-presentation/01.js"
+      "src/modules/page-presentation/01.js",
+      "src/modules/inventory-detail/01-coverage-samples.js",
+      "src/modules/unified-product/05-contact-view.js",
+      "src/modules/unified-product/05-contact-tooltip.js"
     ],
     "styles": [
       "styles/31-drawer-layers.css",
@@ -503,7 +513,8 @@
       "src/modules/lifecycle-targets/03-view.js",
       "src/modules/lifecycle-targets/04-navigation.js",
       "src/modules/lifecycle-targets/05-controller.js",
-      "src/modules/lifecycle-task/01.js"
+      "src/modules/lifecycle-task/01.js",
+      "src/modules/system-management/01-shell.js"
     ],
     "styles": [
       "styles/55-lifecycle-targets.css"
@@ -513,6 +524,76 @@
     ],
     "manual": [
       "配置保存在当前浏览器；跨用户权限、服务端保存和多人冲突控制未接入。"
+    ]
+  },
+  "shop-config": {
+    "label": "数智罗盘六平台店铺配置",
+    "keywords": [
+      "配置店铺类型",
+      "店铺配置",
+      "是否考核店铺",
+      "店铺分类"
+    ],
+    "sources": [
+      "数智罗盘/shop-config-src/platforms.js",
+      "数智罗盘/shop-config-src/shop-settings.js",
+      "数智罗盘/shop-config-src/goal-attribution.js",
+      "数智罗盘/shop-config-src/app.js",
+      "数智罗盘/目标管理/scripts/shop-link.js",
+      "src/modules/shop-config/03-controller.js",
+      "src/modules/system-management/01-shell.js"
+    ],
+    "styles": [
+      "数智罗盘/shop-config-src/shop-settings.css"
+    ],
+    "checks": [
+      "shopConfig"
+    ],
+    "manual": [
+      "数智罗盘页面为关联原型的本地副本；目标、负责计划及分类保存在当前浏览器，尚未连接真实系统接口。"
+    ]
+  },
+  "shop-filters": {
+    "label": "店铺榜搜索分类与考核筛选",
+    "keywords": [
+      "店铺筛选",
+      "考核店铺筛选"
+    ],
+    "sources": [
+      "src/modules/risk-presentation/03-filters.js",
+      "src/modules/risk-presentation/04-lists.js"
+    ],
+    "styles": [
+      "styles/39-multiselect.css"
+    ],
+    "checks": [
+      "shopFilters"
+    ]
+  },
+  "inventory": {
+    "label": "全品类库存管控",
+    "keywords": [
+      "库存",
+      "品牌库存",
+      "类目库存",
+      "翻新延期",
+      "ipIndicator"
+    ],
+    "sources": [
+      "src/modules/inventory-period/01.js",
+      "src/modules/inventory-period/02-rules.js",
+      "src/modules/inventory-period/03-view.js",
+      "src/modules/inventory-detail/01.js",
+      "src/modules/period/01.js"
+    ],
+    "styles": [
+      "styles/58-inventory-control.css"
+    ],
+    "checks": [
+      "inventoryControl"
+    ],
+    "manual": [
+      "当前库存与交付、翻新数据来自本地样例台账，未连接实时库存接口。"
     ]
   }
 }

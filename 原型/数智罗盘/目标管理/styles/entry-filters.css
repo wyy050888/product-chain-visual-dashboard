@@ -1,0 +1,15 @@
+/* 年月控件保留稳定节点，列表刷新不重建年份面板绑定。 */
+#entryDynamicFilters { display: contents; }
+#efilters .entry-period { width: 100%; }
+#efilters #entryYearTrigger { flex: 0 0 76px; height: 32px; font-size: 12px; }
+#efilters #entryMonthTrigger { flex: 1; min-width: 0; gap: 4px; padding: 0 10px; }
+#entryMonthTrigger > span, #entryProductTypeText { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#efilters .calendar-trigger::after { flex-shrink: 0; }
+.entry-multi-month .calendar-grid label { position: relative; display: block; }
+.entry-multi-month .calendar-grid input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.entry-multi-month .calendar-grid label > span { display: flex; align-items: center; justify-content: center; height: 36px; border-radius: 20px; font-size: 12px; }
+.entry-multi-month .calendar-grid label:hover > span { background: #f1f5fb; color: #2864ef; }
+.entry-multi-month .calendar-grid input:checked + span { background: #2166ff; color: white; font-weight: 600; }
+.entry-multi-month .calendar-grid input:focus-visible + span { outline: 2px solid #9cbafa; outline-offset: 2px; }
+.entry-multi-month .calendar-grid input:disabled { cursor: default; }
+@media (max-width:1200px) { #efilters #entryYearTrigger { flex-basis: 66px; width: 66px; padding: 0 8px; } #efilters .entry-period { gap: 4px; } }

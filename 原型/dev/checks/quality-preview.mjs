@@ -8,14 +8,19 @@ function qualityModel(){
   fmt:n=>String(n),rpCount:n=>n+'件',pfMoneyYuan:n=>n+'元',upPercent:n=>n.toFixed(1)+'%',
   pfIdentity:r=>r,qrObservation:()=>({monthly:{events:earlier}}),upProduct:p=>p,upIdentity:r=>r,
  });
+ vm.runInContext(fs.readFileSync(new URL('../../src/modules/quality-monthly/00-contact.js',import.meta.url),'utf8'),ctx);
  vm.runInContext(fs.readFileSync(new URL('../../src/modules/risk-presentation/01-quality.js',import.meta.url),'utf8'),ctx);
  const events=[{type:'罚款',amount:7000},{type:'资金冻结',amount:3000},{type:'下架',amount:0},{type:'掉权',amount:0}].map(e=>({...e,reasonType:'quality'}));
- const record={platform:'抖音',monthly:{events,fine:7000,frozen:3000}};
+ const record={platform:'拼多多',monthly:{events,fine:7000,frozen:3000}};
  const current={sales:100,returned:20,gsvCents:80000,profitRate:20,contactRate:10,badRate:3,returnRate:10.5,receivedRate:8.2};
  const previous={sales:100,returned:10,gsvCents:100000,profitRate:10,contactRate:20,badRate:2,start:'2026-09-01',end:'2026-09-10'};
  const rows=ctx.rpQualityFields(record,[...['gsv','margin','contact','bad','return','received','fine','frozen'].map(key=>({key})),{key:'returnTarget',sortValue:10},{key:'receivedTarget',sortValue:8}],current,previous);
  const fields=Object.fromEntries(Array.from(rows,f=>[f.key,f]));
  assert.equal(fields.netSales.sortValue,80);
+ for(const [current,previous,hit] of [[30,10,false],[30.1,10,true],[20,0,false],[20.1,0,true],[10.1,.1,false],[20.1,.1,false],[5,10,false],[null,0,false],[30,null,false]])assert.equal(ctx.qrbContactDecision(current,previous).hit,hit);
+ for(const count of [0,1,11,100])for(let seed=0;seed<5;seed++){const split=ctx.qrbContactSplit(count,seed);assert.equal(split.qualityContacts+split.experienceContacts,count);assert(Number.isInteger(split.qualityContacts)&&Number.isInteger(split.experienceContacts))}
+ assert.equal(ctx.qrbContactDecision(30,10).growth,20);
+
  const productFields=ctx.rpQualityProductFields({attribute:'冬季品',isNew:true,clearance:true});
  assert.equal(productFields[0].value,'冬季品');
  assert.equal(productFields[1].value,'新品、清仓品');
@@ -24,11 +29,22 @@ function qualityModel(){
  assert.equal(fields.gsv.target,'环比 ↓ 20.0%');
  assert.equal(fields.margin.target,'环比 ↑ 100.0%');
  assert.equal(fields.violations.sortValue,4);assert.equal(fields.violations.target,'环比 ↑ 300.0%');
- assert.equal(fields.sanctions.sortValue,10000);assert.equal(fields.sanctions.target,'1次/1次');
+ assert.equal(fields.sanctions.sortValue,10000);assert.equal(fields.sanctions.target,'2次');
  assert.equal(fields.down.value,'2次');assert.equal(fields.down.sortValue,2);assert.equal(fields.down.target,'环比 ↑ 100.0%');
  assert.equal(fields.offShelf.value,'1次');assert.equal(fields.offShelf.target,'环比 持平');
  assert.equal(fields.drop.value,'1次');assert.equal(fields.drop.target,'环比 --');
  assert.equal(fields.fine.target,'1次');assert.equal(fields.frozen.target,'1次');
+ const expected={抖音:['资金冻结','下架'],快手:['罚款','下架'],视频号:['资金冻结','下架'],天猫:['罚款','下架'],京东:['罚款','下架'],拼多多:['罚款','资金冻结','下架','掉权'],all:['罚款','资金冻结','下架','掉权']};
+ for(const [platform,types] of Object.entries(expected)){
+  assert.deepEqual(Array.from(ctx.rpPlatformViolationEvents(events,platform,platform),e=>e.type),types);
+ }
+ assert.equal(ctx.rpViolationMetricAllowed('fine',['抖音','快手']),true);
+ assert.equal(ctx.rpViolationMetricAllowed('drop',['抖音','快手']),false);
+ const scoped=Object.fromEntries(Array.from(ctx.rpQualityFields({...record,platform:'抖音'},[{key:'fine'},{key:'frozen'}],current,previous,true,'all'),f=>[f.key,f]));
+ assert.equal(scoped.violations.sortValue,2);assert.equal(scoped.sanctions.sortValue,3000);assert.equal(scoped.sanctions.target,'1次');
+ assert.equal(scoped.fine.value,'--');assert.equal(scoped.fine.sortValue,null);assert.equal(scoped.fine.target,'');assert.equal(scoped.drop.value,'--');
+ const empty=Object.fromEntries(Array.from(ctx.rpQualityFields({...record,monthly:{events:[]}},[{key:'fine'}],current,previous,true,'all'),f=>[f.key,f]));assert.equal(empty.fine.sortValue,0);assert.notEqual(empty.fine.value,'--');
+
  assert.equal(ctx.rpQualityChange(5,0),'环比 --');
  assert.equal(ctx.rpQualityChange(0,0),'环比 持平');
  assert.equal(ctx.rpQualityChange(10,10),'环比 持平');
@@ -77,13 +93,13 @@ function qualityModel(){
 }
 // 新增趋势按当天原始分子/分母计算，零基数保留暂无数据。
 function qualityTrendModel(){
- const daily=[{date:'2026-10-09',sales:200,contacts:30,reviews:40,bad:3,returned:10,received:5,gsvCents:10000,profitCents:1000},
-  {date:'2026-10-10',sales:0,contacts:0,reviews:0,bad:0,returned:0,received:0,gsvCents:0,profitCents:0}];
+ const daily=[{date:'2026-10-09',sales:200,contacts:30,qualityContacts:20,experienceContacts:10,reviews:40,bad:3,returned:10,received:5,gsvCents:10000,profitCents:1000},
+  {date:'2026-10-10',sales:0,contacts:0,qualityContacts:0,experienceContacts:0,reviews:0,bad:0,returned:0,received:0,gsvCents:0,profitCents:0}];
  const ctx=vm.createContext({riskRange:()=>({end:'2026-10-10'}),shiftDate:()=> '2026-10-04',upIdentity:r=>r,
-  upSummary:()=>({points:daily}),rpQualityEvents:()=>[]});
+  upSummary:()=>({points:daily}),rpQualityEvents:()=>[],rpPlatformViolationEvents:rows=>rows,qrState:{listPlatform:'all'}});
  vm.runInContext(fs.readFileSync(new URL('../../src/modules/risk-presentation/03-trends.js',import.meta.url),'utf8'),ctx);
  const points=ctx.rpTrendPoints(0,{spuId:'test',platform:'抖音'});
- assert.equal(points[0].contact,15);assert.equal(points[0].bad,7.5);
+ assert.equal(points[0].contact,15);assert.equal(points[0].qualityContact,10);assert.equal(points[0].experienceContact,5);assert.equal(points[0].bad,7.5);
  assert.equal(points[1].contact,null);assert.equal(points[1].bad,null);
  ctx.rpQualityEvents=(_record,_start,_end,qualityOnly)=>qualityOnly?[{date:'2026-10-09'}]:[{date:'2026-10-09'},{date:'2026-10-09'}];
  assert.equal(ctx.rpTrendPoints(0,{spuId:'test',platform:'抖音'},true)[0].violations,1);
@@ -111,7 +127,7 @@ export async function qualityPreview(page){
  assert.ok(await page.locator('#riskrail .rp-quality-metric .rp-comparison-label').evaluateAll(ns=>ns.length>0&&ns.every(n=>getComputedStyle(n).color==='rgb(134, 147, 164)')));
  await card.screenshot({path:fileURLToPath(new URL('../../outputs/quality-card-v2.png',import.meta.url))});
  await page.locator('#riskrail [data-risk="0"]').click();
- assert.deepEqual(await page.locator('#qr-list-table [data-rp-sort]').evaluateAll(nodes=>nodes.map(n=>n.dataset.rpSort)),['gsv','sales','netSales','margin','return','received','violations','fine','frozen','offShelf','drop','contact','bad']);
+ assert.deepEqual(await page.locator('#qr-list-table [data-rp-sort]').evaluateAll(nodes=>nodes.map(n=>n.dataset.rpSort)),['gsv','sales','netSales','margin','return','received','violations','frozen','offShelf','contact','qualityContact','experienceContact','bad']);
  assert.equal(await page.locator('#qr-list-table .rp-list-risks').count(),0);
  const cardPair=card.locator('.rp-quality-rate-pair').first();
  assert.equal(await cardPair.getAttribute('aria-label'),'进线率/差评率');
@@ -126,8 +142,8 @@ export async function qualityPreview(page){
  await verifyQualityColors(page,'#qr-list-table .rp-list-value');
  assert.ok(await page.locator('#qr-list-table .rp-comparison-label').evaluateAll(ns=>ns.length>0&&ns.every(n=>getComputedStyle(n).color==='rgb(134, 147, 164)')));
  const options=page.locator('[data-rp-trend]');
- assert.deepEqual(await options.locator('option').evaluateAll(nodes=>nodes.map(n=>n.value)),['gsv','netSales','margin','return','received','violations','contact','bad']);
- for(const metric of ['gsv','netSales','margin','return','received','violations','contact','bad']){
+ assert.deepEqual(await options.locator('option').evaluateAll(nodes=>nodes.map(n=>n.value)),['gsv','netSales','margin','return','received','violations','contact','qualityContact','experienceContact','bad']);
+ for(const metric of ['gsv','netSales','margin','return','received','violations','contact','qualityContact','experienceContact','bad']){
   await options.selectOption(metric);
   const points=page.locator('#qr-list-table tbody tr').first().locator('[data-rp-trend-point]');
   assert.equal(await points.count(),7);

@@ -1,3 +1,4 @@
+import {verifyShopLinkDetails} from './shop-link-details.mjs';
 import {verifyShopMetrics} from './shop-metrics.mjs';
 import assert from 'node:assert/strict';
 import {fileURLToPath} from 'node:url';
@@ -13,6 +14,28 @@ export async function shopDetail(page){
   await open(id);assert.equal(await page.locator('#dialogtitle').innerText(),'店铺详情');
   assert.deepEqual(await root.locator('.drawer-tabs [data-drawer-tab]').allTextContents(),['业绩表现','店铺违规','风险待办']);
   const fields=await root.locator('.up-hero dl').innerText();assert(fields.includes(channel));
+  const scores=root.locator('[data-sd-scores]');
+  if(channel==='拼多多'){
+   assert.deepEqual(await scores.locator('[data-rp-field]').evaluateAll(ns=>ns.map(n=>n.dataset.rpField)),['redLinks','yellowLinks']);
+   const links=await page.evaluate(id=>pddShopLinksSnapshot(id).all,id);
+   for(const [key,tone] of [['redLinks','red'],['yellowLinks','yellow']]){
+    const count=scores.locator('[data-rp-field="'+key+'"] strong');
+    assert.equal(Number(await count.innerText()),links.filter(link=>tone==='red'?link.redCount>=3:link.redCount>0&&link.redCount<3).length);
+   }
+   assert.equal(await scores.locator('[data-rp-pdd-shop]').count(),0);
+
+  }else{
+   const keys=['score','productScore','logisticsScore','serviceScore'];
+   assert.deepEqual(await scores.locator('[data-rp-field]').evaluateAll(ns=>ns.map(n=>n.dataset.rpField)),keys);
+   const shop=await page.evaluate(id=>shopRiskAudit().find(s=>s.id===id),id);
+   for(const key of keys)assert.equal(await scores.locator('[data-rp-field="'+key+'"] strong').innerText(),shop[key].toFixed(2));
+   assert.equal(await scores.locator('[data-rp-pdd-shop]').count(),0);
+  }
+  await page.setViewportSize({width:390,height:900});
+  const scoreBox=await scores.boundingBox(),bodyBox=await page.locator('#dialogbody').boundingBox();
+  assert(scoreBox.x>=bodyBox.x&&scoreBox.x+scoreBox.width<=bodyBox.x+bodyBox.width+1,'顶部指标窄屏不溢出：'+channel);
+  await page.setViewportSize({width:1920,height:1080});
+
   if(channel==='视频号')assert.doesNotMatch(fields,/负责人|店铺推广|店铺策略/);
   else if(channel==='抖音')assert.match(fields,/负责人[\s\S]*抖音[一二三]区-/);
   else if(channel==='快手')assert.match(fields,/负责人[\s\S]*剪运[一二三]区-/);
@@ -29,6 +52,7 @@ export async function shopDetail(page){
   assert(await coloredRisk.evaluate(e=>getComputedStyle(e).color!==getComputedStyle(e.parentElement).color),'风险字色与正文区分');
   assert.deepEqual(await root.locator('.sd-kpis small').allTextContents(),['GSV','去退后销量','总退']);assert.equal(await root.locator('.sd-kpis .up-operating-value>span').count(),3);assert.deepEqual(await root.locator('[data-sd-spu-table] th').allTextContents(),['SPU信息','GSV','去退后销量','利润率']);
   await root.locator('[data-drawer-tab="violations"]').click();assert(await root.locator('[data-sd-violation-quality]').isChecked());const headers=await root.locator('[data-sd-violation-table] th').allTextContents();assert(headers.includes(({抖音:'情节级别',快手:'申诉和整改状态',视频号:'信用变更',天猫:'扣分',京东:'申诉截止日期',拼多多:'赔付金额'})[channel]),channel+': '+JSON.stringify(headers));const stats=Number((await root.locator('.sd-violation-stats strong').first().innerText()).replace('次',''));assert.equal(await root.locator('[data-sd-violation-table] tbody tr').count(),stats);
+  if(channel==='拼多多')await verifyShopLinkDetails(page,id);else assert.equal(await root.locator('.sd-pdd-links').count(),0);
   await root.locator('[data-sd-type="fine"]').click();const rows=await root.locator('[data-sd-violation-table] tbody tr').allTextContents();assert(rows.every(r=>r.includes('平台罚款')||channel==='拼多多'));
   await root.locator('[aria-label="搜索店铺违规"]').fill('不存在编号');assert.equal(await root.locator('[data-sd-violation-table] tbody tr').count(),0);await root.locator('[aria-label="搜索店铺违规"]').fill('');await root.locator('[data-sd-type="all"]').click();
   if(id===4)await page.screenshot({path:fileURLToPath(new URL('../../outputs/shop-detail-violations.png',import.meta.url))});await close();

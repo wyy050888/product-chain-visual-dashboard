@@ -9,9 +9,18 @@ function rpShopSpuMarkup(product){
  return product?'<div class="rp-identity rp-shop-spu">'+riskThumbnail(product.name)+'<div><b title="'+esc(product.name)+'">'+esc(product.name)+'</b><small>SPU码：'+esc(product.spuCode)+'</small></div></div>':'<span class="muted" title="所选期间暂无可用的店铺SPU销量数据">暂无销量数据</span>';
 }
 function rpShopCardColumns(){return '<div class="rp-shop-columns">'+['GSV','去退后销量','罚款＆冻结','店铺限单'].map(x=>'<span>'+x+'</span>').join('')+'</div>'}
+// 卡片与店铺详情顶部共用评分及链接风险展示。
+function rpShopScoreMarkup(shop,fields){
+ const keys=shop.channel==='拼多多'?['redLinks','yellowLinks']:['score','productScore','logisticsScore','serviceScore'];
+ return keys.map(key=>{
+  const f=fields.find(field=>field.key===key);
+  if(shop.channel==='拼多多')return rpPddLinkCount(f,true);
+  return `<div data-rp-field="${key}"><small>${esc(f.name)}</small><strong class="${f.tone}" title="${esc(f.hint||'')}">${esc(f.value)}</strong></div>`;
+ }).join('');
+}
 function rpShopCardEntry(shop,index){
  const fields=rpShopFields(shop),field=key=>fields.find(f=>f.key===key);
- const scores=['score','productScore','logisticsScore','serviceScore'].map(key=>{const f=field(key);return '<div data-rp-field="'+key+'"><small>'+esc(f.name)+'</small><strong class="'+f.tone+'" title="'+esc(f.hint||'')+'">'+esc(f.value)+'</strong></div>'}).join('');
+ const scores=rpShopScoreMarkup(shop,fields);
  const metrics=rpShopCardKeys.map(key=>{const f=field(key);return '<div class="rp-shop-metric" data-rp-field="'+key+'"><span class="rp-shop-mobile-label">'+f.name+'</span><strong class="'+f.tone+'" title="'+esc(f.hint)+'">'+esc(f.value)+'</strong><small class="'+f.targetTone+'">'+(f.target?rpTargetText(f):'&nbsp;')+'</small></div>'}).join('');
- return '<article class="rp-entry rp-shop-entry" data-rp-row="1:'+shop.id+'" data-rp-kind="1"><div class="rp-entry-main"><header><span class="rank">'+String(index+1).padStart(2,'0')+'</span>'+rpShopIdentity(shop,true)+'<div class="rp-shop-scores">'+scores+'</div></header><div class="rp-shop-values">'+metrics+'</div></div></article>';
+ return '<article class="rp-entry rp-shop-entry" data-rp-row="1:'+shop.id+'" data-rp-kind="1"><div class="rp-entry-main"><header><span class="rank">'+String(index+1).padStart(2,'0')+'</span>'+rpShopIdentity(shop,true)+'<div class="rp-shop-scores'+(shop.channel==='拼多多'?' rp-shop-link-counts':'')+'">'+scores+'</div></header><div class="rp-shop-values">'+metrics+'</div></div></article>';
 }

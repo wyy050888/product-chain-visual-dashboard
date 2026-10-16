@@ -19,6 +19,16 @@ for (const entry of ['index.html', 'assets', 'styles']) {
     recursive: true,
   });
 }
+// 店铺配置及目标来源页是独立运行入口，保留相对路径，排除源码和测试。
+for (const entry of ['数智罗盘/店铺配置.html', '数智罗盘/目标管理']) {
+  const destination = path.join(outputRoot, entry);
+  fs.mkdirSync(path.dirname(destination), { recursive: true });
+  fs.cpSync(path.join(prototypeRoot, entry), destination, {
+    recursive: true,
+    filter: file => !file.endsWith('.md'),
+  });
+}
+
 function collectFiles(directory) {
   return fs.readdirSync(directory, { withFileTypes: true }).flatMap(entry => {
     const file = path.join(directory, entry.name);

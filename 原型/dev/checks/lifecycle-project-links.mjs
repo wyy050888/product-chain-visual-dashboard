@@ -16,7 +16,7 @@ export async function lifecycleProjectLinks(page){
   assert.deepEqual(data.state.type,[type]);assert.deepEqual(data.state.category,categories);assert.deepEqual(data.state.projectState,[]);
   assert.deepEqual(data.state[key],{mode:'range',year:period.year,start:scope==='year'?period.year+'-01-01':period.start,end:period.cutoff});
   assert.equal(data.state.plan,null);assert.equal(data.state[key==='actual'?'started':'actual'],null);
-  assert.deepEqual(data.state.light,[]);assert.equal(data.state.query,'');assert.equal(data.state.owner,'');assert.equal(data.state.page,1);
+  assert.deepEqual(data.state.light,[]);assert.deepEqual(data.state.riskLight,[]);assert.equal(data.state.query,'');assert.equal(data.state.page,1);
   const range=data.state[key],expected=data.scope.filter(p=>p[key]&&p[key]>=range.start&&p[key]<=range.end).map(p=>p.id).sort((a,b)=>a-b);
   assert.deepEqual(data.filtered.map(p=>p.id).sort((a,b)=>a-b),expected);
   assert.deepEqual(await page.locator('#pp-filter-type').evaluate(e=>Array.from(e.selectedOptions,o=>o.value)),[type]);
@@ -28,7 +28,7 @@ export async function lifecycleProjectLinks(page){
   for(const scope of ['period','year']){await page.locator(`#lifetable [data-life-summary] [data-life-completed="${scope}"]`).click();await verify(stage,scope);}
  }
  // 清除上一次查询，分类行自动带入对应类目；个护与健康按两个类目并集。
- await page.locator('[data-pp-search]').fill('不存在的项目');await page.locator('[data-pp-owner-search]').fill('旧查询');
+ await page.locator('[data-pp-search]').fill('不存在的项目');
  await page.locator('#lifecards .lifecard').nth(2).click();
  const categories=[['清洁类'],['厨电类'],['环境类'],['个护类','健康类']];
  for(let i=0;i<4;i++){await page.locator(`#lifetable tbody tr:not([data-life-summary]) [data-life-completed="period"]`).nth(i).click();await verify(2,'period',categories[i]);}

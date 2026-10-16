@@ -20,16 +20,19 @@ sbReturnRisk=function(p){return rpShopProblemHit(p)};
 const rpShopRulesBeforeConfirmed=sbRules;
 sbRules=function(){return '店铺分异常与当月品质类处罚≥2次同时满足；当月品质罚款≥5000元（不含冻结）独立入榜。单品比较上周、本周目标总退和实际总退，两期均超过各自目标的105%且本周高于上周。店铺分按六平台阈值判色：抖音/京东≤4.6红、(4.6,4.8)黄；天猫<4.6红、[4.6,4.8)黄；快手≤4.4红、(4.4,4.7)黄；视频号≤4红、(4,4.5)黄；拼多多≤4.7红、(4.7,4.8)黄；达到黄灯上界显示正常色。品质风险按平台罚款、资金冻结、链接下架／掉权筛选。现有分值、核心主营SPU和处罚事件为演示数据。'};
 
-// 保留业务新增的抖音掉权记录；库存违规仍只计下架＋冻结。
+// 事件按所属平台的可用类型取数；缺失类型不参与入榜、排序与金额合计。
 const rpMonthlyBeforeConfirmed=qrbMonthly;
 qrbMonthly=function(...args){
  const original=rpMonthlyBeforeConfirmed(...args),platform=args[1],raw=qfPreviousMonthly(...args);
- const dropped=raw.events.filter(e=>e.type==='掉权'&&(platform==='抖音'||e.source==='demo'));
+ const dropped=raw.events.filter(e=>e.type==='掉权'&&e.source==='demo');
  const returnHit=qrbReturnDecision(original.current.orders,original.current.returnRate,original.target,true);
- const events=[...original.events,...dropped],hits=[original.fine>0,original.frozen>0,original.offShelf+dropped.length>0,returnHit,original.contactHit];
+ const events=rpPlatformViolationEvents([...original.events,...dropped],platform,platform);
+ const amount=type=>events.filter(e=>e.type===type).reduce((sum,e)=>sum+(Number(e.amount)||0),0);
+ const fine=amount('罚款'),frozen=amount('资金冻结'),offShelf=events.filter(e=>e.type==='下架').length,dropCount=events.filter(e=>e.type==='掉权').length;
+ const hits=[fine>0,frozen>0,offShelf+dropCount>0,returnHit,original.contactHit];
  const risks=['平台罚款','资金冻结','链接下架／掉权','总退超目标','进线率恶化'].filter((_,i)=>hits[i]);
- const allEvents=[...events,...qrbNonQualityEvents(args[0],platform,original.start,original.end)].sort((a,b)=>a.date.localeCompare(b.date));
- return {...original,supported:true,returnHit,events,allEvents,dropCount:dropped.length,hits,risks,penaltyHit:hits.slice(0,3).some(Boolean),priority:hits.findIndex(Boolean)};
+ const allEvents=rpPlatformViolationEvents([...events,...qrbNonQualityEvents(args[0],platform,original.start,original.end)],platform,platform).sort((a,b)=>a.date.localeCompare(b.date));
+ return {...original,supported:true,returnHit,fine,frozen,offShelf,events,allEvents,dropCount,hits,risks,penaltyHit:hits.slice(0,3).some(Boolean),priority:hits.findIndex(Boolean)};
 };
 sbPanel=function(s){
  const score=sbScoreRisk(s),end=bounds().cutoff,monday=shiftDate(end,-((new Date(end+'T00:00:00Z').getUTCDay()+6)%7)),previous=shiftDate(monday,-7);
@@ -50,7 +53,7 @@ function pfCompanyStockModel(state){
 }
 irRules=function(){return '库存仅按全公司统计，不按平台筛选。余额读取最新样例快照，周转使用近30日。总库存＝仓内＋工厂＋新机未交付；货值按含税含品牌财务价计算。总退＞55%、已收退＞30%、滞销、利润率＜10%、当月下架＋冻结≥3次任一命中即入榜。多个命中不重复计库存；当前按货值降序，排序优先级冲突待补充。批次库龄和实时业务库存台账尚未接入。'};
 
-// 退货榜按文件现行条件执行；偏差单位仍按百分点样例，正式边界待补齐。
+// 恶化榜仅按两项退货条件入榜；品质处罚保留展示及原有排序，不独立触发入榜。
 rrRows=function(){
  const w=upWindow();
  return rrAll().filter(r=>rrState.platform==='all'||r.channel===rrState.platform).map(r=>{
@@ -58,7 +61,7 @@ rrRows=function(){
   const fineEvents=m.events.filter(e=>e.type==='罚款'),fineHit=fineEvents.some(e=>Number(e.amount)>=5000),penaltyCount=m.events.length;
   const violation=m.offShelf>=2||fineHit||penaltyCount>=2;
   const returnGap=r.returnRate-m.target,receivedGap=r.receivedRate-8;
-  const risks=[violation?'品质违规':'',returnGap>5?'总退超目标':'',receivedGap>2?'已收退超目标':''].filter(Boolean);
+  const risks=pfReturnCauses(r,m);
   const s=upSummary(upIdentity(r),w.start,w.end,r.channel);
   return {...r,returnTarget:m.target,receivedTarget:8,returnGap,receivedGap,qualityViolation:violation,qualityFine:m.fine,gsvCents:s.gsvCents,risks,risk:risks.length>0,level:violation?'P1':'P2'};
  }).filter(r=>r.risk).sort((a,b)=>Number(b.qualityViolation)-Number(a.qualityViolation)||(b.qualityViolation?b.qualityFine-a.qualityFine:0)||b.gsvCents-a.gsvCents||b.returnGap-a.returnGap||b.receivedGap-a.receivedGap);
@@ -66,6 +69,5 @@ rrRows=function(){
 
 
 function pfReturnCauses(s,m){
- const violation=m.offShelf>=2||m.events.some(e=>e.type==='罚款'&&e.amount>=5000)||m.events.length>=2;
- return [violation?'品质违规':'',s.returnRate!==null&&s.returnRate>m.target+5?'总退超目标':'',s.receivedRate!==null&&s.receivedRate>10?'已收退超目标':''].filter(Boolean);
+ return [s.returnRate!==null&&s.returnRate>m.target+5?'总退超目标':'',s.receivedRate!==null&&s.receivedRate>10?'已收退超目标':''].filter(Boolean);
 }

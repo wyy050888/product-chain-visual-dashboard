@@ -6,7 +6,7 @@ const upRawQuality = qrbMonthData;
 
 const upIdentityCache=new Map();
 const upMoneyFields = ['gmvCents', 'refundCents', 'gsvCents', 'profitCents', 'costCents', 'expenseCents', 'targetCents', 'targetProfitCents'];
-const upCountFields = ['sales', 'returned', 'received', 'orders', 'contacts', 'reviews', 'bad'];
+const upCountFields = ['sales', 'returned', 'received', 'orders', 'contacts', 'qualityContacts', 'experienceContacts', 'reviews', 'bad'];
 const upSummaryFields=[...upCountFields,...upMoneyFields];
 function upFactsVersion(p){const sample=upIdentity(p)?.sampleTargets;return {target:sample?.monthlyGsvWan??dpStore.newTargets[p.chain],margin:sample?.profitRate??dpStore.marginTarget}}
 function upFactsKey(p,platform,start,end,version=upFactsVersion(p)){return p.spuId+'|'+platform+'|'+start+'|'+end+'|'+version.target+'|'+version.margin;}
@@ -54,6 +54,7 @@ function upBuildDaily(p, platform, start, end, version=upFactsVersion(p)) {
     const received = Math.min(returned, lowMovement ? 0 : d.received);
     const orders = !sales ? 0 : Math.min(sales, lowMovement ? sales : d.orders);
     const contacts = Math.min(sales, lowMovement ? 0 : d.contacts);
+    const qualityContacts=Math.min(contacts,d.qualityContacts??contacts),experienceContacts=contacts-qualityContacts;
     const reviews = Math.min(sales, lowMovement ? 0 : d.reviews);
     const bad = Math.min(reviews, lowMovement ? 0 : d.bad);
     const gmvCents = sales*priceCents, refundCents = returned*priceCents;
@@ -67,7 +68,7 @@ function upBuildDaily(p, platform, start, end, version=upFactsVersion(p)) {
     // 明确配置的月目标按当月自然日分摊，跨平台/期间累计使用同一台账。
     const targetDays=p.sampleTargets?new Date(Date.UTC(+d.date.slice(0,4),+d.date.slice(5,7),0)).getUTCDate():30;
     const targetCents = onSale ? Math.round(version.target*1000000/targetDays*targetWeight) : 0;
-    return {date:d.date, sales, returned, received, orders, contacts, reviews, bad,
+    return {date:d.date, sales, returned, received, orders, contacts, qualityContacts, experienceContacts, reviews, bad,
       gmvCents, refundCents, gsvCents, profitCents, expenseCents, costCents:gsvCents-profitCents,
       targetCents, targetProfitCents:Math.round(targetCents*version.margin/100)};
   });
@@ -76,6 +77,6 @@ function upBuildDaily(p, platform, start, end, version=upFactsVersion(p)) {
 function upQualityData(p, platform, start, end) {
   const data = upSummary(upIdentity(p),start,end,platform);
   return {...data, returnRate:data.returnRate??0, receivedRate:data.receivedRate??0,
-    contactRate:data.contactRate??0, badRate:data.badRate??0,
+    contactRate:data.contactRate, badRate:data.badRate??0,
     points:data.points.map(d=>({...d, returnRate:qrRate(d.returned,d.sales), contactRate:qrRate(d.contacts,d.sales)}))};
 }

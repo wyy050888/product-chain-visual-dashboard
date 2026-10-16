@@ -1,5 +1,6 @@
 // 库存余额沿用原台账；周转成本与销量改用统一经营事实。
 function upInventoryFacts(record) {
+  record=inventoryCoverageSample(record);
   const range=upWindow(), s=upSummary(upIdentity(record),range.start,range.end);
   const avg=record.avg, cost=s.sales*(record.num?record.amountCents/100/record.num:0);
   return {...record,cost,turn:avg?cost/avg:null};
@@ -24,15 +25,14 @@ inventoryProductLedger=function(){return upOriginalInventoryLedger().map(upInven
 function upStockFacts(r) {
   const p=upIdentity(r), range=upWindow(),s=upSummary(p,range.start,range.end);
   const days=Math.max(1,aiFlowDayDiff(range.start,range.end)+1);
-  const index=p.sourceRow-1, warehouse=r.num, factory=Math.round(r.num*(.12+(index%4)*.04));
-  const undelivered=Math.round(r.num*(.06+(index%3)*.03)), totalUnits=warehouse+factory+undelivered;
+  const index=p.sourceRow-1, warehouse=r.num, factory=r.sampleFactoryUnits??Math.round(r.num*(.12+(index%4)*.04));
+  const undelivered=r.sampleUndeliveredUnits??Math.round(r.num*(.06+(index%3)*.03)), totalUnits=warehouse+factory+undelivered;
   const financePriceCents=r.num?Math.round(r.amountCents*10000/r.num):0;
   const coverage=s.sales?warehouse/(s.sales/days):null;
-  const recent=upSummary(p,shiftDate(range.end,-14),range.end);
-  const slowCoverage=recent.sales?warehouse/(recent.sales/15):null;
+  const {dailyNet15,coverage15:slowCoverage,totalCoverage15}=upSellableStock(p,warehouse,range.end,totalUnits);
   const slow=warehouse>0&&slowCoverage!==null&&slowCoverage>=60;
   return {warehouse,factory,undelivered,totalUnits,financePriceCents,goodsValueCents:totalUnits*financePriceCents,
-    coverage,slowCoverage,slow,sales:s.sales,gsvCents:s.gsvCents,
+    coverage,slowCoverage,slow,dailyNet15,coverage15:slowCoverage,totalCoverage15,sales:s.sales,gsvCents:s.gsvCents,
     staleMaxAgeDays:r.staleOldestReceivedDate?Math.max(0,aiFlowDayDiff(r.staleOldestReceivedDate,range.end)):null,
     staleOldestSellableUnits:r.staleOldestReceivedDate&&Number.isFinite(r.staleOldestSellableUnits)?r.staleOldestSellableUnits:null,
     staleUnits:r.amountCents?Math.round(r.num*r.staleCents/r.amountCents):0,
@@ -46,7 +46,7 @@ function upPlatformStockFacts(r,platform='all'){
  const stock=upStockFacts(r);
  if(platform==='all')return {...r,...stock,metricPlatform:platform};
  const p=upIdentity(r),w=upWindow(),s=upSummary(p,w.start,w.end,platform),recent=upSummary(p,shiftDate(w.end,-14),w.end,platform),days=Math.max(1,aiFlowDayDiff(w.start,w.end)+1);
- const slowCoverage=recent.sales?stock.warehouse/(recent.sales/15):null;
+ const dailyNet15=(recent.sales-recent.returned)/15,slowCoverage=dailyNet15>0?stock.warehouse/dailyNet15:null;
  return {...r,...stock,metricPlatform:platform,sales:s.sales,gsvCents:s.gsvCents,sales15:recent.sales,
   coverage:s.sales?stock.warehouse/(s.sales/days):null,slowCoverage,slow:stock.warehouse>0&&slowCoverage!==null&&slowCoverage>=60,
   turn:r.avg?s.sales*(r.num?r.amountCents/100/r.num:0)/r.avg:null};
@@ -80,11 +80,11 @@ rfFacts=function(k,r) {
   const w=upWindow(),s=upSummary(upIdentity(r),w.start,w.end,r.lossPlatform||(k===6?r.channel:'all'));
   if(k===4) {
     const days=Math.max(1,aiFlowDayDiff(w.start,w.end)+1),turnDays=r.turn>0?days/r.turn:null;
-    return [rfMetric('库存周转天数',turnDays===null?'—':fmt(turnDays,1)+'天',turnDays!==null&&turnDays>=60,'所选周期天数÷库存周转率；滞销入榜另按近15日日均销量计算可售天数≥60天。'),
+    return [rfMetric('库存周转天数',turnDays===null?'—':fmt(turnDays,1)+'天',turnDays!==null&&turnDays>=60,'所选周期天数÷库存周转率；滞销入榜另按近15日均净销量计算可售天数≥60天。'),
       rfMetric('滞销库存货值',pfMoneyYuan((r.staleValueCents/1000000)*10000),r.staleValueCents>0,'只计算超库龄部分，沿用库存台账超库龄货值。'),
       rfMetric('期间销量',fmt(s.sales)+'件',false,'所选周期全平台销量；与经营表现及逐日台账一致。'),
       rfMetric('滞销金额',pfMoneyYuan((r.staleValueCents/1000000)*10000),r.staleValueCents>0,'与滞销库存货值为同一超库龄金额，不重复相加。'),
-      rfMetric('库存总量',fmt(r.totalUnits)+'件',r.slow,'仓内＋工厂＋新机未交付；近15日有销量且仓内库存÷近15日日均销量≥60天时入滞销榜。'),
+      rfMetric('库存总量',fmt(r.totalUnits)+'件',r.slow,'仓内＋工厂＋新机未交付；近15日净销量＞0且仓内库存÷近15日均净销量≥60天时入滞销榜。'),
       rfMetric('动销率',upPercent(r.warehouse+s.sales?s.sales/(r.warehouse+s.sales)*100:null),false,'期间销量÷（期间销量＋期末仓内库存）；阈值尚未确认，不单独判灯。')];
   }
   if(k===2) {

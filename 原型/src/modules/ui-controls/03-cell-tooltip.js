@@ -18,7 +18,7 @@ function uiHideCellTooltip(){
  uiTooltipCell=null;
 }
 function uiShowCellTooltip(cell){
- uiHideCellTooltip();if(cell.closest('#pp-ledger-popover,#lifecycle')||cell.querySelector('[data-pp-ledger]')||!uiCellClipped(cell))return;
+ uiHideCellTooltip();if(cell.closest('#pp-ledger-popover,#rp-pdd-links-popover,#lifecycle')||cell.querySelector('[data-pp-ledger]')||!uiCellClipped(cell))return;
  uiTooltipCell=cell;
  uiTooltipTimer=setTimeout(()=>{
   if(!cell.isConnected){uiHideCellTooltip();return}

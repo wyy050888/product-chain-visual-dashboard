@@ -6,6 +6,11 @@ function sdOpenDetail(id){
  openModal('店铺详情',`<article class="up-detail sd-detail" data-sd-shop="${esc(shop.shopId)}" data-up-tab="operating">${sdHero(shop)}<section data-up-panel="operating"></section><section data-up-panel="violations"></section><section data-up-panel="handling"></section></article>`,true,'');
  const root=$('.sd-detail');
  const paint=()=>{
+  drawerWithPeriod(state.period,()=>{
+   const current=sbAllShops().find(s=>s.id===shop.id)||shop,host=root.querySelector('[data-sd-scores]');
+   host.classList.toggle('sd-hero-link-counts',current.channel==='拼多多');
+   host.innerHTML=rpShopScoreMarkup(current,rpShopFields(current));
+  });
   const m=sdModel(shop,state);sdMountDiagnosis(root,m,state);root.querySelector('[data-up-panel="operating"]').innerHTML=sdOperating(m,state);sdMountProducts(root,m);sdMountViolations(root,m,state);
   upMountTodos(root,null,state,{list:()=>sdTodoList(m,state),create:()=>sdTaskBase(shop,state),departments:[...new Set(sdAssignees(shop).map(p=>p.department))]});
   root.dataset.start=state.start;root.dataset.end=state.end;drawerQueueRefresh();

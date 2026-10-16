@@ -1,6 +1,6 @@
 // 退货恶化榜复用经营台账和品质处罚事件；展示调整不改变入榜规则。
 const rpReturnCardKeys=['gsv','netSales','margin','return','received'];
-const rpReturnListKeys=['gsv','sales',...rpReturnCardKeys.slice(1),'fine','frozen','offShelf','season','productType'];
+const rpReturnListKeys=['gsv','sales',...rpReturnCardKeys.slice(1),'season','productType'];
 function rpReturnFields(record,current,previous){
  const product=upIdentity(record),w=upWindow(),platform=record.channel;
  const observed=qrObservation(upProduct(product),platform,w.start,w.end);
@@ -22,7 +22,7 @@ function rpReturnFields(record,current,previous){
  }
  const count=events.filter(e=>e.type==='下架').length,before=earlier.filter(e=>e.type==='下架').length;
  add('offShelf','链接下架',count+'次',count,'rp-quality-normal',rpQualityChange(count,before),rpQualityChangeTone(count,before),'所选期间品质原因下架次数，不合并掉权。'+compareHint);
- return [...fields,...rpQualityProductFields(record)];
+ return [...fields,...rpQualityProductFields(record)].map(field=>rpViolationField(field,platform));
 }
 function rpReturnCardColumns(){return '<div class="rp-quality-columns rp-return-columns">'+['GSV','去退后销量','利润率','总退','已收退'].map(name=>'<span>'+name+'</span>').join('')+'</div>'}
 function rpReturnCardEntry(record,index){return rpProductCardEntry(6,record,index,rpReturnCardKeys,'rp-return')}

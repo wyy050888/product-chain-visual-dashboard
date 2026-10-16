@@ -1,7 +1,7 @@
 // 身份、AI诊断和经营视图；渠道岗位只在店铺信息中按实际适用项展示。
 function sdHero(shop){
  const fields=[['店铺ID',shop.shopId],['平台',shop.channel],['品牌',shop.brand],['类目',pfCategory(shop)],['店铺类型',shop.shopCategory],...sdRoles(shop).map(r=>[r.role,r.department+'-'+r.name])];
- return `<header class="up-hero" data-product-summary>${riskThumbnail(shop.name,true)}<div><div class="up-product-heading"><h2>${esc(shop.name)}</h2>${rpPlatformMark(shop.channel)}</div><dl>${fields.map(([k,v])=>`<div><dt>${esc(k)}</dt><dd>${esc(v||'—')}</dd></div>`).join('')}</dl></div><section class="up-ai-summary" aria-label="店铺AI诊断"></section></header>`;
+ return `<header class="up-hero" data-product-summary>${riskThumbnail(shop.name,true)}<div><div class="up-product-heading"><h2>${esc(shop.name)}</h2>${rpPlatformMark(shop.channel)}</div><dl>${fields.map(([k,v])=>`<div><dt>${esc(k)}</dt><dd>${esc(v||'—')}</dd></div>`).join('')}</dl></div><aside class="sd-hero-scores rp-shop-scores" data-sd-scores aria-label="店铺评分与链接风险"></aside><section class="up-ai-summary" aria-label="店铺AI诊断"></section></header>`;
 }
 // 只对有依据的风险、相对短板和行动主体着色；数值含义及正文保持不变。
 function sdDiagnosisMarkup(value,m,a,actions=false){

@@ -6,7 +6,7 @@ function dpDepartmentName(){return dpDepartment}
 const DP_KEY='product-department-dbs-reference-20261010';
 let dpStore={version:1,tasks:[],audit:[],weights:[20,15,15,10,12,10,8,10],overrides:{},newTargets:[60,55,45,35],marginTarget:12,workItems:[],priorities:{},productStates:{}};
 try{const saved=JSON.parse(localStorage.getItem(DP_KEY)||'null');if(saved?.version===1&&Array.isArray(saved.tasks)&&Array.isArray(saved.audit))dpStore={...dpStore,...saved}}catch(_){}
-const dpModules=[['risk','产品部高危预警','风险预警'],['ai','产品部 AI 全局智能诊断','AI 总诊断'],['management','部门全局管理','部门管理'],['sales','销售达成管控','销售达成'],['projects','产品红绿灯管控','项目进度'],['lifecycle','产品全生命周期管控','产品生命周期'],['new','新品专项管控','新品专项'],['matrix','关键产品管控','关键产品'],['inventory','全品类 & 全品牌库存管控','库存管控']];
+const dpModules=[['risk','产品部高危预警','风险预警'],['ai','产品部 AI 全局智能诊断','AI 总诊断'],['management','部门全局管理','部门管理'],['sales','销售达成管控','销售达成'],['projects','产品红绿灯管控','项目进度'],['lifecycle','产品全生命周期管控','产品生命周期'],['new','新品专项管控','新品专项'],['matrix','关键产品管控','关键产品'],['inventory','全品类库存管控','库存管控']];
 const dpState={chain:'all',role:'manager',view:'director',global:{...globalPeriod},periods:{},tab:{management:'score',ai:'blocks',sales:'chain',projects:'红灯',projectPhase:'all',life:0,lifeView:'summary',channelView:'channel',matrix:'B',inventory:'chain',tasks:'all',doc:0},filters:{},pages:{}};
 const dpColors=['#8981f8','#f1b663','#65b7d9','#ee8996','#a8b0c5'];
 const dpChannelNames=['兴趣电商','天猫','京东','拼多多','TK','亚马逊 & 其他跨境','线下渠道'];

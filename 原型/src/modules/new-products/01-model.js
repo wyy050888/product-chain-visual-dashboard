@@ -14,7 +14,7 @@ function nspRows(){
  const b=bounds(),days=aiFlowDayDiff(b.start,b.cutoff)+1,previousEnd=shiftDate(b.start,-1),previousStart=shiftDate(b.start,-days);
  const successPeriod=nspSuccessPeriod();
  // 库存与产品详情共用最新公司快照和全平台近15日均净销量，不按渠道分摊。
- const stockBySpu=upWithRange({start:shiftDate(DATA_CUTOFF,-29),end:DATA_CUTOFF},()=>new Map(inventoryProductLedger().map(r=>[r.spuId,r.num])));
+ const stockBySpu=upWithRange({start:shiftDate(DATA_CUTOFF,-29),end:DATA_CUTOFF},()=>new Map(inventoryProductLedger().map(r=>[r.spuId,upStockFacts(r)])));
  return newLaunchFacts(productRows(true)).filter(p=>p.actualLaunch<=b.cutoff).map(p=>{
   const identity=upIdentity(p),current=upSummary(identity,b.start,b.cutoff,'all'),previous=upSummary(identity,previousStart,previousEnd,'all');
   const channelFacts=qrPlatforms.map(channel=>{
@@ -26,7 +26,7 @@ function nspRows(){
   const successAssessment=nspSuccessFact(p,successPeriod);
   const successQuarters=nspSuccessfulQuarters(p,b.cutoff);
   const poolExitDate=nspPoolExitDate(successQuarters),inNewPool=nspIsInPool(poolExitDate,b.cutoff);
-  const sellableStock=upSellableStock(identity,stockBySpu.get(p.spuId)??null,DATA_CUTOFF);
+  const stock=stockBySpu.get(p.spuId),sellableStock=upSellableStock(identity,stock?.warehouse??null,DATA_CUTOFF,stock?.totalUnits??null);
   // 延期按实际上线日与计划日比较，不受当前统计季度影响。
   const launchDelayDays=Math.max(0,aiFlowDayDiff(p.plannedLaunch,p.actualLaunch));
   return {...p,category:pfCategory(p),current,previous,channelFacts,salesChannels,grade:nspGrade(current),successAssessment,successQuarters,sellableStock,

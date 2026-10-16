@@ -1,0 +1,25 @@
+.editor-combo { display: block; position: relative; min-width: 0; width: 100%; }
+.editor-combo > input { width: 100%; height: 36px; border: 1px solid #d8e0eb; border-radius: 5px; padding: 0 30px 0 10px; background: #fff; color: #26364e; font-size: 13px; }
+.editor-combo > input::-webkit-calendar-picker-indicator { display: none !important; }
+.editor-combo-arrow { position: absolute; right: 12px; top: calc(50% - 4px); width: 6px; height: 6px; border-right: 1.5px solid #71829a; border-bottom: 1.5px solid #71829a; transform: rotate(45deg); font-size: 0; pointer-events: none; }
+.edit-scope-select { display: inline-block; padding: 0; border: 0; }
+#editScope .editor-combo { width: 150px; }
+#editScope .editor-combo > input { height: 32px; font-size: 12px; }
+#drawer .dialog-heading > div:has(.editor-combo) { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+#drawer #editScope:has(.editor-combo) { margin: 0; }
+.editor-combo-list { position: fixed; z-index: 10; overflow-y: auto; overscroll-behavior: contain; padding: 4px; background: #fff; border: 1px solid #d8e0eb; border-radius: 6px; box-shadow: 0 6px 20px #26364e24; box-sizing: border-box; }
+.editor-combo-option { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 4px; cursor: pointer; min-width: 0; }
+.editor-combo-option:hover, .editor-combo-option.active { background: #edf3ff; }
+.editor-option-copy { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.editor-option-name { font-size: 13px; line-height: 1.5; color: #26364e; overflow-wrap: anywhere; }
+.editor-option-copy small { font-size: 11px; line-height: 1.4; color: #8b98ab; }
+.channel-icon { width: 22px; height: 22px; object-fit: contain; flex: 0 0 22px; }
+.editor-combo-empty { padding: 18px 12px; font-size: 13px; color: #8b98ab; text-align: center; }
+.edit-unit-input { display: flex; align-items: center; border: 1px solid #d8e0eb; border-radius: 5px; background: #fff; overflow: hidden; }
+.edit-unit-input:focus-within { outline: 2px solid #9cbafa; outline-offset: 2px; }
+.edit-field .edit-unit-input input { min-width: 0; border: 0; border-radius: 0; outline: none; }
+.edit-unit-input > span { align-self: stretch; display: flex; align-items: center; justify-content: center; min-width: 36px; border-left: 1px solid #e4eaf2; background: #f7f9fc; color: #67788e; }
+.edit-unit-input:has([aria-invalid="true"]) { border-color: #e06168; }
+
+.editor-combo-group { padding: 8px 10px 5px; color: #8995a6; font-size: 12px; font-weight: 500; }
+.editor-combo-option + .editor-combo-group { margin-top: 4px; border-top: 1px solid #edf0f5; }

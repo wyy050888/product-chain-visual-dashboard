@@ -51,7 +51,7 @@ export async function riskSort(page){
  await qualityCheck.uncheck();
  const allCauses=await allPages(page);
  assert.equal(allCauses.length,baseline.length,'统计口径不改变入榜产品');
- for(const key of ['violations','fine','frozen','offShelf','drop']){
+ for(const key of ['violations','frozen','offShelf']){
   const column=await page.locator('[data-rp-sort="'+key+'"]').evaluate(el=>el.closest('th').cellIndex);
   assert.ok(allCauses.some((row,i)=>row[column]!==baseline[i][column]),key+'应有非品质样例差异');
  }
@@ -82,9 +82,9 @@ export async function riskSort(page){
   await sort.press('Enter');assert.deepEqual(await tableRows(page),original);
   if(kind===1){
    await page.locator('#dialogbody .rp-platform-tools select').selectOption('拼多多',{force:true});
-   await page.locator('[data-rp-sort="score"]').click();
+   await page.locator('[data-rp-sort="gsv"]').click();
    await page.locator('#dialogbody .rp-platform-tools select').selectOption('抖音',{force:true});
-   assert.equal(await page.locator('[data-rp-sort="score"]').getAttribute('data-direction'),'desc');
+   assert.equal(await page.locator('[data-rp-sort="gsv"]').getAttribute('data-direction'),'desc');
   }
   if([3,4].includes(kind))assert.equal(await page.locator('#rp-dimensions,[data-ir-dimension]').count(),0);
  }

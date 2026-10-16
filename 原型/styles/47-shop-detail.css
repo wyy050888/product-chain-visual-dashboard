@@ -21,3 +21,29 @@
 .sd-detail [data-sd-violation-table] table{min-width:1400px}.sd-detail [data-sd-violation-table] td{line-height:1.7;vertical-align:top}
 .sd-violation-cell{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;white-space:pre-line;min-width:85px;max-width:230px}
 @media(max-width:700px){#dialogbody .sd-operating-overview{grid-template-columns:1fr}.sd-detail .sd-violation-stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}.sd-detail .up-hero>div{min-width:0}}
+
+/* 顶部右侧评分与卡片取数、配色一致；拼多多替换为两类链接风险。 */
+#dialogbody .sd-hero-scores{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;flex:none;width:260px;max-width:100%;margin-left:auto;align-self:center;text-align:center}
+#dialogbody .sd-hero-scores>div{min-width:0}
+#dialogbody .sd-hero-scores small{display:block;margin-bottom:6px;color:#8390a5;font-size:12px;line-height:18px;white-space:nowrap}
+#dialogbody .sd-hero-scores strong{display:block;font-size:18px;font-weight:500;line-height:24px;font-variant-numeric:tabular-nums}
+#dialogbody .sd-hero-scores .rp-quality-normal{color:#52657d}
+#dialogbody .sd-hero-scores .rp-quality-green{color:#00a486}
+#dialogbody .sd-hero-scores .rp-quality-yellow{color:#ffb518}
+#dialogbody .sd-hero-scores .rp-quality-red{color:#ff3157}
+#dialogbody .sd-hero-scores .rp-quality-gray{color:#8693a4}
+#dialogbody .sd-hero-scores.sd-hero-link-counts{grid-template-columns:repeat(2,minmax(0,1fr));width:240px}
+#dialogbody .sd-hero-scores .rp-pdd-count{min-width:72px;padding:8px;cursor:default}
+#dialogbody .sd-hero-scores .rp-pdd-count>span{font-size:12px;white-space:nowrap}
+@media(max-width:700px){#dialogbody .sd-hero-scores,#dialogbody .sd-hero-scores.sd-hero-link-counts{width:100%;flex-basis:100%;margin-left:0;gap:12px}}
+
+/* 链接明细在违规记录下完整展开，窄屏仅在表格内部横向滚动。 */
+.sd-detail .sd-pdd-links{min-width:0;margin:28px 0 0;scroll-margin-top:70px}
+.sd-detail .sd-pdd-links .rp-pdd-link-scroll{overflow:auto;border:1px solid #e5ebf6;border-radius:5px}
+.sd-detail .sd-pdd-links[data-sd-link-tone="red"] h4{color:#d2445b}
+.sd-detail .sd-pdd-links[data-sd-link-tone="yellow"] h4{color:#c58b18}
+@media(max-width:600px){.sd-detail .sd-pdd-links .rp-pdd-popover-heading{align-items:flex-start;flex-direction:column;gap:4px}}
+
+#dialogbody .sd-detail .sd-pdd-links table{width:100%!important;min-width:1120px!important;max-width:none!important;table-layout:fixed!important}
+#dialogbody .sd-detail .sd-pdd-links :is(th,td){width:auto;padding:11px 10px;white-space:normal;overflow-wrap:anywhere}
+#dialogbody .sd-detail .sd-pdd-links th:first-child{width:260px}

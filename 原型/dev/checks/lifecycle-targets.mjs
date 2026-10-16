@@ -9,80 +9,62 @@ export async function lifecycleTargets(page){
   const values=Array.from({length:3},(_,m)=>ctx.ltMonthValue(total,m+1));
   assert.equal(values.reduce((a,b)=>a+b,0),total);assert(values.every(Number.isInteger));assert(values[0]>=values[1]&&values[1]>=values[2]);assert(values[0]-values[2]<=1);
  }
- for(const value of [null,'none','draft'])assert.equal(ctx.ltMonthValue(value,10),value);
- assert.equal(ctx.ltAggregate([0,0]).state,'complete');assert.equal(ctx.ltAggregate([null,0]).state,'partial');assert.equal(ctx.ltAggregate(['none','none']).state,'none');
- assert.equal(ctx.ltTargetFor(5,[0,1,2,3,4],{year:2026,mode:'quarter',value:4}).value,34,'品质整改合计包含新老品');
- assert.equal(ctx.ltTargetFor(6,[0,1,2,3,4],{year:2026,mode:'year',value:1}).state,'none');
+ assert.equal(ctx.ltAggregate([0,0]).state,'missing');assert.equal(ctx.ltAggregate([0,5]).state,'partial');assert.equal(ctx.ltAggregate([3,5]).value,8);
+ assert.equal(ctx.ltTargetFor(0,[0,1,2,3,4],{year:2026,mode:'month',value:10}).value,28);
+ assert.equal(ctx.ltTargetFor(5,[0,1,2,3,4],{year:2026,mode:'month',value:10}).value,30,'品质整改合计包含新老品');
+ assert.equal(ctx.ltTargetFor(6,[0,1,2,3,4],{year:2026,mode:'year',value:1}).value,276);
  assert.equal(ctx.ltTargetFor(0,[0,1,2,3,4],{year:2027,mode:'year',value:1}).state,'missing');
+ const grid=vm.runInContext('ltEmptyGrid()',ctx);grid[0][0]=[1,0,0,0];
+ assert.equal(ctx.ltTargetFor(0,[0],{year:2026,mode:'quarter',value:1},false,grid).state,'complete','季度已配置时不把月度拆分中的0当作缺失季度');
+ assert.equal(ctx.ltTargetFor(0,[0],{year:2026,mode:'month',value:2},false,grid).state,'missing','月份目标0显示未配置');
+ grid[0][0]=[9,'none',null,'draft'];
+ const legacy=vm.createContext({localStorage:{getItem:()=>JSON.stringify({version:1,years:{2026:{values:grid,revision:2}}})}});vm.runInContext(sources,legacy);
+ assert.deepEqual(Array.from(vm.runInContext('ltYearValues(2026)[0][0]',legacy)),[9,0,0,0],'旧数值保留，旧状态转换为未配置0');
  const audit=()=>page.evaluate(()=>lifecycleTargetsAudit());
+ const open=()=>page.locator('#lt-system-nav').click();
+ const back=async()=>{await page.locator('#chain-menu-trigger').click();await page.locator('#chain-menu').getByRole('menuitem',{name:'总看板',exact:true}).click()};
  await page.evaluate(()=>localStorage.removeItem('lifecycle-quarter-targets-v1'));await page.reload();
- const actuals=(await audit()).dashboard.map(d=>[d.actual,d.yearActual]);
- const expectedActuals=(await audit()).legacyActuals;
- assert.deepEqual(actuals,expectedActuals,'目标来源变化不改变原有实际完成台账');
+ const actuals=(await audit()).dashboard.map(d=>[d.actual,d.yearActual]);assert.deepEqual(actuals,(await audit()).legacyActuals);
+ assert((await audit()).dashboard.every(d=>d.targetMeta.state==='complete'));
  await page.locator('#lt-open-targets').evaluate(el=>el.click());
  assert.equal(await page.evaluate(()=>location.hash),'#system-lifecycle-targets');assert(await page.locator('main.page').isHidden());
  assert.equal(await page.locator('#lt-system-nav').getAttribute('aria-current'),'page');
- assert(await page.locator('#lt-system-nav').evaluate(e=>e.getBoundingClientRect().right<=e.parentElement.getBoundingClientRect().right+1),'系统管理入口完整可见');
- assert.equal(await page.locator('#lt-table tbody tr').count(),9);
- assert.equal(await page.locator('[data-lt-number="0:0"]').inputValue(),'9');assert.equal(await page.locator('[data-lt-number="0:3"]').inputValue(),'0');
- assert.equal(await page.locator('[data-lt-state="1:0"]').inputValue(),'none');assert.equal(await page.locator('[data-lt-state="1:3"]').inputValue(),'draft');
- assert.equal(await page.locator('#lt-system .metric-help').count(),0);
- await page.locator('[data-lt-number="0:3"]').fill('8');
- await page.locator('[data-lt-view="month"]').click();
- let row=page.locator('#lt-table tbody tr').first();assert.deepEqual(await row.locator('td').allTextContents(),['3','3','3','5','5','4','2','2','1','3','3','2','36']);
- await page.locator('[data-lt-view="annual"]').click();assert.equal(await page.locator('#lt-categories').isVisible(),false);assert.equal(await page.locator('#lt-table tbody tr').first().locator('td').first().innerText(),'36');
- await page.locator('[data-lt-view="quarter"]').click();await page.locator('[data-lt-category="2"]').click();
- await page.locator('[data-lt-state="0:3"]').selectOption('target');await page.locator('[data-lt-number="0:3"]').fill('5');
- await page.locator('[data-lt-category="0"]').click();
+ assert.equal(await page.locator('#lt-table tbody tr').count(),9);assert.equal(await page.locator('#lt-table input[type=number]').count(),36);
+ assert.equal(await page.locator('#lt-save,#lt-table select,#lt-view,#lt-updated,#lt-dirty,#lt-return,#lt-discard,.lt-breadcrumb,#lt-system h1').count(),0);
+ assert.deepEqual(await page.locator('#lt-table thead th').allTextContents(),['计划','Q1','Q2','Q3','Q4','年度目标']);
+ const input=page.locator('[data-lt-number="0:3"]');
+ assert.equal(await input.inputValue(),'18');assert.equal(await page.locator('[data-lt-row-total="0"]').innerText(),'72');
+ await input.fill('20');
+ assert.equal(await page.locator('[data-lt-row-total="0"]').innerText(),'74');
+ assert.equal((await audit()).saved.years[2026].values[0][0][3],20,'输入时即生效，无须失焦或保存');
+ assert.equal((await audit()).dashboard[0].target,29);assert(await input.evaluate(e=>e===document.activeElement));
+ assert.match(await page.locator('#lifecards .lifecard').first().innerText(),/8 \/ 29/,'隐藏的看板同步刷新');
  for(const invalid of ['-1','1.5','100000']){
-  await page.locator('[data-lt-number="0:3"]').fill(invalid);await page.locator('#lt-save').click();
-  assert.match(await page.locator('#lt-error').innerText(),/整数/);assert((await audit()).dirty.includes(2026));
+  await input.fill(invalid);assert.match(await page.locator('#lt-error').innerText(),/整数/);
+  assert.equal((await audit()).saved.years[2026].values[0][0][3],20,'非法输入不能覆盖已生效目标');
  }
- // 切换类目仍能定位另一类目的非法值，且保留其他输入。
- await page.locator('[data-lt-category="1"]').click();await page.locator('#lt-save').click();assert.equal((await audit()).category,0);assert.equal(await page.locator('[data-lt-number="0:3"]').inputValue(),'100000');
- await page.locator('[data-lt-number="0:3"]').fill('8');
- await page.locator('#lt-year').selectOption('2027');assert.equal(await page.locator('[data-lt-state="0:0"]').inputValue(),'missing');
- await page.locator('[data-lt-state="0:0"]').selectOption('target');await page.locator('[data-lt-number="0:0"]').fill('11');
- await page.locator('#lt-year').selectOption('2026');assert.equal(await page.locator('[data-lt-number="0:3"]').inputValue(),'8');
- // 本地保存失败不更新生效数据，也不丢弃草稿。
+ await input.fill('21');assert.equal(await page.locator('#lt-error').innerText(),'');
+ await page.locator('[data-lt-category="1"]').click();await page.locator('[data-lt-category="0"]').click();assert.equal(await input.inputValue(),'21');
+ await page.locator('#lt-year').selectOption('2027');
+ assert.equal(await page.locator('[data-lt-number="0:0"]').inputValue(),'0');
+ await page.locator('[data-lt-number="0:0"]').fill('11');assert.equal((await audit()).saved.years[2027].values[0][0][0],11);
+ await page.locator('#lt-year').selectOption('2026');assert.equal(await page.locator('[data-lt-number="0:0"]').inputValue(),'17','切换年份不能把上一年输入写入新年份');await input.fill('20');
  await page.evaluate(()=>{window.ltNativeSet=Storage.prototype.setItem;Storage.prototype.setItem=function(key,value){if(key==='lifecycle-quarter-targets-v1')throw Error('blocked');return ltNativeSet.call(this,key,value)}});
- await page.locator('#lt-save').click();assert.match(await page.locator('#lt-error').innerText(),/保存失败/);assert.equal((await audit()).saved.years[2026].values[0][0][3],0);
+ await input.fill('24');assert.match(await page.locator('#lt-error').innerText(),/自动保存失败/);assert.equal((await audit()).saved.years[2026].values[0][0][3],20);assert.equal((await audit()).dashboard[0].target,29);
  await page.evaluate(()=>{Storage.prototype.setItem=window.ltNativeSet;delete window.ltNativeSet});
- await page.locator('#lt-save').click();let state=await audit();assert.deepEqual(state.dirty,[]);assert.equal(state.saved.years[2027].values[0][0][0],11);
- assert.equal(state.dashboard[0].target,9);assert.deepEqual(state.dashboard.map(d=>[d.actual,d.yearActual]),actuals);
- await page.reload();assert(await page.locator('#lt-system').isVisible());assert.equal(await page.locator('[data-lt-number="0:3"]').inputValue(),'8');
- // 未保存离开：继续、放弃、保存三个入口均有真实结果。
- await page.locator('[data-lt-number="0:3"]').fill('9');await page.locator('#lt-return').click();await page.locator('#lt-stay').click();assert.equal(await page.locator('[data-lt-number="0:3"]').inputValue(),'9');
- await page.locator('#lt-discard').click();assert.equal(await page.locator('[data-lt-number="0:3"]').inputValue(),'8');
- await page.locator('[data-lt-number="0:3"]').fill('9');await page.locator('#lt-return').click();await page.locator('#lt-leave-discard').click();assert(await page.locator('#lt-system').isHidden());
- assert.equal(await page.locator('#lifetable tbody tr[data-life-summary] td').nth(1).innerText(),'9');
- assert.deepEqual((await page.evaluate(()=>dashboardLifecycleSnapshot())).summary.actual,actuals[0][0]);
- await page.locator('#lt-system-nav').click();await page.locator('[data-lt-number="0:3"]').fill('11');await page.locator('#lt-return').click();await page.locator('#lt-leave-save').click();
- assert.equal(await page.locator('#lifetable tbody tr[data-life-summary] td').nth(1).innerText(),'10');
- await page.locator('#lt-system-nav').click();await page.locator('[data-lt-number="0:3"]').fill('12');
- await page.goBack();await page.locator('#lt-stay').click();assert(await page.locator('#lt-system').isVisible());assert.equal(await page.locator('[data-lt-number="0:3"]').inputValue(),'12');
- await page.locator('#lt-discard').click();
- for(const width of [1920,1280,600]){
-  await page.setViewportSize({width,height:1080});assert(await page.locator('#lt-system').evaluate(e=>e.scrollWidth<=innerWidth+1),'系统页不横向溢出');
- }
- await page.setViewportSize({width:1920,height:1080});
- await page.screenshot({path:fileURLToPath(new URL('../../outputs/lifecycle-target-quarter.png',import.meta.url))});
- await page.locator('[data-lt-view="month"]').click();await page.screenshot({path:fileURLToPath(new URL('../../outputs/lifecycle-target-month.png',import.meta.url))});
- await page.locator('[data-lt-view="annual"]').click();await page.screenshot({path:fileURLToPath(new URL('../../outputs/lifecycle-target-annual.png',import.meta.url))});
- // 工作台菜单切换后可再次进入目标页，返回始终落到总看板。
- await page.locator('#chain-menu-trigger').click();await page.locator('#chain-menu').getByRole('menuitem',{name:'产品中心',exact:true}).click();assert(await page.locator('#lt-system').isHidden());assert(await page.locator('#department-view').isVisible());
- await page.locator('#lt-system-nav').click();await page.goBack();assert(await page.locator('#department-view').isVisible());assert(await page.locator('#lt-system').isHidden());await page.locator('#lt-system-nav').click();await page.locator('#lt-return').click();assert(await page.locator('#department-view').isHidden());assert(await page.locator('main.page').isVisible());
- // 月、季、年看板都读取同一配置，所有计划的实际数继续来自原完成台账。
- for(const mode of ['month','quarter','year']){
-  await page.locator(`#time-lifecycle [data-time-mode="${mode}"]`).click();
-  for(let stage=0;stage<8;stage++){
-   await page.locator('#lifecards .lifecard').nth(stage).click();
-   const snapshot=await audit(),data=snapshot.dashboard[stage],cells=page.locator('#lifetable [data-life-summary] td');
-   assert.equal(await cells.nth(2).locator('button').evaluate(e=>e.firstChild.textContent.trim()),data.actual.toLocaleString('zh-CN'));
-   assert.deepEqual([data.actual,data.yearActual],snapshot.legacyActuals[stage]);
-   if(data.targetMeta.state==='complete')assert.equal(await cells.nth(1).innerText(),data.target.toLocaleString('zh-CN'));
-   else{assert.match(await cells.nth(1).innerText(),new RegExp(data.targetMeta.label));assert.equal(await cells.nth(3).innerText(),'—')}
-  }
- }
+ await input.fill('24');assert.equal((await audit()).saved.years[2026].values[0][0][3],24);assert.equal((await audit()).dashboard[0].target,30);
+ assert.deepEqual((await audit()).dashboard.map(d=>[d.actual,d.yearActual]),actuals);
+ await page.reload();assert(await page.locator('#lt-system').isVisible());assert.equal(await input.inputValue(),'24');assert.equal((await audit()).saved.years[2026].values[0][0][0],17);assert.equal((await audit()).saved.years[2027].values[0][0][0],11);
+ await input.fill('');assert.equal((await audit()).saved.years[2026].values[0][0][3],0);assert.equal((await audit()).dashboard[0].targetMeta.state,'partial');
+ await page.locator('[data-lt-number="0:2"]').focus();assert.equal(await input.inputValue(),'0');
+ await back();assert(await page.locator('#lt-system').isHidden());assert(await page.locator('#overlay').isHidden());
+ assert.match(await page.locator('#lifecards .lifecard').first().innerText(),/未配置/);
+ await open();await input.fill('20');await back();assert(await page.locator('#overlay').isHidden());assert.equal((await audit()).dashboard[0].target,29);
+ await open();await input.fill('21');await page.goBack();assert(await page.locator('#lt-system').isHidden());assert(await page.locator('#overlay').isHidden());assert.equal((await audit()).saved.years[2026].values[0][0][3],21);
+ await open();
+ for(const width of [1920,1280,600]){await page.setViewportSize({width,height:1080});assert(await page.locator('#lt-system').evaluate(e=>e.scrollWidth<=innerWidth+1));assert.equal(await page.locator('#lt-save').count(),0);}
+ await page.setViewportSize({width:1920,height:1080});await page.screenshot({path:fileURLToPath(new URL('../../outputs/lifecycle-target-auto-apply.png',import.meta.url))});
+ await back();
+ for(const mode of ['month','quarter','year']){await page.locator(`#time-lifecycle [data-time-mode="${mode}"]`).click();for(let stage=0;stage<8;stage++){await page.locator('#lifecards .lifecard').nth(stage).click();const snapshot=await audit(),data=snapshot.dashboard[stage],cells=page.locator('#lifetable [data-life-summary] td');assert.deepEqual([data.actual,data.yearActual],snapshot.legacyActuals[stage]);if(data.targetMeta.state==='complete')assert.equal(await cells.nth(1).innerText(),data.target.toLocaleString('zh-CN'));else{assert.equal(await cells.nth(1).innerText(),'未配置');assert.equal(await cells.nth(3).innerText(),'—')}}}
  await page.evaluate(()=>localStorage.removeItem('lifecycle-quarter-targets-v1'));await page.reload();
 }

@@ -1,0 +1,20 @@
+#historyDateTrigger { display: flex; align-items: center; justify-content: space-between; gap: 8px; background: #fff; color: #93a0b3; cursor: pointer; text-align: left; padding: 0 10px; }
+#historyDateTrigger.has-value { color: #526780; }
+#historyDateText { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#historyDateTrigger svg { flex-shrink: 0; }
+#historyDatePanel { position: fixed; z-index: 8; width: min(570px,calc(100vw - 16px)); max-height: calc(100dvh - 16px); overflow: auto; padding: 12px; background: #fff; border: 1px solid #dce5f2; border-radius: 6px; box-shadow: 0 8px 28px #21365326; color: #526780; font-size: 12px; }
+.range-heading { display: flex; gap: 6px; align-items: center; padding-bottom: 10px; border-bottom: 1px solid #edf1f7; }
+.range-heading > span { flex: 1; text-align: center; }
+.range-heading > button { border: 0; background: transparent; color: #647b9c; width: 26px; height: 26px; cursor: pointer; font-size: 18px; }
+.range-months { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 20px; }
+.range-month h3 { text-align: center; font-size: 13px; font-weight: 500; margin: 12px 0; }
+.range-days { display: grid; grid-template-columns: repeat(7,minmax(0,1fr)); gap: 3px 0; }
+.range-days > span { text-align: center; line-height: 26px; color: #93a0b3; }
+.range-days > button { border: 0; background: #fff; height: 30px; font-size: 12px; color: #526780; cursor: pointer; }
+.range-days > button:hover { background: #edf3ff; color: #2e65ef; }
+.range-days > button.in-range { background: #edf3ff; color: #2e65ef; }
+.range-days > button.selected { background: #2e65ef; color: #fff; border-radius: 4px; }
+#historyDatePanel footer { display: flex; gap: 10px; align-items: center; padding-top: 12px; margin-top: 12px; border-top: 1px solid #edf1f7; }
+#historyDatePanel footer .text-link { margin-right: auto; }
+#historyDatePanel footer .btn { font-size: 12px; height: 28px; }
+@media(max-width:600px) { .range-months { grid-template-columns: minmax(0,1fr); } .range-month:nth-child(2) { display: none; } }

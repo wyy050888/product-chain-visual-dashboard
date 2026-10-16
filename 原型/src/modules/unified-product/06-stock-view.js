@@ -1,10 +1,10 @@
 const upStockRiskBadges={
  shortage:{label:'缺货',path:'<path d="m3 8 8-4 8 4v11l-8 4-8-4Z"/><path d="m3 8 8 4 8-4M11 12v5"/><path d="M11 20h.01"/>'},
  transfer:{label:'调货',path:'<path d="M4 8h16l-4-4M20 16H4l4 4"/><path d="M20 8v3M4 16v-3"/>'},
- stagnant:{label:'呆滞',path:'<path d="m3 7 7-3 7 3-7 3-7-3Zm0 0v10l5 2M10 10v4"/><circle cx="17" cy="17" r="6"/><path d="M17 14v3l2 1"/>'}
+ stagnant:{label:'滞销',path:'<path d="m3 7 7-3 7 3-7 3-7-3Zm0 0v10l5 2M10 10v4"/><circle cx="17" cy="17" r="6"/><path d="M17 14v3l2 1"/>'}
 };
-function upStockBadges(product){
- const tags=upStockRiskTags(product);
+function upStockBadges(model){
+ const tags=upStockRiskTags(model);
  if(!tags.length)return '';
  return `<div class="up-stock-risk" aria-label="库存风险">${tags.map(key=>{const badge=upStockRiskBadges[key];return `<span class="up-stock-risk-tag ${key}" data-stock-risk="${key}"><span class="up-stock-risk-icon"><svg viewBox="0 0 26 26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${badge.path}</svg></span><span>${badge.label}</span></span>`}).join('')}</div>`;
 }
@@ -24,9 +24,9 @@ function upStockCard(title,items,chart=''){
 function upStockView(m,state){
  const model=upStockModel(m,state);if(!model)return '<div class="up-empty">暂无库存台账</div>';
  const value=key=>{const column=upStockColumns.find(c=>c[0]===key);return column[2](model[key])};
- return `<div class="up-stock-heading"><h3>库存指标</h3>${upStockBadges(m.product)}</div>
+ return `<div class="up-stock-heading"><h3>库存指标</h3>${upStockBadges(model)}</div>
  <div class="up-stock-cards">${[
-  upStockCard('总库存',[['总库存',value('totalUnits')],['货值（总库存）',value('goodsValueCents')]]),
+  upStockCard('总库存',[['总库存',value('totalUnits')],['总可售天数',Number.isFinite(model.totalCoverage15)?fmt(model.totalCoverage15,1)+'天':'—'],['货值（总库存）',value('goodsValueCents')]]),
   upStockCard('我司可售',[['可售库存',value('warehouse')],['可售天数',value('coverage15')]],upStockDonut(model)),
   upStockCard('工厂可售库存',[['工厂可售库存',value('factoryAvailable')],['工厂总库存',value('factory')]]),
   upStockCard('近15日均净销量',[['日均净销量',value('dailyNet15')]]),

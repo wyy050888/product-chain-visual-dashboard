@@ -14,10 +14,6 @@
 .ui-natural-period button:disabled{color:#d2d7df!important;background:transparent!important;cursor:default}
 .ui-natural-period .ui-period-prev-month,.ui-natural-period .ui-period-next-month{position:absolute;top:12px;width:25px;height:30px;border-radius:4px;font-size:20px;z-index:1}
 .ui-natural-period .ui-period-prev-month{left:9px}.ui-natural-period .ui-period-next-month{right:9px}
-.ui-natural-period .ui-period-footer{display:flex;align-items:center;gap:12px;padding:10px 14px;border-top:1px solid #edf1f6}
-.ui-natural-period .ui-period-footer>span{flex:1;min-width:0;font-size:11px;color:#8391a5;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.ui-natural-period .ui-period-footer [data-natural-confirm]{padding:6px 14px;border-radius:4px;background:#1677ff;color:#fff;font-size:12px;white-space:nowrap}
-.ui-natural-period .ui-period-footer [data-natural-confirm]:hover{background:#0969e6}
 #projects.pp-main .pp-event-date-control{position:relative;margin-bottom:8px}
 #projects.pp-main .pp-event-date-control .pp-event-period{margin:0;gap:8px;padding-right:42px;justify-content:flex-start}
 #projects.pp-main .pp-event-date-control .pp-event-date-value{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#8594ad}

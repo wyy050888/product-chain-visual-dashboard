@@ -28,11 +28,11 @@ function sampleShopRows() {
     const score=s.referenceScore??4.65;
     // 店铺分类由名称演示映射；考核标记为独立交互样例，不等同于核心店铺。
     const shopCategory=/自营/.test(s.name)?'自营店':/旗舰店/.test(s.name)?'旗舰店':/专卖店/.test(s.name)?'专卖店':/C店/.test(s.name)?'C店':'其他';
-    return {...s,id,shopCategory,assessed:id%3!==1,channel:platforms[id],owner:people[id%people.length],model:s.shopId,score,
+    return shcApplyConfig({...s,id,shopCategory,assessed:id%3!==1,channel:platforms[id],owner:people[id%people.length],model:s.shopId,score,
       productScore:[4.3,4.8,4.9,4.4,4.2,3.1,3.3,3.2,4.9,3.5][id],logisticsScore:[4.4,4.8,4.9,4.2,4.3,3.4,3.6,3.5,4.9,3.6][id],
       serviceScore:[4.2,4.9,4.8,4.1,4.4,3.2,3.5,3.4,4.8,3.5][id],
       mainProducts:(products.length?products:sampleSpus.filter(p=>p.brand===s.brand)).slice(0,2).map(p=>p.name).join('、')||'—',
-      value:fmt(score,2)+' 分',metric:score,risks:[],desc:''};
+      value:fmt(score,2)+' 分',metric:score,risks:[],desc:''});
   });
 }
 window.referenceSampleAudit=()=>({spus:sampleSpus.map(p=>({...p})),shops:sampleShops.map(p=>({...p})),projects:sampleProjectRows(),products:withPeriod('matrix',()=>productRows(false)),newProducts:withPeriod('new',()=>productRows(true)),inventory:withPeriod('inventory',()=>inventoryProductLedger()),quality:withPeriod('risk',()=>qrCatalog()),returns:withPeriod('risk',()=>rrAll())});

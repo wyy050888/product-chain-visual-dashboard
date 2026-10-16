@@ -56,6 +56,10 @@
       "module": "周期样例数据"
     },
     {
+      "file": "src/modules/shop-config/01-model.js",
+      "module": "店铺分类与考核配置模型"
+    },
+    {
       "file": "src/modules/sample-reference/01.js",
       "module": "参考样例适配"
     },
@@ -292,6 +296,10 @@
       "module": "非品质违规样例"
     },
     {
+      "file": "src/modules/quality-monthly/00-contact.js",
+      "module": "进线工单分类与百分点判定"
+    },
+    {
       "file": "src/modules/quality-monthly/01.js",
       "module": "品质月度规则"
     },
@@ -309,7 +317,15 @@
     },
     {
       "file": "src/modules/inventory-period/01.js",
-      "module": "库存周期指标"
+      "module": "库存交付与翻新日期台账"
+    },
+    {
+      "file": "src/modules/inventory-period/02-rules.js",
+      "module": "库存指标判灯与问号提示"
+    },
+    {
+      "file": "src/modules/inventory-period/03-view.js",
+      "module": "类目品牌双表库存视图"
     },
     {
       "file": "src/modules/supplier-assessment/01.js",
@@ -584,6 +600,10 @@
       "module": "统一SPU产品详情"
     },
     {
+      "file": "src/modules/inventory-detail/01-coverage-samples.js",
+      "module": "可售天数库存场景样例"
+    },
+    {
       "file": "src/modules/unified-product/03-stock-adapters.js",
       "module": "统一SPU产品详情"
     },
@@ -619,6 +639,14 @@
     },
     {
       "file": "src/modules/unified-product/05-violation-details.js"
+    },
+    {
+      "file": "src/modules/unified-product/05-contact-view.js",
+      "module": "进线构成与差评指标"
+    },
+    {
+      "file": "src/modules/unified-product/05-contact-tooltip.js",
+      "module": "进线明细即时浮层"
     },
     {
       "file": "src/modules/unified-product/05-quality-view.js"
@@ -715,6 +743,10 @@
     {
       "file": "src/modules/risk-presentation/02-shop-card.js",
       "module": "店铺身份与卡片视图"
+    },
+    {
+      "file": "src/modules/risk-presentation/02-pdd-links.js",
+      "module": "拼多多红黄灯链接悬浮明细"
     },
     {
       "file": "src/modules/risk-presentation/01-loss.js",
@@ -947,12 +979,24 @@
       "module": "系统管理生命周期目标"
     },
     {
+      "file": "src/modules/system-management/01-shell.js",
+      "module": "系统管理共用外壳与路由"
+    },
+    {
       "file": "src/modules/lifecycle-targets/04-navigation.js",
       "module": "系统管理生命周期目标"
     },
     {
       "file": "src/modules/lifecycle-targets/05-controller.js",
       "module": "系统管理生命周期目标"
+    },
+    {
+      "file": "src/modules/shop-config/02-view.js",
+      "module": "店铺配置页面"
+    },
+    {
+      "file": "src/modules/shop-config/03-controller.js",
+      "module": "店铺配置交互与榜单联动"
     },
     {
       "file": "src/modules/startup/02-render.js",
@@ -1206,6 +1250,14 @@
     {
       "file": "styles/56-natural-period.css",
       "module": "自然日双月日历"
+    },
+    {
+      "file": "styles/57-shop-config.css",
+      "module": "系统管理店铺配置"
+    },
+    {
+      "file": "styles/58-inventory-control.css",
+      "module": "库存双表与指标悬浮提示"
     }
   ],
   "images": [

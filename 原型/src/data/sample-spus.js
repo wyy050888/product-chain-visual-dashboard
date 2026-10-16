@@ -1,14 +1,14 @@
 // 仅来自用户SPU截图的50条记录。cohort是演示分组；型号undef显示—。
 const sampleSpus = [
-  {"spuId": "SPU-SOURCE-001","sampleTargets": {"monthlyGsvWan": 900, "profitRate": 12},"qualityEventSample": true,"stockRiskTags": ["shortage", "transfer"],"name": "康佳家用吸尘器KXCQ57","model": "KXCQ57","spuCode": "KJ-QJ-JYSCX-KXCQ57","brand": "康佳","chain": 0,"cohort": "old","image": "assets/spu-images/spu-01.png","sourceRow": 1},
-  {"spuId": "SPU-SOURCE-002","name": "创维俯仰取暖器A882-1","model": "A8821","spuCode": "CW-LJ-FYJXQNQ-A8821","brand": "创维","chain": 2,"cohort": "old","image": "assets/spu-images/spu-02.png","sourceRow": 2},
+  {"spuId": "SPU-SOURCE-001","sampleTargets": {"monthlyGsvWan": 900, "profitRate": 12},"qualityEventSample": true,"stockSampleScenario": "shortage-transfer","name": "康佳家用吸尘器KXCQ57","model": "KXCQ57","spuCode": "KJ-QJ-JYSCX-KXCQ57","brand": "康佳","chain": 0,"cohort": "old","image": "assets/spu-images/spu-01.png","sourceRow": 1},
+  {"spuId": "SPU-SOURCE-002","stockSampleScenario": "transfer","name": "创维俯仰取暖器A882-1","model": "A8821","spuCode": "CW-LJ-FYJXQNQ-A8821","brand": "创维","chain": 2,"cohort": "old","image": "assets/spu-images/spu-02.png","sourceRow": 2},
   {"spuId": "SPU-SOURCE-003","name": "创维取暖器A944","model": "A944","spuCode": "CW-LJ-QNQ-A944","brand": "创维","chain": 2,"cohort": "new","image": "assets/spu-images/spu-03.png","sourceRow": 3},
   {"spuId": "SPU-SOURCE-004","name": "创维取暖器A933A灯光款","model": "A933A","spuCode": "CW-LJ-QNQ-A933A","brand": "创维","chain": 2,"cohort": "old","image": "assets/spu-images/spu-04.png","sourceRow": 4},
   {"spuId": "SPU-SOURCE-005","name": "康佳长续航吸附式手持挂烫机KDYD108","model": "KDYD108","spuCode": "KJ-GH-ZHXHF-KDYD108","brand": "康佳","chain": 3,"cohort": "old","image": "assets/spu-images/spu-05.png","sourceRow": 5},
   {"spuId": "SPU-SOURCE-006","name": "海尔润眼雾化仪迭代HYY","model": "DDHYY","spuCode": "HE-GH-HERFR-DDHYY","brand": "海尔","chain": 3,"cohort": "new","image": "assets/spu-images/spu-06.png","sourceRow": 6},
   {"spuId": "SPU-SOURCE-007","name": "创维取暖器踢脚线语音款A860","model": "A860","spuCode": "CW-LJ-QNQTJXYYK-A860","brand": "创维","chain": 2,"cohort": "new","image": "assets/spu-images/spu-07.png","sourceRow": 7},
   {"spuId": "SPU-SOURCE-008","name": "创维循环扇语音款Q516","model": "Q516","spuCode": "CW-LJ-XHSYY-Q516","brand": "创维","chain": 2,"cohort": "old","image": null,"sourceRow": 8},
-  {"spuId": "SPU-SOURCE-009","stockRiskTags": ["transfer"],"name": "康佳无线吸尘器基础款1911JC","model": "1911JC","spuCode": "KJ-QJ-XCQ-1911JC","brand": "康佳","chain": 0,"cohort": "new","image": "assets/spu-images/spu-09.png","sourceRow": 9},
+  {"spuId": "SPU-SOURCE-009","name": "康佳无线吸尘器基础款1911JC","model": "1911JC","spuCode": "KJ-QJ-XCQ-1911JC","brand": "康佳","chain": 0,"cohort": "new","image": "assets/spu-images/spu-09.png","sourceRow": 9},
   {"spuId": "SPU-SOURCE-010","name": "康佳鼻毛修剪器1916","model": "1916","spuCode": "KJ-GH-BMQ-1916","brand": "康佳","chain": 3,"cohort": "old","image": "assets/spu-images/spu-10.png","sourceRow": 10},
   {"spuId": "SPU-SOURCE-011","name": "玖通圣康按摩器YM329","model": "YM329","spuCode": "JTSK-ZBAMQ-YM329","brand": "玖通圣康","chain": 3,"cohort": "new","image": "assets/spu-images/spu-11.png","sourceRow": 11},
   {"spuId": "SPU-SOURCE-012","name": "创维取暖器语音款A810B","model": "A810","spuCode": "CW-LJ-QNQ-A810","brand": "创维","chain": 2,"cohort": "new","image": "assets/spu-images/spu-12.png","sourceRow": 12},
@@ -20,7 +20,7 @@ const sampleSpus = [
   {"spuId": "SPU-SOURCE-018","name": "创维壁炉式取暖器加湿火焰款A877","model": "A877","spuCode": "CW-LJ-QNQ-A877","brand": "创维","chain": 2,"cohort": "old","image": null,"sourceRow": 18},
   {"spuId": "SPU-SOURCE-019","name": "创维石墨烯高塔取暖器A800","model": "A800","spuCode": "CW-LJ-QNQ-A800","brand": "创维","chain": 2,"cohort": "new","image": null,"sourceRow": 19},
   {"spuId": "SPU-SOURCE-020","name": "创维高塔取暖器加湿灯光语音款A888","model": "A888","spuCode": "CW-LJ-QNQJSDGYYK-A888","brand": "创维","chain": 2,"cohort": "old","image": "assets/spu-images/spu-20.png","sourceRow": 20},
-  {"spuId": "SPU-SOURCE-021","stockRiskTags": ["shortage"],"name": "创维循环扇机械款Q517","model": "Q517","spuCode": "CW-LJ-XHS-Q517","brand": "创维","chain": 2,"cohort": "new","image": null,"sourceRow": 21},
+  {"spuId": "SPU-SOURCE-021","stockSampleScenario": "shortage","name": "创维循环扇机械款Q517","model": "Q517","spuCode": "CW-LJ-XHS-Q517","brand": "创维","chain": 2,"cohort": "new","image": null,"sourceRow": 21},
   {"spuId": "SPU-SOURCE-022","name": "创维循环扇驱蚊款Q513","model": "Q513","spuCode": "CW-LJ-XHS-Q513","brand": "创维","chain": 2,"cohort": "old","image": null,"sourceRow": 22},
   {"spuId": "SPU-SOURCE-023","name": "创维取暖器高塔灯光语音款A886","model": "A886","spuCode": "CW-LJ-GTDGQNQ-A886","brand": "创维","chain": 2,"cohort": "new","image": "assets/spu-images/spu-23.png","sourceRow": 23},
   {"spuId": "SPU-SOURCE-024","name": "创维取暖器俯仰机械款A881","model": "A881","spuCode": "CW-LJ-QNQ-A881","brand": "创维","chain": 2,"cohort": "old","image": "assets/spu-images/spu-24.png","sourceRow": 24},
@@ -47,7 +47,7 @@ const sampleSpus = [
   {"spuId": "SPU-SOURCE-045","name": "康佳水暖毯圆款防滑毯2001E","model": "2001E","spuCode": "KJ-LJ-YKSNT-2001E","brand": "康佳","chain": 2,"cohort": "new","image": null,"sourceRow": 45},
   {"spuId": "SPU-SOURCE-046","name": "康佳手持风扇KCFS-0402","model": "KCFS-0402","spuCode": "KJ-LJ-XHS-KCFS-0402","brand": "康佳","chain": 2,"cohort": "old","image": "assets/spu-images/spu-46.png","sourceRow": 46},
   {"spuId": "SPU-SOURCE-047","name": "康佳水暖毯方款2002E","model": "2002E","spuCode": "KJ-LJ-FHSNT-2002E","brand": "康佳","chain": 2,"cohort": "new","image": "assets/spu-images/spu-47.png","sourceRow": 47},
-  {"spuId": "SPU-SOURCE-048","stockRiskTags": ["stagnant"],"name": "蕉雅美容仪MRY058","model": "MRY058","spuCode": "JOAE-GH-MRY-MRY058","brand": "蕉雅","chain": 3,"cohort": "new","image": "assets/spu-images/spu-48.png","sourceRow": 48},
+  {"spuId": "SPU-SOURCE-048","stockSampleScenario": "stagnant","name": "蕉雅美容仪MRY058","model": "MRY058","spuCode": "JOAE-GH-MRY-MRY058","brand": "蕉雅","chain": 3,"cohort": "new","image": "assets/spu-images/spu-48.png","sourceRow": 48},
   {"spuId": "SPU-SOURCE-049","name": "康佳小海豚挂烫机机械款6029","model": "6029","spuCode": "KJ-SH-JXGTJ-6029","brand": "康佳","chain": 3,"cohort": "old","image": "assets/spu-images/spu-49.png","sourceRow": 49},
   {"spuId": "SPU-SOURCE-050","name": "创维取暖器高塔灯光语音款A818","model": "A818","spuCode": "CW-LJ-QNQ-A818","brand": "创维","chain": 2,"cohort": "old","image": "assets/spu-images/spu-50.png","sourceRow": 50}
 ];

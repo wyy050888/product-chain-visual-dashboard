@@ -2,11 +2,13 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
 import {fileURLToPath} from 'node:url';
+import {verifyDetailContact} from './detail-contact.mjs';
+import {verifyStockCoverage} from './stock-coverage.mjs';
 import {verifyProductTodos} from './detail-todos.mjs';
 import {verifyTodoDescription} from './todo-description.mjs';
 
 export async function detailQualityTodos(page){
- verifyTodoDescription();
+ verifyTodoDescription();verifyStockCoverage();
  // Independently verify weighted rates and partial week/month grouping.
  const sandbox={shiftDate:(date,days)=>{const d=new Date(date+'T00:00:00Z');d.setUTCDate(d.getUTCDate()+days);return d.toISOString().slice(0,10)}};
  vm.createContext(sandbox);vm.runInContext(fs.readFileSync(new URL('../../src/modules/unified-product/05-quality-trend.js',import.meta.url),'utf8'),sandbox);
@@ -18,6 +20,7 @@ export async function detailQualityTodos(page){
  const detailRef=await page.locator('#dialogbody button').filter({hasText:'查看详情'}).first().getAttribute('data-qr-detail');
  await page.locator('#dialogbody button').filter({hasText:'查看详情'}).first().click();
  await page.locator('[data-drawer-tab="quality"]').click();
+ await verifyDetailContact(page);
  assert.equal(await page.locator('[data-up-return-series]').count(),3);
  assert.equal(await page.locator('.up-return-metrics [data-up-quality-metric]').count(),3);
  assert.deepEqual(await page.locator('.up-return-trend .up-trend-legend>span').allTextContents(),['总退','已收退','销量','总退目标','已收退目标']);
@@ -40,12 +43,14 @@ export async function detailQualityTodos(page){
   await page.waitForFunction(()=>{const e=document.querySelector('[data-up-return-scroll]');return e.scrollWidth>e.clientWidth&&e.scrollLeft>0});
  }
  await page.locator('[data-up-return-period="day"]').click();assert.equal(await sum(),sales);
- await page.locator('[data-up-violation-type="罚款"]').click();
- assert.equal(await page.locator('[data-up-violation-type="罚款"]').getAttribute('aria-pressed'),'true');
+ await page.locator('[data-up-violation-type="资金冻结"]').click();
+ assert.equal(await page.locator('[data-up-violation-type="资金冻结"]').getAttribute('aria-pressed'),'true');
  assert.doesNotMatch(await page.locator('#up-violation-table').innerText(),/红绿灯/);
  // The existing toolbar may render platform buttons over its source select.
  await page.locator('#up-platform').evaluate(e=>{e.value='京东';e.dispatchEvent(new Event('change',{bubbles:true}))});
- assert.equal(await page.locator('[data-up-violation-type="罚款"]').getAttribute('aria-pressed'),'true');
+ assert.equal(await page.locator('[data-up-violation-type="all"]').getAttribute('aria-pressed'),'true');
+ assert.equal(await page.locator('[data-up-violation-type="资金冻结"]').count(),0);
+ await page.locator('[data-up-violation-type="罚款"]').click();
  assert.equal(await page.locator('[data-up-violation-platform]').getAttribute('data-up-violation-platform'),'京东');
  const actions=await page.locator('#up-violation-table tbody tr td:nth-child(7)').allTextContents();assert(actions.every(t=>t.includes('罚款')));if(!actions.length)assert.match(await page.locator('#up-violation-table').innerText(),/暂无违规条目/);
  const search=page.locator('[data-up-violation-search]');await search.fill('不存在的违规编号');assert.equal(await page.locator('#up-violation-table tbody tr').count(),0);await search.fill('');
@@ -53,14 +58,15 @@ export async function detailQualityTodos(page){
  assert.equal(await page.locator('.up-violation-tags').isVisible(),false);
  assert.equal(await page.locator('#up-violation-table').isVisible(),false);
  assert.equal(await page.locator('[data-up-violation-platform]').count(),0);
- assert.equal(await page.locator('.up-violation-stats [data-up-quality-metric]').count(),5);
+ assert.equal(await page.locator('.up-violation-stats [data-up-quality-metric]').count(),7);
  await page.locator('#dialog').screenshot({path:fileURLToPath(new URL('../../outputs/detail-quality.png',import.meta.url))});
  await page.locator('[data-drawer-tab="stock"]').click();
  assert.equal(await page.locator('[data-up-panel="stock"] .up-stock-card').count(),5);
  assert.equal(await page.locator('#up-stock-skus tbody tr').count(),4);
+ assert.match(await page.locator('.up-stock-card').first().innerText(),/总可售天数/);
  const tags=await page.locator('.up-stock-risk-tag').allTextContents();
- assert(tags.length<=2&&tags.every(t=>['缺货','调货','呆滞'].includes(t)));
- assert(!tags.includes('呆滞')||tags.length===1);
+ assert(tags.length<=2&&tags.every(t=>['缺货','调货','滞销'].includes(t)));
+ assert(!tags.includes('滞销')||tags.length===1);
  assert.equal(await page.locator('.up-stock-donut svg').count(),1);
  assert.equal(await page.locator('.up-detail .metric-help').count(),0);
  await verifyProductTodos(page,detailRef);

@@ -6,6 +6,11 @@ export async function projectDates(page){
  // 原始值排序的边界：缺失置后、跨年日期、相同值稳定；格式化不影响计算。
  const source=fs.readFileSync(new URL('../../src/modules/project-panorama/01-model.js',import.meta.url),'utf8');
  const ctx=vm.createContext({});vm.runInContext(source,ctx);
+ for(const [light,actual,delay,expected,high] of [
+  ['绿灯',null,1,'红灯',false],['绿灯',null,15,'红灯',false],['绿灯',null,16,'红灯',true],['黄灯',null,51,'红灯',true],
+  ['黄灯',null,0,'黄灯',false],['绿灯',null,0,'绿灯',false],['绿灯',null,null,'绿灯',false],['绿灯','2026-10-01',20,'绿灯',false]
+ ]){const status=ctx.ppProjectLight({status:light},actual,delay);assert.equal(status,expected);assert.equal(vm.runInContext(`ppHighRisk(${JSON.stringify({status,delay})})`,ctx),high);}
+
  const records=[{id:3,plan:null},{id:2,plan:'2027-01-01'},{id:1,plan:'2026-12-31'},{id:4,plan:'2026-12-31'}];
  for(const [direction,expected] of [['asc',[1,4,2,3]],['desc',[2,1,4,3]]])assert.deepEqual(records.slice().sort((a,b)=>ctx.ppCompareProjects(a,b,{key:'plan',direction})).map(r=>r.id),expected);
  const mixed=[
@@ -33,6 +38,7 @@ export async function projectDates(page){
   });
   assert.deepEqual(data.filtered.map(p=>p.id),expected.map(p=>p.id));
   assert.deepEqual(await page.locator('[data-pp-row]').evaluateAll(els=>els.map(e=>Number(e.dataset.ppRow))),expected.slice(0,10).map(p=>p.id));
+  assert.deepEqual(await page.locator('[data-pp-row] .pp-plan-dates').evaluateAll(els=>els.map(e=>e.querySelectorAll('small').length)),expected.slice(0,10).map(p=>p.revisedPlan?1:0));
   assert.equal(await page.locator(`[data-pp-sort="${key}"]`).getAttribute('data-direction'),direction);
  };
  await verify();
@@ -41,7 +47,7 @@ export async function projectDates(page){
  assert.equal(await page.locator('[data-pp-sort="revisedPlan"]').count(),0);
  const first=audit.filtered[0],cell=page.locator('[data-pp-row]').first().locator('td').nth(3);
  const date=s=>s?s.slice(2).replaceAll('-','/'):'—';
- assert.deepEqual(await cell.locator('.pp-plan-dates>span,.pp-plan-dates>small').allTextContents(),[date(first.plan),'延期 '+date(first.revisedPlan)]);
+ assert.deepEqual(await cell.locator('.pp-plan-dates>span,.pp-plan-dates>small').allTextContents(),[date(first.plan),...(first.revisedPlan?['延期 '+date(first.revisedPlan)]:[])]);
  for(const key of ['plan','actual','delay','started']){
   for(let i=0;i<2;i++){await page.locator(`[data-pp-sort="${key}"]`).click();await verify();}
  }

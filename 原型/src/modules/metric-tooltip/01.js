@@ -50,7 +50,10 @@ function renderNewKpiTooltip(help){
 function renderMetricTooltipContent(help){
  const text=help.dataset.metricRule;
  metricTooltip.replaceChildren();
+ if(help.dataset.qualityRates){renderQualityRatesTooltip(metricTooltip);return}
+ if(help.dataset.ipRule){renderInventoryMetricTooltip(metricTooltip,help.dataset.ipRule);return}
  if(help.dataset.nspKpi){renderNewKpiTooltip(help);return}
+ if(help.classList.contains('pp-analysis-help')){renderProjectAnalysisTooltip(metricTooltip);return}
  if(help.classList.contains('nsp-period-help')){
   const [heading,...lines]=text.split('\n'),title=document.createElement('h4'),description=document.createElement('p');
   title.textContent=heading;description.textContent=lines.join('\n');metricTooltip.append(title,description);
@@ -87,6 +90,9 @@ function showMetricTooltip(help) {
   metricTooltip.classList.toggle('metric-tooltip-kpi', help.classList.contains('nsp-kpi-help'));
   metricTooltip.classList.toggle('metric-tooltip-nsp-card', Boolean(help.dataset.nspKpi));
   metricTooltip.classList.toggle('metric-tooltip-period', help.classList.contains('nsp-period-help'));
+  metricTooltip.classList.toggle('metric-tooltip-project-analysis', help.classList.contains('pp-analysis-help'));
+  metricTooltip.classList.toggle('metric-tooltip-inventory',Boolean(help.dataset.ipRule));
+  metricTooltip.classList.toggle('metric-tooltip-quality-rates',Boolean(help.dataset.qualityRates));
   renderMetricTooltipContent(help);
   cleanDemoPresentation(metricTooltip);
   metricTooltip.hidden = false;

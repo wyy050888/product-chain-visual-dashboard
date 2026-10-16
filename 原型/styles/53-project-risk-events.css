@@ -1,4 +1,4 @@
-/* 四张左侧卡片使用紧凑固定内容，不拉长条目间距。 */
+/* 保留紧凑卡片；桌面分布卡分配剩余高度，底部与右侧分页对齐。 */
 #projects.pp-main #pp-overview{gap:10px}
 #projects.pp-main #pp-overview>.pp-card{padding:12px 14px}
 #projects.pp-main #pp-overview .pp-card-head{margin-bottom:8px}
@@ -10,34 +10,50 @@
 #projects.pp-main #pp-overview .pp-tabs{margin-bottom:6px}
 #projects.pp-main #pp-overview .pp-tabs button{padding:5px 2px}
 #projects.pp-main .pp-dept-options{margin-bottom:5px}
-#projects.pp-main .pp-rate>.pp-link{padding:4px 7px}
-#projects.pp-main .pp-rate strong{font-size:25px}
-#projects.pp-main #pp-overview .pp-rate-split{padding-top:5px;margin-top:5px}
-#projects.pp-main #pp-overview .pp-rate-split button{padding:4px 7px;gap:2px}
-#projects.pp-main .pp-rate-split b{font-size:21px}
+@media(min-width:1101px){
+ #projects.pp-main #pp-overview :is(.pp-distribution,.pp-departments){flex:1 0 auto}
+ #projects.pp-main #pp-overview .pp-bars{flex:1;gap:6px}
+}
+/* 合计单独突出，三项灯色率使用等宽列和一致的数值基线。 */
+#projects.pp-main #pp-overview .pp-rate{display:block}
+#projects.pp-main #pp-overview .pp-rate .pp-card-head{margin-bottom:8px}
+#projects.pp-main .pp-rate>.pp-link{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;column-gap:12px;row-gap:3px;padding:8px 9px;margin-bottom:8px}
+#projects.pp-main .pp-rate>.pp-link>span{grid-column:1;grid-row:1;color:#536b8c;font-size:12px}
+#projects.pp-main .pp-rate>.pp-link strong{grid-column:2;grid-row:1/3;font-size:30px;line-height:1.3;font-weight:650;font-variant-numeric:tabular-nums;letter-spacing:-.5px}
+#projects.pp-main .pp-rate>.pp-link small{grid-column:1;grid-row:2;margin:0}
+#projects.pp-main #pp-overview .pp-rate-split{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:3px;margin:0;padding-top:10px;border-top:1px solid #dde5f3}
+#projects.pp-main #pp-overview .pp-rate-split>.pp-link{display:flex;flex-direction:column;align-items:flex-start;gap:5px;padding:5px 3px;min-width:0}
+#projects.pp-main .pp-rate-split>.pp-link>span{font-size:11px;white-space:nowrap;color:#536b8c}
+#projects.pp-main .pp-rate-split>.pp-link .dot{width:5px;height:5px;margin-right:4px}
+#projects.pp-main .pp-rate-split b{font-size:21px;font-weight:600;line-height:1.35;font-variant-numeric:tabular-nums;letter-spacing:-.3px}
+#projects.pp-main #pp-overview .pp-rate-split small{margin:0;font-size:11px}
+
 #projects.pp-main .pp-events{min-width:0}
 #projects.pp-main .pp-event-period{display:flex;align-items:center;justify-content:space-between;width:100%;border:1px solid #dce5f3;border-radius:5px;padding:6px 8px;margin-bottom:8px;font-size:11px;color:#536d93;background:#fff}
-#projects.pp-main .pp-event-groups{display:flex;flex-direction:column;gap:7px}
-#projects.pp-main .pp-event-group>b{display:block;font-size:11px;font-weight:500;margin-bottom:2px}
-#projects.pp-main .pp-event-bar{display:flex;align-items:center;gap:6px;width:100%;padding:2px 0;font-size:10px;text-align:left}
-#projects.pp-main .pp-event-bar>span:first-child{color:#8293ad;width:24px;flex:none}
-#projects.pp-main .pp-event-bar>span:last-child{min-width:48px;text-align:right;white-space:nowrap}
-#projects.pp-main .pp-event-bar b{font-weight:500}
-#projects.pp-main .pp-event-bar .pp-track{height:14px;border-radius:3px}
-#projects.pp-main .pp-event-bar:hover{background:#f3f6fc}
+#projects.pp-main .pp-event-table-wrap{width:100%;overflow:hidden;border:1px solid #e9eef6;border-radius:6px}
+#projects.pp-main .pp-event-table{width:100%;table-layout:fixed;border-collapse:collapse;min-width:0;font-size:12px}
+#projects.pp-main .pp-event-table :is(th,td){padding:5px 6px;border:0;border-bottom:1px solid #edf1f7;background:#fff;vertical-align:middle;line-height:1.5;text-align:center;white-space:normal}
+#projects.pp-main .pp-event-table thead th{padding:9px 6px;background:#f5f8fc;color:#7b8ba3;font-size:11px;font-weight:400}
+#projects.pp-main .pp-event-table th:first-child{width:30%;text-align:left;padding-left:10px}
+#projects.pp-main .pp-event-table tbody th{color:#405b7c;font-size:12px;font-weight:400;overflow-wrap:anywhere}
+#projects.pp-main .pp-event-table tbody tr:last-child :is(th,td){border-bottom:0}
+#projects.pp-main .pp-event-count{display:grid;grid-template-columns:minmax(0,1fr) 12px minmax(0,1fr);align-items:center;gap:2px;width:100%;min-height:32px;padding:4px 2px;border:0;border-radius:4px;background:transparent;font:inherit;font-size:13px;cursor:pointer;font-variant-numeric:tabular-nums}
+#projects.pp-main .pp-event-count b{font-weight:500;text-align:center}
+#projects.pp-main .pp-event-count>span{color:#a8b3c3;font-size:11px}
+#projects.pp-main .pp-event-count:hover{background:#edf4ff}
+#projects.pp-main .pp-event-count:focus-visible{outline:2px solid #91bfff;outline-offset:-1px;background:#edf4ff}
 @media(max-width:1100px) and (min-width:701px){#projects.pp-main #pp-overview{grid-template-columns:repeat(2,minmax(0,1fr))}}
-
 #projects.pp-main #pp-overview .pp-card-head h3{font-size:14px;line-height:1.4}
 #projects.pp-main #pp-overview .pp-card-head>span{line-height:1.5}
-#projects.pp-main #pp-overview .pp-rate{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3px}
-#projects.pp-main .pp-rate .pp-card-head{grid-column:1/-1}
-#projects.pp-main #pp-overview .pp-rate-split{display:contents;border:0}
-#projects.pp-main .pp-rate>.pp-link,#projects.pp-main #pp-overview .pp-rate-split>.pp-link{display:flex;flex-direction:column;gap:4px;padding:5px 4px}
-#projects.pp-main .pp-rate>.pp-link strong{order:1;font-size:23px;line-height:1.4}
-#projects.pp-main .pp-rate>.pp-link small{order:2}
-#projects.pp-main .pp-rate-split b{font-size:23px;line-height:1.4}
-#projects.pp-main .pp-event-group{display:grid;grid-template-columns:58px minmax(0,1fr);column-gap:6px;align-items:center}
-#projects.pp-main .pp-event-group>b{grid-row:1/3;margin:0}
-#projects.pp-main .pp-event-bar{grid-column:2}
 
-@media(min-width:1101px){#projects.pp-main #pp-overview .pp-events{display:flex;flex-direction:column;flex:1}#projects.pp-main .pp-event-groups{flex:1;justify-content:space-between}}
+/* 部门风险行使用独立按钮，柱段与数字均可选择对应风险灯色。 */
+#projects.pp-main .pp-dept-risk-row{cursor:default}
+#projects.pp-main .pp-dept-risk-row .pp-bar-label{border:0;background:transparent;padding:0;text-align:left;font:inherit;font-size:11px;color:inherit;cursor:pointer}
+#projects.pp-main .pp-dept-risk-row .pp-risk-segment{min-width:0;min-height:0;height:100%;padding:0;border:0;border-radius:0;cursor:pointer}
+#projects.pp-main .pp-dept-risk-row .pp-risk-counts{display:flex;align-items:center;justify-content:flex-end;gap:3px;min-width:52px;white-space:nowrap}
+#projects.pp-main .pp-risk-counts>button{padding:1px 2px;border:0;background:transparent;font:inherit;font-size:11px;cursor:pointer}
+#projects.pp-main .pp-risk-counts>span{color:#a8b3c3}
+#projects.pp-main .pp-dept-risk-row button:focus-visible{outline:2px solid #1677ff;outline-offset:1px}
+#projects.pp-main .pp-risk-counts>button[aria-pressed=true]{background:#e4efff;border-radius:3px}
+
+@media(max-width:700px){#projects.pp-main #pp-overview{grid-template-columns:minmax(0,1fr)}}

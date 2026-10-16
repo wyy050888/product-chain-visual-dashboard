@@ -35,7 +35,7 @@ function upDetailModel(state) {
     if(highStock?.reasons.length) for(const reason of highStock.reasons) signals.push({kind:'库存',platform:reason.platforms?.join('、')||'全公司',
       name:reason.label,value:fmt(highStock.totalUnits)+'件',rule:irReasonText(reason)});
     if(stock?.slow) signals.push({kind:'滞销',platform:state.platform==='all'?'全公司':state.platform,name:'可售天数≥60天',value:fmt(stock.slowCoverage,1)+'天',
-      rule:'只判断有动销产品：库存＞0且近15日有销量，可售天数按库存÷近15日日均销量判断；滞销金额只计算超库龄部分。'});
+      rule:'只判断有动销产品：我司可售库存＞0且近15日净销量＞0，可售天数按我司可售库存÷近15日均净销量判断；滞销金额只计算超库龄部分。'});
     return {product,current,attainment:upAttainmentModel(p,state,current),previous,company,quality,stock,highStock,stockSummary,stockEnd,platformRows,signals,days,previousStart,previousEnd};
   });
 }

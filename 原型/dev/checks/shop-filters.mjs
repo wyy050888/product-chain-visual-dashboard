@@ -51,8 +51,8 @@ export async function shopFilters(page){
  assert.match(await menu.locator('summary').innerText(),/分类:自营店.*是否考核:否/);
  await page.locator('[data-rp-reset]').click();assert.equal(await total(),baseline);
  assert.equal(await menu.locator('.pf-attribute-value').innerText(),'全部');
- await page.locator('#rp-shop-type-config').click();
- assert.equal(await page.locator('#toast').innerText(),'配置店铺类型：待设计');
+ const opened=page.context().waitForEvent('page');await page.locator('#rp-shop-type-config').click();const config=await opened;await config.waitForLoadState();
+ assert(config.url().includes('店铺配置.html')||decodeURI(config.url()).includes('店铺配置.html'));await config.close();assert.equal(await total(),baseline);
  await menu.locator('summary').click();
  await page.screenshot({path:fileURLToPath(new URL('../../outputs/shop-type-filter.png',import.meta.url))});
  await page.locator('#close').click();

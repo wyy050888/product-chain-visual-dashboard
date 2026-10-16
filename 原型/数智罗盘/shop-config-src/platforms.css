@@ -1,0 +1,5 @@
+.platform-tabs{display:flex;align-items:stretch;gap:28px;padding:0 20px;}
+.platform-tabs button{position:relative;height:58px;padding:0 14px;color:#8892a3;font-size:14px;}
+.platform-tabs button[aria-selected="true"]{color:#276bff;font-weight:600;}
+.platform-tabs button[aria-selected="true"]::after{content:"";position:absolute;height:3px;background:#3975ff;bottom:0;left:0;right:0;}
+@media(max-width:780px){.platform-tabs{gap:12px;padding:0 10px;}.platform-tabs button{height:54px;padding:0 8px;}}

@@ -1,0 +1,18 @@
+/* 仅扩展店铺配置页面，不覆盖原负责计划、年度排期与记录交互。 */
+#shop-assignment aside a{display:block;text-decoration:none;padding:12px 18px;color:#385180;font-size:13px}
+#shop-assignment .platform-tabs{gap:24px;flex-wrap:wrap}#shop-assignment .platform-tabs button{white-space:nowrap}
+#shop-assignment .filters{grid-template-columns:repeat(3,minmax(0,1fr))}#shop-assignment .ss-promotion-filter{display:none}
+#shop-assignment.ss-readonly-platform .ss-promotion-filter{display:flex}
+#shop-assignment.ss-readonly-platform #records-open{display:none}#shop-assignment .toolbar #shop-filter-reset{margin-left:auto}
+#shop-assignment .shop-table{min-width:1120px}#shop-assignment .shop-table th,#shop-assignment .shop-table td{white-space:normal;line-height:1.8}
+#shop-assignment .shop-table td:first-child{min-width:230px}#shop-assignment .shop-table td select[data-shop-category]{width:116px;min-height:32px;padding:4px 8px;font-size:12px}
+#shop-assignment .ss-switch{width:34px;height:19px;padding:2px;border:0;border-radius:12px;background:#bfc9d9;vertical-align:middle;position:relative}
+#shop-assignment .ss-switch i{display:block;width:15px;height:15px;border-radius:50%;background:#fff;transition:transform .15s}
+#shop-assignment .ss-switch[aria-checked=true]{background:#1677ff}#shop-assignment .ss-switch[aria-checked=true] i{transform:translateX(15px)}
+#shop-assignment .ss-switch-label{margin-left:7px;font-size:12px;color:#59708c}#shop-assignment .ss-readonly{color:#3b506d;max-width:200px}#shop-assignment .ss-empty{color:#96a0af}
+@media(max-width:1050px){#shop-assignment .filters{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:650px){#shop-assignment .filters{grid-template-columns:minmax(0,1fr)}#shop-assignment .platform-tabs{gap:14px}}
+
+#shop-assignment .shop-table th:nth-child(n){width:auto}
+#shop-assignment .shop-table th:first-child{width:25%}#shop-assignment .shop-table th:nth-child(2){width:8%}#shop-assignment .shop-table th:nth-child(3){width:12%}#shop-assignment .shop-table th:nth-child(4){width:18%}#shop-assignment .shop-table th:nth-child(5){width:14%}#shop-assignment .shop-table th:nth-child(6){width:10%}#shop-assignment .shop-table th:nth-child(7){width:8%}#shop-assignment .shop-table th:nth-child(8){width:5%}
+#shop-assignment.ss-readonly-platform .shop-table th:first-child{width:28%}#shop-assignment.ss-readonly-platform .shop-table th:nth-child(2){width:10%}#shop-assignment.ss-readonly-platform .shop-table th:nth-child(3){width:13%}#shop-assignment.ss-readonly-platform .shop-table th:nth-child(4),#shop-assignment.ss-readonly-platform .shop-table th:nth-child(5){width:15%}#shop-assignment.ss-readonly-platform .shop-table th:nth-child(6){width:11%}#shop-assignment.ss-readonly-platform .shop-table th:nth-child(7){width:8%}

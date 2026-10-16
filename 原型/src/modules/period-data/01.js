@@ -42,7 +42,7 @@ const rawOpenModal=openModal;
 openModal=function(title,body,drawer=false,sub=''){
  const id=activeModule||(!$('#overlay').hidden?modalModule:null);modalModule=id;
  rawOpenModal(title,body,drawer,sub);
- if(id){const b=bounds(periodFor(id));$('#dialogsub').textContent=[sub,moduleNames[id]+' · '+periodLabel(periodFor(id)),b.start+' — '+b.cutoff].filter(Boolean).join(' ｜ ');updateLabels($('#dialogbody'),id)}
+ if(id&&id!=='inventory'){const b=bounds(periodFor(id));$('#dialogsub').textContent=[sub,moduleNames[id]+' · '+periodLabel(periodFor(id)),b.start+' — '+b.cutoff].filter(Boolean).join(' ｜ ');updateLabels($('#dialogbody'),id)}
 };
 
 
@@ -59,6 +59,6 @@ function showTimeRules(){openModal('时间筛选与统计口径',`<div class="no
  ['生命周期','统计完成时间范围','目标、实际、完成率及差额随周期联动；月／季视图另保留年度累计。'],
  ['新品专项','周期经营＋截止日新品池','上线计划按周期统计；新品资格按截止日≤120天判断，商品销售额仅累计本周期且不早于上架。'],
  ['关键产品','选择经营回看截止日','沿用截止日前30天销售额与利润率，不改变ABCD分层阈值；非所选年度销售总额。'],
- ['库存','期末余额＋周期效率','库存与呆滞金额取截止日；周期周转率=周期销售成本÷平均库存；交付和翻新按分子分母合计。'],
+ ['库存','最新库存快照，无时间筛选','库存和呆滞取最新余额；周转率与交付及时率固定统计本月累计；翻新按提报与退货日期计算。'],
  ['供应链采购','期末供应商池＋周期新增','数量取截止日存量；新增按审核通过时间累计；储备转合作不重复新增。'],
  ['降本增效','财务确认时间范围','周期目标、财务已确认金额、完成率、差额；年度视图合并重复年度卡片。']])}</div><p class="note" style="margin-top:14px">未结束周期的实际值截至最新数据日，目标保留完整周期目标。抽屉继承来源模块时间，展示统计开始和数据截止。</p>`)}

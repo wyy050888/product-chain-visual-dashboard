@@ -1,20 +1,27 @@
-/* 状态为只读展示：圆点与色块组合，完整名称供悬浮和辅助技术读取。 */
-.pp-traffic{display:inline-flex;align-items:center;gap:7px;vertical-align:middle;white-space:nowrap;cursor:default;--pp-light:#ff9b9b}
-.pp-traffic-red{--pp-light:#ff9b9b}.pp-traffic-yellow{--pp-light:#ffd966}.pp-traffic-green{--pp-light:#74dc8a}.pp-traffic-high{--pp-light:#b4233b}
-.pp-traffic-radio{display:inline-block;width:14px;height:14px;border:4px solid #3181ff;border-radius:50%;background:#fff;box-sizing:border-box;flex:none}
+/* 灯色只读胶囊，普通红灯与左侧风险分布统一；完整名称保留供悬浮和辅助技术读取。 */
+.pp-traffic{display:inline-flex;align-items:center;vertical-align:middle;white-space:nowrap;cursor:default;--pp-light:#ff6174}
+.pp-traffic-red{--pp-light:#ff6174}.pp-traffic-yellow{--pp-light:#ffd966}.pp-traffic-green{--pp-light:#74dc8a}.pp-traffic-high{--pp-light:#b4233b}
 .pp-traffic-pill{display:inline-block;width:30px;height:16px;border-radius:10px;background:var(--pp-light);flex:none}
 .pp-traffic-label{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 #pp-ledger-popover table{min-width:1200px}
 #pp-ledger-popover th:nth-child(2){width:15%}#pp-ledger-popover th:nth-child(3){width:9%}#pp-ledger-popover th:nth-child(4){width:12%}#pp-ledger-popover th:nth-child(5){width:15%}#pp-ledger-popover th:nth-child(6){width:15%}#pp-ledger-popover th:nth-child(7){width:15%}#pp-ledger-popover th:nth-child(8){width:8%}#pp-ledger-popover th:nth-child(9){width:7%}
-#dialogbody .pp-risk-detail #pp-risk-detail-table{max-height:calc(100dvh - 280px);overflow:auto;scrollbar-width:thin}
+/* 风险台账独立使用宽抽屉；正文由表格滚动，分页始终位于底部。 */
+#dialog.drawer.business-drawer:has(.pp-risk-detail){width:min(1600px,80vw)}
+#dialog.drawer.business-drawer:has(.pp-risk-detail) #dialogbody{display:flex;flex-direction:column;overflow:hidden;scrollbar-gutter:auto}
+#dialogbody .pp-risk-detail{display:flex;flex-direction:column;flex:1;min-height:0;min-width:0}
+#dialogbody .pp-risk-detail>.pp-analysis-conclusion{flex:none}
+#dialogbody .pp-risk-detail #pp-risk-detail-table{flex:1;min-height:0;max-height:none;overflow:auto;scrollbar-width:thin}
+@media(max-width:1100px){#dialog.drawer.business-drawer:has(.pp-risk-detail){width:96vw}}
+@media(max-width:700px){#dialog.drawer.business-drawer:has(.pp-risk-detail){width:100vw}}
 #dialogbody .pp-risk-detail .pp-risk-detail-table{min-width:100%;table-layout:fixed}
 #dialogbody .pp-risk-detail .pp-risk-detail-table th,#dialogbody .pp-risk-detail .pp-risk-detail-table td{width:auto;padding:13px 12px;vertical-align:top;line-height:1.7;background:#fff}
 #dialogbody .pp-risk-detail .pp-risk-detail-table th{position:sticky;top:0;z-index:2;background:#f5f8fc;vertical-align:middle;white-space:nowrap;font-size:12px}
 #dialogbody .pp-risk-detail .pp-risk-detail-table th:first-child,#dialogbody .pp-risk-detail .pp-risk-detail-table td:first-child{position:sticky;left:0;z-index:3;border-right:1px solid #e5ecf7}
 #dialogbody .pp-risk-detail .pp-risk-detail-table th:last-child,#dialogbody .pp-risk-detail .pp-risk-detail-table td:last-child{position:sticky;right:0;z-index:3;border-left:1px solid #e5ecf7}
 #dialogbody .pp-risk-detail .pp-risk-detail-table th:first-child,#dialogbody .pp-risk-detail .pp-risk-detail-table th:last-child{z-index:4;background:#f5f8fc}
-#dialogbody .pp-risk-detail .pp-product{display:flex;gap:12px;align-items:center;text-align:left;max-width:100%;padding:0}
+#dialogbody .pp-risk-detail .pp-product{display:flex;gap:12px;align-items:center;text-align:left;max-width:100%;width:100%;padding:0;border:0;background:transparent;font:inherit;cursor:pointer}
 #dialogbody .pp-risk-detail .pp-product img,#dialogbody .pp-risk-detail .pp-placeholder{width:56px;height:56px;object-fit:contain;border:1px solid #e1e9f5;border-radius:5px;flex:none}
+#dialogbody .pp-risk-detail .pp-placeholder{display:grid;place-items:center;background:#f8faff;color:#91a2bb}
 #dialogbody .pp-risk-detail .pp-product>span:last-child{flex:1;min-width:0}
 #dialogbody .pp-risk-detail .pp-product b{display:block;color:#304b6e;font-size:14px;font-weight:500;line-height:1.5;overflow-wrap:anywhere}
 #dialogbody .pp-risk-detail .pp-product small{display:block;font-size:12px;line-height:1.5;margin-top:5px;color:#8b9ab0}
@@ -27,3 +34,22 @@
 #dialogbody .pp-risk-detail .pp-risk-state-done{background:#eaf8eb;color:#29af4a}
 #dialogbody .pp-risk-detail .pp-risk-state-pending{background:#fff0ed;color:#ff775d}
 #dialogbody .pp-risk-detail .pp-analysis-empty{position:static!important;text-align:left}
+
+#dialogbody .pp-risk-detail #pp-risk-detail-pages{flex:none;position:static;background:#fff;padding-bottom:0}
+#dialogbody .pp-risk-detail .list-pagination{padding-top:16px}
+
+/* 查询区固定在表格上方，表格继续使用剩余高度。 */
+#dialogbody .pp-risk-detail .pp-risk-filters{display:grid;grid-template-columns:minmax(300px,1.7fr) repeat(3,minmax(160px,1fr)) auto;gap:12px;align-items:center;flex:none;margin:0 0 16px;min-width:0}
+#dialogbody .pp-risk-filters>input[type=search]{width:100%!important;min-width:0;height:36px;min-height:36px;border:1px solid #d7e0ee;border-radius:6px;background:#fff;padding:0 10px;font:inherit;font-size:12px}
+#dialogbody .pp-risk-filter{display:grid;grid-template-columns:84px minmax(0,1fr);align-items:center;min-width:0;height:36px;border:1px solid #d7e0ee;border-radius:6px;padding:0 10px;font-size:12px;white-space:nowrap}
+#dialogbody .pp-risk-filter>select{width:100%;min-width:0;min-height:0;height:34px;border:0;border-radius:0;box-shadow:none;background:var(--filter-chevron) right center/12px no-repeat;padding:0 18px 0 0;font:inherit;color:#304b6e;text-align:center;appearance:none}
+#dialogbody .pp-risk-filter:focus-within,#dialogbody .pp-risk-filters>input:focus{border-color:#1677ff;outline:2px solid #1677ff12}
+#dialogbody .pp-risk-filter-actions{display:flex;gap:8px;justify-content:flex-end}
+#dialogbody .pp-risk-filter-actions .btn{height:36px;padding:0 16px;white-space:nowrap}
+@media(max-width:1200px){#dialogbody .pp-risk-detail .pp-risk-filters{grid-template-columns:repeat(2,minmax(0,1fr))}#dialogbody .pp-risk-filters>input[type=search]{grid-column:1/-1}}
+
+/* 复用统一多选控件；只重绘结果表格，勾选菜单和输入焦点保持。 */
+#dialogbody .pp-risk-filters>.pf-multi{min-width:0;margin:0;height:36px}
+#dialogbody .pp-risk-filters .pf-multi>summary{min-width:0;width:100%;height:36px;box-sizing:border-box}
+#dialogbody .pp-risk-filters .pf-multi-value{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#dialogbody .pp-risk-filters .pf-multi-menu{min-width:100%;box-sizing:border-box}

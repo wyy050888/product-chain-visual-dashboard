@@ -1,0 +1,39 @@
+#importProgress { margin-top: 24px; }
+#importTemplateNotice { position: absolute; z-index: 1; top: 64px; left: 50%; transform: translateX(-50%); max-width: calc(100% - 44px); box-sizing: border-box; padding: 10px 16px; border: 1px solid #d6eee2; border-radius: 8px; background: #f3fcf7; color: #16815d; box-shadow: 0 4px 16px #263b5714; font-size: 13px; text-align: center; pointer-events: none; }
+#importUpload { margin: 16px 0 0 56px; text-align: left; }
+#importUploadBar { display: block; width: 100%; height: 6px; appearance: none; border: 0; border-radius: 8px; overflow: hidden; background: #edf1f8; }
+#importUploadBar::-webkit-progress-bar { background: #edf1f8; border-radius: 8px; }
+#importUploadBar::-webkit-progress-value { background: #2864ef; border-radius: 8px; transition: width 200ms ease; }
+#importUploadBar::-moz-progress-bar { background: #2864ef; border-radius: 8px; }
+@media (prefers-reduced-motion: reduce) { #importUploadBar::-webkit-progress-value { transition: none; } }
+#importDrop { cursor: pointer; }
+#importDrop:hover { border-color: #7ca1ff; }
+#importDrop[aria-disabled="true"] { cursor: not-allowed; }
+.import-file-row { display: flex; justify-content: center; align-items: center; gap: 14px; }
+.import-file-info { min-width: 0; }
+.import-file-icon, .import-file-meta { display: none; }
+#importDrop.has-file { border-style: solid; border-color: #dfe6f0; padding: 18px; text-align: left; background: #fafbfe; }
+#importDrop.has-file .import-file-info { flex: 1; }
+#importDrop.has-file .import-file-icon { display: grid; place-items: center; flex: 0 0 42px; height: 48px; border-radius: 7px; background: #eaf1ff; color: #3974e5; }
+.import-file-icon svg { width: 24px; height: 28px; }
+#importDrop.has-file #importChoose { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #334760; text-align: left; }
+#importDrop.has-file .import-file-meta { display: flex; align-items: center; gap: 12px; margin-top: 8px; color: #8b99ac; font-size: 12px; }
+#importFileState { color: #15966b; }
+#importFileState::before { content: '✓'; margin-right: 4px; }
+#importDrop.has-file .import-file-help { display: none; }
+#importChoose { min-width: 0; overflow-wrap: anywhere; }
+#importReplace { flex-shrink: 0; }
+.import-progress-label { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 13px; color: #53657e; }
+.import-progress-label strong { color: #2864ef; font-weight: 500; }
+#importProgressBar { display: block; width: 100%; height: 8px; appearance: none; border: 0; border-radius: 8px; overflow: hidden; background: #edf1f8; }
+#importProgressBar::-webkit-progress-bar { background: #edf1f8; border-radius: 8px; }
+#importProgressBar::-webkit-progress-value { background: #2864ef; border-radius: 8px; transition: width 240ms ease; }
+#importProgressBar::-moz-progress-bar { background: #2864ef; border-radius: 8px; }
+#importResult { color: #c65d42; }
+#importErrors { display: inline-block; margin-top: 8px; }
+#refImport button:disabled, #refImport select:disabled { cursor: not-allowed; opacity: .55; }
+#importChoice { width: min(400px, calc(100vw - 32px)); }
+#importChoiceTitle small { font-size: 11px; font-weight: 400; color: #8b99ac; margin-left: 10px; }
+#importChoice .dialog-body { color: #738199; font-size: 13px; line-height: 1.8; }
+#refImport .dialog-footer { display: flex; align-items: center; justify-content: flex-end; }
+@media (prefers-reduced-motion: reduce) { #importProgressBar::-webkit-progress-value { transition: none; } }

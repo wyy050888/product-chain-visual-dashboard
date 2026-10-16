@@ -24,16 +24,19 @@ function uiBindNaturalPeriod({trigger,panel,getSelection,getMaxDate,onApply}){
  },{signal:events.signal});
  panel.addEventListener('click',e=>{
   const button=e.target.closest('button');if(!button||button.disabled)return;const d=button.dataset;
-  if(d.naturalMode){state.mode=d.naturalMode;render(`[data-natural-mode="${state.mode}"]`)}
+  if(d.naturalMode){state.mode=d.naturalMode;state.awaitingEnd=false;const selected=getSelection();state.draft=selected?.mode==='day'?{start:selected.start,end:selected.end}:{start:null,end:null};render(`[data-natural-mode="${state.mode}"]`)}
   else if(d.naturalYearStep){state.year=Math.max(1,Math.min(9998,state.year+Number(d.naturalYearStep)*(state.mode==='year'?9:1)));render(`[data-natural-year-step="${d.naturalYearStep}"]`)}
   else if(d.naturalMonthStep){
    const date=uiPeriodDate(state.year,state.month+Number(d.naturalMonthStep),1);state.year=Math.max(1,Math.min(9998,Number(date.slice(0,4))));state.month=Number(date.slice(5,7));render(`[data-natural-month-step="${d.naturalMonthStep}"]`);
   }else if(d.naturalValue){const value=Number(d.naturalValue);apply({mode:state.mode,year:state.mode==='year'?value:state.year,value:state.mode==='year'?1:value})}
   else if(d.naturalDay){
-   if(!state.awaitingEnd){state.draft={start:d.naturalDay,end:d.naturalDay};state.awaitingEnd=true}
-   else{const dates=[state.draft.start,d.naturalDay].sort();state.draft={start:dates[0],end:dates[1]};state.awaitingEnd=false}
-   render(`[data-natural-day="${d.naturalDay}"]`);
-  }else if(button.hasAttribute('data-natural-confirm'))apply({mode:'day',year:Number(state.draft.start.slice(0,4)),...state.draft});
+   if(!state.awaitingEnd){
+    state.draft={start:d.naturalDay,end:d.naturalDay};state.awaitingEnd=true;render(`[data-natural-day="${d.naturalDay}"]`);
+   }else{
+    const dates=[state.draft.start,d.naturalDay].sort();state.awaitingEnd=false;
+    apply({mode:'day',year:Number(dates[0].slice(0,4)),start:dates[0],end:dates[1]});
+   }
+  }
  },{signal:events.signal});
  panel.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();close();trigger.focus({preventScroll:true})}},{signal:events.signal});
  panel.addEventListener('toggle',()=>{

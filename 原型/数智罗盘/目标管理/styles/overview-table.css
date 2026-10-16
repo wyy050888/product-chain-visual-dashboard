@@ -1,0 +1,75 @@
+/* 分期表只固定对象识别列，负责人和标识随表格滚动。 */
+.identity { display: inline-flex; flex-direction: column; gap: 5px; line-height: 1.4; max-width: 184px; vertical-align: middle; }
+.identity > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.identity small { color: #8b98a9; font-size: 11px; font-weight: 400; font-variant-numeric: tabular-nums; }
+.scope-bar { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; padding: 10px 16px; border-bottom: 1px solid #e4eaf2; background: #fafcff; }
+.scope-bar .stat-period-bar { position: relative; inset: auto; margin-left: auto; flex-wrap: wrap; gap: 8px; transform: none; }
+.scope-bar .cid { font-size: 12px; }
+.scope-bar .cid button { padding: 7px 10px; cursor: pointer; }
+.stat-segments, .stat-picker { height: 32px; font-size: 12px; }
+.stat-segments button { width: 36px; font-size: 12px; }
+.stat-picker { min-width: 76px; padding: 0 8px; max-width: 190px; }
+.period-shortcuts { grid-column: 1/-1; display: flex; justify-content: space-between; border-bottom: 1px solid #e4eaf2; padding: 4px 5px 9px; }
+.period-shortcuts button { border: 0; background: transparent; color: #2864ef; cursor: pointer; font-size: 12px; }
+.stat-month-panel { top: 38px; }
+.tree-only { display: flex; align-items: center; gap: 6px; padding: 2px 12px 10px; font-size: 12px; color: #69788d; }
+.tree-only input { accent-color: #2864ef; }
+.tree mark { background: #ffebad; color: inherit; border-radius: 2px; }
+#vtitle { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 14px; }
+#vtitle .text-link { color: #78869c; font-weight: 400; }
+.path-divider { color: #c4cdd9; font-weight: 400; }
+.overview-heading { min-height: 46px; }
+#overview #ofilters.hidden { display: none!important; }
+#overviewTable { --column-border: #c6d2e2; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: #b6c3d5 #f4f7fb; }
+#overviewTable .overview-matrix { border-collapse: separate; border-spacing: 0; min-width: 100%; width: max-content; font-size: 13px; }
+#overviewTable th { height: 36px; padding: 7px 12px; border-right: 1px solid var(--column-border); border-bottom-color: #d5dfed; background: #edf2fa; color: #3d506d; font-weight: 600; z-index: 3; }
+#overviewTable thead tr:nth-child(2) th { top: 36px; }
+#overviewTable th[rowspan] { top: 0; }
+#overviewTable .period-group { text-align: center; color: #3d506d; background: #edf2fa; font-size: 12px; }
+#overviewTable td { border-right: 1px solid var(--column-border); height: 62px; padding: 10px 12px; background: #fff; color: #43536b; }
+#overviewTable .identity > span { font-weight: 500; }
+#overviewTable .base-product .identity > span, #overviewTable .base-name .text-link { font-weight: 600; }
+#overviewTable .base-name .text-link, #overviewTable .base-product .text-link { color: #245fce; }
+#overviewTable tr:hover td { background: #f5f8ff; }
+#overviewTable tr.link-group-start td { border-top: 1px solid #cdd9e9; }
+#overviewTable .pinned { position: sticky; z-index: 2; background: #fff; }
+#overviewTable .first-col { left: 0; min-width: 208px; max-width: 208px; width: 208px; border-right: 1px solid var(--column-border); }
+#overviewTable .second-col { left: 208px; min-width: 184px; max-width: 184px; width: 184px; border-right: 1px solid var(--column-border); box-shadow: 3px 0 5px #26364e06; }
+#overviewTable .second-col .identity { max-width: 160px; }
+#overviewTable th.pinned { z-index: 5; background: #edf2fa; }
+#overviewTable .base-linkId { min-width: 220px; }
+#overviewTable .base-strategy, #overviewTable .base-promotion { min-width: 118px; }
+#overviewTable .store-people { display: inline-block; max-width: 220px; white-space: normal; overflow-wrap: anywhere; line-height: 1.6; }
+#overviewTable .base-newTag, #overviewTable .base-sharedStock, #overviewTable .base-selectedProduct { min-width: 100px; }
+#overviewTable .metric-head { min-width: 132px; }
+#overviewTable .metric-head button { border: 0; padding: 0; background: transparent; color: inherit; cursor: pointer; font-size: inherit; font-weight: inherit; display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; }
+.sort-mark { color: #98a7bc; font-size: 12px; }
+[aria-sort="ascending"] .sort-mark, [aria-sort="descending"] .sort-mark { color: #2864ef; }
+#overviewTable .metric-cell { text-align: right; min-width: 132px; font-variant-numeric: tabular-nums; }
+/* 前一列的右边框已划分周期边界，避免叠成双线。 */
+#overviewTable .period-start { border-left: 0; }
+#overviewTable .monthly-detail-cell { text-align: center; }
+#overviewTable #osummary td { position: sticky; top: 72px; z-index: 3; height: 42px; background: #e8f0ff; color: #284a7a; font-weight: 600; border-bottom: 1px solid #d0def4; }
+#overviewTable #osummary .pinned { z-index: 4; }
+.target-status { display: inline-flex; align-items: center; justify-content: center; width: 15px; height: 15px; border-radius: 50%; margin-left: 3px; font-size: 10px; font-weight: 700; cursor: pointer; }
+.target-status.good { color: #178a69; background: #e6f6ef; }
+.target-status.red { color: #d74950; background: #ffedef; }
+.missing { color: #a5afbd; font-size: 13px; font-weight: 400; cursor: help; }
+.drill-arrow { display: inline-block; margin-left: 10px; color: #93a9c5; }
+.monthly-dialog { width: min(960px, calc(100vw - 48px)); padding: 0; border: 1px solid #dce4ef; border-radius: 10px; color: #26364e; box-shadow: 0 20px 70px #13284933; }
+.monthly-dialog::backdrop { background: #182d4b66; }
+.monthly-heading { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 18px 20px 8px; }
+.monthly-heading h2 { margin: 0; font-size: 16px; font-weight: 600; }
+.monthly-heading button { border: 0; background: none; font-size: 24px; color: #78869c; cursor: pointer; }
+#linkMonthlyIdentity { margin: 0; padding: 0 20px 16px; color: #7c8b9e; font-size: 12px; }
+.monthly-table-wrap { overflow: auto; max-height: 65vh; }
+.monthly-dialog .table { min-width: 800px; font-size: 13px; }
+.monthly-dialog th { position: sticky; top: 0; }
+.monthly-dialog td { font-variant-numeric: tabular-nums; }
+@media(max-width: 1200px) {
+  .overview { grid-template-columns: 196px minmax(0, 1fr); min-height: 640px; }
+  #overviewTable .second-col { position: static; box-shadow: none; }
+  #overviewTable #osummary .second-col { left: auto; }
+  .scope-bar .stat-period-bar { margin-left: 0; }
+  .summary-metrics { gap: 10px; }
+}

@@ -12,7 +12,7 @@ function rpShopType(r){return /旗舰店/.test(r.name)||r.shopType==='旗舰店'
 function rpShopTypes(platform){const types=sbAllShops().filter(r=>platform==='all'||r.channel===platform).map(rpShopType);return ['旗舰店','自营店','其他店铺'].filter(t=>types.includes(t))}
 function rpShopTypeOptions(platform){const types=rpShopTypes(platform);if(!types.includes(rpState.shopType))rpState.shopType='all';return ['all',...types].map(t=>`<option value="${t}" ${t===rpState.shopType?'selected':''}>${t==='all'?'全部店铺类型':t}</option>`).join('')}
 function rpProduct(r){const p=upIdentity(r);return p?upProduct(p):null}
-function rpFieldMap(k,r,qualityOnly=true){
+function rpFieldMap(k,r,qualityOnly=true,violationPlatform='all'){
   const w=upWindow(),p=upIdentity(r),platform=k===0?r.platform:k===6?r.channel:r.metricPlatform||'all';
   const s=p?upSummary(p,w.start,w.end,platform):null;
   const prev=p?upSummary(p,shiftDate(w.start,-aiFlowDayDiff(w.start,w.end)-1),shiftDate(w.start,-1),platform):null;
@@ -30,14 +30,14 @@ function rpFieldMap(k,r,qualityOnly=true){
     put('received','已收退货率',upPercent(s.receivedRate),receivedTarget===null?'':rpTone(s.receivedRate===null?null:s.receivedRate>receivedTarget),'消费者签收后发生的退货件数÷同期销量。'+(receivedTarget===null?'':'当前样例目标 '+upPercent(receivedTarget)+'；正式目标台账待接入。'),receivedTarget===null?'':`偏差 ${s.receivedRate===null?'—':rrSigned(s.receivedRate-receivedTarget,1,'%')}`);
     put('contact','进线率',upPercent(s.contactRate),quality?rpTone(quality.monthly.contactHit):'','问题进线数÷同期销量；恶化判定与品质榜共用台账。');put('bad','差评率',upPercent(s.badRate),'','差评数÷有效评价数；无评价时不计算。');
     put('returnTarget','总退货率目标',totalTarget===null?'按平台查看':upPercent(totalTarget));put('receivedTarget','已收退货率目标',receivedTarget===null?'按平台查看':upPercent(receivedTarget));
-    put('returnGrowth','总退货率环比',rpGrowth(s.returnRate,prev.returnRate),'','与上期等长区间的总退货率比较；上期为0时不计算百分比。');put('receivedGrowth','已收退货率环比',rpGrowth(s.receivedRate,prev.receivedRate),'','比较两期已收退货率；与已收退件数环比区分。');put('contactGrowth','进线率环比',rpGrowth(s.contactRate,prev.contactRate));
+    put('returnGrowth','总退货率环比',rpGrowth(s.returnRate,prev.returnRate),'','与上期等长区间的总退货率比较；上期为0时不计算百分比。');put('receivedGrowth','已收退货率环比',rpGrowth(s.receivedRate,prev.receivedRate),'','比较两期已收退货率；与已收退件数环比区分。');put('contactGrowth','进线率环比增长值',qrbContactDeltaText(qrbRateDelta(s.contactRate,prev.contactRate)));
     put('sales','销量',rpCount(s.sales));put('returned','总退件数',rpCount(s.returned));put('receivedUnits','已收退件数',rpCount(s.received));put('contacts','问题进线数',fmt(s.contacts));
     const net=k===2?upNetEstimate(s):{profitCents:s.profitCents,profitRate:s.profitRate};put('gsv','GSV',upMoney(s.gsvCents));put('profit',k===2?'测算净利额':'利润额',upMoney(net.profitCents),net.profitCents<0?'red':'');put('margin',k===2?'测算净利率':'利润率',upPercent(net.profitRate),net.profitRate!==null&&net.profitRate<10?'red':'',k===2?'毛利率减10个百分点；原型按同一GSV基数测算，正式毛利率分母待映射。':'利润额÷GSV；无净销售额不计算。');put('loss',k===2?'测算净亏损':'亏损金额',upMoney(Math.min(0,net.profitCents)),net.profitCents<0?'red':'');put('refund','退款金额',upMoney(s.refundCents));
     put('returnGap','总退超目标幅度',totalTarget===null||s.returnRate===null?'按平台查看':rrSigned(s.returnRate-totalTarget,1,'%'));put('receivedGap','已收退超目标幅度',receivedTarget===null||s.receivedRate===null?'按平台查看':rrSigned(s.receivedRate-receivedTarget,1,'%'));
     put('previousReturn','上期总退货率',upPercent(prev.returnRate));put('previousReceived','上期已收退货率',upPercent(prev.receivedRate));put('previousContact','上期进线率',upPercent(prev.contactRate));
     const growth=(a,b)=>Number.isFinite(a)&&Number.isFinite(b)&&b!==0?(a-b)/b*100:null;
     Object.assign(raw,{return:s.returnRate,received:s.receivedRate,contact:s.contactRate,bad:s.badRate,returnTarget:totalTarget,receivedTarget,
-      returnGrowth:growth(s.returnRate,prev.returnRate),receivedGrowth:growth(s.receivedRate,prev.receivedRate),contactGrowth:growth(s.contactRate,prev.contactRate),
+      returnGrowth:growth(s.returnRate,prev.returnRate),receivedGrowth:growth(s.receivedRate,prev.receivedRate),contactGrowth:qrbRateDelta(s.contactRate,prev.contactRate),
       sales:s.sales,returned:s.returned,receivedUnits:s.received,contacts:s.contacts,gsv:s.gsvCents,profit:net.profitCents,margin:net.profitRate,loss:Math.min(0,net.profitCents),refund:s.refundCents,
       returnGap:Number.isFinite(totalTarget)&&Number.isFinite(s.returnRate)?s.returnRate-totalTarget:null,receivedGap:Number.isFinite(receivedTarget)&&Number.isFinite(s.receivedRate)?s.receivedRate-receivedTarget:null,
       previousReturn:prev.returnRate,previousReceived:prev.receivedRate,previousContact:prev.contactRate});
@@ -54,8 +54,8 @@ function rpFieldMap(k,r,qualityOnly=true){
     put('warehouse','仓内库存',rpCount(stock.warehouse));put('factory','工厂库存',rpCount(stock.factory));put('undelivered','新机未交付',rpCount(stock.undelivered));put('price','财务价',pfMoneyYuan(stock.financePriceCents/100)+'/件');put('sales15','近15天销量',rpCount(recent.sales));put('attribute','产品属性',r.attribute);put('age','最大库龄','待接入','','未提供真实批次及库龄，不用低动销天数代替库龄。');put('causes','命中风险',k===3?r.reasons.map(irReasonText).join('、'):'动销产品可售天数≥60天','');
   }
   const fields=rows.map(f=>({...f,sortValue:raw[f.key],...(k===6&&['returnGrowth','receivedGrowth','contactGrowth'].includes(f.key)?{tone:rpComparisonTone(raw[f.key]),hint:f.hint+'上涨绿色，跌幅≤10%灰色，跌幅>10%红色；持平和无可比数据灰色。'}:{})}));
-  return k===0?rpQualityFields(r,fields,s,prev,qualityOnly):fields;
+  return k===0?rpQualityFields(r,fields,s,prev,qualityOnly,violationPlatform):fields;
 }
-function rpFields(k,r,keys){const fields=rpFieldMap(k,r);return keys.map(key=>fields.find(f=>f.key===key)).filter(Boolean)}
+function rpFields(k,r,keys,violationPlatform='all'){const fields=rpFieldMap(k,r,true,violationPlatform);return keys.map(key=>fields.find(f=>f.key===key)).filter(Boolean)}
 function rpCauses(k,r){return k===3?r.reasons.map(irReasonText):k===4?['动销产品可售天数≥60天']:k===2?[(r.metricPlatform&&r.metricPlatform!=='all'?r.metricPlatform:'全公司')+'测算净利为负']:r.risks||[]}
 function rpRules(k){return k===0?qrbRules():k===1?sbRules():k===3?irRules():k===4?'仅判断动销产品：仓内库存＞0，近15日销量＞0，仓内库存÷近15日日均销量≥60天；金额只计算超库龄部分。':k===2?'按SPU汇总所选平台同期业绩，全平台为公司汇总；毛利率减10个百分点后测算净利为负入榜，按测算净亏损绝对金额排序；原型基数为GSV，正式分母待映射。':'退货榜执行文件现行条件：总退超目标5、已收退超目标2、下架≥2、单笔罚款≥5000或品质处罚≥2次；违规优先，再按罚款金额、GSV、目标偏差排序。偏差单位、违规单独入榜范围待补充。'}

@@ -1,3 +1,26 @@
+// 固定演示排期（截止日2026-10-10）；不改源表、不随筛选日期移动。
+// 首屏展示高危、普通延期、黄灯、绿灯；其余近期项目顺延到演示窗口之后。
+const ppScheduleExamples={
+ 'XM-001':['2026-09-20','2026-10-10','红灯'],
+ 'XM-002':['2026-10-10',null,'绿灯'],
+ 'XM-003':['2026-10-07','2026-10-10','红灯'],
+ 'XM-004':['2026-10-10',null,'黄灯'],
+ 'XM-005':['2026-10-01','2026-10-11','红灯'],
+ 'XM-006':['2026-10-11',null,'绿灯'],
+ 'XM-007':['2026-09-24','2026-10-12','红灯'],
+ 'XM-008':['2026-10-09','2026-10-12','红灯'],
+ 'XM-009':['2026-10-12',null,'黄灯'],
+ 'XM-010':['2026-10-04','2026-10-13','红灯']
+};
+function ppSampleSchedule(source){
+ if(!source.reference||source.projectState!=='进行中'||ppDate(source.actual)||source.sampleSchedule)return source;
+ const example=ppScheduleExamples[source.sourceKey],latest=ppLatestPlan(source);
+ if(!example&&(!latest||latest>='2026-10-14'))return source;
+ const [plan,revisedPlan,status]=example||[source.plan,'2026-10-'+String(14+Math.abs(Number(source.id)||0)%7),source.status];
+ return {...source,plan,revisedPlan,status,plannedDelay:revisedPlan?Math.round((Date.parse(revisedPlan)-Date.parse(plan))/86400000):null,
+  sampleSchedule:true,sourceSchedule:{plan:source.plan,revisedPlan:source.revisedPlan,status:source.status}};
+}
+
 // 用户授权的演示风险台账，按固定项目编码关联；真实台账（含空数组）优先。
 // 不改导入项目数据，不按经理或阶段自动推测责任部门。
 const ppRiskExamples={

@@ -24,6 +24,7 @@ function existingMetricRule(label) {
 }
 function decorateMetricLabels(root) {
   for (const label of root.querySelectorAll(presentationLabelSelector)) {
+    if(label.querySelector('[data-ip-rule]'))continue;
     // 六榜抽屉仅由榜单渲染器添加指定的两个指标说明，避免排序、翻页后自动补回其他问号。
     if (label.closest('.rp-list-table') || label.closest('#dialogbody')?.querySelector('.rp-list-table')) continue;
     if (label.hasAttribute('data-up-basic') || label.closest('.metric-help,.metric-tooltip,.portal-header,#lt-system,svg,.presentation-suppressed,.up-detail,.ms-drawer,.pp-risk-detail,.pp-traffic,#pp-ledger-popover,#riskrail .riskcard,#sales,#newtable,#projects.pp-main,#lifecycle')) continue;

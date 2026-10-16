@@ -171,7 +171,7 @@
 #dialogbody .up-return-trend .up-trend-legend{margin:12px 0 8px}
 #dialogbody .up-return-trend svg{min-width:0;width:100%;height:240px}
 #dialogbody .up-violation-stats-scroll{overflow:auto;margin-bottom:22px;background:#f8faff;border-radius:6px}
-#dialogbody .up-violation-stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0;min-width:750px;padding:16px 0}
+#dialogbody .up-violation-stats{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(140px,1fr);gap:0;padding:16px 0}
 #dialogbody .up-violation-stats .up-quality-metric{padding:0 18px;border-radius:0;background:transparent}
 #dialogbody .up-violation-stats .up-quality-metric+.up-quality-metric{border-left:1px solid #e5ebf3}
 #dialogbody .up-violation-filters{display:flex;align-items:center;flex-wrap:wrap;gap:12px 28px;margin-bottom:16px}
@@ -285,3 +285,21 @@
 #dialogbody .up-hero .up-product-heading{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;margin-bottom:12px}
 #dialogbody .up-hero .up-product-heading h2{margin:0}
 #dialogbody .up-product-heading .up-project-link{margin-left:auto;flex-shrink:0;font-size:13px;font-weight:400}
+
+/* 产品违规统计下方保留两个指标；进线条形图按条数占比划分。 */
+#dialogbody .up-violation-stats [data-up-quality-metric="contact"]{grid-column:span 2;min-width:280px}
+#dialogbody .up-violation-stats .up-quality-comparison{white-space:normal;text-align:right}
+#dialogbody .up-violation-stats .up-contact-bar{display:flex;flex-wrap:nowrap;align-items:stretch;justify-content:flex-start;gap:0;height:8px;margin-top:12px;background:#eaf0f8;border-radius:5px;overflow:hidden}
+#dialogbody .up-contact-bar>span{display:block;min-width:0;height:100%;cursor:default}
+#dialogbody .up-contact-bar .quality,#dialogbody .up-contact-legend .quality i{background:#4389f5}
+#dialogbody .up-contact-bar .experience,#dialogbody .up-contact-legend .experience i{background:#9271df}
+#dialogbody .up-violation-stats .up-contact-legend{display:flex;gap:4px 12px;justify-content:flex-start;margin-top:8px;flex-wrap:wrap}
+#dialogbody .up-contact-legend button{display:inline-flex;align-items:center;flex-wrap:wrap;gap:5px;padding:2px 0;border:0;background:transparent;color:#718198;font-size:12px;cursor:default;text-align:left}
+#dialogbody .up-contact-legend i{width:7px;height:7px;border-radius:50%;flex:none}
+#dialogbody .up-contact-legend b{color:#425674;font-weight:400;font-variant-numeric:tabular-nums}
+#dialogbody .up-contact-legend button:focus-visible{outline:2px solid #91beff;outline-offset:3px;border-radius:3px}
+.up-contact-tooltip{z-index:5100;min-width:210px;pointer-events:none}
+.up-contact-tooltip-heading{display:block;margin-bottom:7px;font-size:12px;font-weight:500;color:#718198}
+.up-contact-tooltip-row{display:flex;align-items:center;justify-content:space-between;gap:24px;margin:5px 0}
+.up-contact-tooltip-row b{font-size:13px;font-weight:500;color:#243e5c;font-variant-numeric:tabular-nums}
+.up-contact-tooltip .rp-quality-green{color:#00a486}.up-contact-tooltip .rp-quality-red{color:#ff3157}.up-contact-tooltip .rp-quality-gray{color:#8693a4}

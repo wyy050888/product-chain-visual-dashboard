@@ -37,12 +37,12 @@ function rpCard(k,rows,filter=''){
 }
 qrCard=function(){return rpCard(0,rpCardRows(0),rpCardPlatformControl(0))};
 rfCard=function(k){const filter=rpCardPlatformControl(k);return rpCard(k,rpCardRows(k),filter)};
-// 六榜仅保留标题问号，内容由当前榜单入池与排序规则提供。
+// 六榜保留标题规则与明确需要的品质比率问号。
 groupRiskCardMetricHelp=function(root){
  const cards=[...root.querySelectorAll('#riskrail .riskcard')];
  if(root.matches?.('#riskrail .riskcard'))cards.unshift(root);
  for(const card of cards){
-  card.querySelectorAll('.metric-help:not(.card-metric-help)').forEach(help=>help.remove());
+  card.querySelectorAll('.metric-help:not(.card-metric-help):not(.rp-quality-rate-help)').forEach(help=>help.remove());
   const rule=rpRenderedCardRules.get(card),title=card.querySelector('.rhead h3');
   if(!rule||!title)continue;
   addMetricHelp(title,rule);

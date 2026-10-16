@@ -1,8 +1,9 @@
 // 六榜固定表头；业务筛选按Tab保存，分组明细使用独立副本，返回保留父层状态。
-function rpOpenList(k,reset=false,scopeRows=null){
+function rpOpenList(k,reset=false,scopeRows=null,restore=null){
  const first=$('#overlay').hidden;
- if(first){rpListState.period={...periodFor('risk')};rpListState.sorts={};rpListState.filters={};rpSavedFilters(k)};
- if(first||reset){if(k===0){qrState.listPlatform=rpCardPlatform(0);qrState.listPage=1}else{rfState.kind=k;rfState.page=1;rfState.dimension='spu';rfState.listPlatforms[k]=rpCardPlatform(k)}}
+ if(first&&!restore){rpListState.period={...periodFor('risk')};rpListState.sorts={};rpListState.filters={};rpSavedFilters(k)};
+ if((first||reset)&&!restore){if(k===0){qrState.listPlatform=rpCardPlatform(0);qrState.listPage=1}else{rfState.kind=k;rfState.page=1;rfState.dimension='spu';rfState.listPlatforms[k]=rpCardPlatform(k)}}
+ if(restore&&k===1){rfState.kind=1;rfState.dimension='spu';rpListState.period={...restore.period};rpListState.filters[1]=restore.filters;rpListState.sorts[1]=restore.sorts;rfState.listPlatforms[1]=restore.platform;rfState.page=restore.page}
  const filters=scopeRows?{...rpSavedFilters(k)}:rpSavedFilters(k);
  const sorts=scopeRows?{}:(rpListState.sorts[k]||(rpListState.sorts[k]={}));
  const quality=k===0,tableId=quality?'qr-list-table':'rf-list-table',platformId=quality?'qr-list-platform':k===1?'rf-list-platform':'rf-return-platform';
@@ -17,7 +18,7 @@ function rpOpenList(k,reset=false,scopeRows=null){
    const keys=rpColumnKeys(k),hasPlatform=false,hasTrend=![1,3,4].includes(k),hasRisk=false;
    const allowed=keys,state=sortState();
    if(state.key&&!allowed.includes(state.key)){state.key='';state.direction=''}
-   const fieldsByRow=new Map(),fieldsFor=r=>{if(!fieldsByRow.has(r))fieldsByRow.set(r,rpFieldMap(k,r,filters.qualityOnly));return fieldsByRow.get(r)};
+   const fieldsByRow=new Map(),fieldsFor=r=>{if(!fieldsByRow.has(r))fieldsByRow.set(r,rpFieldMap(k,r,filters.qualityOnly,k===0?qrState.listPlatform:'all'));return fieldsByRow.get(r)};
    const data=rpSortRows(rows,state,(r,key)=>fieldsFor(r).find(f=>f.key===key)?.sortValue,k===1&&state.key==='score'?r=>r.channel:undefined);
    setPage(Math.min(Math.max(1,page()),Math.max(1,Math.ceil(data.length/DRAWER_PAGE_SIZE))));
    const trend=rpListState.trends[k]||'gsv';
@@ -37,7 +38,7 @@ function rpOpenList(k,reset=false,scopeRows=null){
   for(const input of $$('#dialogbody [data-rp-filter]'))input.addEventListener(input.type==='search'?'input':'change',()=>{filters[input.dataset.rpFilter]=input.type==='checkbox'?input.checked:pfControlValue(input);setPage(1);fill()});
   $('#dialogbody [data-rp-reset]').onclick=()=>{Object.assign(filters,rpDefaultFilters());for(const key of Object.keys(sorts))delete sorts[key];for(const input of $$('#dialogbody [data-rp-filter]')){if(input.type==='checkbox')input.checked=filters[input.dataset.rpFilter];else pfControlSet(input,filters[input.dataset.rpFilter])}const platform=$('#'+platformId);if(platform){pfControlSet(platform,quality?'抖音':'all');platform.dispatchEvent(new Event('change',{bubbles:true}))}for(const b of document.querySelectorAll('#dialogbody .pf-attribute [data-pf-attribute-choice]'))b.setAttribute('aria-checked',String(b.dataset.pfAttributeChoice==='all'));const v=document.querySelector('#dialogbody .pf-attribute-value');if(v)v.textContent='全部';setPage(1);fill()};
   if(quality)$('#qrb-list-config').onclick=()=>toast('开发说明：按钮跳转到数智罗盘配置目标退货率。');
-  if(k===1)$('#rp-shop-type-config').onclick=()=>toast('配置店铺类型：待设计');
+  if(k===1)$('#rp-shop-type-config').onclick=shcOpenFromRanking;
   fill();if(!scopeRows)riskRankingAttach(k);uiArrangeBusinessFilters($('#dialogbody'));pfMultiMount($('#dialogbody'));
   const setPeriod=()=>{$('#dialogbody').dataset.rankingPeriod=JSON.stringify(rpListState.period)};setPeriod();
   drawerMountPeriod($('#dialogsub'),rpListState.period,(period)=>{rpListState.period=period;setPeriod();setPage(1);fill()},'ranking-date-trigger');

@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
 import {fileURLToPath} from 'node:url';
+import {pddLinks} from './pdd-links.mjs';
 function rules(){
  const shiftDate=(date,days)=>new Date(Date.parse(date)+days*86400000).toISOString().slice(0,10);
  const ctx=vm.createContext({DATA_CUTOFF:'2026-10-10',shiftDate,riskMonthShift:(month,n)=>{const [y,m]=month.split('-').map(Number);return new Date(Date.UTC(y,m-1+n,1)).toISOString().slice(0,7)}});
@@ -9,6 +10,7 @@ function rules(){
  vm.runInContext(rangeSource.slice(0,rangeSource.indexOf('function riskLossPeriod')),ctx);
  vm.runInContext(fs.readFileSync(new URL('../../src/modules/sample-reference/03-shop-sales.js',import.meta.url),'utf8'),ctx);
  vm.runInContext(fs.readFileSync(new URL('../../src/modules/sample-reference/04-shop-events.js',import.meta.url),'utf8'),ctx);
+ vm.runInContext(fs.readFileSync(new URL('../../src/modules/risk-presentation/01-quality.js',import.meta.url),'utf8'),ctx);
  vm.runInContext(fs.readFileSync(new URL('../../src/modules/risk-presentation/01-shop.js',import.meta.url),'utf8'),ctx);
  for(const [platform,red,normal] of [['抖音',4.6,4.8],['快手',4.4,4.7],['视频号',4,4.5],['天猫',4.6,4.8],['京东',4.6,4.8],['拼多多',4.7,4.8]]){
   assert.equal(ctx.rpShopScoreTone(platform,red),platform==='天猫'?'rp-quality-yellow':'rp-quality-red');
@@ -74,7 +76,9 @@ export async function shopPreview(page){
   const overflow=await card.evaluate(c=>[...c.querySelectorAll('.rp-shop-metric,.rp-shop-scores')].filter(el=>el.scrollWidth>el.clientWidth+1).length);
   assert.equal(overflow,0,'店铺卡片指标不能溢出 '+width);
  }
- assert.equal(await card.locator('.rp-shop-scores>div').count(),24);
+ assert.equal(await card.locator('.rp-shop-scores>div').count(),4*await card.locator('.rp-shop-scores:not(.rp-shop-link-counts)').count());
+ assert.equal(await card.locator('.rp-shop-link-counts .rp-pdd-count--card').count(),2*await card.locator('.rp-shop-link-counts').count());
+ assert.equal(await card.locator('[data-rp-pdd-shop]').count(),0);
  assert.equal(await card.locator('.rp-shop-values [data-rp-field="score"]').count(),0);
  assert.equal(await card.locator('.rp-shop-scores>div:first-child').first().getAttribute('data-rp-field'),'score');
  assert(await card.locator('.rp-shop-assessed').count()>0);
@@ -102,4 +106,5 @@ export async function shopPreview(page){
  await page.locator('[data-rp-filter="qualityRisk"]').selectOption('down',{force:true});
  assert(await table.locator('tbody tr').count()>0);
  await page.locator('#close').click();
+ await pddLinks(page);
 }

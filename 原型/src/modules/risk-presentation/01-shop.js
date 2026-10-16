@@ -40,7 +40,7 @@ function rpShopPeriodEvents(shop,start,end,qualityOnly=true){
   }
  }
  const events=[...allEvents,...sampleShopNonQualityEvents(shop,start,end)].filter(e=>!qualityOnly||e.reasonType==='quality');
- return events;
+ return rpPlatformViolationEvents(events,shop.channel||'all',shop.channel);
 }
 function rpShopPeriodFacts(shop,start,end,qualityOnly=true){
  const period=riskShopPeriod(shop,riskRange(start,end)),events=rpShopPeriodEvents(shop,start,end,qualityOnly);
@@ -65,5 +65,23 @@ function rpShopFields(shop,qualityOnly=true){
  add('problemSpus','店铺内问题SPU数',String(problems),problems,'rp-quality-normal','','','单品连续两期退货率均超过各自目标的105%，且本期高于上期；同一SPU只计一次。');
  add('score','店铺分',Number.isFinite(shop.score)?fmt(shop.score,2):'—',shop.score,rpShopScoreTone(shop.channel,shop.score),'','','结束日评分。'+rpShopScoreHint(shop.channel));
  for(const [key,name] of [['productScore','商品分'],['logisticsScore','物流分'],['serviceScore','服务分']])add(key,name,Number.isFinite(shop[key])?fmt(shop[key],2):'—',shop[key],'rp-quality-normal','','','结束日评分；未设置额外阈值。');
- return fields;
+ if(shop.channel==='拼多多'){
+  const groups=rpPddLinkGroups(shop),end=w.end;
+  for(const [key,name,tone] of [['redLinks','红灯链接数','red'],['yellowLinks','黄灯链接数','yellow']]){
+   fields.push({...rpField(key,name,groups[tone].length),sortValue:groups[tone].length,shopId:shop.id,linkTone:tone,linkEnd:end});
+  }
+ }
+ return fields.map(field=>rpViolationField(field,shop.channel));
+}
+
+// 六项考核命中数：至少3项为红灯，1—2项为黄灯，0项不纳入异常链接。
+function rpPddLinkGroups(shop){
+ const links=sbPddLinks(shop);
+ return {red:links.filter(link=>link.redCount>=3),yellow:links.filter(link=>link.redCount>0&&link.redCount<3)};
+}
+function rpShopColumns(platform){
+ const selected=Array.isArray(platform)?platform:[platform],pddOnly=selected.length===1&&selected[0]==='拼多多';
+ if(!selected.includes('拼多多'))return [...rpShopListKeys];
+ const scoreKeys=['score','productScore','logisticsScore','serviceScore'];
+ return [...rpShopListKeys.filter(key=>!pddOnly||!scoreKeys.includes(key)),'redLinks','yellowLinks'];
 }

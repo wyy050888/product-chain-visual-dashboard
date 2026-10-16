@@ -1,10 +1,37 @@
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
+import fs from 'node:fs';
+import vm from 'node:vm';
 export async function projectPanorama(page){
+ const ctx=vm.createContext({});vm.runInContext(fs.readFileSync(new URL('../../src/modules/project-panorama/01-model.js',import.meta.url),'utf8'),ctx);
+ const crossRisk={ledger:[{department:'产品部',light:'红灯'},{department:'采购部',light:'黄灯'},{department:'采购部',light:'红灯',status:'已闭环'}]};
+ assert.equal(ctx.ppMatchesRisk(crossRisk,{department:['采购部'],riskLight:['红灯']}),false,'部门和灯色不能跨风险单匹配，也不能命中已闭环记录');
+ assert.equal(ctx.ppMatchesRisk(crossRisk,{department:['产品部'],riskLight:['红灯']}),true);
+ assert.equal(ctx.ppMatchesRisk(crossRisk,{department:['采购部'],riskLight:['黄灯']}),true);
+ assert.deepEqual(Array.from(ctx.ppSelectedRisks(crossRisk,{department:['采购部'],riskLight:['黄灯']}),r=>r.light),['黄灯']);
+ assert.equal(ctx.ppSelectedRisks(crossRisk,{department:[],riskLight:[]}).length,3,'没有风险条件时保留完整台账');
+
  await page.locator('a[href="#projects"]').click();
  const snapshot=()=>page.evaluate(()=>window.projectPanoramaAudit());
  const initial=await snapshot();assert(initial.scope.length>0);
+ assert.equal(await page.locator('#projects>.sectionhead #pp-filter-category,#pp-scope').count(),0);
+ const categoryMenu=page.locator('#pp-filters .pf-multi').filter({has:page.locator('#pp-filter-category')});
+ assert.equal(await categoryMenu.locator('.unified-field-name').innerText(),'类目');assert.equal(await categoryMenu.locator('.pf-multi-value').innerText(),'全部');
+ assert.deepEqual(await page.locator('#pp-filters .pp-filter-row').evaluate(e=>[...e.children].slice(0,3).map(child=>child.querySelector('select')?.dataset.ppFilter||'search')),['search','category','type']);
+ await categoryMenu.locator('summary').click();await categoryMenu.locator('input[value="清洁类"]').check();await page.keyboard.press('Escape');
+ assert((await snapshot()).scope.every(p=>p.category==='清洁类'));
+ await page.locator('[data-pp-reset]').click();assert.deepEqual((await snapshot()).state.category,[]);assert.equal(await categoryMenu.locator('.pf-multi-value').innerText(),'全部');
+
+ // 首屏演示由固定排期产生，仍按有效计划日期排序，不能靠错配灯色凑展示。
+ const demo=initial.filtered.slice(0,10),light=p=>p.status==='红灯'&&p.delay>15?'高危':p.status;
+ assert.deepEqual([...new Set(demo.slice(0,4).map(light))].sort(),['高危','红灯','黄灯','绿灯'].sort());
+ assert([1,3,6,9,16,20].every(days=>demo.some(p=>p.delay===days)));
+ assert(demo.some(p=>p.revisedPlan)&&demo.some(p=>!p.revisedPlan));
+ assert(demo.every(p=>p.delay===Math.max(0,Math.round((Date.parse(initial.cutoff)-Date.parse(p.plan))/86400000))));
+ assert(demo.every((p,i)=>!i||[demo[i-1].plan,demo[i-1].revisedPlan].filter(Boolean).sort().at(-1)<=[p.plan,p.revisedPlan].filter(Boolean).sort().at(-1)));
+
  assert.deepEqual(initial.state.projectState,['进行中']);assert(initial.scope.every(p=>p.projectState==='进行中'));
+ assert(initial.scope.filter(p=>!p.actual&&p.delay>0).every(p=>p.status==='红灯'),'未上线且延期的项目不能显示绿灯或黄灯');
  const stateMenu=page.locator('.pf-multi').filter({has:page.locator('#pp-filter-projectState')});
  assert.deepEqual(await page.locator('#pp-filter-projectState option').allTextContents(),['全部','进行中','已完成','已暂停/取消','未开始']);
  await stateMenu.locator('summary').click();await stateMenu.locator('input[value="all"]').check();
@@ -51,6 +78,7 @@ export async function projectPanorama(page){
  assert.equal(highResult.scope.length,initial.scope.length);await highCard.click();
  assert.equal((await snapshot()).filtered.length,initial.scope.length);
  const combined=page.locator('[data-pp-link="light"][data-value="红黄灯"]');
+ assert.equal(await combined.locator('span').first().innerText(),'红黄灯合计');
  await combined.click();let current=await snapshot();
  assert.equal(current.scope.length,initial.scope.length,'图表联动不改变概览分母');
  assert.equal(current.filtered.length,initial.scope.filter(p=>['红灯','黄灯'].includes(p.status)).length);
@@ -59,7 +87,7 @@ export async function projectPanorama(page){
  assert((await snapshot()).filtered.every(p=>p.status==='红灯'));await red.click();
  // 卡片与灯色下拉双向同步；多选期间菜单保持打开，概览分母不受影响。
  const lights=page.locator('.pf-multi').filter({has:page.locator('#pp-filter-light')});
- for(const [value,expected] of [['红黄灯',['红灯','黄灯']],['高危红灯',['高危红灯']],['红灯',['红灯']],['黄灯',['黄灯']]]){
+ for(const [value,expected] of [['红黄灯',['高危红灯','红灯','黄灯']],['高危红灯',['高危红灯']],['红灯',['红灯']],['黄灯',['黄灯']]]){
   const card=page.locator(`[data-pp-link="light"][data-value="${value}"]`);
   await card.click();current=await snapshot();assert.deepEqual(current.state.light,expected);assert.equal(current.state.link,null);
   assert.deepEqual(await page.locator('#pp-filter-light').evaluate(el=>Array.from(el.selectedOptions,o=>o.value)),expected);
@@ -108,6 +136,20 @@ export async function projectPanorama(page){
   await group.click();current=await snapshot();assert.deepEqual(current.state[dimension],[greenProject[dimension]]);assert.deepEqual(await page.locator('#pp-filter-'+dimension).evaluate(el=>Array.from(el.selectedOptions,o=>o.value)),[greenProject[dimension]]);assert.equal(await group.getAttribute('aria-pressed'),'true');
   assert.equal(current.filtered.length,initial.scope.filter(p=>p[dimension]===greenProject[dimension]&&['红灯','黄灯','绿灯'].includes(p.status)).length);
   assert(current.filtered.some(p=>p.id===greenProject.id));await group.click();
+  current=await snapshot();assert.deepEqual(current.state[dimension],[],'再次点击当前单选项取消选择');
+  assert.equal(current.filtered.length,initial.scope.length,'取消后恢复该维度全部项目');
+  assert.deepEqual(await page.locator('#pp-filter-'+dimension).evaluate(el=>Array.from(el.selectedOptions,o=>o.value)),['all']);
+  assert.equal(await group.getAttribute('aria-pressed'),'false');
+  assert.equal(await page.locator('.pp-distribution [data-pp-link][aria-pressed="true"]').count(),0);
+  await group.click();assert.deepEqual((await snapshot()).state[dimension],[greenProject[dimension]]);
+  const other=initial.scope.find(p=>p[dimension]!==greenProject[dimension])[dimension];
+  await page.locator(`.pp-distribution [data-pp-link="${dimension}"][data-value="${other}"]`).click();
+  current=await snapshot();assert.deepEqual(current.state[dimension],[other],'点击其他项替换当前项，不累加');
+  assert(current.scope.every(p=>p[dimension]===other));
+  assert.deepEqual(await page.locator('#pp-filter-'+dimension).evaluate(el=>Array.from(el.selectedOptions,o=>o.value)),[other]);
+  assert.equal(await page.locator('.pp-distribution [data-pp-link][aria-pressed="true"]').count(),1);
+  const menu=page.locator('.pf-multi').filter({has:page.locator('#pp-filter-'+dimension)});
+  await menu.locator('summary').click();await menu.locator('input[value="all"]').check();await page.keyboard.press('Escape');
  }
  // 同名阶段必须同时匹配所属类型，多选后取并集。
  const stageMenu=page.locator('.pp-stage-cascader');
@@ -122,7 +164,7 @@ export async function projectPanorama(page){
  assert.equal(current.filtered.length,initial.scope.filter(p=>['自研开发','自选开发'].includes(p.type)&&p.stages.includes('首批上线期')).length);
  await stageMenu.locator('[data-pp-stage-clear]').click();assert.equal((await snapshot()).filtered.length,initial.scope.length);
  await page.keyboard.press('Escape');assert.equal(await stageMenu.getAttribute('open'),null);
- const typeMenu=page.locator('#pp-scope .pf-multi').filter({has:page.locator('#pp-filter-type')});
+ const typeMenu=page.locator('#pp-filters .pf-multi').filter({has:page.locator('#pp-filter-type')});
  await typeMenu.locator('summary').click();await typeMenu.locator('input[value="自研开发"]').check();await typeMenu.locator('input[value="自选开发"]').check();
  assert((await snapshot()).scope.every(p=>['自研开发','自选开发'].includes(p.type)));
  assert.equal(await page.locator('[data-pp-distribution="type"]').getAttribute('aria-pressed'),'true');
@@ -132,26 +174,77 @@ export async function projectPanorama(page){
  await page.locator('[data-pp-distribution="category"]').click();
  assert(await page.locator('[data-pp-link="category"]').count()>0);
  await page.locator('[data-pp-distribution="type"]').click();
- await page.locator('[data-pp-risk-department="产品部"]').click();
- await page.locator('[data-pp-link="departmentRisk"]').first().click();
- current=await snapshot();assert(current.filtered.length>0);assert(current.filtered.every(p=>p.type==='自研开发'&&p.departments.includes('产品部')));
- assert.equal(await page.locator('#pp-selection').count(),0);
- await page.locator('[data-pp-link="departmentRisk"]').first().click();
- assert.equal((await snapshot()).filtered.length,initial.scope.length);
- await page.locator('[data-pp-link="departmentRisk"]').first().click();
+ const riskMenu=page.locator('#pp-filters .pf-multi').filter({has:page.locator('#pp-filter-riskLight')});
+ assert.equal(await riskMenu.locator('.unified-field-name').innerText(),'风险单红绿灯');assert.equal(await riskMenu.locator('.pf-multi-value').innerText(),'全部');
+ assert.deepEqual(await page.locator('#pp-filter-riskLight option').allTextContents(),['全部','红灯','黄灯','绿灯']);
+ const riskMatch=(p,department,lights)=>p.ledger.some(r=>r.status!=='已闭环'&&lights.includes(r.light)&&(Array.isArray(r.department)?r.department:[r.department]).includes(department));
+ for(const dimension of ['type','category']){
+  await page.locator('[data-pp-reset]').click();await page.locator(`[data-pp-dept-dimension="${dimension}"]`).click();await page.locator('[data-pp-risk-department="产品部"]').click();
+  const keys=[...new Set(initial.scope.map(p=>p[dimension]))],key=keys.find(key=>['红灯','黄灯'].every(light=>initial.scope.some(p=>p[dimension]===key&&riskMatch(p,'产品部',[light]))));assert(key);
+  const row=page.locator('.pp-dept-risk-row').filter({has:page.locator(`.pp-bar-label[data-value="${key}"]`)});
+  for(const light of ['红灯','黄灯']){
+   await row.locator(`.pp-risk-segment[data-pp-risk-light="${light}"]`).click();current=await snapshot();
+   assert.deepEqual(current.state.riskLight,[light]);assert.deepEqual(current.state.department,['产品部']);assert.deepEqual(current.state[dimension],[key]);assert.equal(current.state.link,null);assert.equal(current.state.page,1);
+   const expected=initial.scope.filter(p=>p[dimension]===key&&riskMatch(p,'产品部',[light]));assert(expected.length>0);assert.deepEqual(current.filtered.map(p=>p.id).sort((a,b)=>a-b),expected.map(p=>p.id).sort((a,b)=>a-b));
+   assert.equal(await riskMenu.locator('.pf-multi-value').innerText(),light);
+   for(const tableRow of await page.locator('[data-pp-row]').all()){
+    const id=Number(await tableRow.getAttribute('data-pp-row')),project=current.filtered.find(p=>p.id===id);
+    const records=project.ledger.filter(r=>r.status!=='已闭环'&&r.light===light&&(Array.isArray(r.department)?r.department:[r.department]).includes('产品部'));
+    assert.equal(await tableRow.locator('[data-pp-ledger] small').innerText(),'共 '+records.length+' 条 · 查看更多');
+   }
+   assert.equal(await row.locator(`.pp-risk-counts [data-pp-risk-light="${light}"]`).getAttribute('aria-pressed'),'true');
+   await row.locator(`.pp-risk-counts [data-pp-risk-light="${light}"]`).click();current=await snapshot();
+   assert.deepEqual(current.state.riskLight,[]);assert.deepEqual(current.state.department,[]);assert.deepEqual(current.state[dimension],[]);
+   assert.equal(current.filtered.length,initial.scope.length,'二次点击数字取消同色柱段选择，恢复该维度全部项目');
+   assert.equal(await riskMenu.locator('.pf-multi-value').innerText(),'全部');
+   assert.equal(await row.locator(`.pp-risk-counts [data-pp-risk-light="${light}"]`).getAttribute('aria-pressed'),'false');
+   await row.locator(`.pp-risk-counts [data-pp-risk-light="${light}"]`).click();assert.deepEqual((await snapshot()).state.riskLight,[light]);
+   await row.locator(`.pp-risk-segment[data-pp-risk-light="${light}"]`).click();assert.deepEqual((await snapshot()).state.riskLight,[],'再次点击柱段也可取消');
+  }
+  await row.locator('.pp-bar-label').click();current=await snapshot();assert.deepEqual(current.state.riskLight,['红灯','黄灯']);assert(current.filtered.every(p=>riskMatch(p,'产品部',['红灯','黄灯'])));
+  await row.locator('.pp-bar-label').click();current=await snapshot();assert.deepEqual(current.state.riskLight,[]);
+  assert.deepEqual(current.state[dimension],[]);assert.deepEqual(current.state.department,[]);assert.equal(current.filtered.length,initial.scope.length);
+  assert.equal(await page.locator('.pp-departments .pp-dept-risk-row.selected').count(),0);
+ }
+ await page.locator('[data-pp-reset]').click();assert.deepEqual((await snapshot()).state.riskLight,[]);assert.deepEqual((await snapshot()).state.department,[]);assert.equal((await snapshot()).state.riskDepartment,'全部');
+ await riskMenu.locator('summary').click();await riskMenu.locator('input[value="绿灯"]').check();current=await snapshot();assert.deepEqual(current.state.light,[]);assert(current.filtered.every(p=>p.ledger.some(r=>r.status!=='已闭环'&&r.light==='绿灯')));await page.keyboard.press('Escape');
+
+ // 截图回归：3条黄灯属于2个项目，不得把其他灯色及已闭环记录计入条数。
  await page.locator('[data-pp-reset]').click();
- assert.equal((await snapshot()).state.link,null);
+ await page.locator('.pp-distribution [data-pp-link="type"][data-value="自研开发"]').click();
+ await page.locator('[data-pp-dept-dimension="type"]').click();
+ const yellowCount=page.locator('.pp-departments .pp-risk-counts [data-value="自研开发"][data-pp-risk-light="黄灯"]');
+ const selectedCount=Number(await yellowCount.innerText());await yellowCount.click();current=await snapshot();
+ assert.equal(selectedCount,3);assert.equal(current.filtered.length,2);
+ let riskTotal=0;
+ for(const tableRow of await page.locator('[data-pp-row]').all()){
+  const id=Number(await tableRow.getAttribute('data-pp-row')),project=current.filtered.find(p=>p.id===id);
+  const records=project.ledger.filter(r=>r.status!=='已闭环'&&r.light==='黄灯');riskTotal+=records.length;
+  const trigger=tableRow.locator('[data-pp-ledger]');assert.equal(await trigger.locator('small').innerText(),'共 '+records.length+' 条 · 查看更多');
+  assert.equal(await trigger.locator('.pp-wrap').innerText(),[...new Set(records.map(r=>r.rootCause||r.description).filter(Boolean))].join('；'));
+  await trigger.evaluate(el=>el.scrollIntoView({behavior:'instant',block:'center',inline:'center'}));await trigger.click();
+  const popup=page.locator('#pp-ledger-popover');await popup.waitFor({state:'visible'});
+  assert.equal(await popup.locator('tbody tr').count(),records.length);
+  assert((await popup.locator('tbody td:nth-child(3)').allTextContents()).every(text=>text.includes('黄灯')));
+  await page.keyboard.press('Escape');
+ }
+ assert.equal(riskTotal,selectedCount);
+ await page.locator('[data-pp-reset]').click();
  const query=initial.scope[0].name;await page.locator('[data-pp-search]').fill(query);
  assert((await snapshot()).filtered.every(p=>p.name.includes(query)));await page.locator('[data-pp-reset]').click();
- const ownerSearch=page.getByRole('searchbox',{name:'责任链主搜索',exact:true});
- const ownerPart=initial.scope.find(p=>p.responsible.length).responsible[0].slice(0,2);
- await ownerSearch.fill(' '+ownerPart+' ');current=await snapshot();
- assert.equal(current.filtered.length,initial.scope.filter(p=>p.responsible.some(name=>name.includes(ownerPart))).length);
- assert(current.filtered.length>0);assert.equal(await page.locator('#pp-filter-owner').count(),0);
- await page.locator('[data-pp-search]').fill(query);current=await snapshot();
- assert(current.filtered.every(p=>p.name.includes(query)&&p.responsible.some(name=>name.includes(ownerPart))));
- await ownerSearch.fill('不存在的责任人');assert.equal((await snapshot()).filtered.length,0);
- await page.locator('[data-pp-reset]').click();assert.equal(await ownerSearch.inputValue(),'');
+ const search=page.getByRole('searchbox',{name:'搜索项目名称/根因分析/责任链主',exact:true});
+ assert.equal(await page.locator('#pp-filters input[type="search"]').count(),1);
+ assert.equal(await page.locator('#projects>.sectionhead [data-pp-filter]').count(),0);
+ assert.equal(await page.locator('#pp-filters #pp-filter-type').count(),1);
+ const searchSample=initial.scope.find(p=>p.responsible.length&&p.ledger.some(r=>r.rootCause));
+ for(const term of [searchSample.name,searchSample.ledger.find(r=>r.rootCause).rootCause,searchSample.responsible[0]]){
+  await search.fill(' '+term.toLowerCase()+' ');current=await snapshot();
+  const expected=initial.scope.filter(p=>[p.name,...p.ledger.map(r=>r.rootCause),...p.responsible].some(v=>String(v||'').toLowerCase().includes(term.toLowerCase())));
+  assert(expected.length>0);assert.deepEqual(current.filtered.map(p=>p.id).sort((a,b)=>a-b),expected.map(p=>p.id).sort((a,b)=>a-b));
+  assert.equal(current.state.page,1);
+ }
+ await search.fill('没有匹配的综合查询');assert.equal((await snapshot()).filtered.length,0);
+ await page.locator('[data-pp-reset]').click();assert.equal(await search.inputValue(),'');
  assert.equal((await snapshot()).filtered.length,initial.scope.length);
  await page.getByRole('button',{name:'计划上线日期筛选',exact:true}).click();
  await page.locator('[data-pp-plan-mode="quarter"]').click();await page.locator('[data-pp-plan-value="3"]').click();
@@ -213,10 +306,10 @@ export async function projectPanorama(page){
  const first=await page.locator('[data-pp-row]').first().getAttribute('data-pp-row');
  await page.locator('[data-pp-page="2"]').first().click();assert.notEqual(await page.locator('[data-pp-row]').first().getAttribute('data-pp-row'),first);
  await page.locator('[data-pp-reset]').click();
- const alignment=await page.locator('#pp-layout').evaluate(el=>{const l=el.querySelector('#pp-overview').getBoundingClientRect(),r=el.querySelector('.pp-main-table').getBoundingClientRect();return Math.abs(l.bottom-r.bottom)+Math.abs(l.top-r.top)});assert(alignment<2);
+ const alignment=await page.locator('#pp-layout').evaluate(el=>{const first=el.querySelector('#pp-overview>.pp-card:first-child').getBoundingClientRect(),last=el.querySelector('#pp-overview>.pp-card:last-child').getBoundingClientRect(),r=el.querySelector('.pp-main-table').getBoundingClientRect();return Math.abs(last.bottom-r.bottom)+Math.abs(first.top-r.top)});assert(alignment<2,'左侧实际卡片与右侧列表顶部、分页底部对齐');
  await page.locator('#pp-table-scroll').evaluate(el=>el.scrollLeft=0);await page.locator('a[href="#projects"]').click();
  await page.screenshot({path:fileURLToPath(new URL('../../outputs/project-panorama-desktop.png',import.meta.url))});
- for(const width of [1280,900,600]){await page.setViewportSize({width,height:1000});assert(await page.locator('#pp-layout').evaluate(el=>el.getBoundingClientRect().right<=innerWidth+1),'项目布局不溢出屏幕');}
+ for(const width of [1280,900,600,390]){await page.setViewportSize({width,height:1000});assert(await page.locator('#pp-layout').evaluate(el=>el.getBoundingClientRect().right<=innerWidth+1),'项目布局不溢出屏幕');assert(await page.locator('.pp-departments').evaluate(el=>el.scrollWidth<=el.clientWidth+1),'责任部门风险柱图不溢出卡片');}
  await page.setViewportSize({width:1920,height:1080});
  // 同源采购组件使用独立克隆，不能带入主管看板的筛选及新版DOM。
  await page.locator('#chain-menu-trigger').click();await page.locator('#chain-menu').getByRole('menuitem',{name:'采购部',exact:true}).click();

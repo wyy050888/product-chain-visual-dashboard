@@ -1,0 +1,9 @@
+.calendar-panel.entry-type-panel { width: 380px; padding: 4px 16px; }
+.entry-type-row { display: grid; grid-template-columns: 92px minmax(0,1fr); align-items: center; gap: 12px; padding: 15px 0; font-size: 12px; }
+.entry-type-row + .entry-type-row { border-top: 1px solid #edf0f5; }
+.entry-type-row > span { color: #52617a; font-weight: 600; }
+.entry-type-row > div { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
+.entry-type-row label { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; cursor: pointer; }
+.entry-type-row input { margin: 0; accent-color: #2864ef; }
+.product-type-trigger > span { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.calendar-panel.entry-type-panel { max-width: calc(100vw - 16px); }

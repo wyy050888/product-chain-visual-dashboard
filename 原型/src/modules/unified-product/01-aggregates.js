@@ -55,6 +55,8 @@ function upSummary(p,start,end,platform='all'){
   returnRate:sum.sales?sum.returned/sum.sales*100:null,
   receivedRate:sum.sales?sum.received/sum.sales*100:null,
   contactRate:sum.sales?sum.contacts/sum.sales*100:null,
+  qualityContactRate:sum.sales?sum.qualityContacts/sum.sales*100:null,
+  experienceContactRate:sum.sales?sum.experienceContacts/sum.sales*100:null,
   badRate:sum.reviews?sum.bad/sum.reviews*100:null,
   feeRate:sum.gsvCents?sum.expenseCents/sum.gsvCents*100:null,
   profitRate:sum.gsvCents?sum.profitCents/sum.gsvCents*100:null};

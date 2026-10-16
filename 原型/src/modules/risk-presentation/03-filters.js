@@ -35,7 +35,7 @@ function rpQualityListChecks(filters,includeDeviation=true){
 // 店铺类型复用产品类型双分组菜单，两组条件取交集。
 function rpShopAttributeField(filters){
  return pfAttributeField(filters,['shopCategory','assessed'],'data-rp-filter',{
-  shopCategory:['旗舰店','专卖店','自营店','C店','其他'],
+  shopCategory:shcCategories,
   assessed:[{value:'yes',label:'是'},{value:'no',label:'否'}]
  },{shopCategory:'分类',assessed:'是否考核'},'店铺类型',true);
 }

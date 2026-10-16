@@ -1,0 +1,40 @@
+/* 设置导航独立于目标页面，避免影响既有表格和弹窗样式。 */
+body { background: #eef3fd; }
+.top {
+  display: flex;
+  align-items: center;
+  height: 64px;
+  padding: 0 20px;
+  gap: 28px;
+  border: 0;
+  background: linear-gradient(110deg, #dceaff, #edf3ff 58%, #dbe7fa);
+}
+.brand-home { display: flex; align-items: center; gap: 10px; flex-shrink: 0; text-decoration: none; }
+.brand-mark { display: block; width: 38px; height: 38px; object-fit: contain; flex-shrink: 0; }
+.top .logo { color: #273445; white-space: nowrap; font-size: 18px; font-weight: 700; }
+.top-nav { display: flex; align-items: stretch; align-self: stretch; flex: 1; min-width: 0; gap: clamp(18px, 1.9vw, 38px); overflow-x: auto; scrollbar-width: thin; }
+.top-nav > span { position: relative; display: inline-flex; align-items: center; gap: 9px; flex-shrink: 0; color: #44536c; white-space: nowrap; }
+.top-nav i, .account i { font-style: normal; font-size: 12px; }
+.top-nav .selected { color: #2864ff; font-weight: 600; }
+.top-nav .selected::after { content: ""; position: absolute; left: 2px; bottom: 10px; width: 22px; height: 3px; background: #2864ff; border-radius: 2px; }
+.top .account { display: flex; align-items: center; gap: 10px; color: #45536a; white-space: nowrap; flex-shrink: 0; }
+.account-avatar { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: #c2d5ed; color: #41638b; font-size: 13px; }
+.layout { display: flex; height: calc(100vh - 64px); min-height: 0; }
+.nav { width: 168px; flex: 0 0 168px; padding: 10px; border: 0; background: #edf2ff; overflow-y: auto; scrollbar-width: thin; }
+.nav-group { margin-bottom: 4px; }
+.nav-group-toggle, .nav-leaf { width: 100%; border: 0; background: transparent; text-align: left; cursor: pointer; color: #38547d; border-radius: 8px; }
+.nav-group-toggle { display: flex; align-items: center; justify-content: space-between; min-height: 42px; padding: 10px 14px; font-weight: 600; }
+.nav-chevron { width: 7px; height: 7px; border-right: 1px solid currentColor; border-bottom: 1px solid currentColor; transform: rotate(45deg); margin: -4px 2px 0 10px; transition: transform .15s; }
+.nav-group-toggle[aria-expanded="true"] .nav-chevron { transform: rotate(225deg); margin-top: 4px; }
+.nav-group-toggle.has-selection { color: #2864ff; }
+.nav-children { padding: 2px 0; }
+.nav-children[hidden] { display: none; }
+.nav-leaf { display: block; min-height: 40px; padding: 10px 6px 10px 22px; margin: 2px 0; font-size: 13px; line-height: 20px; }
+.nav-group-toggle:hover, .nav-leaf:hover { background: #e0eaff; }
+.nav-leaf.active { color: #245fce; background: #cedeff; font-weight: 600; }
+.nav button:focus-visible, .brand-home:focus-visible { outline: 2px solid #2864ff; outline-offset: -2px; }
+.content { flex: 1; width: auto; min-width: 0; padding: 12px 12px 12px 0; overflow-y: auto; }
+@media (max-width: 1200px) {
+  .top { gap: 20px; }
+  .top .account { font-size: 12px; gap: 6px; }
+}

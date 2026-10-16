@@ -1,9 +1,10 @@
 
 // The hidden global picker no longer controls the visible experience.
-for(const id of moduleIds.filter(id=>id!=='ai'))localPeriods[id]=copyPeriod(globalPeriod);
+for(const id of moduleIds.filter(id=>id!=='ai'))localPeriods[id]=copyPeriod(id==='matrix'?periodFor(id):globalPeriod);
 // Sticky section navigation and scroll-aware selected state.
 const navigationToolbar=document.createElement('div');navigationToolbar.className='navigation-toolbar';$('.jumpnav').before(navigationToolbar);navigationToolbar.append($('.jumpnav'));
-const navigationActions=document.createElement('div');navigationActions.className='navigation-actions';navigationActions.append($('#rules'));navigationToolbar.append(navigationActions);
+const navigationActions=document.createElement('div');navigationActions.className='navigation-actions';navigationActions.append($('#rules'));navigationToolbar.append(navigationActions);
+
 
 
 

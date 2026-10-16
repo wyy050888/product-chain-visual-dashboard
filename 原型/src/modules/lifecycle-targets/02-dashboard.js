@@ -11,13 +11,13 @@ function ltDashboardTotals(stage,p=periodFor('lifecycle')){
  const rows=ltDashboardRows(stage,p),target=ltTargetFor(stage,[0,1,2,3,4],p),annual=ltTargetFor(stage,[0,1,2,3,4],p,true);
  return {name:'公司整体',actual:rows.reduce((n,r)=>n+r.actual,0),yearActual:rows.reduce((n,r)=>n+r.yearActual,0),target:target.value,yearTarget:annual.value,targetMeta:target,yearTargetMeta:annual};
 }
-function ltTargetText(meta){return meta?.state==='complete'?fmt(meta.value):meta?.value!==null&&meta?.value!==undefined?`${fmt(meta.value)} <span class="lt-target-state">${meta.label}</span>`:meta?.label||'未配置'}
+function ltTargetText(meta){return meta?.state==='complete'&&meta.value>0?fmt(meta.value):'未配置'}
 function ltDeltaText(actual,meta){return meta?.state==='complete'?`<span class="num ${actual-meta.value>0?'green':actual-meta.value<0?'orange':'muted'}">${actual-meta.value>0?'+':''}${actual-meta.value}</span>`:'—'}
 function ltMainCards(){
  $$('#lifecards .lifecard').forEach((card,stage)=>{
   const d=ltDashboardTotals(stage),complete=d.targetMeta.state==='complete',f=lifeAchievement(d.actual,complete?d.target:null),value=card.querySelector('strong'),track=card.querySelector('.track');
   value.className='num '+(complete?f.tone:'lt-muted');
-  value.innerHTML=complete?(f.rate===null?'—':`${fmt(f.rate,1)}<span class="unit">%</span>`):`<span class="lt-card-state">${d.targetMeta.value===null?d.targetMeta.label:'目标待补齐'}</span>`;
+  value.innerHTML=complete?(f.rate===null?'—':`${fmt(f.rate,1)}<span class="unit">%</span>`):`<span class="lt-card-state">未配置</span>`;
   track.innerHTML=`<i style="width:${complete?Math.min(100,f.rate??0):0}%;background:var(--${f.tone})"></i>${complete?`<b style="left:${f.progress}%" aria-hidden="true"></b>`:''}`;
   card.querySelector('p').innerHTML=`<span>${word()} ${fmt(d.actual)} / ${ltTargetText(d.targetMeta)}</span><span class="life-count-gap">差额 ${complete?(d.actual-d.target>0?'+':'')+fmt(d.actual-d.target):'—'}</span>`;
   card.querySelector('p:last-child').innerHTML=`年度累计 ${fmt(d.yearActual)} / ${ltTargetText(d.yearTargetMeta)}`;

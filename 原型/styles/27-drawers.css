@@ -9,6 +9,9 @@
 #dialog.business-drawer #close { flex:none; font-size:24px; width:32px; height:32px; margin-left:16px; color:#66758c; }
 #dialog.business-drawer #dialogbody { flex:1; min-height:0; padding:22px 24px; overflow:auto; background:#fff; scrollbar-gutter:stable; }
 #dialog.business-drawer .dialogfoot { flex:none; padding:12px 24px; background:#fff; border-top:1px solid #e5eaf2; }
+/* 只读抽屉不显示底部关闭条；有业务操作时保留操作区。 */
+#dialog.business-drawer>.dialogfoot:not(:has(#dialogactions button:not(#modalclose))){display:none}
+#dialog.business-drawer #dialogactions #modalclose{display:none}
 #dialog.business-drawer .drawer-tabs { display:flex; flex:none; gap:26px; padding:0 24px; min-height:49px; border-bottom:1px solid #e5eaf2; overflow-x:auto; background:#fff; }
 #dialog.business-drawer .drawer-tabs button { position:relative; flex:none; border:0; background:none; border-radius:0; padding:14px 0; font:inherit; font-size:13px; color:#738096; cursor:pointer; white-space:nowrap; }
 #dialog.business-drawer .drawer-tabs button:hover { color:#1677ff; }

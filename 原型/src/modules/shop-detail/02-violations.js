@@ -11,12 +11,17 @@ function sdViolationMetrics(m,state){
  const c=rpShopPeriodFacts(m.shop,state.start,state.end,state.violationQualityOnly!==false),range=riskRange(state.start,state.end),p=rpShopPeriodFacts(m.shop,range.previousStart,range.previousEnd,state.violationQualityOnly!==false);
  return [['violations','违规次数'],['fine','平台罚款'],['frozen','资金冻结'],['offShelf','链接下架'],['drop','链接掉权'],['limited','店铺限单']].map(([key,name])=>{
   const money=['fine','frozen'].includes(key);
-  return {key,name,value:money?pfMoneyYuan(c[key]):c[key]+'次',tone:money?rpQualityAmountTone(c[key]):'',target:money?c[key+'Count']+'次':rpQualityChange(c[key],p[key]),targetTone:money?'rp-quality-gray':rpQualityChangeTone(c[key],p[key])};
+  return rpViolationField({key,name,value:money?pfMoneyYuan(c[key]):c[key]+'次',tone:money?rpQualityAmountTone(c[key]):'',target:money?c[key+'Count']+'次':rpQualityChange(c[key],p[key]),targetTone:money?'rp-quality-gray':rpQualityChangeTone(c[key],p[key])},m.shop.channel);
  });
+}
+// 两类链接明细复用榜单浮层，数量、字段与指标值保持同源。
+function sdPddLinkDetails(shop,end){
+ if(shop.channel!=='拼多多')return '';
+ return ['red','yellow'].map(tone=>`<section class="sd-pdd-links" data-sd-link-tone="${tone}" aria-label="${tone==='red'?'红灯':'黄灯'}链接明细">${rpPddLinkTable(shop,tone,end,true)}</section>`).join('');
 }
 function sdMountViolations(root,m,state){
  const host=root.querySelector('[data-up-panel="violations"]');state.violationType||='all';
- host.innerHTML=`<div class="sd-violation-stats">${sdViolationMetrics(m,state).map(upQualityMetric).join('')}</div><div class="sd-violation-filters"><input type="search" placeholder="搜索违规对象 / 编号 / 原因" aria-label="搜索店铺违规" value="${esc(state.violationQuery||'')}"><div>${[['all','全部'],...Object.entries(sdEventNames)].map(([key,label])=>`<button class="btn small ${state.violationType===key?'active':''}" data-sd-type="${key}" aria-pressed="${state.violationType===key}">${label}</button>`).join('')}</div><label class="up-violation-quality-check"><input type="checkbox" data-sd-violation-quality ${state.violationQualityOnly!==false?'checked':''}>展示品质违规统计</label></div><div class="up-table" data-sd-violation-table></div><div data-sd-violation-pager></div>`;
+ host.innerHTML=`<div class="sd-violation-stats">${sdViolationMetrics(m,state).map(upQualityMetric).join('')}</div><div class="sd-violation-filters"><input type="search" placeholder="搜索违规对象 / 编号 / 原因" aria-label="搜索店铺违规" value="${esc(state.violationQuery||'')}"><div>${[['all','全部'],...Object.entries(sdEventNames)].map(([key,label])=>`<button class="btn small ${state.violationType===key?'active':''}" data-sd-type="${key}" aria-pressed="${state.violationType===key}">${label}</button>`).join('')}</div><label class="up-violation-quality-check"><input type="checkbox" data-sd-violation-quality ${state.violationQualityOnly!==false?'checked':''}>展示品质违规统计</label></div><div class="up-table" data-sd-violation-table></div><div data-sd-violation-pager></div>${sdPddLinkDetails(m.shop,state.end)}`;
  const fill=()=>{
   const q=(state.violationQuery||'').trim().toLowerCase(),columns=upViolationColumns[m.shop.channel];
   const rows=m.events.filter(e=>(state.violationQualityOnly===false||e.reasonType==='quality')&&(state.violationType==='all'||e.type===state.violationType)&&(!q||[e.object,e.objectId,e.id,e.reason].join(' ').toLowerCase().includes(q)));
