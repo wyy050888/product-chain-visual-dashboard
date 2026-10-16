@@ -65,14 +65,20 @@
 /* 指标列保留左右留白，宽表在容器内滚动，避免挤压数值与环比。 */
 #newtable th,#newtable td{white-space:nowrap;min-width:100px;padding-left:20px;padding-right:20px}
 #newtable td{padding-top:16px;padding-bottom:16px}
-#newtable :is(th,td):first-child{min-width:300px}
-#newtable td:first-child{max-width:360px;white-space:normal}
+#newtable :is(th,td):first-child{min-width:340px}
+#newtable td:first-child{max-width:400px;white-space:normal}
 /* 横向浏览指标时保留产品身份；实色底避免滚动内容透出。 */
 #newtable :is(th,td):first-child:not([colspan]){position:sticky;left:0;z-index:2;background:#fff;box-shadow:1px 0 0 #e7edf5}
 #newtable th:first-child:not([colspan]){background:#f5f8fc;z-index:3}
 #newtable tbody tr:hover td:first-child{background:#f8fbff}
 #newtable :is(th,td):last-child{min-width:80px}
-#newtable .prodname strong{font-weight:400}
+/* 产品身份放大；固定缩略图尺寸，名称与编码在剩余宽度内自然换行。 */
+#newtable .prodname{gap:12px;min-height:56px}
+#newtable .prodname>.risk-thumb{width:56px;height:56px;flex:none;object-fit:contain;background:#fff}
+#newtable .prodname>.risk-shop-icon{font-size:18px}
+#newtable .prodname>div{flex:1;min-width:0}
+#newtable .prodname strong{display:block;font-size:14px;font-weight:500;line-height:1.5;white-space:normal;overflow-wrap:anywhere}
+#newtable .prodname small{display:block;font-size:12px;line-height:1.5;margin-top:5px;white-space:normal;overflow-wrap:anywhere}
 #new .nsp-sales-status[data-sales-status="在售"]{background:#eaf8f3;color:#149780}
 #new .nsp-sales-status[data-sales-status="整改"]{background:var(--orange-soft);color:var(--orange)}
 #new .nsp-sales-status[data-sales-status="滞销"]{background:#fff0f2;color:#c33d56}

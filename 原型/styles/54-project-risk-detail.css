@@ -13,10 +13,11 @@
 #dialogbody .pp-risk-detail .pp-risk-detail-table th:first-child,#dialogbody .pp-risk-detail .pp-risk-detail-table td:first-child{position:sticky;left:0;z-index:3;border-right:1px solid #e5ecf7}
 #dialogbody .pp-risk-detail .pp-risk-detail-table th:last-child,#dialogbody .pp-risk-detail .pp-risk-detail-table td:last-child{position:sticky;right:0;z-index:3;border-left:1px solid #e5ecf7}
 #dialogbody .pp-risk-detail .pp-risk-detail-table th:first-child,#dialogbody .pp-risk-detail .pp-risk-detail-table th:last-child{z-index:4;background:#f5f8fc}
-#dialogbody .pp-risk-detail .pp-product{display:flex;gap:10px;align-items:flex-start;text-align:left;max-width:100%;padding:0}
-#dialogbody .pp-risk-detail .pp-product img,#dialogbody .pp-risk-detail .pp-placeholder{width:38px;height:38px;object-fit:contain;border:1px solid #e1e9f5;border-radius:5px;flex:none}
-#dialogbody .pp-risk-detail .pp-product b{display:block;color:#304b6e;font-size:12px;font-weight:500}
-#dialogbody .pp-risk-detail .pp-product small{display:block;font-size:11px;margin-top:5px;color:#8b9ab0}
+#dialogbody .pp-risk-detail .pp-product{display:flex;gap:12px;align-items:center;text-align:left;max-width:100%;padding:0}
+#dialogbody .pp-risk-detail .pp-product img,#dialogbody .pp-risk-detail .pp-placeholder{width:56px;height:56px;object-fit:contain;border:1px solid #e1e9f5;border-radius:5px;flex:none}
+#dialogbody .pp-risk-detail .pp-product>span:last-child{flex:1;min-width:0}
+#dialogbody .pp-risk-detail .pp-product b{display:block;color:#304b6e;font-size:14px;font-weight:500;line-height:1.5;overflow-wrap:anywhere}
+#dialogbody .pp-risk-detail .pp-product small{display:block;font-size:12px;line-height:1.5;margin-top:5px;color:#8b9ab0}
 #dialogbody .pp-risk-detail .pp-plan-dates{display:flex;flex-direction:column;gap:6px}
 #dialogbody .pp-risk-detail .pp-plan-dates small{font-size:11px;margin:0;white-space:nowrap}
 #dialogbody .pp-risk-detail .pp-plan-dates small.orange{color:var(--orange)}

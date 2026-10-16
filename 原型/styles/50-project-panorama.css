@@ -95,20 +95,23 @@
 #projects.pp-main [data-pp-plan-clear]{position:absolute;right:8px;top:8px;background:#fff;border:0;color:#8498b6;cursor:pointer}
 #projects.pp-main .pp-reset{height:36px;padding:0 8px;white-space:nowrap}
 #projects.pp-main .pp-table-scroll{width:100%;overflow:auto;border:1px solid #e4ebf7;border-radius:7px;flex:1;background:white}
-#projects.pp-main .pp-table{table-layout:fixed;min-width:2694px;width:100%;border-collapse:separate;border-spacing:0}
+#projects.pp-main .pp-table{table-layout:fixed;min-width:2740px;width:100%;border-collapse:separate;border-spacing:0}
 #projects.pp-main .pp-table th{font-size:12px;color:#7589a7;font-weight:500;height:44px;white-space:nowrap;background:#f5f8fc;padding:12px 14px}
-#projects.pp-main .pp-table td{height:86px;padding:14px;vertical-align:middle;border-bottom:1px solid #e9eff8;font-size:12px;color:#354c70;white-space:normal;line-height:1.7;overflow:visible}
+#projects.pp-main .pp-table td{height:96px;padding:14px;vertical-align:middle;border-bottom:1px solid #e9eff8;font-size:12px;color:#354c70;white-space:normal;line-height:1.7;overflow:visible}
 #projects.pp-main .pp-table>thead>tr>th:first-child,#projects.pp-main .pp-table>tbody>tr>td:first-child{position:sticky;left:0;z-index:2;border-right:1px solid #e8eef8;background:#fff}
 #projects.pp-main .pp-table>thead>tr>th:first-child{background:#f5f8fc;z-index:3}
 /* 查看操作固定在右侧，横向滚动时仍可直接点击。 */
 #projects.pp-main .pp-table>thead>tr>th:last-child,#projects.pp-main .pp-table>tbody>tr>td[data-label="操作"]{position:sticky;right:0;z-index:2;background:#fff;text-align:center;border-left:1px solid #e8eef8;box-shadow:-4px 0 6px -5px #29456555}
 #projects.pp-main .pp-table>thead>tr>th:last-child{background:#f5f8fc;z-index:3}
 #projects.pp-main .pp-table>tbody>tr:hover>td{background:#f8fbff}
-#projects.pp-main .pp-product{display:flex;gap:10px;align-items:center;width:100%;text-align:left;background:none;border:0;padding:0;color:#294565;font:inherit;cursor:pointer}
-#projects.pp-main .pp-product>img,#projects.pp-main .pp-placeholder{width:38px;height:38px;object-fit:contain;border:1px solid #e5ebf8;border-radius:5px;background:#fff;flex:none}
-#projects.pp-main .pp-placeholder{display:grid;place-items:center;color:#8396b6}
-#projects.pp-main .pp-product b{font-weight:500;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-#projects.pp-main .pp-product small,#projects.pp-main .pp-root-cause small{display:block;color:#8598b7;font-size:11px;margin-top:5px}
+#projects.pp-main .pp-product{display:flex;gap:12px;align-items:center;width:100%;text-align:left;background:none;border:0;padding:0;color:#294565;font:inherit;cursor:pointer}
+#projects.pp-main .pp-product>img,#projects.pp-main .pp-placeholder{width:56px;height:56px;object-fit:contain;border:1px solid #e5ebf8;border-radius:5px;background:#fff;flex:none}
+#projects.pp-main .pp-placeholder{display:grid;place-items:center;color:#8396b6;font-size:18px}
+#projects.pp-main .pp-product>span:last-child{flex:1;min-width:0}
+#projects.pp-main .pp-product b{font-size:14px;line-height:1.5;white-space:normal;overflow-wrap:anywhere;font-weight:500;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+#projects.pp-main .pp-product small{font-size:12px;line-height:1.5}
+#projects.pp-main .pp-product small,#projects.pp-main .pp-root-cause small{display:block;color:#8598b7;margin-top:5px}
+#projects.pp-main .pp-root-cause small{font-size:11px}
 #projects.pp-main .pp-product:hover b{color:#1677ff}
 #projects.pp-main .pp-wrap{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;white-space:normal;overflow-wrap:anywhere}
 #projects.pp-main .pp-root-cause{font:inherit;color:#1677ff;text-align:left;background:none;border:0;padding:0;cursor:pointer;width:100%}

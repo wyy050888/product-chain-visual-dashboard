@@ -21,7 +21,7 @@ function ppLedger(p){
 }
 function ppPriceCell(p,key){const lines=ppQuoteLines(p,key);if(!lines.length)return '<span class="muted">—</span>';return `<span class="pp-wrap" title="${esc(lines.join('\n'))}">${lines.map(esc).join('<br>')}</span>`}
 function ppProjectTraffic(p){return ppTraffic(ppHighRisk(p)?'高危红灯':p.status)}
-function ppProductCell(p){return `<button type="button" class="pp-product" data-pp-project="${p.id}">${p.image?`<img src="${esc(p.image)}" alt="">`:'<span class="pp-placeholder">项</span>'}<span><b>${esc(p.name)}</b><small>${esc(p.type)}</small></span></button>`}
+function ppProductCell(p){return `<button type="button" class="pp-product" data-pp-project="${p.id}">${p.image?`<img src="${esc(p.image)}" alt="">`:'<span class="pp-placeholder">项</span>'}<span><b title="${esc(p.name)}">${esc(p.name)}</b><small>${esc(p.type)}</small></span></button>`}
 function ppPlanDates(p){return `<span class="pp-plan-dates"><span>${esc(p.plan||'—')}</span><small class="${p.revisedPlan?'orange':'muted'}">延期 ${esc(p.revisedPlan||'—')}</small></span>`}
 function ppDelayText(p){return p.delay==null?'—':`<span class="${p.delay>15?'pp-high-risk pp-delay-high':p.delay>0?'orange':'muted'}">${p.delay}天</span>`}
 function ppProjectRow(p){
@@ -42,7 +42,7 @@ function ppTable(rows){
  ppHideLedger();
  const filtered=ppFiltered(rows),pages=Math.max(1,Math.ceil(filtered.length/10));ppState.page=Math.min(ppState.page,pages);
  const body=$('#pp-table-scroll'),scroll=body.scrollLeft;
- body.innerHTML=`<table class="pp-table"><colgroup>${[274,112,120,132,132,96,180,130,240,140,210,210,190,130,110,100,88].map(w=>`<col style="width:${w}px">`).join('')}</colgroup><thead><tr>${ppHeaders.map(ppTableHeader).join('')}</tr></thead><tbody>${filtered.length?filtered.slice((ppState.page-1)*10,ppState.page*10).map(ppProjectRow).join(''):'<tr><td colspan="17"><div class="empty">暂无匹配项目，请调整筛选条件。</div></td></tr>'}</tbody></table>`;
+ body.innerHTML=`<table class="pp-table"><colgroup>${[320,112,120,132,132,96,180,130,240,140,210,210,190,130,110,100,88].map(w=>`<col style="width:${w}px">`).join('')}</colgroup><thead><tr>${ppHeaders.map(ppTableHeader).join('')}</tr></thead><tbody>${filtered.length?filtered.slice((ppState.page-1)*10,ppState.page*10).map(ppProjectRow).join(''):'<tr><td colspan="17"><div class="empty">暂无匹配项目，请调整筛选条件。</div></td></tr>'}</tbody></table>`;
  body.scrollLeft=scroll;
  $('#pp-pages').innerHTML=listPager(filtered.length,ppState.page,10,{attr:'data-pp-page'});
  $('#pp-ai').innerHTML=ppAI(ppAnalysisRows());

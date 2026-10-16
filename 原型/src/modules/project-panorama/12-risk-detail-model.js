@@ -17,7 +17,7 @@ function ppSampleRiskFields(source,risk,index){
   actualRectifiedAt:closed?(closed>occurredAt?ppEventDateOffset(closed,-1):closed):state==='已整改'?ppEventDateOffset(occurredAt,1):null,verifiedAt:closed||null};
 }
 const ppRiskColumns=[
- ['name','产品名称',260],['projectLight','项目红绿灯',120],['projectState','项目状态',105],['plan','计划上线日期',145],['delay','延期天数',100],
+ ['name','产品名称',320],['projectLight','项目红绿灯',120],['projectState','项目状态',105],['plan','计划上线日期',145],['delay','延期天数',100],
  ['stage','卡点阶段',170],['taskNames','项目任务',200],['light','风险单红绿灯',120],['category','问题类别',180],['description','问题描述',230],
  ['rootCause','根因分析',220],['action','纠正措施',230],['prevention','预防措施',230],['owner','责任链主',140],['occurredAt','发生日期',125],
  ['deadline','整改期限',125],['rectificationStatus','当前状态',105],['verificationStatus','闭环验证',105],['actualRectifiedAt','实际整改日期',135],['verifiedAt','闭环验证日期',135],['operation','操作',80]
