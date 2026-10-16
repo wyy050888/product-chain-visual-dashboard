@@ -10,6 +10,9 @@ const ppProjectStates=['进行中','已完成','已暂停/取消','未开始'];
 const ppDepartments=['产品部','研发部','采购部','品质部'];
 const ppState={category:[],type:[],projectState:['进行中'],brand:[],light:[],stage:[],department:[],owner:'',query:'',plan:null,started:null,page:1,distribution:'type',departmentDistribution:'type',riskDepartment:'全部',link:null,sort:{key:'revisedPlan',direction:'asc'}};
 const ppValues=value=>[...new Set((Array.isArray(value)?value:[value]).filter(v=>v!=null&&v!==''&&v!=='—'))];
+// 高危红灯是红灯子集；保留原灯色，避免分布和红灯率重复统计。
+const ppHighRisk=p=>p.status==='红灯'&&p.delay>15;
+const ppMatchesLight=(p,values)=>!values.length||values.some(value=>value==='高危红灯'?ppHighRisk(p):p.status===value);
 const ppDate=value=>/^\d{4}-\d{2}-\d{2}$/.test(value||'')?value:null;
 function ppAdapt(source,cutoff){
  source=ppSampleQuotes(source);
@@ -29,13 +32,13 @@ function ppFiltered(rows,s=ppState){
  const q=s.query.trim().toLowerCase(),owner=s.owner.trim().toLowerCase(),range=s.plan?nspLaunchRange(s.plan.mode,s.plan.year,s.plan.value):null;
  const startedRange=s.started?nspLaunchRange(s.started.mode,s.started.year,s.started.value):null;
  const includesAny=(filter,values)=>!filter.length||values.some(v=>filter.includes(v));
- return rows.filter(p=>pfIncludes(s.brand,p.brand)&&pfIncludes(s.light,p.status)&&(!s.stage.length||s.stage.some(path=>path.type===p.type&&p.stages.includes(path.stage)))&&includesAny(s.department,p.departments)&&(!owner||p.responsible.some(name=>String(name).toLowerCase().includes(owner)))
+ return rows.filter(p=>pfIncludes(s.brand,p.brand)&&ppMatchesLight(p,s.light)&&(!s.stage.length||s.stage.some(path=>path.type===p.type&&p.stages.includes(path.stage)))&&includesAny(s.department,p.departments)&&(!owner||p.responsible.some(name=>String(name).toLowerCase().includes(owner)))
   &&(!q||String(p.name||'').toLowerCase().includes(q))
   &&(!range||(p.plan>=range.start&&p.plan<=range.end))&&(!startedRange||(ppDate(p.started)&&p.started>=startedRange.start&&p.started<=startedRange.end))&&ppLinked(p,s.link))
   .sort((a,b)=>ppCompareProjects(a,b,s.sort));
 }
-function ppLinked(p,link){if(!link)return true;if(link.kind==='light')return link.value==='红黄灯'?['红灯','黄灯'].includes(p.status):p.status===link.value;if(link.kind==='departmentRisk')return p[link.type]===link.value&&ppDepartmentRiskRecords(p,link.department).length>0;if(link.kind==='department')return p.departments.includes(link.value);return p[link.kind]===link.value&&['红灯','黄灯','绿灯'].includes(p.status)}
-function ppCounts(rows){const red=rows.filter(p=>p.status==='红灯').length,yellow=rows.filter(p=>p.status==='黄灯').length,green=rows.filter(p=>p.status==='绿灯').length,total=rows.length;return {total,red,yellow,green,rate:n=>total?(n/total*100).toFixed(1)+'%':'—'}}
+function ppLinked(p,link){if(!link)return true;if(link.kind==='light')return link.value==='红黄灯'?['红灯','黄灯'].includes(p.status):ppMatchesLight(p,[link.value]);if(link.kind==='departmentRisk')return p[link.type]===link.value&&ppDepartmentRiskRecords(p,link.department).length>0;if(link.kind==='department')return p.departments.includes(link.value);return p[link.kind]===link.value&&['红灯','黄灯','绿灯'].includes(p.status)}
+function ppCounts(rows){const red=rows.filter(p=>p.status==='红灯').length,yellow=rows.filter(p=>p.status==='黄灯').length,green=rows.filter(p=>p.status==='绿灯').length,total=rows.length;return {total,red,high:rows.filter(ppHighRisk).length,yellow,green,rate:n=>total?(n/total*100).toFixed(1)+'%':'—'}}
 function ppDepartmentFacts(rows,department){
  const records=rows.flatMap(p=>p.ledger.filter(r=>r.status!=='已闭环'&&ppValues(r.department).includes(department)).map(r=>({project:p,risk:r})));
  const red=records.filter(x=>x.risk.light==='红灯'),yellow=records.filter(x=>x.risk.light==='黄灯');

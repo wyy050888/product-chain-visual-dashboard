@@ -58,7 +58,18 @@ export async function projectPanorama(page){
  await lights.locator('input[value="绿灯"]').check();assert.equal(await page.locator('.pp-rate [aria-pressed="true"]').count(),0);
  assert((await snapshot()).filtered.every(p=>p.status==='绿灯'));
  await page.keyboard.press('Escape');await page.locator('[data-pp-reset]').click();assert.deepEqual((await snapshot()).state.light,[]);
- // 两个分布维度都统计红黄绿三色，点击分组包含绿灯项目。
+ // 高危筛选与其他灯色取并集，不重复计数；红灯仍包含高危子集。
+ await lights.locator('summary').click();await lights.locator('input[value="高危红灯"]').check();
+ let severe=(await snapshot()).filtered;assert(severe.length>0);assert(severe.every(p=>p.status==='红灯'&&p.delay>15));
+ assert.equal(severe.length,initial.scope.filter(p=>p.status==='红灯'&&p.delay>15).length);
+ assert((await page.locator('.pp-table tbody td:nth-child(2)').allTextContents()).every(v=>v.includes('高危红灯')));
+ assert.equal(await page.locator('.pp-table tbody td:nth-child(6) .pp-delay-high').count(),Math.min(10,severe.length));
+ await lights.locator('input[value="黄灯"]').check();
+ assert.equal((await snapshot()).filtered.length,initial.scope.filter(p=>p.status==='黄灯'||(p.status==='红灯'&&p.delay>15)).length);
+ await lights.locator('input[value="红灯"]').check();
+ assert.equal((await snapshot()).filtered.length,initial.scope.filter(p=>['红灯','黄灯'].includes(p.status)).length);
+ await page.keyboard.press('Escape');await page.locator('[data-pp-reset]').click();
+ // 高危红灯从红灯中拆分，四段互斥且总计100%；分组包含绿灯项目。
  assert.equal(await page.locator('.pp-distribution h3').innerText(),'进行中项目红绿灯分布');
  for(const dimension of ['category','type']){
   await page.locator(`[data-pp-distribution="${dimension}"]`).click();
@@ -66,10 +77,12 @@ export async function projectPanorama(page){
   for(let i=0;i<await groups.count();i++){
    const group=groups.nth(i),value=await group.getAttribute('data-value');
    const rows=initial.scope.filter(p=>p[dimension]===value);
-   assert.deepEqual(await group.locator('.pp-bar-line b').allTextContents(),['红灯','黄灯','绿灯'].map(status=>String(rows.filter(p=>p.status===status).length)));
+   const high=rows.filter(p=>p.status==='红灯'&&p.delay>15).length;
+   const counts=[high,rows.filter(p=>p.status==='红灯').length-high,...['黄灯','绿灯'].map(status=>rows.filter(p=>p.status===status).length)];
+   assert.deepEqual(await group.locator('.pp-bar-line b').allTextContents(),counts.map(String));
    assert.equal(await group.locator('.pp-green').count(),1);
    const widths=await group.locator('.pp-track i').evaluateAll(els=>els.map(el=>parseFloat(el.style.width)));
-   const counts=['红灯','黄灯','绿灯'].map(status=>rows.filter(p=>p.status===status).length),total=counts.reduce((a,b)=>a+b,0);
+   const total=counts.reduce((a,b)=>a+b,0);
    assert(Math.abs(widths.reduce((a,b)=>a+b,0)-(total?100:0))<0.001);
    widths.forEach((width,index)=>assert(Math.abs(width-(total?counts[index]/total*100:0))<0.001));
   }

@@ -10,7 +10,7 @@ function ppToolbar(rows){
  return `<div class="pp-filter-row"><label class="ui-search-field"><input type="search" data-pp-search aria-label="项目名称搜索" placeholder="搜索项目名称" value="${esc(ppState.query)}"></label>
  <label class="ui-search-field"><input type="search" data-pp-owner-search aria-label="责任人搜索" placeholder="搜索责任人" value="${esc(ppState.owner)}"></label>
  ${ppDateFilter('plan','计划上线日期','项目的计划量产/完成日期')}${ppDateFilter('started','立项日期')}
- ${ppSelect('brand','品牌',ppValues(rows.map(p=>p.brand)))}${ppSelect('light','项目红绿灯',['红灯','黄灯','绿灯'])}${ppSelect('projectState','项目状态',ppProjectStates)}${ppSelect('department','卡点部门',ppDepartments)}${ppStageCascader()}
+ ${ppSelect('brand','品牌',ppValues(rows.map(p=>p.brand)))}${ppSelect('light','项目红绿灯',['高危红灯','红灯','黄灯','绿灯'])}${ppSelect('projectState','项目状态',ppProjectStates)}${ppSelect('department','卡点部门',ppDepartments)}${ppStageCascader()}
  </div><button type="button" class="link pp-reset" data-pp-reset>重置</button>`;
 }
 // 多个任务保留在同一风险单内；仅展示名称，不展开成重复风险记录。
@@ -20,12 +20,14 @@ function ppLedger(p){
  return `<div class="pp-ledger" id="pp-ledger-${p.id}"><div class="pp-card-head"><h4>${esc(p.name)} · 风险台账</h4><span>共 ${p.ledger.length} 条</span></div><table><thead><tr>${heads.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${p.ledger.length?p.ledger.map((r,i)=>`<tr><td>${i+1}</td><td>${ppTaskNames(r)}</td><td>${['红灯','黄灯','绿灯'].includes(r.light)?traffic(r.light):'—'}</td>${[r.category,r.description,r.action,r.owner,r.deadline].map(v=>`<td>${esc(v==null||v===''?'未填写':String(v))}</td>`).join('')}</tr>`).join(''):'<tr><td colspan="8" class="pp-empty-ledger">暂无风险台账，请在项目中维护。</td></tr>'}</tbody></table></div>`;
 }
 function ppPriceCell(p,key){const lines=ppQuoteLines(p,key);if(!lines.length)return '<span class="muted">—</span>';return `<span class="pp-wrap" title="${esc(lines.join('\n'))}">${lines.map(esc).join('<br>')}</span>`}
+function ppProjectTraffic(p){return ppHighRisk(p)?'<span class="tag pp-high-risk">● 高危红灯</span>':traffic(p.status)}
+function ppDelayText(p){return p.delay==null?'—':`<span class="${p.delay>15?'pp-high-risk pp-delay-high':p.delay>0?'orange':'muted'}">${p.delay}天</span>`}
 function ppProjectRow(p){
  const reasons=ppValues(p.ledger.map(r=>r.rootCause||r.description)),stage=p.stages.length?p.stages.join('、'):'待核对';
  const cells=[
   `<button type="button" class="pp-product" data-pp-project="${p.id}">${p.image?`<img src="${esc(p.image)}" alt="">`:'<span class="pp-placeholder">项</span>'}<span><b>${esc(p.name)}</b><small>${esc(p.type)}</small></span></button>`,
-  traffic(p.status),esc(p.projectState||'—'),`<span class="pp-plan-dates"><span>${esc(p.plan||'—')}</span><small class="${p.revisedPlan?'orange':'muted'}">延期 ${esc(p.revisedPlan||'—')}</small></span>`,p.actual||'<span class="muted">'+(p.projectState==='已完成'?'待补录':'—')+'</span>',
-  p.delay===null?'—':`<span class="${p.delay?'orange':''}">${p.delay}天</span>`,
+  ppProjectTraffic(p),esc(p.projectState||'—'),`<span class="pp-plan-dates"><span>${esc(p.plan||'—')}</span><small class="${p.revisedPlan?'orange':'muted'}">延期 ${esc(p.revisedPlan||'—')}</small></span>`,p.actual||'<span class="muted">'+(p.projectState==='已完成'?'待补录':'—')+'</span>',
+  ppDelayText(p),
   `<span class="pp-wrap" title="${esc(p.stage||'未提供阶段')}">${esc(stage)}</span>`,
   esc(p.departments.join('、')||'待补充'),
   `<button type="button" class="pp-root-cause ${p.ledger.length?'':'muted'}" data-pp-ledger="${p.id}" aria-expanded="false" aria-controls="pp-ledger-popover" aria-haspopup="dialog"><span class="pp-wrap">${esc(reasons.join('；')||'暂无风险台账')}</span><small>${p.ledger.length?'共 '+p.ledger.length+' 条 · ':''}查看更多</small></button>`,

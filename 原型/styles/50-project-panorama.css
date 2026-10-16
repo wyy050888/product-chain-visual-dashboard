@@ -167,3 +167,10 @@
 #projects.pp-main .pp-plan-dates,#projects.pp-main .pp-plan-sort{display:flex;flex-direction:column;gap:6px;align-items:flex-start}
 #projects.pp-main .pp-plan-dates small{font-size:11px;white-space:nowrap}
 #projects.pp-main .pp-plan-sort button+button{font-size:11px}
+
+/* 高危红灯用深红区分；仅作用于项目展示，不改变风险单灯色。 */
+#projects.pp-main .pp-high-risk,.pp-analysis-detail .pp-high-risk{color:#b4233b}
+#projects.pp-main .pp-high,#projects.pp-main .dot.pp-high-risk{background:#b4233b}
+#projects.pp-main .tag.pp-high-risk,.pp-analysis-detail .tag.pp-high-risk{background:#fce7ec;color:#b4233b;font-weight:600;white-space:nowrap}
+#projects.pp-main .pp-delay-high,.pp-analysis-detail .pp-delay-high{font-weight:600}
+#projects.pp-main .pp-distribution .pp-bar-line>span:last-child{min-width:100px}

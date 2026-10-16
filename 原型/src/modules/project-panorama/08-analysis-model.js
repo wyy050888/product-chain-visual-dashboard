@@ -19,7 +19,7 @@ function ppAnalysisRows(){
 }
 function ppAnalysisDepartment(rows,department){
  // 项目跨部门协作，按未闭环风险台账关联部门；部门内项目去重，部门间不互斥。
- const facts=ppDepartmentFacts(rows,department),red=facts.redProjects,high=red.filter(p=>p.delay>15);
+ const facts=ppDepartmentFacts(rows,department),red=facts.redProjects,high=red.filter(ppHighRisk);
  const records=facts.records.filter(entry=>entry.project.status==='红灯');
  const groups=new Map();
  for(const entry of records){
