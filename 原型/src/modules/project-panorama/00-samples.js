@@ -29,10 +29,11 @@ const ppRiskExamples={
 function ppSampleLedger(source){
  const index=Math.abs(Number(source.id)||0),templates=Object.values(ppRiskExamples).flat();
  const examples=ppRiskExamples[source.sourceKey]||[templates[index%templates.length],templates[(index+3)%templates.length]];
- return examples.map(([department,light,category,description,rootCause,action,owner,deadline,taskNames],i)=>({
+ const records=examples.map(([department,light,category,description,rootCause,action,owner,deadline,taskNames],i)=>({
   id:`demo-${source.sourceKey}-${i+1}`,department,light:ppRiskExamples[source.sourceKey]?light:source.status,category,description,rootCause,action,owner,deadline,
   taskNames:[...taskNames],status:'待整改',recordedAt:/^\d{4}-\d{2}-\d{2}$/.test(source.started)&&source.started>'2026-10-01'?source.started:'2026-10-01',sample:true
  }));
+ return ppSampleRiskEvents(source,records);
 }
 
 // 缺失报价仅用于演示；不覆盖真实数组或已导入的金额。

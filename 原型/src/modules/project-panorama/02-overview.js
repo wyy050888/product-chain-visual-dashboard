@@ -17,5 +17,5 @@ function ppOverview(rows){
  <article class="pp-card pp-distribution"><div class="pp-card-head"><h3>进行中项目红绿灯分布</h3><span><i class="dot pp-high-risk"></i>高危红灯 <i class="dot red"></i>红灯 <i class="dot orange"></i>黄灯 <i class="dot green"></i>绿灯</span></div>
  <div class="pp-tabs">${[['type','项目类型'],['category','类目']].map(([key,label])=>`<button type="button" data-pp-distribution="${key}" aria-pressed="${dimension===key}" class="${dimension===key?'active':''}">${label}</button>`).join('')}</div>
  <div class="pp-bars">${groups.map(g=>ppLink(dimension,g.key,`<span class="pp-bar-label">${esc(g.key)}</span>`,`<span class="pp-bar-line"><span class="pp-track"><i class="pp-high" style="width:${share(g,g.high)}%" title="高危红灯 ${g.high} 个"></i><i class="pp-red" style="width:${share(g,g.red-g.high)}%" title="红灯 ${g.red-g.high} 个"></i><i class="pp-yellow" style="width:${share(g,g.yellow)}%"></i><i class="pp-green" style="width:${share(g,g.green)}%"></i></span><span><b class="pp-high-risk" title="高危红灯">${g.high}</b> / <b class="red" title="红灯">${g.red-g.high}</b> / <b class="orange">${g.yellow}</b> / <b class="green">${g.green}</b></span></span>`)).join('')}</div></article>
- ${ppDepartmentRiskChart(rows)}`;
+ ${ppDepartmentRiskChart(rows)}${ppRiskEventChart()}`;
 }

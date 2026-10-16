@@ -182,7 +182,7 @@ export async function projectPanorama(page){
  assert(sample.ledger.every(r=>Array.isArray(r.taskNames)&&r.taskNames.length));
  assert.doesNotMatch(await popover.innerText(),/演示台账/);
  assert.match(await popover.innerText(),/首批订单报价尚未确认/);
- assert.equal(await popover.locator('tbody tr').count(),2);
+ assert.equal(await popover.locator('tbody tr').count(),sample.ledger.length);
  assert.equal(await popover.locator('th').nth(2).innerText(),'风险单红绿灯');
  assert.deepEqual((await popover.locator('tbody tr td:nth-child(3)').allTextContents()).map(text=>text.replace('●','').trim()),sample.ledger.map(r=>r.light));
  assert.equal(await page.locator('.pp-ledger-row').count(),0);

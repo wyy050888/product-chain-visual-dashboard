@@ -1,0 +1,56 @@
+/* 四张左侧卡片使用紧凑固定内容，不拉长条目间距。 */
+#projects.pp-main #pp-overview{gap:10px}
+#projects.pp-main #pp-overview>.pp-card{padding:12px 14px}
+#projects.pp-main #pp-overview .pp-card-head{margin-bottom:8px}
+#projects.pp-main #pp-overview :is(.pp-distribution,.pp-departments){flex:0}
+#projects.pp-main #pp-overview .pp-bars{flex:0;gap:2px}
+#projects.pp-main #pp-overview .pp-bars>.pp-link{display:grid;grid-template-columns:58px minmax(0,1fr);align-items:center;gap:6px;padding:4px 0}
+#projects.pp-main #pp-overview .pp-bar-label{margin:0;font-size:11px}
+#projects.pp-main #pp-overview .pp-bar-line{gap:6px}
+#projects.pp-main #pp-overview .pp-tabs{margin-bottom:6px}
+#projects.pp-main #pp-overview .pp-tabs button{padding:5px 2px}
+#projects.pp-main .pp-dept-options{margin-bottom:5px}
+#projects.pp-main .pp-rate>.pp-link{padding:4px 7px}
+#projects.pp-main .pp-rate strong{font-size:25px}
+#projects.pp-main #pp-overview .pp-rate-split{padding-top:5px;margin-top:5px}
+#projects.pp-main #pp-overview .pp-rate-split button{padding:4px 7px;gap:2px}
+#projects.pp-main .pp-rate-split b{font-size:21px}
+#projects.pp-main .pp-events{min-width:0}
+#projects.pp-main .pp-event-period{display:flex;align-items:center;justify-content:space-between;width:100%;border:1px solid #dce5f3;border-radius:5px;padding:6px 8px;margin-bottom:8px;font-size:11px;color:#536d93;background:#fff}
+#projects.pp-main .pp-event-groups{display:flex;flex-direction:column;gap:7px}
+#projects.pp-main .pp-event-group>b{display:block;font-size:11px;font-weight:500;margin-bottom:2px}
+#projects.pp-main .pp-event-bar{display:flex;align-items:center;gap:6px;width:100%;padding:2px 0;font-size:10px;text-align:left}
+#projects.pp-main .pp-event-bar>span:first-child{color:#8293ad;width:24px;flex:none}
+#projects.pp-main .pp-event-bar>span:last-child{min-width:48px;text-align:right;white-space:nowrap}
+#projects.pp-main .pp-event-bar b{font-weight:500}
+#projects.pp-main .pp-event-bar .pp-track{height:14px;border-radius:3px}
+#projects.pp-main .pp-event-bar:hover{background:#f3f6fc}
+#pp-event-period-form{padding:8px 0}
+#pp-event-period-form .pp-event-presets{display:flex;gap:8px;margin-bottom:16px}
+#pp-event-period-form .pp-event-presets button{border:1px solid #dce5f3;border-radius:5px;padding:5px 12px}
+#pp-event-period-form .pp-event-date-fields{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+#pp-event-period-form label{display:grid;gap:6px}
+#pp-event-period-form input{width:100%;min-width:0;padding:8px;border:1px solid #dce5f3;border-radius:5px}
+#pp-event-period-form .pp-event-error{min-height:24px;color:#b4233b;margin:8px 0}
+@media(max-width:1100px) and (min-width:701px){#projects.pp-main #pp-overview{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+#projects.pp-main #pp-overview .pp-card-head h3{font-size:14px;line-height:1.4}
+#projects.pp-main #pp-overview .pp-card-head>span{line-height:1.5}
+#projects.pp-main #pp-overview .pp-rate{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));column-gap:3px}
+#projects.pp-main .pp-rate .pp-card-head{grid-column:1/-1}
+#projects.pp-main #pp-overview .pp-rate-split{display:contents;border:0}
+#projects.pp-main .pp-rate>.pp-link,#projects.pp-main #pp-overview .pp-rate-split>.pp-link{display:flex;flex-direction:column;gap:4px;padding:5px 4px}
+#projects.pp-main .pp-rate>.pp-link strong{order:1;font-size:23px;line-height:1.4}
+#projects.pp-main .pp-rate>.pp-link small{order:2}
+#projects.pp-main .pp-rate-split b{font-size:23px;line-height:1.4}
+#projects.pp-main .pp-event-group{display:grid;grid-template-columns:58px minmax(0,1fr);column-gap:6px;align-items:center}
+#projects.pp-main .pp-event-group>b{grid-row:1/3;margin:0}
+#projects.pp-main .pp-event-bar{grid-column:2}
+
+@media(min-width:1101px){#projects.pp-main #pp-overview .pp-events{display:flex;flex-direction:column;flex:1}#projects.pp-main .pp-event-groups{flex:1;justify-content:space-between}}
+
+/* 日期选择使用紧凑弹窗，覆盖通用业务抽屉的全高布局。 */
+#overlay:has(#pp-event-period-form){align-items:center;justify-content:center;padding:20px}
+#dialog.drawer.business-drawer:has(#pp-event-period-form){position:relative;inset:auto;width:min(480px,100%);height:auto;max-height:90dvh;border-radius:10px;box-shadow:0 16px 50px #253a5b30}
+#dialog.business-drawer:has(#pp-event-period-form) #dialogbody{flex:none;padding:16px 20px}
+#pp-event-period-form button[type=submit]{display:block;margin-left:auto;background:#1677ff;color:#fff;border-radius:5px;padding:7px 22px}

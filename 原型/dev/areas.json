@@ -401,5 +401,26 @@
     "checks": [
       "projectDates"
     ]
+  },
+  "risk-events": {
+    "label": "风险新增与闭环",
+    "keywords": [
+      "风险新增",
+      "闭环风险",
+      "风险统计时间"
+    ],
+    "sources": [
+      "src/modules/project-panorama/10-risk-events-model.js",
+      "src/modules/project-panorama/11-risk-events-view.js"
+    ],
+    "styles": [
+      "styles/53-project-risk-events.css"
+    ],
+    "checks": [
+      "projectRiskEvents"
+    ],
+    "manual": [
+      "历史日期为固定样例；真实数据需提供风险单创建日期、闭环日期及风险灯色。"
+    ]
   }
 }
