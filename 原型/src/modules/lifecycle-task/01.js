@@ -43,22 +43,19 @@ function lifeAchievement(actual,target,annual=false){
  const deviation=rate===null?null:rate-progress,tone=elapsed?msTone(deviation):'muted';
  return {rate,progress,deviation,tone,started:elapsed>0};
 }
-function lifeAchievementHint(f){
- return `时间进度 ${msPercent(f.progress)}；偏差 ${msDeviation(f.deviation)}。完成率＝实际完成÷完整周期目标，最高100%；偏差＝完成率－时间进度。落后超过10个百分点为红灯，落后不超过10个百分点为黄灯，达到或领先为绿灯；无有效目标或期间未开始不判灯。`;
-}
 function lifeAchievementCell(actual,target,annual=false){
  const f=lifeAchievement(actual,target,annual);
- return `<span class="tag ${f.tone}" title="${lifeAchievementHint(f)}">${msPercent(f.rate)}</span>`;
+ return `<span class="tag ${f.tone}">${msPercent(f.rate)}</span>`;
 }
 function lifeAchievementCards(){
  $$('#lifecards .lifecard').forEach((card,index)=>{
   const d=lifeData(index),f=lifeAchievement(d.actual,d.target),value=card.querySelector('strong'),track=card.querySelector('.track');
-  value.className='num '+f.tone;value.innerHTML=f.rate===null?'--':`${fmt(f.rate,1)}<span class="unit">%</span>`;value.title=lifeAchievementHint(f);
-  track.classList.add('life-achievement-track');track.title=lifeAchievementHint(f);
+  value.className='num '+f.tone;value.innerHTML=f.rate===null?'--':`${fmt(f.rate,1)}<span class="unit">%</span>`;
+  track.classList.add('life-achievement-track');
   track.innerHTML=`<i style="width:${f.rate??0}%;background:var(--${f.tone})"></i><b style="left:${f.progress}%" aria-hidden="true"></b>`;
   const counts=card.querySelector('p'),delta=d.actual-d.target;
   counts.classList.add('life-count-row');
-  counts.innerHTML=`<span>${word()} ${fmt(d.actual)} / ${fmt(d.target)}</span><span class="life-count-gap" title="实际完成－完整周期目标，单位：项">差额 ${delta>0?'+':''}${fmt(delta)}</span>`;
+  counts.innerHTML=`<span>${word()} ${fmt(d.actual)} / ${fmt(d.target)}</span><span class="life-count-gap">差额 ${delta>0?'+':''}${fmt(delta)}</span>`;
   if(periodFor().mode==='year')card.querySelector('p:last-child').textContent=`年度累计 ${fmt(d.yearActual)} / ${fmt(d.yearTarget)}`;
  });
 }

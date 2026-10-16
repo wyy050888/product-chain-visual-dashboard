@@ -40,7 +40,7 @@ function uiColumnInit(table){
   if(!handle){handle=document.createElement('span');handle.className='ui-column-handle';cell.append(handle)}
   handle.dataset.uiColumnHandle=start+span-1;handle.tabIndex=0;handle.setAttribute('role','separator');
   handle.setAttribute('aria-orientation','vertical');handle.setAttribute('aria-label','调整'+uiColumnLabel(cell)+'列宽');
-  handle.setAttribute('aria-valuemin',uiColumnMin);handle.setAttribute('aria-valuemax',uiColumnMax);handle.title='拖动调整列宽，方向键微调';
+  handle.setAttribute('aria-valuemin',uiColumnMin);handle.setAttribute('aria-valuemax',uiColumnMax);if(!table.closest('#lifecycle'))handle.title='拖动调整列宽，方向键微调';
  }
  const saved=uiColumnSaved(key,grid.count);if(saved)uiColumnApply(state,saved);
 }

@@ -26,7 +26,7 @@ function decorateMetricLabels(root) {
   for (const label of root.querySelectorAll(presentationLabelSelector)) {
     // 六榜抽屉仅由榜单渲染器添加指定的两个指标说明，避免排序、翻页后自动补回其他问号。
     if (label.closest('.rp-list-table') || label.closest('#dialogbody')?.querySelector('.rp-list-table')) continue;
-    if (label.hasAttribute('data-up-basic') || label.closest('.metric-help,.metric-tooltip,.portal-header,svg,.presentation-suppressed,.up-detail,.ms-drawer,.pp-risk-detail,.pp-traffic,#pp-ledger-popover,#riskrail .riskcard,#sales,#newtable,#projects.pp-main')) continue;
+    if (label.hasAttribute('data-up-basic') || label.closest('.metric-help,.metric-tooltip,.portal-header,svg,.presentation-suppressed,.up-detail,.ms-drawer,.pp-risk-detail,.pp-traffic,#pp-ledger-popover,#riskrail .riskcard,#sales,#newtable,#projects.pp-main,#lifecycle')) continue;
     // 不把整个卡片或表格当成指标名称；只识别短标签。
     const text = metricLabelText(label);
     if (!text || text.length > 40 || label.querySelector('table,select,input,textarea')) continue;
