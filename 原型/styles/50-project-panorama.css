@@ -36,7 +36,7 @@
 #projects.pp-main .pp-track i{display:block;height:100%}
 #projects.pp-main .pp-red{background:#ff6174}
 #projects.pp-main .pp-yellow{background:var(--orange-fill)}
-#projects.pp-main .pp-distribution{--pp-green-fill:#8bb8a8;--pp-green-text:#557c6d}
+#projects.pp-main .pp-distribution{--pp-green-fill:#0faf62;--pp-green-text:#0faf62}
 #projects.pp-main .pp-green{background:var(--pp-green-fill)}
 #projects.pp-main .pp-distribution .green{color:var(--pp-green-text)}
 #projects.pp-main .pp-distribution .dot.green{background:var(--pp-green-fill)}
