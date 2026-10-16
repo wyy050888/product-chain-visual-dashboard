@@ -46,7 +46,7 @@ function openLifecycleProducts(scope,dimension,rowIndex){withPeriod('lifecycle',
  pfMount($('.life-products-filters'),productFilters,()=>{page=1;render()},['chain','attribute','productType']);render();if(pending)$('#life-product-state').onchange=e=>{taskState=e.target.value;page=1;render()};$('#life-product-search').oninput=e=>{query=e.target.value.trim();page=1;render()};$('#life-product-brand').onchange=e=>{brand=pfControlValue(e.target);page=1;render()};
  
  });}
-document.addEventListener('click',e=>{const button=e.target.closest('[data-life-completed]');if(button)openLifecycleProducts(button.dataset.lifeCompleted,button.dataset.lifeDimension,+button.dataset.lifeRow)});
+document.addEventListener('click',e=>{const button=e.target.closest('[data-life-completed]');if(button){if(button.closest('#lifecycle')&&ppOpenFromLifecycle(button.dataset.lifeCompleted,button.dataset.lifeDimension,+button.dataset.lifeRow))return;openLifecycleProducts(button.dataset.lifeCompleted,button.dataset.lifeDimension,+button.dataset.lifeRow)}});
 
 const newTrendPlatforms=[{name:'抖音',color:'#f0a346'},{name:'快手',color:'#4eb69c'},{name:'视频号',color:'#cf73ad'},{name:'天猫',color:'#7167ed'},{name:'京东',color:'#35a9d4'},{name:'拼多多',color:'#e77369'}];
 const newTrendMetrics=[{key:'volume',name:'销量',unit:'件',digits:0},{key:'returnRate',name:'退货率',unit:'%',digits:2},{key:'revenue',name:'销售额',unit:'万元',digits:2},{key:'margin',name:'利润率',unit:'%',digits:2}];

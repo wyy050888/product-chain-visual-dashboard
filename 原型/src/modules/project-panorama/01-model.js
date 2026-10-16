@@ -8,7 +8,7 @@ const ppStages={
 };
 const ppProjectStates=['进行中','已完成','已暂停/取消','未开始'];
 const ppDepartments=['产品部','研发部','采购部','品质部'];
-const ppState={category:[],type:[],projectState:['进行中'],brand:[],light:[],stage:[],department:[],owner:'',query:'',plan:null,started:null,page:1,distribution:'type',departmentDistribution:'type',riskDepartment:'全部',link:null,sort:{key:'revisedPlan',direction:'asc'}};
+const ppState={category:[],type:[],projectState:['进行中'],brand:[],light:[],stage:[],department:[],owner:'',query:'',plan:null,actual:null,started:null,page:1,distribution:'type',departmentDistribution:'type',riskDepartment:'全部',link:null,sort:{key:'revisedPlan',direction:'asc'}};
 const ppValues=value=>[...new Set((Array.isArray(value)?value:[value]).filter(v=>v!=null&&v!==''&&v!=='—'))];
 // 高危红灯是红灯子集；保留原灯色，避免分布和红灯率重复统计。
 const ppHighRisk=p=>p.status==='红灯'&&p.delay>15;
@@ -28,13 +28,18 @@ function ppAdapt(source,cutoff){
 }
 function ppRows(){const cutoff=bounds().cutoff;return [...new Map(projects().filter(p=>!ppDate(p.started)||p.started<=cutoff).map(p=>[p.id,ppAdapt(p,cutoff)])).values()]}
 function ppScope(rows){return rows.filter(p=>pfIncludes(ppState.category,p.category)&&pfIncludes(ppState.type,p.type)&&pfIncludes(ppState.projectState,p.projectState))}
+function ppDateRange(selection){
+ if(!selection)return null;
+ return selection.mode==='range'?{start:selection.start,end:selection.end}:nspLaunchRange(selection.mode,selection.year,selection.value);
+}
+function ppDateSelectionLabel(selection){return selection?.mode==='range'?selection.start+' — '+selection.end:nspLaunchLabel(selection)}
 function ppFiltered(rows,s=ppState){
- const q=s.query.trim().toLowerCase(),owner=s.owner.trim().toLowerCase(),range=s.plan?nspLaunchRange(s.plan.mode,s.plan.year,s.plan.value):null;
- const startedRange=s.started?nspLaunchRange(s.started.mode,s.started.year,s.started.value):null;
+ const q=s.query.trim().toLowerCase(),owner=s.owner.trim().toLowerCase(),range=ppDateRange(s.plan),actualRange=ppDateRange(s.actual);
+ const startedRange=ppDateRange(s.started);
  const includesAny=(filter,values)=>!filter.length||values.some(v=>filter.includes(v));
  return rows.filter(p=>pfIncludes(s.brand,p.brand)&&ppMatchesLight(p,s.light)&&(!s.stage.length||s.stage.some(path=>path.type===p.type&&p.stages.includes(path.stage)))&&includesAny(s.department,p.departments)&&(!owner||p.responsible.some(name=>String(name).toLowerCase().includes(owner)))
   &&(!q||String(p.name||'').toLowerCase().includes(q))
-  &&(!range||(p.plan>=range.start&&p.plan<=range.end))&&(!startedRange||(ppDate(p.started)&&p.started>=startedRange.start&&p.started<=startedRange.end))&&ppLinked(p,s.link))
+  &&(!range||(p.plan>=range.start&&p.plan<=range.end))&&(!actualRange||(ppDate(p.actual)&&p.actual>=actualRange.start&&p.actual<=actualRange.end))&&(!startedRange||(ppDate(p.started)&&p.started>=startedRange.start&&p.started<=startedRange.end))&&ppLinked(p,s.link))
   .sort((a,b)=>ppCompareProjects(a,b,s.sort));
 }
 function ppLinked(p,link){if(!link)return true;if(link.kind==='light')return link.value==='红黄灯'?['红灯','黄灯'].includes(p.status):ppMatchesLight(p,[link.value]);if(link.kind==='departmentRisk')return p[link.type]===link.value&&ppDepartmentRiskRecords(p,link.department).length>0;if(link.kind==='department')return p.departments.includes(link.value);return p[link.kind]===link.value&&['红灯','黄灯','绿灯'].includes(p.status)}

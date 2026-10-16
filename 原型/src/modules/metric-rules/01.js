@@ -86,9 +86,9 @@ const metricDefinitions = {
   '关键产品管控': () => '上架超过120天的产品，按近30天销售额'+config.high+'万元和利润率'+config.profit+'%的分界划分ABCD类别。',
   '分责任部门红灯归因': '按卡点责任部门归因，同一项目只计一次。',
   '自研上品计划': '按实际量产完成时间统计计划完成数量。',
-  '选品上品计划': '按实际量产完成时间统计计划完成数量。',
+  '自选商品计划': '按实际量产完成时间统计计划完成数量。',
   '自研立项规划': '按立项评审完成时间统计计划完成数量。',
-  '选品立项规划': '按立项评审完成时间统计计划完成数量。'
+  '自选立项规划': '按立项评审完成时间统计计划完成数量。'
 };
 function metricLabelText(element) {
   return [...element.childNodes].filter(node => !(node.nodeType === 1 && node.classList.contains('metric-help')))

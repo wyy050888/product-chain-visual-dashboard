@@ -459,5 +459,29 @@
     "checks": [
       "salesSort"
     ]
+  },
+  "lifecycle-links": {
+    "label": "生命周期计划完成数联动",
+    "keywords": [
+      "自选商品计划",
+      "生命周期联动",
+      "年度累计完成"
+    ],
+    "sources": [
+      "src/modules/lifecycle-products/01.js",
+      "src/modules/project-panorama/14-lifecycle-links.js",
+      "src/modules/project-panorama/01-model.js",
+      "src/modules/project-panorama/03-table.js",
+      "src/modules/project-panorama/04-controller.js"
+    ],
+    "styles": [
+      "styles/50-project-panorama.css"
+    ],
+    "checks": [
+      "lifecycleProjectLinks"
+    ],
+    "manual": [
+      "源项目实际上线日期缺失时按空值处理，不能用计划日期替代。"
+    ]
   }
 }

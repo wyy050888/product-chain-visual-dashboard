@@ -406,7 +406,7 @@ function salesDetail(index,view='brand'){activeSales=index;salesView=view;const 
 function filteredProjects(){const chain=$('#projectchain').value,type=$('#projecttype').value;return projects().filter(p=>(chain==='全部'||p.chain===+chain)&&(type==='全部'||p.type===type))}
 function renderProjects(){let list=filteredProjects(),tot=list.length,red=list.filter(p=>p.status==='红灯').length,yellow=list.filter(p=>p.status==='黄灯').length,green=tot-red-yellow,high=list.filter(p=>p.delay>config.delay).length;let s=[['项目总数量',tot,'all',''],['绿灯项目数',green,'绿灯','green'],['黄灯项目数',yellow,'黄灯','orange'],['红灯项目数',red,'红灯','red'],['高危红灯项目数',high,'high','red']];$('#projectstats').innerHTML=s.map(([l,n,id,c])=>`<button class="stat ${projectStatus===id?'selected':''}" data-status="${id}"><span>${c?`<i class="dot ${c}"></i>`:''}${l}</span><strong class="num ${c}">${n}<span class="unit">个</span></strong><small>${id==='all'?'覆盖 '+new Set(filteredProjects().map(p=>p.type)).size+' 类项目':id==='high'?'延期 > '+config.delay+' 天':'占当前项目 '+(tot?fmt(n/tot*100,1):'0')+'%'}</small></button>`).join('');$('#projectprogress').innerHTML=[['green',green],['orange',yellow],['red',red]].map(([c,n])=>`<span style="width:${tot?n/tot*100:0}%;background:var(--${c})"></span>`).join('');$('#projecttabs').innerHTML=[['all','全部项目'],['红灯','红灯项目'],['黄灯','黄灯项目'],['绿灯','绿灯项目']].map(([v,l])=>`<button data-status="${v}" class="${v===projectStatus?'active':''}">${l}</button>`).join('');const q=$('#projectsearch').value.trim();list=list.filter(p=>(projectStatus==='all'||(projectStatus==='high'?p.delay>config.delay:p.status===projectStatus))&&(!q||p.name.toLocaleLowerCase().includes(q.toLocaleLowerCase())));const pages=Math.max(1,Math.ceil(list.length/5));projectPage=Math.min(projectPage,pages);$('#projecttable').innerHTML=table(['产品 / 项目','项目类型','红绿灯状态','当前阶段','原计划量产','调整后计划量产','实际量产','计划调整','逾期天数','责任部门 / 项目经理','操作'],list.slice((projectPage-1)*5,projectPage*5).map(p=>[titleProduct(p),esc(p.type),traffic(p.status),esc(p.stage),p.plan,p.revisedPlan||'—',esc(p.actual&&p.actual!=='—'?p.actual:'待补录'),p.plannedDelay===null?'—':p.plannedDelay===0?'未调整':`<span class="${p.plannedDelay>0?'orange':'green'}">${p.plannedDelay>0?'延后':'提前'} ${Math.abs(p.plannedDelay)} 天</span>`,p.delay?`<span class="red num">${p.delay} 天</span>`:'—',esc(p.dept)+'<small>'+esc(p.owner)+'</small>',`<button class="link" data-project="${p.id}">查看详情</button>`]));if(!list.length)$('#projecttable').innerHTML='<div class="empty">暂无匹配项目</div>';$('#projectcount').textContent='';$('#projectpages').innerHTML=listPager(list.length,projectPage,5,{attr:'data-page'});$('#departments').innerHTML=depts.map(d=>{const all=filteredProjects().filter(p=>p.dept===d),r=all.filter(p=>p.status==='红灯'),h=r.filter(p=>p.delay>config.delay).length;return `<button class="dept" data-dept="${d}"><h3>${d} <span class="muted">›</span></h3><div class="depnum num">${r.length}<span class="unit">个红灯</span></div><small>高危 ${h} 个 · 占比 ${all.length?fmt(r.length/all.length*100,1):0}%</small><small>${r[0]?.cause||'暂无红灯卡点'}</small></button>`}).join('')}
 function projectDetail(id){let p=projects().find(p=>p.id===+id);let fields=[['产品名称',p.name],['型号',p.model],['所属品类',chains[p.chain]],['所属品牌',p.brand],['立项日期',dateBack(100)],['计划上线日期',p.plan],['实际上线日期',p.actual+'（尚未上线）'],['延迟天数',p.delay+' 天'],['单品成本','¥ '+p.cost],['单品售价','¥ '+p.price],['卡点阶段',p.status==='绿灯'?'无':p.stage],['卡点部门',p.status==='绿灯'?'无':p.dept],['根因描述',p.status==='绿灯'?'按计划推进':p.cause],['责任人',p.owner],['红绿灯状态',traffic(p.status)],['跟进日志链接','<a class="blue" href="#projectlog">查看本项目跟进记录 ↓</a>']];openModal('项目详情 · '+p.name,`<div class="detailgrid">${fields.map(([l,v])=>`<div class="detailitem"><small>${l}</small>${v}</div>`).join('')}</div><div class="tabs" id="logtabs"><button class="active" data-log="0">跟进记录</button><button data-log="1">延期时间线</button><button data-log="2">卡点日志与责任人轨迹</button></div><div id="projectlog"></div>`);const logs=[`<div class="timeline"><p>${dateBack(0)} 09:10 · ${p.owner}<small>${p.status==='绿灯'?'项目按计划推进，已更新本周工作安排。':'已确认卡点，待责任部门反馈闭环日期。'}</small></p><p>${dateBack(2)} 16:20 · 项目部<small>例会复核项目进展及依赖事项。</small></p></div>`,`<div class="timeline"><p>原计划上线 · ${p.plan}</p><p>截至 ${dateBack(0)}<small>${p.delay?'尚未上线，延期 '+p.delay+' 天；新计划待评审确认。':'尚未到计划上线时间。'}</small></p></div>`,`<div class="timeline"><p>卡点：${p.status==='绿灯'?'无':p.cause}<small>状态：${p.status==='绿灯'?'正常':'待闭环'} · 责任部门：${p.dept}</small></p><p>责任人：${p.owner}<small>本快照无责任人变更记录。</small></p></div>`];$('#projectlog').innerHTML=logs[0];$('#logtabs').onclick=e=>{if(!e.target.dataset.log)return;$('#projectlog').innerHTML=logs[+e.target.dataset.log];$('#logtabs .active').classList.remove('active');e.target.classList.add('active')};}
-const lifeNames=['自研上品计划','选品上品计划','自研立项规划','选品立项规划','产品迭代规划','品质整改规划','研发创新规划','产品下市规划'];
+const lifeNames=['自研上品计划','自选商品计划','自研立项规划','自选立项规划','产品迭代规划','品质整改规划','研发创新规划','产品下市规划'];
 function newList(){let c=$('#newchain').value;return productRows(true).filter(p=>c==='全部'||p.chain===+c||pfCategory(p)===c)}
 function renderNew(){const list=newList(),c=$('#newchain').value,{planned,ontime,sold}=newMetrics();const channelTotals=channels.map(ch=>list.filter(p=>p.channel===ch).reduce((a,p)=>a+p.sales,0)),max=Math.max(...channelTotals,1);$('#newtop').innerHTML=`<div class="newmetric"><span>新品销售成功率</span><strong class="num">${fmt(sold/planned*100,1)}<span class="unit">%</span></strong><small class="muted">按期上品且有销售 ${sold} / 计划 ${planned}</small>${spark(1)}</div><div class="newmetric"><span>新品上线及时率</span><strong class="num">${fmt(ontime/planned*100,1)}<span class="unit">%</span></strong><small class="muted">按期上线 ${ontime} / 计划 ${planned}</small>${spark(3)}</div><div class="donutwrap"><div class="donut" id="newdonut"><span class="num">${list.length}<small>新品样本</small></span></div><div class="donutleg">${['A','B','C','D'].map((g,i)=>`<div><i style="background:${['#5865f5','#9285fa','#6bc8f9','#edb667'][i]}"></i>${g} 级　${list.filter(p=>p.grade===g).length}</div>`).join('')}</div></div><div><h3 style="margin-bottom:8px">各渠道新品季度销售额</h3><svg viewBox="0 0 290 110" role="img" aria-label="新品分渠道季度销售额，单位万元">${channelTotals.map((n,i)=>`<rect x="${i*35+10}" y="${85-n/max*65}" width="17" height="${n/max*65}" rx="2" fill="#93a0ff"/><text x="${i*35+18}" y="${79-n/max*65}" text-anchor="middle">${fmt(n)}</text><text x="${i*35+18}" y="104" text-anchor="middle">${channels[i]}</text>`).join('')}</svg></div>`;let start=0;const colors=['#5865f5','#9285fa','#6bc8f9','#edb667'];$('#newdonut').style.background='conic-gradient('+['A','B','C','D'].map((g,i)=>{let end=start+list.filter(p=>p.grade===g).length/list.length*100;const s=colors[i]+' '+start+'% '+end+'%';start=end;return s}).join(',')+')';$('#newtable').innerHTML=table(['产品名称','上线天数','所属品类 / 渠道','季度销售额','单品利润率','总退货率','销售状态','产品等级','操作'],list.slice(0,5).map(p=>[titleProduct(p),p.days+' 天',chains[p.chain]+'<small>'+p.channel+'</small>',fmt(p.sales,1)+' 万',fmt(p.profit,1)+'%',fmt(p.returnRate,1)+'%',`<span class="tag ${p.state==='整改'?'orange':'green'}">${p.state}</span>`,`<span class="tag">${p.grade}</span>`,`<button class="link" data-product="new,${p.id}">✧ AI 新品评估</button>`]));$('#newcount').textContent=`当前 ${list.length} 个新品样本 · 已展示 ${Math.min(5,list.length)} 条 · 新品等级为人工评级示例`}
 function productDetail(isNew,id){const p=productRows(isNew).find(p=>p.id===+id),cat=category(p),strategies={A:'保障供货，推进迭代，扩充衍生产品矩阵。',B:'拆解采购成本与退货损耗，优先推动采购降本、品质改善及产品迭代。',C:'小范围测试渠道扩展与内容投放，结合需求验证追加备货。',D:'测算降本与迭代可行性，评估品牌调整、清仓及下市方案。',O:'处于中间观察区，持续跟踪动销及利润，不强行归入四类榜单。'};openModal((isNew?'新品评估':'老品经营策略')+' · '+p.name,`<div class="detailgrid">${[['型号',p.model],['所属品类',chains[p.chain]],['品牌 / 渠道',p.brand+' / '+p.channel],['上架时长',p.days+' 天'],[isNew?'季度销售额':'近30天销售额',fmt(p.sales,1)+' 万元'],['单品利润率',fmt(p.profit,1)+'%'],['总退货率',fmt(p.returnRate,1)+'%'],[isNew?'产品等级':'经营分层',isNew?p.grade:cat==='O'?'中间观察区':cat+' 类']].map(([a,b])=>`<div class="detailitem"><small>${a}</small>${b}</div>`).join('')}</div><h3>${isNew?'季度':'近30天'} GMV 趋势 · 演示分布（万元）</h3>${trend(p.sales,isNew?bounds():{start:shiftDate(bounds().cutoff,-29),cutoff:bounds().cutoff})}<div class="aitext"><h3>✧ ${isNew?'AI 新品经营建议':'标准化处置策略'}</h3><p>${isNew?(p.grade==='D'?'优先排查需求匹配、退货原因与渠道定位，验证优化方案后再扩大投入。':'结合当前渠道表现评估推广与供给，持续监测毛利和退货率，避免仅按销售额放大投放。'):strategies[cat]}</p><p class="source">证据来源：模拟销售、毛利与退货台账 · ${dateBack(0)}</p></div>`);$('#dialogactions').insertAdjacentHTML('afterbegin','<button class="btn primary small" id="productdraft">生成工作草稿</button>');$('#productdraft').onclick=()=>draft(p.name+(cat==='B'?'降本评估':'经营优化'))}
@@ -1481,7 +1481,7 @@ function openLifecycleProducts(scope,dimension,rowIndex){withPeriod('lifecycle',
  pfMount($('.life-products-filters'),productFilters,()=>{page=1;render()},['chain','attribute','productType']);render();if(pending)$('#life-product-state').onchange=e=>{taskState=e.target.value;page=1;render()};$('#life-product-search').oninput=e=>{query=e.target.value.trim();page=1;render()};$('#life-product-brand').onchange=e=>{brand=pfControlValue(e.target);page=1;render()};
  
  });}
-document.addEventListener('click',e=>{const button=e.target.closest('[data-life-completed]');if(button)openLifecycleProducts(button.dataset.lifeCompleted,button.dataset.lifeDimension,+button.dataset.lifeRow)});
+document.addEventListener('click',e=>{const button=e.target.closest('[data-life-completed]');if(button){if(button.closest('#lifecycle')&&ppOpenFromLifecycle(button.dataset.lifeCompleted,button.dataset.lifeDimension,+button.dataset.lifeRow))return;openLifecycleProducts(button.dataset.lifeCompleted,button.dataset.lifeDimension,+button.dataset.lifeRow)}});
 
 const newTrendPlatforms=[{name:'抖音',color:'#f0a346'},{name:'快手',color:'#4eb69c'},{name:'视频号',color:'#cf73ad'},{name:'天猫',color:'#7167ed'},{name:'京东',color:'#35a9d4'},{name:'拼多多',color:'#e77369'}];
 const newTrendMetrics=[{key:'volume',name:'销量',unit:'件',digits:0},{key:'returnRate',name:'退货率',unit:'%',digits:2},{key:'revenue',name:'销售额',unit:'万元',digits:2},{key:'margin',name:'利润率',unit:'%',digits:2}];
@@ -4567,9 +4567,9 @@ const metricDefinitions = {
   '关键产品管控': () => '上架超过120天的产品，按近30天销售额'+config.high+'万元和利润率'+config.profit+'%的分界划分ABCD类别。',
   '分责任部门红灯归因': '按卡点责任部门归因，同一项目只计一次。',
   '自研上品计划': '按实际量产完成时间统计计划完成数量。',
-  '选品上品计划': '按实际量产完成时间统计计划完成数量。',
+  '自选商品计划': '按实际量产完成时间统计计划完成数量。',
   '自研立项规划': '按立项评审完成时间统计计划完成数量。',
-  '选品立项规划': '按立项评审完成时间统计计划完成数量。'
+  '自选立项规划': '按立项评审完成时间统计计划完成数量。'
 };
 function metricLabelText(element) {
   return [...element.childNodes].filter(node => !(node.nodeType === 1 && node.classList.contains('metric-help')))
@@ -9710,7 +9710,7 @@ const ppStages={
 };
 const ppProjectStates=['进行中','已完成','已暂停/取消','未开始'];
 const ppDepartments=['产品部','研发部','采购部','品质部'];
-const ppState={category:[],type:[],projectState:['进行中'],brand:[],light:[],stage:[],department:[],owner:'',query:'',plan:null,started:null,page:1,distribution:'type',departmentDistribution:'type',riskDepartment:'全部',link:null,sort:{key:'revisedPlan',direction:'asc'}};
+const ppState={category:[],type:[],projectState:['进行中'],brand:[],light:[],stage:[],department:[],owner:'',query:'',plan:null,actual:null,started:null,page:1,distribution:'type',departmentDistribution:'type',riskDepartment:'全部',link:null,sort:{key:'revisedPlan',direction:'asc'}};
 const ppValues=value=>[...new Set((Array.isArray(value)?value:[value]).filter(v=>v!=null&&v!==''&&v!=='—'))];
 // 高危红灯是红灯子集；保留原灯色，避免分布和红灯率重复统计。
 const ppHighRisk=p=>p.status==='红灯'&&p.delay>15;
@@ -9730,13 +9730,18 @@ function ppAdapt(source,cutoff){
 }
 function ppRows(){const cutoff=bounds().cutoff;return [...new Map(projects().filter(p=>!ppDate(p.started)||p.started<=cutoff).map(p=>[p.id,ppAdapt(p,cutoff)])).values()]}
 function ppScope(rows){return rows.filter(p=>pfIncludes(ppState.category,p.category)&&pfIncludes(ppState.type,p.type)&&pfIncludes(ppState.projectState,p.projectState))}
+function ppDateRange(selection){
+ if(!selection)return null;
+ return selection.mode==='range'?{start:selection.start,end:selection.end}:nspLaunchRange(selection.mode,selection.year,selection.value);
+}
+function ppDateSelectionLabel(selection){return selection?.mode==='range'?selection.start+' — '+selection.end:nspLaunchLabel(selection)}
 function ppFiltered(rows,s=ppState){
- const q=s.query.trim().toLowerCase(),owner=s.owner.trim().toLowerCase(),range=s.plan?nspLaunchRange(s.plan.mode,s.plan.year,s.plan.value):null;
- const startedRange=s.started?nspLaunchRange(s.started.mode,s.started.year,s.started.value):null;
+ const q=s.query.trim().toLowerCase(),owner=s.owner.trim().toLowerCase(),range=ppDateRange(s.plan),actualRange=ppDateRange(s.actual);
+ const startedRange=ppDateRange(s.started);
  const includesAny=(filter,values)=>!filter.length||values.some(v=>filter.includes(v));
  return rows.filter(p=>pfIncludes(s.brand,p.brand)&&ppMatchesLight(p,s.light)&&(!s.stage.length||s.stage.some(path=>path.type===p.type&&p.stages.includes(path.stage)))&&includesAny(s.department,p.departments)&&(!owner||p.responsible.some(name=>String(name).toLowerCase().includes(owner)))
   &&(!q||String(p.name||'').toLowerCase().includes(q))
-  &&(!range||(p.plan>=range.start&&p.plan<=range.end))&&(!startedRange||(ppDate(p.started)&&p.started>=startedRange.start&&p.started<=startedRange.end))&&ppLinked(p,s.link))
+  &&(!range||(p.plan>=range.start&&p.plan<=range.end))&&(!actualRange||(ppDate(p.actual)&&p.actual>=actualRange.start&&p.actual<=actualRange.end))&&(!startedRange||(ppDate(p.started)&&p.started>=startedRange.start&&p.started<=startedRange.end))&&ppLinked(p,s.link))
   .sort((a,b)=>ppCompareProjects(a,b,s.sort));
 }
 function ppLinked(p,link){if(!link)return true;if(link.kind==='light')return link.value==='红黄灯'?['红灯','黄灯'].includes(p.status):ppMatchesLight(p,[link.value]);if(link.kind==='departmentRisk')return p[link.type]===link.value&&ppDepartmentRiskRecords(p,link.department).length>0;if(link.kind==='department')return p.departments.includes(link.value);return p[link.kind]===link.value&&['红灯','黄灯','绿灯'].includes(p.status)}
@@ -9793,12 +9798,12 @@ function ppSelect(key,label,values,selected=ppState[key]){
  return `<label class="unified-filter-field"><span>${label}</span><select id="pp-filter-${key}" data-pp-filter="${key}" aria-label="项目${label}" multiple data-pf-multiple data-pf-label="${label}"><option value="all" ${!selected.length?'selected':''}>${allLabel}</option>${values.map(value=>`<option value="${esc(value)}" ${selected.includes(value)?'selected':''}>${esc(value)}</option>`).join('')}</select></label>`;
 }
 function ppDateFilter(key,label,hint=''){
- return `<div class="pp-plan"><button type="button" class="pp-plan-trigger" aria-label="${label}筛选" aria-haspopup="dialog" aria-expanded="false" aria-controls="pp-${key}-panel"><span>${label}${hint?ppHelp(label,hint):''}</span><span>${esc(nspLaunchLabel(ppState[key]))}</span><i>⌄</i></button><button type="button" data-pp-plan-clear="${key}" aria-label="清空${label}" ${ppState[key]?'':'hidden'}>×</button><div id="pp-${key}-panel" class="nsp-launch-panel nsp-period-panel" popover="auto" role="dialog" aria-label="选择项目${label}期间"></div></div>`;
+ return `<div class="pp-plan"><button type="button" class="pp-plan-trigger" aria-label="${label}筛选" aria-haspopup="dialog" aria-expanded="false" aria-controls="pp-${key}-panel"><span>${label}${hint?ppHelp(label,hint):''}</span><span>${esc(ppDateSelectionLabel(ppState[key]))}</span><i>⌄</i></button><button type="button" data-pp-plan-clear="${key}" aria-label="清空${label}" ${ppState[key]?'':'hidden'}>×</button><div id="pp-${key}-panel" class="nsp-launch-panel nsp-period-panel" popover="auto" role="dialog" aria-label="选择项目${label}期间"></div></div>`;
 }
 function ppToolbar(rows){
  return `<div class="pp-filter-row"><label class="ui-search-field"><input type="search" data-pp-search aria-label="项目名称搜索" placeholder="搜索项目名称" value="${esc(ppState.query)}"></label>
  <label class="ui-search-field"><input type="search" data-pp-owner-search aria-label="责任链主搜索" placeholder="搜索责任链主" value="${esc(ppState.owner)}"></label>
- ${ppDateFilter('plan','计划上线日期','项目的计划量产/完成日期')}${ppDateFilter('started','立项日期')}
+ ${ppDateFilter('plan','计划上线日期','项目的计划量产/完成日期')}${ppDateFilter('actual','实际上线日期')}${ppDateFilter('started','立项日期')}
  ${ppSelect('brand','品牌',ppValues(rows.map(p=>p.brand)))}${ppSelect('light','项目红绿灯',['高危红灯','红灯','黄灯','绿灯'])}${ppSelect('projectState','项目状态',ppProjectStates)}${ppSelect('department','责任部门',ppDepartments)}${ppStageCascader()}
  </div><button type="button" class="link pp-reset" data-pp-reset>重置</button>`;
 }
@@ -10194,6 +10199,29 @@ document.addEventListener('click',e=>{
  const project=e.target.closest('#pp-risk-detail-table [data-pp-project]');if(project)toast('点击跳转项目详情页-风险管理');
 });
 window.projectRiskDetailAudit=()=>ppRiskDetailState?{sort:{...ppRiskDetailState.sort},records:ppRiskSorted(ppRiskDetailState.records,ppRiskDetailState.sort)}:null;
+// 生命周期完成数量 → 项目明细：上线按实际日期，其余规划按立项日期。
+const ppLifecyclePlans=[
+ {type:'自研开发',date:'actual'},
+ {type:'自选开发',date:'actual'},
+ {type:'自研开发',date:'started'},
+ {type:'自选开发',date:'started'},
+ {type:'产品迭代',date:'started'},
+ {type:'品质整改',date:'started'},
+ {type:'研发创新',date:'started'}
+];
+const ppLifecycleCategories=[['清洁类'],['厨电类'],['环境类'],['个护类','健康类']];
+function ppOpenFromLifecycle(scope,dimension,rowIndex){
+ const plan=ppLifecyclePlans[lifeIndex];if(!plan||!['period','year'].includes(scope))return false;
+ const source=withPeriod('lifecycle',()=>({period:copyPeriod(periodFor()),range:bounds()}));
+ const start=scope==='year'?source.period.year+'-01-01':source.range.start,end=source.range.cutoff;
+ // 清除旧查询条件，完成明细包含所有项目状态；可见日期范围保持至统计截止日。
+ Object.assign(ppState,{category:dimension==='chain'?[...(ppLifecycleCategories[rowIndex]||[])]:[],type:[plan.type],projectState:[],brand:[],light:[],stage:[],department:[],owner:'',query:'',plan:null,actual:null,started:null,link:null,page:1,distribution:'type',sort:{key:'revisedPlan',direction:'asc'}});
+ ppState[plan.date]={mode:'range',year:source.period.year,start,end};
+ localPeriods.projects=copyPeriod(source.period);
+ renderTimeControls('projects');renderProjects();
+ const link=document.querySelector('a[href="#projects"]');if(link)link.click();else $('#projects').scrollIntoView({block:'start',behavior:'smooth'});
+ return true;
+}
 // 主管看板使用新版；采购组件的隐藏克隆继续走原组件，避免跨工作台状态串扰。
 const ppLegacyRender=renderProjects,ppMainSection=$('#projects');
 function ppMount(){
@@ -10210,7 +10238,7 @@ function ppRender(){
  $('#pp-overview').innerHTML=ppOverview(scope);
  $('#pp-filters').innerHTML=ppToolbar(scope);
  decorateFilterFields($('#pp-scope'));decorateFilterFields($('#pp-filters'));
- ppBindPlan('plan');ppBindPlan('started');ppTable(scope);
+ ppBindPlan('plan');ppBindPlan('actual');ppBindPlan('started');ppTable(scope);
 }
 renderProjects=function(...args){
  const section=$('#projects');
@@ -10219,7 +10247,7 @@ renderProjects=function(...args){
 };
 function ppRefreshTable(){withPeriod('projects',()=>ppTable(ppScope(ppRows())))}
 function ppBindPlan(key){
- const panel=$('#pp-'+key+'-panel'),trigger=$('#pp-filters [aria-controls="pp-'+key+'-panel"]');let mode=ppState[key]?.mode||'year',year=ppState[key]?.year||new Date().getFullYear();
+ const panel=$('#pp-'+key+'-panel'),trigger=$('#pp-filters [aria-controls="pp-'+key+'-panel"]');let mode=ppState[key]?.mode==='range'?'month':ppState[key]?.mode||'year',year=ppState[key]?.year||new Date().getFullYear();
  const position=()=>{const r=trigger.getBoundingClientRect(),b=panel.getBoundingClientRect();panel.style.left=Math.max(8,Math.min(r.left,innerWidth-b.width-8))+'px';panel.style.top=Math.max(8,r.bottom+8+b.height>innerHeight?r.top-b.height-8:r.bottom+8)+'px'};
  const paint=()=>{const first=year-4,values=Array.from({length:mode==='year'?9:mode==='quarter'?4:12},(_,i)=>mode==='year'?first+i:i+1);
   panel.innerHTML=`<nav class="nsp-launch-modes">${[['year','自然年'],['quarter','自然季度'],['month','自然月']].map(([key,label])=>`<button type="button" data-pp-plan-mode="${key}" aria-pressed="${mode===key}">${label}<span>›</span></button>`).join('')}</nav><div class="nsp-launch-calendar"><div class="nsp-launch-year"><button type="button" data-pp-plan-step="-1" aria-label="上一年">«</button><span>${mode==='year'?first+'年 — '+(first+8)+'年':year+'年'}</span><button type="button" data-pp-plan-step="1" aria-label="下一年">»</button></div><div class="nsp-launch-options">${values.map(v=>`<button type="button" data-pp-plan-value="${v}">${mode==='year'?v+'年':mode==='quarter'?'第'+v+'季度':v+'月'}</button>`).join('')}</div></div>`;
@@ -10253,7 +10281,7 @@ document.addEventListener('click',e=>{
  if(d.ppLink){const next={kind:d.ppLink,value:d.value,type:d.type||'',...(d.ppLink==='departmentRisk'?{department:ppState.riskDepartment}:{})};ppState.link=JSON.stringify(ppState.link)===JSON.stringify(next)?null:next;ppState.page=1;renderProjects();return}
  if(d.ppAiDepartment){ppState.link={kind:'department',value:d.ppAiDepartment};ppState.light=['红灯'];ppState.page=1;renderProjects();return}
  if(b.hasAttribute('data-pp-plan-clear')){ppState[d.ppPlanClear]=null;ppState.page=1;renderProjects();return}
- if(b.hasAttribute('data-pp-reset')){for(const key of ['brand','light','stage','department'])ppState[key]=[];ppState.projectState=['进行中'];ppState.query='';ppState.owner='';ppState.plan=null;ppState.started=null;ppState.link=null;ppState.page=1;ppState.sort={key:'revisedPlan',direction:'asc'};renderProjects()}
+ if(b.hasAttribute('data-pp-reset')){for(const key of ['brand','light','stage','department'])ppState[key]=[];ppState.projectState=['进行中'];ppState.query='';ppState.owner='';ppState.plan=null;ppState.actual=null;ppState.started=null;ppState.link=null;ppState.page=1;ppState.sort={key:'revisedPlan',direction:'asc'};renderProjects()}
 });
 window.projectPanoramaAudit=()=>withPeriod('projects',()=>({state:{...ppState},scope:ppScope(ppRows()),filtered:ppFiltered(ppScope(ppRows())),cutoff:bounds().cutoff}));
 // 数据与展示适配器全部登记后只渲染一次，避免中间版本重复生成台账及整页DOM。

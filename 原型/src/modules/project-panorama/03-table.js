@@ -4,12 +4,12 @@ function ppSelect(key,label,values,selected=ppState[key]){
  return `<label class="unified-filter-field"><span>${label}</span><select id="pp-filter-${key}" data-pp-filter="${key}" aria-label="项目${label}" multiple data-pf-multiple data-pf-label="${label}"><option value="all" ${!selected.length?'selected':''}>${allLabel}</option>${values.map(value=>`<option value="${esc(value)}" ${selected.includes(value)?'selected':''}>${esc(value)}</option>`).join('')}</select></label>`;
 }
 function ppDateFilter(key,label,hint=''){
- return `<div class="pp-plan"><button type="button" class="pp-plan-trigger" aria-label="${label}筛选" aria-haspopup="dialog" aria-expanded="false" aria-controls="pp-${key}-panel"><span>${label}${hint?ppHelp(label,hint):''}</span><span>${esc(nspLaunchLabel(ppState[key]))}</span><i>⌄</i></button><button type="button" data-pp-plan-clear="${key}" aria-label="清空${label}" ${ppState[key]?'':'hidden'}>×</button><div id="pp-${key}-panel" class="nsp-launch-panel nsp-period-panel" popover="auto" role="dialog" aria-label="选择项目${label}期间"></div></div>`;
+ return `<div class="pp-plan"><button type="button" class="pp-plan-trigger" aria-label="${label}筛选" aria-haspopup="dialog" aria-expanded="false" aria-controls="pp-${key}-panel"><span>${label}${hint?ppHelp(label,hint):''}</span><span>${esc(ppDateSelectionLabel(ppState[key]))}</span><i>⌄</i></button><button type="button" data-pp-plan-clear="${key}" aria-label="清空${label}" ${ppState[key]?'':'hidden'}>×</button><div id="pp-${key}-panel" class="nsp-launch-panel nsp-period-panel" popover="auto" role="dialog" aria-label="选择项目${label}期间"></div></div>`;
 }
 function ppToolbar(rows){
  return `<div class="pp-filter-row"><label class="ui-search-field"><input type="search" data-pp-search aria-label="项目名称搜索" placeholder="搜索项目名称" value="${esc(ppState.query)}"></label>
  <label class="ui-search-field"><input type="search" data-pp-owner-search aria-label="责任链主搜索" placeholder="搜索责任链主" value="${esc(ppState.owner)}"></label>
- ${ppDateFilter('plan','计划上线日期','项目的计划量产/完成日期')}${ppDateFilter('started','立项日期')}
+ ${ppDateFilter('plan','计划上线日期','项目的计划量产/完成日期')}${ppDateFilter('actual','实际上线日期')}${ppDateFilter('started','立项日期')}
  ${ppSelect('brand','品牌',ppValues(rows.map(p=>p.brand)))}${ppSelect('light','项目红绿灯',['高危红灯','红灯','黄灯','绿灯'])}${ppSelect('projectState','项目状态',ppProjectStates)}${ppSelect('department','责任部门',ppDepartments)}${ppStageCascader()}
  </div><button type="button" class="link pp-reset" data-pp-reset>重置</button>`;
 }

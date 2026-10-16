@@ -915,6 +915,10 @@
       "file": "src/modules/project-panorama/13-risk-detail-view.js"
     },
     {
+      "file": "src/modules/project-panorama/14-lifecycle-links.js",
+      "module": "生命周期完成数联动项目查询"
+    },
+    {
       "file": "src/modules/project-panorama/04-controller.js",
       "module": "项目红绿灯全景管控"
     },
