@@ -15,6 +15,7 @@ export async function projectAnalysis(page){
   for(const [mode,expected] of [['red',red.length],['high',high.length],['all',evidence.length]]){
    await card.locator(`[data-mode="${mode}"]`).click();
    assert.equal(await page.locator('.pp-analysis-table tbody tr').count(),expected||1);
+   if(mode==='all'&&expected){assert((await page.locator('.pp-analysis-table th').allTextContents()).includes('任务名称'));assert.equal(await page.locator('.pp-analysis-table .pp-task-name').count(),evidence.reduce((n,r)=>n+r.taskNames.length,0),'多个任务不增加风险单行数');}
    if(mode==='high'&&expected){const delays=await page.locator('.pp-analysis-table tbody tr td:nth-child(3)').allTextContents();assert(delays.every(d=>parseInt(d)>15));}
    await page.locator('#modalclose').click();
   }

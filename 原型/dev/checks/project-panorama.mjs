@@ -163,12 +163,15 @@ export async function projectPanorama(page){
  await page.mouse.move(0,0);
  await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
  await trigger.hover();await popover.waitFor({state:'visible'});
- assert.equal(await popover.locator('th').count(),7);
+ assert.equal(await popover.locator('th').count(),8);
+ assert.equal(await popover.locator('th').nth(1).innerText(),'任务名称');
+ assert.deepEqual(await popover.locator('tbody tr').first().locator('.pp-task-name').allTextContents(),['产品预估报价','产品供应商确认落地']);
+ assert(sample.ledger.every(r=>Array.isArray(r.taskNames)&&r.taskNames.length));
  assert.doesNotMatch(await popover.innerText(),/演示台账/);
  assert.match(await popover.innerText(),/首批订单报价尚未确认/);
  assert.equal(await popover.locator('tbody tr').count(),2);
- assert.equal(await popover.locator('th').nth(1).innerText(),'风险单红绿灯');
- assert.deepEqual((await popover.locator('tbody tr td:nth-child(2)').allTextContents()).map(text=>text.replace('●','').trim()),sample.ledger.map(r=>r.light));
+ assert.equal(await popover.locator('th').nth(2).innerText(),'风险单红绿灯');
+ assert.deepEqual((await popover.locator('tbody tr td:nth-child(3)').allTextContents()).map(text=>text.replace('●','').trim()),sample.ledger.map(r=>r.light));
  assert.equal(await page.locator('.pp-ledger-row').count(),0);
  await popover.locator('h4').hover();assert(await popover.isVisible());
  const box=await popover.boundingBox();assert(box.x>=0&&box.x+box.width<=1920);

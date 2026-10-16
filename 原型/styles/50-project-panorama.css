@@ -137,24 +137,27 @@
 @media(max-width:700px){#projects.pp-main #pp-overview{grid-template-columns:1fr}#projects.pp-main .pp-scope{flex-wrap:wrap}#projects.pp-main .pp-ai-grid{grid-template-columns:1fr}#projects.pp-main .pp-ai-heading{align-items:flex-start;flex-direction:column}}
 
 /* 根因分析悬浮表格：内容可移入阅读，窄屏在浮层内部横向滚动。 */
-#pp-ledger-popover{position:fixed;inset:auto;margin:0;width:min(1100px,calc(100vw - 24px));max-height:calc(100vh - 24px);padding:12px;border:1px solid #dfe6f1;border-radius:5px;background:white;color:#354c70;box-shadow:0 3px 16px #253a5b24;overflow:visible}
+#pp-ledger-popover{position:fixed;inset:auto;margin:0;width:min(1200px,calc(100vw - 24px));max-height:calc(100vh - 24px);padding:12px;border:1px solid #dfe6f1;border-radius:5px;background:white;color:#354c70;box-shadow:0 3px 16px #253a5b24;overflow:visible}
 #pp-ledger-popover::before{content:'';position:absolute;left:var(--pp-arrow-left);width:9px;height:9px;background:#fff;border:1px solid #dfe6f1;transform:translateX(-50%) rotate(45deg)}
 #pp-ledger-popover[data-side=below]::before{top:-5px;border-right:0;border-bottom:0}
 #pp-ledger-popover[data-side=above]::before{bottom:-5px;border-left:0;border-top:0}
 #pp-ledger-popover .pp-ledger{max-height:calc(100vh - 50px);overflow:auto}
 #pp-ledger-popover .pp-card-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:10px;color:#7b8ea9;font-size:11px}
 #pp-ledger-popover h4{margin:0;color:#354c70;font-size:12px;font-weight:500}
-#pp-ledger-popover table{width:100%;min-width:850px;border-collapse:collapse;table-layout:fixed}
+#pp-ledger-popover table{width:100%;min-width:1000px;border-collapse:collapse;table-layout:fixed}
 #pp-ledger-popover th,#pp-ledger-popover td{border:1px solid #e5ebf6;padding:10px 9px;text-align:left;font-size:12px;line-height:1.7;white-space:normal;overflow-wrap:anywhere}
 #pp-ledger-popover th{background:#f5f7fb;color:#7286a6;font-weight:400}
-#pp-ledger-popover th:first-child{width:5%}
-#pp-ledger-popover th:nth-child(2){width:10%}
-#pp-ledger-popover th:nth-child(3){width:17%}
-#pp-ledger-popover th:nth-child(4){width:23%}
-#pp-ledger-popover th:nth-child(5){width:23%}
-#pp-ledger-popover th:nth-child(6){width:11%}
-#pp-ledger-popover th:nth-child(7){width:11%}
-#pp-ledger-popover td:nth-child(2){white-space:nowrap}
+#pp-ledger-popover th:first-child{width:4%}
+#pp-ledger-popover th:nth-child(2){width:17%}
+#pp-ledger-popover th:nth-child(3){width:9%}
+#pp-ledger-popover th:nth-child(4){width:14%}
+#pp-ledger-popover th:nth-child(5){width:18%}
+#pp-ledger-popover th:nth-child(6){width:18%}
+#pp-ledger-popover th:nth-child(7){width:10%}
+#pp-ledger-popover th:nth-child(8){width:10%}
+#pp-ledger-popover td:nth-child(3){white-space:nowrap}
+#pp-ledger-popover .pp-task-name{display:block}
+#pp-ledger-popover .pp-task-name+.pp-task-name{margin-top:4px}
 #pp-ledger-popover .pp-empty-ledger{text-align:center;padding:24px;color:#8494ad}
 
 /* 查询项等宽，窄屏减少列数，重置按钮独立于字段网格。 */

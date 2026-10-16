@@ -48,3 +48,6 @@
 @media(max-width:700px){#projects.pp-main .pp-ai{padding:16px}#projects.pp-main .pp-ai-grid{grid-template-columns:minmax(0,1fr)}#projects.pp-main .pp-ai-grid>article{padding:16px}}
 
 #dialog:has(.pp-analysis-detail) #drawer-tabs{display:none}
+
+#dialogbody .pp-analysis-table .pp-task-name{display:block}
+#dialogbody .pp-analysis-table .pp-task-name+.pp-task-name{margin-top:4px}

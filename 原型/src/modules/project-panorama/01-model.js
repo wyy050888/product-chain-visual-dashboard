@@ -14,7 +14,7 @@ const ppDate=value=>/^\d{4}-\d{2}-\d{2}$/.test(value||'')?value:null;
 function ppAdapt(source,cutoff){
  source=ppSampleQuotes(source);
  const type=({'自研':'自研开发','自选':'自选开发','创新研发':'研发创新','创新项目':'研发创新'})[source.type]||source.type;
- const ledger=(Array.isArray(source.riskLedger)?source.riskLedger:ppSampleLedger(source)).filter(r=>!r.recordedAt||r.recordedAt.slice(0,10)<=cutoff);
+ const ledger=(Array.isArray(source.riskLedger)?source.riskLedger:ppSampleLedger(source)).filter(r=>!r.recordedAt||r.recordedAt.slice(0,10)<=cutoff).map(r=>({...r,taskNames:ppValues(r.taskNames).filter(name=>typeof name==='string')}));
  const stages=ppValues(String(source.stage||'').split(/[,，、]/)).filter(s=>(ppStages[type]||[]).includes(s));
  const actual=ppDate(source.actual)&&source.actual<=cutoff?source.actual:null,plan=ppDate(source.plan);
  const delay=plan&&(actual||source.projectState!=='已完成')?Math.max(0,Math.round((Date.parse(actual||cutoff)-Date.parse(plan))/86400000)):null;

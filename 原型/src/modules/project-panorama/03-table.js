@@ -13,9 +13,11 @@ function ppToolbar(rows){
  ${ppSelect('brand','品牌',ppValues(rows.map(p=>p.brand)))}${ppSelect('light','项目红绿灯',['红灯','黄灯','绿灯'])}${ppSelect('projectState','项目状态',ppProjectStates)}${ppSelect('department','卡点部门',ppDepartments)}${ppStageCascader()}
  </div><button type="button" class="link pp-reset" data-pp-reset>重置</button>`;
 }
+// 多个任务保留在同一风险单内；仅展示名称，不展开成重复风险记录。
+function ppTaskNames(r){return r.taskNames?.length?r.taskNames.map(name=>`<span class="pp-task-name">${esc(name)}</span>`).join(''):'未填写'}
 function ppLedger(p){
- const heads=['序号','风险单红绿灯','问题类别','问题描述','纠正措施','责任链主','整改期限'];
- return `<div class="pp-ledger" id="pp-ledger-${p.id}"><div class="pp-card-head"><h4>${esc(p.name)} · 风险台账</h4><span>共 ${p.ledger.length} 条</span></div><table><thead><tr>${heads.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${p.ledger.length?p.ledger.map((r,i)=>`<tr><td>${i+1}</td><td>${['红灯','黄灯','绿灯'].includes(r.light)?traffic(r.light):'—'}</td>${[r.category,r.description,r.action,r.owner,r.deadline].map(v=>`<td>${esc(v==null||v===''?'未填写':String(v))}</td>`).join('')}</tr>`).join(''):'<tr><td colspan="7" class="pp-empty-ledger">暂无风险台账，请在项目中维护。</td></tr>'}</tbody></table></div>`;
+ const heads=['序号','任务名称','风险单红绿灯','问题类别','问题描述','纠正措施','责任链主','整改期限'];
+ return `<div class="pp-ledger" id="pp-ledger-${p.id}"><div class="pp-card-head"><h4>${esc(p.name)} · 风险台账</h4><span>共 ${p.ledger.length} 条</span></div><table><thead><tr>${heads.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${p.ledger.length?p.ledger.map((r,i)=>`<tr><td>${i+1}</td><td>${ppTaskNames(r)}</td><td>${['红灯','黄灯','绿灯'].includes(r.light)?traffic(r.light):'—'}</td>${[r.category,r.description,r.action,r.owner,r.deadline].map(v=>`<td>${esc(v==null||v===''?'未填写':String(v))}</td>`).join('')}</tr>`).join(''):'<tr><td colspan="8" class="pp-empty-ledger">暂无风险台账，请在项目中维护。</td></tr>'}</tbody></table></div>`;
 }
 function ppPriceCell(p,key){const lines=ppQuoteLines(p,key);if(!lines.length)return '<span class="muted">—</span>';return `<span class="pp-wrap" title="${esc(lines.join('\n'))}">${lines.map(esc).join('<br>')}</span>`}
 function ppProjectRow(p){
