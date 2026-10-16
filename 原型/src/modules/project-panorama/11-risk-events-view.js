@@ -18,8 +18,7 @@ function ppOpenEventPeriod(){
 function ppOpenEventRecords(key,kind){
  const range=withPeriod('projects',ppEventRange),dimension=ppEventState.dimension;
  const events=withPeriod('projects',()=>ppRiskEvents(ppEventRows(),range)).filter(e=>e.project[dimension]===key&&e.kind===kind),label=kind==='new'?'新增':'闭环';
- const headers=['项目名称','任务名称','风险单红绿灯','问题描述','责任部门','创建日期','闭环日期'];
- openModal(key+' · '+label+'风险',`<div class="pp-analysis-detail"><div class="pp-analysis-total">${range.start} — ${range.end} · ${events.length} 条风险</div><div class="pp-analysis-table"><table><thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${events.length?events.map(({project,risk})=>`<tr>${[esc(project.name),ppTaskNames(risk),traffic(risk.light),esc(risk.description||'未填写'),esc(ppValues(risk.department).join('、')||'—'),esc(risk.recordedAt?.slice(0,10)||'—'),esc(risk.closedAt?.slice(0,10)||'—')].map(cell=>`<td>${cell}</td>`).join('')}</tr>`).join(''):'<tr><td colspan="7" class="pp-analysis-empty">该时段暂无风险记录</td></tr>'}</tbody></table></div></div>`,true);
+ ppOpenRiskDetail(key+' · '+label+'风险',events,{prefix:range.start+' — '+range.end,emptyText:'该时段暂无风险记录'});
 }
 document.addEventListener('click',e=>{
  const button=e.target.closest('#projects.pp-main [data-pp-event-dimension],#projects.pp-main [data-pp-event-period],#projects.pp-main [data-pp-event-group]');if(!button)return;

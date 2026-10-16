@@ -422,5 +422,25 @@
     "manual": [
       "历史日期为固定样例；真实数据需提供风险单创建日期、闭环日期及风险灯色。"
     ]
+  },
+  "risk-detail": {
+    "label": "逐条项目风险抽屉",
+    "keywords": [
+      "风险明细",
+      "整改期限排序",
+      "预防措施",
+      "闭环验证"
+    ],
+    "sources": [
+      "src/modules/project-panorama/12-risk-detail-model.js",
+      "src/modules/project-panorama/13-risk-detail-view.js",
+      "src/modules/project-panorama/09-analysis-view.js"
+    ],
+    "styles": [
+      "styles/54-project-risk-detail.css"
+    ],
+    "checks": [
+      "projectRiskDetail"
+    ]
   }
 }

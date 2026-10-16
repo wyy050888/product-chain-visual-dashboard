@@ -1,3 +1,4 @@
+import { projectRiskDetail } from './checks/project-risk-detail.mjs';
 import { projectRiskEvents } from './checks/project-risk-events.mjs';
 import { projectDates } from './checks/project-dates.mjs';
 import { projectAnalysis } from './checks/project-analysis.mjs';
@@ -27,7 +28,7 @@ function playwright(){
  throw new Error('找不到Playwright；使用Codex内置Node运行，或设置DASHBOARD_PLAYWRIGHT_PATH。');
 }
 export async function checkBrowser(root,scope){
- const registry=JSON.parse(fs.readFileSync(path.join(root,'dev/areas.json'),'utf8')),checks={projectRiskEvents,projectDates,projectAnalysis,columnResize,projectPanorama,aiSummary,multiFilters,newProducts,shopDetail,salesCards,smoke,filters,risk,periodPerformance,detailOperating,detailQualityTodos};
+ const registry=JSON.parse(fs.readFileSync(path.join(root,'dev/areas.json'),'utf8')),checks={projectRiskDetail,projectRiskEvents,projectDates,projectAnalysis,columnResize,projectPanorama,aiSummary,multiFilters,newProducts,shopDetail,salesCards,smoke,filters,risk,periodPerformance,detailOperating,detailQualityTodos};
  const names=scope==='all'?Object.keys(checks):scope==='smoke'?['smoke']:registry[scope]?.checks;
  if(!names)throw new Error('未知检查范围：'+scope);
  const start=performance.now(),edge='C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe';

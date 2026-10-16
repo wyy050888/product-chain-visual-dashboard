@@ -21,11 +21,11 @@ export async function projectAnalysis(page){
   const evidence=red.flatMap(p=>p.ledger.filter(r=>r.status!=='已闭环'&&(Array.isArray(r.department)?r.department:[r.department]).includes(department)));
   assert.deepEqual(await card.locator('.pp-analysis-metrics strong').allTextContents(),[String(red.length),String(high.length),ctx.ppAnalysisRiskShare(rows,department).rate]);
   assert.doesNotMatch(await card.innerText(),/负责 \d+ 个项目|红灯项目占比/);
-  for(const [mode,expected] of [['red',red.length],['high',high.length],['all',evidence.length]]){
+  for(const [mode,expected] of [['red',evidence.length],['high',evidence.filter(r=>high.some(p=>p.ledger.some(x=>x.id===r.id))).length],['all',evidence.length]]){
    await card.locator(`[data-mode="${mode}"]`).click();
    assert.equal(await page.locator('.pp-analysis-table tbody tr').count(),expected||1);
-   if(mode==='all'&&expected){assert((await page.locator('.pp-analysis-table th').allTextContents()).includes('任务名称'));assert.equal(await page.locator('.pp-analysis-table .pp-task-name').count(),evidence.reduce((n,r)=>n+r.taskNames.length,0),'多个任务不增加风险单行数');}
-   if(mode==='high'&&expected){const delays=await page.locator('.pp-analysis-table tbody tr td:nth-child(3)').allTextContents();assert(delays.every(d=>parseInt(d)>15));}
+   if(mode==='all'&&expected){assert((await page.locator('.pp-analysis-table th').allTextContents()).includes('项目任务'));assert.equal(await page.locator('.pp-analysis-table .pp-task-name').count(),evidence.reduce((n,r)=>n+r.taskNames.length,0),'多个任务不增加风险单行数');}
+   if(mode==='high'&&expected){const delays=await page.locator('.pp-analysis-table tbody tr td[data-field=delay]').allTextContents();assert(delays.every(d=>parseInt(d)>15));}
    await page.locator('#modalclose').click();
   }
   const rootButtons=card.locator('.pp-root-item');assert((await rootButtons.count())<=3);

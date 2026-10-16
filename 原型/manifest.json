@@ -909,6 +909,12 @@
       "file": "src/modules/project-panorama/11-risk-events-view.js"
     },
     {
+      "file": "src/modules/project-panorama/12-risk-detail-model.js"
+    },
+    {
+      "file": "src/modules/project-panorama/13-risk-detail-view.js"
+    },
+    {
       "file": "src/modules/project-panorama/04-controller.js",
       "module": "项目红绿灯全景管控"
     },
@@ -1152,6 +1158,10 @@
     {
       "file": "styles/53-project-risk-events.css",
       "module": "风险新增与闭环及紧凑概览"
+    },
+    {
+      "file": "styles/54-project-risk-detail.css",
+      "module": "逐条项目风险明细及灯色状态"
     }
   ],
   "images": [

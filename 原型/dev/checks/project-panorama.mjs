@@ -130,7 +130,7 @@ export async function projectPanorama(page){
  assert.equal((await snapshot()).state.link,null);
  const query=initial.scope[0].name;await page.locator('[data-pp-search]').fill(query);
  assert((await snapshot()).filtered.every(p=>p.name.includes(query)));await page.locator('[data-pp-reset]').click();
- const ownerSearch=page.getByRole('searchbox',{name:'责任人搜索',exact:true});
+ const ownerSearch=page.getByRole('searchbox',{name:'责任链主搜索',exact:true});
  const ownerPart=initial.scope.find(p=>p.responsible.length).responsible[0].slice(0,2);
  await ownerSearch.fill(' '+ownerPart+' ');current=await snapshot();
  assert.equal(current.filtered.length,initial.scope.filter(p=>p.responsible.some(name=>name.includes(ownerPart))).length);
@@ -180,7 +180,8 @@ export async function projectPanorama(page){
  await page.mouse.move(0,0);
  await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
  await trigger.hover();await popover.waitFor({state:'visible'});
- assert.equal(await popover.locator('th').count(),8);
+ assert.equal(await popover.locator('th').count(),9);
+ assert.equal(await popover.locator('th').nth(5).innerText(),'根因分析');
  assert.equal(await popover.locator('th').nth(1).innerText(),'任务名称');
  assert.deepEqual(await popover.locator('tbody tr').first().locator('.pp-task-name').allTextContents(),['产品预估报价','产品供应商确认落地']);
  assert(sample.ledger.every(r=>Array.isArray(r.taskNames)&&r.taskNames.length));

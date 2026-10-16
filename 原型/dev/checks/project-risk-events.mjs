@@ -26,7 +26,7 @@ export async function projectRiskEvents(page){
   data=await audit();const group=data.groups.find(g=>g[kind].length);
   await page.locator(`[data-pp-event-group="${group.key}"][data-kind="${kind}"]`).click();
   assert.equal(await page.locator('.pp-analysis-table tbody tr').count(),group[kind].length);
-  assert((await page.locator('.pp-analysis-table th').allTextContents()).includes('闭环日期'));
+  assert((await page.locator('.pp-analysis-table th').allTextContents()).includes('闭环验证日期'));
   await page.locator('#modalclose').click();
  }
  await page.locator('[data-pp-event-dimension="category"]').click();await verify();

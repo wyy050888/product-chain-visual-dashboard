@@ -7,7 +7,7 @@ function ppSampleRiskEvents(source,records){
   const closedAt=day(10+index%11),recordedAt=[started,day(index%9)].sort().at(-1);
   if(recordedAt<=closedAt)result.push({...records[0],id:`demo-${source.sourceKey}-closed`,light:index%2?'红灯':'黄灯',recordedAt,closedAt,status:'已闭环'});
  }
- return result;
+ return result.map((risk,i)=>ppSampleRiskFields(source,risk,i));
 }
 const ppEventState={dimension:'type',start:null,end:null};
 function ppEventRange(){
