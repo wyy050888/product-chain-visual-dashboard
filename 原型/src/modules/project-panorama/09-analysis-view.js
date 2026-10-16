@@ -4,8 +4,8 @@ function ppAnalysisButton(department,mode,label,body='',className=''){
 function ppAI(rows){
  return `<div class="pp-ai-heading"><h3><span>AI</span> 部门风险根因分析</h3></div><div class="pp-ai-grid">${ppDepartments.map(department=>{
   const facts=ppAnalysisDepartment(rows,department);
-  return `<article data-analysis-department="${department}"><div class="pp-card-head"><h4>${department}</h4><small>负责 ${facts.owned.length} 个项目</small></div>
-  <div class="pp-analysis-metrics">${ppAnalysisButton(department,'red','<span>红灯项目</span>',`<strong>${facts.red.length}</strong>`)}${ppAnalysisButton(department,'high','<span>高危红灯（&gt;15天）</span>',`<strong>${facts.high.length}</strong>`)}<div><span>红灯项目占比</span><strong>${facts.rate}</strong></div></div>
+  return `<article data-analysis-department="${department}"><div class="pp-card-head"><h4>${department}</h4></div>
+  <div class="pp-analysis-metrics">${ppAnalysisButton(department,'red','<span>关联红灯项目</span>',`<strong>${facts.red.length}</strong>`)}${ppAnalysisButton(department,'high','<span>高危红灯（&gt;15天）</span>',`<strong>${facts.high.length}</strong>`)}</div>
   <h5>TOP 3 共性根因</h5><div class="pp-root-list">${facts.top.length?facts.top.map((group,index)=>ppAnalysisButton(department,group.key,`<span class="pp-root-rank">${index+1}</span>`,`<span class="pp-root-content"><b>${esc(group.title)}</b>${group.summary?`<span class="pp-root-summary">${esc(group.summary)}</span>`:''}<small>${group.records.length} 条风险 · ${group.projects.size} 个项目 <em>查看台账 ›</em></small></span>`,'pp-root-item')).join(''):'<div class="pp-analysis-empty">暂无可归纳的根因</div>'}</div>
   ${ppAnalysisButton(department,'all','查看全部风险台账','<span>→</span>','pp-analysis-all')}</article>`;
  }).join('')}</div>`;

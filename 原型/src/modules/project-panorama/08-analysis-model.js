@@ -14,13 +14,13 @@ const ppRootFamilies=[
  {key:'evidence',title:'验证材料提交不完整',summary:'整改验证报告和相关记录未完整提交，影响复核与闭环。',roots:['验证材料提交不完整']}
 ];
 function ppAnalysisRows(){
- // 灯色是结果筛选，不缩小部门负责项目分母；其他查询条件继续生效。
+ // 灯色筛选不隐藏部门风险分析；其他查询条件继续生效。
  return ppFiltered(ppScope(ppRows()),{...ppState,light:[],link:null});
 }
 function ppAnalysisDepartment(rows,department){
- const owns=p=>Array.isArray(p.responsibleDepartments)?p.responsibleDepartments.includes(department):p.ledger.some(r=>ppValues(r.department).includes(department));
- const owned=rows.filter(owns),red=owned.filter(p=>p.status==='红灯'),high=red.filter(p=>p.delay>15);
- const records=red.flatMap(project=>project.ledger.filter(r=>r.status!=='已闭环'&&ppValues(r.department).includes(department)).map(risk=>({project,risk})));
+ // 项目跨部门协作，按未闭环风险台账关联部门；部门内项目去重，部门间不互斥。
+ const facts=ppDepartmentFacts(rows,department),red=facts.redProjects,high=red.filter(p=>p.delay>15);
+ const records=facts.records.filter(entry=>entry.project.status==='红灯');
  const groups=new Map();
  for(const entry of records){
   const root=String(entry.risk.rootCause||'').trim();if(!root)continue;
@@ -29,5 +29,5 @@ function ppAnalysisDepartment(rows,department){
   const group=groups.get(family.key);group.records.push(entry);group.projects.add(entry.project.id);
  }
  const top=[...groups.values()].sort((a,b)=>b.records.length-a.records.length||b.projects.size-a.projects.size||a.key.localeCompare(b.key)).slice(0,3);
- return {department,owned,red,high,records,top,rate:owned.length?(red.length/owned.length*100).toFixed(1)+'%':'—'};
+ return {department,red,high,records,top};
 }
