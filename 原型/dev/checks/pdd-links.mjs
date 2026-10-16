@@ -26,7 +26,7 @@ export async function pddLinks(page){
  assert.deepEqual(await pop.locator('[data-rp-pdd-link]').evaluateAll(ns=>ns.map(n=>n.dataset.rpPddLink)),redIds);
  assert.equal(await pop.locator('.risk-thumb').count(),redIds.length);
  const first=links.find(l=>l.id===redIds[0]);
- assert.deepEqual(await pop.locator('tbody tr').first().locator('td').allTextContents().then(cells=>cells.slice(1)),['thirdValue','mainValue'].flatMap(key=>first.metrics.map(m=>m[key].toFixed(1)+'%')));
+ assert.deepEqual(await pop.locator('tbody tr').first().locator('td').allTextContents().then(cells=>cells.slice(1)),['thirdRank','mainRank'].flatMap(key=>first.metrics.map(m=>m[key])));
  await pop.locator('.rp-pdd-link-scroll').hover();await page.waitForTimeout(220);assert.equal(await pop.isVisible(),true);
  await page.keyboard.press('Escape');assert.equal(await pop.isVisible(),false);
  await yellow.focus();await pop.waitFor({state:'visible'});

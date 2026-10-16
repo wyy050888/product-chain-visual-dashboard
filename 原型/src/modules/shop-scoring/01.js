@@ -6,7 +6,20 @@ const sbRuleConfig={douyinRedMax:4.5,pddConfirmed:true,pddBasis:'raw'};
 function sbScoreRisk(s){const tone=rpShopScoreTone(s.channel,s.score);return tone==='rp-quality-red'?'red':tone==='rp-quality-yellow'?'yellow':null}
 function sbReturnRisk(p){return p.current>p.target+5&&p.previous>p.target+5&&p.current>p.previous&&p.previous>p.beforePrevious}
 function sbPddHitCount(values){return values.filter(v=>Number.isFinite(v)&&v>30).length}
-function sbPddLinks(s){if(s.channel!=='拼多多')return[];return Array.from({length:20},(_,i)=>{const product=names[s.chain][i%names[s.chain].length],seed=s.id+i,profiles=[[38,34,28],[12,18,24],[31,22,18],[46,42,39],[30,30,30]],values=profiles[seed%5],checks=[...values,...values];return{id:'PDD-DEMO-'+s.id+'-'+String(i+1).padStart(3,'0'),name:product+(i>=6?' · '+(Math.floor(i/6)+1)+'号链接':''),product,model:sampleSpuByName(product)?.model||'—',thirdCategory:product,mainCategory:chains[s.chain],metrics:['近30天品质退款率','近30天品质求助平台率','近30天品质文本情感分'].map((name,j)=>({name,value:fmt(values[j],1)+'%',thirdValue:values[j],mainValue:values[j],thirdRed:values[j]>30,mainRed:values[j]>30})),redCount:sbPddHitCount(checks)}})}
+function sbPddLinks(s){
+ if(s.channel!=='拼多多')return[];
+ return Array.from({length:20},(_,i)=>{
+  const product=names[s.chain][i%names[s.chain].length],seed=s.id+i;
+  const profiles=[[38,34,28],[12,18,24],[31,22,18],[46,42,39],[30,30,30]],values=profiles[seed%5];
+  const redCount=sbPddHitCount([...values,...values]),rank=sbPddRankSample(redCount,seed);
+  const metrics=['近30天品质退款率','近30天品质求助平台率','近30天品质文本情感分'].map((name,j)=>({
+   name,value:fmt(values[j],1)+'%',thirdValue:values[j],mainValue:values[j],thirdRed:values[j]>30,mainRed:values[j]>30,
+   thirdRank:rank.third[j],mainRank:rank.main[j]
+  }));
+  return {id:'PDD-DEMO-'+s.id+'-'+String(i+1).padStart(3,'0'),name:product+(i>=6?' · '+(Math.floor(i/6)+1)+'号链接':''),
+   product,model:sampleSpuByName(product)?.model||'—',thirdCategory:product,mainCategory:chains[s.chain],metrics,redCount};
+ });
+}
 function sbDecide(s){const score=sbScoreRisk(s),signals=[];if(score)signals.push({color:score,label:'店铺分命中评分异常区间'});if(s.qualityPenaltyCount>=2)signals.push({color:'red',label:'期间品质处罚 '+s.qualityPenaltyCount+' 次'});if(s.qualityFine>=5000)signals.push({color:'red',label:'品质罚款 '+fmt(s.qualityFine)+' 元'});if(s.returnProducts.some(sbReturnRisk))signals.push({color:'red',label:'单品连续2周期退货超目标5%且持续恶化'});if(s.frozenAmount>0)signals.push({color:'red',label:'资金冻结 '+fmt(s.frozenAmount)+' 元'});if(s.channel==='拼多多'&&sbRuleConfig.pddConfirmed){const count=sbPddLinks(s).filter(l=>l.redCount>=3).length;if(count)signals.push({color:'red',label:'核心20链接中 '+count+' 条满足六项考核异常规则'})}return{signals,color:signals.some(r=>r.color==='red')?'red':signals.some(r=>r.color==='yellow')?'yellow':'green'}}
 function sbAllShops(){return sbRawShops().map(s=>{const i=s.id%6,score=s.referenceScore??(s.channel==='京东'?[4.3,4.6,4.85,4.5,4.9,4.7]:[4.4,4.65,4.85,s.channel==='抖音'?4.5:4.6,4.9,4.7])[i],core=i!==2||s.name.includes('旗舰店'),shopType=s.name.endsWith('旗舰店')?'旗舰店':s.name.endsWith('专卖店')?'专卖店':'专营店',start=bounds().cutoff.slice(0,7)+'-01',end=bounds().cutoff;
  const r={...s,name:s.name,score,core,shopType,start,end,qualityPenaltyCount:i===2||i===5&&['快手','视频号'].includes(s.channel)?2:1,qualityFine:i===1?5000:i===2?1800:0,frozenAmount:i===4?12000+s.id*100:i===0?3000+s.id*50:0,returnProducts:[{name:names[s.chain][i%6],model:sampleSpuByName(names[s.chain][i%6])?.model||'—',target:8,beforePrevious:i===3?14:9,previous:i===3?17:11,current:i===3?20:10}]};if(!rpViolationMetricAllowed('fine',r.channel))r.qualityFine=0;if(!rpViolationMetricAllowed('frozen',r.channel))r.frozenAmount=0;r.sourceQualityFine=r.qualityFine;const period=riskShopPeriod(r);r.start=period.start;r.qualityFine=period.fine;const days=[5,9];r.qualityPenaltyCount=riskDailyRows(period.start,period.end,date=>({count:days.slice(0,r.qualityPenaltyCount).includes(Number(date.slice(8)))?1:0})).reduce((sum,d)=>sum+d.count,0);const d=sbDecide(r);return{...r,...d,level:d.color==='red'?'P1':d.color==='yellow'?'P2':'P3',risks:d.signals.map(x=>x.label),desc:d.signals.map(x=>x.label).join('；')||'未命中已配置规则',value:score.toFixed(2)+' 分',metric:score};}).sort((a,b)=>b.frozenAmount-a.frozenAmount||({red:0,yellow:1,green:2}[a.color]-{red:0,yellow:1,green:2}[b.color])||a.score-b.score||a.id-b.id)}

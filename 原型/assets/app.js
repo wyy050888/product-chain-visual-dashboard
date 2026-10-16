@@ -2684,7 +2684,20 @@ const qrbPreviousPlan=qrPlan;qrPlan=function(o){return qrAnalysis(o)+'\n\n'+qrbP
 const qrbPreviousNotify=qrNotify;qrNotify=function(v,o){return qrbPreviousNotify(v,o)+'\n\n本期判定数据：\n'+qrAnalysis(o)};
 qrOpenDetail=function(key){const [id,ci]=key.split(':').map(Number),product=qrCatalog().find(p=>p.id===id);if(!product)return;const w=qrWindow();qrDetailState={product,platform:qrPlatforms[ci],...w,limit:bounds(periodFor('risk')).cutoff,mode:'custom'};qrRenderDetail()};
 const qrbPreviousRenderDetail=qrRenderDetail;qrRenderDetail=function(){qrbPreviousRenderDetail();const o=qrCurrent(),m=o.monthly;$('.qr-detail-metrics').classList.add('qrb-aligned-metrics');$('.qr-detail-metrics').innerHTML=[['总退货率',qrbMetric(o,'returnRate',m.returnHit?'red':''),'退货 '+fmt(m.current.returned)+' / 销售 '+fmt(m.current.sales)+' 件'],['总退货率目标',`<strong>${m.supported?fmt(m.target,1)+'%':'未配置'}</strong>`,m.supported?'预警线 ＞'+fmt(m.threshold,1)+'%':'当前平台规则待配置'],['已收退货率',qrbMetric(o,'receivedRate'),'已收退 '+fmt(m.current.received)+' / 销售 '+fmt(m.current.sales)+' 件'],['本期进线率',qrbMetric(o,'contactRate',m.contactHit?'red':''),'问题进线 '+fmt(m.current.contacts)+' / 销售 '+fmt(m.current.sales)+' 件'],['差评率',`<strong class="${m.current.badRate>=8?'red':''}">${fmt(m.current.badRate,1)}%</strong>`,'差评 '+fmt(m.current.bad)+' / 有效评价 '+fmt(m.current.reviews)+' 条']].map(([label,value,note])=>`<div data-qrb-card="${label}"><small>${label}</small>${value}<span>${note}</span></div>`).join('');const penalty=qrPenaltyLevel(o);$('.qr-risk-line').innerHTML=`<span class="muted">平台处罚风险等级</span><span class="tag ${penalty.color}">${penalty.label}</span>`;$('.qr-risk-line').insertAdjacentHTML('afterend',qrbBusinessPanel(o));$('#qrb-config').disabled=!m.supported;$('#qrb-config').onclick=()=>withPeriod('risk',()=>qrbConfig(qrDetailState.product));$('.qr-rules p').textContent=qrbRules();$('.qr-time-row').insertAdjacentHTML('beforebegin',`<p class="qrb-scope-note">指标：本期 ${m.start} — ${m.end} · 环比：上期 ${m.previousStart} — ${m.previousEnd}。</p>`);$('.risk-analysis small').textContent='业务数据为演示样本，风险按平台独立判定，根因需凭证验证。';};
-window.qualityMonthlyAudit=()=>withPeriod('risk',()=>qrCatalog().flatMap(p=>qrPlatforms.map(platform=>({id:p.id,model:p.model,platform,...qrbMonthly(p,platform,bounds().cutoff)}))));
+window.qualityMonthlyAudit=()=>withPeriod('risk',()=>qrCatalog().flatMap(p=>qrPlatforms.map(platform=>({id:p.id,model:p.model,platform,...qrbMonthly(p,platform,bounds().cutoff)}))));// 照片1的同行排序列样例；仅用于展示，不将排名百分位当作商品指标原值。
+// 每组三项依次为品质退款率、品质求助平台率、品质文本情感分。
+const sbPddRankSamples={
+ red:[
+  {third:['已超越30%同行','已超越50%同行','已超越50%同行'],main:['处于同行后30%','处于同行后30%','处于同行后30%']},
+  {third:['处于同行后30%','已超越10%同行','处于同行后30%'],main:['处于同行后10%','处于同行后30%','处于同行后30%']}
+ ],
+ yellow:{third:['已超越50%同行','处于同行后30%','已超越90%同行'],main:['已超越50%同行','处于同行后10%','已超越90%同行']},
+ none:{third:['--','--','--'],main:['--','--','--']}
+};
+function sbPddRankSample(redCount,seed){
+ return redCount>=3?sbPddRankSamples.red[Math.abs(seed)%sbPddRankSamples.red.length]:redCount>0?sbPddRankSamples.yellow:sbPddRankSamples.none;
+}
+
 
 // Shop-level rules: independent evidence, highest severity wins.
 const sbRawShops=brShopRows;
@@ -2692,7 +2705,20 @@ const sbRuleConfig={douyinRedMax:4.5,pddConfirmed:true,pddBasis:'raw'};
 function sbScoreRisk(s){const tone=rpShopScoreTone(s.channel,s.score);return tone==='rp-quality-red'?'red':tone==='rp-quality-yellow'?'yellow':null}
 function sbReturnRisk(p){return p.current>p.target+5&&p.previous>p.target+5&&p.current>p.previous&&p.previous>p.beforePrevious}
 function sbPddHitCount(values){return values.filter(v=>Number.isFinite(v)&&v>30).length}
-function sbPddLinks(s){if(s.channel!=='拼多多')return[];return Array.from({length:20},(_,i)=>{const product=names[s.chain][i%names[s.chain].length],seed=s.id+i,profiles=[[38,34,28],[12,18,24],[31,22,18],[46,42,39],[30,30,30]],values=profiles[seed%5],checks=[...values,...values];return{id:'PDD-DEMO-'+s.id+'-'+String(i+1).padStart(3,'0'),name:product+(i>=6?' · '+(Math.floor(i/6)+1)+'号链接':''),product,model:sampleSpuByName(product)?.model||'—',thirdCategory:product,mainCategory:chains[s.chain],metrics:['近30天品质退款率','近30天品质求助平台率','近30天品质文本情感分'].map((name,j)=>({name,value:fmt(values[j],1)+'%',thirdValue:values[j],mainValue:values[j],thirdRed:values[j]>30,mainRed:values[j]>30})),redCount:sbPddHitCount(checks)}})}
+function sbPddLinks(s){
+ if(s.channel!=='拼多多')return[];
+ return Array.from({length:20},(_,i)=>{
+  const product=names[s.chain][i%names[s.chain].length],seed=s.id+i;
+  const profiles=[[38,34,28],[12,18,24],[31,22,18],[46,42,39],[30,30,30]],values=profiles[seed%5];
+  const redCount=sbPddHitCount([...values,...values]),rank=sbPddRankSample(redCount,seed);
+  const metrics=['近30天品质退款率','近30天品质求助平台率','近30天品质文本情感分'].map((name,j)=>({
+   name,value:fmt(values[j],1)+'%',thirdValue:values[j],mainValue:values[j],thirdRed:values[j]>30,mainRed:values[j]>30,
+   thirdRank:rank.third[j],mainRank:rank.main[j]
+  }));
+  return {id:'PDD-DEMO-'+s.id+'-'+String(i+1).padStart(3,'0'),name:product+(i>=6?' · '+(Math.floor(i/6)+1)+'号链接':''),
+   product,model:sampleSpuByName(product)?.model||'—',thirdCategory:product,mainCategory:chains[s.chain],metrics,redCount};
+ });
+}
 function sbDecide(s){const score=sbScoreRisk(s),signals=[];if(score)signals.push({color:score,label:'店铺分命中评分异常区间'});if(s.qualityPenaltyCount>=2)signals.push({color:'red',label:'期间品质处罚 '+s.qualityPenaltyCount+' 次'});if(s.qualityFine>=5000)signals.push({color:'red',label:'品质罚款 '+fmt(s.qualityFine)+' 元'});if(s.returnProducts.some(sbReturnRisk))signals.push({color:'red',label:'单品连续2周期退货超目标5%且持续恶化'});if(s.frozenAmount>0)signals.push({color:'red',label:'资金冻结 '+fmt(s.frozenAmount)+' 元'});if(s.channel==='拼多多'&&sbRuleConfig.pddConfirmed){const count=sbPddLinks(s).filter(l=>l.redCount>=3).length;if(count)signals.push({color:'red',label:'核心20链接中 '+count+' 条满足六项考核异常规则'})}return{signals,color:signals.some(r=>r.color==='red')?'red':signals.some(r=>r.color==='yellow')?'yellow':'green'}}
 function sbAllShops(){return sbRawShops().map(s=>{const i=s.id%6,score=s.referenceScore??(s.channel==='京东'?[4.3,4.6,4.85,4.5,4.9,4.7]:[4.4,4.65,4.85,s.channel==='抖音'?4.5:4.6,4.9,4.7])[i],core=i!==2||s.name.includes('旗舰店'),shopType=s.name.endsWith('旗舰店')?'旗舰店':s.name.endsWith('专卖店')?'专卖店':'专营店',start=bounds().cutoff.slice(0,7)+'-01',end=bounds().cutoff;
  const r={...s,name:s.name,score,core,shopType,start,end,qualityPenaltyCount:i===2||i===5&&['快手','视频号'].includes(s.channel)?2:1,qualityFine:i===1?5000:i===2?1800:0,frozenAmount:i===4?12000+s.id*100:i===0?3000+s.id*50:0,returnProducts:[{name:names[s.chain][i%6],model:sampleSpuByName(names[s.chain][i%6])?.model||'—',target:8,beforePrevious:i===3?14:9,previous:i===3?17:11,current:i===3?20:10}]};if(!rpViolationMetricAllowed('fine',r.channel))r.qualityFine=0;if(!rpViolationMetricAllowed('frozen',r.channel))r.frozenAmount=0;r.sourceQualityFine=r.qualityFine;const period=riskShopPeriod(r);r.start=period.start;r.qualityFine=period.fine;const days=[5,9];r.qualityPenaltyCount=riskDailyRows(period.start,period.end,date=>({count:days.slice(0,r.qualityPenaltyCount).includes(Number(date.slice(8)))?1:0})).reduce((sum,d)=>sum+d.count,0);const d=sbDecide(r);return{...r,...d,level:d.color==='red'?'P1':d.color==='yellow'?'P2':'P3',risks:d.signals.map(x=>x.label),desc:d.signals.map(x=>x.label).join('；')||'未命中已配置规则',value:score.toFixed(2)+' 分',metric:score};}).sort((a,b)=>b.frozenAmount-a.frozenAmount||({red:0,yellow:1,green:2}[a.color]-{red:0,yellow:1,green:2}[b.color])||a.score-b.score||a.id-b.id)}
@@ -8119,7 +8145,7 @@ function rpPddLinkCount(field,card=false){
 function rpPddLinkTable(shop,tone,end,detail=false){
  const rows=rpPddLinkGroups(shop)[tone],label=tone==='red'?'红灯':'黄灯',title=detail?label+'链接明细':shop.name+' · '+label+'链接';
  const headings=['商品链接',...['三级类目','主营类目'].flatMap(category=>['品质退款率','品质求助平台率','品质文本情感分'].map(name=>'近30天'+name+'（'+category+'）'))];
- const values=link=>['thirdValue','mainValue'].flatMap(key=>link.metrics.map(metric=>`<td class="${metric[key]>30?'rp-pdd-value-alert':''}">${fmt(metric[key],1)}%</td>`));
+ const values=link=>['thirdRank','mainRank'].flatMap(key=>link.metrics.map(metric=>{const text=metric[key]||'--';return `<td class="${text.startsWith('处于同行后')?'rp-pdd-value-alert':''}">${esc(text)}</td>`}));
  return `<div class="rp-pdd-popover-heading"><h4>${esc(title)} <span>${rows.length}条</span></h4><span>${shiftDate(end,-29)} — ${end}</span></div><div class="rp-pdd-link-scroll"><table><colgroup><col style="width:260px">${'<col>'.repeat(6)}</colgroup><thead><tr>${headings.map(name=>'<th>'+name+'</th>').join('')}</tr></thead><tbody>${rows.map(link=>`<tr data-rp-pdd-link="${esc(link.id)}"><td><div class="rp-pdd-link-product">${riskThumbnail(link.product)}<div><b>${esc(link.name)}</b><small>ID：${esc(link.id)}</small></div></div></td>${values(link).join('')}</tr>`).join('')||'<tr><td colspan="7" class="rp-pdd-links-empty">暂无'+label+'链接</td></tr>'}</tbody></table></div>`;
 }
 // 顶层浮层不受卡片或抽屉表格的横向滚动区域裁切。

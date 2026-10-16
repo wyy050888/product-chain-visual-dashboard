@@ -20,7 +20,9 @@ export async function verifyShopLinkDetails(page,id){
   for(const [i,link] of expected.entries()){
    const cells=await section.locator('tbody tr').nth(i).locator('td').allTextContents();
    assert(cells[0].includes(link.name)&&cells[0].includes(link.id));
-   assert.deepEqual(cells.slice(1),['thirdValue','mainValue'].flatMap(key=>link.metrics.map(m=>m[key].toFixed(1)+'%')));
+   assert.deepEqual(cells.slice(1),['thirdRank','mainRank'].flatMap(key=>link.metrics.map(m=>m[key])));
+   const alerts=await section.locator('tbody tr').nth(i).locator('td').evaluateAll(es=>es.slice(1).map(e=>e.classList.contains('rp-pdd-value-alert')));
+   assert.deepEqual(alerts,cells.slice(1).map(text=>text.startsWith('处于同行后')));
   }
  }
  assert.equal(await root.evaluate(e=>e.querySelector('[data-sd-violation-pager]').compareDocumentPosition(e.querySelector('.sd-pdd-links'))&Node.DOCUMENT_POSITION_FOLLOWING),4);

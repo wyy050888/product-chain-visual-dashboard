@@ -308,6 +308,10 @@
       "module": "品质月度规则"
     },
     {
+      "file": "src/modules/shop-scoring/00-rank-samples.js",
+      "module": "拼多多同行排序展示样例"
+    },
+    {
       "file": "src/modules/shop-scoring/01.js",
       "module": "店铺评分"
     },

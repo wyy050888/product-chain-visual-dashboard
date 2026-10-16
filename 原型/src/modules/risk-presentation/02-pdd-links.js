@@ -7,7 +7,7 @@ function rpPddLinkCount(field,card=false){
 function rpPddLinkTable(shop,tone,end,detail=false){
  const rows=rpPddLinkGroups(shop)[tone],label=tone==='red'?'红灯':'黄灯',title=detail?label+'链接明细':shop.name+' · '+label+'链接';
  const headings=['商品链接',...['三级类目','主营类目'].flatMap(category=>['品质退款率','品质求助平台率','品质文本情感分'].map(name=>'近30天'+name+'（'+category+'）'))];
- const values=link=>['thirdValue','mainValue'].flatMap(key=>link.metrics.map(metric=>`<td class="${metric[key]>30?'rp-pdd-value-alert':''}">${fmt(metric[key],1)}%</td>`));
+ const values=link=>['thirdRank','mainRank'].flatMap(key=>link.metrics.map(metric=>{const text=metric[key]||'--';return `<td class="${text.startsWith('处于同行后')?'rp-pdd-value-alert':''}">${esc(text)}</td>`}));
  return `<div class="rp-pdd-popover-heading"><h4>${esc(title)} <span>${rows.length}条</span></h4><span>${shiftDate(end,-29)} — ${end}</span></div><div class="rp-pdd-link-scroll"><table><colgroup><col style="width:260px">${'<col>'.repeat(6)}</colgroup><thead><tr>${headings.map(name=>'<th>'+name+'</th>').join('')}</tr></thead><tbody>${rows.map(link=>`<tr data-rp-pdd-link="${esc(link.id)}"><td><div class="rp-pdd-link-product">${riskThumbnail(link.product)}<div><b>${esc(link.name)}</b><small>ID：${esc(link.id)}</small></div></div></td>${values(link).join('')}</tr>`).join('')||'<tr><td colspan="7" class="rp-pdd-links-empty">暂无'+label+'链接</td></tr>'}</tbody></table></div>`;
 }
 // 顶层浮层不受卡片或抽屉表格的横向滚动区域裁切。
