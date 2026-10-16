@@ -1,0 +1,29 @@
+/* 自然日沿用既有自然期间面板，只扩展日历区域。 */
+.ui-natural-period[data-period-mode=day]{width:660px}
+.ui-natural-period .ui-period-day-area{position:relative}
+.ui-natural-period .ui-period-months{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;padding:12px 14px 16px}
+.ui-natural-period .ui-period-month{min-width:0}
+.ui-natural-period .ui-period-month h4{text-align:center;font-size:13px;line-height:30px;font-weight:400;margin:0 0 10px;color:#646f7e}
+.ui-natural-period .ui-period-week,.ui-natural-period .ui-period-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));text-align:center;align-items:center}
+.ui-natural-period .ui-period-week{font-size:11px;line-height:25px;color:#a5acb8;margin-bottom:4px}
+.ui-natural-period .ui-period-days>*{height:30px;min-width:0}
+.ui-natural-period .ui-period-days button{display:flex;align-items:center;justify-content:center;width:28px;height:28px;margin:1px auto;border-radius:50%;font-size:12px;padding:0;color:#7b8493}
+.ui-natural-period .ui-period-days .ui-period-inside{width:100%;border-radius:0;background:#edf4ff;color:#1677ff}
+.ui-natural-period .ui-period-days .ui-period-edge{background:#1677ff;color:#fff}
+.ui-natural-period .ui-period-days .ui-period-edge:hover{background:#0969e6;color:#fff}
+.ui-natural-period button:disabled{color:#d2d7df!important;background:transparent!important;cursor:default}
+.ui-natural-period .ui-period-prev-month,.ui-natural-period .ui-period-next-month{position:absolute;top:12px;width:25px;height:30px;border-radius:4px;font-size:20px;z-index:1}
+.ui-natural-period .ui-period-prev-month{left:9px}.ui-natural-period .ui-period-next-month{right:9px}
+.ui-natural-period .ui-period-footer{display:flex;align-items:center;gap:12px;padding:10px 14px;border-top:1px solid #edf1f6}
+.ui-natural-period .ui-period-footer>span{flex:1;min-width:0;font-size:11px;color:#8391a5;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ui-natural-period .ui-period-footer [data-natural-confirm]{padding:6px 14px;border-radius:4px;background:#1677ff;color:#fff;font-size:12px;white-space:nowrap}
+.ui-natural-period .ui-period-footer [data-natural-confirm]:hover{background:#0969e6}
+#projects.pp-main .pp-event-date-control{position:relative;margin-bottom:8px}
+#projects.pp-main .pp-event-date-control .pp-event-period{margin:0;gap:8px;padding-right:42px;justify-content:flex-start}
+#projects.pp-main .pp-event-date-control .pp-event-date-value{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#8594ad}
+#projects.pp-main .pp-event-date-control .pp-event-period>span:first-child{flex:none}
+#projects.pp-main .pp-event-date-control .pp-event-period>i{position:absolute;right:9px;font-style:normal}
+#projects.pp-main .pp-event-date-clear{position:absolute;right:24px;top:50%;transform:translateY(-50%);font-size:15px;line-height:18px;width:18px;height:18px;color:#a0aec2}
+#projects.pp-main .pp-event-date-clear[hidden]{display:none}
+@media(max-width:620px){.ui-natural-period .ui-period-months{grid-template-columns:minmax(0,1fr)}.ui-natural-period .ui-period-month:nth-child(2){display:none}}
+@media(max-width:440px){.ui-natural-period:popover-open{grid-template-columns:94px minmax(0,1fr)}.ui-natural-period .nsp-launch-modes button{padding:12px 9px;font-size:12px}.ui-natural-period .ui-period-months{padding-inline:9px}}

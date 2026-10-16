@@ -25,13 +25,6 @@
 #projects.pp-main .pp-event-bar b{font-weight:500}
 #projects.pp-main .pp-event-bar .pp-track{height:14px;border-radius:3px}
 #projects.pp-main .pp-event-bar:hover{background:#f3f6fc}
-#pp-event-period-form{padding:8px 0}
-#pp-event-period-form .pp-event-presets{display:flex;gap:8px;margin-bottom:16px}
-#pp-event-period-form .pp-event-presets button{border:1px solid #dce5f3;border-radius:5px;padding:5px 12px}
-#pp-event-period-form .pp-event-date-fields{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-#pp-event-period-form label{display:grid;gap:6px}
-#pp-event-period-form input{width:100%;min-width:0;padding:8px;border:1px solid #dce5f3;border-radius:5px}
-#pp-event-period-form .pp-event-error{min-height:24px;color:#b4233b;margin:8px 0}
 @media(max-width:1100px) and (min-width:701px){#projects.pp-main #pp-overview{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
 #projects.pp-main #pp-overview .pp-card-head h3{font-size:14px;line-height:1.4}
@@ -48,11 +41,3 @@
 #projects.pp-main .pp-event-bar{grid-column:2}
 
 @media(min-width:1101px){#projects.pp-main #pp-overview .pp-events{display:flex;flex-direction:column;flex:1}#projects.pp-main .pp-event-groups{flex:1;justify-content:space-between}}
-
-/* 日期选择使用紧凑弹窗，覆盖通用业务抽屉的全高布局。 */
-#overlay:has(#pp-event-period-form){align-items:center;justify-content:center;padding:20px}
-#dialog.drawer.business-drawer:has(#pp-event-period-form){position:relative;inset:auto;width:min(480px,100%);height:auto;max-height:90dvh;border-radius:10px;box-shadow:0 16px 50px #253a5b30}
-#dialog.business-drawer:has(#pp-event-period-form) #dialogbody{flex:none;padding:16px 20px}
-#pp-event-period-form button[type=submit]{display:block;margin-left:auto;background:#1677ff;color:#fff;border-radius:5px;padding:7px 22px}
-
-#dialog.business-drawer:has(#pp-event-period-form) .drawer-tabs{display:none}

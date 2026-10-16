@@ -881,6 +881,14 @@
       "module": "全局表格拖拽调整列宽"
     },
     {
+      "file": "src/modules/ui-controls/06-natural-period-model.js",
+      "module": "自然期间与日历控件"
+    },
+    {
+      "file": "src/modules/ui-controls/07-natural-period-picker.js",
+      "module": "自然期间与日历控件"
+    },
+    {
       "file": "src/modules/project-panorama/00-samples.js",
       "module": "项目风险演示台账"
     },
@@ -1194,6 +1202,10 @@
     {
       "file": "styles/55-lifecycle-targets.css",
       "module": "生命周期目标配置"
+    },
+    {
+      "file": "styles/56-natural-period.css",
+      "module": "自然日双月日历"
     }
   ],
   "images": [

@@ -9,8 +9,9 @@ function ppSampleRiskEvents(source,records){
  }
  return result.map((risk,i)=>ppSampleRiskFields(source,risk,i));
 }
-const ppEventState={dimension:'type',start:null,end:null};
+const ppEventState={dimension:'type',start:null,end:null,period:null,all:false};
 function ppEventRange(){
+ if(ppEventState.all){const cutoff=bounds().cutoff,dates=ppEventRows().flatMap(p=>p.ledger.flatMap(r=>[ppDate(r.recordedAt?.slice(0,10)),ppDate(r.closedAt?.slice(0,10))])).filter(date=>date&&date<=cutoff).sort();return {start:dates[0]||cutoff,end:cutoff}}
  const end=ppEventState.end||bounds().cutoff,start=ppEventState.start||ppEventDateOffset(end,-29);
  return {start,end};
 }

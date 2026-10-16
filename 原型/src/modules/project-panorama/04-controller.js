@@ -11,7 +11,7 @@ function ppMount(){
 function ppRender(){
  ppMount();const all=ppRows(),scope=ppScope(all);
  $('#pp-scope').innerHTML=ppSelect('category','类目',pfCategories)+ppSelect('type','项目类型',Object.keys(ppStages));
- $('#pp-overview').innerHTML=ppOverview(scope);
+ $('#pp-overview').innerHTML=ppOverview(scope);ppBindEventPeriod();
  $('#pp-filters').innerHTML=ppToolbar(scope);
  decorateFilterFields($('#pp-scope'));decorateFilterFields($('#pp-filters'));
  ppBindPlan('plan');ppBindPlan('actual');ppBindPlan('started');ppTable(scope);
@@ -37,7 +37,7 @@ function ppBindPlan(key){
 }
 document.addEventListener('change',e=>{
  const select=e.target.closest('#projects.pp-main [data-pp-filter]');
- if(select){ppState[select.dataset.ppFilter]=pfSelected(pfControlValue(select));ppState.page=1;if(['category','type'].includes(select.dataset.ppFilter)){ppState.distribution=select.dataset.ppFilter;ppState.link=null;ppState.stage=[];renderProjects()}else if(select.dataset.ppFilter==='projectState'){ppState.link=null;renderProjects()}else if(select.dataset.ppFilter==='light'){withPeriod('projects',()=>{$('#pp-overview').innerHTML=ppOverview(ppScope(ppRows()))});ppRefreshTable()}else ppRefreshTable()}
+ if(select){ppState[select.dataset.ppFilter]=pfSelected(pfControlValue(select));ppState.page=1;if(['category','type'].includes(select.dataset.ppFilter)){ppState.distribution=select.dataset.ppFilter;ppState.link=null;ppState.stage=[];renderProjects()}else if(select.dataset.ppFilter==='projectState'){ppState.link=null;renderProjects()}else if(select.dataset.ppFilter==='light'){withPeriod('projects',()=>{$('#pp-overview').innerHTML=ppOverview(ppScope(ppRows()));ppBindEventPeriod()});ppRefreshTable()}else ppRefreshTable()}
 });
 document.addEventListener('input',e=>{
  const input=e.target.closest('#projects.pp-main [data-pp-search],#projects.pp-main [data-pp-owner-search]');if(!input)return;
