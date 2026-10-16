@@ -1,15 +1,25 @@
 import assert from 'node:assert/strict';
 import {fileURLToPath} from 'node:url';
+import fs from 'node:fs';
+import vm from 'node:vm';
 export async function projectAnalysis(page){
+ const ctx=vm.createContext({});for(const file of ['01-model','08-analysis-model'])vm.runInContext(fs.readFileSync(new URL('../../src/modules/project-panorama/'+file+'.js',import.meta.url),'utf8'),ctx);
+ const fixture=[{id:1,status:'绿灯',ledger:[{id:'a',light:'红灯',department:['产品部','研发部']},{id:'a',light:'红灯',department:['产品部','研发部']},{id:'b',light:'黄灯',department:'产品部'},{id:'c',light:'红灯',department:'产品部',status:'已闭环'},{id:'d',light:'红灯',department:'采购部'}]}];
+ const share=ctx.ppAnalysisRiskShare(fixture,'产品部');assert.equal(share.count,1);assert.equal(share.total,2);assert.equal(share.rate,'50.0%');assert.equal(ctx.ppAnalysisRiskShare([],'产品部').rate,'—');
  await page.locator('a[href="#projects"]').click();await page.locator('[data-pp-reset]').click();
  const audit=await page.evaluate(()=>projectPanoramaAudit()),rows=audit.scope;
  const cards=page.locator('#pp-ai .pp-ai-grid>article');assert.equal(await cards.count(),4);
+ const help=page.locator('#pp-ai .pp-ai-heading .metric-help');assert.equal(await help.count(),1);
+ await help.scrollIntoViewIfNeeded();await help.hover();await page.locator('#metric-tooltip').waitFor({state:'visible'});
+ assert.match(await page.locator('#metric-tooltip').innerText(),/红灯项目：[\s\S]*按项目去重。[\s\S]*高危项目：[\s\S]*＞15天[\s\S]*红灯风险占比：[\s\S]*红灯风险单总数/);
+ assert.doesNotMatch(await page.locator('#metric-tooltip').innerText(),/产品部/);await page.keyboard.press('Escape');
+ await help.focus();assert(await page.locator('#metric-tooltip').isVisible());await page.keyboard.press('Escape');await help.evaluate(e=>e.blur());
  assert.doesNotMatch(await page.locator('#pp-ai').innerText(),/演示|原型|规则汇总|未调用|样例/);
  for(const department of ['产品部','研发部','采购部','品质部']){
   const card=page.locator(`[data-analysis-department="${department}"]`);
   const red=rows.filter(p=>p.status==='红灯'&&p.ledger.some(r=>r.status!=='已闭环'&&(Array.isArray(r.department)?r.department:[r.department]).includes(department))),high=red.filter(p=>p.delay>15);
   const evidence=red.flatMap(p=>p.ledger.filter(r=>r.status!=='已闭环'&&(Array.isArray(r.department)?r.department:[r.department]).includes(department)));
-  assert.deepEqual(await card.locator('.pp-analysis-metrics strong').allTextContents(),[String(red.length),String(high.length)]);
+  assert.deepEqual(await card.locator('.pp-analysis-metrics strong').allTextContents(),[String(red.length),String(high.length),ctx.ppAnalysisRiskShare(rows,department).rate]);
   assert.doesNotMatch(await card.innerText(),/负责 \d+ 个项目|红灯项目占比/);
   for(const [mode,expected] of [['red',red.length],['high',high.length],['all',evidence.length]]){
    await card.locator(`[data-mode="${mode}"]`).click();

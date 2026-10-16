@@ -17,6 +17,16 @@ function ppAnalysisRows(){
  // 灯色筛选不隐藏部门风险分析；其他查询条件继续生效。
  return ppFiltered(ppScope(ppRows()),{...ppState,light:[],link:null});
 }
+// 红灯风险按风险单计数，与项目灯色独立；一单多部门时，各部门分别关联，分母不重复。
+function ppAnalysisRiskShare(rows,department){
+ const seen=new Set();let total=0,count=0;
+ for(const project of rows)for(const [index,risk] of project.ledger.entries()){
+  if(risk.status==='已闭环'||risk.light!=='红灯')continue;
+  const key=project.id+':'+(risk.id??index);if(seen.has(key))continue;seen.add(key);
+  total++;if(ppValues(risk.department).includes(department))count++;
+ }
+ return {count,total,rate:total?(count/total*100).toFixed(1)+'%':'—'};
+}
 function ppAnalysisDepartment(rows,department){
  // 项目跨部门协作，按未闭环风险台账关联部门；部门内项目去重，部门间不互斥。
  const facts=ppDepartmentFacts(rows,department),red=facts.redProjects,high=red.filter(ppHighRisk);
@@ -29,5 +39,5 @@ function ppAnalysisDepartment(rows,department){
   const group=groups.get(family.key);group.records.push(entry);group.projects.add(entry.project.id);
  }
  const top=[...groups.values()].sort((a,b)=>b.records.length-a.records.length||b.projects.size-a.projects.size||a.key.localeCompare(b.key)).slice(0,3);
- return {department,red,high,records,top};
+ return {department,red,high,records,top,riskShare:ppAnalysisRiskShare(rows,department)};
 }

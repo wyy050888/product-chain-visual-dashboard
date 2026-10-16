@@ -7,7 +7,7 @@
 #projects.pp-main .pp-ai-grid .pp-card-head{margin-bottom:18px;gap:8px}
 #projects.pp-main .pp-ai-grid h4{font-size:15px}
 #projects.pp-main .pp-ai-grid .pp-card-head small{white-space:nowrap;font-size:11px}
-#projects.pp-main .pp-analysis-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding-bottom:18px;border-bottom:1px solid #edf1f7}
+#projects.pp-main .pp-analysis-metrics{display:grid;grid-template-columns:1fr 1fr 1.2fr;gap:8px;padding-bottom:18px;border-bottom:1px solid #edf1f7}
 #projects.pp-main .pp-analysis-metrics>button,#projects.pp-main .pp-analysis-metrics>div{min-width:0;display:flex;flex-direction:column;gap:8px;padding:6px 2px;text-align:left;background:transparent;border:0;font:inherit;border-radius:5px}
 #projects.pp-main .pp-analysis-metrics>button{cursor:pointer}
 #projects.pp-main .pp-analysis-metrics>button:hover{background:#f3f7ff}
@@ -51,3 +51,6 @@
 
 #dialogbody .pp-analysis-table .pp-task-name{display:block}
 #dialogbody .pp-analysis-table .pp-task-name+.pp-task-name{margin-top:4px}
+
+#projects.pp-main .pp-ai-heading h3>.metric-help{vertical-align:1px;padding:0;margin-left:6px;font-size:10px;background:#fff;color:#8395ae;border-radius:50%}
+body:has(#pp-ai .pp-ai-heading .metric-help[aria-describedby="metric-tooltip"]) #metric-tooltip{white-space:pre-line;max-width:min(400px,calc(100vw - 16px))}

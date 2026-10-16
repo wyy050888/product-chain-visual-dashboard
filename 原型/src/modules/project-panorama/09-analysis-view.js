@@ -1,11 +1,18 @@
 function ppAnalysisButton(department,mode,label,body='',className=''){
  return `<button type="button" class="${className}" data-pp-analysis="${esc(department)}" data-mode="${esc(mode)}">${label}${body}</button>`;
 }
+const ppAnalysisHelp=[
+ '基于当前筛选范围内的未闭环风险单统计。',
+ '红灯项目：风险单的责任部门包含该部门的红灯项目数，按项目去重。',
+ '高危项目：上述红灯项目中，延期天数＞15天的项目数。',
+ '红灯风险占比：责任部门包含该部门的红灯风险单数 ÷ 红灯风险单总数 ×100%。',
+ '各部门独立统计，同一项目或风险单可关联多个部门。'
+].join('\n\n');
 function ppAI(rows){
- return `<div class="pp-ai-heading"><h3><span>AI</span> 部门风险根因分析</h3></div><div class="pp-ai-grid">${ppDepartments.map(department=>{
+ return `<div class="pp-ai-heading"><h3><span>AI</span> 部门风险根因分析 ${ppHelp('部门风险根因分析',ppAnalysisHelp)}</h3></div><div class="pp-ai-grid">${ppDepartments.map(department=>{
   const facts=ppAnalysisDepartment(rows,department);
   return `<article data-analysis-department="${department}"><div class="pp-card-head"><h4>${department}</h4></div>
-  <div class="pp-analysis-metrics">${ppAnalysisButton(department,'red','<span>关联红灯项目</span>',`<strong>${facts.red.length}</strong>`)}${ppAnalysisButton(department,'high','<span>高危红灯（&gt;15天）</span>',`<strong>${facts.high.length}</strong>`)}</div>
+  <div class="pp-analysis-metrics">${ppAnalysisButton(department,'red','<span>红灯项目</span>',`<strong>${facts.red.length}</strong>`)}${ppAnalysisButton(department,'high','<span>高危项目</span>',`<strong>${facts.high.length}</strong>`)}<div class="pp-analysis-share"><span>红灯风险占比</span><strong>${facts.riskShare.rate}</strong></div></div>
   <h5>TOP 3 共性根因</h5><div class="pp-root-list">${facts.top.length?facts.top.map((group,index)=>ppAnalysisButton(department,group.key,`<span class="pp-root-rank">${index+1}</span>`,`<span class="pp-root-content"><b>${esc(group.title)}</b>${group.summary?`<span class="pp-root-summary">${esc(group.summary)}</span>`:''}<small>${group.records.length} 条风险 · ${group.projects.size} 个项目 <em>查看台账 ›</em></small></span>`,'pp-root-item')).join(''):'<div class="pp-analysis-empty">暂无可归纳的根因</div>'}</div>
   ${ppAnalysisButton(department,'all','查看全部风险台账','<span>→</span>','pp-analysis-all')}</article>`;
  }).join('')}</div>`;
