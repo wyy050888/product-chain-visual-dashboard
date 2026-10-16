@@ -290,7 +290,7 @@
 #dialogbody .up-violation-stats [data-up-quality-metric="contact"]{min-width:170px}
 #dialogbody .up-violation-stats [data-up-quality-metric="contact"]>small{display:flex;align-items:center;gap:10px;white-space:nowrap}
 #dialogbody .up-violation-stats .up-quality-comparison{white-space:normal;text-align:right}
-#dialogbody .up-violation-stats .up-contact-bar{display:inline-flex;align-items:stretch;flex:0 0 72px;width:72px;height:8px;margin:0;background:#eaf0f8;border-radius:4px;overflow:hidden}
+#dialogbody .up-violation-stats .up-contact-bar{display:inline-flex;align-items:stretch;flex:0 0 72px;width:72px;height:8px;margin:0 0 0 auto;background:#eaf0f8;border-radius:4px;overflow:hidden}
 #dialogbody .up-contact-bar>button{display:block;min-width:0;height:100%;margin:0;padding:0;border:0;cursor:default}
 #dialogbody .up-contact-bar .quality{background:#4389f5}
 #dialogbody .up-contact-bar .experience{background:#9271df}
