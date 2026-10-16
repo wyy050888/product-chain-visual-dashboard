@@ -25,6 +25,10 @@ export async function projectPanorama(page){
  await page.locator('[data-pp-view]').first().click();
  assert.equal(await page.locator('#toast').innerText(),'跳转项目详情');
  assert(await page.locator('#toast').isVisible());
+ assert(await page.locator('#overlay').isHidden());
+ await page.locator('[data-pp-project]').first().click();
+ assert.equal(await page.locator('#toast').innerText(),'跳转项目详情');
+ assert(await page.locator('#overlay').isHidden(),'项目名称不再打开详情抽屉');
  assert.deepEqual([...new Set(initial.scope.map(p=>p.type))].sort(),['产品迭代','品质整改','研发创新','自研开发','自选开发'].sort());
  // 明确标识固定编码关联的演示台账；未提供台账的项目保持缺失。
  const sampleRows=initial.scope.filter(p=>p.ledger.some(r=>r.sample));

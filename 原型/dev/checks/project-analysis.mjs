@@ -31,10 +31,13 @@ export async function projectAnalysis(page){
   }
  }
  await cards.first().locator('[data-mode="red"]').click();
+ const title=await page.locator('#dialogtitle').innerText(),contents=await page.locator('#dialogbody').innerText();
  await page.locator('[data-pp-analysis-view]').first().click();
- assert.equal(await page.locator('.pp-analysis-detail').count(),0);assert(await page.locator('#dialogbody').innerText());
- await page.locator('#modalclose').click();
+ assert.equal(await page.locator('#toast').innerText(),'跳转项目详情');
+ assert.equal(await page.locator('#dialogtitle').innerText(),title);
+ assert.equal(await page.locator('#dialogbody').innerText(),contents);
  assert(await page.locator('.pp-analysis-detail').isVisible());await page.locator('#modalclose').click();
+ assert(await page.locator('#overlay').isHidden(),'未压入项目详情抽屉');
  const before=await cards.locator('.pp-analysis-metrics').allTextContents();
  await page.locator('[data-pp-link="light"][data-value="红灯"]').click();assert.deepEqual(await cards.locator('.pp-analysis-metrics').allTextContents(),before);
  await page.locator('[data-pp-reset]').click();

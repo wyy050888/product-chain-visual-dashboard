@@ -46,8 +46,7 @@ document.addEventListener('input',e=>{
 document.addEventListener('click',e=>{
  const b=e.target.closest('#projects.pp-main button');if(!b)return;const d=b.dataset;
  if(d.ppSort){ppState.sort={key:d.ppSort,direction:ppState.sort.key===d.ppSort&&ppState.sort.direction==='asc'?'desc':'asc'};ppState.page=1;ppRefreshTable();$('#pp-table-scroll [data-pp-sort="'+d.ppSort+'"]')?.focus({preventScroll:true});return}
- if(d.ppView!==undefined){toast('跳转项目详情');return}
- if(d.ppProject!==undefined)return withPeriod('projects',()=>projectDetail(Number(d.ppProject)));
+ if(d.ppView!==undefined||d.ppProject!==undefined){toast('跳转项目详情');return}
  if(d.ppLedger!==undefined){ppShowLedger(b);return}
  if(d.ppPage){ppState.page=Number(d.ppPage);ppRefreshTable();return}
  if(d.ppEvidence!==undefined){ppState.query='';ppState.link=null;const id=Number(d.ppEvidence);withPeriod('projects',()=>{const rows=ppFiltered(ppScope(ppRows()));ppState.page=Math.floor(rows.findIndex(p=>p.id===id)/10)+1});renderProjects();const trigger=$('#pp-table-scroll [data-pp-ledger="'+id+'"]');if(trigger){trigger.scrollIntoView({block:'nearest',inline:'nearest'});ppShowLedger(trigger)}return}

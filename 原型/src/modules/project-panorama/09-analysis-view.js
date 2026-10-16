@@ -25,5 +25,5 @@ document.addEventListener('click',e=>{
  const button=e.target.closest('#pp-ai [data-pp-analysis]');
  if(button){ppOpenAnalysis(button.dataset.ppAnalysis,button.dataset.mode);return}
  const view=e.target.closest('#dialogbody [data-pp-analysis-view]');
- if(view)withPeriod('projects',()=>projectDetail(Number(view.dataset.ppAnalysisView)));
+ if(view)toast('跳转项目详情');
 });
