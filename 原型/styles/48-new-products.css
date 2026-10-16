@@ -5,11 +5,12 @@
 #new .nsp-layout{display:grid;grid-template-columns:360px minmax(0,1fr);gap:22px;align-items:start;margin-top:20px}
 #new .nsp-details{min-width:0}
 #newtop{grid-template-columns:minmax(0,1fr);align-items:start;margin:0;gap:14px}
-#newtop .newmetric{height:112px;display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:1fr 1fr;align-items:center;gap:8px 12px;padding:16px;text-align:left}
+#newtop .newmetric{height:112px;display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:1fr 1fr;align-items:center;gap:8px 12px;padding:16px;text-align:left;background:#e9f0ff;box-shadow:inset 0 0 0 1px #d8e4fa}
 #newtop .newmetric>span{grid-column:1;grid-row:1}
 #newtop .newmetric>strong,#newtop .nsp-success-value>strong{grid-column:2;grid-row:1;text-align:right}
 #newtop .newmetric>small{grid-column:1;grid-row:2;line-height:1.6}
-#newtop .newmetric.selected{box-shadow:inset 0 0 0 1px #8275fa}
+#newtop .newmetric:hover{background:#e1ebff}
+#newtop .newmetric.selected{background:#d9e7ff;box-shadow:inset 0 0 0 1px #8eb5f5}
 #newtop .newmetric .num{margin:0;font-size:26px}
 #newtop .newmetric small{color:var(--muted);font-size:12px}
 #newtop .nsp-success-value{display:contents}
