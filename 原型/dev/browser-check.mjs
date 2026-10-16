@@ -1,3 +1,4 @@
+import { keyProducts } from './checks/key-products.mjs';
 import { inventoryControl } from './checks/inventory-control.mjs';
 import { shopFilters } from './checks/shop-filters.mjs';
 import { shopConfig } from './checks/shop-config.mjs';
@@ -34,7 +35,7 @@ function playwright(){
  throw new Error('找不到Playwright；使用Codex内置Node运行，或设置DASHBOARD_PLAYWRIGHT_PATH。');
 }
 export async function checkBrowser(root,scope){
- const registry=JSON.parse(fs.readFileSync(path.join(root,'dev/areas.json'),'utf8')),checks={inventoryControl,shopFilters,shopConfig,lifecycleTargets,lifecycleProjectLinks,salesSort,projectRiskDetail,projectRiskEvents,projectDates,projectAnalysis,columnResize,projectPanorama,aiSummary,multiFilters,newProducts,shopDetail,salesCards,smoke,filters,risk,periodPerformance,detailOperating,detailQualityTodos};
+ const registry=JSON.parse(fs.readFileSync(path.join(root,'dev/areas.json'),'utf8')),checks={keyProducts,inventoryControl,shopFilters,shopConfig,lifecycleTargets,lifecycleProjectLinks,salesSort,projectRiskDetail,projectRiskEvents,projectDates,projectAnalysis,columnResize,projectPanorama,aiSummary,multiFilters,newProducts,shopDetail,salesCards,smoke,filters,risk,periodPerformance,detailOperating,detailQualityTodos};
  const names=scope==='all'?Object.keys(checks):scope==='smoke'?['smoke']:registry[scope]?.checks;
  if(!names)throw new Error('未知检查范围：'+scope);
  const start=performance.now(),edge='C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe';

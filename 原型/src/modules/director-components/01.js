@@ -38,7 +38,7 @@ moduleNames['pb-new']='新品专项管控';moduleNames['pb-matrix']='关键产�
 const ppStates={new:{chain:'全部',metric:'all',channel:'all',page:1,key:''},matrix:{grade:'B',page:1,key:''}};
 let ppModalScope=null,ppDepth=0;
 function ppPeriod(module,period,fn){const previous=localPeriods[module];localPeriods[module]={...period};ppDepth++;try{return withPeriod(module,fn)}finally{ppDepth--;if(previous)localPeriods[module]=previous;else delete localPeriods[module]}}
-function ppRender(module){
+function ppRenderProductModule(module){
  const original=$('#'+module),clone=original.cloneNode(true),prefix=module==='new'?'pnp-':'pmx-',state=ppStates[module],savedNew={...newProductSelection},savedMatrix={...matrixProductPage},savedGrade=matrixTab;
  clone.hidden=true;original.replaceWith(clone);
  try{return ppPeriod(module,pbPeriod(module),()=>{
@@ -53,12 +53,12 @@ function ppRender(module){
   head.replaceWith(toolbar);clone.querySelector('.module-timebar')?.remove();
   for(const attr of ['new-metric','new-channel','new-reset','product-page','page','product','new-trend','matrix','matrix-trend','matrix-diagnosis','rules'])clone.querySelectorAll('[data-'+attr+']').forEach(n=>{n.setAttribute('data-pp-'+attr,n.getAttribute('data-'+attr));n.removeAttribute('data-'+attr)});
   clone.querySelectorAll('[id]').forEach(n=>n.id=prefix+n.id);
-  if(module==='new')clone.querySelector('#pnp-newchain').querySelectorAll('option').forEach(n=>n.toggleAttribute('selected',n.value===state.chain));
+  if(module==='new')clone.querySelector('#pnp-newchain')?.querySelectorAll('option').forEach(n=>n.toggleAttribute('selected',n.value===state.chain));
   return clone.innerHTML;
  });}finally{Object.assign(newProductSelection,savedNew);Object.assign(matrixProductPage,savedMatrix);matrixTab=savedGrade;clone.replaceWith(original)}
 }
-pbRenderers.new=()=>ppRender('new');pbRenderers.matrix=()=>ppRender('matrix');
-function ppRefresh(module){const body=$('#pb-'+module+' .pb-content');if(body)body.innerHTML=pbWith(module,()=>ppRender(module))}
+pbRenderers.new=()=>ppRenderProductModule('new');pbRenderers.matrix=()=>ppRenderProductModule('matrix');
+function ppRefresh(module){const body=$('#pb-'+module+' .pb-content');if(body)body.innerHTML=pbWith(module,()=>ppRenderProductModule(module))}
 function ppOpen(module,fn){ppModalScope={module,period:{...pbPeriod(module)}};return ppPeriod(module,ppModalScope.period,fn)}
 // Modal continuations (all products -> trend -> back) retain their originating period.
 const ppOriginalModal=openModal;

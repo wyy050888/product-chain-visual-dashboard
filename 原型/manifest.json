@@ -1003,6 +1003,22 @@
       "module": "店铺配置交互与榜单联动"
     },
     {
+      "file": "src/modules/key-products/01-model.js",
+      "module": "关键产品矩阵与分级明细"
+    },
+    {
+      "file": "src/modules/key-products/02-chart.js",
+      "module": "关键产品矩阵与分级明细"
+    },
+    {
+      "file": "src/modules/key-products/03-view.js",
+      "module": "关键产品矩阵与分级明细"
+    },
+    {
+      "file": "src/modules/key-products/04-controller.js",
+      "module": "关键产品矩阵与分级明细"
+    },
+    {
       "file": "src/modules/startup/02-render.js",
       "module": "统一首屏渲染"
     }
@@ -1262,6 +1278,10 @@
     {
       "file": "styles/58-inventory-control.css",
       "module": "库存双表与指标悬浮提示"
+    },
+    {
+      "file": "styles/59-key-products.css",
+      "module": "关键产品矩阵放大与明细筛选"
     }
   ],
   "images": [

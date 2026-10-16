@@ -6,7 +6,11 @@ function fourQuadrantSVG(rows,department=false){
  return `<svg viewBox="0 0 460 260" class="${department?'dp-scatter':''}" role="img" aria-label="关键产品 ABCD 四象限：销售额 ${config.high} 万元、利润率 ${config.profit}% 为分界"><text x="44" y="15">单品利润率（%）</text>${[['C',left,top,split-left,mid-top,'#f0f6ff'],['D',left,mid,split-left,bottom-mid,'#fff3f3'],['A',split,top,right-split,mid-top,'#eef9f5'],['B',split,mid,right-split,bottom-mid,'#fff9ed']].map(([g,a,b,w,h,color])=>`<rect data-quadrant="${g}" x="${a}" y="${b}" width="${w}" height="${h}" fill="${color}"/>`).join('')}<line x1="${split}" x2="${split}" y1="${top}" y2="${bottom}" stroke="#c7cedf" stroke-dasharray="4 4"/><line x1="${left}" x2="${right}" y1="${mid}" y2="${mid}" stroke="#c7cedf" stroke-dasharray="4 4"/><text x="${left+8}" y="47">C 低销高利</text><text x="${split+10}" y="47">A 高销高利</text><text x="${left+8}" y="${mid+19}">D 低销低利</text><text x="${split+10}" y="${mid+19}">B 高销低利</text>${[0,config.high,maxX].map(v=>`<text x="${x(v)}" y="245" text-anchor="middle">${fmt(v)}</text>`).join('')}${[...new Set([minY,0,config.profit,maxY])].map(v=>`<text x="35" y="${y(v)+4}" text-anchor="end">${fmt(v,1)}%</text>`).join('')}${rows.map(p=>`<circle ${department?`data-dp-scatter="${p.id}" data-grade="${category(p)}"`:`class="chartclick" data-product="old,${p.id}"`} cx="${x(p.sales)}" cy="${y(p.profit)}" r="5" fill="${colors[category(p)]}" fill-opacity=".8"><title>${esc(p.name)}：${pfMoneyYuan((p.sales)*10000)} / 利润率 ${p.profit}% · ${category(p)} 类</title></circle>`).join('')}</svg>`;
 }
 const renderMatrixBeforeFourQuadrants=renderMatrix;
-renderMatrix=function(){renderMatrixBeforeFourQuadrants();withPeriod('matrix',()=>{$('#matrixchart').innerHTML=fourQuadrantSVG(productRows(false))})};
+renderMatrix=function(){
+ if(!ppDepth&&!dxDepth)return kpmRender();
+ kpmRestoreLegacy($('#matrix'));renderMatrixBeforeFourQuadrants();
+ withPeriod('matrix',()=>{$('#matrixchart').innerHTML=fourQuadrantSVG(productRows(false))});
+};
 
 const dpRiskTitles=['上品计划预警','立项规划预警','项目延期红灯','高危品质风险','渠道销售偏差','工作流程预警'];
 const dpRiskCache=new Map(),dpProductCache=new Map();

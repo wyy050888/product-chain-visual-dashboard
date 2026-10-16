@@ -596,5 +596,32 @@
     "manual": [
       "当前库存与交付、翻新数据来自本地样例台账，未连接实时库存接口。"
     ]
+  },
+  "keyProducts": {
+    "label": "关键产品矩阵和分级明细",
+    "keywords": [
+      "关键产品",
+      "波士顿矩阵",
+      "产品分级",
+      "kpmRender",
+      "kpmRows"
+    ],
+    "sources": [
+      "src/modules/key-products/01-model.js",
+      "src/modules/key-products/02-chart.js",
+      "src/modules/key-products/03-view.js",
+      "src/modules/key-products/04-controller.js",
+      "src/modules/director-quadrants/01.js",
+      "src/modules/director-risk/01.js"
+    ],
+    "styles": [
+      "styles/59-key-products.css"
+    ],
+    "checks": [
+      "keyProducts"
+    ],
+    "manual": [
+      "经营和库存为统一样例台账；ABCD为销售额/利润率经营分层，不是市场份额/市场增长率模型，不使用新品S/A/B/C等级。"
+    ]
   }
 }
