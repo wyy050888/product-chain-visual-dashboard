@@ -4,6 +4,9 @@ export async function verifyShopLinkDetails(page,id){
  const root=page.locator('.sd-detail'),links=await page.evaluate(id=>window.pddShopLinksSnapshot(id).all,id);
  const headings=['商品链接',...['三级类目','主营类目'].flatMap(category=>['品质退款率','品质求助平台率','品质文本情感分'].map(name=>'近30天'+name+'（'+category+'）'))];
  assert.equal(await root.locator('.sd-pdd-links').count(),2);
+ const group=root.locator('.sd-core-links');
+ assert.equal(await group.locator(':scope>h3').innerText(),'核心链接考核');
+ assert.deepEqual(await group.locator(':scope>.sd-pdd-links').evaluateAll(es=>es.map(e=>e.dataset.sdLinkTone)),['red','yellow']);
  const layout=await root.locator('.sd-pdd-links').evaluateAll(es=>es.map(e=>({position:getComputedStyle(e).position,top:e.getBoundingClientRect().top,bottom:e.getBoundingClientRect().bottom})));
  assert(layout.every(r=>r.position==='static'),'明细表须在详情正常文档流中');
  assert(layout[1].top>=layout[0].bottom,'红黄两表依次排列，不重叠');

@@ -47,3 +47,8 @@
 #dialogbody .sd-detail .sd-pdd-links table{width:100%!important;min-width:1120px!important;max-width:none!important;table-layout:fixed!important}
 #dialogbody .sd-detail .sd-pdd-links :is(th,td){width:auto;padding:11px 10px;white-space:normal;overflow-wrap:anywhere}
 #dialogbody .sd-detail .sd-pdd-links th:first-child{width:260px}
+
+/* 拼多多两类链接表归入同一考核区块。 */
+.sd-detail .sd-core-links{margin-top:28px;padding-top:20px;border-top:1px solid #e5ebf6;min-width:0;scroll-margin-top:70px}
+.sd-detail .sd-core-links>h3{margin:0 0 16px}
+.sd-detail .sd-core-links>.sd-pdd-links:first-of-type{margin-top:0}
