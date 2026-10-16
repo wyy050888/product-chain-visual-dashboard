@@ -63,7 +63,7 @@ const renderLifeBeforeDemo=renderLife;
 renderLife=function(){const combined=!$('#lifecycle').hidden;$('#lifetabs').style.display=combined?'none':'';if(combined)lifeView='chain';renderLifeBeforeDemo();withPeriod('lifecycle',()=>{
  const annual=periodFor().mode==='year',channelRows=lifeChannelRows(lifeIndex),summary=lifeSumRows(channelRows),rows=lifeView==='summary'?[summary]:lifeView==='chain'?lifeChainRows(lifeIndex):channelRows;
  lifeAchievementCards();
- const headers=['业务维度',word()+'目标（项）',word()+'实际完成（项）',word()+'完成率',word()+'数据差额（项）',...(annual?[]:['年度目标（项）','年度累计完成（项）','年度完成率'])];
+ const headers=[combined?'链群':'业务维度',word()+'目标（项）',word()+'实际完成（项）',word()+'完成率',word()+'数据差额（项）',...(annual?[]:['年度目标（项）','年度累计完成（项）','年度完成率'])];
  function cells(r){const delta=r.actual-r.target;return[esc(r.name),fmt(r.target),fmt(r.actual),lifeAchievementCell(r.actual,r.target),`<span class="num ${delta>0?'green':delta<0?'orange':'muted'}">${delta>0?'+':''}${delta}</span>`,...(annual?[]:[fmt(r.yearTarget),fmt(r.yearActual),lifeAchievementCell(r.yearActual,r.yearTarget,true)])]}
  // 汇总固定在分类明细之前，与明细共用统计数据和下钻入口。
  let content=table(headers,rows.map(cells));
