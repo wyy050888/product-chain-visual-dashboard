@@ -442,5 +442,22 @@
     "checks": [
       "projectRiskDetail"
     ]
+  },
+  "sales-sort": {
+    "label": "销售达成明细排序",
+    "keywords": [
+      "销售明细排序",
+      "GSV偏差排序"
+    ],
+    "sources": [
+      "src/modules/sales-review/01-model.js",
+      "src/modules/sales-review/03-drawer.js"
+    ],
+    "styles": [
+      "styles/38-document-review.css"
+    ],
+    "checks": [
+      "salesSort"
+    ]
   }
 }

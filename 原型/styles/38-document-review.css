@@ -88,3 +88,5 @@
 .ms-breakdown[data-ms-breakdown-view="brand"]{height:calc(var(--ms-head-height) + var(--ms-row-height)*6);max-height:calc(var(--ms-head-height) + var(--ms-row-height)*6)}
 
 .ms-progress>.ms-time-marker{position:absolute;top:-3px;width:2px;height:11px;background:#708199;transform:translateX(-1px)}
+
+.ms-drawer #ms-drawer-table .rp-sort-header{font:inherit;color:inherit;white-space:nowrap;gap:4px}

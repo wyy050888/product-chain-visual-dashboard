@@ -1,4 +1,9 @@
-// 抽屉状态独立于首页；链群、品牌/渠道、搜索、时间、分页均先筛选完整数据。
+// 抽屉状态独立于首页；链群、维度、搜索、时间变更后，在完整结果上排序再分页。
+const msDrawerSortKeys=['name','sku','sale','netSales','actualMargin','target','gap','marginGap','gsvDeviation','scaleDeviation'];
+function msDrawerSortHeader(label,key,sort){
+ const direction=sort.key===key?sort.direction:'',next=direction==='asc'?'降序':direction==='desc'?'升序':key==='name'?'升序':'降序';
+ return `<button type="button" class="rp-sort-header" data-ms-sort="${key}" data-direction="${direction}" aria-label="${esc(label)}：点击${next}">${esc(label)}<span class="rp-sort-arrows" aria-hidden="true"></span></button>`;
+}
 function msWithPeriod(period,fn){
  const previous=localPeriods.sales;localPeriods.sales=period;
  try{return withPeriod('sales',fn)}finally{if(previous)localPeriods.sales=previous;else delete localPeriods.sales}
@@ -7,16 +12,20 @@ function msDrawerTime(p){
  return msWithPeriod(p,()=>periodControls('sales')).replaceAll('data-time-','data-ms-');
 }
 salesDetail=function(index,view='brand'){
- const state={chain:index>=0?index:-1,view:view==='channel'?'platform':'brand',query:'',page:1,period:copyPeriod(periodFor('sales'))};
+ const state={chain:index>=0?index:-1,view:view==='channel'?'platform':'brand',query:'',page:1,sort:{key:'scaleDeviation',direction:'desc'},period:copyPeriod(periodFor('sales'))};
  openModal('销售达成明细','<article class="ms-drawer"><header class="ms-drawer-toolbar"><div class="ms-drawer-dimensions" role="tablist" aria-label="销售明细维度">'+[['brand','分品牌'],['platform','分渠道']].map(([key,label])=>'<button type="button" role="tab" data-ms-view="'+key+'" aria-selected="'+(state.view===key)+'" tabindex="'+(state.view===key?0:-1)+'">'+label+'</button>').join('')+'</div><label class="ms-drawer-search"><input type="search" id="ms-search" placeholder="搜索品牌名称" aria-label="搜索品牌名称"></label></header><div id="ms-drawer-table" class="tablewrap"></div><div id="ms-drawer-pages"></div></article>',true,'');
  const root=$('#dialogbody .ms-drawer');
  function fill(){
   msWithPeriod(state.period,()=>{
-   const prefix=msPeriodText(),records=msSort(msBreakdown(state.chain,state.view)).filter(r=>r.name.toLocaleLowerCase().includes(state.query.trim().toLocaleLowerCase()));
+   const prefix=msPeriodText(),records=msDrawerSortRows(msBreakdown(state.chain,state.view).map(r=>msFacts(r)).filter(r=>r.name.toLocaleLowerCase().includes(state.query.trim().toLocaleLowerCase())),state.sort);
    state.page=Math.max(1,Math.min(state.page,Math.ceil(records.length/DRAWER_PAGE_SIZE)||1));
    const headers=[state.view==='brand'?'品牌':'渠道','SKU总数','GSV','去退后销量','利润率',prefix+'目标GSV','GSV差额','利润率差额','GSV偏差','规模偏差'];
    const cells=records.slice((state.page-1)*DRAWER_PAGE_SIZE,state.page*DRAWER_PAGE_SIZE).map(r=>[esc(r.name),fmt(r.sku),msMoney(r.sale),fmt(r.netSales),msPercent(r.actualMargin),msMoney(r.target),'<span class="'+msTone(r.gsvDeviation)+'">'+msMoney(r.gap,true)+'</span>','<span class="'+msTone(r.marginGap)+'">'+msDeviation(r.marginGap)+'</span>','<span class="'+msTone(r.gsvDeviation)+'">'+msDeviation(r.gsvDeviation)+'</span>','<span class="'+msTone(r.scaleDeviation)+'">'+msDeviation(r.scaleDeviation)+'</span>']);
-   $('#ms-drawer-table').innerHTML=table(headers,cells,'ms-data-table');
+   const host=$('#ms-drawer-table'),scroll=host.scrollLeft;
+   host.innerHTML=table(headers.map((label,index)=>msDrawerSortHeader(label,msDrawerSortKeys[index],state.sort)),cells,'ms-data-table');
+   host.querySelectorAll('th').forEach((th,index)=>th.setAttribute('aria-sort',msDrawerSortKeys[index]===state.sort.key?(state.sort.direction==='asc'?'ascending':'descending'):'none'));
+   host.scrollLeft=scroll;
+   root.msDrawerSnapshot=()=>({...state,period:{...state.period},sort:{...state.sort},records});
    mountListPager($('#ms-drawer-pages'),records.length,state.page,n=>{state.page=n;fill()});
    root.msChainValue=state.chain;
   });
@@ -29,7 +38,10 @@ salesDetail=function(index,view='brand'){
   for(const button of root.querySelectorAll('[data-ms-view]')){const active=button.dataset.msView===view;button.setAttribute('aria-selected',active);button.tabIndex=active?0:-1}
   const search=$('#ms-search'),label=view==='brand'?'搜索品牌名称':'搜索渠道名称';search.placeholder=label;search.setAttribute('aria-label',label);fill();
  };
- root.onclick=e=>{const button=e.target.closest('[data-ms-view]');if(button)selectView(button.dataset.msView)};
+ root.onclick=e=>{
+  const sorted=e.target.closest('[data-ms-sort]');if(sorted){const key=sorted.dataset.msSort;if(!msDrawerSortKeys.includes(key))return;state.sort={key,direction:state.sort.key===key?(state.sort.direction==='asc'?'desc':'asc'):key==='name'?'asc':'desc'};state.page=1;fill();root.querySelector('[data-ms-sort="'+key+'"]')?.focus({preventScroll:true});return}
+  const button=e.target.closest('[data-ms-view]');if(button)selectView(button.dataset.msView);
+ };
  root.querySelector('.ms-drawer-dimensions').onkeydown=e=>{
   if(!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;e.preventDefault();
   selectView(e.key==='Home'?'brand':e.key==='End'?'platform':state.view==='brand'?'platform':'brand');root.querySelector('[data-ms-view="'+state.view+'"]').focus();
@@ -57,3 +69,5 @@ drawerProfile=function(body,title){
  return {root,entries:[...root.children].map(node=>({node,key:'shared'})),tabs:[{key:'ms-chain--1',label:'公司整体'},...chains.map((label,i)=>({key:'ms-chain-'+i,label}))],activeKey:'ms-chain-'+root.msChainValue,onSelect:key=>root.msSetChain(key.replace('ms-chain-',''))};
 };
 
+
+window.dashboardSalesDetailSnapshot=()=>$('#overlay').hidden?null:document.querySelector('.ms-drawer')?.msDrawerSnapshot?.()||null;
