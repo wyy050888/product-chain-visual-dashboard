@@ -22,10 +22,10 @@ const ppRiskColumns=[
  ['rootCause','根因分析',220],['action','纠正措施',230],['prevention','预防措施',230],['owner','责任链主',140],['occurredAt','发生日期',125],
  ['deadline','整改期限',125],['rectificationStatus','当前状态',105],['verificationStatus','闭环验证',105],['actualRectifiedAt','实际整改日期',135],['verifiedAt','闭环验证日期',135],['operation','操作',80]
 ];
-const ppRiskDateKeys=['plan','revisedPlan','occurredAt','deadline','actualRectifiedAt','verifiedAt'];
+const ppRiskDateKeys=['plan','occurredAt','deadline','actualRectifiedAt','verifiedAt'];
 let ppRiskDetailState=null;
 function ppRiskSortValue(entry,key){
- if(['plan','revisedPlan'].includes(key))return ppDate(entry.project[key]);
+ if(key==='plan')return ppLatestPlan(entry.project);
  if(key==='delay')return entry.project.delay;
  return ppDate(entry.risk[key]);
 }

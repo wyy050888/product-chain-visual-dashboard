@@ -17,10 +17,9 @@
 #dialogbody .pp-risk-detail .pp-product img,#dialogbody .pp-risk-detail .pp-placeholder{width:38px;height:38px;object-fit:contain;border:1px solid #e1e9f5;border-radius:5px;flex:none}
 #dialogbody .pp-risk-detail .pp-product b{display:block;color:#304b6e;font-size:12px;font-weight:500}
 #dialogbody .pp-risk-detail .pp-product small{display:block;font-size:11px;margin-top:5px;color:#8b9ab0}
-#dialogbody .pp-risk-detail .pp-plan-dates,#dialogbody .pp-risk-detail .pp-plan-sort{display:flex;flex-direction:column;gap:6px}
+#dialogbody .pp-risk-detail .pp-plan-dates{display:flex;flex-direction:column;gap:6px}
 #dialogbody .pp-risk-detail .pp-plan-dates small{font-size:11px;margin:0;white-space:nowrap}
 #dialogbody .pp-risk-detail .pp-plan-dates small.orange{color:var(--orange)}
-#dialogbody .pp-risk-detail .pp-plan-sort button+button{font-size:11px}
 #dialogbody .pp-risk-detail .pp-risk-state{display:inline-block;padding:2px 7px;font-size:12px;border-radius:3px;white-space:nowrap}
 #dialogbody .pp-risk-detail .pp-risk-state-muted{background:#f0f2f7;color:#8b94a6}
 #dialogbody .pp-risk-detail .pp-risk-state-working{background:#fff4e5;color:#ef9b25}

@@ -32,8 +32,8 @@ function ppRenderRiskDetail(){
  const state=ppRiskDetailState,container=$('#pp-risk-detail-table');if(!state||!container)return;
  const scroll=container.scrollLeft,records=ppRiskSorted(state.records,state.sort);
  container.innerHTML=`<table class="pp-risk-detail-table" style="width:${ppRiskColumns.reduce((sum,[,,width])=>sum+width,0)}px"><colgroup>${ppRiskColumns.map(([, ,width])=>`<col style="width:${width}px">`).join('')}</colgroup><thead><tr>${ppRiskColumns.map(([key,label])=>{
-  const sortable=ppRiskDateKeys.includes(key)||key==='delay',active=state.sort.key===key||(key==='plan'&&state.sort.key==='revisedPlan');
-  return `<th${sortable?` aria-sort="${active?(state.sort.direction==='asc'?'ascending':'descending'):'none'}"`:''}>${key==='plan'?`<div class="pp-plan-sort">${ppRiskSortButton('plan',label)}${ppRiskSortButton('revisedPlan','延期上线日期')}</div>`:sortable?ppRiskSortButton(key,label):label}</th>`;
+  const sortable=ppRiskDateKeys.includes(key)||key==='delay',active=state.sort.key===key;
+  return `<th${sortable?` aria-sort="${active?(state.sort.direction==='asc'?'ascending':'descending'):'none'}"`:''}>${sortable?ppRiskSortButton(key,label):label}</th>`;
  }).join('')}</tr></thead><tbody>${records.length?records.map(({project,risk},index)=>`<tr data-pp-risk-row="${index}" data-risk-id="${esc(risk.id||index)}">${ppRiskColumns.map(([key,label])=>`<td data-field="${key}" data-label="${label}">${ppRiskDetailCell({project,risk},key)}</td>`).join('')}</tr>`).join(''):`<tr><td colspan="${ppRiskColumns.length}" class="pp-analysis-empty">${esc(state.emptyText)}</td></tr>`}</tbody></table>`;
  container.scrollLeft=scroll;
 }

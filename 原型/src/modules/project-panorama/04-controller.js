@@ -57,6 +57,6 @@ document.addEventListener('click',e=>{
  if(d.ppLink){const next={kind:d.ppLink,value:d.value,type:d.type||'',...(d.ppLink==='departmentRisk'?{department:ppState.riskDepartment}:{})};ppState.link=JSON.stringify(ppState.link)===JSON.stringify(next)?null:next;ppState.page=1;renderProjects();return}
  if(d.ppAiDepartment){ppState.link={kind:'department',value:d.ppAiDepartment};ppState.light=['红灯'];ppState.page=1;renderProjects();return}
  if(b.hasAttribute('data-pp-plan-clear')){ppState[d.ppPlanClear]=null;ppState.page=1;renderProjects();return}
- if(b.hasAttribute('data-pp-reset')){for(const key of ['brand','light','stage','department'])ppState[key]=[];ppState.projectState=['进行中'];ppState.query='';ppState.owner='';ppState.plan=null;ppState.actual=null;ppState.started=null;ppState.link=null;ppState.page=1;ppState.sort={key:'revisedPlan',direction:'asc'};renderProjects()}
+ if(b.hasAttribute('data-pp-reset')){for(const key of ['brand','light','stage','department'])ppState[key]=[];ppState.projectState=['进行中'];ppState.query='';ppState.owner='';ppState.plan=null;ppState.actual=null;ppState.started=null;ppState.link=null;ppState.page=1;ppState.sort={key:'plan',direction:'asc'};renderProjects()}
 });
 window.projectPanoramaAudit=()=>withPeriod('projects',()=>({state:{...ppState},scope:ppScope(ppRows()),filtered:ppFiltered(ppScope(ppRows())),cutoff:bounds().cutoff}));

@@ -55,7 +55,7 @@ function ppSortButton(key,label){
 }
 function ppTableHeader(label){
  const key={'计划上线日期':'plan','实际上线日期':'actual','延期天数':'delay','立项日期':'started'}[label];
- const active=ppState.sort.key===key||(key==='plan'&&ppState.sort.key==='revisedPlan');
+ const active=ppState.sort.key===key;
  const sort=active?(ppState.sort.direction==='asc'?'ascending':'descending'):'none';
- return `<th${key?` aria-sort="${sort}"`:''}>${key==='plan'?`<div class="pp-plan-sort">${ppSortButton('plan',label)}${ppSortButton('revisedPlan','延期上线日期')}</div>`:key?ppSortButton(key,label):label}</th>`;
+ return `<th${key?` aria-sort="${sort}"`:''}>${key?ppSortButton(key,label):label}</th>`;
 }

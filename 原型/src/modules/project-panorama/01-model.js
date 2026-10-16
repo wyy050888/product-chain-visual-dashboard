@@ -8,7 +8,7 @@ const ppStages={
 };
 const ppProjectStates=['进行中','已完成','已暂停/取消','未开始'];
 const ppDepartments=['产品部','研发部','采购部','品质部'];
-const ppState={category:[],type:[],projectState:['进行中'],brand:[],light:[],stage:[],department:[],owner:'',query:'',plan:null,actual:null,started:null,page:1,distribution:'type',departmentDistribution:'type',riskDepartment:'全部',link:null,sort:{key:'revisedPlan',direction:'asc'}};
+const ppState={category:[],type:[],projectState:['进行中'],brand:[],light:[],stage:[],department:[],owner:'',query:'',plan:null,actual:null,started:null,page:1,distribution:'type',departmentDistribution:'type',riskDepartment:'全部',link:null,sort:{key:'plan',direction:'asc'}};
 const ppValues=value=>[...new Set((Array.isArray(value)?value:[value]).filter(v=>v!=null&&v!==''&&v!=='—'))];
 // 高危红灯是红灯子集；保留原灯色，避免分布和红灯率重复统计。
 const ppHighRisk=p=>p.status==='红灯'&&p.delay>15;
@@ -62,9 +62,14 @@ function ppQuoteLines(p,key){
  return typeof legacy==='number'&&Number.isFinite(legacy)?[legacy.toFixed(2)+'元']:[];
 }
 
-// 使用原始日期排序，缺失值在升降序中均置后；相同值按项目ID稳定排序。
+// 计划上线日期按原计划、延期日期中的较晚者排序；单个缺失时采用另一个日期。
+function ppLatestPlan(project){
+ const plan=ppDate(project.plan),revised=ppDate(project.revisedPlan);
+ return plan&&revised?(plan>revised?plan:revised):plan||revised;
+}
+// 缺失值在升降序中均置后；相同值按项目ID稳定排序。
 function ppCompareProjects(a,b,sort=ppState.sort){
- const key=sort.key,value=p=>key==='delay'?p.delay:ppDate(p[key]),av=value(a),bv=value(b);
+ const key=sort.key,value=p=>key==='plan'?ppLatestPlan(p):key==='delay'?p.delay:ppDate(p[key]),av=value(a),bv=value(b);
  if(av==null||bv==null)return av==null&&bv==null?a.id-b.id:av==null?1:-1;
  const compared=typeof av==='number'?av-bv:av.localeCompare(bv);
  return compared*(sort.direction==='asc'?1:-1)||a.id-b.id;
