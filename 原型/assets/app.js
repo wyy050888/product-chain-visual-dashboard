@@ -10001,7 +10001,7 @@ document.addEventListener('click',e=>{
  const button=e.target.closest('#pp-ai [data-pp-analysis]');
  if(button){ppOpenAnalysis(button.dataset.ppAnalysis,button.dataset.mode);return}
  const view=e.target.closest('#dialogbody [data-pp-analysis-view]');
- if(view)toast('跳转项目详情');
+ if(view)toast('点击跳转项目详情页-风险管理');
 });
 // 固定样例补充真实业务所需的创建/闭环日期；仅由样例台账调用，不覆盖导入台账。
 function ppSampleRiskEvents(source,records){

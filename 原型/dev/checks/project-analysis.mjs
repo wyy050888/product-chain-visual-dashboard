@@ -33,7 +33,7 @@ export async function projectAnalysis(page){
  await cards.first().locator('[data-mode="red"]').click();
  const title=await page.locator('#dialogtitle').innerText(),contents=await page.locator('#dialogbody').innerText();
  await page.locator('[data-pp-analysis-view]').first().click();
- assert.equal(await page.locator('#toast').innerText(),'跳转项目详情');
+ assert.equal(await page.locator('#toast').innerText(),'点击跳转项目详情页-风险管理');
  assert.equal(await page.locator('#dialogtitle').innerText(),title);
  assert.equal(await page.locator('#dialogbody').innerText(),contents);
  assert(await page.locator('.pp-analysis-detail').isVisible());await page.locator('#modalclose').click();
