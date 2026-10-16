@@ -14,7 +14,7 @@
 #projects.pp-main .pp-card-head h3,#projects.pp-main .pp-card-head h4{font-size:15px;margin:0;font-weight:600;color:#203951}
 #projects.pp-main .pp-card-head>span,#projects.pp-main .pp-card-head>small{font-size:11px;color:#7b8ea9;white-space:nowrap}
 #projects.pp-main .pp-card-head .dot{margin-right:3px}
-#projects.pp-main .pp-rate{background:#e9f0ff;border-color:#d8e4fa}
+#projects.pp-main .pp-rate{background:#f1f5ff;border:0}
 #projects.pp-main .pp-link{display:block;width:100%;border:1px solid transparent;border-radius:6px;background:transparent;padding:8px;text-align:left;color:#304b6e;font:inherit;font-size:12px;line-height:1.5;cursor:pointer}
 #projects.pp-main .pp-link:hover{background:#f3f7ff}
 #projects.pp-main .pp-link.selected{border-color:#b7d2ff;background:#edf4ff}
