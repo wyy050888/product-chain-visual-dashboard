@@ -23,6 +23,16 @@ export async function newProducts(page){
  assert.equal(first.success.success,first.rows.filter(p=>p.salesSuccess).length);
  assert.match(await successCard.innerText(),new RegExp(`成功 ${first.success.success}款 / 纳入统计 ${first.success.total}款`));
  assert.equal(first.rows.length,24,'完整24款新品样例');
+ const carVacuum=first.rows.find(p=>p.spuCode==='KJ-QJ-CZXCQ-2628');
+ assert(carVacuum,'保留截图产品样例');
+ assert.equal(carVacuum.sellableStock.warehouse,4560);
+ assert.equal(carVacuum.sellableStock.coverage15.toFixed(1),'390.9','不通过修改库存规避滞销判定');
+ assert.equal(carVacuum.state,'滞销','390.9天且有库存必须显示滞销');
+ const carRow=page.locator('#newtable tbody tr').filter({has:page.locator('[data-nsp-view="'+carVacuum.spuId+'"]')});
+ assert.equal(await carRow.locator('[data-sales-status]').innerText(),'滞销');
+ await page.locator('[data-nsp-status="滞销"]').click();
+ assert((await snapshot()).visible.some(p=>p.spuId===carVacuum.spuId),'状态分布与表格使用同一滞销结果');
+ await page.locator('[data-nsp-status="滞销"]').click();
  const statusCounts=await page.locator('[data-nsp-status]').evaluateAll(es=>es.map(e=>({status:e.dataset.nspStatus,count:Number(e.querySelector('strong').childNodes[0].textContent)})));
  assert.equal(statusCounts.length,6);
  for(const item of statusCounts)assert.equal(item.count,first.rows.filter(p=>p.state===item.status).length);
@@ -277,6 +287,8 @@ export async function newProducts(page){
  assert.deepEqual([detailValues[0],detailValues[2],detailValues[5],detailValues[6],detailValues[7]],values.slice(0,5),'明细与全平台产品详情数值一致');
  const stockValues=await page.locator('.up-stock-card').filter({has:page.locator('h4', {hasText:/^我司可售$/})}).locator('.up-stock-card-value strong').allTextContents();
  assert.deepEqual(stockValues,[values[5],coverageLabel.replace('可售天数 ','')],'库存和可售天数与产品详情一致');
+ if(data.visible[0].state==='滞销')assert.equal(await page.locator('[data-stock-risk="stagnant"]').count(),1,'明细滞销与产品详情风险一致');
+ if(data.visible[0].state==='缺货')assert.equal(await page.locator('[data-stock-risk="shortage"]').count(),1,'明细缺货与产品详情风险一致');
  const launchInfo=()=>page.locator('[data-up-identity]').evaluate(dl=>Object.fromEntries([...dl.children].map(item=>[item.querySelector('dt').textContent,item.querySelector('dd').textContent])));
  let info=await launchInfo();
  assert.equal(info['新品上线日期'],data.visible[0].actualLaunch.slice(2).replaceAll('-','/'));

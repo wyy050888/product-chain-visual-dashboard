@@ -10,6 +10,16 @@ function nspGrade(facts){
  const highSales=facts.gsvCents/1000000>=config.high,highProfit=facts.profitRate>=config.profit;
  return highSales?(highProfit?'S':'A'):(highProfit?'B':'C');
 }
+// 自动销售状态复用详情库存风险；整改、清仓、下架保留人工业务状态。
+function nspSalesState(state,stock){
+ if(!['在售','滞销','缺货'].includes(state))return state;
+ const tags=upStockRiskTags(stock);
+ if(tags.includes('shortage'))return '缺货';
+ if(tags.includes('stagnant'))return '滞销';
+ // 库存或正净销量缺失时不推断恢复在售。
+ if(!Number.isFinite(stock?.coverage15)||!Number.isFinite(stock?.totalCoverage15))return state;
+ return '在售';
+}
 function nspRows(){
  const b=bounds(),days=aiFlowDayDiff(b.start,b.cutoff)+1,previousEnd=shiftDate(b.start,-1),previousStart=shiftDate(b.start,-days);
  const successPeriod=nspSuccessPeriod();
@@ -29,7 +39,7 @@ function nspRows(){
   const stock=stockBySpu.get(p.spuId),sellableStock=upSellableStock(identity,stock?.warehouse??null,DATA_CUTOFF,stock?.totalUnits??null);
   // 延期按实际上线日与计划日比较，不受当前统计季度影响。
   const launchDelayDays=Math.max(0,aiFlowDayDiff(p.plannedLaunch,p.actualLaunch));
-  return {...p,category:pfCategory(p),current,previous,channelFacts,salesChannels,grade:nspGrade(current),successAssessment,successQuarters,sellableStock,
+  return {...p,state:nspSalesState(p.state,sellableStock),category:pfCategory(p),current,previous,channelFacts,salesChannels,grade:nspGrade(current),successAssessment,successQuarters,sellableStock,
    launchDelayDays,poolExitDate,inNewPool,salesSuccess:successAssessment.success,returnTarget:rpLossReturnTarget(identity,'all',b.start,b.cutoff)};
  }).sort((a,b)=>a.actualLaunch.localeCompare(b.actualLaunch)||a.spuCode.localeCompare(b.spuCode));
 }

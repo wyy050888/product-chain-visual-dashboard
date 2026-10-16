@@ -4,8 +4,8 @@ import vm from 'node:vm';
 
 export function verifyStockCoverage(){
  const ctx=vm.createContext({fmt:String,upMoney:String,DATA_CUTOFF:'2026-10-10',
-  upIdentity:p=>p,upSummary:()=>({sales:180,returned:30}),shiftDate:()=> '2026-09-26',newLaunchSamples:new Map()});
- for(const file of ['unified-product/06-stock-model.js','inventory-detail/01-coverage-samples.js'])
+  upIdentity:p=>p,upSummary:()=>({sales:180,returned:30}),shiftDate:()=> '2026-09-26',newLaunchSamples:new Map(),window:{}});
+ for(const file of ['unified-product/06-stock-model.js','inventory-detail/01-coverage-samples.js','new-products/01-model.js'])
   vm.runInContext(fs.readFileSync(new URL('../../src/modules/'+file,import.meta.url),'utf8'),ctx);
  const tags=(warehouse,total,daily=10)=>Array.from(ctx.upStockRiskTags({warehouse,...ctx.upStockCoverage(warehouse,total,daily)}));
  assert.deepEqual(tags(600,700),['stagnant'],'恰好60天触发滞销');
@@ -17,6 +17,19 @@ export function verifyStockCoverage(){
  for(const daily of [0,-1,null,NaN])assert.deepEqual(tags(100,200,daily),[],'无有效净销量不虚构可售天数');
  assert.deepEqual(tags(0,0,0),[]);
  assert.equal(ctx.upStockRiskTags({warehouse:0,coverage15:60,totalCoverage15:90}).includes('stagnant'),false);
+ // 新品销售状态与详情风险共用60/30天边界，人工流程状态不被自动覆盖。
+ const salesState=(state,warehouse,total,daily=10)=>ctx.nspSalesState(state,{warehouse,...ctx.upStockCoverage(warehouse,total,daily)});
+ assert.equal(salesState('在售',600,700),'滞销');
+ assert.equal(salesState('滞销',599,700),'在售');
+ assert.equal(salesState('在售',71,299),'缺货');
+ assert.equal(salesState('缺货',70,300),'在售','仅调货不等于缺货');
+ assert.equal(salesState('在售',0,0),'缺货');
+ for(const state of ['整改','清仓','下架']){
+  assert.equal(salesState(state,600,700),state);
+  assert.equal(salesState(state,40,120),state);
+ }
+ for(const daily of [0,-1,null,NaN])assert.equal(salesState('滞销',100,200,daily),'滞销','不可计算时保留原状态');
+ assert.equal(ctx.nspSalesState('缺货',null),'缺货');
  const base={spuId:'demo',num:1000,amountCents:100000,staleCents:20000,avg:800,sourceRow:2};
  for(const [scenario,expected] of [['shortage',['shortage']],['transfer',['transfer']],['shortage-transfer',['shortage','transfer']],['stagnant',['stagnant']]]){
   const row=ctx.inventoryCoverageSample({...base,stockSampleScenario:scenario}),total=row.num+row.sampleFactoryUnits+row.sampleUndeliveredUnits;
