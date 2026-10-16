@@ -12,8 +12,8 @@ function upContactEvaluationView(m){
   target:qrbContactDeltaText(qrbRateDelta(m.current.contactRate,m.previous.contactRate)),targetTone:rpQualityChangeTone(m.current.contactRate,m.previous.contactRate)};
  const bad={key:'bad',name:'差评率',value:upPercent(m.current.badRate),target:rpQualityChange(m.current.badRate,m.previous.badRate),targetTone:rpQualityChangeTone(m.current.badRate,m.previous.badRate)};
  const parts=upContactParts(m),data=part=>`data-up-contact-detail="${esc(JSON.stringify(part))}"`;
- const bar=`<div class="up-contact-bar" aria-hidden="true">${parts.map(part=>`<span class="${part.key}" style="width:${part.share??0}%" ${data(part)}></span>`).join('')}</div>`;
- const legend=`<div class="up-contact-legend" role="group" aria-label="进线问题构成">${parts.map(part=>`<button type="button" class="${part.key}" ${data(part)} aria-label="${esc(part.name)}：${Number.isFinite(part.count)?fmt(part.count)+'条':'—'}，占比${upPercent(part.share)}"><i aria-hidden="true"></i><span>${esc(part.name.replace('进线',''))}</span><b>${Number.isFinite(part.count)?fmt(part.count)+'条':'—'} · ${upPercent(part.share)}</b></button>`).join('')}</div>`;
- const total=upQualityMetric({...contact,detailMarkup:bar+legend});
+ // 进度条嵌入标题行；分项数值只在悬浮/聚焦时展示。
+ const bar=`<span class="up-contact-bar" role="group" aria-label="进线问题构成">${parts.map(part=>`<button type="button" class="${part.key}" style="width:${part.share??0}%" ${data(part)} aria-label="${esc(part.name)}：${Number.isFinite(part.count)?fmt(part.count)+'条':'—'}，占比${upPercent(part.share)}"></button>`).join('')}</span>`;
+ const total=upQualityMetric({...contact,headingMarkup:bar});
  return total+upQualityMetric(bad);
 }

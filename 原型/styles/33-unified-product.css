@@ -286,18 +286,15 @@
 #dialogbody .up-hero .up-product-heading h2{margin:0}
 #dialogbody .up-product-heading .up-project-link{margin-left:auto;flex-shrink:0;font-size:13px;font-weight:400}
 
-/* 产品违规统计下方保留两个指标；进线条形图按条数占比划分。 */
-#dialogbody .up-violation-stats [data-up-quality-metric="contact"]{grid-column:span 2;min-width:280px}
+/* 进线构成条与标题同排，指标栏保持两行高度。 */
+#dialogbody .up-violation-stats [data-up-quality-metric="contact"]{min-width:170px}
+#dialogbody .up-violation-stats [data-up-quality-metric="contact"]>small{display:flex;align-items:center;gap:10px;white-space:nowrap}
 #dialogbody .up-violation-stats .up-quality-comparison{white-space:normal;text-align:right}
-#dialogbody .up-violation-stats .up-contact-bar{display:flex;flex-wrap:nowrap;align-items:stretch;justify-content:flex-start;gap:0;height:8px;margin-top:12px;background:#eaf0f8;border-radius:5px;overflow:hidden}
-#dialogbody .up-contact-bar>span{display:block;min-width:0;height:100%;cursor:default}
-#dialogbody .up-contact-bar .quality,#dialogbody .up-contact-legend .quality i{background:#4389f5}
-#dialogbody .up-contact-bar .experience,#dialogbody .up-contact-legend .experience i{background:#9271df}
-#dialogbody .up-violation-stats .up-contact-legend{display:flex;gap:4px 12px;justify-content:flex-start;margin-top:8px;flex-wrap:wrap}
-#dialogbody .up-contact-legend button{display:inline-flex;align-items:center;flex-wrap:wrap;gap:5px;padding:2px 0;border:0;background:transparent;color:#718198;font-size:12px;cursor:default;text-align:left}
-#dialogbody .up-contact-legend i{width:7px;height:7px;border-radius:50%;flex:none}
-#dialogbody .up-contact-legend b{color:#425674;font-weight:400;font-variant-numeric:tabular-nums}
-#dialogbody .up-contact-legend button:focus-visible{outline:2px solid #91beff;outline-offset:3px;border-radius:3px}
+#dialogbody .up-violation-stats .up-contact-bar{display:inline-flex;align-items:stretch;flex:0 0 72px;width:72px;height:8px;margin:0;background:#eaf0f8;border-radius:4px;overflow:hidden}
+#dialogbody .up-contact-bar>button{display:block;min-width:0;height:100%;margin:0;padding:0;border:0;cursor:default}
+#dialogbody .up-contact-bar .quality{background:#4389f5}
+#dialogbody .up-contact-bar .experience{background:#9271df}
+#dialogbody .up-contact-bar>button:focus-visible{outline:2px solid #205fae;outline-offset:-2px}
 .up-contact-tooltip{z-index:5100;min-width:210px;pointer-events:none}
 .up-contact-tooltip-heading{display:block;margin-bottom:7px;font-size:12px;font-weight:500;color:#718198}
 .up-contact-tooltip-row{display:flex;align-items:center;justify-content:space-between;gap:24px;margin:5px 0}

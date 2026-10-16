@@ -16,16 +16,18 @@ export async function verifyDetailContact(page){
  assert.deepEqual(await region.locator('[data-up-quality-metric]').evaluateAll(es=>es.map(e=>e.dataset.upQualityMetric).slice(-2)),['contact','bad']);
  assert.equal(await root.locator('.up-contact-region,.up-contact-metrics').count(),0);
  const tops=await region.locator('[data-up-quality-metric]').evaluateAll(es=>es.map(e=>e.getBoundingClientRect().top));assert(tops.every(t=>Math.abs(t-tops[0])<1),'违规、进线与差评同排');
- const buttons=region.locator('.up-contact-legend button'),payloads=await buttons.evaluateAll(es=>es.map(e=>JSON.parse(e.dataset.upContactDetail)));
+ const buttons=region.locator('.up-contact-bar button'),payloads=await buttons.evaluateAll(es=>es.map(e=>JSON.parse(e.dataset.upContactDetail)));
  const total=payloads.reduce((n,p)=>n+p.count,0),sales=await root.locator('[data-up-return-point]').evaluateAll(es=>es.reduce((n,e)=>n+Number(e.dataset.sales),0));
  const totalRate=await region.locator('[data-up-quality-metric="contact"] strong').innerText();
  assert.equal(totalRate,sales?(total/sales*100).toFixed(1)+'%':'—');
- assert.equal(await region.locator('.up-contact-bar>span').count(),2);
+ assert.equal(await region.locator('.up-contact-bar>button').count(),2);
+ assert.equal(await region.locator('.up-contact-legend').count(),0);
+ assert(await region.locator('[data-up-quality-metric="contact"]').evaluate(e=>e.children.length===2&&e.querySelector(':scope>small>.up-contact-bar')!==null),'进线构成条位于标题右侧，不新增数值下方行');
  for(let i=0;i<2;i++){
   const p=payloads[i],button=buttons.nth(i);
   assert.equal(p.share,total?p.count/total*100:0);
   if(sales)assert(Math.abs(p.rate-p.count/sales*100)<1e-10);
-  const width=await region.locator('.up-contact-bar>span').nth(i).evaluate(e=>parseFloat(e.style.width));
+  const width=await region.locator('.up-contact-bar>button').nth(i).evaluate(e=>parseFloat(e.style.width));
   assert(Math.abs(width-p.share)<.0001);
   await button.evaluate(e=>e.scrollIntoView({behavior:'instant',block:'center'}));await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
   await button.hover();await tip.waitFor({state:'visible'});

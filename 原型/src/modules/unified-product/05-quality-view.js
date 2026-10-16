@@ -3,7 +3,7 @@ function upViolationRows(m,qualityOnly=false,platform='all'){
  return m.quality.flatMap(r=>rpPlatformViolationEvents(rpQualitySelectEvents(r.monthly,qualityOnly),platform,r.platform).map((e,i)=>({...e,platform:r.platform,id:r.platform+'-'+e.date+'-'+e.type+'-'+i}))).sort((a,b)=>b.date.localeCompare(a.date)||a.platform.localeCompare(b.platform));
 }
 function upQualityMetric(f){
- return `<div class="up-quality-metric" data-up-quality-metric="${f.key}"><small data-up-basic="true">${esc(f.name)}</small><div><strong class="${f.tone||''}">${esc(f.value)}</strong><span class="up-quality-comparison ${f.targetTone||''}">${rpTargetText(f)}</span></div>${f.detailMarkup||''}</div>`;
+ return `<div class="up-quality-metric" data-up-quality-metric="${f.key}"><small data-up-basic="true">${esc(f.name)}${f.headingMarkup||''}</small><div><strong class="${f.tone||''}">${esc(f.value)}</strong><span class="up-quality-comparison ${f.targetTone||''}">${rpTargetText(f)}</span></div>${f.detailMarkup||''}</div>`;
 }
 function upViolationMetrics(m,qualityOnly=false,platform='all'){
  const events=upViolationRows(m,qualityOnly,platform),before=m.quality.flatMap(r=>rpPlatformViolationEvents(rpQualitySelectEvents(qrObservation(m.product,r.platform,m.previousStart,m.previousEnd).monthly,qualityOnly),platform,r.platform));
