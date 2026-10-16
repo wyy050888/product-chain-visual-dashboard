@@ -54,3 +54,5 @@
 #dialog.drawer.business-drawer:has(#pp-event-period-form){position:relative;inset:auto;width:min(480px,100%);height:auto;max-height:90dvh;border-radius:10px;box-shadow:0 16px 50px #253a5b30}
 #dialog.business-drawer:has(#pp-event-period-form) #dialogbody{flex:none;padding:16px 20px}
 #pp-event-period-form button[type=submit]{display:block;margin-left:auto;background:#1677ff;color:#fff;border-radius:5px;padding:7px 22px}
+
+#dialog.business-drawer:has(#pp-event-period-form) .drawer-tabs{display:none}
