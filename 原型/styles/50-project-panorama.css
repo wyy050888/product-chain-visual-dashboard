@@ -4,8 +4,8 @@
 #projects.pp-main>.sectionhead>.module-header-time{display:none}
 #projects.pp-main .titlegroup{gap:14px;flex-wrap:wrap}
 #projects.pp-main .pp-scope{display:flex;gap:10px;align-items:center}
-#projects.pp-main .pp-scope .pf-multi{width:146px}
-#projects.pp-main .pp-scope .pf-multi:last-child{width:190px}
+#projects.pp-main .pp-scope .pf-multi{width:112px;min-width:0}
+#projects.pp-main .pp-scope .pf-multi:last-child{width:140px}
 #projects.pp-main .pp-scope .unified-field-name{display:none}
 #projects.pp-main .pp-layout{display:grid;grid-template-columns:340px minmax(0,1fr);gap:22px;padding:20px 18px 0;align-items:stretch}
 #projects.pp-main #pp-overview{display:flex;flex-direction:column;gap:14px;min-width:0}
