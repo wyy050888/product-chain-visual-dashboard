@@ -9,6 +9,7 @@ export async function projectPanorama(page){
  assert.deepEqual(await page.locator('#pp-filter-projectState option').allTextContents(),['全部','进行中','已完成','已暂停/取消','未开始']);
  await stateMenu.locator('summary').click();await stateMenu.locator('input[value="all"]').check();
  const allStates=await snapshot();assert(allStates.scope.length>=initial.scope.length);
+ assert.equal((await page.locator('.pp-distribution .pp-bar-line b').allTextContents()).reduce((n,v)=>n+Number(v),0),initial.scope.length,'选择全部状态时分布仍只统计进行中项目');
  for(const state of ['已完成','已暂停/取消','未开始']){
   await stateMenu.locator('input[value="all"]').check();await stateMenu.locator(`input[value="${state}"]`).check();
   const result=await snapshot();assert.deepEqual(result.state.projectState,[state]);
@@ -58,7 +59,7 @@ export async function projectPanorama(page){
  assert((await snapshot()).filtered.every(p=>p.status==='绿灯'));
  await page.keyboard.press('Escape');await page.locator('[data-pp-reset]').click();assert.deepEqual((await snapshot()).state.light,[]);
  // 两个分布维度都统计红黄绿三色，点击分组包含绿灯项目。
- assert.equal(await page.locator('.pp-distribution h3').innerText(),'项目红黄绿灯分布');
+ assert.equal(await page.locator('.pp-distribution h3').innerText(),'进行中项目红绿灯分布');
  for(const dimension of ['category','type']){
   await page.locator(`[data-pp-distribution="${dimension}"]`).click();
   const groups=page.locator(`.pp-distribution [data-pp-link="${dimension}"]`);
