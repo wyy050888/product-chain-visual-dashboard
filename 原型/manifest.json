@@ -124,6 +124,18 @@
       "module": "生命周期任务"
     },
     {
+      "file": "src/modules/lifecycle-targets/00-samples.js",
+      "module": "生命周期目标配置"
+    },
+    {
+      "file": "src/modules/lifecycle-targets/01-model.js",
+      "module": "生命周期目标配置"
+    },
+    {
+      "file": "src/modules/lifecycle-targets/02-dashboard.js",
+      "module": "生命周期目标配置"
+    },
+    {
       "file": "src/modules/risk-workflow/01.js",
       "module": "风险闭环"
     },
@@ -923,6 +935,18 @@
       "module": "项目红绿灯全景管控"
     },
     {
+      "file": "src/modules/lifecycle-targets/03-view.js",
+      "module": "系统管理生命周期目标"
+    },
+    {
+      "file": "src/modules/lifecycle-targets/04-navigation.js",
+      "module": "系统管理生命周期目标"
+    },
+    {
+      "file": "src/modules/lifecycle-targets/05-controller.js",
+      "module": "系统管理生命周期目标"
+    },
+    {
       "file": "src/modules/startup/02-render.js",
       "module": "统一首屏渲染"
     }
@@ -1166,6 +1190,10 @@
     {
       "file": "styles/54-project-risk-detail.css",
       "module": "逐条项目风险明细及灯色状态"
+    },
+    {
+      "file": "styles/55-lifecycle-targets.css",
+      "module": "生命周期目标配置"
     }
   ],
   "images": [

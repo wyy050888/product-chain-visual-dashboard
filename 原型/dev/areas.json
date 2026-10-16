@@ -483,5 +483,32 @@
     "manual": [
       "源项目实际上线日期缺失时按空值处理，不能用计划日期替代。"
     ]
+  },
+  "lifecycle-targets": {
+    "label": "系统管理生命周期目标配置",
+    "keywords": [
+      "配置目标",
+      "季度目标",
+      "月度拆分",
+      "生命周期目标"
+    ],
+    "sources": [
+      "src/modules/lifecycle-targets/00-samples.js",
+      "src/modules/lifecycle-targets/01-model.js",
+      "src/modules/lifecycle-targets/02-dashboard.js",
+      "src/modules/lifecycle-targets/03-view.js",
+      "src/modules/lifecycle-targets/04-navigation.js",
+      "src/modules/lifecycle-targets/05-controller.js",
+      "src/modules/lifecycle-task/01.js"
+    ],
+    "styles": [
+      "styles/55-lifecycle-targets.css"
+    ],
+    "checks": [
+      "lifecycleTargets"
+    ],
+    "manual": [
+      "配置保存在当前浏览器；跨用户权限、服务端保存和多人冲突控制未接入。"
+    ]
   }
 }
