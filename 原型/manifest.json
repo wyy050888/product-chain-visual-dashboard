@@ -1023,6 +1023,10 @@
       "module": "关键产品圆点悬浮提示"
     },
     {
+      "file": "src/modules/key-products/06-chart-zoom.js",
+      "module": "关键产品经营矩阵放大查看"
+    },
+    {
       "file": "src/modules/startup/02-render.js",
       "module": "统一首屏渲染"
     }

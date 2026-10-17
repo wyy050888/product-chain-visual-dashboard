@@ -1,9 +1,9 @@
 /* 总看板关键产品独立布局，不覆盖产品部/采购克隆矩阵。 */
-#matrix.kpm-main .matrixlayout{grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);align-items:start;gap:18px}
+#matrix.kpm-main .matrixlayout{grid-template-columns:minmax(0,2fr) minmax(0,3fr);align-items:start;gap:18px}
 #matrix.kpm-main .matrixplot,#matrix.kpm-main .matrixlist{padding:18px;min-width:0}
 .kpm-main .kpm-chart-head,.kpm-main .kpm-list-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
 .kpm-main .kpm-chart-head h3,.kpm-main .kpm-list-head h3{margin:0;color:#193f68;font-size:15px}
-.kpm-main .kpm-chart-head>span,.kpm-main #kpm-count{font-size:12px;color:#8393ad;white-space:nowrap}
+.kpm-main .kpm-chart-actions>span,.kpm-main #kpm-count{font-size:12px;color:#8393ad;white-space:nowrap}
 #matrix.kpm-main #matrixchart{position:relative;overflow:auto;min-width:0}
 #matrix.kpm-main #matrixchart svg{display:block;width:100%;height:430px;max-height:none}
 .kpm-main #matrixchart text{font-size:12px;fill:#7e91ad}
@@ -24,7 +24,7 @@
 #matrix.kpm-main #matrixtabs{gap:6px;flex-wrap:wrap;margin-bottom:12px}
 .kpm-main #matrixtabs button{font-size:12px;white-space:nowrap;padding:7px 9px}
 .kpm-main #matrixtabs button>span{margin-left:6px;font-size:11px;opacity:.7}
-#matrix.kpm-main #matrixtable{overflow:auto;max-height:640px;width:100%;min-width:0;border:1px solid #e4ecfa;border-radius:6px}
+#matrix.kpm-main #matrixtable{overflow:auto;max-height:640px;width:100%;min-width:0;border:0;border-radius:0}
 .kpm-main #matrixtable table{min-width:1470px;width:100%;border-collapse:separate;border-spacing:0;table-layout:fixed;font-size:12px}
 .kpm-main #matrixtable th{position:sticky;top:0;z-index:2;background:#f4f7fc;font-weight:400;white-space:nowrap;padding:12px 10px}
 .kpm-main #matrixtable td{padding:13px 10px;height:70px;box-sizing:border-box;vertical-align:middle;white-space:nowrap}
@@ -73,3 +73,19 @@
 .kpm-point-period{padding:8px 0;margin-top:6px;font-size:10px;color:#8393ad;border-top:1px solid #edf1f8}
 .kpm-point-values{display:grid;grid-template-columns:1fr 1fr;gap:12px 20px}
 .kpm-point-values>div{display:flex;flex-direction:column;gap:4px;min-width:0}.kpm-point-values span{font-size:11px;color:#8393ad}.kpm-point-values strong{font-size:15px;font-weight:500;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}.kpm-point-values .negative{color:#ff3157}
+
+/* 明细区域保留表头与行分隔，不再叠加卡片和表格外框。 */
+#matrix.kpm-main .matrixlist{border:0;border-radius:0;box-shadow:none}
+.kpm-main .kpm-chart-actions{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:10px}
+.kpm-main .kpm-expand{display:inline-flex;align-items:center;justify-content:center;border:1px solid #dce6f7;border-radius:5px;padding:4px 9px;background:#fff;color:#3678ed;font-size:12px;white-space:nowrap}
+.kpm-main .kpm-expand:hover{border-color:#8eb5f5;background:#f4f8ff}
+html.kpm-zoom-open{overflow:hidden}
+#matrix.kpm-main .kpm-chart-zoom{position:fixed;inset:0;width:min(1440px,calc(100vw - 48px));height:min(940px,calc(100dvh - 48px));max-width:none;max-height:none;margin:auto;padding:0;border:1px solid #dce6f7;border-radius:12px;background:#fff;box-shadow:0 20px 70px #172e4f38;overflow:hidden}
+#matrix.kpm-main .kpm-chart-zoom::backdrop{background:#172e4f66}
+#matrix.kpm-main .kpm-chart-zoom .matrixplot{display:flex;flex-direction:column;height:100%;width:100%;margin:0;padding:24px;border:0;border-radius:0}
+#matrix.kpm-main .kpm-chart-zoom #matrixchart{flex:1;min-height:0}
+#matrix.kpm-main .kpm-chart-zoom #matrixchart svg{width:100%;height:100%;min-width:0}
+#matrix.kpm-main .kpm-chart-zoom #matrix-ai-summary{display:none}
+#matrix.kpm-main .kpm-chart-zoom .kpm-chart-legend{flex:none;margin:12px 0}
+#matrix.kpm-main .kpm-chart-zoom .kpm-chart-note{flex:none}
+@media(max-width:600px){#matrix.kpm-main .kpm-chart-zoom{width:calc(100vw - 16px);height:calc(100dvh - 16px);border-radius:8px}#matrix.kpm-main .kpm-chart-zoom .matrixplot{padding:14px}#matrix.kpm-main .kpm-chart-zoom #matrixchart svg{min-width:600px}.kpm-main .kpm-chart-head{align-items:flex-start}.kpm-main .kpm-chart-actions{gap:6px}}

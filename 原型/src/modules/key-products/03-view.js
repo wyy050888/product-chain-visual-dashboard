@@ -25,14 +25,15 @@ function kpmTable(rows){
 // 部门工作台仍使用独立的旧矩阵；克隆时移除总看板专用控件，防止筛选串用。
 function kpmRestoreLegacy(section){
  if(!section.classList.contains('kpm-main'))return;
+ kpmCloseChartZoom(false);
  section.classList.remove('kpm-main');section.querySelector('.matrixlayout').innerHTML='<div class="matrixplot"><div id="matrixchart"></div><div class="matrixlegend"><span>近30天销售额（万元）</span></div></div><div class="matrixlist"><div class="tabs" id="matrixtabs"></div><div class="tablewrap" id="matrixtable"></div><p class="note"></p></div>';
 }
-function kpmRender(){kpmHidePointTooltip();return withPeriod('matrix',()=>{
+function kpmRender(){kpmCloseChartZoom(false);kpmHidePointTooltip();return withPeriod('matrix',()=>{
  const section=$('#matrix');section.classList.add('kpm-main');section.querySelector('.titlegroup>.tag').textContent='ABCD经营分层';
  if(!section.querySelector('.kpm-tools'))section.querySelector('.matrixlist').innerHTML=kpmTools()+'<div class="tabs" id="matrixtabs"></div><div class="tablewrap" id="matrixtable"></div><div id="matrix-product-pager"></div><p class="kpm-note">左右滑动查看全部指标。经营数据为公司汇总，销售渠道仅筛选产品；库存取最新快照，可售天数按近15日均净销量计算。</p>';
  const key=periodKey();if(kpmPage.key!==key){kpmPage.key=key;kpmPage.value=1}
  const rows=kpmRows(),base=kpmFilterRows(rows,false),visible=kpmSortedRows(rows),graded=visible.filter(p=>p.level);
- section.querySelector('.matrixplot').innerHTML=`<div class="kpm-chart-head"><h3>产品经营矩阵</h3><span>${graded.length}款 · ${periodShortText()}</span></div><div id="matrixchart">${kpmChart(visible,base)}</div><div class="kpm-chart-legend">${Object.entries(kpmGrades).map(([g,name])=>`<span class="${g}"><i></i>${g} ${name}</span>`).join('')}</div><p class="kpm-chart-note">分界：销售额 ${fmt(config.high)}万元 / 利润率 ${upPercent(config.profit)}；点击圆点查看产品。</p><div id="matrix-ai-summary" class="matrix-ai-summary">${graded.length?matrixAnalysisHTML(graded).replaceAll('近30天',periodShortText()):'<p class="muted">暂无有效经营数据，不推断等级或经营预警。</p>'}</div>`;
+ section.querySelector('.matrixplot').innerHTML=`<div class="kpm-chart-head"><h3>产品经营矩阵</h3><div class="kpm-chart-actions"><span>${graded.length}款 · ${periodShortText()}</span><button type="button" class="kpm-expand" data-kpm-expand aria-expanded="false">⛶ 放大查看</button></div></div><div id="matrixchart">${kpmChart(visible,base)}</div><div class="kpm-chart-legend">${Object.entries(kpmGrades).map(([g,name])=>`<span class="${g}"><i></i>${g} ${name}</span>`).join('')}</div><p class="kpm-chart-note">分界：销售额 ${fmt(config.high)}万元 / 利润率 ${upPercent(config.profit)}；点击圆点查看产品。</p><div id="matrix-ai-summary" class="matrix-ai-summary">${graded.length?matrixAnalysisHTML(graded).replaceAll('近30天',periodShortText()):'<p class="muted">暂无有效经营数据，不推断等级或经营预警。</p>'}</div>`;
  const counts=Object.fromEntries(Object.keys(kpmGrades).map(g=>[g,base.filter(p=>p.level===g).length]));
  const tabs=[['all','全部',base.length],...Object.entries(kpmGrades).map(([g,name])=>[g,g+' '+name,counts[g]])];
  if(base.some(p=>!p.level))tabs.push(['unrated','待分级',base.filter(p=>!p.level).length]);

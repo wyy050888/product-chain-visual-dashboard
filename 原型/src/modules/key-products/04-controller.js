@@ -1,4 +1,4 @@
-function kpmOpenDetail(spuId){kpmHidePointTooltip();withPeriod('matrix',()=>{
+function kpmOpenDetail(spuId){kpmCloseChartZoom(false);kpmHidePointTooltip();withPeriod('matrix',()=>{
  const range=upWindow(),period={...periodFor('matrix')};
  upOpenDetail({spuId,...range,period,module:'matrix',platform:'all',tab:'operating'});
 });}
