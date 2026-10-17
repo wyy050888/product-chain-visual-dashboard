@@ -42,4 +42,4 @@ function mkOpenList(tone='all',page=1,period=null,records=null){period=period||{
  $('#mk-list-table').onclick=e=>{const b=e.target.closest('[data-mk-detail],[data-mk-trend]');if(!b)return;mkWithPeriod(period,()=>b.dataset.mkDetail?openMatrixDiagnosis(b.dataset.mkDetail):openNewProductTrends(b.dataset.mkTrend,false,'matrix'));$('#dialogactions').insertAdjacentHTML('afterbegin','<button class="btn small" id="mk-back">返回预警列表</button>');$('#mk-back').onclick=()=>mkOpenList(tone,page,period,records)};
  fill();
  });}
-document.addEventListener('click',e=>{const b=e.target.closest('#matrix [data-mk-list]');if(b)withPeriod('matrix',()=>mkOpenList(b.dataset.mkList,1,null,$('#matrix').classList.contains('kpm-main')?kpmSortedRows(kpmRows()).filter(p=>p.level):null))});
+document.addEventListener('click',e=>{const b=e.target.closest('#matrix [data-mk-list]');if(b)withPeriod('matrix',()=>mkOpenList(b.dataset.mkList,1,null,$('#matrix').classList.contains('kpm-main')?kpmSortedRows(kpmRows()).filter(p=>p.facts.sales>0):null))});

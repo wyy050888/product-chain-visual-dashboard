@@ -1,5 +1,5 @@
-function kpmOpenDetail(spuId){kpmCloseChartZoom(false);kpmHidePointTooltip();withPeriod('matrix',()=>{
- const range=upWindow(),period={...periodFor('matrix')};
+function kpmOpenDetail(spuId,selectedRange=null){kpmSuspendChartZoom();kpmHidePointTooltip();withPeriod('matrix',()=>{
+ const range=selectedRange||upWindow(),period=selectedRange?drawerPeriodFromRange(range):{...periodFor('matrix')};
  upOpenDetail({spuId,...range,period,module:'matrix',platform:'all',tab:'operating'});
 });}
 document.addEventListener('input',e=>{
@@ -15,7 +15,7 @@ document.addEventListener('click',e=>{
  if(button.dataset.kpmDetail)return kpmOpenDetail(button.dataset.kpmDetail);
  if(button.hasAttribute('data-kpm-reset')){
   for(const key of Object.keys(kpmFilters))kpmFilters[key]=key==='query'?'':'all';
-  kpmSelectedGrade='all';kpmSort.key='sales';kpmSort.direction='desc';
+  kpmSelectedGrade='all';kpmSelectedChange='all';kpmSort.key='sales';kpmSort.direction='desc';
   $('#matrix [data-kpm-search]').value='';
   for(const select of $$('#matrix [data-kpm-filter]'))pfControlSet(select,'all');
  }else if(button.dataset.kpmGrade)kpmSelectedGrade=kpmSelectedGrade===button.dataset.kpmGrade?'all':button.dataset.kpmGrade;

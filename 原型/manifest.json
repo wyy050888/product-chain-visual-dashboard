@@ -1027,6 +1027,14 @@
       "module": "关键产品经营矩阵放大查看"
     },
     {
+      "file": "src/modules/key-products/07-grade-model.js",
+      "module": "关键产品SABC分级与变动记录"
+    },
+    {
+      "file": "src/modules/key-products/08-grade-view.js",
+      "module": "关键产品SABC分级与变动记录"
+    },
+    {
       "file": "src/modules/startup/02-render.js",
       "module": "统一首屏渲染"
     }

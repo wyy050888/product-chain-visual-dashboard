@@ -99,3 +99,50 @@ html.kpm-zoom-open{overflow:hidden}
 .kpm-main #matrixchart .kpm-axis-profit{fill:#7651d4;font-weight:600}
 .kpm-point-values>:is([data-kpm-metric="gsv"],[data-kpm-metric="profit"])>span{color:inherit}
 .kpm-point-values>:is([data-kpm-metric="gsv"],[data-kpm-metric="profit"])>strong{font-weight:650}
+
+/* SABC是独立产品等级；四象限只表达经营结构，不再用字母冒充分级。 */
+.kpm-main .kpm-grade.S,.kpm-grade-history .kpm-grade.S,.kpm-point-grade.S{background:#eaf7f2;color:#259c7d}
+.kpm-main .kpm-grade.A,.kpm-grade-history .kpm-grade.A,.kpm-point-grade.A{background:#fff5e4;color:#cb8d25}
+.kpm-main .kpm-grade.B,.kpm-grade-history .kpm-grade.B,.kpm-point-grade.B{background:#eef1ff;color:#6c7ecf}
+.kpm-main .kpm-grade.C,.kpm-grade-history .kpm-grade.C,.kpm-point-grade.C{background:#fff0f2;color:#da6b7b}
+.kpm-main .kpm-chart-legend .S i{background:#35ac8e}.kpm-main .kpm-chart-legend .A i{background:#e7ad50}.kpm-main .kpm-chart-legend .B i{background:#7c8eec}.kpm-main .kpm-chart-legend .C i{background:#e98191}
+#matrix.kpm-main .kpm-chart-zoom .kpm-expand{border:0;background:transparent;color:#7b8ba3;font-size:26px;width:32px;height:32px;padding:0;line-height:1}
+#matrix.kpm-main .kpm-chart-zoom .kpm-expand:hover{background:#f2f5fa;color:#294561}
+#matrix.kpm-main #kpm-change-tabs{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 14px}
+.kpm-main #kpm-change-tabs button{border:1px solid #e5ebf5;border-radius:16px;background:white;color:#788ca7;font:inherit;font-size:11px;padding:5px 10px;cursor:pointer}
+.kpm-main #kpm-change-tabs button>span{margin-left:6px;font-variant-numeric:tabular-nums}
+.kpm-main #kpm-change-tabs button.active{border-color:#a7c8ff;background:#edf4ff;color:#1677ff}
+.kpm-main #kpm-change-tabs .up{color:#24a484}.kpm-main #kpm-change-tabs .down{color:#e58b31}
+#matrix.kpm-main #matrixtable table{min-width:1670px}
+#matrix.kpm-main #matrixtable :is(th,td):last-child{width:90px;min-width:90px}
+.kpm-main .kpm-actions{display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.kpm-change{border:0;background:transparent;text-align:left;padding:0;cursor:pointer;font:inherit;color:#71849b}
+.kpm-change b{font-size:12px;font-weight:500}.kpm-change small,.kpm-history-change small{display:block;margin-top:6px;font-size:11px;color:#93a0b4}
+.kpm-change:hover b{text-decoration:underline;text-underline-offset:3px}
+:is(.kpm-change,.kpm-history-change).up{color:#24a484}:is(.kpm-change,.kpm-history-change).down{color:#e58b31}
+.kpm-grade-history{color:#294561;font-size:12px}
+.kpm-history-product{display:flex;align-items:center;gap:12px;padding:5px 0 22px;border-bottom:1px solid #e9eef7}
+.kpm-history-product>div{flex:1;min-width:0}.kpm-history-product .link{font-size:15px;font-weight:600;text-align:left}
+.kpm-history-product small{display:block;margin-top:7px;color:#93a0b4;overflow-wrap:anywhere}
+.kpm-history-compare{display:grid;grid-template-columns:minmax(0,1fr) 24px minmax(0,1fr);gap:18px;align-items:center;margin:24px 0 32px}
+.kpm-history-compare>span{text-align:center;color:#a1b0c5;font-size:22px}
+.kpm-history-period{background:#f7f9fd;border:1px solid #e7edf7;border-radius:8px;padding:20px;min-width:0}
+.kpm-history-period>small{font-size:13px;color:#788ca7}.kpm-history-period time{display:block;font-size:12px;margin:8px 0 16px;color:#93a0b4}
+.kpm-history-period>div{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px}
+.kpm-history-period>div>span{color:#8292ac;font-size:11px}.kpm-history-period strong{display:block;margin-top:7px;font-size:20px;font-weight:600}
+.kpm-grade-history .kpm-grade{display:inline-flex;align-items:center;gap:6px;border-radius:5px;padding:5px 7px;font-size:11px;background:#edf1f7;color:#788ca7}
+.kpm-grade-history .kpm-grade b{font-size:15px}
+.kpm-history-toolbar{display:flex;justify-content:space-between;gap:12px;align-items:center;margin:0 0 14px}.kpm-history-toolbar h3{font-size:14px;margin:0}
+.kpm-history-toolbar label{display:flex;gap:10px;align-items:center;color:#8292ac}.kpm-history-toolbar select{min-width:120px}
+.kpm-history-table{overflow:auto}.kpm-history-table table{min-width:680px;width:100%;font-size:12px}.kpm-history-table th{font-weight:400;background:#f4f7fc;color:#8292ac}.kpm-history-table :is(th,td){padding:16px 12px;white-space:nowrap}
+.kpm-grade-history .kpm-value-gsv{color:#1677ff}.kpm-grade-history .kpm-value-profit{color:#7651d4}.kpm-grade-history .kpm-value-profit.red{color:#ff3157}
+.kpm-grade-history .kpm-empty{padding:45px;text-align:center;color:#93a0b4}
+@media(max-width:600px){.kpm-history-compare{grid-template-columns:1fr;gap:12px}.kpm-history-compare>span{display:none}.kpm-history-period{padding:14px}.kpm-history-product{flex-wrap:wrap}.kpm-history-product>.btn{margin-left:auto}.kpm-history-product .link{font-size:13px}}
+
+#matrix.kpm-main #matrixtable :is(th,td):nth-child(2){width:132px;min-width:132px}
+#matrix.kpm-main #matrixtable :is(th,td):nth-child(3){width:142px;min-width:142px}
+.kpm-main .kpm-chart-legend .unrated i{background:#9aabc0}
+
+#dialog:has(.kpm-grade-history)>#drawer-tabs{display:none}
+
+.kpm-history-compare[hidden]{display:none}.kpm-history-table tr:has([data-kpm-history-pick][aria-pressed="true"]) td{background:#f2f7ff}

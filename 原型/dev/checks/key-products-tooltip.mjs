@@ -8,7 +8,7 @@ export async function verifyKeyProductTooltip(page,initial){
  const within=()=>tip.evaluate(e=>{const r=e.getBoundingClientRect();return r.left>=8&&r.right<=innerWidth-8+1&&r.top>=8&&r.bottom<=innerHeight-8+1&&e.scrollWidth<=e.clientWidth+1});
  const reveal=async p=>{const dot=point(p);await dot.evaluate(e=>e.scrollIntoView({behavior:'instant',block:'center',inline:'center'}));await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));await dot.hover();await tip.waitFor({state:'visible'});return dot};
  assert.equal(await root.locator('#matrixchart circle title').count(),0,'替换原生title，不叠加两种提示');
- const candidates=[initial.rows.find(p=>p.level==='B'&&p.profit<0),initial.rows.reduce((a,b)=>a.sales>b.sales?a:b),initial.rows.reduce((a,b)=>a.profit<b.profit?a:b)];
+ const candidates=[initial.rows.find(p=>p.level==='A'&&p.profit<0),initial.rows.reduce((a,b)=>a.sales>b.sales?a:b),initial.rows.reduce((a,b)=>a.profit<b.profit?a:b),initial.rows.find(p=>!p.level&&p.facts.sales>0)];
  for(const p of candidates){
   const dot=await reveal(p);
   assert.equal(await tip.getAttribute('role'),'tooltip');assert.equal(await tip.locator('.metric-help').count(),0,'提示内部不添加二次问号');assert.equal(await dot.getAttribute('aria-describedby'),'kpm-point-tooltip');assert.equal(await tip.getAttribute('data-spu-id'),p.spuId);
@@ -17,7 +17,7 @@ export async function verifyKeyProductTooltip(page,initial){
   assert.doesNotMatch(await tip.innerText(),/SPU码|销售额/);
   assert.equal(await tip.locator('[data-kpm-metric="gsv"] strong').evaluate(e=>getComputedStyle(e).color),'rgb(22, 119, 255)');
   assert.equal(await tip.locator('[data-kpm-metric="profit"] strong').evaluate(e=>getComputedStyle(e).color),p.profit<0?'rgb(255, 49, 87)':'rgb(118, 81, 212)');
-  assert.equal(await tip.locator('.kpm-point-product b').innerText(),p.name);assert.match(await tip.locator('.kpm-point-grade').innerText(),new RegExp('^'+p.level+' '));
+  assert.equal(await tip.locator('.kpm-point-product b').innerText(),p.name);assert.match(await tip.locator('.kpm-point-grade').innerText(),p.level?new RegExp('^'+p.level+' '):/^待分级$/);
   assert.deepEqual(await tip.locator('.kpm-point-values>div>span').allTextContents(),['GSV','单品利润率','利润额','销量','总退','已收退']);
   assert.deepEqual(await tip.locator('.kpm-point-values strong').allTextContents(),expectValues(p),'取当前图表同一产品事实');assert(await within());
   assert.equal(await tip.locator('.kpm-point-values .negative').count(),p.profit<0?2:0);

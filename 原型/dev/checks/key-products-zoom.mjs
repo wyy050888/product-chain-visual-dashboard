@@ -13,7 +13,7 @@ export async function verifyKeyProductZoom(page){
  assert.equal(await root.locator('#matrixchart').count(),1,'移动原图，不复制ID');
  assert(await original.evaluate(e=>e===document.querySelector('#matrixchart')));
  const after=await chart.locator('svg').boundingBox();assert(after.width>before.width*1.3&&after.height>before.height*1.3,'图表实际放大');
- assert.equal(await chart.locator('circle').count(),initial.visible.filter(p=>p.level).length);
+ assert.equal(await chart.locator('circle').count(),initial.visible.filter(p=>p.facts.sales>0).length);
  const dot=chart.locator('circle').first(),id=await dot.getAttribute('data-kpm-point');
  await dot.hover();const tip=page.locator('#kpm-point-tooltip');await tip.waitFor({state:'visible'});
  assert(await tip.evaluate(e=>Boolean(e.closest('dialog:modal'))),'提示随原图进入模态顶层');
@@ -25,10 +25,15 @@ export async function verifyKeyProductZoom(page){
  assert(await trigger.evaluate(e=>e===document.activeElement),'退出后焦点返回');
  assert(await original.evaluate(e=>e.parentElement.classList.contains('matrixplot')));
  assert.deepEqual(await snapshot(),initial,'缩放不改变期间、筛选、排序、分页或经营事实');
- await trigger.click();await chart.locator('circle').first().click();await page.locator('.up-detail').waitFor();
- assert.equal(await zoom.count(),0,'打开产品详情前退出放大');assert.equal(await tip.isVisible(),false);
- await page.locator('#close').click();assert.equal(await root.locator('#matrixchart').count(),1);
- await trigger.click();await page.mouse.click(4,4);assert.equal(await zoom.count(),0,'点击遮罩退出');
+ await trigger.click();assert.equal(await trigger.innerText(),'×');assert.equal(await trigger.getAttribute('aria-label'),'关闭放大弹窗');
+ assert.equal(await zoom.locator('.kpm-chart-note,.kpm-chart-actions>span').count(),0,'弹窗不显示已删除的数量、周期和说明');
+ await chart.locator('circle').first().click();await page.locator('.up-detail').waitFor();
+ assert(await zoom.isHidden(),'详情打开时暂时隐藏原放大弹窗');assert.equal(await tip.isVisible(),false);
+ await page.locator('.up-detail-period [data-drawer-time-mode="month"]').click();await page.locator('.up-detail-period [data-drawer-time-value]').selectOption('9');
+ await page.locator('#close').click();await zoom.waitFor({state:'visible'});assert(await zoom.evaluate(e=>e.matches(':modal')),'详情关闭后回到原放大弹窗');assert(await original.evaluate(e=>e===document.querySelector('#matrixchart')));
+ assert.deepEqual(await snapshot(),initial,'返回后期间、筛选、排序和事实不变');
+ await chart.locator('circle').first().press('Enter');await page.locator('.up-detail').waitFor();await page.keyboard.press('Escape');await zoom.waitFor({state:'visible'});
+ await trigger.click();await trigger.click();await page.mouse.click(4,4);assert.equal(await zoom.count(),0,'点击遮罩退出');
  await page.setViewportSize({width:390,height:820});await trigger.click();
  const mobile=await zoom.boundingBox();assert(mobile.x>=7&&mobile.x+mobile.width<=383&&mobile.y>=7&&mobile.y+mobile.height<=813);
  assert(await chart.evaluate(e=>e.scrollWidth>e.clientWidth),'窄屏仅图表内部横向滚动');

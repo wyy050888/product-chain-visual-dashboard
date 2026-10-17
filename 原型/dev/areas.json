@@ -618,7 +618,9 @@
       "波士顿矩阵",
       "产品分级",
       "kpmRender",
-      "kpmRows"
+      "kpmRows",
+      "等级变动",
+      "SABC"
     ],
     "sources": [
       "src/modules/key-products/01-model.js",
@@ -627,6 +629,8 @@
       "src/modules/key-products/04-controller.js",
       "src/modules/key-products/05-tooltip.js",
       "src/modules/key-products/06-chart-zoom.js",
+      "src/modules/key-products/07-grade-model.js",
+      "src/modules/key-products/08-grade-view.js",
       "src/modules/director-quadrants/01.js",
       "src/modules/director-risk/01.js"
     ],
@@ -637,7 +641,7 @@
       "keyProducts"
     ],
     "manual": [
-      "经营和库存为统一样例台账；ABCD为销售额/利润率经营分层，不是市场份额/市场增长率模型，不使用新品S/A/B/C等级。"
+      "SABC按用户图片严格匹配，空档待分级；分级取截止日近30天、对比前30天，历史复用经营台账。背景仍为GSV/利润率四象限，不将象限字母当作SABC等级。"
     ]
   }
 }

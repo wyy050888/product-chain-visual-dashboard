@@ -1,3 +1,4 @@
+import {verifyKeyProductGrades} from './key-products-grades.mjs';
 import {verifyKeyProductZoom} from './key-products-zoom.mjs';
 import {verifyKeyProductTooltip} from './key-products-tooltip.mjs';
 import assert from 'node:assert/strict';
@@ -18,8 +19,9 @@ export async function keyProducts(page){
  assert.equal(await root.locator('#matrixtable .kpm-value-gsv').first().evaluate(e=>getComputedStyle(e).color),'rgb(22, 119, 255)');
  for(const p of data.rows){
   assert.equal(p.facts.gsvCents,p.facts.gmvCents-p.facts.refundCents,'GSV使用扣退台账值');assert.equal(p.sales,p.facts.gsvCents/1000000);
-  const expected=p.facts.sales>0&&Number.isFinite(p.profit)?p.sales>=high?p.profit>=margin?'A':'B':p.profit>=margin?'C':'D':null;
-  assert.equal(p.level,expected,'分级使用原始GSV、利润率和含等号阈值');
+  const a=p.assessment.current,amount=a.gsvCents/1000000,rate=a.profitRate;
+  const expected=a.sales>0&&Number.isFinite(rate)?amount>600&&rate>12?'S':amount>300&&rate<12?'A':amount>60&&amount<300&&rate>15?'B':amount<60&&rate<12?'C':null:null;
+  assert.equal(p.level,expected,'等级按图片严格匹配，空档待分级');
   if(p.stock&&p.stock.dailyNet15>0){
    assert(Math.abs(p.stock.coverage15-p.stock.warehouse/p.stock.dailyNet15)<1e-8);
    assert.equal(p.stockRisks.includes('stagnant'),p.stock.warehouse>0&&p.stock.coverage15>=60);
@@ -27,17 +29,18 @@ export async function keyProducts(page){
    assert.equal(p.stockRisks.includes('transfer'),p.stock.coverage15<=7);
   }
  }
- assert.equal(await root.locator('#matrixchart circle').count(),data.visible.filter(p=>p.level).length);
- assert.equal(await root.locator('#matrixtable th').count(),12);
+ assert.equal(await root.locator('#matrixchart circle').count(),data.visible.filter(p=>p.facts.sales>0).length);
+ assert.equal(await root.locator('#matrixtable th').count(),13);
  assert.equal(await root.locator('#matrixtable .kpm-grade').count(),10);
  assert.deepEqual(await ids(),data.visible.slice(0,10).map(p=>p.spuId));
- for(const grade of ['A','B','C','D']){
+ for(const grade of ['S','A','B','C']){
   await root.locator('#matrixtabs [data-kpm-grade="'+grade+'"]').click();data=await snapshot();
   assert(data.visible.length>0&&data.visible.every(p=>p.level===grade));
   assert.equal(await root.locator('#matrixchart circle').count(),data.visible.length);
   assert((await root.locator('#matrixtable .kpm-grade b').allTextContents()).every(g=>g===grade));
   await root.locator('#matrixtabs [data-kpm-grade="'+grade+'"]').click();assert.equal((await snapshot()).grade,'all');
  }
+ await verifyKeyProductGrades(page,first);
  await root.locator('#matrix-product-pager [aria-label="第2页"]').click();assert.equal((await snapshot()).page,2);
  const search=root.locator('[data-kpm-search]'),sample=first.rows[0];
  await search.fill(sample.spuCode.toLowerCase());data=await snapshot();
@@ -95,6 +98,6 @@ export async function keyProducts(page){
   assert(await root.evaluate(e=>e.getBoundingClientRect().right<=innerWidth+1));
   assert(await root.locator('.matrixlist').evaluate(e=>e.scrollWidth<=e.clientWidth+1),'明细筛选不撑破容器');
   assert(await root.locator('#matrixtable').evaluate(e=>e.scrollWidth>e.clientWidth),'表格仅内部横向滚动');
-  assert(await root.locator('#matrixtable tbody tr').first().evaluate(e=>e.cells[0].getBoundingClientRect().right<=e.cells[11].getBoundingClientRect().left+1),'固定产品列与操作列不重叠');
+  assert(await root.locator('#matrixtable tbody tr').first().evaluate(e=>e.cells[0].getBoundingClientRect().right<=e.cells[e.cells.length-1].getBoundingClientRect().left+1),'固定产品列与操作列不重叠');
  }
 }
