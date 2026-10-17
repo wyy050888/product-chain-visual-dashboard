@@ -59,3 +59,17 @@
 .kpm-main .kpm-chart-legend i{width:7px;height:7px;border-radius:50%;background:#35ac8e}.kpm-main .kpm-chart-legend .B i{background:#e7ad50}.kpm-main .kpm-chart-legend .C i{background:#7c8eec}.kpm-main .kpm-chart-legend .D i{background:#e98191}
 
 .kpm-main .kpm-stock-heading{display:flex;flex-direction:column;gap:5px;align-items:flex-start}.kpm-main .kpm-stock-heading>button+button{font-size:10px;color:#8393ad}
+
+/* 经营矩阵圆点即时提示，独立定位以免被图表滚动容器裁切。 */
+.kpm-point-tooltip{position:fixed;z-index:5100;width:320px;max-width:calc(100vw - 16px);padding:15px;border:1px solid #dce6f7;border-radius:9px;background:#fff;box-shadow:0 8px 28px #23416d24;color:#294561;pointer-events:none;box-sizing:border-box}
+.kpm-point-tooltip[hidden]{display:none}
+.kpm-point-product{display:flex;align-items:center;gap:10px}
+.kpm-point-product>:first-child{width:40px;height:40px;flex:none}
+.kpm-point-product img{width:40px;height:40px;object-fit:contain}
+.kpm-point-product>div{min-width:0}.kpm-point-product b{display:block;font-size:13px;line-height:1.5;font-weight:500;overflow-wrap:anywhere}
+.kpm-point-grade{display:inline-block;margin-top:5px;padding:3px 6px;border-radius:4px;font-size:11px;background:#eaf7f2;color:#259c7d}
+.kpm-point-grade.B{background:#fff5e4;color:#cb8d25}.kpm-point-grade.C{background:#eef1ff;color:#6c7ecf}.kpm-point-grade.D{background:#fff0f2;color:#da6b7b}
+.kpm-point-meta{font-size:10px;color:#8393ad;line-height:1.8;margin-top:10px;overflow-wrap:anywhere}
+.kpm-point-period{padding:8px 0;margin-top:6px;font-size:10px;color:#8393ad;border-top:1px solid #edf1f8}
+.kpm-point-values{display:grid;grid-template-columns:1fr 1fr;gap:12px 20px}
+.kpm-point-values>div{display:flex;flex-direction:column;gap:4px;min-width:0}.kpm-point-values span{font-size:11px;color:#8393ad}.kpm-point-values strong{font-size:15px;font-weight:500;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}.kpm-point-values .negative{color:#ff3157}

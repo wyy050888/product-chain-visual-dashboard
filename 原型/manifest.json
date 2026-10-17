@@ -1019,6 +1019,10 @@
       "module": "关键产品矩阵与分级明细"
     },
     {
+      "file": "src/modules/key-products/05-tooltip.js",
+      "module": "关键产品圆点悬浮提示"
+    },
+    {
       "file": "src/modules/startup/02-render.js",
       "module": "统一首屏渲染"
     }

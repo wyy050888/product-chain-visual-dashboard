@@ -1,3 +1,4 @@
+import {verifyKeyProductTooltip} from './key-products-tooltip.mjs';
 import assert from 'node:assert/strict';
 export async function keyProducts(page){
  await page.locator('a[href="#matrix"]').click();
@@ -5,7 +6,7 @@ export async function keyProducts(page){
  const reset=()=>root.locator('[data-kpm-reset]').click();
  const control=key=>root.locator('[data-kpm-filter="'+key+'"]');
  const ids=()=>root.locator('#matrixtable [data-kpm-detail]').evaluateAll(es=>es.map(e=>e.dataset.kpmDetail));
- let data=await snapshot();const first=data;
+ let data=await snapshot();const first=data;await verifyKeyProductTooltip(page,first);
  assert.equal(data.period.mode,'recent30');assert.equal(data.rows.length,50);assert.equal(new Set(data.rows.map(p=>p.spuId)).size,50);
  assert.equal(data.grade,'all');assert.equal(data.visible.length,50);
  assert(await root.locator('#matrixchart svg').evaluate(e=>e.getBoundingClientRect().height>=420),'矩阵由280px放大');

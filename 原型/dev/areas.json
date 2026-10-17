@@ -611,6 +611,7 @@
       "src/modules/key-products/02-chart.js",
       "src/modules/key-products/03-view.js",
       "src/modules/key-products/04-controller.js",
+      "src/modules/key-products/05-tooltip.js",
       "src/modules/director-quadrants/01.js",
       "src/modules/director-risk/01.js"
     ],

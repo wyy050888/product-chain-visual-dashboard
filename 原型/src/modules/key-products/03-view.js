@@ -27,7 +27,7 @@ function kpmRestoreLegacy(section){
  if(!section.classList.contains('kpm-main'))return;
  section.classList.remove('kpm-main');section.querySelector('.matrixlayout').innerHTML='<div class="matrixplot"><div id="matrixchart"></div><div class="matrixlegend"><span>近30天销售额（万元）</span></div></div><div class="matrixlist"><div class="tabs" id="matrixtabs"></div><div class="tablewrap" id="matrixtable"></div><p class="note"></p></div>';
 }
-function kpmRender(){return withPeriod('matrix',()=>{
+function kpmRender(){kpmHidePointTooltip();return withPeriod('matrix',()=>{
  const section=$('#matrix');section.classList.add('kpm-main');section.querySelector('.titlegroup>.tag').textContent='ABCD经营分层';
  if(!section.querySelector('.kpm-tools'))section.querySelector('.matrixlist').innerHTML=kpmTools()+'<div class="tabs" id="matrixtabs"></div><div class="tablewrap" id="matrixtable"></div><div id="matrix-product-pager"></div><p class="kpm-note">左右滑动查看全部指标。经营数据为公司汇总，销售渠道仅筛选产品；库存取最新快照，可售天数按近15日均净销量计算。</p>';
  const key=periodKey();if(kpmPage.key!==key){kpmPage.key=key;kpmPage.value=1}

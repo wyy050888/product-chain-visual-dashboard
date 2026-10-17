@@ -1,0 +1,33 @@
+import assert from 'node:assert/strict';
+export async function verifyKeyProductTooltip(page,initial){
+ const root=page.locator('#matrix'),tip=page.locator('#kpm-point-tooltip');
+ const point=p=>root.locator('circle[data-kpm-point="'+p.spuId+'"]');
+ const money=cents=>{const value=cents/100;return (Math.abs(value)>10000?value/10000:value).toLocaleString('en-US',{minimumFractionDigits:1,maximumFractionDigits:1}).replaceAll(',','')+(Math.abs(value)>10000?'w':'元')};
+ const percent=n=>Number.isFinite(n)?n.toFixed(1)+'%':'--';
+ const expectValues=p=>[money(p.facts.gmvCents),percent(p.profit),money(p.facts.profitCents),p.facts.sales.toLocaleString('en-US'),percent(p.facts.returnRate),percent(p.facts.receivedRate)];
+ const within=()=>tip.evaluate(e=>{const r=e.getBoundingClientRect();return r.left>=8&&r.right<=innerWidth-8+1&&r.top>=8&&r.bottom<=innerHeight-8+1&&e.scrollWidth<=e.clientWidth+1});
+ const reveal=async p=>{const dot=point(p);await dot.evaluate(e=>e.scrollIntoView({behavior:'instant',block:'center',inline:'center'}));await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));await dot.hover();await tip.waitFor({state:'visible'});return dot};
+ assert.equal(await root.locator('#matrixchart circle title').count(),0,'替换原生title，不叠加两种提示');
+ const candidates=[initial.rows.find(p=>p.level==='B'&&p.profit<0),initial.rows.reduce((a,b)=>a.sales>b.sales?a:b),initial.rows.reduce((a,b)=>a.profit<b.profit?a:b)];
+ for(const p of candidates){
+  const dot=await reveal(p);
+  assert.equal(await tip.getAttribute('role'),'tooltip');assert.equal(await tip.locator('.metric-help').count(),0,'提示内部不添加二次问号');assert.equal(await dot.getAttribute('aria-describedby'),'kpm-point-tooltip');assert.equal(await tip.getAttribute('data-spu-id'),p.spuId);
+  assert.equal(await tip.locator('.kpm-point-product b').innerText(),p.name);assert.match(await tip.locator('.kpm-point-grade').innerText(),new RegExp('^'+p.level+' '));
+  assert.deepEqual(await tip.locator('.kpm-point-values>div>span').allTextContents(),['销售额','单品利润率','利润额','销量','总退','已收退']);
+  assert.deepEqual(await tip.locator('.kpm-point-values strong').allTextContents(),expectValues(p),'取当前图表同一产品事实');assert(await within());
+  assert.equal(await tip.locator('.kpm-point-values .negative').count(),p.profit<0?2:0);
+  await page.mouse.move(0,0);await tip.waitFor({state:'hidden'});assert.equal(await dot.getAttribute('aria-describedby'),null);
+ }
+ const p=candidates[0],dot=point(p);await dot.evaluate(e=>{e.scrollIntoView({behavior:'instant',block:'center'});e.focus({preventScroll:true})});await tip.waitFor({state:'visible'});
+ await page.keyboard.press('Escape');assert(await tip.isHidden());assert.equal(await page.locator('#overlay').isVisible(),false,'关闭提示不打开或关闭业务抽屉');
+ await dot.evaluate(e=>e.blur());await dot.evaluate(e=>e.focus({preventScroll:true}));await tip.waitFor({state:'visible'});
+ await root.locator('[data-kpm-filter="brand"]').evaluate(e=>{for(const option of e.options)option.selected=option.value==='康佳';e.dispatchEvent(new Event('change',{bubbles:true}))});assert(await tip.isHidden(),'重绘立即清除旧提示');
+ await root.locator('[data-kpm-reset]').click();
+ await root.locator('[data-time-mode="month"]').click();const monthly=await page.evaluate(()=>window.dashboardKeyProductsSnapshot());
+ const updated=monthly.rows.find(a=>a.spuId===p.spuId);await reveal(updated);
+ assert.deepEqual(await tip.locator('.kpm-point-values strong').allTextContents(),expectValues(updated),'切换周期后显示最新值');assert.match(await tip.locator('.kpm-point-period').innerText(),/10月.*26\/10\/01/);
+ await root.locator('[data-time-mode="recent30"]').click();
+ for(const width of [390,1920]){await page.setViewportSize({width,height:1080});await reveal(p);assert(await within(),'浮层避让视口 '+width);await page.mouse.move(0,0)}
+ await reveal(p);await point(p).click();await page.locator('.up-detail').waitFor();assert(await tip.isHidden(),'点击圆点进入详情时隐藏提示');assert.match(await page.locator('#dialogbody').innerText(),new RegExp(p.name));await page.locator('#close').click();
+ await root.locator('[data-kpm-reset]').click();
+}
