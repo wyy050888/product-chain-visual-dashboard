@@ -39,6 +39,25 @@ function nspKpiHelp(title,rule){
  const card=['新品销售成功率','新品上线及时率'].includes(title)?` data-nsp-kpi="${esc(title)}"`:'';
  return `<span class="metric-help nsp-kpi-help" role="button" tabindex="0" aria-label="查看${esc(title)}指标口径" data-metric-rule="${esc(rule)}"${card}></span>`;
 }
+// 标题提示直接复用规则原文，样式分组不另维护一份业务口径。
+function nspRenderPoolTooltip(host,rule){
+ const append=(parent,tag,text,className)=>{
+  const node=document.createElement(tag);node.textContent=text;
+  if(className)node.className=className;parent.append(node);return node;
+ };
+ const header=append(host,'div','','nsp-pool-tip-header');
+ append(header,'h4','新品判定与出池');append(header,'span','统计口径');
+ rule.split('\n').filter(Boolean).forEach((line,index)=>{
+  const split=line.indexOf('：'),title=line.slice(0,split),body=line.slice(split+1);
+  const section=append(host,'section','','nsp-pool-tip-section');
+  const heading=append(section,'h5','');
+  append(heading,'span',String(index+1).padStart(2,'0'),'nsp-pool-tip-step');
+  append(heading,'span',title);
+  const example=body.indexOf('例：');
+  append(section,'p',example<0?body:body.slice(0,example));
+  if(example>=0)append(section,'p',body.slice(example),'nsp-pool-tip-example');
+ });
+}
 function nspKpi(key,title,n,total){
  const label=periodShortText(periodFor('new'))+title;
  return `<button type="button" class="newmetric new-linked-metric ${newProductSelection.metric===key?'selected':''}" data-nsp-metric="${key}" aria-pressed="${newProductSelection.metric===key}"><span>${label}${nspKpiHelp(title,metricDefinitions[title])}</span><strong class="num">${total?fmt(n/total*100,1)+'<span class="unit">%</span>':'—'}</strong><small>${key==='sold'?'按期上线且有销售':'按期上线'} ${n} / 本期计划 ${total}</small></button>`;

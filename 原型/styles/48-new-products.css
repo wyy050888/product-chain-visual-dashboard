@@ -18,6 +18,17 @@
 #newtop .nsp-success-kpi small b{font-weight:500;color:#425b7a}
 #metric-tooltip.metric-tooltip-kpi{max-width:min(440px,calc(100vw - 16px));padding:16px 18px;font-size:13px;line-height:1.8;white-space:pre-line;max-height:calc(100dvh - 24px);overflow-y:auto}
 #metric-tooltip.metric-tooltip-nsp-card{width:440px;box-sizing:border-box;padding:20px;border-radius:12px;white-space:normal;font-size:14px;line-height:1.65;color:#34425b;box-shadow:0 8px 28px #233d6326}
+/* 新品判定提示：四段规则与出池示例，独立于两张KPI卡片样式。 */
+#metric-tooltip.metric-tooltip-nsp-pool{width:460px;max-width:calc(100vw - 16px);box-sizing:border-box;padding:18px 20px;border-radius:12px;white-space:normal;line-height:1.75;max-height:calc(100dvh - 16px);box-shadow:0 10px 32px #233d6326}
+#metric-tooltip .nsp-pool-tip-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:12px;border-bottom:1px solid #e8edf5}
+#metric-tooltip .nsp-pool-tip-header h4{margin:0;font-size:15px;color:#203650;font-weight:600}
+#metric-tooltip .nsp-pool-tip-header>span{padding:2px 8px;border-radius:5px;background:#eef4ff;color:#5275b2;font-size:11px;white-space:nowrap}
+#metric-tooltip .nsp-pool-tip-section{padding-top:13px}
+#metric-tooltip .nsp-pool-tip-section+.nsp-pool-tip-section{margin-top:12px;border-top:1px solid #edf1f7}
+#metric-tooltip .nsp-pool-tip-section h5{display:flex;align-items:center;gap:8px;margin:0 0 6px;font-size:13px;font-weight:600;color:#274365}
+#metric-tooltip .nsp-pool-tip-step{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:#edf3ff;color:#3678ed;font-size:11px;font-weight:600;font-variant-numeric:tabular-nums}
+#metric-tooltip .nsp-pool-tip-section p{margin:0 0 0 30px;color:#536681;font-size:12px}
+#metric-tooltip .nsp-pool-tip-section .nsp-pool-tip-example{margin-top:9px;padding:8px 10px;border-left:2px solid #8eb5f5;border-radius:0 5px 5px 0;background:#f3f7ff;color:#3d6299}
 #metric-tooltip .nsp-tip-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
 #metric-tooltip .nsp-tip-heading h4{margin:0;color:#203650;font-size:16px;font-weight:600}
 #metric-tooltip .nsp-tip-target{font-size:12px;color:#5667ad;white-space:nowrap}

@@ -52,6 +52,7 @@ function renderMetricTooltipContent(help){
  metricTooltip.replaceChildren();
  if(help.dataset.qualityRates){renderQualityRatesTooltip(metricTooltip);return}
  if(help.dataset.ipRule){renderInventoryMetricTooltip(metricTooltip,help.dataset.ipRule);return}
+ if(help.closest('.nsp-pool-help')){nspRenderPoolTooltip(metricTooltip,text);return}
  if(help.dataset.nspKpi){renderNewKpiTooltip(help);return}
  if(help.classList.contains('pp-analysis-help')){renderProjectAnalysisTooltip(metricTooltip);return}
  if(help.classList.contains('nsp-period-help')){
@@ -89,6 +90,7 @@ function showMetricTooltip(help) {
   metricTooltip.classList.toggle('metric-tooltip-card', help.classList.contains('card-metric-help'));
   metricTooltip.classList.toggle('metric-tooltip-kpi', help.classList.contains('nsp-kpi-help'));
   metricTooltip.classList.toggle('metric-tooltip-nsp-card', Boolean(help.dataset.nspKpi));
+  metricTooltip.classList.toggle('metric-tooltip-nsp-pool', Boolean(help.closest('.nsp-pool-help')));
   metricTooltip.classList.toggle('metric-tooltip-period', help.classList.contains('nsp-period-help'));
   metricTooltip.classList.toggle('metric-tooltip-project-analysis', help.classList.contains('pp-analysis-help'));
   metricTooltip.classList.toggle('metric-tooltip-inventory',Boolean(help.dataset.ipRule));
