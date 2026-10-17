@@ -69,7 +69,6 @@
 .kpm-point-product>div{min-width:0}.kpm-point-product b{display:block;font-size:13px;line-height:1.5;font-weight:500;overflow-wrap:anywhere}
 .kpm-point-grade{display:inline-block;margin-top:5px;padding:3px 6px;border-radius:4px;font-size:11px;background:#eaf7f2;color:#259c7d}
 .kpm-point-grade.B{background:#fff5e4;color:#cb8d25}.kpm-point-grade.C{background:#eef1ff;color:#6c7ecf}.kpm-point-grade.D{background:#fff0f2;color:#da6b7b}
-.kpm-point-meta{font-size:10px;color:#8393ad;line-height:1.8;margin-top:10px;overflow-wrap:anywhere}
 .kpm-point-period{padding:8px 0;margin-top:6px;font-size:10px;color:#8393ad;border-top:1px solid #edf1f8}
 .kpm-point-values{display:grid;grid-template-columns:1fr 1fr;gap:12px 20px}
 .kpm-point-values>div{display:flex;flex-direction:column;gap:4px;min-width:0}.kpm-point-values span{font-size:11px;color:#8393ad}.kpm-point-values strong{font-size:15px;font-weight:500;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}.kpm-point-values .negative{color:#ff3157}
@@ -89,3 +88,14 @@ html.kpm-zoom-open{overflow:hidden}
 #matrix.kpm-main .kpm-chart-zoom .kpm-chart-legend{flex:none;margin:12px 0}
 #matrix.kpm-main .kpm-chart-zoom .kpm-chart-note{flex:none}
 @media(max-width:600px){#matrix.kpm-main .kpm-chart-zoom{width:calc(100vw - 16px);height:calc(100dvh - 16px);border-radius:8px}#matrix.kpm-main .kpm-chart-zoom .matrixplot{padding:14px}#matrix.kpm-main .kpm-chart-zoom #matrixchart svg{min-width:600px}.kpm-main .kpm-chart-head{align-items:flex-start}.kpm-main .kpm-chart-actions{gap:6px}}
+
+/* GSV和利润率使用固定强调色，负利润仍保留原红色风险含义。 */
+.kpm-main .kpm-value-gsv,.kpm-point-values>[data-kpm-metric="gsv"]{color:#1677ff;font-weight:600}
+.kpm-main .kpm-value-profit,.kpm-point-values>[data-kpm-metric="profit"]{color:#7651d4;font-weight:600}
+.kpm-main #matrixtable .kpm-value-profit.red{color:#ff3157}
+.kpm-main #matrixtable [data-kpm-sort="sales"]{color:#1677ff}
+.kpm-main #matrixtable [data-kpm-sort="profit"]{color:#7651d4}
+.kpm-main #matrixchart .kpm-axis-gsv{fill:#1677ff;font-weight:600}
+.kpm-main #matrixchart .kpm-axis-profit{fill:#7651d4;font-weight:600}
+.kpm-point-values>:is([data-kpm-metric="gsv"],[data-kpm-metric="profit"])>span{color:inherit}
+.kpm-point-values>:is([data-kpm-metric="gsv"],[data-kpm-metric="profit"])>strong{font-weight:650}

@@ -9,9 +9,9 @@ function kpmRows(){
  const stockBySpu=upWithRange({start:shiftDate(DATA_CUTOFF,-29),end:DATA_CUTOFF},()=>new Map(inventoryProductLedger().map(r=>[r.spuId,upStockFacts(r)])));
  return productRows(false).map(p=>{
   const identity=upIdentity(p),observed=upSummary(identity,range.start,range.end,'all'),stock=stockBySpu.get(p.spuId)||null;
-  const {gmvCents,profitRate,profitCents,sales:units,returnRate,receivedRate}=observed;
-  const facts={gmvCents,profitRate,profitCents,sales:units,returnRate,receivedRate};
-  const sales=facts.gmvCents/1000000,profit=facts.profitRate,base={...p,sales,profit};
+  const {gmvCents,refundCents,gsvCents,profitRate,profitCents,sales:units,returnRate,receivedRate}=observed;
+  const facts={gmvCents,refundCents,gsvCents,profitRate,profitCents,sales:units,returnRate,receivedRate};
+  const sales=facts.gsvCents/1000000,profit=facts.profitRate,base={...p,sales,profit};
   const level=facts.sales>0&&Number.isFinite(profit)?category(base):null;
   const channels=qrPlatforms.filter(channel=>upSummary(identity,range.start,range.end,channel).sales>0);
   return {...base,facts,stock,level,category:pfCategory(p),season:pfIdentity(p).attribute,brand:pfIdentity(p).brand,channels,
@@ -27,7 +27,7 @@ function kpmFilterRows(rows,grade=true){
   &&(!grade||kpmSelectedGrade==='all'||(p.level||'unrated')===kpmSelectedGrade));
 }
 let kpmSelectedGrade='all';
-function kpmValue(p,key){return ({sales:p.facts.gmvCents,profit:p.facts.profitRate,amount:p.facts.profitCents,units:p.facts.sales,
+function kpmValue(p,key){return ({sales:p.facts.gsvCents,profit:p.facts.profitRate,amount:p.facts.profitCents,units:p.facts.sales,
  returns:p.facts.returnRate,received:p.facts.receivedRate,warehouse:p.stock?.warehouse,total:p.stock?.totalUnits,
  coverage:p.stock?.coverage15,totalCoverage:p.stock?.totalCoverage15})[key]}
 function kpmSortedRows(rows){return rpSortRows(kpmFilterRows(rows),kpmSort,kpmValue)}

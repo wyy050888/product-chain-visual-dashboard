@@ -18,6 +18,7 @@ export async function verifyKeyProductZoom(page){
  await dot.hover();const tip=page.locator('#kpm-point-tooltip');await tip.waitFor({state:'visible'});
  assert(await tip.evaluate(e=>Boolean(e.closest('dialog:modal'))),'提示随原图进入模态顶层');
  assert.equal(await tip.getAttribute('data-spu-id'),id);
+ assert.equal(await tip.locator('.metric-help,.kpm-point-meta').count(),0,'放大浮层同样不展示问号或已删除信息块');
  assert(await tip.evaluate(e=>{const r=e.getBoundingClientRect(),top=document.elementFromPoint(r.x+10,r.y+10);return Boolean(top?.closest('.kpm-chart-zoom'))}),'提示不会被模态遮罩挡住');
  await page.keyboard.press('Escape');assert(await tip.isHidden());assert(await zoom.isVisible(),'先关闭圆点提示');
  await page.keyboard.press('Escape');assert.equal(await zoom.count(),0);

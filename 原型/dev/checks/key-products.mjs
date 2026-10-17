@@ -13,9 +13,13 @@ export async function keyProducts(page){
  assert(await root.locator('#matrixchart svg').evaluate(e=>e.getBoundingClientRect().height>=420),'矩阵由280px放大');
 
  const [high,margin]=[data.thresholds.salesWan,data.thresholds.profitRate];
+ assert.match(await root.locator('[data-kpm-sort="sales"]').innerText(),/^GSV/);
+ assert.match(await root.locator('.kpm-axis-gsv').textContent(),/GSV（万元）/);
+ assert.equal(await root.locator('#matrixtable .kpm-value-gsv').first().evaluate(e=>getComputedStyle(e).color),'rgb(22, 119, 255)');
  for(const p of data.rows){
+  assert.equal(p.facts.gsvCents,p.facts.gmvCents-p.facts.refundCents,'GSV使用扣退台账值');assert.equal(p.sales,p.facts.gsvCents/1000000);
   const expected=p.facts.sales>0&&Number.isFinite(p.profit)?p.sales>=high?p.profit>=margin?'A':'B':p.profit>=margin?'C':'D':null;
-  assert.equal(p.level,expected,'分级使用原始销售额、利润率和含等号阈值');
+  assert.equal(p.level,expected,'分级使用原始GSV、利润率和含等号阈值');
   if(p.stock&&p.stock.dailyNet15>0){
    assert(Math.abs(p.stock.coverage15-p.stock.warehouse/p.stock.dailyNet15)<1e-8);
    assert.equal(p.stockRisks.includes('stagnant'),p.stock.warehouse>0&&p.stock.coverage15>=60);
@@ -53,11 +57,11 @@ export async function keyProducts(page){
  }
  await reset();const channel=first.rows.find(p=>p.channels.length).channels[0];
  await control('channel').selectOption(channel,{force:true});data=await snapshot();assert(data.visible.length&&data.visible.every(p=>p.channels.includes(channel)));
- for(const p of data.visible)assert.equal(p.facts.gmvCents,first.rows.find(a=>a.spuId===p.spuId).facts.gmvCents,'渠道筛选不拆分公司金额');
+ for(const p of data.visible)assert.equal(p.facts.gsvCents,first.rows.find(a=>a.spuId===p.spuId).facts.gsvCents,'渠道筛选不拆分公司金额');
  await reset();
  for(const key of ['sales','amount','profit','units','returns','warehouse','total','coverage','totalCoverage']){
   const header=root.locator('[data-kpm-sort="'+key+'"]');await header.evaluate(e=>e.scrollIntoView({behavior:'instant',block:'nearest',inline:'center'}));await header.click();
-  data=await snapshot();const value=p=>({sales:p.facts.gmvCents,amount:p.facts.profitCents,profit:p.profit,units:p.facts.sales,returns:p.facts.returnRate,warehouse:p.stock?.warehouse,total:p.stock?.totalUnits,coverage:p.stock?.coverage15,totalCoverage:p.stock?.totalCoverage15})[key];
+  data=await snapshot();const value=p=>({sales:p.facts.gsvCents,amount:p.facts.profitCents,profit:p.profit,units:p.facts.sales,returns:p.facts.returnRate,warehouse:p.stock?.warehouse,total:p.stock?.totalUnits,coverage:p.stock?.coverage15,totalCoverage:p.stock?.totalCoverage15})[key];
   const values=data.visible.map(value).filter(Number.isFinite);
   assert(values.every((n,i)=>!i||(data.sort.direction==='asc'?values[i-1]<=n:values[i-1]>=n)),'全量原值排序 '+key);
   assert.deepEqual(await ids(),data.visible.slice(0,10).map(p=>p.spuId));
@@ -67,7 +71,9 @@ export async function keyProducts(page){
  const redCount=Number(await root.locator('.mk-light.red strong').innerText().then(t=>t.replace(/\D/g,'')));
  if(redCount){await root.locator('.mk-light.red').click();assert.equal(Number(await page.locator('#mk-list-pages nav').getAttribute('data-list-total')),redCount,'预警下钻沿用当前品牌及等级范围');await page.locator('#close').click()}
  await reset();data=await snapshot();const chosen=data.visible[0];
+ const tableGsv=await root.locator('#matrixtable .kpm-value-gsv').first().innerText();
  await root.locator('#matrixtable [data-kpm-detail]').first().click();await page.locator('.up-detail').waitFor();
+ assert.equal(await page.locator('[data-up-metric="gsv"] strong').innerText(),tableGsv,'关键产品表格与统一详情采用同一GSV金额');
  assert.match(await page.locator('#dialogbody').innerText(),new RegExp(chosen.name));assert.equal(await page.locator('#up-platform').inputValue(),'all');await page.locator('#close').click();
  assert.equal((await snapshot()).visible.length,50);
  await control('brand').selectOption('康佳',{force:true});const scopedIds=(await snapshot()).visible.map(p=>p.spuId);
