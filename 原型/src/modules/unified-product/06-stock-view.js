@@ -21,12 +21,18 @@ function upStockDonut(model){
 function upStockCard(title,items,chart=''){
  return `<article class="up-stock-card ${chart?'up-stock-card-chart':''}">${chart}<h4>${title}</h4>${items.map(([label,value],i)=>`<div class="up-stock-card-value ${i===0?'primary':''}"><span>${label}</span><strong>${value}</strong></div>`).join('')}</article>`;
 }
+// 总库存数量和货值同排，天数保留为下方辅助指标。
+function upStockTotalCard(model,value){
+ return `<article class="up-stock-card up-stock-total"><div class="up-stock-total-head"><h4>总库存</h4><span title="货值（总库存）">货值</span></div>
+ <div class="up-stock-card-value primary"><strong data-stock-total>${value('totalUnits')}</strong><strong data-stock-goods aria-label="货值（总库存）">${value('goodsValueCents')}</strong></div>
+ <div class="up-stock-card-value"><span>总可售天数</span><strong>${Number.isFinite(model.totalCoverage15)?fmt(model.totalCoverage15,1)+'天':'—'}</strong></div></article>`;
+}
 function upStockView(m,state){
  const model=upStockModel(m,state);if(!model)return '<div class="up-empty">暂无库存台账</div>';
  const value=key=>{const column=upStockColumns.find(c=>c[0]===key);return column[2](model[key])};
  return `<div class="up-stock-heading"><h3>库存指标</h3>${upStockBadges(model)}</div>
  <div class="up-stock-cards">${[
-  upStockCard('总库存',[['总库存',value('totalUnits')],['总可售天数',Number.isFinite(model.totalCoverage15)?fmt(model.totalCoverage15,1)+'天':'—'],['货值（总库存）',value('goodsValueCents')]]),
+  upStockTotalCard(model,value),
   upStockCard('我司可售',[['可售库存',value('warehouse')],['可售天数',value('coverage15')]],upStockDonut(model)),
   upStockCard('工厂可售库存',[['工厂可售库存',value('factoryAvailable')],['工厂总库存',value('factory')]]),
   upStockCard('近15日均净销量',[['日均净销量',value('dailyNet15')]]),
