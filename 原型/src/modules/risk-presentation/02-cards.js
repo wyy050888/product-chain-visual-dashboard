@@ -51,3 +51,13 @@ groupRiskCardMetricHelp=function(root){
   help.setAttribute('aria-label','查看'+metricLabelText(title)+'入榜条件与排序规则');
  }
 };
+
+// 首页六榜整条记录复用“详情”按钮，沿用同一平台、期间与默认标签，避免重复路由。
+$('#riskrail').addEventListener('click',event=>{
+ const row=event.target.closest('.rp-entry');if(!row||event.defaultPrevented)return;
+ // 保留图片预览、帮助图标及已有控件的独立交互。
+ if(event.target.closest('a,button,input,select,textarea,summary,[role="button"],[contenteditable="true"],[data-metric-rule]'))return;
+ const selection=window.getSelection();
+ if(selection&&!selection.isCollapsed&&row.contains(selection.anchorNode)&&row.contains(selection.focusNode))return;
+ row.querySelector('.rp-detail-link')?.click();
+});

@@ -142,6 +142,13 @@
       "金额边界、比例与计算口径；涉及此功能时仍需专项检查"
     ]
   },
+  "riskCardClick": {
+    "label": "首页六榜整条记录点击详情",
+    "keywords": ["榜单整行点击", "记录点击抽屉"],
+    "sources": ["src/modules/risk-presentation/02-cards.js", "src/modules/risk-presentation/02-platforms.js"],
+    "styles": ["styles/35-risk-reading.css"],
+    "checks": ["riskCardClick"]
+  },
   "detailPeriod": {
     "label": "产品与店铺详情标签栏时间控件",
     "keywords": ["详情时间控件", "drawerMountDetailPeriod"],

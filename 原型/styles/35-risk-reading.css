@@ -97,3 +97,7 @@ body:has(main.page > #risk) {background:radial-gradient(ellipse at 0 0,#e9f1fb 0
  #riskrail .rp-identity-title {gap:6px}
 }
 @media(prefers-reduced-motion:reduce) {#riskrail .rp-entry {transition:none}}
+
+/* 首页榜单整条记录可进入详情；只给轻量背景反馈，不改变指标字色。 */
+#riskrail .rp-entry{cursor:pointer}
+#riskrail .rp-entry:hover,#riskrail .rp-entry:focus-within{background-color:#f6f9ff}
