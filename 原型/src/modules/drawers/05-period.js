@@ -30,3 +30,19 @@ function drawerMountPeriod(host,initial,onChange,triggerId){
  };
  render();
 }
+
+// 产品和店铺详情将独立日期放在标签栏右侧；父榜单仍使用原头部位置。
+function drawerMountDetailPeriod(root,initial,onChange,triggerId,visibleTabs){
+ $('#dialogsub').replaceChildren();
+ const bar=document.createElement('div'),host=document.createElement('div');
+ bar.className='up-detail-tabs';host.className='up-detail-period';host.dataset.periodTabs=visibleTabs.join(' ');
+ bar.append(host);root.querySelector('.up-hero').after(bar);
+ drawerMountPeriod(host,initial,onChange,triggerId);
+ drawerSyncDetailPeriod(root,root.dataset.upTab);
+}
+function drawerSyncDetailPeriod(root,key){
+ const host=root?.querySelector(':scope > .up-detail-tabs > .up-detail-period');if(!host)return;
+ const hidden=!host.dataset.periodTabs.split(' ').includes(key);
+ if(hidden&&!host.hidden)upCalendarClose?.(false);
+ host.hidden=hidden;
+}

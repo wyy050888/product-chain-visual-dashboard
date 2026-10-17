@@ -20,6 +20,7 @@ function drawerSelect(key,focus=false){
 function drawerApply(){
  if(!drawerView?.profile)return;
  const {profile,key}=drawerView;
+ drawerSyncDetailPeriod(profile.root,key);
  for(const {node,key:group} of profile.entries){
   const visible=group==='shared'||group===key||(group==='native'&&!!profile.tabs.find(t=>t.key===key)?.button);
   node.classList.toggle('drawer-pane-off',!visible);
@@ -36,8 +37,9 @@ function drawerRefresh(){
  if(!drawerView||$('#overlay').hidden)return;
  const body=$('#dialogbody'),profile=drawerProfile(body,$('#dialogtitle').textContent);
  // 接收项目原有按钮、阶段卡及底部“指派处理”触发的业务切换。
- const hero=body.querySelector('.up-detail>.up-hero');
- if(hero){if(hero.nextElementSibling!==drawerNav)hero.after(drawerNav)}
+ const hero=body.querySelector('.up-detail>.up-hero'),bar=hero?.parentElement.querySelector(':scope > .up-detail-tabs');
+ if(bar){if(drawerNav.parentElement!==bar)bar.prepend(drawerNav)}
+ else if(hero){if(hero.nextElementSibling!==drawerNav)hero.after(drawerNav)}
  else if($('#dialog .dialoghead').nextElementSibling!==drawerNav)$('#dialog .dialoghead').after(drawerNav);
  const nativeActive=profile.native?.find(t=>t.button.classList.contains('active'))?.key;
  if(drawerView.nativeKey===null){drawerView.nativeKey=nativeActive;if(nativeActive==='dispatch'||!profile.tabs.some(t=>t.key==='base'))drawerView.key=nativeActive||profile.tabs[0].key;}

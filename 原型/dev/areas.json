@@ -142,6 +142,13 @@
       "金额边界、比例与计算口径；涉及此功能时仍需专项检查"
     ]
   },
+  "detailPeriod": {
+    "label": "产品与店铺详情标签栏时间控件",
+    "keywords": ["详情时间控件", "drawerMountDetailPeriod"],
+    "sources": ["src/modules/drawers/02-controller.js", "src/modules/drawers/05-period.js", "src/modules/unified-product/07-controller.js", "src/modules/shop-detail/03-controller.js"],
+    "styles": ["styles/26-risk-controls.css", "styles/33-unified-product.css"],
+    "checks": ["detailPeriod"]
+  },
   "detail": {
     "label": "统一SPU详情、表单和多层抽屉",
     "keywords": [

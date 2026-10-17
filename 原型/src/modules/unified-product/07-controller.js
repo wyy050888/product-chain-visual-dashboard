@@ -40,9 +40,9 @@ function upOpenDetail(context) {
   }
   const select=root.querySelector('#up-platform');select.value=inheritedPlatforms?'selected':state.platform;
   select.onchange=()=>{state.platform=select.value==='selected'?inheritedPlatforms:select.value;paint()};
-  drawerMountPeriod($('#dialogsub'),state.period||drawerPeriodFromRange(state),(period,range)=>{
+  drawerMountDetailPeriod(root,state.period||drawerPeriodFromRange(state),(period,range)=>{
     Object.assign(state,range,{period});paint();
-  },'up-date-trigger');
+  },'up-date-trigger',['operating','quality']);
   paint();
 }
 const upPreviousProfile=drawerProfile;

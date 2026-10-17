@@ -95,10 +95,10 @@ export async function aiSummary(page){
  await page.locator('#up-platform').evaluate(e=>{e.value='天猫';e.dispatchEvent(new Event('change',{bubbles:true}))});
  assert.deepEqual(await summary.locator('.up-ai-section p').allTextContents(),text,'保持全平台口径');
  await visibleActions();
- await page.locator('#dialogsub [data-drawer-time-mode="month"]').click();
+ await page.locator('.up-detail-period [data-drawer-time-mode="month"]').click();
  const periods=[];
  for(const month of ['9','10']){
-  await page.locator('#dialogsub [data-drawer-time-value]').selectOption(month);
+  await page.locator('.up-detail-period [data-drawer-time-value]').selectOption(month);
   periods.push(await page.locator('.up-detail').getAttribute('data-up-start'));
   assert.deepEqual(await summary.locator('.up-ai-section p').allTextContents(),text,'切换考察期间不改变全量分析');
   assert.equal(await summary.locator('.up-ai-scope').innerText(),scope);
@@ -110,7 +110,9 @@ export async function aiSummary(page){
  await page.locator('[data-drawer-tab="handling"]').click();await page.locator('[data-todo-tab="suggestions"]').click();
  const table=page.locator('#up-todo-table');assert(await table.locator('[data-todo-open="detail"]').count()>0);
  const ids=await table.locator('[data-todo-open="detail"]').evaluateAll(es=>es.map(e=>e.dataset.todoId));
- await page.locator('#dialogsub [data-drawer-time-value]').selectOption('9');
+ await page.locator('[data-drawer-tab="operating"]').click();
+ await page.locator('.up-detail-period [data-drawer-time-value]').selectOption('9');
+ await page.locator('[data-drawer-tab="handling"]').click();await page.locator('[data-todo-tab="suggestions"]').click();
  assert.deepEqual(await table.locator('[data-todo-open="detail"]').evaluateAll(es=>es.map(e=>e.dataset.todoId)),ids,'建议不随页面日期重建');
  await visibleActions();
  await table.locator('[data-todo-open="detail"]').first().click();

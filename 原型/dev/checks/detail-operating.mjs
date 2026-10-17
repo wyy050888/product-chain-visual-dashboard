@@ -30,7 +30,7 @@ export async function detailOperating(page){
  assert.equal(await page.locator('#dialogtitle').innerText(),'产品详情');
  assert.equal(await page.locator('.up-detail').getAttribute('data-up-start'),'2026-09-01');
  assert.equal(await page.locator('.up-detail').getAttribute('data-up-end'),'2026-09-30');
- assert.equal(await page.locator('#dialogsub [data-drawer-time-value]').inputValue(),'9');
+ assert.equal(await page.locator('.up-detail-period [data-drawer-time-value]').inputValue(),'9');
  await page.locator('[data-drawer-tab="operating"]').click();
  const layout=await page.locator('.up-detail').evaluate(root=>({hero:root.querySelector('.up-hero').getBoundingClientRect().bottom,tabs:root.querySelector('.drawer-tabs').getBoundingClientRect().top}));
  assert(layout.hero<=layout.tabs);
@@ -60,7 +60,7 @@ export async function detailOperating(page){
  assert.equal(await page.locator('[data-up-series="sales"]').evaluate(e=>getComputedStyle(e).display),'none');
  await page.locator('[data-up-series-toggle="sales"]').click();
  const before=await page.locator('[data-up-metric="gsv"] strong').innerText();
- await page.locator('#dialogsub [data-drawer-time-day]').click();
+ await page.locator('.up-detail-period [data-drawer-time-day]').click();
  await page.locator('#up-date-trigger').click();
  await page.locator('#up-date-popover [data-up-preset="7"]').click();
  assert.equal(await page.locator('.up-detail').getAttribute('data-up-start'),'2026-10-04');
@@ -77,10 +77,10 @@ export async function detailOperating(page){
  await page.locator('#up-date-popover [data-up-preset="30"]').click();
  assert.equal(await page.locator('.up-attainment').innerText(),monthlyAttainment);
  assert.notEqual(await page.locator('[data-up-metric="gsv"] strong').innerText(),sevenDayGsv);
- await page.locator('#dialogsub [data-drawer-time-mode="month"]').click();
+ await page.locator('.up-detail-period [data-drawer-time-mode="month"]').click();
  assert.equal(await page.locator('.up-attainment-primary strong').first().innerText(),await page.locator('[data-up-metric="gsv"] strong').innerText());
  assert.equal(await page.locator('.up-attainment-primary strong').first().innerText(),monthlyAttainment.split('\n').find(v=>/w|元/.test(v)));
- await page.locator('#dialogsub [data-drawer-time-day]').click();
+ await page.locator('.up-detail-period [data-drawer-time-day]').click();
  await page.locator('#up-date-trigger').click();
  await page.locator('#up-date-popover [data-up-preset="7"]').click();
  await page.locator('#up-date-trigger').click();await page.keyboard.press('Escape');

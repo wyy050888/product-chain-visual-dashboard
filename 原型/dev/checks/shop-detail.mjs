@@ -65,13 +65,15 @@ export async function shopDetail(page){
  assert.equal(scope,'截至26/10/10');assert(aiText.join('').includes('累计GSV')&&aiText.join('').includes('近30日GSV'));
  const september=await root.locator('.sd-kpis strong').first().textContent();
  await root.locator('[data-drawer-tab="violations"]').click();const qualityCount=Number((await root.locator('.sd-violation-stats strong').first().innerText()).replace('次',''));await root.locator('[data-sd-violation-quality]').uncheck();const allCount=Number((await root.locator('.sd-violation-stats strong').first().innerText()).replace('次',''));assert(allCount>qualityCount);
- await page.locator('#dialogsub [data-drawer-time-value]').selectOption('10');assert.equal(await root.getAttribute('data-start'),'2026-10-01');
+ await root.locator('.up-detail-period [data-drawer-time-value]').selectOption('10');assert.equal(await root.getAttribute('data-start'),'2026-10-01');
  assert.notEqual(await root.locator('.sd-kpis strong').first().textContent(),september,'页面业绩继续支持日期筛选');
  assert.deepEqual(await root.locator('.up-ai-section p').allTextContents(),aiText,'AI不跟随月份变化');assert.equal(await root.locator('.up-ai-scope').innerText(),scope);
  await root.locator('[data-drawer-tab="handling"]').click();await root.locator('[data-todo-tab="suggestions"]').click();
  const suggestions=()=>root.locator('#up-todo-table [data-todo-open="detail"]').evaluateAll(es=>es.map(e=>e.dataset.todoId));
  const octoberIds=await suggestions();assert(octoberIds.length>0);
- await page.locator('#dialogsub [data-drawer-time-value]').selectOption('9');
+ await root.locator('[data-drawer-tab="operating"]').click();
+ await root.locator('.up-detail-period [data-drawer-time-value]').selectOption('9');
+ await root.locator('[data-drawer-tab="handling"]').click();await root.locator('[data-todo-tab="suggestions"]').click();
  assert.deepEqual(await suggestions(),octoberIds,'AI建议及稳定ID不跟随页面日期变化');
  assert.deepEqual(await root.locator('.up-ai-section p').allTextContents(),aiText);
  await page.locator('.drawer-back').click();assert.equal(JSON.parse(await page.locator('#dialogbody').getAttribute('data-ranking-period')).value,9);await close();

@@ -15,7 +15,7 @@ function sdOpenDetail(id){
   upMountTodos(root,null,state,{list:()=>sdTodoList(m,state),create:()=>sdTaskBase(shop,state),departments:[...new Set(sdAssignees(shop).map(p=>p.department))]});
   root.dataset.start=state.start;root.dataset.end=state.end;drawerQueueRefresh();
  };
- drawerMountPeriod($('#dialogsub'),state.period,(period,range)=>{Object.assign(state,range,{period});paint()},'sd-date-trigger');paint();
+ drawerMountDetailPeriod(root,state.period,(period,range)=>{Object.assign(state,range,{period});paint()},'sd-date-trigger',['operating','violations']);paint();
 }
 const sdPreviousDrawerProfile=drawerProfile;
 drawerProfile=function(body,title){

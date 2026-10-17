@@ -62,12 +62,17 @@
  #dialogbody .up-charts,#dialogbody .up-form-row,#dialogbody .up-target-fields {grid-template-columns:1fr}
 }
 
-/* 详情先看基础资料，再切换业务页；头部时间控件与外侧同款。 */
+/* 榜单头部时间控件沿用外侧样式；产品和店铺详情改放到标签栏。 */
 #dialog.business-drawer .dialoghead:has(.period-picker)>div {gap:8px 20px}
 #dialog.business-drawer .dialoghead:has(.period-picker) #dialogsub {margin-left:auto}
 #dialog.business-drawer #dialogsub .period-picker {flex-wrap:wrap;justify-content:flex-end;font-size:12px}
 /* 抵消抽屉正文的22px顶部内边距，标签吸附在固定标题下方。 */
-#dialogbody .up-detail>.drawer-tabs {position:sticky;top:-22px;z-index:30;background:#fff;padding:0;gap:28px;margin:0 0 18px;min-height:46px}
+#dialogbody .up-detail>.up-detail-tabs {position:sticky;top:-22px;z-index:30;display:flex;align-items:center;justify-content:space-between;gap:12px 20px;background:#fff;border-bottom:1px solid #e5eaf2;margin:0 0 18px;min-height:46px;min-width:0}
+#dialogbody .up-detail-tabs>.drawer-tabs {flex:1;min-width:0;padding:0;gap:28px;margin:0;min-height:46px;border-bottom:0}
+#dialogbody .up-detail-period {flex:none;max-width:100%;min-width:0;padding:5px 0}
+#dialogbody .up-detail-period[hidden] {display:none!important}
+#dialogbody .up-detail-period .period-picker {justify-content:flex-end;flex-wrap:wrap;font-size:12px;max-width:100%}
+@media(max-width:900px){#dialogbody .up-detail>.up-detail-tabs{flex-wrap:wrap;gap:0}#dialogbody .up-detail-tabs>.drawer-tabs{flex-basis:100%}#dialogbody .up-detail-period{margin-left:auto;padding:0 0 10px}#dialogbody .up-detail-period .period-picker{gap:6px}}
 #dialogbody .up-detail>.up-hero {margin-bottom:0}
 /* 业绩上部左右分区：八项指标 + 参考销售卡片的达成样式。 */
 #dialogbody .up-operating-overview {display:grid;grid-template-columns:minmax(0,2.1fr) minmax(300px,1fr);gap:16px;align-items:stretch}

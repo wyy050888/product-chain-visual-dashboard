@@ -38,9 +38,9 @@ export async function verifyShopMetrics(page){
  assert.equal(ctx.sdTrendRows([{date:'2026-01-01',sales:0,returned:0,gsvCents:0}], 'year')[0].returnRate,null);
  await page.evaluate(()=>{const b=document.createElement('button');b.dataset.riskitem='1,4';document.body.append(b);b.click();b.remove()});
  const root=page.locator('.sd-detail');await root.waitFor();
- await page.locator('#dialogsub [data-drawer-time-mode="quarter"]').click();await page.locator('#dialogsub [data-drawer-time-value]').selectOption('3');
+ await page.locator('.up-detail-period [data-drawer-time-mode="quarter"]').click();await page.locator('.up-detail-period [data-drawer-time-value]').selectOption('3');
  assert.equal(await root.locator('[data-up-trend-point]').count(),24);
- await page.locator('#dialogsub [data-drawer-time-mode="year"]').click();assert.equal(await root.locator('[data-up-trend-point]').count(),24);
+ await page.locator('.up-detail-period [data-drawer-time-mode="year"]').click();assert.equal(await root.locator('[data-up-trend-point]').count(),24);
  await root.locator('[data-drawer-tab="violations"]').click();
  for(const key of ['fine','frozen']){const item=root.locator(`[data-up-quality-metric="${key}"] strong`),red=await item.evaluate(e=>e.classList.contains('rp-quality-red'));assert.equal(await item.evaluate(e=>getComputedStyle(e).color),red?'rgb(255, 49, 87)':'rgb(134, 147, 164)')}
  await page.locator('#close').click();
