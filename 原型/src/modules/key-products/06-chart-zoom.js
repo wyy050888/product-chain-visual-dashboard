@@ -5,7 +5,7 @@ function kpmCloseChartZoom(restoreFocus=true){
  kpmZoomState=null;kpmHidePointTooltip();
  if(state.dialog.open)state.dialog.close();
  state.marker.replaceWith(state.plot);document.body.append(kpmPointTooltip);
- state.trigger.textContent='⛶ 放大查看';state.trigger.setAttribute('aria-label','放大查看产品经营矩阵');state.trigger.setAttribute('aria-expanded','false');
+ state.trigger.textContent='⛶ 放大';state.trigger.setAttribute('aria-label','放大产品经营矩阵');state.trigger.setAttribute('aria-expanded','false');
  state.dialog.remove();document.documentElement.classList.remove('kpm-zoom-open');
  if(restoreFocus&&state.trigger.isConnected)state.trigger.focus({preventScroll:true});
 }
@@ -14,7 +14,7 @@ function kpmOpenChartZoom(trigger){
  kpmHidePointTooltip();hideMetricTooltip();
  const plot=trigger.closest('.matrixplot'),marker=document.createElement('div'),dialog=document.createElement('dialog');
  marker.className='kpm-chart-placeholder';marker.style.height=plot.getBoundingClientRect().height+'px';marker.setAttribute('aria-hidden','true');
- dialog.className='kpm-chart-zoom';dialog.setAttribute('aria-label','产品经营矩阵放大查看');
+ dialog.className='kpm-chart-zoom';dialog.setAttribute('aria-label','产品经营矩阵放大');
  plot.before(marker);dialog.append(plot,kpmPointTooltip);$('#matrix').append(dialog);
  kpmZoomState={plot,marker,dialog,trigger,suspended:false,focus:null};
  trigger.textContent='×';trigger.setAttribute('aria-label','关闭放大弹窗');trigger.setAttribute('aria-expanded','true');

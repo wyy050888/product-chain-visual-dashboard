@@ -11349,7 +11349,7 @@ function kpmRender(){kpmCloseChartZoom(false);kpmHidePointTooltip();return withP
  if(!section.querySelector('.kpm-tools'))section.querySelector('.matrixlist').innerHTML=kpmTools()+'<div class="tabs" id="matrixtabs"></div><div id="kpm-change-tabs"></div><div class="tablewrap" id="matrixtable"></div><div id="matrix-product-pager"></div>';
  const key=periodKey();if(kpmPage.key!==key){kpmPage.key=key;kpmPage.value=1}
  const rows=kpmRows(),base=kpmFilterRows(rows,false),visible=kpmSortedRows(rows),graded=visible.filter(p=>p.facts.sales>0);
- section.querySelector('.matrixplot').innerHTML=`<div class="kpm-chart-head"><h3>产品经营矩阵</h3><div class="kpm-chart-legend">${Object.entries(kpmGrades).map(([g,name])=>`<span class="${g}"><i></i>${g} ${name}</span>`).join('')}${visible.some(p=>!p.level)?'<span class="unrated"><i></i>待分级</span>':''}</div><div class="kpm-chart-actions"><button type="button" class="kpm-expand" data-kpm-expand aria-expanded="false">⛶ 放大查看</button></div></div><div id="matrixchart">${kpmChart(visible,base)}</div><div id="matrix-ai-summary" class="matrix-ai-summary">${graded.length?matrixAnalysisHTML(graded).replaceAll('近30天',periodShortText()).replaceAll('销售额','GSV').replace(/<div class="mk-heading"><h3>关键产品预警<\/h3><span>.*?<\/span><\/div>/,'<div class="mk-heading"><h3>关键产品预警</h3></div>'):'<p class="muted">暂无有效经营数据，不推断等级或经营预警。</p>'}</div>`;
+ section.querySelector('.matrixplot').innerHTML=`<div class="kpm-chart-head"><h3>产品经营矩阵</h3><div class="kpm-chart-legend">${Object.entries(kpmGrades).map(([g,name])=>`<span class="${g}"><i></i>${g} ${name}</span>`).join('')}${visible.some(p=>!p.level)?'<span class="unrated"><i></i>待分级</span>':''}</div><div class="kpm-chart-actions"><button type="button" class="kpm-expand" data-kpm-expand aria-expanded="false">⛶ 放大</button></div></div><div id="matrixchart">${kpmChart(visible,base)}</div><div id="matrix-ai-summary" class="matrix-ai-summary">${graded.length?matrixAnalysisHTML(graded).replaceAll('近30天',periodShortText()).replaceAll('销售额','GSV').replace(/<div class="mk-heading"><h3>关键产品预警<\/h3><span>.*?<\/span><\/div>/,'<div class="mk-heading"><h3>关键产品预警</h3></div>'):'<p class="muted">暂无有效经营数据，不推断等级或经营预警。</p>'}</div>`;
  const counts=Object.fromEntries(Object.keys(kpmGrades).map(g=>[g,base.filter(p=>p.level===g).length]));
  const tabs=[['all','全部',base.length],...Object.entries(kpmGrades).map(([g,name])=>[g,g+' '+name,counts[g]])];
  if(base.some(p=>!p.level)||kpmSelectedGrade==='unrated')tabs.push(['unrated','待分级',base.filter(p=>!p.level).length]);
@@ -11428,7 +11428,7 @@ function kpmCloseChartZoom(restoreFocus=true){
  kpmZoomState=null;kpmHidePointTooltip();
  if(state.dialog.open)state.dialog.close();
  state.marker.replaceWith(state.plot);document.body.append(kpmPointTooltip);
- state.trigger.textContent='⛶ 放大查看';state.trigger.setAttribute('aria-label','放大查看产品经营矩阵');state.trigger.setAttribute('aria-expanded','false');
+ state.trigger.textContent='⛶ 放大';state.trigger.setAttribute('aria-label','放大产品经营矩阵');state.trigger.setAttribute('aria-expanded','false');
  state.dialog.remove();document.documentElement.classList.remove('kpm-zoom-open');
  if(restoreFocus&&state.trigger.isConnected)state.trigger.focus({preventScroll:true});
 }
@@ -11437,7 +11437,7 @@ function kpmOpenChartZoom(trigger){
  kpmHidePointTooltip();hideMetricTooltip();
  const plot=trigger.closest('.matrixplot'),marker=document.createElement('div'),dialog=document.createElement('dialog');
  marker.className='kpm-chart-placeholder';marker.style.height=plot.getBoundingClientRect().height+'px';marker.setAttribute('aria-hidden','true');
- dialog.className='kpm-chart-zoom';dialog.setAttribute('aria-label','产品经营矩阵放大查看');
+ dialog.className='kpm-chart-zoom';dialog.setAttribute('aria-label','产品经营矩阵放大');
  plot.before(marker);dialog.append(plot,kpmPointTooltip);$('#matrix').append(dialog);
  kpmZoomState={plot,marker,dialog,trigger,suspended:false,focus:null};
  trigger.textContent='×';trigger.setAttribute('aria-label','关闭放大弹窗');trigger.setAttribute('aria-expanded','true');
