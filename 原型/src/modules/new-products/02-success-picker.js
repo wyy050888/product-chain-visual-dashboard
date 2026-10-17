@@ -12,7 +12,7 @@ function nspSuccessPickerHTML(){
  const text=nspSuccessSelectionText();
  return `<div class="nsp-launch-filter nsp-success-filter"><button type="button" class="nsp-launch-trigger" aria-label="成功季度筛选" aria-haspopup="dialog" aria-expanded="false" aria-controls="nsp-success-panel"><span>成功季度</span><span data-nsp-success-value title="${esc(text)}">${esc(text)}</span><span aria-hidden="true">▾</span></button><div id="nsp-success-panel" class="nsp-period-panel" popover="auto" role="dialog" aria-label="选择成功季度"></div></div>`;
 }
-function nspBindSuccessPicker(host,rows){
+function nspBindSuccessPicker(host){
  const root=host.querySelector('.nsp-success-filter'),trigger=root.querySelector('button'),panel=root.querySelector('[popover]');
  let year=periodFor('new').year;
  const position=()=>{
@@ -30,7 +30,7 @@ function nspBindSuccessPicker(host,rows){
   nspFilters.successQuarter=values.length?values.sort():'all';
   const label=trigger.querySelector('[data-nsp-success-value]'),text=nspSuccessSelectionText();
   label.textContent=text;label.title=text;
-  newProductSelection.page=1;nspTable(rows);render();
+  newProductSelection.page=1;nspRefreshResults();render();
  };
  trigger.onclick=()=>{
   if(panel.matches(':popover-open')){close();return}

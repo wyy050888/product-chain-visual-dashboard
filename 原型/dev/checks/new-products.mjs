@@ -1,3 +1,4 @@
+import {verifyNewProductOverview} from './new-products-overview.mjs';
 import assert from 'node:assert/strict';
 export async function newProducts(page){
  await page.locator('a[href="#new"]').click();
@@ -8,7 +9,7 @@ export async function newProducts(page){
  assert.match(await page.getByRole('button',{name:'上线日期筛选',exact:true}).innerText(),new RegExp(`${currentYear}年`));
  // 后续使用固定2026年样例核对业务，先清空真实当前年份的默认范围。
  await page.getByRole('button',{name:'清空上线日期',exact:true}).click();
- const first=await snapshot();
+ const first=await snapshot();await verifyNewProductOverview(page);
  assert.deepEqual(first.period,{mode:'quarter',year:2026,value:4});
  assert.equal(await page.locator('#time-new [data-time-mode="month"]').count(),0,'新品取消月度统计');
  assert.equal(await page.locator('#time-new [data-time-mode="quarter"]').getAttribute('aria-pressed'),'true');
@@ -54,7 +55,7 @@ export async function newProducts(page){
  assert.deepEqual(quarterSnapshot.filters.successQuarter,['2026-Q3','2026-Q4']);
  assert.deepEqual(quarterSnapshot.visible.map(p=>p.spuId),first.rows.filter(p=>p.successQuarters.some(q=>['2026-Q3','2026-Q4'].includes(q))).map(p=>p.spuId),'多季度取并集');
  assert.equal(await page.locator('#newcount .list-pagination').getAttribute('data-list-current'),'1');
- assert.equal(await page.locator('#newtop').innerText(),quarterOverview,'成功季度仅筛选明细');
+ assert.notEqual(await page.locator('#newtop').innerText(),quarterOverview,'成功季度同步筛选左侧汇总');await verifyNewProductOverview(page);
  await quarterFilter.locator('[data-success-all]').click();
  await quarterFilter.locator('[aria-label="成功季度筛选"]').click();
  await quarterFilter.locator('[data-success-quarter="2026-Q1"]').click();
@@ -76,7 +77,7 @@ export async function newProducts(page){
  assert.match(await launchPicker.innerText(),/2026年 8月/);
  assert.deepEqual(dated.visible.map(p=>p.spuId),expected.map(p=>p.spuId),'含起止日的实际上线日期筛选');
  assert.equal(await page.locator('#newcount .list-pagination').getAttribute('data-list-current'),'1');
- assert.equal(await page.locator('#newtop').innerText(),overview,'上线范围不改变左侧汇总');
+ assert.notEqual(await page.locator('#newtop').innerText(),overview,'上线范围同步筛选左侧汇总');await verifyNewProductOverview(page);
  assert.deepEqual(dated.period,first.period);assert.deepEqual(dated.rows,first.rows,'统计期间及公司业绩保持不变');
  await page.locator('[data-nsp-filter="status"]').selectOption('在售',{force:true});
  assert((await snapshot()).visible.every(p=>p.state==='在售'&&p.actualLaunch>='2026-08-01'&&p.actualLaunch<='2026-08-31'));
@@ -97,8 +98,9 @@ export async function newProducts(page){
  assert.equal((await snapshot()).visible.length,24);assert.match(await launchPicker.innerText(),/请选择日期/);
  assert(first.rows.every(p=>p.days>0&&p.days<=120));
  assert(first.rows.some(p=>p.inPlan)&&first.rows.some(p=>p.onTime));
- assert.equal(await page.locator('#new .titlegroup #newchain').count(),1);
- assert.equal(await page.locator('#new .titlegroup #newseason').count(),1);
+ assert.equal(await page.locator('#new .titlegroup :is(#newchain,#newseason)').count(),0);
+ assert.equal(await page.locator('#new-linked-filter #newchain').count(),1);assert.equal(await page.locator('#new-linked-filter #newseason').count(),1);
+ assert.deepEqual(await page.locator('#new-linked-filter .pf-multi').evaluateAll(ns=>ns.map(n=>n.dataset.pfMultiLabel)),['品牌','类目','季品']);
  assert.equal(await page.locator('#newchain').evaluate(e=>e.multiple),true);
  const layout=await page.locator('#new').evaluate(root=>{
   const left=root.querySelector('#newtop').getBoundingClientRect(),right=root.querySelector('.nsp-details').getBoundingClientRect();
@@ -110,7 +112,7 @@ export async function newProducts(page){
   const selected=await snapshot();
   assert(selected.rows.every(p=>p.attribute===season));
   assert.equal(await page.locator('#newtop .dp-ring').getAttribute('aria-label'),'共'+selected.rows.length+'款新品');
-  assert.deepEqual(selected.filters.season,[season]);
+  assert.deepEqual(selected.filters.season,[season]);await verifyNewProductOverview(page);
  }
  await page.locator('#newseason').selectOption('all',{force:true});
  assert.equal(await page.locator('#new-reset').count(),0);
@@ -202,27 +204,33 @@ export async function newProducts(page){
  const brandMenu=page.locator('#new-linked-filter [data-pf-multi-label="品牌"]');
  await brandMenu.locator('summary').click();
  await brandMenu.locator('input[value="'+first.rows[0].brand+'"]').check();
- let branded=await snapshot();assert(branded.visible.length&&branded.visible.every(p=>p.brand===first.rows[0].brand));
+ let branded=await snapshot();assert(branded.visible.length&&branded.visible.every(p=>p.brand===first.rows[0].brand));await verifyNewProductOverview(page);
  assert.equal(await page.locator('#newcount .list-pagination').getAttribute('data-list-current'),'1');
  for(const text of await page.locator('#newtable .prodname small').allTextContents())assert(!text.includes(' · '),'SPU编码后不再追加品牌');
+ const categories=[...new Set(first.rows.filter(p=>p.brand===first.rows[0].brand).map(p=>p.category))].slice(0,2),season=first.rows[0].attribute;
+ await page.locator('#newchain').selectOption(categories,{force:true});await page.locator('#newseason').selectOption(season,{force:true});
+ const combined=await snapshot(),expectedCombined=first.rows.filter(p=>p.brand===first.rows[0].brand&&categories.includes(p.category)&&p.attribute===season);
+ assert.deepEqual(combined.filtered.map(p=>p.spuId).sort(),expectedCombined.map(p=>p.spuId).sort(),'品牌、类目多选、季品跨字段取交集');await verifyNewProductOverview(page);
+ await page.locator('#newchain').selectOption('全部',{force:true});await page.locator('#newseason').selectOption('all',{force:true});
  await brandMenu.locator('input[value="all"]').check();
  await page.keyboard.press('Escape');
- await input.fill(first.rows[0].spuCode);
+ await input.fill(first.rows[0].spuCode);await verifyNewProductOverview(page);
+ await input.press('End');await input.type(' ');assert.equal(await input.inputValue(),first.rows[0].spuCode+' ','联动不丢失输入焦点');
  assert.equal(await page.locator('#newtable tbody tr').count(),1);
  assert.equal(await page.locator('#newcount .list-pagination').getAttribute('data-list-current'),'1');
- await input.fill('不存在的产品');assert.match(await page.locator('#newtable').innerText(),/暂无符合条件/);
+ await input.fill('不存在的产品');assert.match(await page.locator('#newtable').innerText(),/暂无符合条件/);await verifyNewProductOverview(page);
  await input.fill('');
  await page.locator('#newchain').selectOption(first.rows[0].category,{force:true});
- let data=await snapshot();assert(data.rows.every(p=>p.category===first.rows[0].category));
+ let data=await snapshot();assert(data.rows.every(p=>p.category===first.rows[0].category));await verifyNewProductOverview(page);
  await page.locator('#newchain').selectOption('全部',{force:true});
  const salesChannel=first.rows.find(p=>p.salesChannels.length)?.salesChannels[0];
  assert(salesChannel,'存在已识别销售渠道的样例');
  await page.locator('[data-nsp-filter="channel"]').selectOption(salesChannel,{force:true});
- data=await snapshot();assert(data.visible.length&&data.visible.every(p=>p.salesChannels.includes(salesChannel)));
+ data=await snapshot();assert(data.visible.length&&data.visible.every(p=>p.salesChannels.includes(salesChannel)));await verifyNewProductOverview(page);
  for(const p of data.visible)assert.equal(p.current.gsvCents,first.rows.find(r=>r.spuId===p.spuId).current.gsvCents,'销售渠道筛选不改变公司业绩');
  await page.locator('[data-nsp-filter="channel"]').selectOption('all',{force:true});
  await page.locator('[data-nsp-filter="grade"]').selectOption(first.rows[0].grade,{force:true});
- data=await snapshot();assert(data.visible.length&&data.visible.every(p=>p.grade===first.rows[0].grade));
+ data=await snapshot();assert(data.visible.length&&data.visible.every(p=>p.grade===first.rows[0].grade));await verifyNewProductOverview(page);
  await page.locator('[data-nsp-filter="grade"]').selectOption('all',{force:true});
  await page.locator('[data-nsp-filter="channel"]').selectOption('all',{force:true});
  await page.locator('[data-nsp-metric="sold"]').click();

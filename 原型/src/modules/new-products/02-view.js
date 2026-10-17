@@ -17,24 +17,38 @@ function nspTableHeaders(){
 function nspSelect(key,label,values,current,multiple=false){
  return `<label class="unified-filter-field"><span>${label}</span><select data-nsp-filter="${key}" aria-label="新品${label}"${multiple?` multiple data-pf-multiple data-pf-label="${esc(label)}"`:''}><option value="all" ${pfOptionSelected(current,'all')?'selected':''}>全部</option>${values.map(v=>`<option value="${esc(v)}" ${pfOptionSelected(current,v)?'selected':''}>${esc(v)}</option>`).join('')}</select></label>`;
 }
-function nspToolbar(rows){
+function nspToolbar(){
  let host=$('#new-linked-filter');
  if(!host){host=document.createElement('div');host.id='new-linked-filter';$('#newtable').before(host)}
  host.className='nsp-filters ui-business-filters';
- host.innerHTML=`<label class="ui-search-field"><input type="search" data-nsp-search placeholder="搜索产品名称 / SPU编码 / 型号" aria-label="新品搜索" value="${esc(nspFilters.query)}"></label>`
- +nspSelect('brand','品牌',[...new Set(sampleSpus.filter(p=>p.cohort==='new').map(p=>p.brand))],nspFilters.brand)
- +nspSelect('channel','销售渠道',qrPlatforms,nspFilters.channel)
- +nspSelect('status','销售状态',newSalesStatuses,nspFilters.status)
- +nspSelect('grade','产品等级',nspGrades,nspFilters.grade)
- +nspSelect('success','成功状态',['成功','不成功'],nspFilters.success)
- +nspSuccessPickerHTML()
- +nspLaunchPickerHTML();
- host.querySelector('input').oninput=e=>{nspFilters.query=e.target.value;newProductSelection.page=1;nspTable(rows)};
- host.querySelectorAll('[data-nsp-filter]').forEach(select=>select.onchange=e=>{nspFilters[e.target.dataset.nspFilter]=pfControlValue(e.target);newProductSelection.page=1;nspTable(rows);nspSyncGradeSelection()});
- nspBindLaunchFilter(host,rows);
- nspBindSuccessPicker(host,rows);
- decorateFilterFields(host);
+ // 控件只创建一次；联动更新内容时保留搜索焦点、多选菜单和日期面板。
+ if(!host.querySelector('[data-nsp-search]')){
+  host.innerHTML=`<label class="ui-search-field"><input type="search" data-nsp-search placeholder="搜索产品名称 / SPU编码 / 型号" aria-label="新品搜索" value="${esc(nspFilters.query)}"></label>`
+  +nspSelect('brand','品牌',[...new Set(sampleSpus.filter(p=>p.cohort==='new').map(p=>p.brand))],nspFilters.brand)
+  +nspSelect('channel','销售渠道',qrPlatforms,nspFilters.channel)
+  +nspSelect('status','销售状态',newSalesStatuses,nspFilters.status)
+  +nspSelect('grade','产品等级',nspGrades,nspFilters.grade)
+  +nspSelect('success','成功状态',['成功','不成功'],nspFilters.success)
+  +nspSuccessPickerHTML()+nspLaunchPickerHTML();
+  for(const [id,label] of [['newchain','类目'],['newseason','季品']])attachFilterField(host,id,label);
+  const field=select=>select.closest('.pf-multi,.unified-filter-field');
+  const category=field($('#newchain')),season=field($('#newseason'));
+  field(host.querySelector('[data-nsp-filter="brand"]')).after(category);category.after(season);
+  host.querySelector('[data-nsp-search]').oninput=e=>{nspFilters.query=e.target.value;newProductSelection.page=1;nspRefreshResults()};
+  host.querySelectorAll('[data-nsp-filter]').forEach(select=>select.onchange=e=>{nspFilters[e.target.dataset.nspFilter]=pfControlValue(e.target);newProductSelection.page=1;nspRefreshResults()});
+  nspBindLaunchFilter(host);nspBindSuccessPicker(host);decorateFilterFields(host);
+ }
+ for(const select of host.querySelectorAll('[data-nsp-filter]'))pfControlSet(select,nspFilters[select.dataset.nspFilter]);
+ pfControlSet($('#newseason'),nspFilters.season);pfMultiMount(host);
 }
+function nspRenderOverview(rows){
+ const scope=nspFilterRows(rows),poolRows=scope.filter(p=>p.inNewPool),planned=scope.filter(p=>p.inPlan).length,ontime=scope.filter(p=>p.onTime).length;
+ // 筛选统一作用于全部组件；成功率保留季度/年度考核池，分布只展示在池产品。
+ $('#newtop').innerHTML=nspSuccessKpi(nspSuccessSummary(scope))+nspKpi('ontime','新品上线及时率',ontime,planned)+nspDonut(poolRows)+nspStatusDistribution(poolRows)+nspChannelChart(poolRows);
+}
+function nspRefreshResults(){return withPeriod('new',()=>{
+ const rows=nspCategoryRows();nspRenderOverview(rows);nspTable(rows);nspSyncGradeSelection();
+});}
 function nspKpiHelp(title,rule){
  const card=['新品销售成功率','新品上线及时率'].includes(title)?` data-nsp-kpi="${esc(title)}"`:'';
  return `<span class="metric-help nsp-kpi-help" role="button" tabindex="0" aria-label="查看${esc(title)}指标口径" data-metric-rule="${esc(rule)}"${card}></span>`;
@@ -138,12 +152,9 @@ function nspRender(){
  if(heading&&!heading.querySelector('.nsp-pool-help'))heading.insertAdjacentHTML('beforeend','<span class="nsp-pool-help"> '+nspKpiHelp('新品判定及出池',nspPoolRule)+'</span>');
  const state=newProductSelection,key=periodKey()+':'+JSON.stringify(pfControlValue($('#newchain')))+':'+JSON.stringify(nspFilters.season);
  if(state.key!==key){state.key=key;state.page=1}
- const rows=nspCategoryRows(),poolRows=rows.filter(p=>p.inNewPool),planned=rows.filter(p=>p.inPlan).length,ontime=rows.filter(p=>p.onTime).length;
- // 成功率及上线及时率保留考核范围；等级、状态、渠道分布只展示在池产品。
- $('#newtop').innerHTML=nspSuccessKpi(nspSuccessSummary(rows))+nspKpi('ontime','新品上线及时率',ontime,planned)+nspDonut(poolRows)+nspStatusDistribution(poolRows)+nspChannelChart(poolRows);
+ const rows=nspCategoryRows();nspRenderOverview(rows);
  $('#newall').hidden=true;
- nspToolbar(rows);nspTable(rows);
- pfMultiMount($('#new .titlegroup'));
+ nspToolbar();nspTable(rows);
  nspSyncGradeSelection();
  $('#newtop').onclick=e=>{
   const metric=e.target.closest('[data-nsp-metric]'),channel=e.target.closest('[data-nsp-channel]'),grade=e.target.closest('[data-nsp-grade]'),status=e.target.closest('[data-nsp-status]');

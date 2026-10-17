@@ -47,9 +47,10 @@ function nspCategoryRows(){
  const selected=pfControlValue($('#newchain'));
  return nspRows().filter(p=>pfIncludes(selected,p.category)&&pfIncludes(nspFilters.season,pfIdentity(p).attribute));
 }
-function nspVisibleRows(rows){
+// 搜索筛选共用同一产品范围；考核纳入与在池分布仍按各自业务口径计算。
+function nspFilterRows(rows){
  const query=nspFilters.query.trim().toLocaleLowerCase();
- const filtered=rows.filter(p=>p.inNewPool&&(!query||[p.name,p.spuCode,p.model].some(v=>String(v||'').toLocaleLowerCase().includes(query)))
+ return rows.filter(p=>(!query||[p.name,p.spuCode,p.model].some(v=>String(v||'').toLocaleLowerCase().includes(query)))
   &&pfIncludes(nspFilters.brand,p.brand)
   &&(nspFilters.channel==='all'||p.salesChannels.includes(nspFilters.channel))
   &&(nspFilters.salesChannel==='all'||p.salesChannels.includes(nspFilters.salesChannel))
@@ -58,8 +59,10 @@ function nspVisibleRows(rows){
   &&(nspFilters.status==='all'||p.state===nspFilters.status)
   &&(nspFilters.grade==='all'||p.grade===nspFilters.grade)
   &&(nspFilters.success==='all'||(p.successAssessment.included&&p.salesSuccess===(nspFilters.success==='成功')))
-  &&(!pfSelected(nspFilters.successQuarter).length||p.successQuarters.some(q=>pfIncludes(nspFilters.successQuarter,q)))
-  &&(newProductSelection.metric==='all'||(newProductSelection.metric==='sold'?p.salesSuccess:p.onTime)));
+  &&(!pfSelected(nspFilters.successQuarter).length||p.successQuarters.some(q=>pfIncludes(nspFilters.successQuarter,q))));
+}
+function nspVisibleRows(rows){
+ const filtered=nspFilterRows(rows).filter(p=>p.inNewPool&&(newProductSelection.metric==='all'||(newProductSelection.metric==='sold'?p.salesSuccess:p.onTime)));
  // 先对全部筛选结果排序再分页；使用原始数值，缺失值始终置后。
  return rpSortRows(filtered,nspSort,(p,key)=>nspSortValues[key](p));
 }
@@ -78,4 +81,4 @@ function nspMetrics(p){
  ].map(f=>rpListCell({tone:'',...f}));
 }
 // 供后台检查核对明细与统一台账，不改变页面数据。
-window.dashboardNewProductsSnapshot=()=>withPeriod('new',()=>{const rows=nspCategoryRows();return {period:{...periodFor('new')},rows,visible:nspVisibleRows(rows),success:nspSuccessSummary(rows),filters:{...nspFilters},metric:newProductSelection.metric}});
+window.dashboardNewProductsSnapshot=()=>withPeriod('new',()=>{const rows=nspCategoryRows();return {period:{...periodFor('new')},rows,visible:nspVisibleRows(rows),filtered:nspFilterRows(rows),success:nspSuccessSummary(nspFilterRows(rows)),filters:{...nspFilters},metric:newProductSelection.metric}});

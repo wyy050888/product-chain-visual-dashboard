@@ -20,7 +20,7 @@ function nspLaunchLabel(selection){
 function nspLaunchPickerHTML(){
  return `<div class="nsp-launch-filter"><button type="button" class="nsp-launch-trigger" aria-label="上线日期筛选" aria-haspopup="dialog" aria-expanded="false" aria-controls="nsp-launch-panel"><span>上线日期</span><span data-nsp-launch-value class="${nspLaunchSelection?'':'muted'}">${nspLaunchLabel(nspLaunchSelection)}</span><span aria-hidden="true">▾</span></button><button type="button" class="nsp-launch-clear" aria-label="清空上线日期" ${nspLaunchSelection?'':'hidden'}>×</button><div id="nsp-launch-panel" class="nsp-launch-panel nsp-period-panel" popover="auto" role="dialog" aria-label="选择上线期间"></div></div>`;
 }
-function nspBindLaunchFilter(host,rows){
+function nspBindLaunchFilter(host){
  host=host.querySelector('.nsp-launch-filter:not(.nsp-success-filter)');
  const trigger=host.querySelector('.nsp-launch-trigger'),panel=host.querySelector('.nsp-launch-panel'),clear=host.querySelector('.nsp-launch-clear');
  let mode='year',year=new Date().getFullYear(),yearStart=Math.floor(year/10)*10;
@@ -35,7 +35,7 @@ function nspBindLaunchFilter(host,rows){
   const range=selection?nspLaunchRange(selection.mode,selection.year,selection.value):{start:'',end:''};
   nspFilters.launchStart=range.start;nspFilters.launchEnd=range.end;
   const label=trigger.querySelector('[data-nsp-launch-value]');label.textContent=nspLaunchLabel(selection);label.classList.toggle('muted',!selection);
-  clear.hidden=!selection;close();newProductSelection.page=1;nspTable(rows);trigger.focus({preventScroll:true});
+  clear.hidden=!selection;close();newProductSelection.page=1;nspRefreshResults();trigger.focus({preventScroll:true});
  };
  const render=()=>{
   const values=mode==='year'?Array.from({length:9},(_,i)=>yearStart+i):Array.from({length:mode==='quarter'?4:12},(_,i)=>i+1);

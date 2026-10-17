@@ -78,9 +78,11 @@ function arrangeDashboardFilters(){
     let extras=bar.querySelector('.unified-filter-extras');
     if(!extras){extras=document.createElement('div');extras.className='unified-filter-extras';bar.append(extras)}
     if(id==='new'){
-      attachFilterField(section.querySelector('.titlegroup'),'newchain','');
-      attachFilterField(section.querySelector('.titlegroup'),'newseason','');
+      const target=section.querySelector('#new-linked-filter')||section.querySelector('.titlegroup');
+      attachFilterField(target,'newchain','类目');
+      attachFilterField(target,'newseason','季品');
       $('#newchain').setAttribute('aria-label','新品类目');
+      $('#newseason').setAttribute('aria-label','新品季品');
       $('#new-reset')?.remove();
       bar.hidden=true;
     }else {
