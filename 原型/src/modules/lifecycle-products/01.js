@@ -4,7 +4,7 @@
 function lifecycleCompletionProducts(stage,scope,p){
  const result=[],b=bounds(p),yearToDate=scope==='year';
  for(const month of months(p,yearToDate))for(let channel=0;channel<channels.length;channel++){
-  const d=lifeChannelMonth(stage,channel,month,p),weights=lifeChainWeights[stage].map((v,i)=>v+((channel+i)%3===0?1:0)),counts=splitTarget(d.actual,weights);
+  const counts=lifePlatformChainMonth(stage,channel,month,p).map(row=>row.actual);
   const lastDay=Math.min(new Date(Date.UTC(p.year,month,0)).getUTCDate(),`${p.year}-${String(month).padStart(2,'0')}`===b.cutoff.slice(0,7)?+b.cutoff.slice(8):31);
   counts.forEach((count,chain)=>{for(let i=0;i<count;i++){
    const product=(month+channel+i+stage)%names[chain].length,identity=sampleSpuByName(names[chain][product]),day=Math.max(1,Math.ceil((i+1)*lastDay/(count+1)));
@@ -34,7 +34,7 @@ function openLifecycleProducts(scope,dimension,rowIndex){withPeriod('lifecycle',
  const records=(pending?lifecyclePendingProducts(stage,p):lifecycleCompletionProducts(stage,scope,p)).filter(r=>dimension==='chain'?r.chain===rowIndex:dimension==='channel'?r.channel===rowIndex:true);
  const products=new Set(records.map(r=>r.model+'|'+r.brand)).size,summary=dimension==='chain'?lifeChainRows(stage,p)[rowIndex]:lifeData(stage),netGap=Math.max(0,summary.target-summary.actual),offset=Math.max(0,records.length-netGap);
  const productFilters=pfDefaults();let page=1,query='',brand='全部',taskState='全部';const pageSize=DRAWER_PAGE_SIZE;
- openModal(lifeNames[stage]+' · '+scopeName,`<article class="life-products-detail"><div class="life-products-overview"><div><span class="tag">${esc(dimensionName)}</span><h3>${lifeNames[stage]} · ${pending?'未完成计划项':'已完成产品'}</h3><p>${rangeStart} — ${b.cutoff}</p></div><div class="life-products-count"><div><strong>${fmt(records.length)}</strong><small>${pending?'未完成项':'完成项'}</small></div><div><strong>${products}</strong><small>款产品</small></div></div></div><div class="life-products-filters"><label>产品搜索<input id="life-product-search" type="search" placeholder="产品名称 / SPU码 / 型号" aria-label="产品搜索"></label><label>品牌<select id="life-product-brand"><option>全部</option>${brands.map(name=>`<option>${name}</option>`).join('')}</select></label>${pending?'<label>状态<select id="life-product-state"><option>全部</option><option>逾期未完成</option><option>待完成</option></select></label>':''}<span id="life-products-match" aria-live="polite"></span></div><div id="life-products-results"></div><div class="life-products-pagination"></div><p class="life-products-foot">${pending?'未完成计划明细为演示数据，按当前规划、品类及周期统计。'+(offset?'存在其他品类超额完成 '+offset+' 项；未完成 '+records.length+' 项，抵扣后净缺口 '+netGap+' 项。':'未完成 '+records.length+' 项，与本期目标差额对应。'):'按完成项展示对应产品，同一产品可关联不同渠道或任务；以下为与看板数量对应的演示完成记录。'}</p></article>`);
+ openModal(lifeNames[stage]+' · '+scopeName,`<article class="life-products-detail"><div class="life-products-overview"><div><span class="tag">${esc(dimensionName)}</span><h3>${lifeNames[stage]} · ${pending?'未完成计划项':'已完成产品'}</h3><p>${rangeStart} — ${b.cutoff}</p></div><div class="life-products-count"><div><strong>${fmt(records.length)}</strong><small>${pending?'未完成项':'完成项'}</small></div><div><strong>${products}</strong><small>个产品</small></div></div></div><div class="life-products-filters"><label>产品搜索<input id="life-product-search" type="search" placeholder="产品名称 / SPU码 / 型号" aria-label="产品搜索"></label><label>品牌<select id="life-product-brand"><option>全部</option>${brands.map(name=>`<option>${name}</option>`).join('')}</select></label>${pending?'<label>状态<select id="life-product-state"><option>全部</option><option>逾期未完成</option><option>待完成</option></select></label>':''}<span id="life-products-match" aria-live="polite"></span></div><div id="life-products-results"></div><div class="life-products-pagination"></div><p class="life-products-foot">${pending?'未完成计划明细为演示数据，按当前规划、品类及周期统计。'+(offset?'存在其他品类超额完成 '+offset+' 项；未完成 '+records.length+' 项，抵扣后净缺口 '+netGap+' 项。':'未完成 '+records.length+' 项，与本期目标差额对应。'):'按完成项展示对应产品，同一产品可关联不同渠道或任务；以下为与看板数量对应的演示完成记录。'}</p></article>`);
  $('#dialogsub').textContent=dimensionName+' · '+scopeName+' · '+rangeStart+' — '+b.cutoff;
  const headers=pending?['产品图片','产品名称 / 计划项','型号','品类','品牌','渠道','计划完成日期','责任链主','当前状态 / 原因']:['产品图片','产品名称','型号','品类','品牌','渠道','完成日期','完成记录'];
  const filtered=()=>records.filter(r=>pfMatches(r,productFilters)&&(taskState==='全部'||r.state===taskState)&&pfIncludes(brand,r.brand)&&(!query||uiProductSearchMatch(r,query)));
@@ -48,13 +48,13 @@ function openLifecycleProducts(scope,dimension,rowIndex){withPeriod('lifecycle',
  });}
 document.addEventListener('click',e=>{const button=e.target.closest('[data-life-completed]');if(button){if(button.closest('#lifecycle')&&ppOpenFromLifecycle(button.dataset.lifeCompleted,button.dataset.lifeDimension,+button.dataset.lifeRow))return;openLifecycleProducts(button.dataset.lifeCompleted,button.dataset.lifeDimension,+button.dataset.lifeRow)}});
 
-const newTrendPlatforms=[{name:'抖音',color:'#f0a346'},{name:'快手',color:'#4eb69c'},{name:'视频号',color:'#cf73ad'},{name:'天猫',color:'#7167ed'},{name:'京东',color:'#35a9d4'},{name:'拼多多',color:'#e77369'}];
+const newTrendPlatforms=filterCatalog.platforms.map(name=>({name,color:filterCatalog.platformColors[name]}));
 const newTrendMetrics=[{key:'volume',name:'销量',unit:'件',digits:0},{key:'returnRate',name:'退货率',unit:'%',digits:2},{key:'revenue',name:'销售额',unit:'万元',digits:2},{key:'margin',name:'利润率',unit:'%',digits:2}];
 function newProductTrendData(p,cutoff,days=30,platforms=newTrendPlatforms,launchDate=null){
  const trendSeed=p.trendSeed??p.id;
  const start=shiftDate(cutoff,1-days),launch=launchDate||shiftDate(cutoff,1-p.days);
  return platforms.map((platform,k)=>({...platform,points:Array.from({length:days},(_,i)=>{
-  const k=['天猫','京东','抖音','快手','视频号','拼多多','跨境','线下'].indexOf(platform.name);
+  const k=filterCatalog.platforms.indexOf(platform.name);
   const date=shiftDate(start,i),onSale=date>=launch,ordinal=Date.parse(date)/86400000;
   const wave=1+.22*Math.sin((ordinal+trendSeed*3+k*4)/2.8)+.13*Math.cos((ordinal+k*7)/5),weekday=new Date(date+'T00:00:00Z').getUTCDay(),promotion=(Math.floor(ordinal)+trendSeed+k*3)%17===0?1.45:1;
   const volume=onSale?Math.max(0,Math.round((22+trendSeed*2.6)*[1.12,1.02,1.48,.72][k%4]*wave*promotion*(weekday===0||weekday===6?1.12:1))):0;

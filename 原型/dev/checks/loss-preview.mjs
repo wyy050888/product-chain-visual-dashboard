@@ -35,9 +35,9 @@ export async function lossPreview(page){
  await card.screenshot({path:fileURLToPath(new URL('../../outputs/loss-card-v2.png',import.meta.url))});
  await card.locator('[data-risk="2"]').click();
  const table=page.locator('.rp-loss-table');
- assert.equal(await table.locator('th').count(),15);
+ assert.equal(await table.locator('th').count(),17);
  assert.equal(await table.locator('.rp-list-risks').count(),0);
- assert.deepEqual((await table.locator('th').allTextContents()).slice(-4,-2),['季品','属性']);
+ assert.deepEqual((await table.locator('th').allTextContents()).slice(-5,-2),['类目','季品','属性']);
  for(const key of ['gsv','margin','loss','return','total']){
   const index=await table.locator('[data-rp-sort="'+key+'"]').evaluate(el=>el.closest('th').cellIndex);
   assert.equal(await card.locator('.rp-loss-entry').first().locator('[data-rp-field="'+key+'"] strong').innerText(),await table.locator('tbody tr').first().locator('td').nth(index).locator('strong').innerText());

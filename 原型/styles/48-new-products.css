@@ -84,12 +84,12 @@
 #newtable tbody tr:hover td:first-child{background:#f8fbff}
 #newtable :is(th,td):last-child{min-width:80px}
 /* 产品身份放大；固定缩略图尺寸，名称与编码在剩余宽度内自然换行。 */
-#newtable .prodname{gap:12px;min-height:56px}
-#newtable .prodname>.risk-thumb{width:56px;height:56px;flex:none;object-fit:contain;background:#fff}
-#newtable .prodname>.risk-shop-icon{font-size:18px}
-#newtable .prodname>div{flex:1;min-width:0}
-#newtable .prodname strong{display:block;font-size:14px;font-weight:500;line-height:1.5;white-space:normal;overflow-wrap:anywhere}
-#newtable .prodname small{display:block;font-size:12px;line-height:1.5;margin-top:5px;white-space:normal;overflow-wrap:anywhere}
+:is(#newtable,#matrix.kpm-main #matrixtable) .prodname{gap:12px;min-height:56px}
+:is(#newtable,#matrix.kpm-main #matrixtable) .prodname>.risk-thumb{width:56px;height:56px;flex:none;object-fit:contain;background:#fff}
+:is(#newtable,#matrix.kpm-main #matrixtable) .prodname>.risk-shop-icon{font-size:18px}
+:is(#newtable,#matrix.kpm-main #matrixtable) .prodname>div{flex:1;min-width:0}
+:is(#newtable,#matrix.kpm-main #matrixtable) .prodname strong{display:block;font-size:14px;font-weight:500;line-height:1.5;white-space:normal;overflow-wrap:anywhere}
+:is(#newtable,#matrix.kpm-main #matrixtable) .prodname small{display:block;font-size:12px;line-height:1.5;margin-top:5px;white-space:normal;overflow-wrap:anywhere}
 #new .nsp-sales-status[data-sales-status="在售"]{background:#eaf8f3;color:#149780}
 #new .nsp-sales-status[data-sales-status="整改"]{background:var(--orange-soft);color:var(--orange)}
 #new .nsp-sales-status[data-sales-status="滞销"]{background:#fff0f2;color:#c33d56}
@@ -164,13 +164,18 @@
 #new .nsp-filters .nsp-launch-trigger{width:100%}
 @media(min-width:1400px){#new .nsp-filters{grid-template-columns:repeat(6,minmax(0,1fr))}#new .nsp-filters>.ui-search-field{grid-column:span 2}}
 @media(max-width:600px){#new .nsp-filters{grid-template-columns:repeat(2,minmax(0,1fr))}#new .nsp-filters>.nsp-success-filter{grid-column:1/-1}}
-#newtop .nsp-status-distribution{padding:20px;border:1px solid #e8eef6;border-radius:10px}
-#newtop .nsp-status-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 12px}
-#newtop [data-nsp-status]{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:36px;padding:6px 10px;border:1px solid transparent;border-radius:6px;background:#f8faff;cursor:pointer;color:#304968}
-#newtop [data-nsp-status]:hover,#newtop [data-nsp-status][aria-pressed=true]{border-color:#91baff;background:#eef5ff}
-#newtop [data-nsp-status]:focus-visible{outline:2px solid #1677ff;outline-offset:2px}
-#newtop [data-nsp-status] strong{font-size:16px;font-weight:600}
-#newtop [data-nsp-status] small{margin-left:4px;font-size:12px;font-weight:400;color:#8190a5}
+/* 价格带分布沿用概览卡片边框，条形与款数共用同一筛选结果。 */
+#newtop .nsp-price-distribution{padding:20px;border:1px solid #e8eef6;border-radius:10px}
+#newtop .nsp-price-bands{display:grid;gap:5px}
+#newtop [data-nsp-price]{display:grid;grid-template-columns:94px minmax(0,1fr) 38px;align-items:center;gap:10px;min-height:32px;padding:5px 6px;border:1px solid transparent;border-radius:5px;background:transparent;font:inherit;font-size:12px;text-align:left;cursor:pointer;color:#425b7a}
+#newtop [data-nsp-price]:hover,#newtop [data-nsp-price][aria-pressed=true]{border-color:#c6d9ff;background:#f2f6ff}
+#newtop [data-nsp-price]:focus-visible{outline:2px solid #1677ff;outline-offset:2px}
+#newtop .nsp-price-track{height:7px;border-radius:4px;background:#f0effb;overflow:hidden}
+#newtop .nsp-price-track i{display:block;height:100%;border-radius:4px;background:#9791fb}
+#newtop [data-nsp-price] strong{font-size:14px;font-weight:500;text-align:right}
+#newtop [data-nsp-price] small{margin-left:3px;font-size:12px;font-weight:400;color:#8190a5}
+#newtop .nsp-price-missing{display:flex;justify-content:space-between;padding:8px 6px 0;font-size:12px;color:#8190a5}
+#new .nsp-filters>.kpm-price-filter{display:block;height:36px}
 @media(min-width:1101px){
  #new .nsp-layout{align-items:stretch}
  #newtop{grid-template-rows:112px 112px auto auto minmax(0,1fr);align-items:stretch}

@@ -1,13 +1,16 @@
 /* 总看板关键产品独立布局，不覆盖产品部/采购克隆矩阵。 */
-#matrix.kpm-main .matrixlayout{grid-template-columns:minmax(0,2fr) minmax(0,3fr);align-items:start;gap:18px}
+#matrix.kpm-main .matrixlayout{grid-template-columns:minmax(0,3fr) minmax(0,7fr);align-items:start;gap:18px}
 #matrix.kpm-main .matrixplot,#matrix.kpm-main .matrixlist{padding:18px;min-width:0}
-.kpm-main .kpm-chart-head,.kpm-main .kpm-list-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
-.kpm-main .kpm-chart-head{display:grid;grid-template-columns:auto minmax(0,1fr) auto}
+.kpm-main .kpm-chart-head{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;margin-bottom:10px}
+.kpm-main .kpm-chart-head h3{grid-column:1;grid-row:1}
+.kpm-main .kpm-chart-head .kpm-chart-actions{grid-column:2;grid-row:1}
+.kpm-main .kpm-chart-head .kpm-chart-legend{grid-column:1/-1;grid-row:2}
 .kpm-main .kpm-chart-head h3{white-space:nowrap}
-.kpm-main .kpm-chart-head h3,.kpm-main .kpm-list-head h3{margin:0;color:#193f68;font-size:15px}
+.kpm-main .kpm-chart-head h3{margin:0;color:#193f68;font-size:15px}
 .kpm-main .kpm-chart-actions>span,.kpm-main #kpm-count{font-size:12px;color:#8393ad;white-space:nowrap}
 #matrix.kpm-main #matrixchart{position:relative;overflow:auto;min-width:0}
-#matrix.kpm-main #matrixchart svg{display:block;width:100%;height:430px;max-height:none}
+/* 普通图按viewBox比例适配高度，避免固定高度使绘图区上下居中留白。 */
+#matrix.kpm-main #matrixchart svg{display:block;width:100%;height:auto;aspect-ratio:760/490;max-height:460px}
 .kpm-main #matrixchart text{font-size:12px;fill:#7e91ad}
 .kpm-main #matrixchart .kpm-axis-title{font-size:13px}
 .kpm-main #matrixchart .kpm-zone-label{font-size:13px;font-weight:500}
@@ -15,52 +18,45 @@
 .kpm-main #matrixchart circle:hover,.kpm-main #matrixchart circle:focus-visible{stroke:#2365c3;stroke-width:3px;outline:none}
 .kpm-main .kpm-chart-note,.kpm-main .kpm-note{font-size:11px;line-height:1.8;color:#8393ad;margin:10px 0 0}
 .kpm-main .kpm-chart-empty{position:absolute;left:15%;right:15%;top:45%;padding:15px;background:#ffffffed;text-align:center;color:#8393ad;border-radius:8px;font-size:13px}
-.kpm-main .kpm-tools{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:16px;align-items:center;position:relative;z-index:5}
-.kpm-main .kpm-tools label{min-width:0}
-.kpm-main .kpm-tools input{width:100%;box-sizing:border-box;height:36px;font-size:12px;min-width:0}
+.kpm-main .kpm-tools{display:grid;grid-template-columns:minmax(220px,2fr) repeat(3,minmax(100px,1fr)) auto;gap:10px;margin-bottom:16px;align-items:center;position:relative;z-index:5}
+.kpm-main .kpm-tools>label{min-width:0;color:#71849b;font-size:12px}.kpm-main .kpm-tools>label>select,.kpm-main .kpm-tools>label>.pf-multi{margin-top:6px}.kpm-main .kpm-tools .kpm-search{align-self:end}.kpm-main .kpm-tools>.link{align-self:end;height:36px}
+/* 搜索框尺寸不得作用于下拉菜单内的复选框。 */
+.kpm-main .kpm-tools .kpm-search input[type="search"]{width:100%;box-sizing:border-box;height:36px;font-size:12px;min-width:0}
 .kpm-main .kpm-tools>.link{justify-self:end;font-size:12px}
 .kpm-main .kpm-tools .pf-multi{min-width:0;width:100%}
 .kpm-main .kpm-tools summary{width:100%;box-sizing:border-box;min-width:0;height:36px;font-size:12px}
 .kpm-main .kpm-tools .pf-multi-value{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .kpm-main .kpm-tools .pf-multi-menu{max-height:270px;overflow-y:auto;min-width:100%;box-sizing:border-box;z-index:15}
-#matrix.kpm-main #matrixtabs{gap:6px;flex-wrap:wrap;margin-bottom:12px}
-.kpm-main #matrixtabs button{font-size:12px;white-space:nowrap;padding:7px 9px}
+/* 分级和升降路径共享一行；窄屏只在此筛选条内横向滚动。 */
+#matrix.kpm-main .kpm-filter-strip{display:flex;align-items:center;flex-wrap:nowrap;gap:12px;min-width:0;max-width:100%;overflow-x:auto;margin-bottom:12px;padding-bottom:4px;scrollbar-width:thin}
+#matrix.kpm-main #matrixtabs{display:flex;align-items:center;flex:none;gap:4px;flex-wrap:nowrap;margin:0;padding:0 12px 0 0;border-right:1px solid #e5ebf4}
+.kpm-main #matrixtabs button{flex:none;font-size:11px;white-space:nowrap;padding:7px 8px}
 .kpm-main #matrixtabs button>span{margin-left:6px;font-size:11px;opacity:.7}
-#matrix.kpm-main #matrixtable{overflow:auto;max-height:640px;width:100%;min-width:0;border:0;border-radius:0}
-.kpm-main #matrixtable table{min-width:1470px;width:100%;border-collapse:separate;border-spacing:0;table-layout:fixed;font-size:12px}
-.kpm-main #matrixtable th{position:sticky;top:0;z-index:2;background:#f4f7fc;font-weight:400;white-space:nowrap;padding:12px 10px}
-.kpm-main #matrixtable td{padding:13px 10px;height:70px;box-sizing:border-box;vertical-align:middle;white-space:nowrap}
+#matrix.kpm-main #matrixtable{overflow:auto;max-height:var(--kpm-table-max-height,none);width:100%;min-width:0;border:0;border-radius:0}
+.kpm-main #matrixtable table{min-width:1580px;width:100%;border-collapse:separate;border-spacing:0;table-layout:auto;font-size:12px}
+.kpm-main #matrixtable th{position:sticky;top:0;z-index:2;background:#f4f7fc;font-weight:400;white-space:nowrap;padding:14px 16px}
+.kpm-main #matrixtable td{padding:16px;height:88px;box-sizing:border-box;vertical-align:middle;white-space:nowrap}
 .kpm-main #matrixtable td>small{display:block;margin-top:6px;font-size:11px;color:#8393ad}
-.kpm-main #matrixtable th:first-child,.kpm-main #matrixtable td:first-child{position:sticky;left:0;width:230px;min-width:230px;max-width:230px;box-shadow:1px 0 #e4ecfa}
+.kpm-main #matrixtable th:first-child,.kpm-main #matrixtable td:first-child{position:sticky;left:0;width:340px;min-width:340px;max-width:400px;box-shadow:1px 0 #e4ecfa}
 .kpm-main #matrixtable td:first-child{z-index:1;background:white}
 .kpm-main #matrixtable th:first-child{z-index:3}
 .kpm-main #matrixtable th:last-child,.kpm-main #matrixtable td:last-child{position:sticky;right:0;width:64px;min-width:64px;z-index:2;background:white;box-shadow:-1px 0 #e4ecfa}
 .kpm-main #matrixtable th:last-child{background:#f4f7fc;z-index:3}
-.kpm-main .kpm-product{display:flex;align-items:center;gap:9px;max-width:210px;white-space:normal}
-.kpm-main .kpm-product>.product-thumb{flex-shrink:0}
-.kpm-main .kpm-product>div{min-width:0}
-.kpm-main .kpm-product b{font-size:12px;line-height:1.6;font-weight:500;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.kpm-main .kpm-product small{display:block;font-size:10px;color:#8393ad;margin-top:5px;overflow-wrap:anywhere}
 .kpm-main .kpm-grade{display:inline-flex;align-items:center;gap:6px;border-radius:5px;padding:5px 7px;font-size:11px;background:#f0f3f8;color:#71849b}
 .kpm-main .kpm-grade b{font-size:14px}
-.kpm-main .kpm-grade.A{background:#eaf7f2;color:#259c7d}.kpm-main .kpm-grade.B{background:#fff5e4;color:#cb8d25}.kpm-main .kpm-grade.C{background:#eef1ff;color:#6c7ecf}.kpm-main .kpm-grade.D{background:#fff0f2;color:#da6b7b}
-.kpm-main .kpm-stock-risk{display:inline-block;padding:3px 6px;border-radius:4px;font-size:11px;background:#fff5e4;color:#ce952b;margin:2px}
-.kpm-main .kpm-stock-risk.stagnant{background:#fff0f2;color:#df6e7e}
-.kpm-main .kpm-normal{color:#29a487;font-size:11px}
 .kpm-main .kpm-sort{border:0;background:transparent;color:inherit;font:inherit;cursor:pointer;padding:0;white-space:nowrap}
 .kpm-main .kpm-sort>span{font-size:11px;color:#9aadca;margin-left:5px}
 .kpm-main .kpm-sort[data-direction]:not([data-direction=""]){color:#1677ff}
 .kpm-main .kpm-empty{padding:60px 15px;text-align:center;font-size:13px;color:#8393ad}
 #matrix.kpm-main #matrix-product-pager{margin-top:16px;min-width:0}
 #matrix.kpm-main #matrix-product-pager .list-pagination{flex-wrap:wrap;gap:10px}
-@media(max-width:1200px){#matrix.kpm-main .matrixlayout{grid-template-columns:1fr}#matrix.kpm-main #matrixchart svg{height:460px}}
-@media(max-width:600px){#matrix.kpm-main .matrixplot,#matrix.kpm-main .matrixlist{padding:12px}.kpm-main .kpm-tools{grid-template-columns:repeat(2,minmax(0,1fr))}.kpm-main .kpm-search{grid-column:1/-1}#matrix.kpm-main #matrixchart svg{min-width:520px;height:350px}.kpm-main .kpm-list-head{flex-wrap:wrap}#matrix.kpm-main #matrixtable th:first-child,#matrix.kpm-main #matrixtable td:first-child{width:180px;min-width:180px;max-width:180px}.kpm-main .kpm-product{max-width:160px}.kpm-main .kpm-product small{font-size:9px}.kpm-main .kpm-product img{max-width:30px}.kpm-main .kpm-note{font-size:10px}}
+@media(max-width:1200px){#matrix.kpm-main .matrixlayout{grid-template-columns:1fr}}
+@media(max-width:600px){#matrix.kpm-main .matrixplot,#matrix.kpm-main .matrixlist{padding:12px}.kpm-main .kpm-tools{grid-template-columns:repeat(2,minmax(0,1fr))}.kpm-main .kpm-search{grid-column:1/-1}#matrix.kpm-main #matrixchart svg{min-width:520px}#matrix.kpm-main #matrixtable th:first-child,#matrix.kpm-main #matrixtable td:first-child{width:180px;min-width:180px;max-width:180px}.kpm-main .kpm-note{font-size:10px}}
 
-.kpm-main .kpm-chart-legend{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;justify-content:flex-start;min-width:0;font-size:11px;color:#8393ad;margin:0}
-.kpm-main .kpm-chart-legend>span{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
-.kpm-main .kpm-chart-legend i{width:7px;height:7px;border-radius:50%;background:#35ac8e}.kpm-main .kpm-chart-legend .B i{background:#e7ad50}.kpm-main .kpm-chart-legend .C i{background:#7c8eec}.kpm-main .kpm-chart-legend .D i{background:#e98191}
+.kpm-main .kpm-chart-legend{display:flex;flex-wrap:nowrap;align-items:center;gap:12px;justify-content:flex-start;min-width:0;max-width:100%;overflow-x:auto;white-space:nowrap;font-size:11px;color:#8393ad;margin:0;padding-bottom:2px;scrollbar-width:thin}
+.kpm-main .kpm-chart-legend>span{display:inline-flex;flex:none;align-items:center;gap:5px;white-space:nowrap}
+.kpm-main .kpm-chart-legend i{flex:none;width:7px;height:7px;border-radius:50%;background:#35ac8e}
 
-.kpm-main .kpm-stock-heading{display:flex;flex-direction:column;gap:5px;align-items:flex-start}.kpm-main .kpm-stock-heading>button+button{font-size:10px;color:#8393ad}
 
 /* 经营矩阵圆点即时提示，独立定位以免被图表滚动容器裁切。 */
 .kpm-point-tooltip{position:fixed;z-index:5100;width:320px;max-width:calc(100vw - 16px);padding:15px;border:1px solid #dce6f7;border-radius:9px;background:#fff;box-shadow:0 8px 28px #23416d24;color:#294561;pointer-events:none;box-sizing:border-box}
@@ -70,7 +66,6 @@
 .kpm-point-product img{width:40px;height:40px;object-fit:contain}
 .kpm-point-product>div{min-width:0}.kpm-point-product b{display:block;font-size:13px;line-height:1.5;font-weight:500;overflow-wrap:anywhere}
 .kpm-point-grade{display:inline-block;margin-top:5px;padding:3px 6px;border-radius:4px;font-size:11px;background:#eaf7f2;color:#259c7d}
-.kpm-point-grade.B{background:#fff5e4;color:#cb8d25}.kpm-point-grade.C{background:#eef1ff;color:#6c7ecf}.kpm-point-grade.D{background:#fff0f2;color:#da6b7b}
 .kpm-point-period{padding:8px 0;margin-top:6px;font-size:10px;color:#8393ad;border-top:1px solid #edf1f8}
 .kpm-point-values{display:grid;grid-template-columns:1fr 1fr;gap:12px 20px}
 .kpm-point-values>div{display:flex;flex-direction:column;gap:4px;min-width:0}.kpm-point-values span{font-size:11px;color:#8393ad}.kpm-point-values strong{font-size:15px;font-weight:500;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}.kpm-point-values .negative{color:#ff3157}
@@ -84,39 +79,49 @@ html.kpm-zoom-open{overflow:hidden}
 #matrix.kpm-main .kpm-chart-zoom{position:fixed;inset:0;width:min(1440px,calc(100vw - 48px));height:min(940px,calc(100dvh - 48px));max-width:none;max-height:none;margin:auto;padding:0;border:1px solid #dce6f7;border-radius:12px;background:#fff;box-shadow:0 20px 70px #172e4f38;overflow:hidden}
 #matrix.kpm-main .kpm-chart-zoom::backdrop{background:#172e4f66}
 #matrix.kpm-main .kpm-chart-zoom .matrixplot{display:flex;flex-direction:column;height:100%;width:100%;margin:0;padding:24px;border:0;border-radius:0}
+#matrix.kpm-main .kpm-chart-zoom .kpm-chart-head h3{font-size:22px;font-weight:600;line-height:1.4}
+#matrix.kpm-main .kpm-chart-zoom .matrixplot>.kpm-chart-legend{flex:none;width:100%;justify-content:center;flex-wrap:wrap;gap:8px 18px;margin:14px 0 0;padding:0;overflow:visible;font-size:12px}
 #matrix.kpm-main .kpm-chart-zoom #matrixchart{flex:1;min-height:0}
-#matrix.kpm-main .kpm-chart-zoom #matrixchart svg{width:100%;height:100%;min-width:0}
+#matrix.kpm-main .kpm-chart-zoom #matrixchart svg{width:100%;height:100%;min-width:0;max-height:none}
 #matrix.kpm-main .kpm-chart-zoom #matrix-ai-summary{display:none}
 #matrix.kpm-main .kpm-chart-zoom .kpm-chart-note{flex:none}
-@media(max-width:600px){#matrix.kpm-main .kpm-chart-zoom{width:calc(100vw - 16px);height:calc(100dvh - 16px);border-radius:8px}#matrix.kpm-main .kpm-chart-zoom .matrixplot{padding:14px}#matrix.kpm-main .kpm-chart-zoom #matrixchart svg{min-width:600px}.kpm-main .kpm-chart-head{align-items:flex-start}.kpm-main .kpm-chart-actions{gap:6px}}
+@media(max-width:600px){#matrix.kpm-main .kpm-chart-zoom{width:calc(100vw - 16px);height:calc(100dvh - 16px);border-radius:8px}#matrix.kpm-main .kpm-chart-zoom .matrixplot{padding:14px}#matrix.kpm-main .kpm-chart-zoom .kpm-chart-head h3{font-size:20px}#matrix.kpm-main .kpm-chart-zoom #matrixchart svg{min-width:600px}.kpm-main .kpm-chart-head{align-items:flex-start}.kpm-main .kpm-chart-actions{gap:6px}}
 
-/* GSV和利润率使用固定强调色，负利润仍保留原红色风险含义。 */
-.kpm-main .kpm-value-gsv,.kpm-point-values>[data-kpm-metric="gsv"]{color:#1677ff;font-weight:600}
-.kpm-main .kpm-value-profit,.kpm-point-values>[data-kpm-metric="profit"]{color:#7651d4;font-weight:600}
-.kpm-main #matrixtable .kpm-value-profit.red{color:#ff3157}
-.kpm-main #matrixtable [data-kpm-sort="sales"]{color:#1677ff}
-.kpm-main #matrixtable [data-kpm-sort="profit"]{color:#7651d4}
+/* 图表与浮层保留强调色；明细表的GSV、利润率使用普通文字色。 */
+.kpm-point-values>[data-kpm-metric="gsv"]{color:#1677ff;font-weight:600}
+.kpm-point-values>[data-kpm-metric="profit"]{color:#7651d4;font-weight:600}
+.kpm-main #matrixtable [data-kpm-sort="sales"]{color:inherit}
+.kpm-main #matrixtable [data-kpm-sort="profit"]{color:inherit}
 .kpm-main #matrixchart .kpm-axis-gsv{fill:#1677ff;font-weight:600}
 .kpm-main #matrixchart .kpm-axis-profit{fill:#7651d4;font-weight:600}
 .kpm-point-values>:is([data-kpm-metric="gsv"],[data-kpm-metric="profit"])>span{color:inherit}
 .kpm-point-values>:is([data-kpm-metric="gsv"],[data-kpm-metric="profit"])>strong{font-weight:650}
 
-/* SABC是独立产品等级；四象限只表达经营结构，不再用字母冒充分级。 */
-.kpm-main .kpm-grade.S,.kpm-grade-history .kpm-grade.S,.kpm-point-grade.S{background:#eaf7f2;color:#259c7d}
-.kpm-main .kpm-grade.A,.kpm-grade-history .kpm-grade.A,.kpm-point-grade.A{background:#fff5e4;color:#cb8d25}
-.kpm-main .kpm-grade.B,.kpm-grade-history .kpm-grade.B,.kpm-point-grade.B{background:#eef1ff;color:#6c7ecf}
-.kpm-main .kpm-grade.C,.kpm-grade-history .kpm-grade.C,.kpm-point-grade.C{background:#fff0f2;color:#da6b7b}
+/* 图表分区、圆点、图例与明细共用SABC等级和颜色。 */
+.metric-tooltip-kpm-grade .kpm-rule-grade.S,.kpm-main .kpm-change-grade.S,.kpm-main .kpm-grade.S,.kpm-grade-history .kpm-grade.S,.kpm-point-grade.S,#dialogbody .up-product-grade.S{background:#eaf7f2;color:#259c7d}
+.metric-tooltip-kpm-grade .kpm-rule-grade.A,.kpm-main .kpm-change-grade.A,.kpm-main .kpm-grade.A,.kpm-grade-history .kpm-grade.A,.kpm-point-grade.A,#dialogbody .up-product-grade.A{background:#fff5e4;color:#cb8d25}
+.metric-tooltip-kpm-grade .kpm-rule-grade.B,.kpm-main .kpm-change-grade.B,.kpm-main .kpm-grade.B,.kpm-grade-history .kpm-grade.B,.kpm-point-grade.B,#dialogbody .up-product-grade.B{background:#eef1ff;color:#6c7ecf}
+.metric-tooltip-kpm-grade .kpm-rule-grade.C,.kpm-main .kpm-change-grade.C,.kpm-main .kpm-grade.C,.kpm-grade-history .kpm-grade.C,.kpm-point-grade.C,#dialogbody .up-product-grade.C{background:#fff0f2;color:#da6b7b}
 .kpm-main .kpm-chart-legend .S i{background:#35ac8e}.kpm-main .kpm-chart-legend .A i{background:#e7ad50}.kpm-main .kpm-chart-legend .B i{background:#7c8eec}.kpm-main .kpm-chart-legend .C i{background:#e98191}
 #matrix.kpm-main .kpm-chart-zoom .kpm-expand{border:0;background:transparent;color:#7b8ba3;font-size:26px;width:32px;height:32px;padding:0;line-height:1}
 #matrix.kpm-main .kpm-chart-zoom .kpm-expand:hover{background:#f2f5fa;color:#294561}
-#matrix.kpm-main #kpm-change-tabs{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 14px}
-.kpm-main #kpm-change-tabs button{border:1px solid #e5ebf5;border-radius:16px;background:white;color:#788ca7;font:inherit;font-size:11px;padding:5px 10px;cursor:pointer}
-.kpm-main #kpm-change-tabs button>span{margin-left:6px;font-variant-numeric:tabular-nums}
-.kpm-main #kpm-change-tabs button.active{border-color:#a7c8ff;background:#edf4ff;color:#1677ff}
-.kpm-main #kpm-change-tabs .up{color:#24a484}.kpm-main #kpm-change-tabs .down{color:#e58b31}
-#matrix.kpm-main #matrixtable table{min-width:1670px}
-#matrix.kpm-main #matrixtable :is(th,td):last-child{width:90px;min-width:90px}
-.kpm-main .kpm-actions{display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+/* 升降各为一组轻底色筛选条，路径直接可见，不逐项叠加胶囊边框。 */
+#matrix.kpm-main #kpm-change-tabs{display:flex;align-items:center;flex:none;flex-wrap:nowrap;gap:24px;margin:0;padding:0}
+.kpm-main .kpm-change-row{display:flex;flex:none;align-items:center;gap:8px;padding:4px;border-radius:6px;background:#f7f9fc}
+.kpm-main .kpm-change-row>[data-kpm-change]{flex:none;white-space:nowrap;font-weight:600}
+.kpm-main .kpm-change-row>[data-kpm-change]::after{content:"";display:block;height:14px;border-right:1px solid #dce4ef;margin-left:5px}
+.kpm-main .kpm-change-paths{display:flex;flex-wrap:nowrap;gap:6px}
+.kpm-main #kpm-change-tabs button{display:inline-flex;align-items:center;justify-content:center;min-height:28px;border:0;border-radius:4px;background:transparent;color:#6d7e96;font:inherit;font-size:11px;padding:4px 7px;white-space:nowrap;cursor:pointer}
+.kpm-main #kpm-change-tabs button>span{margin-left:5px;color:#99a6b8;font-size:10px;font-variant-numeric:tabular-nums}
+.kpm-main #kpm-change-tabs button:hover{background:#eaf0f7;color:#284867}
+.kpm-main #kpm-change-tabs [data-kpm-change="up"]{color:#259c7d;font-weight:600}
+.kpm-main #kpm-change-tabs [data-kpm-change="down"]{color:#d68a2c;font-weight:600}
+.kpm-main #kpm-change-tabs button.active.up{background:#e4f4ed;color:#1f9776}
+.kpm-main #kpm-change-tabs button.active.down{background:#fff0dc;color:#c67e23}
+.kpm-main #kpm-change-tabs button.active>span,.kpm-main #kpm-change-tabs [data-kpm-change]>span{color:inherit}
+.kpm-main #kpm-change-tabs button:focus-visible{outline:2px solid #83b4ff;outline-offset:-2px}
+
+#matrix.kpm-main #matrixtable :is(th,td):last-child{width:70px;min-width:70px}
 .kpm-change{border:0;background:transparent;text-align:left;padding:0;cursor:pointer;font:inherit;color:#71849b}
 .kpm-change b{font-size:12px;font-weight:500}.kpm-change small,.kpm-history-change small{display:block;margin-top:6px;font-size:11px;color:#93a0b4}
 .kpm-change:hover b{text-decoration:underline;text-underline-offset:3px}
@@ -140,12 +145,66 @@ html.kpm-zoom-open{overflow:hidden}
 .kpm-grade-history .kpm-empty{padding:45px;text-align:center;color:#93a0b4}
 @media(max-width:600px){.kpm-history-compare{grid-template-columns:1fr;gap:12px}.kpm-history-compare>span{display:none}.kpm-history-period{padding:14px}.kpm-history-product{flex-wrap:wrap}.kpm-history-product>.btn{margin-left:auto}.kpm-history-product .link{font-size:13px}}
 
-#matrix.kpm-main #matrixtable :is(th,td):nth-child(2){width:132px;min-width:132px}
-#matrix.kpm-main #matrixtable :is(th,td):nth-child(3){width:142px;min-width:142px}
-.kpm-main .kpm-chart-legend .unrated i{background:#9aabc0}
+#matrix.kpm-main #matrixtable :is(th,td):nth-child(2){width:80px;min-width:80px}
+#matrix.kpm-main #matrixtable :is(th,td):nth-child(3){width:120px;min-width:120px}
 
 #dialog:has(.kpm-grade-history)>#drawer-tabs{display:none}
 
 .kpm-history-compare[hidden]{display:none}.kpm-history-table tr:has([data-kpm-history-pick][aria-pressed="true"]) td{background:#f2f7ff}
 
-@media(max-width:600px){.kpm-main .kpm-chart-head{grid-template-columns:minmax(0,1fr) auto;align-items:center}.kpm-main .kpm-chart-head h3{grid-column:1;grid-row:1}.kpm-main .kpm-chart-head .kpm-chart-legend{grid-column:1/-1;grid-row:2}.kpm-main .kpm-chart-head .kpm-chart-actions{grid-column:2;grid-row:1}}
+
+
+/* 关键产品明细：双行辅助值与新品、榜单使用同一展示规则。 */
+.kpm-main #matrixtable td:first-child{white-space:normal}
+.kpm-main #matrixtable .kpm-grade{min-width:28px;justify-content:center;padding:4px 7px}
+.kpm-main #matrixtable .kpm-grade b{font-size:13px;font-weight:500}
+.kpm-main .kpm-metric{min-width:76px;font-variant-numeric:tabular-nums}
+.kpm-main .rp-list-value{display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+.kpm-main .rp-list-value strong{font-size:13px;font-weight:500}
+.kpm-main .rp-list-value em{font-style:normal;font-size:11px;color:#8393ad;white-space:nowrap}
+.kpm-main .rp-list-value :is(strong,em).rp-quality-green{color:#00a486}
+.kpm-main .rp-list-value :is(strong,em).rp-quality-red{color:#ff3157}
+.kpm-main .rp-list-value :is(strong,em).rp-quality-yellow{color:var(--orange)}
+.kpm-main .rp-list-value :is(strong,em).rp-quality-gray,.kpm-main .rp-comparison-label{color:#8693a4}
+.kpm-main .rp-list-value strong.rp-quality-normal{color:#52657d}
+@media(max-width:1000px){.kpm-main .kpm-tools{grid-template-columns:repeat(3,minmax(0,1fr))}.kpm-main .kpm-search{grid-column:span 2}}
+@media(max-width:600px){.kpm-main .kpm-tools{grid-template-columns:repeat(2,minmax(0,1fr))}.kpm-main .kpm-search{grid-column:1/-1}#matrix.kpm-main #matrixtable .prodname>.risk-thumb{width:40px;height:40px}#matrix.kpm-main #matrixtable .prodname strong{font-size:12px}#matrix.kpm-main #matrixtable .prodname small{font-size:10px}}
+
+/* 标题后的三段业务范围，与右侧时间保持同排；窄屏自然换行。 */
+#matrix.kpm-main>.sectionhead>.titlegroup{flex:0 0 auto}
+#matrix.kpm-main .kpm-scope-switch{display:inline-flex;flex:none;align-items:stretch;margin-left:4px;border:1px solid #dce5f3;border-radius:4px;background:#fff;overflow:hidden}
+#matrix.kpm-main .kpm-scope-switch button{border:0;border-right:1px solid #dce5f3;background:#fff;color:#71849e;padding:7px 11px;white-space:nowrap;font:inherit;font-size:12px;cursor:pointer}
+#matrix.kpm-main .kpm-scope-switch button:last-child{border-right:0}
+#matrix.kpm-main .kpm-scope-switch [aria-pressed="true"]{background:#edf4ff;color:#1677ff;box-shadow:inset 0 0 0 1px #1677ff}
+#matrix.kpm-main .kpm-scope-switch button:focus-visible{outline:2px solid #83b4ff;outline-offset:-3px}
+@media(max-width:600px){#matrix.kpm-main .kpm-scope-switch{margin-left:0}#matrix.kpm-main .kpm-scope-switch button{padding:6px 9px}}
+
+/* 等级变动只保留一排标签，颜色与产品分级一致，箭头保持中性。 */
+#matrix.kpm-main #matrixtable .kpm-change{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;vertical-align:middle}
+.kpm-main .kpm-change-grade{display:inline-flex;align-items:center;justify-content:center;min-width:24px;padding:4px 6px;border-radius:5px;font-size:12px;line-height:18px;background:#f0f3f8;color:#71849b}
+.kpm-main .kpm-change-arrow{color:#8c9bb1;font-size:12px}
+.kpm-main .kpm-change:focus-visible{outline:2px solid #83b4ff;outline-offset:3px;border-radius:4px}
+
+/* 标题问号：按实际规则生成的分级说明卡，沿用共享浮层交互和边界定位。 */
+.metric-tooltip.metric-tooltip-kpm-grade{width:400px;max-width:calc(100vw - 16px);max-height:calc(100dvh - 16px);overflow-y:auto;padding:16px;border-radius:10px;box-shadow:0 10px 32px #23416d24;line-height:1.6}
+.metric-tooltip-kpm-grade .kpm-rule-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.metric-tooltip-kpm-grade .kpm-rule-heading h4{margin:0;color:#193f68;font-size:14px;font-weight:650}
+.metric-tooltip-kpm-grade .kpm-rule-period{padding:2px 7px;border-radius:4px;background:#edf4ff;color:#1677ff;font-size:11px;white-space:nowrap}
+.metric-tooltip-kpm-grade .kpm-rule-context{margin:7px 0 12px;color:#8393ad;font-size:11px}
+.metric-tooltip-kpm-grade .kpm-rule-table{width:100%;border-collapse:collapse;font-size:12px;font-variant-numeric:tabular-nums}
+.metric-tooltip-kpm-grade .kpm-rule-table th{padding:8px 9px;background:#f4f7fc;color:#7a8ba4;text-align:left;font-size:11px;font-weight:400;white-space:nowrap}
+.metric-tooltip-kpm-grade .kpm-rule-table td{padding:8px 9px;border-bottom:1px solid #edf1f7;color:#294561;white-space:nowrap}
+.metric-tooltip-kpm-grade .kpm-rule-grade{display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:26px;border-radius:5px;font-size:12px;font-weight:600}
+.metric-tooltip-kpm-grade .kpm-rule-note{margin-top:12px;padding:9px 10px;border-radius:6px;background:#f7f9fc;color:#8292a9;font-size:11px}
+.metric-tooltip-kpm-grade .kpm-rule-note p{margin:0}.metric-tooltip-kpm-grade .kpm-rule-note p+p{margin-top:6px}
+/* 放大图筛选即时生效，自定义价格直接输入，不另设确认弹窗。 */
+#matrix.kpm-main .kpm-zoom-filters{display:flex;align-items:center;flex-wrap:wrap;gap:10px 12px;margin:10px 0 14px;flex:none;position:relative;z-index:2;font-size:12px;color:#526b8c}
+.kpm-zoom-filters>.pf-multi{flex:1 1 180px;max-width:none;min-width:150px}
+.kpm-zoom-filters>.kpm-zoom-price{display:flex;align-items:center;gap:12px;min-width:180px;flex:1 1 180px;height:36px;border:1px solid #e0e3e8;border-radius:6px;padding-left:10px;background:white}
+.kpm-zoom-price>select{flex:1;min-width:0;height:34px;border:0;border-radius:6px;background:white;color:#24334b;font:inherit;padding:0 24px 0 8px}
+.kpm-zoom-custom[hidden]{display:none!important}.kpm-zoom-custom{display:flex;flex-direction:column;gap:3px;flex:none}
+.kpm-zoom-custom-inputs{display:flex;align-items:center;gap:6px;color:#8a9ab0;font-size:12px}
+.kpm-zoom-custom input{width:90px;min-width:0;height:36px;padding:0 8px;border:1px solid #dce5f0;border-radius:5px;font-size:12px;color:#365575;box-sizing:border-box}
+.kpm-zoom-custom input[aria-invalid=true]{border-color:#dc6477}.kpm-zoom-price-error{font-size:11px;color:#c44960;line-height:1.4}.kpm-zoom-price-error:empty{display:none}
+.kpm-zoom-filters>[data-kpm-zoom-reset]{font-size:12px;white-space:nowrap}
+@media(max-width:600px){#matrix.kpm-main .kpm-zoom-filters{gap:8px;margin:8px 0 10px}.kpm-zoom-filters>.pf-multi,.kpm-zoom-filters>.kpm-zoom-price{flex:1 1 calc(50% - 8px);min-width:0;max-width:none}.kpm-zoom-filters .pf-multi-value{font-size:12px;padding:0 16px}.kpm-zoom-custom{flex:1 1 100%}.kpm-zoom-custom input{width:100px}}

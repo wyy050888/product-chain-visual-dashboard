@@ -7,7 +7,7 @@ function rpReturnFields(record,current,previous){
  const events=rpQualitySelectEvents(observed.monthly,true);
  const earlier=rpQualityEvents({...record,platform},previous.start,previous.end,true),fields=[];
  const add=(key,name,value,raw,tone='rp-quality-normal',target='',targetTone='',hint='')=>fields.push({...rpField(key,name,value,tone,hint,target),sortValue:raw,targetTone});
- const compareHint='环比取紧邻等长区间；上涨绿色，跌幅≤10%灰色，跌幅>10%红色；上期缺失或为0且本期非0显示--，两期相同显示持平。';
+ const compareHint='环比取紧邻等长区间；上涨绿色，跌幅≤10%灰色，跌幅>10%红色。';
  for(const [key,name,now,before] of [['gsv','GSV',current.gsvCents,previous.gsvCents],['sales','销量',current.sales,previous.sales],['netSales','去退后销量',current.sales-current.returned,previous.sales-previous.returned]])
   add(key,name,key==='gsv'?rpQualityMoney(now/100):fmt(now),now,'rp-quality-normal',rpQualityChange(now,before),rpQualityChangeTone(now,before),(key==='netSales'?'同期销量减总退件数。':'')+compareHint);
  const margin=rpLossMarginComparison(current.profitRate,previous.profitRate);

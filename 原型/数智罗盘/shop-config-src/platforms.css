@@ -3,3 +3,9 @@
 .platform-tabs button[aria-selected="true"]{color:#276bff;font-weight:600;}
 .platform-tabs button[aria-selected="true"]::after{content:"";position:absolute;height:3px;background:#3975ff;bottom:0;left:0;right:0;}
 @media(max-width:780px){.platform-tabs{gap:12px;padding:0 10px;}.platform-tabs button{height:54px;padding:0 8px;}}
+
+/* 页面标题与平台标签同行；窄屏标签在栏内滚动。 */
+#shop-assignment .page-title{gap:24px}
+#shop-assignment .page-title>h1{flex:none;margin:0}
+#shop-assignment .page-title>.platform-tabs{flex:1;min-width:0;padding:0;flex-wrap:nowrap;overflow-x:auto}
+@media(max-width:780px){#shop-assignment .page-title{gap:12px}}

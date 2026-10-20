@@ -1,0 +1,60 @@
+/* 产品业绩表现：复用品质退货的浅底指标和分区分隔，不影响店铺及其他标签。 */
+#dialogbody .up-detail [data-up-panel="operating"] .up-operating-kpis .up-metric{border:0}
+#dialogbody .up-detail [data-up-panel="operating"] .up-attainment{border:0;background:#f7f7ff}
+#dialogbody .up-detail [data-up-panel="operating"] .up-sales-trend{border:0;border-radius:0;padding:0;margin:24px 0;background:transparent}
+#dialogbody .up-detail [data-up-panel="operating"] .up-trend-heading{padding-bottom:10px}
+#dialogbody .up-detail [data-up-panel="operating"] .up-trend-heading h3{margin:0}
+#dialogbody .up-detail .up-channel-section{border-top:1px solid #edf1f7;padding-top:24px;margin-top:24px;min-width:0}
+#dialogbody .up-detail .up-channel-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:16px}
+#dialogbody .up-detail .up-channel-heading>h3{flex:none;font-size:14px;margin:0}
+#dialogbody .up-detail [data-up-panel="operating"] .up-channel-comparison{grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:24px;margin:0;align-items:start}
+#dialogbody .up-detail [data-up-panel="operating"] :is(.up-channel-contribution,.up-platform-performance){padding:0;border:0;border-radius:0;background:transparent;min-width:0}
+#dialogbody .up-detail .up-platform-performance .up-table{width:100%;max-width:100%;overflow:auto}
+#dialogbody .up-detail .up-platform-performance table{width:100%;min-width:760px;table-layout:fixed}
+#dialog.business-drawer #dialogbody .up-detail .up-platform-performance :is(th,td){padding:14px 10px;text-align:right;white-space:nowrap;overflow-wrap:normal}
+#dialog.business-drawer #dialogbody .up-detail .up-platform-performance :is(th,td):first-child{text-align:left}
+#dialogbody .up-platform-performance .rp-sort-header{width:100%;display:inline-flex;align-items:center;justify-content:flex-end;gap:3px}
+#dialogbody .up-platform-performance th:first-child .rp-sort-header{justify-content:flex-start}
+#dialogbody .up-grade-trend{margin:24px 0;padding-top:24px;border-top:1px solid #edf1f7;min-width:0}
+#dialogbody .up-grade-trend>header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+#dialogbody .up-grade-trend h3{display:flex;align-items:center;gap:10px;margin:0;font-size:14px}
+#dialogbody .up-grade-tools{display:flex;align-items:center;justify-content:flex-end;gap:12px;flex-wrap:wrap;min-width:0}
+#dialogbody .up-grade-scroll{width:100%;overflow:auto}
+#dialogbody .up-grade-trend svg{display:block;width:100%;height:220px;min-width:760px}
+#dialogbody .up-grade-trend svg text{font-size:11px;fill:#8693a4}
+#dialogbody .up-grade-trend [data-up-grade-point]{outline:none}
+#dialogbody .up-grade-trend .up-trend-active{fill:rgba(22,119,255,.06)}
+#dialogbody .up-grade-empty{text-align:center;color:#95a0b2;font-size:12px;margin:12px 0 0}
+@media(max-width:700px){#dialogbody .up-grade-trend>header{align-items:flex-start}#dialogbody .up-grade-tools{width:100%;justify-content:space-between;gap:8px}}
+
+/* 左表右图共用一份渠道顺序；两种贡献从中线向左右展开。 */
+#dialogbody .up-detail .up-channel-contribution{margin:0;min-width:0}
+#dialogbody .up-contribution-scroll{width:100%;overflow:auto}
+#dialogbody .up-contribution-chart{min-width:var(--contribution-min-width,320px);font-size:12px}
+#dialogbody .up-contribution-heading,#dialogbody .up-contribution-chart li{display:grid;grid-template-columns:72px minmax(0,1fr) minmax(0,1fr);align-items:center;min-height:49px}
+#dialogbody .up-contribution-heading{background:#f4f7fc;color:#71849e;text-align:center}
+#dialogbody .up-contribution-heading>span:first-child{text-align:left;padding-left:8px}
+#dialogbody .up-contribution-chart ul{list-style:none;padding:0;margin:0}
+#dialogbody .up-contribution-chart li{border-bottom:1px solid #edf1f7;box-sizing:border-box}
+#dialogbody .up-contribution-name{padding-left:8px;color:#304968;white-space:nowrap}
+#dialogbody .up-contribution-half{height:24px;min-width:0;--bar-color:#246cff;color:var(--bar-color)}
+#dialogbody .up-contribution-half.gsv{padding-left:var(--share-label-space,48px);border-right:1px solid #e5ebf5}
+#dialogbody .up-contribution-half.profit{padding-right:var(--share-label-space,48px);--bar-color:#ff8437}
+#dialogbody .up-contribution-track{height:100%;position:relative}
+#dialogbody .up-contribution-track i{position:absolute;top:3px;bottom:3px;width:var(--share-width);background:var(--bar-color);border-radius:4px}
+#dialogbody .gsv .up-contribution-track i{right:0;border-radius:4px 0 0 4px}
+#dialogbody .profit .up-contribution-track i{left:0;border-radius:0 4px 4px 0}
+#dialogbody .up-contribution-track span{position:absolute;top:0;line-height:24px;font-size:11px;white-space:nowrap;font-variant-numeric:tabular-nums}
+#dialogbody .gsv .up-contribution-track span{right:calc(var(--share-width) + 5px)}
+#dialogbody .profit .up-contribution-track span{left:calc(var(--share-width) + 5px)}
+#dialogbody .up-contribution-half.is-negative{--bar-color:#ed5771}
+#dialogbody .is-negative .up-contribution-track i{background:repeating-linear-gradient(135deg,#ed5771 0 4px,#f6a0af 4px 7px)}
+#dialogbody .up-contribution-note{flex:1;min-width:0;margin:0;color:#8896ab;font-size:11px;line-height:1.7;text-align:right}
+#dialog.business-drawer #dialogbody .up-detail .up-platform-performance :is(th,td){height:49px;line-height:20px;box-sizing:border-box}
+@media(max-width:1200px){#dialogbody .up-detail [data-up-panel="operating"] .up-channel-comparison{grid-template-columns:minmax(0,1fr)}}
+
+#dialogbody .up-product-grade{display:inline-flex;align-items:center;justify-content:center;min-width:27px;padding:3px 7px;border-radius:4px;font-size:12px;font-weight:500;line-height:20px;background:#edf1f7;color:#788ca7;box-sizing:border-box}
+#dialogbody .up-grade-period .period-picker{justify-content:flex-end;flex-wrap:wrap;gap:8px}
+#dialogbody .up-grade-period .period-segment{flex:none}
+
+#dialogbody .up-grade-trend svg .up-grade-point-label{fill:#1677ff;font-size:12px}

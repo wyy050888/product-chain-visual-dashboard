@@ -4,7 +4,7 @@ function rpValue(f){return `<strong class="rp-value ${f.tone}" ${(f.hint||f.key=
 function rpMetricMarkup(f,primary=false){
  const labels={total:'总库存',value:'库存货值',turn:'周转率',fine:'罚款',frozen:'冻结',return:'总退货率',received:'已收退率',down:'下架',contact:'进线率',bad:'差评率',penalty:'品质处罚',coverage15:'可售天数',staleUnits:'超库龄库存',worsening:'退货恶化',warehouse:'仓内库存',returnGrowth:'总退环比',receivedGrowth:'已收退环比',loss:'净亏损',margin:'净利率',staleValue:'滞销金额'};
  const quiet=f.tone==='green'||/^(?:0(?:\.0+)?(?:元|件|次|个SPU|%|w)?(?:\/0次)?|不适用|待接入|—)$/.test(f.value);
- const display=f.key==='worsening'?f.value.replace('个SPU','款'):f.value;
+ const display=f.key==='worsening'?f.value.replace('个SPU','个'):f.value;
  return `<div class="rp-item ${primary?'rp-primary':'rp-secondary'}${quiet?' rp-normal':''}${f.tone==='red'||f.tone==='orange'?' rp-alert':''}" data-rp-field="${f.key}" aria-label="${esc(f.name)}"><small title="${esc(f.name+(f.hint?'：'+f.hint:''))}">${esc(f.key==='score'?f.name:labels[f.key]||f.name)}</small><div class="rp-item-value">${rpValue({...f,value:display,target:f.target})}</div></div>`;
 }
 // 共用官方Logo映射；未知平台不生成替代图标。

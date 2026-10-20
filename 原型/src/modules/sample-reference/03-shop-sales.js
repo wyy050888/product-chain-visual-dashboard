@@ -5,14 +5,20 @@ const sampleShopDemoSpus=[
  {spuId:'SHOP-DEMO-SUPOR-03',spuCode:'DEMO-SUPOR-LIFE-01',name:'苏泊尔生活电器（演示款A）',model:'DEMO-LIFE-A',brand:'苏泊尔',chain:1,source:'demo'},
  {spuId:'SHOP-DEMO-SUPOR-04',spuCode:'DEMO-SUPOR-LIFE-02',name:'苏泊尔生活电器（演示款B）',model:'DEMO-LIFE-B',brand:'苏泊尔',chain:1,source:'demo'}
 ];
+// 截至数据截止日的本月GSV（万元），覆盖多主营、单主营及未达标场景。
+const sampleShopCoreDemoGsv={'306131028':950,'154894317':260,'446362993':180,'1000508586':85};
+function sampleShopDemoMetrics(shop){
+ const gsv=sampleShopCoreDemoGsv[shop.shopId];
+ return gsv?{referenceGsv:gsv,demoSalesScale:gsv/shop.referenceGsv,source:'demo'}:{};
+}
 function sampleShopProducts(shop){
  const brandProducts=[...sampleSpus,...sampleShopDemoSpus].filter(p=>p.brand===shop.brand);
  const categoryProducts=brandProducts.filter(p=>p.chain===shop.chain);
  return categoryProducts.length?categoryProducts:brandProducts;
 }
-// 日销量和退货整数分摊至SPU，主营排序与店铺净销量共用这些明细。
+// 日销量和退货整数分摊至SPU，店铺净销量和SPU金额分摊共用这些明细。
 function sampleShopDailySales(shop,date){
- return date>DATA_CUTOFF?0:Math.round((35+shop.id*4)*riskDailyWeight(date,shop.id));
+ return date>DATA_CUTOFF?0:Math.round((35+shop.id*4)*(shop.demoSalesScale||1)*riskDailyWeight(date,shop.id));
 }
 function sampleShopSpuSales(shop,start,end){
  const products=sampleShopProducts(shop);

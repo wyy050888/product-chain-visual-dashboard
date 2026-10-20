@@ -1,6 +1,6 @@
-function kpmOpenDetail(spuId,selectedRange=null){kpmSuspendChartZoom();kpmHidePointTooltip();withPeriod('matrix',()=>{
+function kpmOpenDetail(spuId,selectedRange=null,tab='operating'){kpmSuspendChartZoom();kpmHidePointTooltip();withPeriod('matrix',()=>{
  const range=selectedRange||upWindow(),period=selectedRange?drawerPeriodFromRange(range):{...periodFor('matrix')};
- upOpenDetail({spuId,...range,period,module:'matrix',platform:'all',tab:'operating'});
+ upOpenDetail({spuId,...range,period,module:'matrix',platform:kpmBusinessPlatforms(),tab});
 });}
 document.addEventListener('input',e=>{
  if(!e.target.matches('#matrix.kpm-main [data-kpm-search]'))return;
@@ -12,10 +12,10 @@ document.addEventListener('change',e=>{
 });
 document.addEventListener('click',e=>{
  const button=e.target.closest('#matrix.kpm-main [data-kpm-grade],#matrix.kpm-main [data-kpm-sort],#matrix.kpm-main [data-kpm-reset],#matrix.kpm-main [data-kpm-detail]');if(!button)return;
- if(button.dataset.kpmDetail)return kpmOpenDetail(button.dataset.kpmDetail);
+ if(button.dataset.kpmDetail)return kpmOpenDetail(button.dataset.kpmDetail,button.hasAttribute('data-kpm-point')?kpmChartContext:null);
  if(button.hasAttribute('data-kpm-reset')){
-  for(const key of Object.keys(kpmFilters))kpmFilters[key]=key==='query'?'':'all';
-  kpmSelectedGrade='all';kpmSelectedChange='all';kpmSort.key='sales';kpmSort.direction='desc';
+  Object.assign(kpmFilters,{query:'',brand:'all',category:'all',season:'all',price:'all',min:'',max:''});
+  kpmSelectedGrade='all';kpmSelectedChange='all';kpmSelectedTransition='all';kpmSort.key='sales';kpmSort.direction='desc';
   $('#matrix [data-kpm-search]').value='';
   for(const select of $$('#matrix [data-kpm-filter]'))pfControlSet(select,'all');
  }else if(button.dataset.kpmGrade)kpmSelectedGrade=kpmSelectedGrade===button.dataset.kpmGrade?'all':button.dataset.kpmGrade;
@@ -24,5 +24,5 @@ document.addEventListener('click',e=>{
 });
 document.addEventListener('keydown',e=>{
  if(!e.target.matches('#matrix.kpm-main circle[data-kpm-detail]')||!['Enter',' '].includes(e.key))return;
- e.preventDefault();kpmOpenDetail(e.target.dataset.kpmDetail);
+ e.preventDefault();kpmOpenDetail(e.target.dataset.kpmDetail,kpmChartContext);
 });

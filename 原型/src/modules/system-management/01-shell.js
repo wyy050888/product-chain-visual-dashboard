@@ -6,7 +6,7 @@ $('main.page').after(smHost);
 let smActiveRoute='',smNavigationBypass=false;
 function smRenderMenu(){
  const groups=[...new Set([...smPages.values()].map(page=>page.group))];
- smHost.querySelector('.lt-sidebar').innerHTML=groups.map(group=>`<details class="lt-menu-group" open><summary>${esc(group)}<span aria-hidden="true">⌃</span></summary>${[...smPages.values()].filter(page=>page.group===group).map(page=>`<a href="${page.external||page.route}" ${page.external?'target="_blank" rel="noopener"':`data-system-route="${page.route}"`} ${smActiveRoute===page.route?'aria-current="page"':''}>${esc(page.title)}</a>`).join('')}</details>`).join('');
+ smHost.querySelector('.lt-sidebar').innerHTML=groups.map(group=>{const pages=[...smPages.values()].filter(page=>page.group===group).sort((a,b)=>(a.menuOrder??100)-(b.menuOrder??100));if(pages.length===1&&pages[0].menuRoot){const page=pages[0];return `<a class="lt-menu-root" href="${page.route}" data-system-route="${page.route}" ${smActiveRoute===page.route?'aria-current="page"':''}>${esc(page.title)}</a>`}return `<details class="lt-menu-group" open><summary>${esc(group)}<span aria-hidden="true">⌃</span></summary>${pages.map(page=>`<a href="${page.external||page.route}" ${page.external?'target="_blank" rel="noopener"':`data-system-route="${page.route}"`} ${smActiveRoute===page.route?'aria-current="page"':''}>${esc(page.title)}</a>`).join('')}</details>`}).join('');
 }
 function smRegisterPage(page){
  const pane=document.createElement('section');pane.id=page.id;pane.hidden=true;pane.innerHTML=page.markup;

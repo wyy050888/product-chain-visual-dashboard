@@ -14,9 +14,6 @@ body.lt-system-active>main.page{display:none}
 #lt-system .lt-page-head>span:after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:#1677ff}
 #lt-system .lt-panel{background:#fff;border-radius:8px;padding:18px 22px 22px}
 #lt-system .lt-toolbar{display:flex;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap}
-#lt-system #lt-categories{display:flex;align-items:center;gap:22px;min-width:0;margin-right:auto}
-#lt-system #lt-categories button{padding:8px 2px;border-bottom:2px solid transparent;color:#7a8aa2;font-size:13px;white-space:nowrap}
-#lt-system #lt-categories button.active{color:#1677ff;border-bottom-color:#1677ff}
 #lt-system #lt-year{width:112px;min-height:34px;padding:6px 12px;border:1px solid #dce4f0;background:#fff;border-radius:4px;color:#536b8c;font:inherit}
 #lt-system #lt-error{color:#c43149;font-size:12px;line-height:1.5}
 #lt-system #lt-error:not(:empty){padding-bottom:12px}
@@ -46,8 +43,17 @@ body.lt-system-active .head.portal-header .chain-trigger{border-bottom-color:tra
 #lifecycle .life-count-row{flex-wrap:wrap;row-gap:3px}
 
 #lifecycle .lt-card-state{font-size:17px;color:#8593a9;font-weight:500}
-@media(max-width:1200px){#lt-system{grid-template-columns:156px minmax(0,1fr)}#lt-system .lt-panel{padding:16px}#lt-system #lt-categories{gap:16px}}
-@media(max-width:700px){#lt-system{grid-template-columns:minmax(0,1fr)}#lt-system .lt-sidebar{padding:0 10px;background:transparent}#lt-system .lt-menu-group{display:flex;align-items:center;gap:8px}#lt-system .lt-menu-group>summary{padding:12px 8px;float:left}#lt-system .lt-sidebar a{display:inline-block;margin:0;padding:9px 14px}#lt-system .lt-content{padding:8px 10px 20px}#lt-system .lt-page-head{display:none}#lt-system .lt-panel{padding:14px 12px}#lt-system #lt-categories{width:100%;gap:20px;overflow:auto}#lt-system .lt-year-field{margin-left:auto}#lifecycle #lt-open-targets{margin-left:6px}}
+@media(max-width:1200px){#lt-system{grid-template-columns:156px minmax(0,1fr)}#lt-system .lt-panel{padding:16px}}
+@media(max-width:700px){#lt-system{grid-template-columns:minmax(0,1fr)}#lt-system .lt-sidebar{padding:0 10px;background:transparent}#lt-system .lt-menu-group{display:flex;align-items:center;gap:8px}#lt-system .lt-menu-group>summary{padding:12px 8px;float:left}#lt-system .lt-sidebar a{display:inline-block;margin:0;padding:9px 14px}#lt-system .lt-content{padding:8px 10px 20px}#lt-system .lt-page-head{display:none}#lt-system .lt-panel{padding:14px 12px}#lt-system .lt-year-field{margin-left:auto}#lifecycle #lt-open-targets{margin-left:6px}}
 
 #lt-system .lt-sidebar a[aria-current=page]{background:#dbe8ff;color:#1677ff}
 #sm-content>section[hidden]{display:none!important}
+
+/* 目标管理页面：标题与业务Tab同行，标题保持普通黑色标题样式。 */
+#lt-system .sm-target-head{gap:32px}
+#lt-system .sm-page-title{margin:0;color:#1f2329;font-size:16px;font-weight:600;line-height:24px;white-space:nowrap;flex-shrink:0}
+#lt-system .sm-target-head>.sm-page-tabs{display:flex;align-items:stretch;gap:24px;min-width:0;height:100%;overflow-x:auto;margin-right:auto}
+#lt-system .sm-target-head>.sm-page-tabs button{display:flex;align-items:center;flex-shrink:0;padding:0 2px;border:0;border-bottom:2px solid transparent;background:none;color:#7a8aa2;font:inherit;font-size:13px;white-space:nowrap;cursor:pointer}
+#lt-system .sm-target-head>.sm-page-tabs button.active{color:#1677ff;border-bottom-color:#1677ff}
+#lt-system .sm-target-head>.lt-year-field{margin-left:auto;flex-shrink:0}
+@media(max-width:700px){#lt-system .sm-target-head{display:flex;height:auto;min-height:56px;gap:0 20px;flex-wrap:wrap;padding:0 14px}#lt-system .sm-target-head .sm-page-title{padding:16px 0 8px}#lt-system .sm-target-head>.lt-year-field{order:1}#lt-system .sm-target-head>.sm-page-tabs{order:2;flex:1 1 100%;height:44px;width:100%;gap:20px}}

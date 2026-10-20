@@ -1,6 +1,6 @@
 // 上线期间独立于业绩统计期间；选中完整自然期间后转换为闭区间。
 // 默认取访问时的当前年份，不跟随样例数据截止日或右上角统计期间。
-let nspLaunchSelection={mode:'year',year:new Date().getFullYear(),value:1};
+let nspLaunchSelection={mode:'year',year:+dashboardToday().slice(0,4),value:1};
 const nspDefaultLaunchRange=nspLaunchRange(nspLaunchSelection.mode,nspLaunchSelection.year,nspLaunchSelection.value);
 nspFilters.launchStart=nspDefaultLaunchRange.start;
 nspFilters.launchEnd=nspDefaultLaunchRange.end;
@@ -23,7 +23,7 @@ function nspLaunchPickerHTML(){
 function nspBindLaunchFilter(host){
  host=host.querySelector('.nsp-launch-filter:not(.nsp-success-filter)');
  const trigger=host.querySelector('.nsp-launch-trigger'),panel=host.querySelector('.nsp-launch-panel'),clear=host.querySelector('.nsp-launch-clear');
- let mode='year',year=new Date().getFullYear(),yearStart=Math.floor(year/10)*10;
+ let mode='year',year=+dashboardToday().slice(0,4),yearStart=Math.floor(year/10)*10;
  const position=()=>{
   const anchor=trigger.getBoundingClientRect(),box=panel.getBoundingClientRect();
   panel.style.left=Math.max(8,Math.min(anchor.left,innerWidth-box.width-8))+'px';
@@ -48,7 +48,7 @@ function nspBindLaunchFilter(host){
  };
  trigger.onclick=()=>{
   if(panel.matches(':popover-open')){close();return}
-  mode=nspLaunchSelection?.mode||'year';year=nspLaunchSelection?.year||new Date().getFullYear();yearStart=Math.max(1,Math.min(9991,2020+Math.floor((year-2020)/9)*9));
+  mode=nspLaunchSelection?.mode||'year';year=nspLaunchSelection?.year||+dashboardToday().slice(0,4);yearStart=Math.max(1,Math.min(9991,2020+Math.floor((year-2020)/9)*9));
   render();panel.showPopover();position();panel.querySelector(`[data-launch-mode="${mode}"]`).focus({preventScroll:true});
  };
  panel.onclick=e=>{

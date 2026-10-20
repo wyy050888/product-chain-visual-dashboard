@@ -25,12 +25,12 @@ const rpMonthlyBeforeConfirmed=qrbMonthly;
 qrbMonthly=function(...args){
  const original=rpMonthlyBeforeConfirmed(...args),platform=args[1],raw=qfPreviousMonthly(...args);
  const dropped=raw.events.filter(e=>e.type==='掉权'&&e.source==='demo');
- const returnHit=qrbReturnDecision(original.current.orders,original.current.returnRate,original.target,true);
+ const returnHit=qrbReturnDecision(original.current.orders,original.current.returnRate,original.previous.returnRate,true);
  const events=rpPlatformViolationEvents([...original.events,...dropped],platform,platform);
  const amount=type=>events.filter(e=>e.type===type).reduce((sum,e)=>sum+(Number(e.amount)||0),0);
  const fine=amount('罚款'),frozen=amount('资金冻结'),offShelf=events.filter(e=>e.type==='下架').length,dropCount=events.filter(e=>e.type==='掉权').length;
  const hits=[fine>0,frozen>0,offShelf+dropCount>0,returnHit,original.contactHit];
- const risks=['平台罚款','资金冻结','链接下架／掉权','总退超目标','进线率恶化'].filter((_,i)=>hits[i]);
+ const risks=['平台罚款','资金冻结','链接下架／掉权','总退环比恶化','进线率恶化'].filter((_,i)=>hits[i]);
  const allEvents=rpPlatformViolationEvents([...events,...qrbNonQualityEvents(args[0],platform,original.start,original.end)],platform,platform).sort((a,b)=>a.date.localeCompare(b.date));
  return {...original,supported:true,returnHit,fine,frozen,offShelf,events,allEvents,dropCount,hits,risks,penaltyHit:hits.slice(0,3).some(Boolean),priority:hits.findIndex(Boolean)};
 };
@@ -61,13 +61,13 @@ rrRows=function(){
   const fineEvents=m.events.filter(e=>e.type==='罚款'),fineHit=fineEvents.some(e=>Number(e.amount)>=5000),penaltyCount=m.events.length;
   const violation=m.offShelf>=2||fineHit||penaltyCount>=2;
   const returnGap=r.returnRate-m.target,receivedGap=r.receivedRate-8;
-  const risks=pfReturnCauses(r,m);
+  const risks=pfReturnCauses(r);
   const s=upSummary(upIdentity(r),w.start,w.end,r.channel);
   return {...r,returnTarget:m.target,receivedTarget:8,returnGap,receivedGap,qualityViolation:violation,qualityFine:m.fine,gsvCents:s.gsvCents,risks,risk:risks.length>0,level:violation?'P1':'P2'};
  }).filter(r=>r.risk).sort((a,b)=>Number(b.qualityViolation)-Number(a.qualityViolation)||(b.qualityViolation?b.qualityFine-a.qualityFine:0)||b.gsvCents-a.gsvCents||b.returnGap-a.returnGap||b.receivedGap-a.receivedGap);
 };
 
 
-function pfReturnCauses(s,m){
- return [s.returnRate!==null&&s.returnRate>m.target+5?'总退超目标':'',s.receivedRate!==null&&s.receivedRate>10?'已收退超目标':''].filter(Boolean);
+function pfReturnCauses(s,previous={returnRate:s.previousRate,receivedRate:s.previousReceivedRate}){
+ return [riskRateWorsened(s.returnRate,previous.returnRate,3)?'总退环比恶化':'',riskRateWorsened(s.receivedRate,previous.receivedRate,2)?'已收退环比恶化':''].filter(Boolean);
 }

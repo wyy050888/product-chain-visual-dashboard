@@ -22,6 +22,7 @@ function upProduct(p) {
   const actualLaunch = newLaunchSamples.get(p.spuId)?.actualLaunch || shiftDate(DATA_CUTOFF, 1 - base.days);
   const product={...base, ...sampleSpuFields(p), id: 10000 + p.sourceRow, actualLaunch,
     state:newLaunchSamples.get(p.spuId)?.salesState||base.state,
+    guidePriceCents:p.guidePriceCents??productGuidePriceSamples[p.spuId]??null,
     attribute: srAttribute(p.name), owner: aiOwners[p.chain], channel:qrPlatforms[(p.sourceRow-1)%6]};
   upIdentityCache.set(p.spuId,product);return product;
 }
@@ -44,8 +45,10 @@ function upBuildDaily(p, platform, start, end, version=upFactsVersion(p)) {
   const targetWeight = [32,13,8,20,15,12][channelIndex]/100;
   const rows = upRawQuality(product, platform, start, end).points.map(d => {
     const onSale = d.date >= product.actualLaunch;
+    const sample=onSale?upGradeSampleDay(p,d,priceCents,channelIndex):null;
+    if(sample)d=sample.point;
     // 保留少量可核对的低动销样例场景；所有模块使用同一批逐日件数。
-    const lowMovement = p.sourceRow%6===0;
+    const lowMovement = !sample&&p.sourceRow%6===0;
     // 固定日期生成变化，不使用随机数；任意区间拆分后仍能汇总一致。
     const monthIndex=Number(d.date.slice(0,4))*12+Number(d.date.slice(5,7));
     const slowUnits=Math.round((2+p.sourceRow/3)*[.75,1,1.25,.9][(monthIndex+p.sourceRow/6)%4]);
@@ -60,7 +63,7 @@ function upBuildDaily(p, platform, start, end, version=upFactsVersion(p)) {
     const gmvCents = sales*priceCents, refundCents = returned*priceCents;
     // 仅少量SPU保留固定利润率说明持平，其余按日期呈现温和涨跌。
     const dayIndex=Math.floor(Date.parse(d.date)/86400000);
-    const dailyMargin=margin+(p.sourceRow%29===0?0:(1.6+p.sourceRow%3*.6)*Math.sin(dayIndex/37+p.sourceRow*.8));
+    const dailyMargin=sample?sample.profitRate:margin+(p.sourceRow%29===0?0:(1.6+p.sourceRow%3*.6)*Math.sin(dayIndex/37+p.sourceRow*.8));
     const gsvCents = gmvCents-refundCents, profitCents = Math.round(gsvCents*dailyMargin/100);
     // 推广消耗为固定样例，按SPU、平台、日期生成；不重复扣减既有利润。
     const expenseRate=8+(p.sourceRow%7)*1.1+channelIndex*.7+Math.sin(dayIndex/11+p.sourceRow)*1.2;

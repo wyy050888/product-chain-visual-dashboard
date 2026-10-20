@@ -30,23 +30,34 @@ function drawerApply(){
   const selected=button.dataset.drawerTab===key;
   button.classList.toggle('selected',selected);button.setAttribute('aria-selected',String(selected));button.tabIndex=selected?0:-1;
  }
- $('#dialogbody').setAttribute('role','tabpanel');
- $('#dialogbody').setAttribute('aria-labelledby',`drawer-tab-${drawerView.sequence}-${key}`);
+ $('#dialogbody').setAttribute('role',profile.tabs.length?'tabpanel':'region');
+ $('#dialogbody').setAttribute('aria-labelledby',profile.tabs.length?`drawer-tab-${drawerView.sequence}-${key}`:'dialogtitle');
+}
+// 合计保留独立tfoot及原有业务样式，只在抽屉内调整显示位置，不参与明细排序和分页。
+function drawerPromoteTableSummaries(body){
+ for(const table of body.querySelectorAll('table')){
+  const summary=table.tFoot,details=table.tBodies[0];
+  if(!summary?.rows.length||!details)continue;
+  summary.classList.add('drawer-summary-first');
+  if(summary.nextElementSibling!==details)table.insertBefore(summary,details);
+ }
 }
 function drawerRefresh(){
  if(!drawerView||$('#overlay').hidden)return;
- const body=$('#dialogbody'),profile=drawerProfile(body,$('#dialogtitle').textContent);
+ const body=$('#dialogbody');drawerPromoteTableSummaries(body);
+ const profile=drawerProfile(body,$('#dialogtitle').textContent);
  // 接收项目原有按钮、阶段卡及底部“指派处理”触发的业务切换。
  const hero=body.querySelector('.up-detail>.up-hero'),bar=hero?.parentElement.querySelector(':scope > .up-detail-tabs');
  if(bar){if(drawerNav.parentElement!==bar)bar.prepend(drawerNav)}
  else if(hero){if(hero.nextElementSibling!==drawerNav)hero.after(drawerNav)}
  else if($('#dialog .dialoghead').nextElementSibling!==drawerNav)$('#dialog .dialoghead').after(drawerNav);
  const nativeActive=profile.native?.find(t=>t.button.classList.contains('active'))?.key;
- if(drawerView.nativeKey===null){drawerView.nativeKey=nativeActive;if(nativeActive==='dispatch'||!profile.tabs.some(t=>t.key==='base'))drawerView.key=nativeActive||profile.tabs[0].key;}
+ if(drawerView.nativeKey===null){drawerView.nativeKey=nativeActive;if(nativeActive==='dispatch'||!profile.tabs.some(t=>t.key==='base'))drawerView.key=nativeActive||(profile.tabs[0]?.key||'base');}
  else if(nativeActive&&nativeActive!==drawerView.nativeKey){drawerView.key=nativeActive;drawerView.nativeKey=nativeActive;}
  if(profile.activeKey)drawerView.key=profile.activeKey;
- if(!profile.tabs.some(t=>t.key===drawerView.key))drawerView.key=profile.tabs[0].key;
+ if(!profile.tabs.some(t=>t.key===drawerView.key))drawerView.key=(profile.tabs[0]?.key||'base');
  drawerView.profile=profile;
+ drawerNav.hidden=!profile.tabs.length;
  const subtitle=$('#dialogsub'),seen=new Set();
  const cleaned=subtitle.textContent.split(/\s*[|｜]\s*/).filter(part=>{const dates=part.match(/\d{4}-\d{2}-\d{2}/g);if(!dates)return true;const key=dates.join('|');if(seen.has(key))return false;seen.add(key);return true}).join(' · ');
  if(!subtitle.querySelector('.period-picker')&&subtitle.textContent!==cleaned)subtitle.textContent=cleaned;

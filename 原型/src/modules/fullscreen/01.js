@@ -14,6 +14,7 @@ screenButton.onclick=async()=>{
 };
 document.addEventListener('fullscreenchange',()=>{
   const active=!!document.fullscreenElement;
+  document.documentElement.classList.toggle('dashboard-fullscreen',active);
   screenButton.querySelector('.navigation-action-label').textContent=active?'退出全屏':'全屏展示';
   screenButton.querySelector('path').setAttribute('d',active?'M3 8h5V3m8 0v5h5M8 21v-5H3m18 0h-5v5':'M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5');
   screenButton.setAttribute('aria-label',active?'退出全屏展示':'全屏展示看板');

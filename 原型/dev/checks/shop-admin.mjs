@@ -12,7 +12,10 @@ export async function compassShopConfig(page){
   const audit=()=>admin.evaluate(()=>window.shopAdminAudit());
   for(const platform of ['douyin','kuaishou','wechat','tmall','jd','pdd']){
    await go(platform);assert.equal(await admin.locator('[data-platform]').count(),6);assert.equal(await admin.locator('aside .menu-selected').innerText(),'店铺配置');
-   const data=await audit();assert(data.shops.length>0);assert.equal(data.readonly,['tmall','jd','pdd'].includes(platform));
+   const data=await audit();assert(data.shops.length>0);
+   const allowed=platform==='jd'?['自营','POP旗舰店','POP专卖店']:['旗舰店','专卖店'];
+   const choices=await admin.locator('[data-shop-category]').first().locator('option:not([disabled])').allTextContents();assert.deepEqual(choices,allowed);
+   for(const shop of data.shops)assert([...allowed,'无分类'].includes(shop.metadata.shopCategory));assert.equal(data.readonly,['tmall','jd','pdd'].includes(platform));
    const heads=await admin.locator('.shop-table th').allTextContents();assert(heads.includes('店铺分类')&&heads.includes('是否考核店铺'));
    assert.equal(await admin.locator('#shop-rows td input:not([type=hidden])').count(),0);
    if(data.readonly){assert(heads.includes('店铺策略')&&heads.includes('店铺推广'));assert.equal(await admin.locator('#shop-rows [data-open]').count(),0);assert(await admin.locator('#records-open').isHidden());}
@@ -32,12 +35,27 @@ export async function compassShopConfig(page){
   // 行内分类与考核即时保存，筛选、重置、刷新均读取同一值。
   await go('douyin');let data=await audit();const watched=data.shops.find(s=>s.id==='306131028');assert(watched);
   await admin.locator('#shop-search').fill(watched.id);let row=admin.locator('[data-shop="'+watched.id+'"]');
-  await row.locator('[data-shop-category]').selectOption('C店');await row.getByRole('switch').click();
-  await admin.locator('#category-filter').selectOption('C店');await admin.locator('#assessed-filter').selectOption(watched.metadata.assessed?'no':'yes');assert.equal(await admin.locator('#shop-rows [data-shop]').count(),1);
-  await admin.reload();await admin.locator('#shop-search').fill(watched.id);row=admin.locator('[data-shop="'+watched.id+'"]');assert.equal(await row.locator('[data-shop-category]').inputValue(),'C店');assert.equal(await row.getByRole('switch').getAttribute('aria-checked'),String(!watched.metadata.assessed));
+  await row.locator('[data-shop-category]').selectOption('专卖店');await row.getByRole('switch').click();
+  await admin.locator('#category-filter').selectOption('专卖店');await admin.locator('#assessed-filter').selectOption(watched.metadata.assessed?'no':'yes');assert.equal(await admin.locator('#shop-rows [data-shop]').count(),1);
+  await admin.reload();await admin.locator('#shop-search').fill(watched.id);row=admin.locator('[data-shop="'+watched.id+'"]');assert.equal(await row.locator('[data-shop-category]').inputValue(),'专卖店');assert.equal(await row.getByRole('switch').getAttribute('aria-checked'),String(!watched.metadata.assessed));
   await admin.locator('#shop-filter-reset').click();assert((await admin.locator('#shop-rows [data-shop]').count())>1);
   // 原榜单收到新标签页元数据，仍保留原查询范围。
-  await page.bringToFront();await page.locator('[data-rp-filter="query"]').fill(watched.id);assert.match(await page.locator('#rf-list-table tbody').innerText(),/C店/);assert.equal(await page.locator('#dialogsub').innerText(),before);
+  await page.bringToFront();await page.locator('[data-rp-filter="query"]').fill(watched.id);assert.match(await page.locator('#rf-list-table tbody').innerText(),/专卖店/);assert.equal(await page.locator('#dialogsub').innerText(),before);
+  // 详情已打开时也同步，保留当前日期和页签。
+  await page.locator('#rf-list-table [data-riskitem]').first().click();await page.locator('.sd-detail').waitFor();
+  const detailPeriod=await page.locator('#dialogsub').innerText();
+  await admin.locator('#shop-search').fill(watched.id);
+  await row.locator('[data-shop-category]').selectOption('旗舰店');
+  await page.waitForFunction(()=>document.querySelector('[data-sd-category]')?.textContent==='旗舰店');
+  assert.equal(await page.locator('#dialogsub').innerText(),detailPeriod);
+  await page.locator('.drawer-back').click();
+  assert.match(await page.locator('#rf-list-table tbody').innerText(),/旗舰店/);
+  // 旧非法分类保留无分类与独立考核，可筛出后人工修正。
+  await admin.evaluate(id=>{const key='shop-classification-config-v1',store=JSON.parse(localStorage.getItem(key));store.shops['抖音|'+id]={shopCategory:'C店',assessed:false};localStorage.setItem(key,JSON.stringify(store))},watched.id);
+  await admin.reload();await admin.locator('#category-filter').selectOption('无分类');await admin.locator('#shop-search').fill(watched.id);
+  row=admin.locator('[data-shop="'+watched.id+'"]');assert.equal(await row.locator('[data-shop-category]').inputValue(),'');assert.equal(await row.getByRole('switch').getAttribute('aria-checked'),'false');
+  await row.getByRole('switch').click();assert.equal((await audit()).shops.find(s=>s.id===watched.id).metadata.shopCategory,'无分类');
+  await admin.locator('#category-filter').selectOption('');await row.locator('[data-shop-category]').selectOption('专卖店');
   // 全历史来源：变更目标后四个字段均可呈现多个归属，不以最新一行覆盖历史。
   await go('tmall');const goalOpened=context.waitForEvent('page');await admin.evaluate(url=>window.open(url,'_blank'),new URL('目标管理/目标管理.html',root).href);const target=await goalOpened;target.on('pageerror',e=>errors.push(e.message));
   try{

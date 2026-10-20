@@ -2,7 +2,7 @@
 const rpCardPlatformState={value:'all'};
 // 季品按卡片独立保存；共用产品主数据口径，筛选后再截取 TOP 6。
 const rpCardSeasons={0:'all',2:'all',3:'all',4:'all',6:'all'};
-const rpSeasonChoices=['夏季品','冬季品','四季品'];
+const rpSeasonChoices=filterCatalog.seasons;
 function rpCardSeasonControl(k){
  if(!(k in rpCardSeasons))return '';
  return `<select multiple data-pf-multiple data-pf-label="季品" data-rp-card-season="${k}" aria-label="${esc(rpTitles[k])}季品">${pfOptions(rpSeasonChoices,rpCardSeasons[k],'全部产品')}</select>`;

@@ -16,12 +16,15 @@ function rpShopProblemHit(product){
  const currentTarget=product.currentTarget??product.target,previousTarget=product.previousTarget??product.target;
  return [product.current,product.previous,currentTarget,previousTarget].every(Number.isFinite)&&product.current>currentTarget*1.05&&product.previous>previousTarget*1.05&&product.current>product.previous;
 }
-function rpShopTopSpu(rows){
- // 销量相同时按SPU编码稳定排序；没有有效销量时不指定主营商品。
- return rows.filter(r=>r.product&&Number.isFinite(r.sales)&&r.sales>0).sort((a,b)=>b.sales-a.sales||a.product.spuCode.localeCompare(b.product.spuCode))[0]?.product||null;
-}
-function rpShopMainSpu(shop,start=riskRange().start,end=riskRange().end){
- return rpShopTopSpu(sampleShopSpuSales(shop,start,end));
+// 主营是月度销售额门槛，与榜单当前按日、季、年汇总的经营值分开。
+const rpShopCoreThresholdCents=50000000;
+const rpShopCoreRule=`按所选结束日所在自然月，从月初累计至该日，本店单个SPU的GSV≥${rpShopCoreThresholdCents/1000000}w（含${rpShopCoreThresholdCents/1000000}w）即为核心主营SPU，可有多个；不按季度或年度累计额判定。`;
+function rpShopCoreFacts(shop,end=riskRange().end){
+ const month=end.slice(0,7),start=month+'-01',cutoff=end<DATA_CUTOFF?end:DATA_CUTOFF;
+ const rows=start>cutoff?[]:sdOperatingFacts(shop,start,cutoff).products;
+ const products=rows.filter(row=>Number.isFinite(row.gsvCents)&&row.gsvCents>=rpShopCoreThresholdCents)
+  .sort((a,b)=>b.gsvCents-a.gsvCents||a.product.spuCode.localeCompare(b.product.spuCode));
+ return {month,start,end:cutoff,products,available:rows.some(row=>Number.isFinite(row.gsvCents))};
 }
 function rpShopPeriodEvents(shop,start,end,qualityOnly=true){
  const period=riskShopPeriod(shop,riskRange(start,end));
@@ -53,9 +56,9 @@ function rpShopPeriodFacts(shop,start,end,qualityOnly=true){
 function rpShopFields(shop,qualityOnly=true){
  const w=riskRange(),now=rpShopPeriodFacts(shop,w.start,w.end,qualityOnly),before=rpShopPeriodFacts(shop,w.previousStart,w.previousEnd,qualityOnly),fields=[];
  const add=(key,name,value,raw,tone='',target='',targetTone='',hint='')=>fields.push({...rpField(key,name,value,tone,hint,target),sortValue:raw,targetTone});
- const comparison='上期取紧邻的等长区间；环比上涨绿色，跌幅≤10%灰色，跌幅>10%红色，持平灰色；上期缺失或为0且本期非0显示--；两期相同显示持平。';
- const main=rpShopMainSpu(shop,w.start,w.end);
- fields.push({...rpField('mainSpu','核心主营SPU',main?.name||'暂无销量数据','','按所选期间本店销量（未扣退货）最高的SPU自动识别；同销量按SPU编码排序。'),product:main});
+ const comparison='上期取紧邻的等长区间；环比上涨绿色，跌幅≤10%灰色，跌幅>10%红色，持平灰色。';
+ const core=rpShopCoreFacts(shop,w.end);
+ fields.push({...rpField('mainSpu','核心主营SPU',core.products.map(row=>row.product.name).join('、')||(core.available?'暂无达标产品':'暂无月度数据'),'',rpShopCoreRule),core});
  for(const [key,name,count] of [['gsv','GSV',false],['netSales','去退后销量',false],['violations','违规次数',true],['offShelf','链接下架',true],['drop','链接掉权',true],['limited','店铺限单',true]]){
   add(key,name,key==='gsv'?rpQualityMoney(now[key]):fmt(now[key])+(count?'次':''),now[key],'rp-quality-normal',rpQualityChange(now[key],before[key]),rpQualityChangeTone(now[key],before[key]),comparison+(count?'按期间处罚事件统计。':''));
  }
@@ -66,22 +69,23 @@ function rpShopFields(shop,qualityOnly=true){
  add('score','店铺分',Number.isFinite(shop.score)?fmt(shop.score,2):'—',shop.score,rpShopScoreTone(shop.channel,shop.score),'','','结束日评分。'+rpShopScoreHint(shop.channel));
  for(const [key,name] of [['productScore','商品分'],['logisticsScore','物流分'],['serviceScore','服务分']])add(key,name,Number.isFinite(shop[key])?fmt(shop[key],2):'—',shop[key],'rp-quality-normal','','','结束日评分；未设置额外阈值。');
  if(shop.channel==='拼多多'){
-  const groups=rpPddLinkGroups(shop),end=w.end;
+  const groups=rpPddLinkGroups(shop,w.end),end=w.end;
   for(const [key,name,tone] of [['redLinks','红灯链接数','red'],['yellowLinks','黄灯链接数','yellow']]){
-   fields.push({...rpField(key,name,groups[tone].length),sortValue:groups[tone].length,shopId:shop.id,linkTone:tone,linkEnd:end});
+   const count=!groups.all.length||(!groups[tone].length&&groups.unknown.length)?null:groups[tone].length;
+   fields.push({...rpField(key,name,count===null?'--':count),sortValue:count,shopId:shop.id,linkTone:tone,linkEnd:end,unconfigured:!groups.all.length});
   }
  }
  return fields.map(field=>rpViolationField(field,shop.channel));
 }
 
 // 六项考核命中数：至少3项为红灯，1—2项为黄灯，0项不纳入异常链接。
-function rpPddLinkGroups(shop){
- const links=sbPddLinks(shop);
- return {red:links.filter(link=>link.redCount>=3),yellow:links.filter(link=>link.redCount>0&&link.redCount<3)};
+function rpPddLinkGroups(shop,end){
+ const all=sbPddLinks(shop,end);return {all,red:all.filter(l=>l.assessment==='red'),yellow:all.filter(l=>l.assessment==='yellow'),unknown:all.filter(l=>l.assessment==='unknown')};
 }
 function rpShopColumns(platform){
  const selected=Array.isArray(platform)?platform:[platform],pddOnly=selected.length===1&&selected[0]==='拼多多';
- if(!selected.includes('拼多多'))return [...rpShopListKeys];
  const scoreKeys=['score','productScore','logisticsScore','serviceScore'];
+ if(selected.includes('all'))return rpShopListKeys.filter(key=>!scoreKeys.includes(key));
+ if(!selected.includes('拼多多'))return [...rpShopListKeys];
  return [...rpShopListKeys.filter(key=>!pddOnly||!scoreKeys.includes(key)),'redLinks','yellowLinks'];
 }

@@ -26,10 +26,8 @@ function upDetailModel(state) {
     for(const row of quality) for(const m of qfMetrics(row)) if(m.hit) signals.push({kind:'品质',platform:row.platform,name:m.name,value:m.value,rule:m.rule});
     for(const row of selected.map(platform=>upSummary(p,state.start,state.end,platform))) {
       const prev=upSummary(p,previousStart,previousEnd,row.platform);
-      const growth=prev.returnRate?(row.returnRate-prev.returnRate)/prev.returnRate*100:null;
-      const monthly=quality.find(q=>q.platform===row.platform).monthly;
-      const causes=pfReturnCauses(row,monthly);
-      if(causes.length)signals.push({kind:'退货恶化',platform:row.platform,name:causes.join('、'),value:upPercent(row.returnRate),rule:'现行条件：总退超目标5、已收退超目标2、下架≥2次、单笔罚款≥5000元或品质处罚≥2次；偏差单位与违规单独入榜范围待补充。'});
+      const causes=pfReturnCauses(row,prev);
+      if(causes.length)signals.push({kind:'退货恶化',platform:row.platform,name:causes.join('、'),value:upPercent(row.returnRate),rule:'本期与紧邻等长上期相比，总退增长值＞3个百分点或已收退增长值＞2个百分点入榜；等于阈值不触发，缺失比率不判定。'});
     }
     const net=upNetEstimate(current);if(net.profitCents<0) signals.push({kind:'亏损',platform:state.platform==='all'?'全公司':state.platform,name:'亏损金额',value:pfMoneyYuan((-net.profitCents/1000000)*10000),rule:'毛利率减10个百分点后测算净利为负，按亏损绝对金额排序；原型以GSV为同一收入基数，正式分母待映射。'});
     if(highStock?.reasons.length) for(const reason of highStock.reasons) signals.push({kind:'库存',platform:reason.platforms?.join('、')||'全公司',

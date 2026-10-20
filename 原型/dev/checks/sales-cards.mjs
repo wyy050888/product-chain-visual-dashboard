@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 
 export async function salesCards(page){
+ // 固定样例截止日，避免历史预期受运行日期漂移影响。
+ await page.clock.setFixedTime(new Date('2026-10-10T04:00:00Z'));await page.reload({waitUntil:'domcontentloaded',timeout:30000});
  await page.locator('a[href="#sales"]').click();
  const cards=page.locator('#salescards .ms-card'),company=cards.first();
  assert.equal(await cards.count(),5);

@@ -33,6 +33,7 @@ export async function verifyShopMetrics(page){
  const f=ctx.sdOperatingFacts({id:1},'2026-10-01','2026-10-02');
  assert.equal(f.products.reduce((n,r)=>n+r.gsvCents,0),f.points.reduce((n,r)=>n+r.gsvCents,0));
  assert.equal(f.products.reduce((n,r)=>n+r.netSales,0),140);
+ for(const row of f.products)assert.equal(row.returnRate,row.returned/row.sales*100,'SPU总退按原始件数加权计算');
  const weekly=ctx.sdTrendRows(f.points,'quarter');assert.equal(weekly.length,1);assert.equal(weekly[0].returnRate,10/150*100);assert.equal(weekly[0].netSales,140);
  assert.equal(ctx.sdTrendRows([{date:'2026-01-31',sales:0,returned:0,gsvCents:0},{date:'2026-02-01',sales:1,returned:0,gsvCents:100}], 'year').length,2);
  assert.equal(ctx.sdTrendRows([{date:'2026-01-01',sales:0,returned:0,gsvCents:0}], 'year')[0].returnRate,null);

@@ -20,7 +20,7 @@ function scGroups(ledger=svLedger()){
  return [0,1].flatMap(kind=>chains.flatMap((_,chain)=>[0,1].map(leaf=>{const id=kind+'-'+chain+'-'+leaf,rows=ledger.filter(s=>s.categoryId3===id&&s.date<=cutoff),unique=arr=>[...new Map(arr.map(s=>[s.key,s])).values()],pool={intent:unique(rows.filter(s=>s.state==='意向储备')),admission:unique(rows.filter(s=>s.state==='准入储备')),strategic:unique(rows.filter(s=>s.strategic&&s.state==='已合作'&&s.cooperation<=cutoff))},quarterTarget=(kind?2:3)+(leaf===0&&quarter===3?1:0),yearTarget=(kind?8:12)+(leaf===0?1:0),yearNew=unique(rows.filter(s=>s.date>=yearStart)).length,quarterActual=unique(rows.filter(s=>s.date>=quarterStart)).length;
  return {id,kind,chain,leaf,path:(kind?scMaterialPaths:scPaths)[chain][leaf],name:(kind?scMaterialPaths:scPaths)[chain][leaf].split('/').at(-1),owner:pbPeople[chain+(kind?4:0)],rows,pool,counts:Object.fromEntries(scMetrics.map(m=>[m.key,pool[m.key].length])),quarter,quarterTarget,quarterActual,yearNew,yearTarget,yearActual:yearNew,periodTarget:Array.from({length:range.last-range.first+1},(_,i)=>{const month=range.first+i,q=Math.ceil(month/3),qt=(kind?2:3)+(leaf===0&&q===3?1:0);return splitTarget(qt,[1,1,1])[(month-1)%3]}).reduce((a,b)=>a+b,0),periodActual:unique(rows.filter(s=>s.date>=range.start)).length,cutoff};})));
 }
-const scCoreBrands=[['美的','A'],['海尔','A'],['苏泊尔','A'],['康佳','B'],['创维','B']],scCoreMaterials=['电机','电池','电源线','线路板'];
+const scCoreBrands=filterCatalog.supplierCoreBrands,scCoreMaterials=filterCatalog.supplierCoreMaterials;
 function scMetricsFor(g){return g.coreMaterial?[{key:'admission',label:'准入储备',target:5}]:[scMetrics[1]];}
 const scCategoryGroups=scGroups;
 scGroups=function(ledger=svLedger()){

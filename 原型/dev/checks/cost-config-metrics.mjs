@@ -1,0 +1,38 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+export async function verifyDynamicCostMetrics(page){
+ const key='cost-efficiency-config-v1',editor=page.locator('#cec-editor'),audit=()=>page.evaluate(()=>window.costConfigAudit()),cost=()=>page.evaluate(()=>window.costControlAudit({year:2026,mode:'month',value:10}));
+ const route=async hash=>{await page.evaluate(hash=>{location.hash=hash},hash);await page.locator(hash==='#cost'?'#cost':'#cec-page').waitFor({state:'visible'})};
+ const reset=async()=>{await page.evaluate(key=>localStorage.removeItem(key),key);await page.reload()};
+ const research=['工艺降本','产品迭代降本','设计方案降本（含物料降本）','关键器件替代料降本（含塑胶原料降本）'];
+ await page.locator('#cec-reset').click();await page.locator('#cec-department').selectOption('research');
+ assert.deepEqual(await page.locator('#cec-body tr td:nth-child(2)').allTextContents(),research);
+ assert.deepEqual(await page.locator('#cec-department option').allTextContents(),['全部','研发中心','采购部（去计划）','仓储部','风控中心','发货部（去仓储）','计划部','品质中心','用户中心','产品中心']);
+ const baseline=await cost();assert.equal(baseline.totals.year.target,5640900000,'调整指标不改变既有年度目标');assert.equal(baseline.totals.month.target,508099997,'不重新分摊研发金额');
+ assert(!baseline.ledger.some(r=>['research-2','research-3'].includes(r.itemId)),'新增研发项不伪造历史金额');
+ await page.locator('#cec-new').click();assert.equal(await page.locator('#cec-editor-title').innerText(),'新增降本指标');assert.equal(await editor.locator('[name="department"]').inputValue(),'research');
+ await page.locator('#cec-save').click();assert.match(await page.locator('#cec-editor-error').innerText(),/请输入降本指标/);
+ await editor.locator('[name="metric"]').fill('研发验证降本');await editor.locator('[aria-label="10月目标金额"]').fill('100');await editor.locator('[aria-label="10月实际降本金额"]').fill('25');await page.locator('#cec-save').click();
+ let snapshot=await audit(),item=snapshot.metrics.find(m=>m.metric==='研发验证降本');assert(item);assert.equal(snapshot.metrics.length,30);assert.equal(snapshot.store.months[item.id+'|2026-10'].targetCents,10000);assert.equal((await cost()).totals.month.target,baseline.totals.month.target+10000);assert.equal((await cost()).totals.month.actual,baseline.totals.month.actual+2500);
+ await page.reload();await page.locator('#cec-department').selectOption('research');assert.equal((await audit()).metrics.find(m=>m.id===item.id).metric,'研发验证降本');
+ await page.locator(`[data-cec-edit="${item.id}"]`).click();assert(await editor.locator('[name="department"]').isDisabled());await editor.locator('[name="metric"]').fill('研发试制降本');await page.locator('#cec-save').click();
+ snapshot=await audit();assert.equal(snapshot.metrics.find(m=>m.id===item.id).metric,'研发试制降本');assert.equal(snapshot.store.months[item.id+'|2026-10'].actualCents,2500);assert.equal(snapshot.metrics.length,30,'改名保留同一身份及金额');
+ await route('#cost');assert.match(await page.locator('[data-cc-row="purchase"] td:first-child').innerText(),/采购部（去计划）/);assert.equal(await page.locator('[data-cc-row="shipping"] td:first-child').innerText(),'发货部（去仓储）');await page.locator('[data-cc-department="research"]').click();assert.deepEqual(await page.locator('.cc-department-table tbody td:first-child').allTextContents(),[...research,'研发试制降本']);await page.locator('#close').click();await route('#system-cost-efficiency');
+ await page.locator('#cec-new').click();await editor.locator('[name="metric"]').fill('工艺降本');await page.locator('#cec-save').click();assert.match(await page.locator('#cec-editor-error').innerText(),/已存在/);assert.equal((await audit()).metrics.length,30);await page.keyboard.press('Escape');await page.locator('[data-cec-discard]').click();
+ // 改名不能覆盖同部门另一指标；存储失败不能提前更新看板。
+ await page.locator(`[data-cec-edit="${item.id}"]`).click();await editor.locator('[name="metric"]').fill('工艺降本');await page.locator('#cec-save').click();assert.match(await page.locator('#cec-editor-error').innerText(),/已存在/);await editor.locator('[name="metric"]').fill('研发试制优化降本');
+ await page.evaluate(()=>{window.cecSavedSet=Storage.prototype.setItem;Storage.prototype.setItem=function(k,v){if(k==='cost-efficiency-config-v1')throw Error('blocked');return window.cecSavedSet.call(this,k,v)}});await page.locator('#cec-save').click();assert.match(await page.locator('#cec-editor-error').innerText(),/保存失败/);assert.equal((await cost()).metrics.find(m=>m.id===item.id).name,'研发试制降本');await page.evaluate(()=>{Storage.prototype.setItem=window.cecSavedSet;delete window.cecSavedSet});await page.locator('#cec-save').click();
+ const headers=['责任部门','降本指标','年度','数据类型',...Array.from({length:12},(_,i)=>(i+1)+'月'),'备注'];
+ const row=(department,metric,type,month,value)=>[department,metric,'2026',type,...Array.from({length:12},(_,i)=>i+1===month?value:''),''];
+ const upload=async rows=>{await page.locator('#cec-import').click();await page.locator('#cec-file').setInputFiles({name:'动态降本指标.csv',mimeType:'text/csv',buffer:Buffer.from('\uFEFF'+[headers,...rows].map(r=>r.join(',')).join('\r\n'))});await page.locator('#cec-import-result .cec-import-summary').waitFor();assert.match(await page.locator('#cec-import-result').innerText(),/校验通过/)};
+ await upload([row('采购部','材料试验降本','目标值',10,'200'),row('采购部（去计划）','材料试验降本','实际达成',10,'50')]);assert.equal((await audit()).metrics.length,30,'预校验不新增到实际目录');await page.locator('#cec-confirm-import').click();
+ snapshot=await audit();const imported=snapshot.metrics.find(m=>m.metric==='材料试验降本');assert(imported);assert.equal(imported.department,'purchase');assert.equal(snapshot.metrics.length,31);assert.equal(snapshot.store.months[imported.id+'|2026-10'].actualCents,5000);
+ await upload([row('研发中心','研发试制优化降本','目标值',10,'300')]);await page.locator('#cec-overwrite').check();await page.locator('#cec-confirm-import').click();assert.equal((await audit()).metrics.length,31);assert.equal((await audit()).store.months[item.id+'|2026-10'].targetCents,30000,'导入编辑后的名称仍更新原ID');
+ await page.reload();await page.locator('#cec-department').selectOption('purchase');assert(await page.locator('#cec-body').innerText().then(text=>text.includes('材料试验降本')));await page.locator(`[data-cec-edit="${imported.id}"]`).click();assert.equal(await editor.locator('[name="metric"]').inputValue(),'材料试验降本');assert.equal(await editor.locator('[aria-label="10月目标金额"]').inputValue(),'200.00');await page.keyboard.press('Escape');
+ const downloadPromise=page.waitForEvent('download');await page.locator('#cec-template').click();const template=fs.readFileSync(await(await downloadPromise).path(),'utf8');assert.match(template,/采购部（去计划）/);assert.match(template,/材料试验降本/);
+ for(const width of [1366,390]){await page.setViewportSize({width,height:900});await page.locator('#cec-new').click();assert(await editor.evaluate(e=>e.scrollWidth<=e.clientWidth+1),'新增指标编辑器不撑宽 '+width);await page.keyboard.press('Escape')}
+ await page.setViewportSize({width:1920,height:1080});
+ // v2的旧研发设计金额保持research-1身份，不转给新增的产品迭代指标。
+ await page.evaluate(({key})=>localStorage.setItem(key,JSON.stringify({version:2,metrics:{'research-1':{updatedAt:'2026-10-10'}},months:{'research-1|2026-10':{targetCents:12345,actualCents:6789,note:'旧设计金额'}}})),{key});await page.reload();snapshot=await audit();assert.equal(snapshot.store.version,3);assert.equal(snapshot.metrics.find(m=>m.id==='research-1').metric,research[2]);assert.equal(snapshot.store.months['research-1|2026-10'].targetCents,12345);assert.equal(snapshot.metrics.find(m=>m.id==='research-2').metric,research[1]);
+ await reset();console.log('通过：括号部门名、研发四项、动态新增/改名/导入/刷新、同源汇总、重名及存储失败保护、旧研发金额身份兼容');
+}

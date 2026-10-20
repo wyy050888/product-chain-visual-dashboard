@@ -38,7 +38,7 @@ function wfAction(p,label='安排处理'){return `<button class="link" data-wf-a
 function wfTable(headers,rows){return `<div class="wf-table"><table><thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.length?rows.map(r=>`<tr>${r.map((v,i)=>`<td data-label="${headers[i]}">${v}</td>`).join('')}</tr>`).join(''):`<tr><td colspan="${headers.length}" class="empty">当前范围暂无匹配记录</td></tr>`}</tbody></table></div>`}
 function wfTabRows(d){
  const product=p=>wfProduct(p),hours=p=>fmt(p.blockHours,1)+' h',coord=p=>esc(p.coordinator);
- if(wfState.tab==='resources')return {title:'岗位资源投入与卡点占用',headers:['人员 / 岗位','扫描工时','卡点投入','卡点占比','涉及产品','管理建议'],rows:d.staff.map(s=>[`${esc(s.name)}<small>${esc(s.department)} · ${esc(s.role)}</small>`,fmt(s.hours,1)+' h',fmt(s.blockHours,1)+' h',fmt(s.blockHours/s.hours*100,1)+'%',s.products+' 款',s.blockHours/s.hours<.5?'复核优先级，优先保障关键卡点':'保持关键卡点投入，跟踪交付结果'])};
+ if(wfState.tab==='resources')return {title:'岗位资源投入与卡点占用',headers:['人员 / 岗位','扫描工时','卡点投入','卡点占比','涉及产品','管理建议'],rows:d.staff.map(s=>[`${esc(s.name)}<small>${esc(s.department)} · ${esc(s.role)}</small>`,fmt(s.hours,1)+' h',fmt(s.blockHours,1)+' h',fmt(s.blockHours/s.hours*100,1)+'%',s.products+' 个',s.blockHours/s.hours<.5?'复核优先级，优先保障关键卡点':'保持关键卡点投入，跟踪交付结果'])};
  if(wfState.tab==='omission')return {title:'未扫描到责任动作的岗位事项',headers:['产品 / 卡点','责任岗位','应落实动作','判断','主责协调人','管理动作'],rows:d.omissions.map(p=>[product(p),`${esc(p.staff.name)}<small>${esc(p.staff.role)}</small>`,p.obligation,'<span class="tag red">工作遗漏风险 · 待核实</span>',coord(p),wfAction(p,'核实并补充工作记录')])};
  if(wfState.tab==='missing')return {title:'未扫描到完整解决方案的产品卡点',headers:['产品 / 卡点','判定','已投入','当前缺失','主责协调人','管理动作'],rows:[...d.missing,...d.incomplete].map(p=>[product(p),`<span class="tag ${p.solution?'orange':'red'}">${p.solution?'方案待补齐':'未扫描到方案'}</span>`,hours(p),p.solution?'缺少：'+p.missing.join('、'):'所选报告范围未出现具体解决方案',coord(p),wfAction(p,p.solution?'补齐责任与验收要求':'组织根因分析，明确方案')])};
  if(wfState.tab==='issues')return {title:'跨岗位协同问题',headers:['产品 / 卡点','协同问题','报告线索','影响','主责协调人','管理动作'],rows:d.issues.map(p=>[product(p),`<span class="tag orange">${p.issue}</span>`,{交接未确认:'已跟进卡点，接收方确认记录待补齐',责任边界不清:'责任动作分散在多个岗位，缺少统一交付责任',验收标准不一致:'多个岗位推进同一卡点，验收口径待对齐'}[p.issue],'交付与闭环存在偏差风险',coord(p),wfAction(p,'对齐协同安排')])};
@@ -57,7 +57,7 @@ renderInlineAI=function(){
  if(!wfDirector()){wfPreviousRender();if($('#ai-inline-summary'))$('#ai-inline-summary').hidden=false;return}
  const kind=aiView.kind;if(kind==='deviation')aiView.kind='block';
  try{wfPreviousRender()}finally{aiView.kind=kind}
- const card=$('[data-ai-kind="deviation"]'),d=wfDataset();card.querySelector('h3').textContent='工作聚焦与协同诊断';card.querySelector('.an').innerHTML=d.products.length+'<span>款产品</span>';card.querySelector('p').textContent='聚焦卡点投入、工作遗漏与协同问题';
+ const card=$('[data-ai-kind="deviation"]'),d=wfDataset();card.querySelector('h3').textContent='工作聚焦与协同诊断';card.querySelector('.an').innerHTML=d.products.length+'<span>个产品</span>';card.querySelector('p').textContent='聚焦卡点投入、工作遗漏与协同问题';
  $('#ai-inline-summary').hidden=kind==='deviation';
  if(kind!=='deviation')return;
  $$('[data-ai-kind]').forEach(b=>{b.classList.toggle('selected',b.dataset.aiKind===kind);b.setAttribute('aria-pressed',String(b.dataset.aiKind===kind))});

@@ -153,3 +153,7 @@
   .head.portal-header .headright { margin-left: 10px; font-size: 12px; }
 }
 
+
+/* 全屏展示只保留模块导航与退出入口，主菜单不占位。 */
+html:is(:fullscreen,.dashboard-fullscreen) .head.portal-header{display:none}
+html:is(:fullscreen,.dashboard-fullscreen) :is(.navigation-toolbar,.dp-nav){top:0}

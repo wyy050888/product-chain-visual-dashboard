@@ -1,11 +1,11 @@
 (() => {
   const { $, $$, state } = GoalPrototype;
   const all = length => Array.from({ length }, (_, index) => index + 1);
-  const current = new Date().getMonth() + 1;
+  const current = () => GoalPrototype.clock.parts().month;
   let calendar;
   const memory = {
-    matrix: { period: 'month', year: 2026, months: all(12), quarters: all(4) },
-    link: { period: 'month', year: 2026, months: [current], quarters: [Math.ceil(current / 3)] },
+    matrix: { period: 'month', year: GoalPrototype.clock.parts().year, months: all(12), quarters: all(4) },
+    link: { period: 'month', year: GoalPrototype.clock.parts().year, months: [current()], quarters: [Math.ceil(current() / 3)] },
   };
   const isLink = () => state.level === 'channel' && state.shopTab === 'link';
   const selection = () => memory[isLink() ? 'link' : 'matrix'];
@@ -54,8 +54,8 @@
   }
   function reset() {
     const selected = selection();
-    selected.months = isLink() ? [current] : all(12);
-    selected.quarters = isLink() ? [Math.ceil(current / 3)] : all(4);
+    selected.months = isLink() ? [current()] : all(12);
+    selected.quarters = isLink() ? [Math.ceil(current() / 3)] : all(4);
     close(); sync();
   }
   function init(onChange) {

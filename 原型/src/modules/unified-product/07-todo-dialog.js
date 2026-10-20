@@ -5,9 +5,10 @@ function upTodoCommonFields(task,editable,inline){
  const owner=editable?upTodoPeopleInput(task.assignee,task):display('assignee',esc(upTodoPersonLabel(task.assignee,task)));
  const due=editable?`<input name="due" aria-label="截止日期" type="date" required value="${esc(task.due||'')}">`:display('due',esc(task.due||'—'));
  const priority=editable?`<select name="priority" aria-label="优先级">${Object.entries(upTodoPriorities).map(([key,label])=>`<option value="${key}" ${key===task.priority?'selected':''}>${label}</option>`).join('')}</select>`:display('priority',upTodoPriorityTag(task));
+ const type=upTodoType(task),typeField=editable?`<select name="taskType" aria-label="任务类型" required ${task.source==='manual'?'':'disabled'}>${Object.entries(upTodoTypes).map(([key,label])=>`<option value="${key}" ${key===type?'selected':''}>${label}</option>`).join('')}</select>`:`<span data-todo-type="${type}">${upTodoTypes[type]}</span>`;
  const status=inline?upTodoStatusSelect(task):upTodoStatusTag(task);
  const date=`<div class="up-todo-due">${due}<span data-todo-overdue>${editable?'':upTodoOverdue(task)}</span></div>`;
- return `<dl class="up-todo-common ${editable?'up-todo-common-assign':''}">${editable?'':item('任务状态',status)}${item('负责人',owner)}${item('截止日期',date)}${item('优先级',priority)}${editable?'':item('实际完成日期',`<span data-todo-completed-date>${esc(upTodoDate(task.completedAt))}</span>`)+item('下发人',esc(task.assignedBy||'—'))+item('下发日期',esc(upTodoDate(task.assignedAt)))}</dl>`;
+ return `<dl class="up-todo-common ${editable?'up-todo-common-assign':''}">${editable?'':item('任务状态',status)}${item('负责人',owner)}${item('截止日期',date)}${item('任务类型',typeField)}${item('优先级',priority)}${editable?'':item('实际完成日期',`<span data-todo-completed-date>${esc(upTodoDate(task.completedAt))}</span>`)+item('下发人',esc(task.assignedBy||'—'))+item('下发日期',esc(upTodoDate(task.assignedAt)))}</dl>`;
 }
 function upTodoDetailFields(task,editable,inline=false){
  const field=(name,label,value,required=false)=>`<label class="up-todo-dialog-field">${label}<textarea name="${name}" rows="3" maxlength="3000" ${required?'required':''}>${esc(value||'')}</textarea></label>`;
@@ -36,7 +37,7 @@ ${upTodoCommonFields(task,editable,mode==='detail'&&task.status!=='suggested')}
   const form=dialog.querySelector('form');
   for(const b of dialog.querySelectorAll('[data-todo-close]'))b.onclick=close;
   const forward=dialog.querySelector('[data-todo-to-assign]');if(forward)forward.onclick=()=>{mode='assign';Object.assign(task,upTodoDrafts.get(task.id));draw()};
-  const values=()=>({...Object.fromEntries(['title','description','plan','assignee','due','priority'].filter(key=>form.elements[key]).map(key=>[key,form.elements[key].value.trim()]))});
+  const values=()=>({...Object.fromEntries(['taskType','title','description','plan','assignee','due','priority'].filter(key=>form.elements[key]).map(key=>[key,form.elements[key].value.trim()]))});
   if(editable){form.oninput=()=>{Object.assign(task,values());upTodoDrafts.set(task.id,values())};form.onchange=form.oninput}
   form.onsubmit=e=>{
    e.preventDefault();const action=e.submitter?.dataset.todoAction;if(!action)return;

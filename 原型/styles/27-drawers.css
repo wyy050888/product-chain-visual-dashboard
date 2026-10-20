@@ -13,6 +13,7 @@
 #dialog.business-drawer>.dialogfoot:not(:has(#dialogactions button:not(#modalclose))){display:none}
 #dialog.business-drawer #dialogactions #modalclose{display:none}
 #dialog.business-drawer .drawer-tabs { display:flex; flex:none; gap:26px; padding:0 24px; min-height:49px; border-bottom:1px solid #e5eaf2; overflow-x:auto; background:#fff; }
+#dialog.business-drawer .drawer-tabs[hidden] { display:none; }
 #dialog.business-drawer .drawer-tabs button { position:relative; flex:none; border:0; background:none; border-radius:0; padding:14px 0; font:inherit; font-size:13px; color:#738096; cursor:pointer; white-space:nowrap; }
 #dialog.business-drawer .drawer-tabs button:hover { color:#1677ff; }
 #dialog.business-drawer .drawer-tabs button.selected { color:#1677ff; font-weight:500; }
@@ -47,3 +48,6 @@
 #dialogbody .sr-evidence:has(.drawer-pane-off) { grid-template-columns:1fr; }
 #dialogbody details.rd-fold[open]:has(>section h3)>summary { display:none; }
 #dialogbody details.rd-fold[open] { margin-top:12px; }
+
+/* 以普通行组显示前置合计，保留业务tfoot样式与独立数据区域。 */
+#dialogbody table>tfoot.drawer-summary-first{display:table-row-group}

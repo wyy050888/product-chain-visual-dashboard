@@ -22,7 +22,7 @@ document.addEventListener('click',e=>{
  if(!b){for(const menu of document.querySelectorAll('.pf-attribute[open]'))if(!menu.contains(e.target))menu.open=false;return}
  const menu=b.closest('.pf-attribute'),select=b.closest('.pf-attribute-row').querySelector('select'),bar=menu.parentElement;
  const value=b.dataset.pfAttributeChoice,selected=pfSelected(pfControlValue(select));
- if(select.multiple)pfControlSet(select,value==='all'?'all':selected.includes(value)?selected.filter(v=>v!==value):[...selected,value]);else select.value=value;
+ pfControlSet(select,pfToggleChoice(selected,value,select.multiple));
  pfAttributeSync(bar);
  select.dispatchEvent(new Event('change',{bubbles:true}));
  queueMicrotask(()=>{const next=bar.isConnected?bar:document.querySelector('#dialogbody .rp-list-tools');if(next?.querySelector('.pf-attribute'))next.querySelector('.pf-attribute').open=true});

@@ -1,12 +1,12 @@
 /* 品牌、类目多选复用白底字段外观；值居中于标签右侧可用区域，箭头以summary定位。 */
 .pf-multi{position:relative;min-width:140px;max-width:260px;flex:0 1 auto}
-.pf-multi summary.unified-input-group{position:relative;display:flex;align-items:center;height:36px;min-height:36px;width:100%;border:1px solid #e0e3e8;border-radius:6px;background:#fff;cursor:pointer;list-style:none;gap:0;padding:0}
+.pf-multi :is(summary,[data-pf-multi-trigger]).unified-input-group{position:relative;display:flex;align-items:center;height:36px;min-height:36px;width:100%;border:1px solid #e0e3e8;border-radius:6px;background:#fff;cursor:pointer;list-style:none;gap:0;padding:0}
 .pf-multi summary::-webkit-details-marker{display:none}
 .pf-multi .unified-field-name{display:flex;align-items:center;padding:0 10px;font-size:12px;font-weight:400;color:#34455f;background:transparent;border:0;white-space:nowrap}
 .pf-multi-value{display:block;flex:1;min-width:0;align-self:center;line-height:20px;text-align:center;padding:0 22px;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#24334b}
-.pf-multi summary>i{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:12px;height:12px;background:var(--filter-chevron) center / contain no-repeat;pointer-events:none}
+.pf-multi :is(summary,[data-pf-multi-trigger])>i{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:12px;height:12px;background:var(--filter-chevron) center / contain no-repeat;pointer-events:none}
 .pf-multi[open]{z-index:100}
-.pf-multi[open] summary,.pf-multi summary:focus-visible{border-color:#1677ff;outline:none;box-shadow:0 0 0 3px #1677ff12}
+.pf-multi[open] :is(summary,[data-pf-multi-trigger]),.pf-multi :is(summary,[data-pf-multi-trigger]):focus-visible{border-color:#1677ff;outline:none;box-shadow:0 0 0 3px #1677ff12}
 .pf-multi-menu{position:absolute;top:calc(100% + 6px);left:0;z-index:100;width:max(200px,100%);max-width:calc(100vw - 48px);max-height:270px;overflow:auto;padding:6px;background:#fff;border:1px solid #dce5f0;border-radius:6px;box-shadow:0 6px 24px #213b5b24}
 .pf-multi .pf-multi-option{display:flex;align-items:center;gap:8px;width:100%;height:auto;min-height:32px;margin:0;padding:7px 9px;border:0;border-radius:4px;background:#fff;cursor:pointer;color:#34455f;font-size:13px}
 .pf-multi .pf-multi-option:hover{background:#f4f8ff}
@@ -18,10 +18,13 @@
 .pf-attribute-row button[role=checkbox][aria-checked=true] i{background:#1677ff}
 .pf-attribute-row button[role=checkbox][aria-checked=true] i:after{content:'✓';width:auto;height:auto;color:white;background:none;font-size:10px;border-radius:0;line-height:10px}
 #riskrail .pf-multi{min-width:100px;max-width:150px}
-#riskrail .pf-multi summary.unified-input-group{height:28px;min-height:28px}
+#riskrail .pf-multi :is(summary,[data-pf-multi-trigger]).unified-input-group{height:28px;min-height:28px}
 #riskrail .pf-multi .unified-field-name{display:none}
 #riskrail .pf-multi-value{font-size:12px;padding:0 22px 0 10px}
 #riskrail .pf-multi-menu{left:auto;right:0}
 #new .titlegroup>.pf-multi{min-width:110px;max-width:220px}
 #new .titlegroup>.pf-multi .unified-field-name{display:none}
 @media(max-width:600px){.pf-multi{max-width:100%}.pf-multi-menu{width:100%;max-width:100%}}
+
+.pf-multi[data-pf-controlled]:not([open])>.pf-multi-menu{display:none}
+.pf-multi [data-pf-multi-trigger]{font:inherit;color:inherit;text-align:left;box-sizing:border-box}

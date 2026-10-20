@@ -1,4 +1,4 @@
-// GSV按原值降序，缺失置后；相同金额沿用渠道顺序，左右视图共用结果。
+// 渠道表与贡献图共用GSV默认顺序和期间汇总，缺失置后。
 const upOperatingChannels=['百度&CID','天猫','京东','抖音','一类达播','商务达播','快手','拼多多','视频号'];
 function upOperatingChannelRows(rows){
  const byChannel=new Map(rows.map(row=>[row.platform,row]));
@@ -34,21 +34,9 @@ function upOperatingView(m,state) {
     <div class="up-attainment-progress" role="progressbar" aria-label="规模达成率" aria-valuemin="0" aria-valuemax="100" ${Number.isFinite(scale)?`aria-valuenow="${width}"`:''} aria-valuetext="${Number.isFinite(scale)?upPercent(scale):'未配置目标'}"><i style="width:${width}%"></i></div>
   </section>`;
   return `<div class="up-operating-overview"><div class="up-operating-kpis">${metrics}</div>${targets}</div>${upSalesTrend(s.points)}
-    <div class="up-channel-comparison">${upChannelGsvChart(channelRows)}
-    <section class="up-platform-performance" aria-label="各渠道经营表现"><h3>各渠道经营表现</h3><div class="up-table">${table(['渠道','GSV','销量','去退后销量','消耗','费率','利润率','总退','已收退'],channelRows.map(r=>Number.isFinite(r.gsvCents)?[
-      r.platform,upMoney(r.gsvCents),fmt(r.sales),fmt(r.sales-r.returned),upMoney(r.expenseCents),upPercent(r.feeRate),upPercent(r.profitRate),upPercent(r.returnRate),upPercent(r.receivedRate)]:[r.platform,...Array(8).fill('—')]))}</div></section></div>`;
-}
-
-// 与右侧渠道表格共用期间汇总；保留全部渠道，便于比较各渠道销售额。
-function upChannelGsvChart(rows){
- const valid=rows.filter(r=>Number.isFinite(r.gsvCents));
- const low=Math.min(0,...valid.map(r=>r.gsvCents)),high=Math.max(0,...valid.map(r=>r.gsvCents));
- const span=high-low||1,origin=-low/span*100;
- return `<section class="up-channel-gsv" aria-label="各渠道GSV销售额"><header><h3>各渠道GSV销售额</h3></header><ul>${rows.map(r=>{
-  const value=r.gsvCents,hasValue=Number.isFinite(value),left=(Math.min(0,hasValue?value:0)-low)/span*100,width=hasValue?Math.abs(value)/span*100:0;
-  const label=hasValue?upMoney(value):'—';
-  return `<li data-up-channel="${esc(r.platform)}" data-gsv-cents="${hasValue?value:''}" title="${esc(r.platform)} · GSV ${hasValue?fmt(value/100,2)+'元':'暂无数据'}"><span class="up-channel-name">${esc(r.platform)}</span><div class="up-channel-track" aria-hidden="true"><i class="up-channel-zero" style="left:${origin}%"></i><i class="up-channel-bar${value<0?' is-negative':''}" style="left:${left}%;width:${width}%"></i></div><strong>${esc(label)}</strong></li>`;
- }).join('')}</ul></section>`;
+    <section class="up-channel-section" aria-label="各渠道业绩数据"><header class="up-channel-heading"><h3>各渠道业绩数据</h3>${upChannelContributionNote(channelRows)}</header><div class="up-channel-comparison">
+    <div class="up-platform-performance" aria-label="各渠道业绩表格"><div class="up-table">${upChannelTable(channelRows,state)}</div></div>
+    ${upChannelContributionView(channelRows,state)}</div></section>${state.platform==='all'?upGradeTrendView(m.product,state):''}`;
 }
 
 // 比较使用紧邻等长区间；复用六榜环比和退货偏差规则，避免单独维护阈值。

@@ -26,8 +26,12 @@ function verifyDecisions(){
   upStockModel:()=>({rows:[{code:'DEMO-SKU01'}]}),upIdentity:()=>({sourceRow:2}),
   rpLossReturnTarget:()=>15,qrPlatforms:['天猫','抖音'],qrObservation:()=>({}),upViolationRows:()=>[],
   rpQualityChangeValue:(a,b)=>b?(a-b)/b*100:null,rpComparisonText:n=>n===null?'环比—':'环比'+n.toFixed(1)+'%',
-  upTodoId:(s,d)=>s.start+'|'+d,upTodos:{}
+  ccOpportunityRows:()=>[],upTodoId:(s,d)=>s.start+'|'+d,upTodos:{}
  });
+ const costModel=fs.readFileSync(new URL('../../src/modules/cost-control/04-opportunity-model.js',import.meta.url),'utf8');
+ vm.runInContext(costModel.split('\n').find(line=>line.startsWith('function ccAppendCostProposal(')),context);
+ const todoModel=fs.readFileSync(new URL('../../src/modules/unified-product/07-todo-model.js',import.meta.url),'utf8');
+ vm.runInContext(todoModel.slice(todoModel.indexOf('const upTodoTypes='),todoModel.indexOf('const upTodoPriorities=')),context);
  for(const name of ['04-ai-demo','04-ai-policy','04-ai-analysis','07-todo-diagnosis'])vm.runInContext(fs.readFileSync(new URL('../../src/modules/unified-product/'+name+'.js',import.meta.url),'utf8'),context);
  const classify=(wan,margin)=>context.upAiClassify(wan*1000000,margin);
  assert.equal(classify(700,13).grade,'S');assert.equal(classify(420,9).grade,'A');assert.equal(classify(200,16).grade,'B');assert.equal(classify(50,9).grade,'C');

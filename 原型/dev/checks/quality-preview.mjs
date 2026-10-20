@@ -107,7 +107,7 @@ function qualityTrendModel(){
 
 }
 async function verifyQualityColors(page,selector){
- const colors={red:'rgb(195, 61, 86)',green:'rgb(0, 164, 134)',yellow:'rgb(184, 122, 32)',gray:'rgb(134, 147, 164)'};
+ const colors={red:'rgb(195, 61, 86)',green:'rgb(0, 164, 134)',yellow:'rgb(251, 189, 35)',gray:'rgb(134, 147, 164)'};
  const rendered=await page.locator(selector).evaluateAll(nodes=>nodes.flatMap(n=>[...n.querySelectorAll('strong,small,em')].map(el=>({tone:[...el.classList].find(c=>/^rp-quality-(red|green|yellow|gray|normal)$/.test(c)),tag:el.tagName,color:getComputedStyle(el).color}))));
  assert.ok(rendered.some(item=>item.tone));
  for(const item of rendered)if(item.tone)assert.equal(item.color,item.tone==='rp-quality-normal'?(item.tag==='STRONG'?'rgb(82, 101, 125)':colors.gray):colors[item.tone.replace('rp-quality-','')]);
@@ -154,7 +154,7 @@ export async function qualityPreview(page){
  }
  await options.selectOption('gsv');
  const headers=await page.locator('#qr-list-table thead th').allTextContents();
- assert.deepEqual(headers.slice(-4,-2),['季品','属性']);
+ assert.deepEqual(headers.slice(-5,-2),['类目','季品','属性']);
  const menu=page.locator('#dialogbody .pf-attribute');
  for(const [value,label] of [['new','新品'],['old','老品']]){
   if(!(await menu.evaluate(el=>el.open)))await menu.locator('summary').click();

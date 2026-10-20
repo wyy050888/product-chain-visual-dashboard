@@ -10,7 +10,7 @@ function upDiagnoseTodos(m,state){
   const facts=focus.filter(Boolean).map(i=>i.evidence);
   facts.push('分析口径：全量分析截至'+state.end+'；演示考核月'+(g.month||'待确认')+'；'+(g.grade?'按门槛匹配'+g.grade+'级'+(g.facts?.profitRate<0?'，处于亏损状态':''):'评级待确认')+'。');
   items.push({id:upTodoId(state,department),spuId:state.spuId,objectName:m.product.name,platform:'all',start:state.start,end:state.end,
-   department,title,plan:'对象：'+object+'；SKU：'+d.sku+'。\n'+plan,status:'suggested',assignee:'',due:'',completedAt:'',assignedBy:'',assignedAt:'',priority,
+   department,taskType:department==='品质中心'&&!returns?'compliance-remediation':upTodoType({department}),title,plan:'对象：'+object+'；SKU：'+d.sku+'。\n'+plan,status:'suggested',assignee:'',due:'',completedAt:'',assignedBy:'',assignedAt:'',priority,
    evidence:'',logs:[],descriptionVersion:3,description:upTodoProblem(state,facts,reason),basis:facts,source:'rule-suggestion'});
  };
  add('产品中心',g.grade==='C'?'核定淘汰及一次挽救安排':'比较产品保留、改善与退出方案',[profit||stock||returns||a.issues[0]],
@@ -30,6 +30,7 @@ function upDiagnoseTodos(m,state){
  if(stock||profit||['S','A','B','C'].includes(g.grade))add('采购部',stock?'调整复购、未交订单与供应商报价条件':'核对报价向渠道成本的传导',[stock||profit||a.issues[0]],
   '供方为'+d.supplier+'；模拟日报记录降价条件'+(d.supply.extra?'要求新增采购'+fmt(d.supply.offerQty)+'台':'不要求追加采购')+'。比较价格时须同时核算需求、采购承诺及资金占用。',
   '向'+d.supplier+'取得'+id.report+'对应书面报价，明确适用SKU、订单、数量、起订量、生效期和付款条件。会同财务按'+id.cost+'核对工厂/品牌/公司/渠道供价及降价传导，避免模具、翻新或管理费重复计入。联动计划部按'+id.meeting+'需求核实'+id.purchase+'可交数量、日期及'+id.schedule+'排产，提交'+id.request+'复购的保留、延期或减量方案；发货部确认可售及待检数量。');
+ ccAppendCostProposal(items,m.product);
  return items;
 }
 // 仅为未编辑的旧自动描述补充说明，保留已下发任务的操作内容、方案和状态。

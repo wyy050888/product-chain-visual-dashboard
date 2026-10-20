@@ -5,7 +5,7 @@
 #shop-assignment.ss-readonly-platform .ss-promotion-filter{display:flex}
 #shop-assignment.ss-readonly-platform #records-open{display:none}#shop-assignment .toolbar #shop-filter-reset{margin-left:auto}
 #shop-assignment .shop-table{min-width:1120px}#shop-assignment .shop-table th,#shop-assignment .shop-table td{white-space:normal;line-height:1.8}
-#shop-assignment .shop-table td:first-child{min-width:230px}#shop-assignment .shop-table td select[data-shop-category]{width:116px;min-height:32px;padding:4px 8px;font-size:12px}
+#shop-assignment .shop-table td:first-child{min-width:230px}#shop-assignment .shop-table td select[data-shop-category]{width:132px;min-height:32px;padding:4px 8px;font-size:12px}
 #shop-assignment .ss-switch{width:34px;height:19px;padding:2px;border:0;border-radius:12px;background:#bfc9d9;vertical-align:middle;position:relative}
 #shop-assignment .ss-switch i{display:block;width:15px;height:15px;border-radius:50%;background:#fff;transition:transform .15s}
 #shop-assignment .ss-switch[aria-checked=true]{background:#1677ff}#shop-assignment .ss-switch[aria-checked=true] i{transform:translateX(15px)}

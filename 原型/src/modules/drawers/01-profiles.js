@@ -22,6 +22,7 @@ function drawerNodeKind(node){
 }
 function drawerProfile(body,title){
  const root=drawerContentRoot(body),project=root.matches('.project-control-detail');
+ if(root.matches('.kpm-management-drawer,.kpm-followup-detail'))return {root,entries:[...root.children].map(node=>({node,key:'shared'})),tabs:[]};
  if(project)return drawerProjectProfile(root);
  if(root.matches('.kpm-grade-history'))return {root,entries:[...root.children].map(node=>({node,key:'shared'})),tabs:[{key:'base',label:'等级变动'}]};
  const salesTabs=root.querySelector('.tabs:has([data-salesview])');

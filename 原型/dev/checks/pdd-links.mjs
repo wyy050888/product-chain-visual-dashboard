@@ -13,7 +13,7 @@ export async function pddLinks(page){
  assert.equal(Number(await cardYellow.locator('strong').innerText()),yellowIds.length);
  const pop=page.locator('#rp-pdd-links-popover');
  assert.equal(await entry.locator('[data-rp-pdd-shop],[aria-haspopup="dialog"]').count(),0);
- for(const count of [cardRed,cardYellow]){await count.hover();await settle();assert.equal(await pop.isVisible(),false);await count.click();assert.equal(await pop.isVisible(),false)}
+ for(const count of [cardRed,cardYellow]){await count.hover();await settle();assert.equal(await pop.isVisible(),false);await count.click();assert.equal(await pop.isVisible(),false);await page.locator('.sd-detail').waitFor();await page.locator('#close').click();assert.equal(await page.locator('#overlay').isVisible(),false,'点击榜单记录后关闭详情再继续验证')}
  await card.locator('[data-risk="1"]').click();await page.locator('[data-rp-reset]').click();
  await page.locator('#rf-list-platform').selectOption('拼多多',{force:true});
  const table=page.locator('#rf-list-table');

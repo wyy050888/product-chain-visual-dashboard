@@ -1,0 +1,10 @@
+{
+  "name": "product-chain-visual-dashboard",
+  "private": true,
+  "scripts": {
+    "build": "node deploy/build.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2"
+  }
+}

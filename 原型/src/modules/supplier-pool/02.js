@@ -31,7 +31,7 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-sr-action]
 
 // The director reads risks; procurement retains the operational workflow.
 const sdState={category:0,page:1};
-$('#suppliers .sectionhead .sub').textContent='供应链重点风险';
+$('#suppliers .sectionhead .sub')?.remove();
 $('#suppliers .sectionhead .note')?.remove();
 const sdNames=['供应商储备不足','供应商引入延期','信息与合同缺失','低星级供应商','综合能力风险'];
 function sdRows(){return svAll().filter(r=>!r.closed).sort((a,b)=>(b.level==='高危')-(a.level==='高危')||Number(b.overdue)-Number(a.overdue)||Number(b.impactLaunch||false)-Number(a.impactLaunch||false)||(b.gap||0)-(a.gap||0));}

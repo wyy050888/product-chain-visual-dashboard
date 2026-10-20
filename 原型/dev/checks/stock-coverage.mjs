@@ -5,6 +5,7 @@ import vm from 'node:vm';
 export function verifyStockCoverage(){
  const ctx=vm.createContext({fmt:String,upMoney:String,DATA_CUTOFF:'2026-10-10',
   upIdentity:p=>p,upSummary:()=>({sales:180,returned:30}),shiftDate:()=> '2026-09-26',newLaunchSamples:new Map(),window:{}});
+ vm.runInContext(fs.readFileSync(new URL('../../src/data/filter-catalog.js',import.meta.url),'utf8'),ctx);
  for(const file of ['unified-product/06-stock-model.js','inventory-detail/01-coverage-samples.js','new-products/01-model.js'])
   vm.runInContext(fs.readFileSync(new URL('../../src/modules/'+file,import.meta.url),'utf8'),ctx);
  const tags=(warehouse,total,daily=10)=>Array.from(ctx.upStockRiskTags({warehouse,...ctx.upStockCoverage(warehouse,total,daily)}));

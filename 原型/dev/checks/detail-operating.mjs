@@ -1,13 +1,11 @@
+import {verifyChannelContribution} from './detail-channel-contribution.mjs';
+import {operatingEnhancements} from './detail-operating-enhancements.mjs';
 import assert from 'node:assert/strict';
 import {fileURLToPath} from 'node:url';
 
 export async function detailOperating(page){
- const checkChannelChart=async()=>{
-  const bars=await page.locator('.up-channel-gsv li').evaluateAll(es=>es.map(e=>[e.dataset.upChannel,e.querySelector('strong').textContent]));
-  const rows=await page.locator('[data-up-panel="operating"] .up-table tbody tr').evaluateAll(es=>es.map(e=>[e.cells[0].textContent,e.cells[1].textContent]));
-  assert.deepEqual(bars,rows,'各渠道GSV图与平台表格共用金额');
-  assert.equal(bars.length,9,'当前经营渠道包含百度&CID及两类达播，共9项');
- };
+ // 固定经营曲线样例的截止日，保留逐日汇总断言。
+ await page.clock.setFixedTime(new Date('2026-10-10T04:00:00Z'));await page.reload({waitUntil:'domcontentloaded',timeout:30000});
  const outer=await page.locator('#time-risk').innerText();
  await page.locator('#riskrail [data-risk="0"]').click();
  // 销量来自原值，并在净销量之前；排序不能按带逗号的显示字符串。
@@ -54,27 +52,31 @@ export async function detailOperating(page){
  await page.mouse.move(0,0);
  assert.equal(await page.locator('#up-sales-tooltip').isVisible(),false);
  assert.equal(await page.locator('[data-up-panel="operating"] .up-table').first().locator('tbody tr').count(),9);
- await checkChannelChart();
- const channelBefore=await page.locator('.up-channel-gsv li').allTextContents();
+ await verifyChannelContribution(page);await operatingEnhancements(page);
+ const channelFacts=()=>page.locator('.up-channel-contribution li').evaluateAll(es=>es.map(e=>[e.dataset.upContributionChannel,e.dataset.gsvCents,e.dataset.profitCents]));
+ const channelBefore=await channelFacts();
  await page.locator('[data-up-series-toggle="sales"]').click();
  assert.equal(await page.locator('[data-up-series="sales"]').evaluate(e=>getComputedStyle(e).display),'none');
  await page.locator('[data-up-series-toggle="sales"]').click();
  const before=await page.locator('[data-up-metric="gsv"] strong').innerText();
  await page.locator('.up-detail-period [data-drawer-time-day]').click();
  await page.locator('#up-date-trigger').click();
- await page.locator('#up-date-popover [data-up-preset="7"]').click();
+ await page.locator('#up-date-popover [data-range-preset="7"]').click();
  assert.equal(await page.locator('.up-detail').getAttribute('data-up-start'),'2026-10-04');
  assert.equal(await page.locator('.up-detail').getAttribute('data-up-end'),'2026-10-10');
  assert.notEqual(await page.locator('[data-up-metric="gsv"] strong').innerText(),before);
- await checkChannelChart();
- assert.notDeepEqual(await page.locator('.up-channel-gsv li').allTextContents(),channelBefore,'各渠道GSV图随期间更新');
+ await verifyChannelContribution(page);
+ // 渠道金额改变时占比可以相同；校验底层金额更新，不要求格式化百分比一定变化。
+ assert.notDeepEqual(await channelFacts(),channelBefore,'各渠道贡献图金额随期间更新');
  // 相同结束日、不同开始日：右侧月度达成不变，左侧经营区间改变。
  assert.deepEqual(await page.locator('.up-attainment-primary small').allTextContents(),['10月GSV','10月利润率']);
  assert.equal(await page.locator('.up-attainment .ms-inline-deviation').count(),2);
  const monthlyAttainment=await page.locator('.up-attainment').innerText();
  const sevenDayGsv=await page.locator('[data-up-metric="gsv"] strong').innerText();
  await page.locator('#up-date-trigger').click();
- await page.locator('#up-date-popover [data-up-preset="30"]').click();
+ await page.locator('#up-date-popover [data-range-preset="30"]').click();
+ assert.equal(await page.locator('.up-grade-trend').getAttribute('data-grade-mode'),'month');
+ assert.equal(await page.locator('.up-grade-period [data-drawer-time-value]').inputValue(),'10','跨月日范围的趋势定位结束日所在月');
  assert.equal(await page.locator('.up-attainment').innerText(),monthlyAttainment);
  assert.notEqual(await page.locator('[data-up-metric="gsv"] strong').innerText(),sevenDayGsv);
  await page.locator('.up-detail-period [data-drawer-time-mode="month"]').click();
@@ -82,7 +84,7 @@ export async function detailOperating(page){
  assert.equal(await page.locator('.up-attainment-primary strong').first().innerText(),monthlyAttainment.split('\n').find(v=>/w|元/.test(v)));
  await page.locator('.up-detail-period [data-drawer-time-day]').click();
  await page.locator('#up-date-trigger').click();
- await page.locator('#up-date-popover [data-up-preset="7"]').click();
+ await page.locator('#up-date-popover [data-range-preset="7"]').click();
  await page.locator('#up-date-trigger').click();await page.keyboard.press('Escape');
  assert.equal(await page.locator('#up-date-popover').count(),0);assert.equal(await page.locator('#overlay').evaluate(e=>e.hidden),false);
  // 改期间后平台切换仍保留日期，处理草稿按原范围保存。

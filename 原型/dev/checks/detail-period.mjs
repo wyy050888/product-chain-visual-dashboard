@@ -19,6 +19,9 @@ export async function detailPeriod(page){
   assert.match(await period.locator('.risk-date-trigger').evaluate(e=>getComputedStyle(e).display),/^(inline-)?flex$/,'日期按钮保留单行边框样式');
   assert.equal(await period.locator('.risk-date-trigger').evaluate(e=>getComputedStyle(e).height),'34px');
   await period.locator('.risk-date-trigger').click();await page.locator('#up-date-popover').waitFor();
+  for(let n=0;n<24&&!await page.locator('#up-date-popover [data-range-month="1"]').isDisabled();n++)await page.locator('#up-date-popover [data-range-month="1"]').click();
+  const tomorrow=await page.evaluate(()=>{const d=new Date(new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Shanghai'}).format(new Date())+'T00:00:00Z');d.setUTCDate(d.getUTCDate()+1);return d.toISOString().slice(0,10)});
+  const nextDay=page.locator('#up-date-popover [data-range-date="'+tomorrow+'"]:not(.outside)');if(await nextDay.count())assert(await nextDay.isDisabled(),'日期上限随当天更新，明天仍不可选');
   const selectedRange=[await root.getAttribute(start),await root.getAttribute(end)];
   // 关闭日期相关标签时，同步清理浮层，不留下隐藏控件对应的日历。
   await tab('handling').click();assert(await period.isHidden());assert.equal(await page.locator('#up-date-popover').count(),0);

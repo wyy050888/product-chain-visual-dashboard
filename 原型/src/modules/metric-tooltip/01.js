@@ -1,5 +1,5 @@
 // 图标徽标复用统一浮层，避免浏览器原生title的延迟提示。
-const metricHelpSelector='.metric-help,.rp-shop-assessed[data-metric-rule],.up-stock-donut[data-metric-rule]';
+const metricHelpSelector='.metric-help,.rp-shop-core[data-rp-core-names],.rp-shop-assessed[data-metric-rule],.up-stock-donut[data-metric-rule],.stock-season-segment[data-metric-rule],.up-stock-more[data-metric-rule]';
 const metricTooltip = document.createElement('div');
 metricTooltip.id = 'metric-tooltip';
 metricTooltip.className = 'metric-tooltip';
@@ -44,13 +44,20 @@ function renderNewKpiTooltip(help){
   append(criteria,'strong','实际完成时间 ≤ 计划完成时间 + 10天');
   append(criteria,'p','例：计划10月1日完成，10月11日完成计入，10月12日完成不计入');
  }
- append(metricTooltip,'p',success?'年度独立复核，不平均季度成功率；季度成功不代表年度成功。无有效分母时显示“—”':'未完成或超过时限不计入分子；以上线项目的大货交付任务为准，不以首单或销售额判定','nsp-tip-note');
+ append(metricTooltip,'p',success?'年度独立复核，不平均季度成功率；季度成功不代表年度成功。':'未完成或超过时限不计入分子；以上线项目的大货交付任务为准，不以首单或销售额判定','nsp-tip-note');
 }
 // 六榜规则按语义分组；所有文案使用textContent，避免把内容当作HTML执行。
 function renderMetricTooltipContent(help){
  const text=help.dataset.metricRule;
  metricTooltip.replaceChildren();
+ if(kpmIsGradeHelp(help)){kpmRenderGradeHelp(metricTooltip);return}
+ if(help.dataset.rpCoreHelp){rpRenderShopCoreHelp(metricTooltip);return}
  if(help.dataset.qualityRates){renderQualityRatesTooltip(metricTooltip);return}
+ if(help.dataset.ipSummaryHelp){ipRenderSummaryHelp(metricTooltip,help);return}
+ if(help.dataset.ccSavingHelp){ccRenderSavingHelp(metricTooltip);return}
+ if(help.dataset.scpResourceHelp){scpRenderResourceHelp(metricTooltip,Number(help.dataset.scpRuleYear)||+DATA_CUTOFF.slice(0,4));return}
+ if(help.dataset.scpMaterialHelp){scpRenderMaterialHelp(metricTooltip,Number(help.dataset.scpRuleYear)||+DATA_CUTOFF.slice(0,4));return}
+ if(help.dataset.scpSourcingHelp||help.dataset.scpCategoryHelp){scpRenderSourcingHelp(metricTooltip,Boolean(help.dataset.scpCategoryHelp),Number(help.dataset.scpRuleYear)||+DATA_CUTOFF.slice(0,4));return}
  if(help.dataset.ipRule){renderInventoryMetricTooltip(metricTooltip,help.dataset.ipRule);return}
  if(help.closest('.nsp-pool-help')){nspRenderPoolTooltip(metricTooltip,text);return}
  if(help.dataset.nspKpi){renderNewKpiTooltip(help);return}
@@ -60,7 +67,7 @@ function renderMetricTooltipContent(help){
   title.textContent=heading;description.textContent=lines.join('\n');metricTooltip.append(title,description);
   return;
  }
- if(help.classList.contains('up-stock-donut')){
+ if(help.matches('.up-stock-donut,.stock-season-segment')){
   for(const line of text.split('\n')){const row=document.createElement('div');row.className='stock-tooltip-line';row.textContent=line;metricTooltip.append(row)}
   return;
  }
@@ -89,12 +96,20 @@ function showMetricTooltip(help) {
   help.setAttribute('aria-describedby', 'metric-tooltip');
   metricTooltip.classList.toggle('metric-tooltip-card', help.classList.contains('card-metric-help'));
   metricTooltip.classList.toggle('metric-tooltip-kpi', help.classList.contains('nsp-kpi-help'));
+  metricTooltip.classList.toggle('metric-tooltip-kpm-grade',kpmIsGradeHelp(help));
   metricTooltip.classList.toggle('metric-tooltip-nsp-card', Boolean(help.dataset.nspKpi));
   metricTooltip.classList.toggle('metric-tooltip-nsp-pool', Boolean(help.closest('.nsp-pool-help')));
   metricTooltip.classList.toggle('metric-tooltip-period', help.classList.contains('nsp-period-help'));
   metricTooltip.classList.toggle('metric-tooltip-project-analysis', help.classList.contains('pp-analysis-help'));
   metricTooltip.classList.toggle('metric-tooltip-inventory',Boolean(help.dataset.ipRule));
+  metricTooltip.classList.toggle('metric-tooltip-inventory-summary',Boolean(help.dataset.ipSummaryHelp));
   metricTooltip.classList.toggle('metric-tooltip-quality-rates',Boolean(help.dataset.qualityRates));
+  metricTooltip.classList.toggle('metric-tooltip-cost-saving',Boolean(help.dataset.ccSavingHelp));
+  metricTooltip.classList.toggle('metric-tooltip-scp-sourcing',Boolean(help.dataset.scpSourcingHelp||help.dataset.scpCategoryHelp||help.dataset.scpMaterialHelp||help.dataset.scpResourceHelp));
+  metricTooltip.classList.toggle('metric-tooltip-scp-material',Boolean(help.dataset.scpMaterialHelp));
+  metricTooltip.classList.toggle('metric-tooltip-scp-resource',Boolean(help.dataset.scpResourceHelp));
+  metricTooltip.classList.toggle('metric-tooltip-shop-core',Boolean(help.dataset.rpCoreHelp));
+  metricTooltip.classList.toggle('metric-tooltip-shop-core-names',Boolean(help.dataset.rpCoreNames));
   renderMetricTooltipContent(help);
   cleanDemoPresentation(metricTooltip);
   metricTooltip.hidden = false;
@@ -106,7 +121,8 @@ function showMetricTooltip(help) {
   metricTooltip.style.top = top + 'px';
 }
 function addMetricHelp(label, rule) {
-  if (!rule || label.closest('.up-detail')) return;
+  // 价格带卡片仅展示指标，不自动挂载问号及悬浮口径。
+  if (!rule || label.closest('.up-detail,.kpm-price-distribution')) return;
   let help = [...label.children].find(node => node.classList.contains('metric-help'));
   if (!help) {
     help = document.createElement('span');

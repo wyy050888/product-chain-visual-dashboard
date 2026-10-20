@@ -28,10 +28,14 @@ export function buildPrototype({quiet=false}={}){
  new vm.Script(app,{filename:'assets/app.js'});
  for(const file of manifest.images)if(!fs.existsSync(path.join(root,file)))throw new Error('图片缺失：'+file);
  const styles=manifest.styles.map(item=>'<link rel="stylesheet" href="'+item.file+'?v='+version(read(item.file))+'">').join('\n');
+ const bootScript=read('src/boot/loading.js');
+ new vm.Script(bootScript,{filename:'src/boot/loading.js'});
+ const bootHead='<style>'+read('src/boot/loading.css')+'</style><script>'+bootScript+'</script>';
+ const bootBody=read('src/boot/loading.html').replace('<!-- BOOT_CARDS -->',read('src/boot/card.html').repeat(6));
  let page=read(manifest.template);
- for(const marker of ['<!-- DASHBOARD_STYLES -->','<!-- DASHBOARD_SCRIPT -->'])if(page.split(marker).length!==2)throw new Error('页面模板标记异常：'+marker);
- page=page.replace('<!-- DASHBOARD_STYLES -->',styles)
-  .replace('<!-- DASHBOARD_SCRIPT -->','<script src="assets/app.js?v='+version(app)+'"></script>');
+ for(const marker of ['<!-- DASHBOARD_STYLES -->','<!-- DASHBOARD_SCRIPT -->','<!-- DASHBOARD_BOOT_HEAD -->','<!-- DASHBOARD_BOOT_BODY -->'])if(page.split(marker).length!==2)throw new Error('页面模板标记异常：'+marker);
+ page=page.replace('<!-- DASHBOARD_BOOT_HEAD -->',bootHead).replace('<!-- DASHBOARD_BOOT_BODY -->',bootBody).replace('<!-- DASHBOARD_STYLES -->',styles)
+  .replace('<!-- DASHBOARD_SCRIPT -->','<script defer src="assets/app.js?v='+version(app)+'"></script>');
  const written=writeIfChanged('assets/app.js',app)+writeIfChanged(manifest.entry,page);
  const result={scripts:manifest.scripts.length,styles:manifest.styles.length,images:manifest.images.length,written,ms:Number((performance.now()-started).toFixed(1))};
  if(!quiet)console.log('构建完成：'+result.scripts+' 个脚本模块，'+result.styles+' 个样式文件，'+result.images+' 张图片；更新 '+written+' 个生成文件；'+result.ms+'ms。');

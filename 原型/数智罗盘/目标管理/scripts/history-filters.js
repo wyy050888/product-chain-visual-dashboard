@@ -20,7 +20,7 @@
     if(!filters.start&&!filters.end)return true;
     const date=new Date(op.timestamp);
     if(Number.isNaN(date.getTime()))return false;
-    const day=`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+    const day=app.clock.format(date);
     return (!filters.start||day>=filters.start)&&(!filters.end||day<=filters.end);
   }
   function init(onChange) {

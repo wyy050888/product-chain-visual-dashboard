@@ -5,12 +5,12 @@ function upTodoOverdue(task){return task.status!=='done'&&task.status!=='suggest
 function upTodoStatusTag(task){return `<span class="up-todo-status ${task.status}">${upTodoStatuses[task.status]}</span>`}
 function upTodoStatusSelect(task){return `<select class="up-todo-status-select ${task.status}" data-todo-status-select aria-label="任务状态">${Object.entries(upTodoStatuses).filter(([key])=>key!=='suggested').map(([key,label])=>`<option value="${key}" ${key===task.status?'selected':''}>${label}</option>`).join('')}</select>`}
 function upTodoDueCell(task){return `<span class="up-todo-due">${esc(task.due||'—')}${upTodoOverdue(task)}</span>`}
-function upTodoDate(value){if(!value)return '—';const d=new Date(value);return Number.isNaN(d.getTime())?'—':[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-')}
+function upTodoDate(value){if(!value)return '—';const d=new Date(value);return Number.isNaN(d.getTime())?'—':new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Shanghai'}).format(d)}
 function upTodoPriorityTag(task){const key=upTodoPriorities[task.priority]?task.priority:'yellow';return `<span class="up-todo-priority ${key}" role="img" aria-label="${upTodoPriorities[key]}"></span>`}
 function upTodoRow(t,suggested){
  const action=(mode,label)=>`<button type="button" class="link" data-todo-open="${mode}" data-todo-id="${esc(t.id)}">${label}</button>`;
  const operations=suggested?action('detail','详情')+action('assign','下发'):action('detail','详情')+action('delete','删除');
- const subject=`${suggested?`<input type="checkbox" data-todo-select="${esc(t.id)}" aria-label="选择${esc(t.title)}">`:''}<div class="up-todo-subject"><b>${esc(t.title)}</b></div>`;
+ const subject=`<div class="up-todo-subject-cell">${suggested?`<input type="checkbox" data-todo-select="${esc(t.id)}" aria-label="选择${esc(t.title)}">`:''}<div class="up-todo-subject"><b>${esc(t.title)}</b></div></div>`;
  return [subject,`<div class="up-todo-description">${esc(upTodoDescriptionText(t))}</div>`,esc(upTodoPersonLabel(t.assignee,t)),upTodoDueCell(t),esc(upTodoDate(t.completedAt)),upTodoPriorityTag(t),upTodoStatusTag(t),esc(t.assignedBy||'—'),esc(upTodoDate(t.assignedAt)),`<div class="up-todo-row-actions">${operations}</div>`];
 }
 function upMountTodos(root,m,state,source={}){

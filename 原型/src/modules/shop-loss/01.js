@@ -1,7 +1,7 @@
 
 
 // Shop and loss rankings share their data with the existing risk detail flow.
-const brPlatforms=['抖音','快手','视频号','天猫','京东','拼多多'],brState={platform:'all',shopPage:1,lossPage:1};
+const brPlatforms=filterCatalog.platforms,brState={platform:'all',shopPage:1,lossPage:1};
 const brOriginalRows=riskRows;
 function brShopRows(){return sampleShopRows()}
 function brLossAmount(value){const amount=Math.round(Math.abs(Number(value)||0)*100)/100;return (amount?'-':'')+fmt(amount,2)}

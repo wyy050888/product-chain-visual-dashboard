@@ -1,7 +1,7 @@
 
 
 // Director quality risk: one dated observation per SPU and platform.
-const qrPlatforms=['抖音','快手','视频号','天猫','京东','拼多多'];
+const qrPlatforms=filterCatalog.platforms;
 const qrState={platform:'抖音',listPlatform:'all',listPage:1,sort:'risk'},qrDrafts=new Map();let qrDetailState=null;
 const qrSum=(rows,key)=>rows.reduce((n,r)=>n+r[key],0),qrRate=(n,d)=>d?n/d*100:0;
 function qrCatalog(){return riskRows(0)}

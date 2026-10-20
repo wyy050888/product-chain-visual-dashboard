@@ -26,7 +26,7 @@ function rpLossFields(record,current,previous){
  const product=upIdentity(record),w=upWindow(),platform=record.metricPlatform||'all',stock=rpLossStock(product);
  const now=upNetEstimate(current),before=upNetEstimate(previous),fields=[];
  const add=(key,name,value,raw,tone='rp-quality-normal',target='',targetTone='',hint='')=>fields.push({...rpField(key,name,value,tone,hint,target),sortValue:raw,targetTone});
- const compareHint='环比取紧邻等长区间；上涨绿色，跌幅≤10%灰色，跌幅>10%红色，持平灰色；上期缺失或为0且本期非0显示--；两期相同显示持平。';
+ const compareHint='环比取紧邻等长区间；上涨绿色，跌幅≤10%灰色，跌幅>10%红色，持平灰色。';
  for(const [key,name,value,old] of [['gsv','GSV',current.gsvCents,previous.gsvCents],['sales','销量',current.sales,previous.sales],['netSales','去退后销量',current.sales-current.returned,previous.sales-previous.returned]]){
   add(key,name,key==='gsv'?rpQualityMoney(value/100):fmt(value),value,'rp-quality-normal',rpQualityChange(value,old),rpQualityChangeTone(value,old),compareHint);
  }

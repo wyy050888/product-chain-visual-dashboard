@@ -21,7 +21,7 @@ renderProjects=function(...args){
 };
 function ppRefreshTable(){withPeriod('projects',()=>ppTable(ppScope(ppRows())))}
 function ppBindPlan(key){
- const panel=$('#pp-'+key+'-panel'),trigger=$('#pp-filters [aria-controls="pp-'+key+'-panel"]');let mode=ppState[key]?.mode==='range'?'month':ppState[key]?.mode||'year',year=ppState[key]?.year||new Date().getFullYear();
+ const panel=$('#pp-'+key+'-panel'),trigger=$('#pp-filters [aria-controls="pp-'+key+'-panel"]');let mode=ppState[key]?.mode==='range'?'month':ppState[key]?.mode||'year',year=ppState[key]?.year||+dashboardToday().slice(0,4);
  const position=()=>{const r=trigger.getBoundingClientRect(),b=panel.getBoundingClientRect();panel.style.left=Math.max(8,Math.min(r.left,innerWidth-b.width-8))+'px';panel.style.top=Math.max(8,r.bottom+8+b.height>innerHeight?r.top-b.height-8:r.bottom+8)+'px'};
  const paint=()=>{const first=year-4,values=Array.from({length:mode==='year'?9:mode==='quarter'?4:12},(_,i)=>mode==='year'?first+i:i+1);
   panel.innerHTML=`<nav class="nsp-launch-modes">${[['year','自然年'],['quarter','自然季度'],['month','自然月']].map(([key,label])=>`<button type="button" data-pp-plan-mode="${key}" aria-pressed="${mode===key}">${label}<span>›</span></button>`).join('')}</nav><div class="nsp-launch-calendar"><div class="nsp-launch-year"><button type="button" data-pp-plan-step="-1" aria-label="上一年">«</button><span>${mode==='year'?first+'年 — '+(first+8)+'年':year+'年'}</span><button type="button" data-pp-plan-step="1" aria-label="下一年">»</button></div><div class="nsp-launch-options">${values.map(v=>`<button type="button" data-pp-plan-value="${v}">${mode==='year'?v+'年':mode==='quarter'?'第'+v+'季度':v+'月'}</button>`).join('')}</div></div>`;

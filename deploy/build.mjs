@@ -2,11 +2,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildPrototype } from '../原型/build.mjs';
+import { optimizeAssets } from './lib/optimize-assets.mjs';
 
 const projectRoot = fileURLToPath(new URL('../', import.meta.url));
-const prototypeRoot = path.join(projectRoot, '原型');
+const from = process.argv.find(arg => arg.startsWith('--from='))?.slice(7);
+const prototypeRoot = from ? path.resolve(projectRoot, from) : path.join(projectRoot, '原型');
 const outputRoot = path.join(projectRoot, 'dist');
-buildPrototype();
+if (!from) buildPrototype();
 
 // 仅发布运行页面需要的文件，不包含需求文档、开发脚本和验证截图。
 if (path.relative(projectRoot, outputRoot) !== 'dist') {
@@ -28,6 +30,12 @@ for (const entry of ['数智罗盘/店铺配置.html', '数智罗盘/目标管�
     filter: file => !file.endsWith('.md'),
   });
 }
+
+const optimization = await optimizeAssets(outputRoot);
+const reportRoot = path.join(projectRoot, 'outputs/performance');
+fs.mkdirSync(reportRoot, { recursive: true });
+fs.writeFileSync(path.join(reportRoot, 'optimized-build.json'), JSON.stringify(optimization, null, 2));
+console.log(JSON.stringify(optimization));
 
 function collectFiles(directory) {
   return fs.readdirSync(directory, { withFileTypes: true }).flatMap(entry => {

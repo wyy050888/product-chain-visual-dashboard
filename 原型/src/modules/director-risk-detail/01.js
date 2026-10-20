@@ -20,7 +20,7 @@ function rfFacts(k,r){
  const cutoff=bounds().cutoff;
  if(k===6){
   const f=rfReturnFacts(r);
-  return [rfMetric('总退货率',fmt(r.returnRate,1)+'%',r.returnRate>r.returnTarget,'所选周期退货件数÷发货件数；高于目标 '+fmt(r.returnTarget,1)+'% 标红'),rfMetric('总退环比增长',rfGrowth(r.growth,r.returnRate,r.previousRate),rfGrowthHit(r.growth,r.returnRate,r.previousRate),'总退货率较上期等长周期增长≥10%标红；上期为0且本期新增时标红，不计算增长率'),rfMetric('已收退货率',fmt(r.receivedRate,1)+'%',r.receivedRate>r.receivedTarget,'所选周期消费者签收后退货件数÷同期发货件数；高于目标 '+fmt(r.receivedTarget,1)+'% 标红'),rfMetric('已收退环比增长',rfGrowth(r.receivedGrowthRate,r.received,r.prevReceived),rfGrowthHit(r.receivedGrowthRate,r.received,r.prevReceived),'已收退件数较上期等长周期增长≥10%标红；上期为0且本期新增时标红'),rfMetric('利润率',f.profitRate===null?'无净销售':fmt(f.profitRate,1)+'%',f.profitRate===null||f.profitRate<10,'演示净利润÷GSV；低于10%或无净销售标红'),rfMetric('GSV',pfMoneyYuan((f.gsvCents/1000000)*10000),f.gsvCents<f.targetCents,'所选周期退款后净销售额；演示目标为上期等长周期GSV×105%：'+pfMoneyYuan((f.targetCents/1000000)*10000))];
+  return [rfMetric('总退货率',fmt(r.returnRate,1)+'%',r.returnRate>r.returnTarget,'所选周期退货件数÷发货件数；高于目标 '+fmt(r.returnTarget,1)+'% 标红'),rfMetric('总退环比增长',rfGrowth(r.growth,r.returnRate,r.previousRate),rfGrowthHit(r.growth,r.returnRate,r.previousRate),'总退货率较上期等长周期增长≥10%标红；上期为0且本期新增时标红'),rfMetric('已收退货率',fmt(r.receivedRate,1)+'%',r.receivedRate>r.receivedTarget,'所选周期消费者签收后退货件数÷同期发货件数；高于目标 '+fmt(r.receivedTarget,1)+'% 标红'),rfMetric('已收退环比增长',rfGrowth(r.receivedGrowthRate,r.received,r.prevReceived),rfGrowthHit(r.receivedGrowthRate,r.received,r.prevReceived),'已收退件数较上期等长周期增长≥10%标红；上期为0且本期新增时标红'),rfMetric('利润率',f.profitRate===null?'无净销售':fmt(f.profitRate,1)+'%',f.profitRate===null||f.profitRate<10,'演示净利润÷GSV；低于10%或无净销售标红'),rfMetric('GSV',pfMoneyYuan((f.gsvCents/1000000)*10000),f.gsvCents<f.targetCents,'所选周期退款后净销售额；演示目标为上期等长周期GSV×105%：'+pfMoneyYuan((f.targetCents/1000000)*10000))];
  }
  if(k===4){
   const f=rfSlowFacts(r);
@@ -53,7 +53,7 @@ function rfRuleRows(k){if(k===6)return [
  ['已收退环比增长','（本期已收退件数−上期等长周期件数）÷上期等长周期件数','增长≥10%红色，其余绿色；按件数环比，不是退货率之差'],
  ['利润率','演示净利润÷GSV×100%','＜10%红色；≥10%绿色；无净销售红色'],
  ['GSV','GMV−退款金额','低于上期等长周期GSV×105%的演示目标红色，否则绿色'],
- ['零基数','上期为0且本期＞0显示“新增”，不计算百分比','新增红色；两期都为0显示0.0%、绿色']
+ ['新增退货','上期无退货，本期发生退货','红色预警']
  ];if(k===4)return [
  ['库存周转天数','所选周期已统计天数÷库存周转率','＞60天红色；≤60天绿色；有库存无周转红色'],
  ['滞销库存货值','对应产品呆滞库存台账金额','＞0红色；0绿色'],

@@ -2,7 +2,7 @@
 (() => {
   const months = ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
   const range = count => Array.from({length:count}, (_, i) => i + 1);
-  const current = () => { const now = new Date(); return {year:now.getFullYear(), month:now.getMonth()+1}; };
+  const current = () => GoalPrototype.clock.parts();
   function render({kind='month',year,selectedYear=year,values=[],multiple=false,nav='data-calendar-nav',preset='data-calendar-preset',allowed=null,allowAll=false}) {
     const start=kind==='year'?Math.floor(year/10)*10:1, count=kind==='year'?10:kind==='quarter'?4:12;
     const title=kind==='year'?`${start} 年 - ${Math.min(start+9,9999)} 年`:`${year}年`;

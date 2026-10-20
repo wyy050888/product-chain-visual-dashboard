@@ -4,6 +4,7 @@ import vm from 'node:vm';
 import {fileURLToPath} from 'node:url';
 import {verifyDetailContact} from './detail-contact.mjs';
 import {verifyStockCoverage} from './stock-coverage.mjs';
+import {verifyProductStockCards} from './detail-stock-cards.mjs';
 import {verifyProductTodos} from './detail-todos.mjs';
 import {verifyTodoDescription} from './todo-description.mjs';
 
@@ -61,13 +62,14 @@ export async function detailQualityTodos(page){
  assert.equal(await page.locator('.up-violation-stats [data-up-quality-metric]').count(),7);
  await page.locator('#dialog').screenshot({path:fileURLToPath(new URL('../../outputs/detail-quality.png',import.meta.url))});
  await page.locator('[data-drawer-tab="stock"]').click();
- assert.equal(await page.locator('[data-up-panel="stock"] .up-stock-card').count(),5);
+ assert.equal(await page.locator('[data-up-panel="stock"] .up-stock-card').count(),7);
  assert.equal(await page.locator('#up-stock-skus tbody tr').count(),4);
- assert.match(await page.locator('.up-stock-card').first().innerText(),/总可售天数/);
+ assert.match(await page.locator('.up-detail .up-stock-card').first().innerText(),/总可售天数/);
  const tags=await page.locator('.up-stock-risk-tag').allTextContents();
  assert(tags.length<=2&&tags.every(t=>['缺货','调货','滞销'].includes(t)));
  assert(!tags.includes('滞销')||tags.length===1);
- assert.equal(await page.locator('.up-stock-donut svg').count(),1);
- assert.equal(await page.locator('.up-detail .metric-help').count(),0);
+ await verifyProductStockCards(page);
+ assert.equal(await page.locator('[data-up-panel=stock] [data-stock-rule]').count(),5,'仅保留指定指标的问号口径');
+ assert.equal(await page.locator('.up-detail .metric-help:not([data-stock-rule])').count(),0);
  await verifyProductTodos(page,detailRef);
 }

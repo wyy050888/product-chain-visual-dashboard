@@ -1,5 +1,5 @@
 // 平台按钮复用原 select/change 与详情按钮，统一展示，不重写业务筛选。
-const drawerPlatformOrder=['抖音','快手','视频号','天猫','京东','拼多多'];
+const drawerPlatformOrder=filterCatalog.platforms;
 // 采用各官方站点实际使用的图标，来源记录见 assets/platform-logos/sources.json。
 const drawerPlatformLogos={'抖音':'douyin','快手':'kuaishou','视频号':'channels','天猫':'tmall','京东':'jd','拼多多':'pinduoduo'};
 function drawerPlatformIcon(name){const icon=document.createElement('img');icon.className='platform-mark';icon.src='assets/platform-logos/'+drawerPlatformLogos[name]+'.png';icon.alt='';icon.width=16;icon.height=16;icon.decoding='async';icon.setAttribute('aria-hidden','true');icon.onerror=()=>{icon.hidden=true};return icon}

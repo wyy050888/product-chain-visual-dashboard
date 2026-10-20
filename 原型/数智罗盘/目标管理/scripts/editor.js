@@ -74,8 +74,8 @@
     app.editorCombobox.detach();
     kind = nextKind; original = row; revision = app.targetStore.version(); opener = document.activeElement;
     $('#dform').dataset.unmatchedProduct = row?.productMatch === 'unmatched' ? JSON.stringify({ product: row.product, brand: row.brand, productCode: '', productMatch: 'unmatched' }) : '';
-    const now = new Date();
-    values = row ? { ...row } : { year: now.getFullYear(), monthNumber: now.getMonth() + 1, cid: context.cid, shopId: context.shopId, productCode: context.productCode, shop: context.shopId ? app.fixtures.shops[context.shopId].shopCode : '', product: context.productCode || '' };
+    const now = app.clock.parts();
+    values = row ? { ...row } : { year: now.year, monthNumber: now.month, cid: context.cid, shopId: context.shopId, productCode: context.productCode, shop: context.shopId ? app.fixtures.shops[context.shopId].shopCode : '', product: context.productCode || '' };
     if (row) { values.shop = row.shopCode; values.product = row.productMatch === 'unmatched' ? row.product : row.productCode; }
     if (values.shopId && !row) {
       const shop = app.fixtures.shops[values.shopId];

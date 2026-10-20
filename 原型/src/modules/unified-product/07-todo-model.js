@@ -4,6 +4,14 @@ const upTodoDepartments=['产品中心','项目部','品质中心','研发中心
 // 本地原型固定的当前账号；正式接入时由登录会话提供。
 const upTodoCurrentUser='林悦';
 const upTodoStatuses={suggested:'待下发',pending:'待处理',working:'处理中',done:'已完成'};
+// 类型描述业务目的，不随负责人部门或执行状态变化。历史自动任务按规则来源兼容。
+const upTodoTypes={'cost-reduction':'降本优化','business-improvement':'经营改善','delivery-assurance':'交付保障','quality-improvement':'品质改善','development-improvement':'研发改进','supply-optimization':'供需优化','compliance-remediation':'合规整改',other:'其他'};
+function upTodoType(task){
+ if(task?.suggestionKey==='cost-reduction'||String(task?.id||'').startsWith('cost-reduction|'))return 'cost-reduction';
+ if(upTodoTypes[task?.taskType])return task.taskType;
+ if(task?.source==='manual')return 'other';
+ return {'产品中心':'business-improvement','项目部':'delivery-assurance','品质中心':'quality-improvement','研发中心':'development-improvement','采购部':'supply-optimization'}[task?.suggestionDepartment||task?.department]||'other';
+}
 const upTodoPriorities={red:'红灯',yellow:'黄灯',green:'绿灯'};
 function upTodoAssignable(task){return task?.assignees||aiAssignees.map(([name])=>({name,department:upTodoPersonDepartment(name)}))}
 function upTodoPersonDepartment(name,task){
@@ -15,7 +23,7 @@ function upTodoPersonLabel(name,task){return name?(task?.assignees?.find(person=
 // 兼容历史任务：待验收回到处理中，保留处理结果；完成日期只取真实完成记录。
 function upNormalizeTodo(task){
  const assigned=task.logs.find(l=>l.action==='assign'),completed=[...task.logs].reverse().find(l=>l.to==='done');
- return {...task,status:task.status==='review'?'working':task.status,
+ return {...task,taskType:upTodoType(task),status:task.status==='review'?'working':task.status,
   description:task.description||task.basis?.[0]||'',priority:upTodoPriorities[task.priority]?task.priority:'yellow',
   assignedBy:task.assignedBy||assigned?.actor||'',assignedAt:task.assignedAt||assigned?.at||task.createdAt||'',
   completedAt:task.status==='done'?(task.completedAt||completed?.at||''):''};
@@ -36,18 +44,18 @@ function upTodoList(m,state){
  upUpgradeProductTodoDescriptions(state);
  const existing=Object.values(upTodos).filter(t=>t.spuId===state.spuId);
  // 保留已下发的历史记录；旧版渠道任务也可承接同期间部门建议，避免重复下发。
- const scopes=new Set(existing.filter(t=>t.source!=='manual').map(t=>[t.start,t.end,t.suggestionDepartment||t.department].join('|')));
- return [...proposals.filter(t=>!scopes.has([t.start,t.end,t.department].join('|'))),...existing.filter(t=>!t.deletedAt)];
+ const scopes=new Set(existing.filter(t=>t.source!=='manual').map(t=>[t.start,t.end,t.suggestionKey||t.suggestionDepartment||t.department].join('|')));
+ return [...proposals.filter(t=>!scopes.has([t.start,t.end,t.suggestionKey||t.department].join('|'))),...existing.filter(t=>!t.deletedAt)];
 }
 // 状态在详情中编辑；完成自动记日期，重新打开清除当前完成日期。
 function upNewTodo(m,state){
  return {id:'new|'+state.spuId,spuId:state.spuId,objectName:m.product.name,platform:'all',start:state.start,end:state.end,
-  title:'',description:'',plan:'',assignee:'',department:'',due:'',priority:'yellow',
+  title:'',description:'',plan:'',assignee:'',department:'',due:'',priority:'yellow',taskType:'other',
   status:'pending',assignedBy:'',assignedAt:'',completedAt:'',evidence:'',basis:[],logs:[],source:'manual'};
 }
 function upPersistTodos(next){
  try{localStorage.setItem(upTodoStorageKey,JSON.stringify(next))}catch(_){throw new Error('保存失败，请检查浏览器存储空间')}
- upTodos=next;
+ upTodos=next;document.dispatchEvent(new CustomEvent('product-todos-updated'));
 }
 function upBuildTodo(task,action,values){
  const actor=upTodoCurrentUser;
@@ -55,11 +63,15 @@ function upBuildTodo(task,action,values){
  if(!aiAssignees.some(([name])=>name===actor))throw new Error('请选择当前操作人');
  if(action==='edit'&&(!upTodos[task.id]||upTodos[task.id].deletedAt))throw new Error('待办已删除，请刷新列表');
  if(action==='assign'&&(task.status!=='suggested'||upTodos[task.id]))throw new Error('该建议已下发，请刷新列表');
- const editable=['title','description','plan','assignee','due','priority',...(action==='edit'?['status']:[])];
+ const editable=['taskType','title','description','plan','assignee','due','priority',...(action==='edit'?['status']:[])];
  const next={...(action==='edit'?upTodos[task.id]:task),...Object.fromEntries(editable.filter(k=>k in values).map(k=>[k,values[k]]))},now=new Date().toISOString();
+ if(!upTodoTypes[next.taskType||upTodoType(task)])throw new Error('请选择任务类型');
+ next.taskType=task.source==='manual'?(next.taskType||upTodoType(task)):upTodoType(task);
  if(!upTodoAssignable(next).some(person=>person.name===next.assignee))throw new Error('请选择负责人');
  if(!next.title.trim()||!next.description.trim())throw new Error('请填写待办事项和问题描述');
- if(!/^\d{4}-\d{2}-\d{2}$/.test(next.due))throw new Error('请选择截止日期');
+ // AI建议没有既有承诺日期时保留空值；编辑其他字段不强迫补填日期。
+ const undatedFollowup=action==='edit'&&task.source==='ai-business-followup'&&!task.due&&!next.due;
+ if(!undatedFollowup&&!/^\d{4}-\d{2}-\d{2}$/.test(next.due))throw new Error('请选择截止日期');
  if((action!=='edit'||next.due!==task.due)&&next.due<aiToday())throw new Error('截止日期不能早于今天');
  if(!upTodoPriorities[next.priority])throw new Error('请选择优先级');
  next.department=upTodoPersonDepartment(next.assignee,next);

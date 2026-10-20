@@ -14,7 +14,7 @@
   const version = () => state.revision;
   const changed = () => Object.keys(state.product).length + Object.keys(state.link).length > 0;
   const attributions = () => [...new Map(Object.values(state.product).concat(Object.values(state.link)).filter(Boolean).map(({ region, brand, channel }) => [JSON.stringify([region, brand, channel]), { region, brand, channel }])).values()];
-  const years = () => [...new Set([2024, 2025, 2026, ...Object.keys(state.product).concat(Object.keys(state.link)).map(id => JSON.parse(id)[1])])].sort((a, b) => a - b);
+  const years = () => [...new Set([...Array.from({length:Math.max(1,app.clock.parts().year-2024+2)},(_,i)=>2024+i), ...Object.keys(state.product).concat(Object.keys(state.link)).map(id => JSON.parse(id)[1])])].sort((a, b) => a - b);
   function read(kind, { year, monthNumber, cid }, source = state) {
     const base = app.model.baseRows(kind === 'product' ? 'ep' : 'el', { year, monthList: [monthNumber], cid });
     const map = new Map(base.map(row => { const record = { ...row, cid, year, monthNumber, month: `${year}/${String(monthNumber).padStart(2, '0')}` }; return [key(record), record]; }));

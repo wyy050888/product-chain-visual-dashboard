@@ -40,7 +40,8 @@
 #dialogbody .rp-list-tools {display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
 #dialogbody .rp-list-tools>label:not(.unified-input-group) {display:flex;align-items:center;gap:8px;color:#8290a6;font-size:12px}
 #dialogbody .rp-platform-tools {display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
-#dialogbody .rp-platform-tools :is(#qrb-list-config,#rp-shop-type-config) {margin-left:auto}
+#dialogbody .rp-platform-tools :is(#qrb-list-config,.rp-shop-config-actions) {margin-left:auto}
+#dialogbody .rp-shop-config-actions {display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 #dialogbody .rp-list-tools>label:not(.unified-input-group) :is(select,input) {font-size:12px;height:32px;min-height:32px}
 #dialogbody .rp-list-tools [data-rp-reset] {margin-left:auto;white-space:nowrap;font-size:12px}
 .rp-group-context {color:#8c99ae;font-size:12px;margin:12px 0}
@@ -108,3 +109,9 @@
 #dialog.business-drawer:has(>#dialogbody .rp-list-table)>.dialogfoot {display:none}
 
 #dialogbody .rp-list-tools :is(.unified-input-group,.pf-multi):has([data-rp-filter="chain"][aria-label="核心主营产品类目"]) {min-width:230px}
+
+/* 核心主营表头提示：复用问号交互，仅展示判定门槛。 */
+.metric-tooltip.metric-tooltip-shop-core{width:370px;max-width:calc(100vw - 24px);padding:16px;border:1px solid #dce6f4;border-radius:8px;background:#fff;color:#627891;box-shadow:0 8px 28px #173f6a1a;white-space:normal}
+.metric-tooltip-shop-core h4{margin:0 0 12px;color:#244564;font-size:14px;font-weight:600}
+.rp-core-help-threshold{display:flex;flex-direction:column;gap:6px;padding:10px 12px;border:1px solid #e1eaf7;border-radius:6px;background:#f5f8fd}
+.rp-core-help-threshold strong{color:#1677ff;font-size:16px;font-weight:600}

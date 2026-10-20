@@ -31,7 +31,7 @@ function upStockFacts(r) {
   const coverage=s.sales?warehouse/(s.sales/days):null;
   const {dailyNet15,coverage15:slowCoverage,totalCoverage15}=upSellableStock(p,warehouse,range.end,totalUnits);
   const slow=warehouse>0&&slowCoverage!==null&&slowCoverage>=60;
-  return {warehouse,factory,undelivered,totalUnits,financePriceCents,goodsValueCents:totalUnits*financePriceCents,
+  return {...upStockBalanceFacts(r,{warehouse,factory,undelivered,totalUnits,financePriceCents}),warehouse,factory,undelivered,totalUnits,financePriceCents,goodsValueCents:Number.isFinite(r.inventoryBalance?.goodsValueCents)?r.inventoryBalance.goodsValueCents:totalUnits*financePriceCents,
     coverage,slowCoverage,slow,dailyNet15,coverage15:slowCoverage,totalCoverage15,sales:s.sales,gsvCents:s.gsvCents,
     staleMaxAgeDays:r.staleOldestReceivedDate?Math.max(0,aiFlowDayDiff(r.staleOldestReceivedDate,range.end)):null,
     staleOldestSellableUnits:r.staleOldestReceivedDate&&Number.isFinite(r.staleOldestSellableUnits)?r.staleOldestSellableUnits:null,

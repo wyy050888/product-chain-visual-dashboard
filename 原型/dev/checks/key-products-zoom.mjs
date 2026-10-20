@@ -1,10 +1,11 @@
+import {verifyZoomFilters} from './key-products-zoom-filters.mjs';
 import assert from 'node:assert/strict';
 export async function verifyKeyProductZoom(page){
  const root=page.locator('#matrix'),chart=root.locator('#matrixchart'),zoom=root.locator('.kpm-chart-zoom');
  const snapshot=()=>page.evaluate(()=>window.dashboardKeyProductsSnapshot());
  const initial=await snapshot(),original=await chart.elementHandle();
  const plot=await root.locator('.matrixplot').boundingBox(),list=await root.locator('.matrixlist').boundingBox();
- assert(Math.abs(plot.width/(plot.width+list.width)-.4)<.005,'桌面左右四六合布局');
+ assert(Math.abs(plot.width/(plot.width+list.width)-.3)<.005,'桌面左右三七布局');
  for(const node of [root.locator('.matrixlist'),root.locator('#matrixtable')])assert.equal(await node.evaluate(e=>getComputedStyle(e).borderTopWidth),'0px','明细和表格去外框');
  const before=await chart.locator('svg').boundingBox(),trigger=root.locator('[data-kpm-expand]');
  await trigger.click();await zoom.waitFor({state:'visible'});
@@ -13,7 +14,7 @@ export async function verifyKeyProductZoom(page){
  assert.equal(await root.locator('#matrixchart').count(),1,'移动原图，不复制ID');
  assert(await original.evaluate(e=>e===document.querySelector('#matrixchart')));
  const after=await chart.locator('svg').boundingBox();assert(after.width>before.width*1.3&&after.height>before.height*1.3,'图表实际放大');
- assert.equal(await chart.locator('circle').count(),initial.visible.filter(p=>p.facts.sales>0).length);
+ assert.equal(await chart.locator('circle').count(),initial.visible.filter(p=>p.level&&p.assessment.current.sales>0).length);
  const dot=chart.locator('circle').first(),id=await dot.getAttribute('data-kpm-point');
  await dot.hover();const tip=page.locator('#kpm-point-tooltip');await tip.waitFor({state:'visible'});
  assert(await tip.evaluate(e=>Boolean(e.closest('dialog:modal'))),'提示随原图进入模态顶层');
@@ -39,4 +40,5 @@ export async function verifyKeyProductZoom(page){
  assert(await chart.evaluate(e=>e.scrollWidth>e.clientWidth),'窄屏仅图表内部横向滚动');
  await trigger.click();assert.equal(await zoom.count(),0);assert.equal(await page.locator('html').evaluate(e=>e.classList.contains('kpm-zoom-open')),false,'关闭后释放背景滚动');
  await page.setViewportSize({width:1920,height:1080});
+ await verifyZoomFilters(page);
 }

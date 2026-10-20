@@ -1,0 +1,27 @@
+/* 供应商目标复用生命周期目标的后台壳层、输入框与自动保存交互。 */
+#st-target-page{font-size:13px;color:#304c70}
+#st-year{width:112px;min-height:34px;padding:6px 12px;border:1px solid #dce4f0;background:#fff;border-radius:4px;color:#536b8c;font:inherit}
+#st-error{color:#c43149;font-size:12px;line-height:1.5}#st-error:not(:empty){padding-bottom:12px}
+#st-table{overflow:auto;border:1px solid #e5eaf3;scrollbar-width:thin;max-height:calc(100dvh - 230px)}
+#st-target-page :is(th,td){height:58px;padding:11px 16px;vertical-align:middle;border-bottom:1px solid #e9eef6;text-align:center}
+#st-target-page thead th{height:46px;background:#f5f7fb;color:#7e8ca3;font-size:12px;font-weight:400;position:sticky;top:0;z-index:2}
+#st-target-page tr>:first-child{width:230px;position:sticky;left:0;z-index:1;text-align:left;background:#fff;box-shadow:1px 0 #e9eef6;color:#304c70;font-weight:400}
+#st-target-page thead tr>:first-child{z-index:3;background:#f5f7fb;color:#7e8ca3}
+#st-target-page tr>:last-child{width:140px;background:#fafbfd}
+#st-target-page thead tr>:last-child{background:#f5f7fb}
+#st-target-page tbody tr:last-child>:is(th,td){border-bottom:0}
+#st-target-page tbody tr:hover>:is(th,td){background:#fafcff}
+#st-target-page .st-brand-row>:is(th,td){background:#f8faff}
+#st-target-page .st-brand-row th{font-weight:500}
+#st-target-page select[data-st-grade]{width:80px;min-height:34px;border:1px solid #dce4ef;border-radius:4px;background:#fff;color:#304c70;font:inherit;padding:6px 10px;text-align:center}
+.st-brand-toggle{display:inline-flex;align-items:center;gap:8px;padding:0;color:inherit;font:inherit;border:0;background:none}
+.st-brand-toggle i{width:5px;height:5px;border-right:1px solid #8b9db5;border-bottom:1px solid #8b9db5;transform:rotate(-45deg);margin-right:3px}
+.st-brand-toggle[aria-expanded=true] i{transform:rotate(45deg)}
+.st-brand-head{display:flex;align-items:center;justify-content:space-between;gap:10px;white-space:nowrap}
+.st-brand-head .link{font:inherit;font-size:11px;color:#1677ff;padding:0}
+.st-category-name{padding-left:20px;color:#7a8ba4}
+#st-target-page .st-standards-table{min-width:700px}
+#st-target-page .st-standards-table tr>:first-child{width:40%}
+#suppliers>.sectionhead>.titlegroup{flex:0 1 auto}
+#suppliers #st-open-targets{margin-right:auto;margin-left:12px;padding:6px 13px;font-size:12px;border-color:#cfdff7;background:#fff;color:#1677ff;white-space:nowrap}
+@media(max-width:700px){#lt-system:has(#st-target-page:not([hidden])){align-content:start}#st-target-page .st-quarter-table tr>:first-child{width:180px}#st-target-page .st-standards-table tr>:first-child{width:160px}#suppliers #st-open-targets{margin-left:6px}}

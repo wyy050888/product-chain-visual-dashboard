@@ -9,7 +9,7 @@ let ltStore={version:2,years:{2026:{values:ltClone(ltReference2026),revision:0,u
 try{
  const saved=JSON.parse(localStorage.getItem(ltStorageKey)||'null');
  if([1,2].includes(saved?.version)&&saved.years)for(const [year,data] of Object.entries(saved.years)){
-  if(/^(2025|2026|2027)$/.test(year)&&ltValidGrid(data?.values))ltStore.years[year]={values:data.values.map(row=>row.map(quarters=>quarters.map(value=>ltNumeric(value)?value:0))),revision:Number.isSafeInteger(data.revision)?data.revision:0,updatedAt:typeof data.updatedAt==='string'?data.updatedAt:null};
+  if(/^\d{4}$/.test(year)&&+year>=2025&&ltValidGrid(data?.values))ltStore.years[year]={values:data.values.map(row=>row.map(quarters=>quarters.map(value=>ltNumeric(value)?value:0))),revision:Number.isSafeInteger(data.revision)?data.revision:0,updatedAt:typeof data.updatedAt==='string'?data.updatedAt:null};
  }
 }catch(_){/* 损坏的缓存不覆盖参考样例。 */}
 const ltYearValues=year=>ltStore.years[year]?.values||ltEmptyGrid();
@@ -33,7 +33,7 @@ function ltTargetFor(stage,categories,period,annual=false,grid=ltYearValues(peri
  const meta=ltAggregate(configured);
  return total>0?{...meta,value:total}:{value:null,state:'missing',label:'未配置'};
 }
-const ltEditor={year:2026,category:0,error:''};
+const ltEditor={year:+dashboardToday().slice(0,4),category:0,error:''};
 // 单个合法值即写入；存储失败时保留上一份已生效配置，不提交其他输入。
 function ltSetTarget(year,category,plan,quarter,value){
  if(!ltValidCell(value))return {ok:false,error:'目标须为0至99,999的整数'};

@@ -8,14 +8,14 @@ function upMountTable(host,pager,headers,rows,empty='暂无数据') {
 }
 function upOpenDetail(context) {
   const product=upSpus.get(context.spuId); if(!product){toast('未找到对应SPU，不能以型号或项目记录替代');return}
-  const state={platform:'all',tab:'operating',...context}, base=upProduct(product);
+  const state={platform:'all',tab:'operating',channelSort:{key:'gsvCents',direction:'desc'},...context}, base=upProduct(product);
   const inheritedPlatforms=Array.isArray(state.platform)?[...state.platform]:null;
   const identity=pfIdentity(base),attributeTags=rpQualityProductFields(base).find(field=>field.key==='productType').tags;
   if(!state.period||upWindow(state.period).start!==state.start||upWindow(state.period).end!==state.end)state.period=drawerPeriodFromRange(state);
   let model=upDetailModel(state);
   openModal('产品详情',`<article class="up-detail" data-up-spu="${esc(state.spuId)}" data-up-tab="${state.tab}">
-    <header class="up-hero" data-product-summary>${riskThumbnail(base.name)}<div><div class="up-product-heading"><h2>${esc(base.name)}</h2>${attributeTags.length?rpProductTagMarkup(attributeTags):''}<button type="button" class="link up-project-link" data-up-project>查看项目</button></div>
-      <dl data-up-identity></dl></div>
+    <header class="up-hero" data-product-summary>${riskThumbnail(base.name)}<div><div class="up-product-heading"><h2>${esc(base.name)}</h2>${upProductGradeBadge(null)}${attributeTags.length?rpProductTagMarkup(attributeTags):''}<button type="button" class="link up-project-link" data-up-project>查看项目</button></div>
+      <div class="up-identity-row"><dl data-up-identity></dl><div class="up-guide-price"><span>指导价：</span><strong data-up-guide-price>${Number.isFinite(base.guidePriceCents)?(base.guidePriceCents/100).toFixed(2):'—'}</strong>${Number.isFinite(base.guidePriceCents)?'<small>元</small>':''}</div></div></div>
       <section class="up-ai-summary" aria-label="产品AI总结"></section></header>
     <div class="up-toolbar"><label>平台<select id="up-platform">${inheritedPlatforms?`<option value="selected">所选平台：${esc(inheritedPlatforms.join('、'))}</option>`:''}<option value="all">全平台</option>${qrPlatforms.map(p=>`<option ${p===state.platform?'selected':''}>${p}</option>`).join('')}</select></label></div>
     <section data-up-panel="operating"></section><section data-up-panel="quality"></section><section data-up-panel="stock"></section>
@@ -23,8 +23,10 @@ function upOpenDetail(context) {
   const root=$('.up-detail');
   const projectLink=root.querySelector('[data-up-project]');
   if(projectLink)projectLink.onclick=()=>toast('已关联项目时跳转到项目详情页；未关联项目时提示“该产品暂未关联项目”');
+  let detailPeriodControl;
   function paint() {
     model=upDetailModel(state);
+    root.querySelector('[data-up-product-grade]').outerHTML=upProductGradeBadge(kpmGradeAssessment(product,state.end).level);
     const fields=[['SPU码',base.spuCode],['型号',base.model],['品牌',base.brand],['产品链',chains[base.chain]],['季品',identity.attribute]];
     // 上线当天计为第1天，随详情统计截止日更新，与新品列表保持一致。
     if(product.cohort==='new')fields.push(['新品上线日期',base.actualLaunch],['已上线天数',Math.max(0,aiFlowDayDiff(base.actualLaunch,state.end)+1)+' 天']);
@@ -35,12 +37,15 @@ function upOpenDetail(context) {
     root.querySelector('[data-up-panel="quality"]').innerHTML=upQualityView(model,state);
     root.querySelector('[data-up-panel="stock"]').innerHTML=upStockView(model,state);
     root.dataset.upStart=state.start;root.dataset.upEnd=state.end;
-    upMountQuality(root,model,state);upMountStock(root,model,state);upMountTodos(root,model,state);
+    upMountGradeTrendPeriod(root,state,period=>{
+      detailPeriodControl.set(period);Object.assign(state,upWindow(period),{period});paint();
+    });
+    upMountOperating(root,model,state);upMountQuality(root,model,state);upMountStock(root,model,state);upMountTodos(root,model,state);
     drawerQueueRefresh();
   }
   const select=root.querySelector('#up-platform');select.value=inheritedPlatforms?'selected':state.platform;
   select.onchange=()=>{state.platform=select.value==='selected'?inheritedPlatforms:select.value;paint()};
-  drawerMountDetailPeriod(root,state.period||drawerPeriodFromRange(state),(period,range)=>{
+  detailPeriodControl=drawerMountDetailPeriod(root,state.period||drawerPeriodFromRange(state),(period,range)=>{
     Object.assign(state,range,{period});paint();
   },'up-date-trigger',['operating','quality']);
   paint();

@@ -60,7 +60,7 @@ function rpQualityFields(record,fields,current,previous,qualityOnly=true,violati
  const fine=events.filter(e=>e.type==='罚款'),frozen=events.filter(e=>e.type==='资金冻结');
  const fineAmount=fine.reduce((sum,e)=>sum+(Number(e.amount)||0),0),frozenAmount=frozen.reduce((sum,e)=>sum+(Number(e.amount)||0),0),scope=qualityOnly?'品质原因':'全部原因';
  const patch=(key,props)=>{const field=fields.find(f=>f.key===key);if(field)Object.assign(field,props)};
- const compareHint='上期为紧邻的等长区间；环比＝（本期－上期）÷上期，上期缺失或为0且本期非0时显示--；两期相同显示持平；环比上涨绿色，跌幅≤10%灰色，跌幅>10%红色，持平灰色。';
+ const compareHint='上期为紧邻的等长区间；环比＝（本期－上期）÷上期；环比上涨绿色，跌幅≤10%灰色，跌幅>10%红色，持平灰色。';
  for(const [key,now,before] of [['sales',current.sales,previous.sales],['gsv',current.gsvCents,previous.gsvCents],['margin',current.profitRate,previous.profitRate],['bad',current.badRate,previous.badRate]]){
   const old=fields.find(f=>f.key===key);
   patch(key,{tone:Number.isFinite(now)?'':'rp-quality-gray',target:rpQualityChange(now,before),targetTone:rpQualityChangeTone(now,before),hint:(old?.hint||'')+compareHint});

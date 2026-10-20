@@ -9,7 +9,7 @@ try{const saved=JSON.parse(localStorage.getItem(DP_KEY)||'null');if(saved?.versi
 const dpModules=[['risk','产品部高危预警','风险预警'],['ai','产品部 AI 全局智能诊断','AI 总诊断'],['management','部门全局管理','部门管理'],['sales','销售达成管控','销售达成'],['projects','产品红绿灯管控','项目进度'],['lifecycle','产品全生命周期管控','产品生命周期'],['new','新品专项管控','新品专项'],['matrix','关键产品管控','关键产品'],['inventory','全品类库存管控','库存管控']];
 const dpState={chain:'all',role:'manager',view:'director',global:{...globalPeriod},periods:{},tab:{management:'score',ai:'blocks',sales:'chain',projects:'红灯',projectPhase:'all',life:0,lifeView:'summary',channelView:'channel',matrix:'B',inventory:'chain',tasks:'all',doc:0},filters:{},pages:{}};
 const dpColors=['#8981f8','#f1b663','#65b7d9','#ee8996','#a8b0c5'];
-const dpChannelNames=['兴趣电商','天猫','京东','拼多多','TK','亚马逊 & 其他跨境','线下渠道'];
+const dpChannelNames=filterCatalog.platforms;
 const dpDocNames=['日报','周报','项目台账','会议记录','市场分析','竞品分析','产品企划','产品培训'];
 function dpP(id){return dpState.periods[id]||dpState.global}
 function dpWith(id,fn){const key='dp-'+id,old=localPeriods[key];localPeriods[key]=dpP(id);try{return withPeriod(key,fn)}finally{if(old)localPeriods[key]=old;else delete localPeriods[key]}}
@@ -41,9 +41,7 @@ function dpSalesCells(){return salesCrossData().flatMap((row,c)=>row.map((r,b)=>
 function dpSalesRows(dim='chain',brand='all'){
  const cells=dpSalesCells().filter(r=>pfIncludes(brand,r.brandIndex));
  if(dim==='channel'){
-  // The original director channel allocation is retained, then cross-border is split 40/60.
-  const raw=salesChannelData(sumSalesCells(cells,'当前范围'),cells);
-  return dpChannelNames.map((name,i)=>{const indices=i===0?[0,1,2]:[i===1?5:i===2?3:i===3?4:i===6?7:6],r={name};for(const k of ['sku','sale','target','annual','ytd','gross']){const v=dpSum(indices.map(j=>raw[j]),k);r[k]=i===4||i===5?raw[6].crossSplit[i-4][k]:v}r.profit=r.sale?r.gross/r.sale*100:0;r.index=i;return r});
+  return salesChannelData(sumSalesCells(cells,'当前范围'),cells).map((row,index)=>({...row,index}));
  }
  const labels=dim==='brand'?brands:chains;
  return labels.map((name,index)=>{const records=cells.filter(r=>dim==='brand'?r.brandIndex===index:r.chain===index);return{...sumSalesCells(records,name),index}}).filter(r=>dim==='brand'?(pfIncludes(brand,r.index)):(dpState.chain==='all'||r.index===+dpState.chain));
@@ -52,23 +50,16 @@ function dpLifeRows(stage,p=periodFor()){
  return lifeChainRows(stage,p).map((r,i)=>({...r,chain:i})).filter(dpInScope);
 }
 function dpLifeChannels(stage,p=periodFor()){
- const rows=dpChannelNames.map((name,i)=>({name,index:i,target:0,actual:0,yearTarget:0,yearActual:0})),b=bounds(p),ms=new Set(months(p)),ys=new Set(months(p,true));
- for(let m=1;m<=12;m++)for(let c=0;c<8;c++){
-  const d=lifeChannelMonth(stage,c,m,p),w=lifeChainWeights[stage].map((v,i)=>v+((c+i)%3===0?1:0)),indices=dpState.chain==='all'?[0,1,2,3]:[+dpState.chain];
-  const tc=splitTarget(d.target,w),ac=splitTarget(d.actual,w),t=dpSum(indices.map(i=>({v:tc[i]})),'v'),a=dpSum(indices.map(i=>({v:ac[i]})),'v');
-  const tm=c===6?inventoryCrossAllocation(tc,splitTarget(d.target,[4,6])):null,am=c===6?inventoryCrossAllocation(ac,splitTarget(d.actual,[4,6])):null;
-  const targets=c===6?[0,1].map(j=>indices.reduce((n,i)=>n+tm[i][j],0)):[t],actuals=c===6?[0,1].map(j=>indices.reduce((n,i)=>n+am[i][j],0)):[a];
-  (c===6?[4,5]:[c<3?0:c===5?1:c===3?2:c===4?3:6]).forEach((j,k)=>{rows[j].yearTarget+=targets[k];if(m>=b.first&&m<=b.last)rows[j].target+=targets[k];if(ms.has(m))rows[j].actual+=actuals[k];if(ys.has(m))rows[j].yearActual+=actuals[k]});
- }return rows;
+ const rows=dpChannelNames.map((name,index)=>({name,index,target:0,actual:0,yearTarget:0,yearActual:0})),b=bounds(p),ms=new Set(months(p)),ys=new Set(months(p,true));
+ for(let month=1;month<=12;month++)for(let platform=0;platform<channels.length;platform++){
+  const facts=lifePlatformChainMonth(stage,platform,month,p).filter((_,chain)=>dpState.chain==='all'||chain===+dpState.chain),row=rows[platform];
+  const target=targetSum(facts.map(fact=>fact.target)),actual=targetSum(facts.map(fact=>fact.actual));
+  row.yearTarget+=target;if(month>=b.first&&month<=b.last)row.target+=target;if(ms.has(month))row.actual+=actual;if(ys.has(month))row.yearActual+=actual;
+ }
+ return rows;
 }
 function dpLifeRecords(stage,scope,p,channel='all',chain='all'){
- const all=lifecycleCompletionProducts(stage,scope,p),inScope=r=>dpInScope(r)&&(chain==='all'||r.chain===+chain);
- if(channel==='all')return all.filter(inScope);
- const i=+channel,original=i===0?[0,1,2]:[i===1?5:i===2?3:i===3?4:i===6?7:6];
- const selected=all.filter(r=>original.includes(r.channel));if(i!==4&&i!==5)return selected.filter(inScope);
- // The same monthly split as dpLifeChannels; no duplicated cross-border completions.
- const groups=Object.groupBy?Object.groupBy(selected,r=>r.date.slice(0,7)):selected.reduce((a,r)=>{(a[r.date.slice(0,7)]??=[]).push(r);return a},{});
- return Object.values(groups).flatMap(group=>{const chainGroups=chains.map((_,c)=>group.filter(r=>r.chain===c).sort((a,b)=>a.id.localeCompare(b.id))),counts=chainGroups.map(a=>a.length),matrix=inventoryCrossAllocation(counts,splitTarget(group.length,[4,6]));return chainGroups.flatMap((a,c)=>i===4?a.slice(0,matrix[c][0]):a.slice(matrix[c][0]))}).filter(inScope);
+ return lifecycleCompletionProducts(stage,scope,p).filter(row=>dpInScope(row)&&(chain==='all'||row.chain===+chain)&&(channel==='all'||row.channel===+channel));
 }
 function dpDocuments(p=periodFor()){
  const rows=[];for(const month of months(p))for(let person=0;person<people.length;person++)for(let type=0;type<8;type++){

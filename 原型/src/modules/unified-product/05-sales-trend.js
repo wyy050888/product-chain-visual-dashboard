@@ -46,7 +46,8 @@ function upShowSalesTooltip(point,event){
   point.setAttribute('aria-describedby',upSalesTooltip.id);point.classList.add('up-trend-active');
   const chart=point.closest('.up-operating-trend'),d=point.dataset;
   const percent=value=>value===''?'—':upPercent(Number(value));
-  const fields=chart?JSON.parse(d.seriesValues||'[]').filter(s=>chart.querySelector(`[data-up-series-toggle="${s.key}"]`)?.getAttribute('aria-pressed')==='true').map(s=>[s.label,s.value,s.color]):[
+  const grade=point.hasAttribute('data-up-grade-point');
+  const fields=grade?JSON.parse(d.seriesValues||'[]').map(s=>[s.label,s.value,s.color]):chart?JSON.parse(d.seriesValues||'[]').filter(s=>chart.querySelector(`[data-up-series-toggle="${s.key}"]`)?.getAttribute('aria-pressed')==='true').map(s=>[s.label,s.value,s.color]):[
    ['总退',percent(d.rate),'#ed6178'],['已收退',percent(d.receivedRate),'#8a6bd1'],['销量',fmt(Number(d.sales))+'件','#1677ff'],
    ['总退目标',percent(d.returnTarget),'#ed6178',true],['已收退目标',percent(d.receivedTarget),'#8a6bd1',true]
   ];
@@ -58,15 +59,15 @@ function upShowSalesTooltip(point,event){
  const left=x+16+box.width<=innerWidth-8?x+16:x-box.width-16;
  const top=y+12+box.height<=innerHeight-8?y+12:y-box.height-12;
  upSalesTooltip.style.left=Math.max(8,Math.min(innerWidth-box.width-8,left))+'px';
- upSalesTooltip.style.top=Math.max(8,top)+'px';
+ upSalesTooltip.style.top=Math.max(8,Math.min(innerHeight-box.height-8,top))+'px';
 }
 for(const type of ['pointerover','pointermove'])document.addEventListener(type,event=>{
- const point=event.target.closest?.('[data-up-trend-point],[data-up-return-point]');if(point)upShowSalesTooltip(point,event);
+ const point=event.target.closest?.('[data-up-trend-point],[data-up-return-point],[data-up-grade-point]');if(point)upShowSalesTooltip(point,event);
 });
 document.addEventListener('pointerout',event=>{if(event.target===upSalesActivePoint)upHideSalesTooltip()});
-document.addEventListener('focusin',event=>{if(event.target.matches?.('[data-up-trend-point],[data-up-return-point]'))upShowSalesTooltip(event.target)});
+document.addEventListener('focusin',event=>{if(event.target.matches?.('[data-up-trend-point],[data-up-return-point],[data-up-grade-point]'))upShowSalesTooltip(event.target)});
 document.addEventListener('focusout',event=>{if(event.target===upSalesActivePoint)upHideSalesTooltip()});
-document.addEventListener('click',event=>{const point=event.target.closest?.('[data-up-trend-point],[data-up-return-point]');if(point)upShowSalesTooltip(point,event);else upHideSalesTooltip()},true);
+document.addEventListener('click',event=>{const point=event.target.closest?.('[data-up-trend-point],[data-up-return-point],[data-up-grade-point]');if(point)upShowSalesTooltip(point,event);else upHideSalesTooltip()},true);
 document.addEventListener('scroll',upHideSalesTooltip,true);
 document.addEventListener('change',upHideSalesTooltip,true);
 window.addEventListener('resize',upHideSalesTooltip);

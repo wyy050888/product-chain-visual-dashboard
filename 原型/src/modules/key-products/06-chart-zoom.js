@@ -4,6 +4,9 @@ function kpmCloseChartZoom(restoreFocus=true){
  const state=kpmZoomState;if(!state)return;
  kpmZoomState=null;kpmHidePointTooltip();
  if(state.dialog.open)state.dialog.close();
+ state.filtersHost?.remove();state.plot.querySelector('#matrixchart').replaceChildren(...state.chartNodes);
+ kpmChartPoints.clear();for(const [id,row] of state.points)kpmChartPoints.set(id,row);kpmChartContext=state.chartContext;
+ state.legend.parent.insertBefore(state.legend.node,state.legend.next);
  state.marker.replaceWith(state.plot);document.body.append(kpmPointTooltip);
  state.trigger.textContent='⛶ 放大';state.trigger.setAttribute('aria-label','放大产品经营矩阵');state.trigger.setAttribute('aria-expanded','false');
  state.dialog.remove();document.documentElement.classList.remove('kpm-zoom-open');
@@ -16,7 +19,10 @@ function kpmOpenChartZoom(trigger){
  marker.className='kpm-chart-placeholder';marker.style.height=plot.getBoundingClientRect().height+'px';marker.setAttribute('aria-hidden','true');
  dialog.className='kpm-chart-zoom';dialog.setAttribute('aria-label','产品经营矩阵放大');
  plot.before(marker);dialog.append(plot,kpmPointTooltip);$('#matrix').append(dialog);
- kpmZoomState={plot,marker,dialog,trigger,suspended:false,focus:null};
+ const legend=plot.querySelector('.kpm-chart-legend'),legendPosition={node:legend,parent:legend.parentNode,next:legend.nextSibling};
+ plot.append(legend);
+ kpmZoomState={plot,marker,dialog,trigger,legend:legendPosition,suspended:false,focus:null,chartNodes:[...plot.querySelector('#matrixchart').childNodes],points:new Map(kpmChartPoints),chartContext:{...kpmChartContext}};
+ kpmMountZoomFilters(kpmZoomState);
  trigger.textContent='×';trigger.setAttribute('aria-label','关闭放大弹窗');trigger.setAttribute('aria-expanded','true');
  // 原生dialog提供焦点约束、背景不可操作及Escape取消；圆点提示随图进入顶层。
  dialog.addEventListener('cancel',e=>{e.preventDefault();kpmCloseChartZoom()});

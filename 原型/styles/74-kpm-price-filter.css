@@ -1,0 +1,25 @@
+/* 预设与自定义区间同在受控下拉内，筛选栏始终只占一行。 */
+.kpm-price-filter{position:relative;display:block;min-width:0;height:36px;font-size:12px;color:#526b8c}
+.kpm-price-filter[data-price-open]{z-index:110}
+.kpm-price-filter select[hidden],.kpm-price-panel[hidden]{display:none!important}
+.kpm-price-trigger{position:relative;display:flex;align-items:center;gap:8px;width:100%;height:36px;min-width:0;padding:0 26px 0 10px;border:1px solid #e0e3e8;border-radius:6px;background:white;color:#526b8c;font:inherit;cursor:pointer;text-align:left;box-sizing:border-box}
+.kpm-price-trigger>[data-kpm-price-value]{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center;color:#24334b}
+.kpm-price-trigger>i{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:12px;height:12px;background:var(--filter-chevron) center/contain no-repeat}
+.kpm-price-filter[data-price-open]>.kpm-price-trigger,.kpm-price-trigger:focus-visible{outline:0;border-color:#1677ff;box-shadow:0 0 0 3px #1677ff12}
+.kpm-price-trigger.filtered>[data-kpm-price-value]{color:#1677ff}
+.kpm-price-panel{position:absolute;top:calc(100% + 6px);left:0;z-index:110;width:280px;max-width:calc(100vw - 32px);max-height:360px;padding:6px;background:white;border:1px solid #dce5f0;border-radius:6px;box-shadow:0 6px 24px #213b5b24;overflow:auto;box-sizing:border-box}
+.kpm-price-presets{display:grid;gap:2px}
+.kpm-price-presets>[data-kpm-price-preset]{display:block;width:100%;min-height:30px;padding:5px 10px;border:0;border-radius:4px;background:white;font:inherit;color:#34455f;text-align:left;cursor:pointer}
+.kpm-price-presets>[data-kpm-price-preset]:hover,.kpm-price-presets>[data-kpm-price-preset]:focus-visible{outline:0;background:#f4f8ff;color:#1677ff}
+.kpm-price-presets>[aria-checked=true]{color:#1677ff;background:#edf4ff}
+.kpm-price-panel>.kpm-price-custom{display:flex;flex-direction:column;gap:8px;max-width:100%;margin:6px 0 0;padding:10px 8px 6px;border-top:1px solid #e6edf7}
+.kpm-price-custom-title{font-size:12px;color:#8293ad}.kpm-price-custom.active>.kpm-price-custom-title{color:#1677ff}
+.kpm-price-inputs{display:flex;align-items:center;gap:5px;min-width:0;color:#8a9ab0;font-size:12px}
+.kpm-price-filter .kpm-price-inputs input{flex:1;min-width:0;width:80px;height:32px;padding:0 7px;border:1px solid #dce5f0;border-radius:4px;box-sizing:border-box;font-size:12px;color:#365575}
+.kpm-price-filter .kpm-price-inputs input[aria-invalid=true]{border-color:#dc6477}.kpm-price-error{font-size:11px;color:#c44960;line-height:1.5}.kpm-price-error:empty{display:none}
+.kpm-main .kpm-tools{grid-template-columns:minmax(180px,1.6fr) repeat(4,minmax(90px,1fr)) auto;align-items:start}
+.kpm-main .kpm-tools .kpm-search,.kpm-main .kpm-tools>.link{align-self:start}
+.kpm-zoom-filters>.kpm-price-filter{display:block;flex:1 1 180px;min-width:150px}
+.kpm-management-list-tools{align-items:flex-start}.kpm-management-list-tools>.kpm-price-filter{flex:0 1 220px;max-width:100%}.kpm-management-list-tools>[data-kpm-list-reset]{line-height:36px}
+@media(max-width:1280px){.kpm-main .kpm-tools{grid-template-columns:repeat(3,minmax(0,1fr))}.kpm-main .kpm-search{grid-column:span 2}}
+@media(max-width:600px){.kpm-main .kpm-tools{grid-template-columns:repeat(2,minmax(0,1fr))}.kpm-main .kpm-search{grid-column:1/-1}.kpm-zoom-filters>.kpm-price-filter{flex:1 1 calc(50% - 8px);min-width:0}.kpm-management-list-tools>.kpm-price-filter{flex:1 1 100%}}

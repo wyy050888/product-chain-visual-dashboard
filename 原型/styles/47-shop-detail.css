@@ -52,3 +52,8 @@
 .sd-detail .sd-core-links{margin-top:28px;padding-top:20px;border-top:1px solid #e5ebf6;min-width:0;scroll-margin-top:70px}
 .sd-detail .sd-core-links>h3{margin:0 0 16px}
 .sd-detail .sd-core-links>.sd-pdd-links:first-of-type{margin-top:0}
+
+/* SPU表头和内容均左对齐，四个经营指标使用统一排序控件。 */
+#dialogbody .sd-detail [data-sd-spu-table] table{min-width:900px;table-layout:fixed}
+#dialogbody .sd-detail [data-sd-spu-table] :is(th,td){text-align:left}
+#dialogbody .sd-detail [data-sd-spu-table] :is(th,td):first-child{width:32%}

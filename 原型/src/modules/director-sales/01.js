@@ -1,7 +1,7 @@
 
 
 // Director sales-success ledger. Each SPU has one aggregate backed by platform rows.
-const nsPlatforms=['抖音','快手','视频号','天猫','京东','拼多多'];
+const nsPlatforms=filterCatalog.platforms;
 const nsHeaders=['SPU名称','产品型号','产品简称','产品归属','产品类别','产品分类','上线日期','上线天数','价格','GSV','GSV目标','规模达成率','利润额','利润率','利润达成率','退货率'];
 let nsPlatform='all',nsScopeKey='';
 const nsMoney=v=>pfMoneyYuan((v/10000)*10000);

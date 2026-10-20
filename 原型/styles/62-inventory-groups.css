@@ -1,0 +1,86 @@
+/* 库存指标较多：两表分别内部横向滚动，身份和查看入口固定。 */
+#inventory .ip-group-panel h3{display:flex;align-items:center;justify-content:space-between;gap:12px}
+:is(#inventory,.ip-stock-detail) .ip-stock-table{width:100%;min-width:1420px;table-layout:fixed;border-collapse:separate;border-spacing:0}
+:is(#inventory,.ip-stock-detail) .ip-stock-table :is(th,td){padding:13px 8px;white-space:nowrap;text-align:left;font-size:12px;vertical-align:middle;box-sizing:border-box}
+:is(#inventory,.ip-stock-detail) .ip-stock-table th{height:48px;padding-block:8px;white-space:normal;line-height:1.4;background:#f5f8fd;color:#7d8da5;font-size:11px}
+:is(#inventory,.ip-stock-detail) .ip-stock-table td{height:72px;background:#fff}
+:is(#inventory,.ip-stock-detail) .ip-stock-table :is(th,td):first-child{position:sticky;left:0;width:96px;z-index:2;border-right:1px solid #edf1f8}
+:is(#inventory,.ip-stock-detail) .ip-stock-table :is(th,td):last-child{position:sticky;right:0;width:60px;z-index:2;border-left:1px solid #edf1f8}
+:is(#inventory,.ip-stock-detail) .ip-stock-table th:first-child,:is(#inventory,.ip-stock-detail) .ip-stock-table th:last-child{z-index:4}
+:is(#inventory,.ip-stock-detail) .ip-stock-table tr:hover td{background:#f7faff}
+:is(#inventory,.ip-stock-detail) .ip-stock-table tfoot td{background:#f5f8fd;font-weight:500}
+:is(#inventory,.ip-stock-detail) .ip-signal{display:inline-block;line-height:1.4}
+:is(#inventory,.ip-stock-detail) .ip-signal.green{color:#10a58a!important}
+:is(#inventory,.ip-stock-detail) .ip-signal.red{color:#ff4d67!important}
+:is(#inventory,.ip-stock-detail) .ip-signal.yellow{color:#d99b00!important}
+#dialog.drawer.business-drawer:has(>#dialogbody>.ip-stock-detail){width:min(1540px,84vw)}
+.ip-stock-detail{min-width:0;max-width:100%}
+.ip-stock-tools{display:flex;align-items:center;gap:12px;margin:0 0 18px;flex-wrap:wrap}
+.ip-stock-tools>.ui-search-field{flex:0 1 450px;min-width:200px;max-width:100%}
+.ip-stock-tools>.ui-search-field input{width:100%!important}
+.ip-stock-tools .pf-multi{min-width:170px;max-width:260px}
+.ip-stock-tools .pf-multi:has(.ip-stock-filter-clear) .pf-multi-value{padding-left:10px;padding-right:40px}
+.ip-stock-filter-clear{position:absolute;right:24px;top:8px;display:grid;place-items:center;width:20px;height:20px;padding:0;border:0;border-radius:50%;background:transparent;color:#8b98aa;font-size:16px;line-height:1;cursor:pointer}
+.ip-stock-filter-clear:hover{background:#edf2f9;color:#1677ff}
+.ip-stock-filter-clear:focus-visible{outline:2px solid #1677ff;outline-offset:1px}
+.ip-stock-results{overflow:auto;max-width:100%;border:1px solid #e9eef6;border-radius:4px;max-height:calc(72px * 10 + 137px)}
+.ip-stock-results .ip-stock-table thead th{position:sticky;top:0;z-index:3}
+#dialogbody .ip-stock-detail .ip-stock-results .ip-stock-table.ip-stock-spus{min-width:1790px}
+#dialogbody .ip-stock-detail .ip-stock-results .ip-stock-table.ip-stock-spus :is(th,td):first-child{width:320px;white-space:normal}
+.ip-stock-product{display:flex;align-items:center;gap:12px;min-width:0}
+.ip-stock-product>div{min-width:0;display:flex;flex-direction:column;gap:6px}
+.ip-stock-product strong{font-size:12px;font-weight:500;line-height:1.5}
+.ip-stock-product small{font-size:11px;color:#8998ac;overflow-wrap:anywhere}
+.ip-stock-product :is(img,.product-thumb,.risk-thumb){flex:none;width:48px;height:48px;object-fit:contain}
+.ip-stock-column-heading{display:inline-flex;align-items:center;justify-content:flex-end;gap:4px;max-width:100%;vertical-align:middle}
+.ip-stock-column-heading .metric-help{flex:none;margin:0}
+:is(#inventory,.ip-stock-detail) .ip-stock-table .rp-sort-header{display:inline-flex;align-items:center;justify-content:flex-end;gap:4px;padding:0;border:0;background:transparent;color:inherit;font:inherit;font-size:11px;white-space:normal;text-align:right;cursor:pointer;min-width:0}
+:is(#inventory,.ip-stock-detail) .ip-stock-table .rp-sort-header:focus-visible{outline:2px solid #1677ff;outline-offset:3px}
+:is(#inventory,.ip-stock-detail) .ip-stock-table .rp-sort-header[data-direction]:not([data-direction=""]){color:#1677ff}
+.ip-stock-column-heading .rp-sort-arrows{flex:none}
+.ip-stock-pages{margin-top:14px}
+#dialogbody .up-stock-heading .up-stock-more{margin-left:auto;font-size:13px;white-space:nowrap}
+@media(max-width:1100px){#dialog.drawer.business-drawer:has(>#dialogbody>.ip-stock-detail){width:94vw}}
+@media(max-width:650px){#dialog.drawer.business-drawer:has(>#dialogbody>.ip-stock-detail){width:100vw}.ip-stock-tools>.ui-search-field{flex-basis:100%;max-width:none}.ip-stock-tools .pf-multi{flex:1;min-width:140px;max-width:100%}}
+
+@media(max-width:650px){#dialogbody .ip-stock-detail .ip-stock-results .ip-stock-table.ip-stock-spus :is(th,td):first-child{width:180px}.ip-stock-product strong{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}.ip-stock-product small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ip-stock-product :is(img,.product-thumb,.risk-thumb){width:36px;height:36px}}
+
+/* 时间控件与关键产品共用period-picker，只有三项期间指标跟随选择。 */
+.ip-group-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px 14px;border-bottom:1px solid #e8edf6;min-height:70px;box-sizing:border-box}
+#inventory .ip-group-heading h3{padding:0;border:0;display:flex;align-items:flex-start;flex-direction:column;gap:3px;white-space:nowrap}
+.ip-metric-period{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap;min-width:0}
+.ip-metric-period .follow-time{display:none}
+.ip-metric-period .period-picker{margin:0;gap:8px;flex-wrap:wrap;min-width:0}
+.ip-metric-period .ip-metric-range{font-size:10px;color:#8998ac;font-weight:400;white-space:nowrap}
+.ip-metric-period .metric-help{flex:none}
+:is(#inventory,.ip-stock-detail) .ip-stock-table [data-ip-metric]{text-align:right;font-variant-numeric:tabular-nums}
+@media(max-width:1600px){.ip-group-heading{align-items:flex-start}.ip-group-heading>[data-ip-period-host]{flex:1;min-width:240px}}
+@media(max-width:650px){.ip-group-heading>[data-ip-period-host]{flex-basis:100%;min-width:0}.ip-metric-period,.ip-metric-period .period-picker{justify-content:flex-start}}
+
+/* 数量、金额、占比和期间指标统一右对齐，身份及操作列沿用原布局 */
+:is(#inventory,.ip-stock-detail) .ip-stock-table th:not(:first-child):not(:last-child){text-align:right}
+.ip-group-title{display:inline-flex;align-items:center;gap:6px}
+.ip-group-title .metric-help{margin:0;flex:none}
+.metric-tooltip.metric-tooltip-inventory-summary{width:600px;max-width:calc(100vw - 24px);max-height:calc(100dvh - 16px);box-sizing:border-box;padding:0;overflow:auto;white-space:normal;color:#425674;border:1px solid #dfe7f2;border-radius:10px;box-shadow:0 10px 32px #213b6826}
+.ip-summary-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;background:#f5f8fd;padding:14px 16px;border-bottom:1px solid #e7edf6}
+.ip-summary-heading h4{margin:0;font-size:14px;color:#163854}
+.ip-summary-period{font-size:11px;background:#eaf1ff;color:#3475d9;padding:3px 8px;border-radius:4px;white-space:nowrap}
+.ip-summary-body{padding:14px 16px}
+.ip-summary-section+section{margin-top:14px}
+.ip-summary-section h5{margin:0 0 7px;font-size:12px;color:#23446b}
+.ip-summary-rules{width:100%;table-layout:fixed;border-spacing:0;border:1px solid #e7edf6;border-radius:6px;overflow:hidden;font-size:11px}
+.ip-summary-rules :is(th,td){padding:8px 5px;text-align:center;line-height:1.6;font-weight:400;border:0;white-space:normal;overflow-wrap:anywhere}
+.ip-summary-rules thead th{font-weight:500;background:#f7f9fd}
+.ip-summary-rules th:first-child{width:90px;color:#7d8da5}
+.ip-summary-rules tbody tr+tr>*{border-top:1px solid #edf1f8}
+.ip-summary-rules .green{color:#139a68;background:#f0faf5}
+.ip-summary-rules .yellow{color:#b78500;background:#fff9e9}
+.ip-summary-rules .red{color:#e75266;background:#fff3f4}
+.ip-summary-rules .is-current>th{color:#3475d9;background:#edf4ff;font-weight:500}
+.ip-summary-note{margin:12px 0 0;color:#8998ac;font-size:11px;line-height:1.7}
+@media(max-width:650px){.ip-summary-body{padding:12px 10px}.ip-summary-heading{padding:12px 10px}.ip-summary-rules th:first-child{width:62px}.ip-summary-rules :is(th,td){padding:7px 3px;overflow-wrap:anywhere}}
+
+/* 复用可随抽屉层级保存的标题栏副标题区，时间筛选始终留在正文之外 */
+#dialog.business-drawer:has(>#dialogbody>.ip-stock-detail) .dialoghead{gap:12px}
+#dialog.business-drawer:has(>#dialogbody>.ip-stock-detail) #dialogsub{margin-left:auto}
+#dialog.business-drawer:has(>#dialogbody>.ip-stock-detail) #dialogsub [data-ip-period-host]{display:block;max-width:100%}

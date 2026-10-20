@@ -1,6 +1,9 @@
+import {newDeliveryModel} from './new-delivery-model.mjs';
+import {verifyNewProductPrices} from './new-products-price.mjs';
 import {verifyNewProductOverview} from './new-products-overview.mjs';
 import assert from 'node:assert/strict';
 export async function newProducts(page){
+ newDeliveryModel();
  await page.locator('a[href="#new"]').click();
  const snapshot=()=>page.evaluate(()=>window.dashboardNewProductsSnapshot());
  const initial=await snapshot(),currentYear=await page.evaluate(()=>new Date().getFullYear());
@@ -22,29 +25,22 @@ export async function newProducts(page){
  assert(first.success.success<=first.success.total);
  assert.equal(first.success.total,first.rows.filter(p=>p.successAssessment.included).length);
  assert.equal(first.success.success,first.rows.filter(p=>p.salesSuccess).length);
- assert.match(await successCard.innerText(),new RegExp(`成功 ${first.success.success}款 / 纳入统计 ${first.success.total}款`));
- assert.equal(first.rows.length,24,'完整24款新品样例');
+ assert.match(await successCard.innerText(),new RegExp(`成功 ${first.success.success}个 / 纳入统计 ${first.success.total}个`));
+ assert.equal(first.rows.length,24,'完整24个新品样例');
  const carVacuum=first.rows.find(p=>p.spuCode==='KJ-QJ-CZXCQ-2628');
  assert(carVacuum,'保留截图产品样例');
  assert.equal(carVacuum.sellableStock.warehouse,4560);
- assert.equal(carVacuum.sellableStock.coverage15.toFixed(1),'390.9','不通过修改库存规避滞销判定');
- assert.equal(carVacuum.state,'滞销','390.9天且有库存必须显示滞销');
+ assert.equal(carVacuum.sellableStock.coverage15,4560/carVacuum.sellableStock.dailyNet15,'库存不变，可售天数跟随统计截止日近15日净销量计算');
+ assert(carVacuum.sellableStock.coverage15>=60);
+ assert.equal(carVacuum.state,'滞销','可售天数≥60天且有动销库存必须显示滞销');
  const carRow=page.locator('#newtable tbody tr').filter({has:page.locator('[data-nsp-view="'+carVacuum.spuId+'"]')});
  assert.equal(await carRow.locator('[data-sales-status]').innerText(),'滞销');
- await page.locator('[data-nsp-status="滞销"]').click();
- assert((await snapshot()).visible.some(p=>p.spuId===carVacuum.spuId),'状态分布与表格使用同一滞销结果');
- await page.locator('[data-nsp-status="滞销"]').click();
- const statusCounts=await page.locator('[data-nsp-status]').evaluateAll(es=>es.map(e=>({status:e.dataset.nspStatus,count:Number(e.querySelector('strong').childNodes[0].textContent)})));
- assert.equal(statusCounts.length,6);
- for(const item of statusCounts)assert.equal(item.count,first.rows.filter(p=>p.state===item.status).length);
- await page.locator('[data-nsp-status="缺货"]').click();
- assert.equal(await page.locator('[data-nsp-filter="status"]').inputValue(),'缺货');
+ await page.locator('[data-nsp-filter="status"]').selectOption('滞销');
+ assert((await snapshot()).visible.some(p=>p.spuId===carVacuum.spuId),'保留销售状态筛选');
+ await page.locator('[data-nsp-filter="status"]').selectOption('缺货');
  assert((await snapshot()).visible.every(p=>p.state==='缺货'));
- await page.locator('[data-nsp-status="缺货"]').click();
- assert.equal((await snapshot()).visible.length,24,'再次点击状态取消筛选');
- await page.locator('[data-nsp-filter="status"]').selectOption('整改');
- assert.equal(await page.locator('[data-nsp-status="整改"]').getAttribute('aria-pressed'),'true');
  await page.locator('[data-nsp-filter="status"]').selectOption('all');
+ await verifyNewProductPrices(page);
  const quarterFilter=page.locator('.nsp-success-filter');
  assert.equal(await quarterFilter.evaluate(el=>el.previousElementSibling.querySelector('select').dataset.nspFilter),'success','成功季度紧跟成功状态');
  const quarterOverview=await page.locator('#newtop').innerText();
@@ -111,7 +107,7 @@ export async function newProducts(page){
   await page.locator('#newseason').selectOption(season,{force:true});
   const selected=await snapshot();
   assert(selected.rows.every(p=>p.attribute===season));
-  assert.equal(await page.locator('#newtop .dp-ring').getAttribute('aria-label'),'共'+selected.rows.length+'款新品');
+  assert.equal(await page.locator('#newtop .dp-ring').getAttribute('aria-label'),'共'+selected.rows.length+'个新品');
   assert.deepEqual(selected.filters.season,[season]);await verifyNewProductOverview(page);
  }
  await page.locator('#newseason').selectOption('all',{force:true});
@@ -119,7 +115,7 @@ export async function newProducts(page){
  assert.equal(await page.locator('#newall').isVisible(),false);
  assert.equal(await page.locator('#newtop .newmetric svg').count(),0);
  assert.equal(await page.locator('#newtop .nsp-distribution h3').innerText(),'新品等级分布');
- assert.deepEqual(await page.locator('#newtable th').allTextContents(),['SPU信息','上线天数','Q4GSV','Q4去退后销量','Q4利润率','成功季度','总退','已收退','我司可售库存','销售状态','产品等级','上线日期','销售渠道','所属类目','操作']);
+ assert.deepEqual(await page.locator('#newtable th').allTextContents(),['SPU信息','上线天数','Q4GSV','Q4去退后销量','Q4利润率','成功季度','总退','已收退','我司可售库存','销售状态','产品等级','上线日期','销售渠道','类目','季品','操作']);
  assert.deepEqual(await page.locator('#newtable tbody tr td:nth-child(6)').allTextContents(),first.visible.slice(0,10).map(p=>p.successQuarters.map(q=>q.slice(2).replace('-','年')).join('、')||'未成功'));
  assert.equal(await page.locator('#newtable .nsp-success-status').count(),0,'季度不再显示成功或不成功标签');
  assert(first.rows.filter(p=>!p.successAssessment.included).every(p=>p.successQuarters.includes('2026-Q3')),'往期已成功产品保留成功季度');
@@ -130,7 +126,7 @@ export async function newProducts(page){
   assert.equal(cell.delay,delay>0?'延期'+delay+'天':'','仅延期显示第二行');
  }
  assert.equal(await page.locator('[data-nsp-filter="channel"]').getAttribute('aria-label'),'新品销售渠道');
- assert.deepEqual(await page.locator('#newtable tbody tr:first-child td').evaluateAll(cells=>cells.slice(-3).map(cell=>cell.textContent.trim())),[first.visible[0].salesChannels.join('、')||'—',first.visible[0].category,'查看']);
+ assert.deepEqual(await page.locator('#newtable tbody tr:first-child td').evaluateAll(cells=>cells.slice(-4).map(cell=>cell.textContent.trim())),[first.visible[0].salesChannels.join('、')||'—',first.visible[0].category,first.visible[0].season,'查看']);
  assert.equal(await page.locator('#newtable tbody tr').count(),10);
  assert.equal(await page.locator('#newtable .metric-help').count(),2);
  const launchHelp=page.getByRole('button',{name:'查看上线日期指标口径',exact:true});
@@ -162,16 +158,16 @@ export async function newProducts(page){
  const ontimeCard=page.locator('[data-nsp-metric="ontime"]');
  await ontimeCard.click();
  let linked=await snapshot();
- assert(linked.visible.length&&linked.visible.every(p=>p.onTime),'及时率卡片只筛选按期上线');
- assert.equal(await ontimeCard.getAttribute('aria-pressed'),'true');
- assert.equal(await page.locator('#newcount .list-pagination').getAttribute('data-list-current'),'1');
+ assert.equal(await page.locator('#dialogtitle').innerText(),'新品上线及时率 · 项目明细');
+ assert.equal(await page.locator('#nsp-delivery-table tbody tr').count(),Math.min(10,linked.timeliness.planned));
+ assert.equal(linked.metric,'all','项目卡片打开项目明细，不按SPU首单筛选产品');
+ assert.equal(linked.timeliness.rows.filter(p=>p.onTime).length,linked.timeliness.ontime);
+ await page.locator('#close').click();
  const linkedGrade=linked.visible[0].grade;
  await page.locator('.dp-legend [data-nsp-grade="'+linkedGrade+'"]').click();
  linked=await snapshot();
- assert(linked.visible.length&&linked.visible.every(p=>p.onTime&&p.grade===linkedGrade),'等级筛选和按期上线取交集');
+ assert(linked.visible.length&&linked.visible.every(p=>p.grade===linkedGrade));
  assert.equal(await page.locator('[data-nsp-filter="grade"]').inputValue(),linkedGrade);
- await ontimeCard.click();
- assert((await snapshot()).visible.every(p=>p.grade===linkedGrade),'取消及时率筛选仍保留等级');
  await page.locator('.dp-legend [data-nsp-grade="'+linkedGrade+'"]').click();
  assert.equal((await snapshot()).visible.length,first.visible.length,'重复点击取消等级筛选');
  const arc=page.locator('.nsp-grade-chart [data-nsp-grade]').first(),arcGrade=await arc.getAttribute('data-nsp-grade');
@@ -199,7 +195,7 @@ export async function newProducts(page){
  await page.locator('[data-nsp-sort="launch"]').focus();await page.keyboard.press('Enter');
  assert.equal(await page.locator('#newtable th:has([data-nsp-sort="launch"])').getAttribute('aria-sort'),'ascending');
  const input=page.locator('#new-linked-filter input[type="search"]');
- assert.equal(await input.getAttribute('placeholder'),'搜索产品名称 / SPU编码 / 型号');
+ assert.equal(await input.getAttribute('placeholder'),'搜索产品名称 / SPU码 / 型号');
  assert.deepEqual((await page.locator('#new-linked-filter [data-nsp-filter]').evaluateAll(ns=>ns.map(n=>n.dataset.nspFilter))).slice(0,2),['brand','channel']);
  const brandMenu=page.locator('#new-linked-filter [data-pf-multi-label="品牌"]');
  await brandMenu.locator('summary').click();
@@ -235,7 +231,7 @@ export async function newProducts(page){
  await page.locator('[data-nsp-filter="channel"]').selectOption('all',{force:true});
  await page.locator('[data-nsp-metric="sold"]').click();
  data=await snapshot();assert(data.visible.length&&data.visible.every(p=>p.salesSuccess));
- assert.equal(await page.locator('#newtable th').count(),15,'指标下钻不更换表格结构');
+ assert.equal(await page.locator('#newtable th').count(),16,'指标下钻不更换表格结构');
  assert((await page.locator('#newtable tbody tr td:nth-child(6)').allTextContents()).every(text=>text.includes('Q4')),'成功下钻行展示本季成功记录');
  await page.locator('[data-nsp-metric="sold"]').click();
  const dates=first.rows.map(p=>[p.spuId,p.actualLaunch]);
@@ -251,7 +247,7 @@ export async function newProducts(page){
  assert.match(await successCard.innerText(),/26年新品销售成功率/);
  assert.deepEqual((await page.locator('#newtable th').allTextContents()).slice(2,6),['26年GSV','26年去退后销量','26年利润率','26年判断成功率']);
  assert.equal(await page.locator('#newtable th').nth(6).innerText(),'成功季度');
- assert.equal(await page.locator('#newtable th').count(),16);
+ assert.equal(await page.locator('#newtable th').count(),17);
  assert.deepEqual(await page.locator('#newtable tbody tr td:nth-child(7)').allTextContents(),annualData.visible.slice(0,10).map(p=>p.successQuarters.map(q=>q.slice(2).replace('-','年')).join('、')||'未成功'));
  const q4Success=new Set(first.rows.filter(p=>p.salesSuccess).map(p=>p.spuId));
  for(const p of annualData.rows){
@@ -271,7 +267,7 @@ export async function newProducts(page){
  await page.locator('[data-nsp-filter="success"]').selectOption('all',{force:true});
  await page.locator('#time-new [data-time-mode="quarter"]').click();
  await page.locator('#time-new [data-time-value]').selectOption('4',{force:true});
- assert.equal(await page.locator('#newtable th').count(),15,'季度用成功季度替代判定列，年度额外保留年度判定');
+ assert.equal(await page.locator('#newtable th').count(),16,'季度用成功季度替代判定列，年度额外保留年度判定');
  data=await snapshot();
  for(const p of data.rows){
   assert(Number.isInteger(p.current.sales)&&p.current.sales>=p.current.returned);
@@ -285,16 +281,16 @@ export async function newProducts(page){
  assert.equal(await row.locator('.rp-list-value em').count(),6);
  const values=await row.locator('.rp-value').allTextContents();
  assert.match(values[5],/^[\d,]+$/,'库存上行只展示数量，不带单位');
- const coverageLabel=await row.locator('.rp-list-value em').last().innerText();
- assert.match(coverageLabel,/^可售天数 (?:[\d,.]+天|—)$/);
+ const warehouseValueLabel=await row.locator('.rp-list-value em').last().innerText();
+ assert.match(warehouseValueLabel,/^我司可售货值 /);
  await row.locator('[data-nsp-view]').click();
  await page.locator('.up-detail').waitFor({state:'visible'});
  assert.equal(await page.locator('#up-platform').inputValue(),'all','查看默认进入全平台详情');
  assert.match(await page.locator('#dialogbody').innerText(),new RegExp(data.visible[0].name));
  const detailValues=await page.locator('.up-operating-kpis .up-metric strong').allTextContents();
  assert.deepEqual([detailValues[0],detailValues[2],detailValues[5],detailValues[6],detailValues[7]],values.slice(0,5),'明细与全平台产品详情数值一致');
- const stockValues=await page.locator('.up-stock-card').filter({has:page.locator('h4', {hasText:/^我司可售$/})}).locator('.up-stock-card-value strong').allTextContents();
- assert.deepEqual(stockValues,[values[5],coverageLabel.replace('可售天数 ','')],'库存和可售天数与产品详情一致');
+ const stockValues=await page.locator('.up-detail [data-stock-card=warehouse] .up-stock-card-value strong').allTextContents();
+ assert.deepEqual(stockValues,[values[5],warehouseValueLabel.replace('我司可售货值 ','')],'库存和我司可售货值与产品详情一致');
  if(data.visible[0].state==='滞销')assert.equal(await page.locator('[data-stock-risk="stagnant"]').count(),1,'明细滞销与产品详情风险一致');
  if(data.visible[0].state==='缺货')assert.equal(await page.locator('[data-stock-risk="shortage"]').count(),1,'明细缺货与产品详情风险一致');
  const launchInfo=()=>page.locator('[data-up-identity]').evaluate(dl=>Object.fromEntries([...dl.children].map(item=>[item.querySelector('dt').textContent,item.querySelector('dd').textContent])));

@@ -1,8 +1,11 @@
 import {verifyShopLinkDetails} from './shop-link-details.mjs';
+import {verifyShopProductSort} from './shop-core-products.mjs';
 import {verifyShopMetrics} from './shop-metrics.mjs';
 import assert from 'node:assert/strict';
 import {fileURLToPath} from 'node:url';
 export async function shopDetail(page){
+ // 固定截图样例的截止日；实时跨日由 dynamicDates 专项验证。
+ await page.clock.setFixedTime(new Date('2026-10-10T04:00:00Z'));await page.reload({waitUntil:'domcontentloaded',timeout:30000});
  const root=page.locator('.sd-detail'),dialog=page.locator('.up-todo-dialog');
  // 通过统一详情事件覆盖六渠道；绿色店铺未必在当前高危榜中。
  const open=async id=>{await page.evaluate(id=>{const b=document.createElement('button');b.dataset.riskitem='1,'+id;document.body.append(b);b.click();b.remove()},id);await root.waitFor()};
@@ -50,7 +53,8 @@ export async function shopDetail(page){
   assert(await root.locator('.up-ai-mark.owner').count()>0);
   const coloredRisk=root.locator('.up-ai-mark.risk').first();assert(await coloredRisk.isVisible());
   assert(await coloredRisk.evaluate(e=>getComputedStyle(e).color!==getComputedStyle(e.parentElement).color),'风险字色与正文区分');
-  assert.deepEqual(await root.locator('.sd-kpis small').allTextContents(),['GSV','去退后销量','总退']);assert.equal(await root.locator('.sd-kpis .up-operating-value>span').count(),3);assert.deepEqual(await root.locator('[data-sd-spu-table] th').allTextContents(),['SPU信息','GSV','去退后销量','利润率']);
+  assert.deepEqual(await root.locator('.sd-kpis small').allTextContents(),['GSV','去退后销量','总退']);assert.equal(await root.locator('.sd-kpis .up-operating-value>span').count(),3);assert.deepEqual(await root.locator('[data-sd-spu-table] th').allTextContents(),['SPU信息','GSV','去退后销量','总退','利润率']);
+  if(id===4)await verifyShopProductSort(page);
   await root.locator('[data-drawer-tab="violations"]').click();assert(await root.locator('[data-sd-violation-quality]').isChecked());const headers=await root.locator('[data-sd-violation-table] th').allTextContents();assert(headers.includes(({抖音:'情节级别',快手:'申诉和整改状态',视频号:'信用变更',天猫:'扣分',京东:'申诉截止日期',拼多多:'赔付金额'})[channel]),channel+': '+JSON.stringify(headers));const stats=Number((await root.locator('.sd-violation-stats strong').first().innerText()).replace('次',''));assert.equal(await root.locator('[data-sd-violation-table] tbody tr').count(),stats);
   if(channel==='拼多多')await verifyShopLinkDetails(page,id);else assert.equal(await root.locator('.sd-pdd-links').count(),0);
   await root.locator('[data-sd-type="fine"]').click();const rows=await root.locator('[data-sd-violation-table] tbody tr').allTextContents();assert(rows.every(r=>r.includes('平台罚款')||channel==='拼多多'));
@@ -78,8 +82,8 @@ export async function shopDetail(page){
  assert.deepEqual(await root.locator('.up-ai-section p').allTextContents(),aiText);
  await page.locator('.drawer-back').click();assert.equal(JSON.parse(await page.locator('#dialogbody').getAttribute('data-ranking-period')).value,9);await close();
  // 店铺待办复用同一增删改、自动保存、批量下发及完成流程。
- await open(4);await root.locator('[data-drawer-tab="handling"]').click();assert.equal(await root.locator('#up-todo-actor').count(),0);await root.locator('[data-todo-create]').click();assert.deepEqual(await dialog.locator('.up-todo-common dt').allTextContents(),['负责人','截止日期','优先级']);
- await dialog.locator('[name="title"]').fill('店铺冻结材料核对');await dialog.locator('[name="description"]').fill('逐条核对本期冻结通知及解冻材料');const owner=Object.values(await records()).find(t=>t.scope==='shop'&&t.shopId).assignees[0].name;await choose(dialog.locator('[data-people-picker]'),owner);await dialog.locator('[name="due"]').fill('2027-01-03');await dialog.locator('[data-todo-action="create"]').click();
+ await open(4);await root.locator('[data-drawer-tab="handling"]').click();assert.equal(await root.locator('#up-todo-actor').count(),0);await root.locator('[data-todo-create]').click();assert.deepEqual(await dialog.locator('.up-todo-common dt').allTextContents(),['负责人','截止日期','任务类型','优先级']);
+ await dialog.locator('[name="title"]').fill('店铺冻结材料核对');await dialog.locator('[name="description"]').fill('逐条核对本期冻结通知及解冻材料');const currentShopId=await root.getAttribute('data-sd-shop'),owner=Object.values(await records()).find(t=>t.scope==='shop'&&t.shopId===currentShopId).assignees[0].name;await choose(dialog.locator('[data-people-picker]'),owner);await dialog.locator('[name="due"]').fill('2027-01-03');await dialog.locator('[data-todo-action="create"]').click();
  const task=Object.values(await records()).find(t=>t.scope==='shop'&&t.title==='店铺冻结材料核对');assert(task);assert(task.assignees.length);
  await root.locator(`[data-todo-id="${task.id}"][data-todo-open="detail"]`).click();await dialog.locator('[data-todo-field-edit="plan"]').click();await dialog.locator('[data-inline-value]').fill('核验通知并归档平台回执');await dialog.locator('header h3').click();assert.equal((await records())[task.id].plan,'核验通知并归档平台回执');await dialog.locator('[data-todo-status-select]').selectOption('done');await dialog.locator('header h3').click();assert.equal((await records())[task.id].status,'done');assert((await records())[task.id].completedAt);await page.keyboard.press('Escape');
  await root.locator('[data-todo-tab="suggestions"]').click();const boxes=root.locator('[data-todo-select]');assert(await boxes.count()>=2);await boxes.nth(0).check();await boxes.nth(1).check();await root.locator('[data-todo-batch]').click();await dialog.locator('[data-batch-due]').fill('2027-01-04');await dialog.locator('h3').click();for(const picker of await dialog.locator('[data-people-picker]').all())await choose(picker,owner);await dialog.locator('[data-batch-submit]').click();assert.equal(await dialog.count(),0);assert(Object.values(await records()).filter(t=>t.spuId===task.spuId&&t.source==='ai').length===2);

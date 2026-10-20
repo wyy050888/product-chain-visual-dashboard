@@ -1,7 +1,7 @@
 (() => {
   const app = GoalPrototype, { $, $$, state, entryView: view } = app;
-  let year = 2026, size = 20, timer, composing = false;
-  const currentMonth = () => new Date().getMonth() + 1;
+  let year = app.clock.parts().year, size = 20, timer, composing = false;
+  const currentMonth = () => app.clock.parts().month;
   const memory = { product: { months: [currentMonth()], filters: {}, page: 1, sorting: null, scroll: 0 }, link: { months: [currentMonth()], filters: {}, page: 1, sorting: null, scroll: 0 } };
   const nameFields = new Set(['product', 'shop']);
   const timeFields = new Set(['created', 'updated']);
@@ -119,7 +119,7 @@
       }
       const page = event.target.closest('[data-entry-page]');
       if (page && !page.disabled) { current().page = Number(page.dataset.entryPage); render(); $('#entryTable').scrollTop = 0; }
-      if (event.target.closest('[data-entry-action="reset"]')) { year = new Date().getFullYear(); Object.assign(current(), { months: [currentMonth()], filters: {}, sorting: null, page: 1 }); render(); }
+      if (event.target.closest('[data-entry-action="reset"]')) { year = app.clock.parts().year; Object.assign(current(), { months: [currentMonth()], filters: {}, sorting: null, page: 1 }); render(); }
     });
     render();
   }

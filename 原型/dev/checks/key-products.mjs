@@ -1,22 +1,33 @@
+import {verifyGradeHelp} from './key-products-help.mjs';
+import {verifyKeyProductScope} from './key-products-scope.mjs';
+import {verifyKeyProductDropdowns} from './key-products-dropdowns.mjs';
+import {verifyKeyProductDetail} from './key-products-detail.mjs';
+import {verifyKeyProductChart} from './key-products-chart.mjs';
 import {verifyKeyProductGrades} from './key-products-grades.mjs';
 import {verifyKeyProductZoom} from './key-products-zoom.mjs';
 import {verifyKeyProductTooltip} from './key-products-tooltip.mjs';
 import assert from 'node:assert/strict';
 export async function keyProducts(page){
+ // 既有分级样例按10月10日验算，动态截止日另有专项。
+ await page.clock.setFixedTime(new Date('2026-10-10T04:00:00Z'));await page.reload({waitUntil:'domcontentloaded',timeout:30000});
  await page.locator('a[href="#matrix"]').click();
  const root=page.locator('#matrix'),snapshot=()=>page.evaluate(()=>window.dashboardKeyProductsSnapshot());
  const reset=()=>root.locator('[data-kpm-reset]').click();
  const control=key=>root.locator('[data-kpm-filter="'+key+'"]');
  const ids=()=>root.locator('#matrixtable [data-kpm-detail]').evaluateAll(es=>es.map(e=>e.dataset.kpmDetail));
- let data=await snapshot();const first=data;await verifyKeyProductTooltip(page,first);await verifyKeyProductZoom(page);
+ await verifyGradeHelp(page);
+ await verifyKeyProductDropdowns(page);
+ let data=await snapshot();const first=data;await verifyKeyProductDetail(page);await verifyKeyProductChart(page);await verifyKeyProductTooltip(page,first);await verifyKeyProductZoom(page);
  assert.equal(data.period.mode,'recent30');assert.equal(data.rows.length,50);assert.equal(new Set(data.rows.map(p=>p.spuId)).size,50);
  assert.equal(data.grade,'all');assert.equal(data.visible.length,50);
- assert(await root.locator('#matrixchart svg').evaluate(e=>e.getBoundingClientRect().height>=420),'矩阵由280px放大');
+ assert(await root.locator('#matrixchart svg').evaluate(e=>{
+  const box=e.getBoundingClientRect(),origin=new DOMPoint(0,0).matrixTransform(e.getScreenCTM());
+  return Math.abs(origin.y-box.top)<1&&box.height>250;
+ }),'普通矩阵按比例适配高度，不产生顶部居中留白');
 
- const [high,margin]=[data.thresholds.salesWan,data.thresholds.profitRate];
  assert.match(await root.locator('[data-kpm-sort="sales"]').innerText(),/^GSV/);
- assert.match(await root.locator('.kpm-axis-gsv').textContent(),/GSV（万元）/);
- assert.equal(await root.locator('#matrixtable .kpm-value-gsv').first().evaluate(e=>getComputedStyle(e).color),'rgb(22, 119, 255)');
+ assert.match(await root.locator('.kpm-axis-gsv').textContent(),/^GSV（w）$/);
+ assert.equal(await root.locator('#matrixtable .kpm-value-gsv').first().evaluate(e=>getComputedStyle(e).color),await root.locator('#matrixtable [data-kpm-metric="units"] strong').first().evaluate(e=>getComputedStyle(e).color),'GSV主值与普通指标同色');
  for(const p of data.rows){
   assert.equal(p.facts.gsvCents,p.facts.gmvCents-p.facts.refundCents,'GSV使用扣退台账值');assert.equal(p.sales,p.facts.gsvCents/1000000);
   const a=p.assessment.current,amount=a.gsvCents/1000000,rate=a.profitRate;
@@ -29,14 +40,14 @@ export async function keyProducts(page){
    assert.equal(p.stockRisks.includes('transfer'),p.stock.coverage15<=7);
   }
  }
- assert.equal(await root.locator('#matrixchart circle').count(),data.visible.filter(p=>p.facts.sales>0).length);
+ assert.equal(await root.locator('#matrixchart circle').count(),data.visible.filter(p=>p.level&&p.assessment.current.sales>0).length);
  assert.equal(await root.locator('#matrixtable th').count(),13);
  assert.equal(await root.locator('#matrixtable .kpm-grade').count(),10);
  assert.deepEqual(await ids(),data.visible.slice(0,10).map(p=>p.spuId));
  for(const grade of ['S','A','B','C']){
   await root.locator('#matrixtabs [data-kpm-grade="'+grade+'"]').click();data=await snapshot();
   assert(data.visible.length>0&&data.visible.every(p=>p.level===grade));
-  assert.equal(await root.locator('#matrixchart circle').count(),data.visible.length);
+  assert.equal(await root.locator('#matrixchart circle').count(),data.visible.length);await verifyKeyProductChart(page);
   assert((await root.locator('#matrixtable .kpm-grade b').allTextContents()).every(g=>g===grade));
   await root.locator('#matrixtabs [data-kpm-grade="'+grade+'"]').click();assert.equal((await snapshot()).grade,'all');
  }
@@ -55,24 +66,17 @@ export async function keyProducts(page){
  const menu=root.locator('[data-pf-multi-label="品牌"]');await menu.locator('summary').click();await menu.locator('input[value="all"]').check();
  assert.equal(await menu.getAttribute('open'),'','多选后保持菜单展开');await page.keyboard.press('Escape');assert.equal(await menu.getAttribute('open'),null);
  await reset();
- for(const risk of ['stagnant','shortage','transfer']){
-  await control('risk').selectOption(risk,{force:true});data=await snapshot();assert(data.visible.length>0&&data.visible.every(p=>p.stockRisks.includes(risk)));
- }
- await reset();const channel=first.rows.find(p=>p.channels.length).channels[0];
- await control('channel').selectOption(channel,{force:true});data=await snapshot();assert(data.visible.length&&data.visible.every(p=>p.channels.includes(channel)));
- for(const p of data.visible)assert.equal(p.facts.gsvCents,first.rows.find(a=>a.spuId===p.spuId).facts.gsvCents,'渠道筛选不拆分公司金额');
- await reset();
- for(const key of ['sales','amount','profit','units','returns','warehouse','total','coverage','totalCoverage']){
+ for(const season of ['夏季品','冬季品','四季品']){await control('season').selectOption(season,{force:true});data=await snapshot();assert(data.visible.length&&data.visible.every(p=>p.season===season));await reset()}
+ for(const key of ['sales','profit','units','returns','received','total','warehouse']){
   const header=root.locator('[data-kpm-sort="'+key+'"]');await header.evaluate(e=>e.scrollIntoView({behavior:'instant',block:'nearest',inline:'center'}));await header.click();
-  data=await snapshot();const value=p=>({sales:p.facts.gsvCents,amount:p.facts.profitCents,profit:p.profit,units:p.facts.sales,returns:p.facts.returnRate,warehouse:p.stock?.warehouse,total:p.stock?.totalUnits,coverage:p.stock?.coverage15,totalCoverage:p.stock?.totalCoverage15})[key];
+  data=await snapshot();const value=p=>({sales:p.facts.gsvCents,amount:p.facts.profitCents,profit:p.profit,units:p.facts.sales,returns:p.facts.returnRate,received:p.facts.receivedRate,warehouse:p.stock?.warehouse,total:p.stock?.totalUnits,coverage:p.stock?.coverage15,totalCoverage:p.stock?.totalCoverage15})[key];
   const values=data.visible.map(value).filter(Number.isFinite);
   assert(values.every((n,i)=>!i||(data.sort.direction==='asc'?values[i-1]<=n:values[i-1]>=n)),'全量原值排序 '+key);
   assert.deepEqual(await ids(),data.visible.slice(0,10).map(p=>p.spuId));
   await root.locator('#matrix-product-pager [aria-label="第2页"]').click();data=await snapshot();assert.deepEqual(await ids(),data.visible.slice(10,20).map(p=>p.spuId));
  }
  await reset();await control('brand').selectOption('康佳',{force:true});
- const redCount=Number(await root.locator('.mk-light.red strong').innerText().then(t=>t.replace(/\D/g,'')));
- if(redCount){await root.locator('.mk-light.red').click();assert.equal(Number(await page.locator('#mk-list-pages nav').getAttribute('data-list-total')),redCount,'预警下钻沿用当前品牌及等级范围');await page.locator('#close').click()}
+ const management=await page.evaluate(()=>window.dashboardKeyProductManagementSnapshot());assert.equal(management.baseIds.length,(await snapshot()).visible.length,'经营面板同步产品筛选');
  await reset();data=await snapshot();const chosen=data.visible[0];
  const tableGsv=await root.locator('#matrixtable .kpm-value-gsv').first().innerText();
  await root.locator('#matrixtable [data-kpm-detail]').first().click();await page.locator('.up-detail').waitFor();
@@ -88,7 +92,7 @@ export async function keyProducts(page){
  await page.locator('.head .nav button').nth(0).evaluate(e=>e.click());
  assert.deepEqual((await snapshot()).visible.map(p=>p.spuId),scopedIds,'返回总看板保留自身品牌筛选');await reset();
  // 切换期间后等级、经营值重算，最新库存快照保持一致，未销售数据不伪造分级。
- await root.locator('[data-time-mode="year"]').click();await root.locator('[data-time-year]').selectOption('2025');data=await snapshot();
+ await root.locator('[data-time-mode="year"]').click();await verifyKeyProductChart(page);await root.locator('[data-time-year]').selectOption('2025');data=await snapshot();await verifyKeyProductChart(page);
  assert(data.rows.some(p=>!p.level&&p.facts.sales===0));assert.equal(await root.locator('[data-kpm-grade="unrated"]').count(),1);
  for(const p of data.rows)assert.deepEqual(p.stock,first.rows.find(a=>a.spuId===p.spuId).stock,'期间切换不改变公司最新库存');
  await root.locator('#matrixtabs [data-kpm-grade="unrated"]').click();assert((await snapshot()).visible.every(p=>!p.level));
@@ -100,4 +104,5 @@ export async function keyProducts(page){
   assert(await root.locator('#matrixtable').evaluate(e=>e.scrollWidth>e.clientWidth),'表格仅内部横向滚动');
   assert(await root.locator('#matrixtable tbody tr').first().evaluate(e=>e.cells[0].getBoundingClientRect().right<=e.cells[e.cells.length-1].getBoundingClientRect().left+1),'固定产品列与操作列不重叠');
  }
+ await verifyKeyProductScope(page);
 }

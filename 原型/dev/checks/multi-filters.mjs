@@ -12,7 +12,7 @@ export async function multiFilters(page){
  const selected=await page.evaluate(()=>window.dashboardNewProductsSnapshot());
  const expected=before.rows.filter(p=>['清洁类','环境类'].includes(p.category)&&['夏季品','四季品'].includes(p.attribute));
  assert.deepEqual(selected.rows.map(p=>p.spuId),expected.map(p=>p.spuId));
- assert.equal(await page.locator('#newtop .dp-ring').getAttribute('aria-label'),`共${expected.length}款新品`);
+ assert.equal(await page.locator('#newtop .dp-ring').getAttribute('aria-label'),`共${expected.length}个新品`);
  await page.locator('#newchain').selectOption('全部',{force:true});await page.locator('#newseason').selectOption('all',{force:true});
  // 五个产品榜季品多选，并继承到各自完整榜单。
  await page.locator('a[href="#risk"]').click();

@@ -3,7 +3,7 @@
 // High-risk inventory: valuation is independent of the priority of matched causes.
 const irOriginalRows=riskRows;
 const irReasonLabels=['当月下架＋冻结≥3次','利润率＜10%','退货率＞55%','已收退货率＞30%','滞销品'];
-const irPlatforms=['抖音','快手','视频号','天猫','京东','拼多多'];
+const irPlatforms=filterCatalog.platforms;
 const irPlatformRules=[{key:'profitRate',name:'利润率',threshold:'＜10%',priority:2,hit:v=>v<10},{key:'returnRate',name:'退货率',threshold:'＞55%',priority:3,hit:v=>v>55},{key:'receivedRate',name:'已收退货率',threshold:'＞30%',priority:4,hit:v=>v>30}];
 function irReasons(r){const platformHits=irPlatformRules.map(rule=>(r.platformMetrics||[]).filter(p=>rule.hit(p[rule.key])).map(p=>p.platform));return [r.violation==='红色',...irPlatformRules.map((rule,i)=>r.platformMetrics?platformHits[i].length>0:rule.hit(r[rule.key])),r.slow].flatMap((hit,i)=>hit?[{priority:i+1,label:irReasonLabels[i],platforms:i>=1&&i<=3?platformHits[i-1]:[]}]:[])}
 function irReasonText(reason){return reason.label+(reason.platforms?.length?'（'+reason.platforms.join('、')+'）':'')}

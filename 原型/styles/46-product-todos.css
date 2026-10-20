@@ -5,14 +5,14 @@
 #dialogbody .up-todo-tabs button[aria-selected="true"]{color:#1677ff;border-bottom-color:#1677ff;font-weight:600}
 #dialogbody .up-todo-tabs .up-todo-tab-count{padding:0 7px;line-height:20px;border-radius:10px;background:#f0f4fa;font-size:11px;font-weight:400}
 /* AI 建议入口：星芒徽标与文字组合，数量纳入标签内部。 */
-#dialogbody .up-todo-ai-brand{display:inline-flex;align-items:center;gap:5px;padding:3px 6px 3px 3px;border-radius:7px;background:linear-gradient(110deg,#edf5ff,#f3eeff);color:#6650d8;line-height:20px}
-#dialogbody .up-todo-ai-brand b{font-size:12px;font-weight:500;letter-spacing:0}
+#dialogbody .up-todo-ai-brand{display:inline-flex;align-items:center;gap:5px;padding:0 6px 0 3px;border-radius:7px;background:linear-gradient(110deg,#edf5ff,#f3eeff);color:#6650d8;line-height:inherit}
+#dialogbody .up-todo-ai-brand b{font-size:inherit;font-weight:inherit;line-height:inherit;letter-spacing:0}
 #dialogbody .up-todo-ai-icon{display:grid;place-items:center;flex:none;width:20px;height:20px;border-radius:6px;color:#fff;background:linear-gradient(140deg,#39a4ff 0%,#6164ef 52%,#a25be6 100%);box-shadow:0 2px 6px #7165e52b}
 #dialogbody .up-todo-ai-icon svg{width:16px;height:16px;pointer-events:none}
-#dialogbody .up-todo-tabs [data-todo-tab="suggestions"]{padding:7px 0}
+#dialogbody .up-todo-tabs [data-todo-tab="suggestions"]{padding:12px 0}
 #dialogbody .up-todo-tabs [data-todo-tab="suggestions"][aria-selected="true"]{border-bottom-color:#7861e8}
 #dialogbody .up-todo-tabs [data-todo-tab="suggestions"][aria-selected="true"] .up-todo-ai-brand{background:linear-gradient(110deg,#e6f0ff,#ede5ff);color:#5942c4}
-#dialogbody .up-todo-tabs [data-todo-tab="suggestions"] .up-todo-tab-count{background:#ffffff9c;color:#7a63b6;padding:0 5px;line-height:16px;font-size:10px}
+#dialogbody .up-todo-tabs [data-todo-tab="suggestions"] .up-todo-tab-count{background:#ffffff9c;color:#7a63b6;padding:0 7px;line-height:20px;font-size:11px}
 #dialogbody .up-todo-tabs button:focus-visible{outline:2px solid #8d79ed;outline-offset:3px;border-radius:4px}
 #dialogbody .up-todo-filters{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin:0 0 20px}
 #dialogbody .up-todo-filters>label{display:flex;align-items:center;gap:12px;min-height:36px;border:1px solid #dce4f1;border-radius:5px;padding:0 10px;color:#425b7a;font-size:12px;background:#fff}
@@ -27,7 +27,7 @@
 #dialogbody .up-todo-table :is(th,td){font-size:12px;padding:15px 10px;vertical-align:middle;white-space:nowrap}
 #dialogbody .up-todo-table tbody tr:nth-child(even){background:#fafcff}
 #dialogbody .up-todo-subject{display:flex;flex-direction:column;gap:4px;min-width:0;white-space:normal}
-#dialogbody .up-todo-subject b{font-size:13px;font-weight:400;color:#28496b}
+#dialogbody .up-todo-subject b{display:block;font-size:13px;font-weight:400;color:#28496b}
 #dialogbody .up-todo-subject span{overflow:hidden;white-space:nowrap;text-overflow:ellipsis;color:#8a98ad;font-size:11px}
 #dialogbody .up-todo-evidence-preview{white-space:normal;line-height:1.7;color:#65768c}
 #dialogbody .up-todo-row-actions{display:flex;gap:14px;align-items:center}
@@ -110,12 +110,15 @@
 .up-todo-inline-read:hover svg,.up-todo-inline-read:focus-visible svg{opacity:1}
 .up-todo-inline.editing{padding:0;background:transparent;border:0;border-radius:0;white-space:normal;font-size:13px;font-weight:400}
 .up-todo-inline.editing :is(input:not([type="checkbox"]),select,textarea){width:100%}
-.up-todo-common{display:grid;grid-template-columns:.85fr 1.3fr 1fr .6fr 1.05fr .8fr 1fr;gap:16px;margin:0;padding:18px 24px;background:#f7f9fc;flex:none}
+.up-todo-common{display:grid;grid-template-columns:.85fr 1.3fr 1fr 1fr .6fr 1.05fr .8fr 1fr;gap:16px;margin:0;padding:18px 24px;background:#f7f9fc;flex:none}
 .up-todo-common>div{min-width:0}.up-todo-common dt{font-size:12px;color:#8390a5;margin-bottom:9px;white-space:nowrap}
 .up-todo-common dd{margin:0;font-size:12px;color:#425b7a}.up-todo-common :is(input,select){width:100%;font-size:12px;padding:7px 5px}
 .up-todo-common .up-todo-inline.editing{padding:0}.up-todo-common .up-todo-inline-read{white-space:nowrap;font-size:12px}
-#dialogbody .up-todo-table :is(th,td):first-child input[type="checkbox"]{accent-color:#1677ff;vertical-align:middle;margin:0 8px 0 0}
-#dialogbody .up-todo-table td:first-child:has(input) .up-todo-subject{display:inline-block;width:calc(100% - 25px);vertical-align:middle}
+/* 两个标签共用标题排版；复选框使用原生尺寸，不继承输入框高度。 */
+#dialogbody .up-todo-table .up-todo-select-all{display:flex;align-items:center;gap:8px;min-height:0;font:inherit;line-height:inherit}
+#dialogbody .up-todo-table :is(th,td):first-child input[type="checkbox"]{width:13px;height:13px;min-height:0;padding:0;margin:0;flex:none;accent-color:#1677ff;vertical-align:middle}
+#dialogbody .up-todo-subject-cell{display:flex;align-items:center;gap:8px;min-width:0}
+#dialogbody .up-todo-subject-cell .up-todo-subject{flex:1;min-width:0}
 #dialogbody .up-todo-table .up-todo-row-actions{gap:9px;flex-wrap:wrap}
 #dialogbody [data-todo-batch]:disabled{opacity:.45;cursor:not-allowed}
 .up-todo-batch-date{display:flex;align-items:center;gap:14px;margin-bottom:18px;font-size:13px}
@@ -129,7 +132,7 @@
 .up-todo-common .up-todo-overdue{display:inline-block;margin:0}
 
 /* 同一表单复用检索式负责人；详情没有关闭横条，仅新增/下发/删除保留提交区。 */
-.up-todo-common-assign{grid-template-columns:1.4fr 1fr .7fr}
+.up-todo-common-assign{grid-template-columns:1.4fr 1fr 1fr .7fr}
 .up-todo-dialog-header-actions{display:flex;align-items:center;gap:14px}
 .up-todo-due{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
 .up-todo-due .up-todo-overdue{display:inline-block;margin:0;font-size:10px}

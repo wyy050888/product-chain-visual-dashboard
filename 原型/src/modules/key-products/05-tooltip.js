@@ -16,7 +16,8 @@ function kpmShowPointTooltip(anchor,event){
   kpmHidePointTooltip();hideMetricTooltip();upHideContactTooltip();upHideSalesTooltip();uiHideCellTooltip();
   const range=[kpmChartContext.start,kpmChartContext.end].map(d=>d.slice(2).replaceAll('-','/')).join(' — ');
   const values=[['gsv','GSV',upMoney(p.facts.gsvCents)],['profit','单品利润率',upPercent(p.profit),p.profit<0],['amount','利润额',upMoney(p.facts.profitCents),p.facts.profitCents<0],['units','销量',fmt(p.facts.sales)],['returns','总退',upPercent(p.facts.returnRate)],['received','已收退',upPercent(p.facts.receivedRate)]];
-  kpmPointTooltip.innerHTML=`<div class="kpm-point-product">${riskThumbnail(p.name)}<div><b>${esc(p.name)}</b><span class="kpm-point-grade ${p.level}">${p.level?p.level+' '+kpmGrades[p.level]:'待分级'}</span></div></div><div class="kpm-point-period">${esc(kpmChartContext.label)} · ${range}</div><div class="kpm-point-values">${values.map(([key,label,value,red])=>`<div data-kpm-metric="${key}"><span>${label}</span><strong class="${red?'negative':''}">${esc(value)}</strong></div>`).join('')}</div>`;
+  if(Number.isFinite(p.zoomPriceCents))values.push(['price','成交均价',fmt(p.zoomPriceCents/100,2)+'元']);
+  kpmPointTooltip.innerHTML=`<div class="kpm-point-product">${riskThumbnail(p.name)}<div><b>${esc(p.name)}</b><span class="kpm-point-grade ${p.level}">${p.level} ${kpmGrades[p.level]}</span></div></div><div class="kpm-point-period">${esc(kpmChartContext.label)} · ${range}</div><div class="kpm-point-values">${values.map(([key,label,value,red])=>`<div data-kpm-metric="${key}"><span>${label}</span><strong class="${red?'negative':''}">${esc(value)}</strong></div>`).join('')}</div>`;
   kpmPointTooltip.dataset.spuId=p.spuId;kpmPointAnchor=anchor;anchor.setAttribute('aria-describedby',kpmPointTooltip.id);kpmPointTooltip.hidden=false;
  }
  kpmPlacePointTooltip(anchor,event);

@@ -28,10 +28,10 @@ export async function verifyProductTodos(page,detailRef){
  // 创建任务：当前账号自动记录，不提供操作人或协同部门字段。
  await page.locator('[data-todo-create]').click();await dialog.locator('[data-todo-action="create"]').click();assert.ok(await dialog.isVisible());
  await dialog.locator('[name="title"]').fill('核查重点链接退货原因');await dialog.locator('[name="description"]').fill('天猫总退高于目标，需按链接核对订单和售后原因');
- assert.deepEqual(await dialog.locator('.up-todo-common dt').allTextContents(),['负责人','截止日期','优先级']);await dialog.locator('[data-people-query]').click();assert(await dialog.locator('[role=listbox]').isHidden());await choose(dialog.locator('[data-people-picker]'),'刘畅');await dialog.locator('[name="due"]').fill('2027-01-02');await dialog.locator('[name="priority"]').selectOption('green');
+ assert.deepEqual(await dialog.locator('.up-todo-common dt').allTextContents(),['负责人','截止日期','任务类型','优先级']);await dialog.locator('[data-people-query]').click();assert(await dialog.locator('[role=listbox]').isHidden());await choose(dialog.locator('[data-people-picker]'),'刘畅');await dialog.locator('[name="due"]').fill('2027-01-02');await dialog.locator('[name="priority"]').selectOption('green');await dialog.locator('[name="taskType"]').selectOption('quality-improvement');
  assert.equal(await dialog.locator('[role="tab"]').count(),0);assert.doesNotMatch(await dialog.innerText(),/操作人|协同部门/);
  await dialog.locator('[data-todo-action="create"]').click();
- const manual=Object.values(await records()).find(t=>t.source==='manual'&&!t.deletedAt);assert(manual);assert.equal(manual.assignedBy,'林悦');
+ const manual=Object.values(await records()).find(t=>t.source==='manual'&&!t.deletedAt);assert(manual);assert.equal(manual.assignedBy,'林悦');assert.equal(manual.taskType,'quality-improvement');
  await open(manual.id,'detail');assert.equal(await dialog.locator('[data-todo-field-edit]').count(),6);assert.equal(await dialog.locator('footer').count(),0);
  assert.equal(await dialog.locator('[data-inline-save],[data-inline-cancel]').count(),0);
  const common=await dialog.locator('.up-todo-common').boundingBox(),body=await dialog.locator('.up-todo-dialog-body').boundingBox();assert(common.y+common.height<=body.y+1);assert.equal(await dialog.locator('.up-todo-common dt').first().innerText(),'任务状态');assert.equal(await dialog.locator('h5').first().innerText(),'待办事项');

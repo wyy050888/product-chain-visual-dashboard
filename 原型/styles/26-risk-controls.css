@@ -15,13 +15,13 @@
 :is(#risk,#dialogsub,.up-detail-period) .risk-date-trigger[aria-expanded=true] { border-color:#1677ff; box-shadow:0 0 0 3px #1677ff12; }
 .risk-date-trigger svg { display:block; flex:none; width:16px; height:16px; fill:none; stroke:#8190a7; stroke-width:1.4; }
 .risk-date-popover {
-  position:fixed; z-index:90; width:710px; max-width:calc(100vw - 24px); max-height:calc(100vh - 24px);
+  position:fixed; z-index:5000; width:710px; max-width:calc(100vw - 24px); max-height:calc(100vh - 24px);
   overflow:auto; border:1px solid #e2e8f3; border-radius:8px; background:#fff;
   box-shadow:0 8px 30px #273e5b22; color:#50617d; font-size:13px;
 }
 .risk-calendar-body { display:flex; padding:12px 0; }
-.risk-calendar-presets { display:flex; flex:0 0 106px; flex-direction:column; gap:2px; padding:3px 10px; border-right:1px solid #e7ecf5; }
-.risk-calendar-presets button { height:29px; padding:4px 10px; border-radius:5px; text-align:left; color:#8491a8; font-size:12px; }
+.risk-calendar-presets { display:flex; flex:0 0 106px; flex-direction:column; gap:2px; padding:3px 10px; border-right:1px solid #e7ecf5; max-height:283px; overflow-y:auto; }
+.risk-calendar-presets button { flex-shrink:0; height:29px; padding:4px 10px; border-radius:5px; text-align:left; color:#8491a8; font-size:12px; }
 .risk-calendar-presets button:hover { background:#f4f7fc; color:#1677ff; }
 .risk-calendar-presets button[aria-pressed=true] { background:#eef3ff; color:#1677ff; }
 .risk-calendar-months { position:relative; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); flex:1; min-width:0; }

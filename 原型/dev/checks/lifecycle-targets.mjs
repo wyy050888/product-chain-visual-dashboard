@@ -1,10 +1,13 @@
+import {verifyLifecycleFacts} from './lifecycle-facts.mjs';
+import {verifyTargetHeader} from './target-header.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {fileURLToPath} from 'node:url';
 import vm from 'node:vm';
 export async function lifecycleTargets(page){
+ verifyLifecycleFacts();
  const sources=['00-samples.js','01-model.js'].map(name=>fs.readFileSync(new URL('../../src/modules/lifecycle-targets/'+name,import.meta.url),'utf8')).join('\n');
- const ctx=vm.createContext({localStorage:{getItem:()=>null}});vm.runInContext(sources,ctx);
+ const ctx=vm.createContext({localStorage:{getItem:()=>null}});vm.runInContext(fs.readFileSync(new URL('../../src/modules/period/01.js',import.meta.url),'utf8').split('const moduleIds=')[0]+'\n'+sources,ctx);
  for(const total of [0,1,2,3,5,8,14,31,99999]){
   const values=Array.from({length:3},(_,m)=>ctx.ltMonthValue(total,m+1));
   assert.equal(values.reduce((a,b)=>a+b,0),total);assert(values.every(Number.isInteger));assert(values[0]>=values[1]&&values[1]>=values[2]);assert(values[0]-values[2]<=1);
@@ -18,17 +21,17 @@ export async function lifecycleTargets(page){
  assert.equal(ctx.ltTargetFor(0,[0],{year:2026,mode:'quarter',value:1},false,grid).state,'complete','季度已配置时不把月度拆分中的0当作缺失季度');
  assert.equal(ctx.ltTargetFor(0,[0],{year:2026,mode:'month',value:2},false,grid).state,'missing','月份目标0显示未配置');
  grid[0][0]=[9,'none',null,'draft'];
- const legacy=vm.createContext({localStorage:{getItem:()=>JSON.stringify({version:1,years:{2026:{values:grid,revision:2}}})}});vm.runInContext(sources,legacy);
+ const legacy=vm.createContext({localStorage:{getItem:()=>JSON.stringify({version:1,years:{2026:{values:grid,revision:2}}})}});vm.runInContext(fs.readFileSync(new URL('../../src/modules/period/01.js',import.meta.url),'utf8').split('const moduleIds=')[0]+'\n'+sources,legacy);
  assert.deepEqual(Array.from(vm.runInContext('ltYearValues(2026)[0][0]',legacy)),[9,0,0,0],'旧数值保留，旧状态转换为未配置0');
  const audit=()=>page.evaluate(()=>lifecycleTargetsAudit());
  const open=()=>page.locator('#lt-system-nav').click();
  const back=async()=>{await page.locator('#chain-menu-trigger').click();await page.locator('#chain-menu').getByRole('menuitem',{name:'总看板',exact:true}).click()};
  await page.evaluate(()=>localStorage.removeItem('lifecycle-quarter-targets-v1'));await page.reload();
- const actuals=(await audit()).dashboard.map(d=>[d.actual,d.yearActual]);assert.deepEqual(actuals,(await audit()).legacyActuals);
+ const actuals=(await audit()).dashboard.map(d=>[d.actual,d.yearActual]);assert.deepEqual(actuals,(await audit()).sourceActuals);
  assert((await audit()).dashboard.every(d=>d.targetMeta.state==='complete'));
  await page.locator('#lt-open-targets').evaluate(el=>el.click());
  assert.equal(await page.evaluate(()=>location.hash),'#system-lifecycle-targets');assert(await page.locator('main.page').isHidden());
- assert.equal(await page.locator('#lt-system-nav').getAttribute('aria-current'),'page');
+ assert.equal(await page.locator('#lt-system-nav').getAttribute('aria-current'),'page');await verifyTargetHeader(page,'#lt-target-page','生命周期目标',['环境类','清洁类','个护类','健康类','厨电类']);
  assert.equal(await page.locator('#lt-table tbody tr').count(),9);assert.equal(await page.locator('#lt-table input[type=number]').count(),36);
  assert.equal(await page.locator('#lt-save,#lt-table select,#lt-view,#lt-updated,#lt-dirty,#lt-return,#lt-discard,.lt-breadcrumb,#lt-system h1').count(),0);
  assert.deepEqual(await page.locator('#lt-table thead th').allTextContents(),['计划','Q1','Q2','Q3','Q4','年度目标']);
@@ -65,6 +68,6 @@ export async function lifecycleTargets(page){
  for(const width of [1920,1280,600]){await page.setViewportSize({width,height:1080});assert(await page.locator('#lt-system').evaluate(e=>e.scrollWidth<=innerWidth+1));assert.equal(await page.locator('#lt-save').count(),0);}
  await page.setViewportSize({width:1920,height:1080});await page.screenshot({path:fileURLToPath(new URL('../../outputs/lifecycle-target-auto-apply.png',import.meta.url))});
  await back();
- for(const mode of ['month','quarter','year']){await page.locator(`#time-lifecycle [data-time-mode="${mode}"]`).click();for(let stage=0;stage<8;stage++){await page.locator('#lifecards .lifecard').nth(stage).click();const snapshot=await audit(),data=snapshot.dashboard[stage],cells=page.locator('#lifetable [data-life-summary] td');assert.deepEqual([data.actual,data.yearActual],snapshot.legacyActuals[stage]);if(data.targetMeta.state==='complete')assert.equal(await cells.nth(1).innerText(),data.target.toLocaleString('zh-CN'));else{assert.equal(await cells.nth(1).innerText(),'未配置');assert.equal(await cells.nth(3).innerText(),'—')}}}
+ for(const mode of ['month','quarter','year']){await page.locator(`#time-lifecycle [data-time-mode="${mode}"]`).click();for(let stage=0;stage<8;stage++){await page.locator('#lifecards .lifecard').nth(stage).click();const snapshot=await audit(),data=snapshot.dashboard[stage],cells=page.locator('#lifetable [data-life-summary] td');assert.deepEqual([data.actual,data.yearActual],snapshot.sourceActuals[stage]);if(data.targetMeta.state==='complete')assert.equal(await cells.nth(1).innerText(),data.target.toLocaleString('zh-CN'));else{assert.equal(await cells.nth(1).innerText(),'未配置');assert.equal(await cells.nth(3).innerText(),'—')}}}
  await page.evaluate(()=>localStorage.removeItem('lifecycle-quarter-targets-v1'));await page.reload();
 }

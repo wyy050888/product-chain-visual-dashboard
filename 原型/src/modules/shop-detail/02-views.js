@@ -1,7 +1,7 @@
 // 身份、AI诊断和经营视图；渠道岗位只在店铺信息中按实际适用项展示。
 function sdHero(shop){
  const fields=[['店铺ID',shop.shopId],['平台',shop.channel],['品牌',shop.brand],['类目',pfCategory(shop)],['店铺类型',shop.shopCategory],...sdRoles(shop).map(r=>[r.role,r.department+'-'+r.name])];
- return `<header class="up-hero" data-product-summary>${riskThumbnail(shop.name,true)}<div><div class="up-product-heading"><h2>${esc(shop.name)}</h2>${rpPlatformMark(shop.channel)}</div><dl>${fields.map(([k,v])=>`<div><dt>${esc(k)}</dt><dd>${esc(v||'—')}</dd></div>`).join('')}</dl></div><aside class="sd-hero-scores rp-shop-scores" data-sd-scores aria-label="店铺评分与链接风险"></aside><section class="up-ai-summary" aria-label="店铺AI诊断"></section></header>`;
+ return `<header class="up-hero" data-product-summary>${riskThumbnail(shop.name,true)}<div><div class="up-product-heading"><h2>${esc(shop.name)}</h2>${rpPlatformMark(shop.channel)}</div><dl>${fields.map(([k,v])=>`<div><dt>${esc(k)}</dt><dd ${k==='店铺类型'?'data-sd-category':''}>${esc(v||'—')}</dd></div>`).join('')}</dl></div><aside class="sd-hero-scores rp-shop-scores" data-sd-scores aria-label="店铺评分与链接风险"></aside><section class="up-ai-summary" aria-label="店铺AI诊断"></section></header>`;
 }
 // 只对有依据的风险、相对短板和行动主体着色；数值含义及正文保持不变。
 function sdDiagnosisMarkup(value,m,a,actions=false){
@@ -33,8 +33,19 @@ function sdOperating(m,state){
  const chart=upSalesTrend([], {rows:sdTrendRows(sdTrendPoints(m,state),state.period?.mode),title:'店铺业绩趋势',bottom:300,tick:r=>state.period?.mode==='year'?r.date.slice(0,7):r.date.slice(5,10),series:[{key:'gsv',name:'GSV',unit:'万元',color:'#1677ff',axis:64,anchor:'end'},{key:'netSales',name:'去退后销量',unit:'件',color:'#e49b37'},{key:'returnRate',name:'总退',unit:'%',color:'#ed6178'}]});
  return `<div class="sd-operating-overview"><div class="sd-kpis">${metrics.map(([label,value,now,before])=>`<div class="up-metric"><small>${label}</small><div class="up-operating-value"><strong>${esc(value)}</strong><span class="${rpQualityChangeTone(now,before)}">${esc(rpQualityChange(now,before))}</span></div></div>`).join('')}</div>${chart}</div><h3>店铺产品SPU业绩</h3><div class="up-table" data-sd-spu-table></div><div data-sd-spu-pages></div>`;
 }
-function sdMountProducts(root,m){
- upMountTable(root.querySelector('[data-sd-spu-table]'),root.querySelector('[data-sd-spu-pages]'),['SPU信息','GSV','去退后销量','利润率'],m.products.map(r=>[
-  `<div class="sd-spu-identity">${riskThumbnail(r.product.name)}<div><span>${esc(r.product.name)}</span><small>SPU码：${esc(r.product.spuCode)}</small></div></div>`,upMoney(r.gsvCents),fmt(r.netSales),upPercent(r.profitRate)
- ]));
+// 先对全量SPU按原值排序，再分页；换期间保留排序方向，页码回到第一页。
+function sdMountProducts(root,m,state){
+ const host=root.querySelector('[data-sd-spu-table]'),pager=root.querySelector('[data-sd-spu-pages]');
+ const columns=[['gsvCents','GSV',row=>upMoney(row.gsvCents)],['netSales','去退后销量',row=>fmt(row.netSales)],['returnRate','总退',row=>upPercent(row.returnRate)],['profitRate','利润率',row=>upPercent(row.profitRate)]];
+ state.productSort||={key:'',direction:''};let page=1;
+ const fill=()=>{
+  const scroll=host.scrollLeft,sort=state.productSort,rows=rpSortRows(m.products,sort,(row,key)=>row[key]);
+  const headers=['SPU信息',...columns.map(([key,label])=>rpSortHeader(key,label,sort))];
+  host.innerHTML=rows.length?table(headers,rows.slice((page-1)*DRAWER_PAGE_SIZE,page*DRAWER_PAGE_SIZE).map(row=>[
+   `<div class="sd-spu-identity">${riskThumbnail(row.product.name)}<div><span>${esc(row.product.name)}</span><small>SPU码：${esc(row.product.spuCode)}</small></div></div>`,...columns.map(([, ,format])=>format(row))
+  ])):'<div class="up-empty">暂无数据</div>';
+  rpApplySortAria(host,sort);host.scrollLeft=scroll;
+  mountListPager(pager,rows.length,page,next=>{page=next;fill()});
+ };
+ host.onclick=e=>{const button=e.target.closest('[data-rp-sort]');if(!button)return;const key=button.dataset.rpSort;rpSortCycle(state.productSort,key);page=1;fill();host.querySelector('[data-rp-sort="'+key+'"]').focus({preventScroll:true})};fill();
 }

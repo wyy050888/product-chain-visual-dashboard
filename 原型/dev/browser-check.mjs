@@ -1,3 +1,21 @@
+import {globalDiagnosisConsistency} from './checks/global-diagnosis-consistency.mjs';
+import {dynamicDates} from './checks/dynamic-dates.mjs';
+import {globalDiagnosisTodoSync} from './checks/global-diagnosis-todo-sync.mjs';
+import {aiBusinessFollowup} from './checks/key-products-ai-followup.mjs';
+import {drawerSummary} from './checks/drawer-summary.mjs';
+import {keyProductSidebar} from './checks/key-products-sidebar.mjs';
+import {newProductPrices} from './checks/new-products-price.mjs';
+import {keyProductPrice} from './checks/key-products-price.mjs';
+import {globalDiagnosisFocus} from './checks/global-diagnosis-focus.mjs';
+import {matrixZoomFilters} from './checks/key-products-zoom-filters.mjs';
+import {coreLinks} from './checks/core-links.mjs';
+import {globalDiagnosisControls} from './checks/global-diagnosis-controls.mjs';
+import { productManagement } from './checks/product-management.mjs';
+import {globalDiagnosis} from './checks/global-diagnosis.mjs';
+import {supplierTargets} from './checks/supplier-targets.mjs';
+import {costConfig} from './checks/cost-config.mjs';
+import {costControl} from './checks/cost-control.mjs';
+import {supplierPlanning} from './checks/supplier-planning.mjs';
 import { riskCardClick } from './checks/risk-card-click.mjs';
 import { detailPeriod } from './checks/detail-period.mjs';
 import { keyProducts } from './checks/key-products.mjs';
@@ -37,20 +55,27 @@ function playwright(){
  throw new Error('找不到Playwright；使用Codex内置Node运行，或设置DASHBOARD_PLAYWRIGHT_PATH。');
 }
 export async function checkBrowser(root,scope){
- const registry=JSON.parse(fs.readFileSync(path.join(root,'dev/areas.json'),'utf8')),checks={riskCardClick,detailPeriod,keyProducts,inventoryControl,shopFilters,shopConfig,lifecycleTargets,lifecycleProjectLinks,salesSort,projectRiskDetail,projectRiskEvents,projectDates,projectAnalysis,columnResize,projectPanorama,aiSummary,multiFilters,newProducts,shopDetail,salesCards,smoke,filters,risk,periodPerformance,detailOperating,detailQualityTodos};
- const names=scope==='all'?Object.keys(checks):scope==='smoke'?['smoke']:registry[scope]?.checks;
+ const registry=JSON.parse(fs.readFileSync(path.join(root,'dev/areas.json'),'utf8')),checks={globalDiagnosisConsistency,dynamicDates,globalDiagnosisTodoSync,aiBusinessFollowup,drawerSummary,keyProductSidebar,newProductPrices,keyProductPrice,globalDiagnosisFocus,matrixZoomFilters,coreLinks,productManagement,globalDiagnosisControls,globalDiagnosis,supplierTargets,costConfig,costControl,supplierPlanning,riskCardClick,detailPeriod,keyProducts,inventoryControl,shopFilters,shopConfig,lifecycleTargets,lifecycleProjectLinks,salesSort,projectRiskDetail,projectRiskEvents,projectDates,projectAnalysis,columnResize,projectPanorama,aiSummary,multiFilters,newProducts,shopDetail,salesCards,smoke,filters,risk,periodPerformance,detailOperating,detailQualityTodos};
+ const names=process.env.DASHBOARD_CHECK_NAMES?.split(',')||(scope==='all'?Object.keys(checks):scope==='smoke'?['smoke']:registry[scope]?.checks);
  if(!names)throw new Error('未知检查范围：'+scope);
  const start=performance.now(),edge='C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe';
  const executablePath=process.env.DASHBOARD_BROWSER_PATH||(fs.existsSync(edge)?edge:undefined);
  const browser=await playwright().chromium.launch({headless:true,...(executablePath?{executablePath}:{})});
- const errors=[];
+ const errors=[],results=[];
+ const target=process.env.DASHBOARD_TEST_URL||pathToFileURL(path.join(root,'index.html')).href;
  try{
-  const page=await browser.newPage({viewport:{width:1920,height:1080}});
-  page.setDefaultTimeout(8000);page.on('pageerror',e=>errors.push(e.message));
-  await page.goto(pathToFileURL(path.join(root,'index.html')).href);
-  // 每项检查从初始页面开始，避免上一项遗留的抽屉或筛选影响后续检查。
-  let firstCheck=true;
-  for(const name of [...new Set(names)]){if(!firstCheck)await page.reload();firstCheck=false;await checks[name](page);console.log('通过：'+name)}
+  // 日期检查会安装模拟时钟；每项使用独立上下文，防止时钟、存储和抽屉串扰。
+  for(const name of [...new Set(names)]){
+   const context=await browser.newContext({viewport:{width:1920,height:1080},reducedMotion:'reduce'});
+   try{
+    const page=await context.newPage();page.setDefaultTimeout(8000);page.setDefaultNavigationTimeout(30000);
+    page.on('pageerror',e=>errors.push(e.message));
+    await page.goto(target,{waitUntil:'domcontentloaded'});
+    await checks[name](page);results.push({name,status:'passed'});console.log('通过：'+name);
+   }catch(error){results.push({name,status:'failed',message:error.message,stack:error.stack});console.error('失败：'+name+' '+error.stack);if(!process.env.DASHBOARD_CONTINUE_CHECKS)throw error}finally{await context.close()}
+  }
+  if(process.env.DASHBOARD_CHECK_REPORT){const folder=path.resolve(root,'../outputs/performance');fs.mkdirSync(folder,{recursive:true});fs.writeFileSync(path.join(folder,path.basename(process.env.DASHBOARD_CHECK_REPORT)+'.json'),JSON.stringify({target,results,errors},null,2))}
+  if(results.some(result=>result.status==='failed'))throw new Error('业务回归未全部通过');
   if(errors.length)throw new Error('页面异常：'+errors.join('\n'));
   console.log('检查完成：'+((performance.now()-start)/1000).toFixed(2)+'秒（单浏览器，无预览面板）');
   for(const note of registry[scope]?.manual||[])console.log('本次自动检查未覆盖：'+note);

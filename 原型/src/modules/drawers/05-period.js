@@ -1,13 +1,13 @@
 // 抽屉复用外侧日/月/季/年控件，隔离事件和状态，不回写外侧期间。
-function drawerWithPeriod(period,run){
- const prior=localPeriods.risk;localPeriods.risk=period;
- try{return withPeriod('risk',run)}finally{if(prior)localPeriods.risk=prior;else delete localPeriods.risk}
+function drawerWithPeriod(period,run,scope='risk'){
+ const prior=localPeriods[scope];localPeriods[scope]=period;
+ try{return withPeriod(scope,run)}finally{if(prior)localPeriods[scope]=prior;else delete localPeriods[scope]}
 }
 function drawerPeriodFromRange(range){return {mode:'day',year:+range.end.slice(0,4),value:+range.end.slice(5,7),start:range.start,end:range.end}}
-function drawerMountPeriod(host,initial,onChange,triggerId){
+function drawerMountPeriod(host,initial,onChange,triggerId,scope='risk'){
  let period={...initial},dayRange=upWindow(period);
  function render(){
-  host.innerHTML=drawerWithPeriod(period,()=>periodControls('risk'))
+  host.innerHTML=drawerWithPeriod(period,()=>periodControls(scope),scope)
    .replaceAll('data-time-','data-drawer-time-').replaceAll('data-risk-day','data-drawer-time-day')
    .replace('id="risk-date-trigger"','id="'+triggerId+'"').replace('aria-controls="risk-date-popover"','aria-controls="up-date-popover"');
   host.querySelector('.follow-time')?.remove();
@@ -29,6 +29,7 @@ function drawerMountPeriod(host,initial,onChange,triggerId){
   const next={...period};next[e.target.hasAttribute('data-drawer-time-year')?'year':'value']=+e.target.value;apply(normalizePeriod(next));
  };
  render();
+ return {set(next){period={...next};render()}};
 }
 
 // 产品和店铺详情将独立日期放在标签栏右侧；父榜单仍使用原头部位置。
@@ -37,8 +38,9 @@ function drawerMountDetailPeriod(root,initial,onChange,triggerId,visibleTabs){
  const bar=document.createElement('div'),host=document.createElement('div');
  bar.className='up-detail-tabs';host.className='up-detail-period';host.dataset.periodTabs=visibleTabs.join(' ');
  bar.append(host);root.querySelector('.up-hero').after(bar);
- drawerMountPeriod(host,initial,onChange,triggerId);
+ const control=drawerMountPeriod(host,initial,onChange,triggerId);
  drawerSyncDetailPeriod(root,root.dataset.upTab);
+ return control;
 }
 function drawerSyncDetailPeriod(root,key){
  const host=root?.querySelector(':scope > .up-detail-tabs > .up-detail-period');if(!host)return;

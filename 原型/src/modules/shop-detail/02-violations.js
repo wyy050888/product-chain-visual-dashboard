@@ -17,7 +17,8 @@ function sdViolationMetrics(m,state){
 // 两类链接明细复用榜单浮层，数量、字段与指标值保持同源。
 function sdPddLinkDetails(shop,end){
  if(shop.channel!=='拼多多')return '';
- const tables=['red','yellow'].map(tone=>`<section class="sd-pdd-links" data-sd-link-tone="${tone}" aria-label="${tone==='red'?'红灯':'黄灯'}链接明细">${rpPddLinkTable(shop,tone,end,true)}</section>`).join('');
+ const groups=rpPddLinkGroups(shop,end);if(!groups.all.length)return '<section class="sd-core-links"><h3>核心链接考核</h3><p class="muted">未配置核心链接</p></section>';
+ const tables=['red','yellow',...(groups.unknown.length?['unknown']:[])].map(tone=>`<section class="sd-pdd-links" data-sd-link-tone="${tone}" aria-label="${tone==='red'?'红灯':tone==='yellow'?'黄灯':'待补数据'}链接明细">${rpPddLinkTable(shop,tone,end,true)}</section>`).join('');
  return `<section class="sd-core-links" aria-labelledby="sd-core-links-title"><h3 id="sd-core-links-title">核心链接考核</h3>${tables}</section>`;
 }
 function sdMountViolations(root,m,state){

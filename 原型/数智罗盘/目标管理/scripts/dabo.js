@@ -1,6 +1,6 @@
 (() => {
   const app=GoalPrototype, {$, escape:esc}=app;
-  let year=2026, mode='month', selected=new Set(Array.from({length:12},(_,i)=>i+1)), folded=false, sorting=null;
+  let year=app.clock.parts().year, mode='month', selected=new Set(Array.from({length:12},(_,i)=>i+1)), folded=false, sorting=null;
   function buckets() {
     const groups=mode==='year' ? [Array.from({length:12},(_,i)=>i+1)] : mode==='quarter' ? [[1,2,3],[4,5,6],[7,8,9],[10,11,12]] : [...selected].sort((a,b)=>a-b).map(month=>[month]);
     return groups.map((months,i)=>({months,label:mode==='year'?`${year}年`:mode==='quarter'?`${year}/Q${i+1}`:`${year}/${String(months[0]).padStart(2,'0')}`}));
@@ -22,12 +22,12 @@
   }
   function init() {
     $('#daboProduct').innerHTML='<option value="">请选择</option>'+app.entrySchema.catalog().products.map(row=>`<option value="${esc(row.productCode)}">${esc(row.product)}</option>`).join('');
-    $('#daboYear').innerHTML=Array.from({length:10},(_,i)=>2024+i).map(value=>`<option ${value===year?'selected':''}>${value}</option>`).join('');
+    $('#daboYear').innerHTML=Array.from({length:app.clock.parts().year-2024+8},(_,i)=>2024+i).map(value=>`<option ${value===year?'selected':''}>${value}</option>`).join('');
     $('#daboEmployee').addEventListener('input',render);
     $('#daboProduct').addEventListener('change',render);
     $('#daboYear').addEventListener('change',event=>{year=Number(event.target.value);render();});
     $('#daboMonths').addEventListener('change',event=>{
-      if (event.target.hasAttribute('data-dabo-all')) selected=new Set(event.target.checked?Array.from({length:12},(_,i)=>i+1):[new Date().getMonth()+1]);
+      if (event.target.hasAttribute('data-dabo-all')) selected=new Set(event.target.checked?Array.from({length:12},(_,i)=>i+1):[app.clock.parts().month]);
       else { const month=Number(event.target.dataset.daboMonth); if (selected.size===12) selected=new Set([month]); else if (event.target.checked) selected.add(month); else if(selected.size>1) selected.delete(month); }
       sorting=null;render();
     });

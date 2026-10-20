@@ -1,26 +1,6 @@
 
 
-// Additive channel-level demo fixtures; every view rolls up the same monthly tasks.
-const lifeChannelAnnual=[
- [48,36,24,60,36,72,24,36],
- [84,60,48,72,84,96,36,48],
- [60,36,36,72,48,84,24,48],
- [96,72,48,84,96,108,36,60],
- [48,36,24,60,36,72,24,36],
- [60,48,36,48,48,60,24,36],
- [36,24,24,48,24,60,24,36],
- [36,24,24,36,48,36,24,24]
-];
-const lifeChannelRates=[.98,.88,.81,1.08,.86,1.12,.76,.94];
-const lifeChainWeights=[[4,3,2,2],[3,4,2,3],[4,3,3,2],[3,4,3,3],[4,3,2,3],[3,3,4,2],[4,2,3,3],[2,3,4,3]];
-function lifeChannelMonth(stage,channel,month,p=periodFor()){
- const annual=Math.round(lifeChannelAnnual[stage][channel]*(p.year===2025?.92:1));
- const target=splitTarget(annual,[8,7,8,8,9,8,9,9,8,9,9,8])[month-1];
- const start=`${p.year}-${String(month).padStart(2,'0')}-01`,days=new Date(Date.UTC(p.year,month,0)).getUTCDate();
- const elapsed=start>DATA_CUTOFF?0:start.slice(0,7)===DATA_CUTOFF.slice(0,7)?Number(DATA_CUTOFF.slice(8))/days:1;
- const rate=lifeChannelRates[(channel+stage)%8]+(stage%3-1)*.04+(month%3-1)*.035;
- return {target,actual:Math.max(0,Math.round(target*rate*elapsed))};
-}
+// 期间汇总共读按品链月度事实；不保留旧八渠道的计划、完成率或拆分规则。
 lifeMonth=function(stage,month,p=periodFor()){const items=channels.map((_,channel)=>lifeChannelMonth(stage,channel,month,p));return{target:targetSum(items.map(x=>x.target)),actual:targetSum(items.map(x=>x.actual))}};
 function lifeChannelRows(stage,p=periodFor()){
  const b=bounds(p),actualMonths=months(p),yearMonths=months(p,true);
@@ -31,9 +11,9 @@ lifeData=function(stage){return ltDashboardActive()?ltDashboardTotals(stage):lif
 function lifeChainRows(stage,p=periodFor()){return ltDashboardActive()?ltDashboardRows(stage,p):lifeBaseChainRows(stage,p)}
 function lifeBaseChainRows(stage,p=periodFor()){
  const b=bounds(p),actualMonths=new Set(months(p)),yearMonths=new Set(months(p,true)),rows=chains.map(name=>({name,target:0,actual:0,yearTarget:0,yearActual:0}));
- for(let m=1;m<=12;m++)for(let c=0;c<channels.length;c++){
-  const d=lifeChannelMonth(stage,c,m,p),weights=lifeChainWeights[stage].map((v,i)=>v+((c+i)%3===0?1:0)),targets=splitTarget(d.target,weights),actuals=splitTarget(d.actual,weights);
-  rows.forEach((r,i)=>{r.yearTarget+=targets[i];if(m>=b.first&&m<=b.last)r.target+=targets[i];if(actualMonths.has(m))r.actual+=actuals[i];if(yearMonths.has(m))r.yearActual+=actuals[i]});
+ for(let month=1;month<=12;month++){
+  const facts=lifeChainMonthFacts(stage,month,p);
+  rows.forEach((row,i)=>{const fact=facts[i];row.yearTarget+=fact.target;if(month>=b.first&&month<=b.last)row.target+=fact.target;if(actualMonths.has(month))row.actual+=fact.actual;if(yearMonths.has(month))row.yearActual+=fact.actual});
  }return rows;
 }
 // 年度累计以当前所选期间截止日为准，不能直接使用今天或全年视图的截止日。

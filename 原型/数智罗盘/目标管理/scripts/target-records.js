@@ -2,7 +2,7 @@
   const app = GoalPrototype;
   // 持久化记录按月合并后，沿用模型的汇总和覆盖率计算，不修改原始演示主数据。
   function rows(kind, options) {
-    const { path = '一类电商', cid = '一类不含 CID', year = 2026, monthList = [9], months = 1 } = options;
+    const { path = '一类电商', cid = '一类不含 CID', year = app.clock.parts().year, monthList = [app.clock.parts().month], months = 1 } = options;
     const matchesPeople = row => Object.entries(options.peopleFilters || {}).every(([field, term]) => !term || String(row[field] || '').toLocaleLowerCase().includes(term.toLocaleLowerCase()));
     const read = type => monthList.flatMap(monthNumber => app.targetStore.read(type, { year, monthNumber: Number(monthNumber), cid })).filter(row => {
       if (options.forConsumption && row.productMatch === 'unmatched') return false;

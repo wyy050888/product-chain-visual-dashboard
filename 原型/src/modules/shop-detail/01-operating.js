@@ -15,7 +15,7 @@ function sdOperatingFacts(shop,start,end){
   });
   points.push({date:day.date,gsvCents,sales,returned,netSales:sales-returned});
  }
- const products=[...rows.values()].map(r=>({...r,netSales:r.sales-r.returned,profitRate:r.gsvCents?r.profitCents/r.gsvCents*100:null})).sort((a,b)=>b.gsvCents-a.gsvCents||a.product.spuCode.localeCompare(b.product.spuCode));
+ const products=[...rows.values()].map(r=>({...r,netSales:r.sales-r.returned,returnRate:r.sales?r.returned/r.sales*100:null,profitRate:r.gsvCents?r.profitCents/r.gsvCents*100:null})).sort((a,b)=>b.gsvCents-a.gsvCents||a.product.spuCode.localeCompare(b.product.spuCode));
  const sales=products.reduce((n,r)=>n+r.sales,0),returned=products.reduce((n,r)=>n+r.returned,0);
  return {products,points,sales,returned,returnRate:sales?returned/sales*100:null};
 }

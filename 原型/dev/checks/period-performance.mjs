@@ -8,7 +8,7 @@ function verifyAggregates(){
  const platforms=['抖音','快手','视频号','天猫','京东','拼多多'];
  const fields=['sales','returned','received','orders','contacts','qualityContacts','experienceContacts','reviews','bad','gmvCents','refundCents','gsvCents','profitCents','costCents','expenseCents','targetCents','targetProfitCents'];
  const shift=(date,n)=>{const d=new Date(date+'T00:00:00Z');d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10)};
- const ctx=vm.createContext({sampleSpus:products,sampleProductRows:()=>products,withPeriod:(_,fn)=>fn(),brLossRows:()=>[],
+ const ctx=vm.createContext({DATA_CUTOFF:'2026-10-10',aiFlowDayDiff:(start,end)=>(Date.parse(end)-Date.parse(start))/86400000,sampleSpus:products,sampleProductRows:()=>products,withPeriod:(_,fn)=>fn(),brLossRows:()=>[],
   qrPlatforms:platforms,dpStore:{newTargets:[20,30],marginTarget:15},
   qrbMonthData:(_,platform,start,end)=>({points:Array.from({length:(Date.parse(end)-Date.parse(start))/86400000+1},(_,i)=>{
    const date=shift(start,i),sales=20+(+date.slice(8))%5+platforms.indexOf(platform);
@@ -16,7 +16,7 @@ function verifyAggregates(){
   })}),
   riskMonthShift:(month,n)=>{const d=new Date(month+'-01T00:00:00Z');d.setUTCMonth(d.getUTCMonth()+n);return d.toISOString().slice(0,7)}
  });
- for(const file of ['performance/01-cache.js','unified-product/01-ledger.js','unified-product/01-aggregates.js'])
+ for(const file of ['performance/01-cache.js','unified-product/00-grade-samples.js','unified-product/01-ledger.js','unified-product/01-aggregates.js'])
   vm.runInContext(fs.readFileSync(new URL('../../src/modules/'+file,import.meta.url),'utf8'),ctx);
  ctx.upProduct=p=>p;
  const plain=value=>JSON.parse(JSON.stringify(value));
@@ -66,7 +66,10 @@ export async function periodPerformance(page){
  }
  assert(await otherControl.evaluate(el=>el.isConnected),'局部切换不能重建其他模块时间栏');
  // 宽松阈值仅拦截秒级回退；输出实测值便于在不同机器上比较。
- assert(Math.max(...samples)<4000,'年份切换退化为长任务：'+samples.join('/'));
+ const baseline=Number(process.env.DASHBOARD_PERIOD_BASELINE_MS||0);
+ assert(Number.isFinite(baseline)&&baseline>=0,'性能对照值必须是非负有限数');
+ const coldLimit=Math.max(4000,baseline*1.15);
+ assert(Math.max(...samples)<coldLimit,'年份切换退化为长任务：'+samples.join('/')+'；同机阈值'+Math.round(coldLimit));
  assert(samples.at(-1)<2000,'重复切换未复用数据：'+samples.at(-1));
  await change('#risk [data-time-mode="quarter"]',null);
  assert.deepEqual(await page.locator('#risk [data-time-value] option').allTextContents(),['Q1','Q2','Q3','Q4']);

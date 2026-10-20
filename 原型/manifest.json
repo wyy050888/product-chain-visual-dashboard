@@ -8,6 +8,14 @@
       "module": "有界计算缓存"
     },
     {
+      "file": "src/data/filter-catalog.js",
+      "module": "公共筛选枚举字典"
+    },
+    {
+      "file": "src/data/shop-classification.js",
+      "module": "平台店铺分类规则"
+    },
+    {
       "file": "src/data/sample-spus.js",
       "module": "统一参考样例"
     },
@@ -122,6 +130,14 @@
     {
       "file": "src/modules/project-attribution/01.js",
       "module": "项目归属"
+    },
+    {
+      "file": "src/data/lifecycle-facts.js",
+      "module": "生命周期品链月度事实"
+    },
+    {
+      "file": "src/modules/lifecycle-task/00-facts.js",
+      "module": "生命周期月度事实与平台整数分配"
     },
     {
       "file": "src/modules/lifecycle-task/01.js",
@@ -312,6 +328,14 @@
       "module": "拼多多同行排序展示样例"
     },
     {
+      "file": "src/modules/core-link-config/00-samples.js",
+      "module": "核心链接配置名单与历史"
+    },
+    {
+      "file": "src/modules/core-link-config/01-model.js",
+      "module": "核心链接配置名单与历史"
+    },
+    {
       "file": "src/modules/shop-scoring/01.js",
       "module": "店铺评分"
     },
@@ -324,12 +348,36 @@
       "module": "库存交付与翻新日期台账"
     },
     {
+      "file": "src/modules/inventory-period/02-metric-period.js",
+      "module": "库存三指标独立期间控件"
+    },
+    {
+      "file": "src/modules/inventory-period/02-metric-facts.js",
+      "module": "库存期间成本交付翻新事实"
+    },
+    {
       "file": "src/modules/inventory-period/02-rules.js",
       "module": "库存指标判灯与问号提示"
     },
     {
+      "file": "src/modules/inventory-period/02-summary-help.js",
+      "module": "库存标题三指标判色规则卡"
+    },
+    {
+      "file": "src/modules/inventory-period/02-group-model.js",
+      "module": "类目品牌库存同源聚合"
+    },
+    {
+      "file": "src/modules/inventory-period/02-group-table.js",
+      "module": "库存统一指标列"
+    },
+    {
       "file": "src/modules/inventory-period/03-view.js",
       "module": "类目品牌双表库存视图"
+    },
+    {
+      "file": "src/modules/inventory-period/04-stock-drawer.js",
+      "module": "类目品牌库存抽屉"
     },
     {
       "file": "src/modules/supplier-assessment/01.js",
@@ -516,6 +564,14 @@
       "module": "亏损详情渠道分析"
     },
     {
+      "file": "src/modules/date-range/01-model.js",
+      "module": "公共日期区间模型"
+    },
+    {
+      "file": "src/modules/date-range/02-picker.js",
+      "module": "公共日期区间组件"
+    },
+    {
       "file": "src/modules/risk-calendar/01.js",
       "module": "风险双月日历"
     },
@@ -592,6 +648,14 @@
       "module": "新品固定上线计划样例"
     },
     {
+      "file": "src/modules/unified-product/00-grade-samples.js",
+      "module": "统一台账等级升降演示样例"
+    },
+    {
+      "file": "src/data/product-guide-prices.js",
+      "module": "产品指导价演示主数据"
+    },
+    {
       "file": "src/modules/unified-product/01-ledger.js",
       "module": "统一SPU产品详情"
     },
@@ -606,6 +670,10 @@
     {
       "file": "src/modules/inventory-detail/01-coverage-samples.js",
       "module": "可售天数库存场景样例"
+    },
+    {
+      "file": "src/modules/unified-product/03-stock-balances.js",
+      "module": "统一库存组成与聚合"
     },
     {
       "file": "src/modules/unified-product/03-stock-adapters.js",
@@ -656,11 +724,35 @@
       "file": "src/modules/unified-product/05-quality-view.js"
     },
     {
+      "file": "src/modules/unified-product/05-operating-channels.js",
+      "module": "产品业绩表现与分级趋势"
+    },
+    {
+      "file": "src/modules/unified-product/05-channel-contribution.js",
+      "module": "产品各渠道业绩贡献占比"
+    },
+    {
+      "file": "src/modules/unified-product/05-grade-trend-model.js",
+      "module": "产品业绩表现与分级趋势"
+    },
+    {
+      "file": "src/modules/unified-product/05-grade-trend-view.js",
+      "module": "产品业绩表现与分级趋势"
+    },
+    {
+      "file": "src/modules/unified-product/05-grade-trend-period.js",
+      "module": "产品分级趋势与详情日期联动"
+    },
+    {
       "file": "src/modules/unified-product/05-operating-view.js",
       "module": "统一SPU产品详情"
     },
     {
       "file": "src/modules/unified-product/06-stock-model.js"
+    },
+    {
+      "file": "src/modules/unified-product/06-stock-cards.js",
+      "module": "库存五类复合卡片与季品占比"
     },
     {
       "file": "src/modules/unified-product/06-stock-view.js",
@@ -797,6 +889,10 @@
       "module": "六榜业务筛选"
     },
     {
+      "file": "src/modules/risk-presentation/03-product-grade.js",
+      "purpose": "产品分级经营预警与榜单分级"
+    },
+    {
       "file": "src/modules/risk-presentation/03-trends.js",
       "module": "六榜近7日趋势"
     },
@@ -889,6 +985,14 @@
       "module": "新品销售成功率"
     },
     {
+      "file": "src/modules/new-products/00-delivery-samples.js",
+      "module": "大货交付独立任务样例"
+    },
+    {
+      "file": "src/modules/new-products/01-delivery-model.js",
+      "module": "项目上线及时率模型"
+    },
+    {
       "file": "src/modules/new-products/01-model.js",
       "module": "新品专项管控"
     },
@@ -899,6 +1003,14 @@
     {
       "file": "src/modules/new-products/02-success-picker.js",
       "module": "新品成功季度筛选"
+    },
+    {
+      "file": "src/modules/new-products/02-price-distribution.js",
+      "module": "新品价格带分布"
+    },
+    {
+      "file": "src/modules/new-products/02-delivery-view.js",
+      "module": "上线及时率项目下钻"
     },
     {
       "file": "src/modules/new-products/02-view.js",
@@ -1033,6 +1145,266 @@
     {
       "file": "src/modules/key-products/08-grade-view.js",
       "module": "关键产品SABC分级与变动记录"
+    },
+    {
+      "file": "src/modules/key-products/09-detail-table.js",
+      "module": "关键产品明细指标"
+    },
+    {
+      "file": "src/modules/key-products/10-dropdowns.js",
+      "module": "关键产品下拉边界与键盘交互"
+    },
+    {
+      "file": "src/modules/key-products/11-channel-scope.js",
+      "module": "关键产品公司/一类/兴趣业务范围切换"
+    },
+    {
+      "file": "src/modules/key-products/12-grade-help.js",
+      "module": "SABC分级规则说明卡"
+    },
+    {
+      "file": "src/modules/key-products/13-management-samples.js",
+      "purpose": "产品分级经营预警与榜单分级"
+    },
+    {
+      "file": "src/modules/key-products/14-management-model.js",
+      "purpose": "产品分级经营预警与榜单分级"
+    },
+    {
+      "file": "src/modules/key-products/15-management-view.js",
+      "purpose": "产品分级经营预警与榜单分级"
+    },
+    {
+      "file": "src/modules/key-products/16-management-drawer.js",
+      "module": "产品分级经营明细抽屉"
+    },
+    {
+      "file": "src/modules/key-products/17-management-header.js",
+      "module": "经营明细标题与独立时间筛选"
+    },
+    {
+      "file": "src/modules/key-products/18-zoom-filters.js",
+      "module": "矩阵放大品牌类目价格季品筛选"
+    },
+    {
+      "file": "src/modules/key-products/19-price-filter.js",
+      "module": "关键产品共用价格带筛选"
+    },
+    {
+      "file": "src/modules/key-products/20-sidebar.js",
+      "module": "关键产品价格分布与经营概览布局"
+    },
+    {
+      "file": "src/modules/key-products/21-ai-followup-model.js",
+      "module": "AI经营跟进分析与制度匹配"
+    },
+    {
+      "file": "src/modules/key-products/22-ai-followup-view.js",
+      "module": "AI经营跟进列表与来源详情"
+    },
+    {
+      "file": "src/modules/key-products/23-improvement-model.js",
+      "module": "改善结果与三视角AI判断"
+    },
+    {
+      "file": "src/modules/supplier-planning/00-reference.js",
+      "module": "供应链采购资源管控"
+    },
+    {
+      "file": "src/modules/supplier-planning/01-ledger.js",
+      "module": "供应链采购资源管控"
+    },
+    {
+      "file": "src/modules/supplier-targets/01-model.js",
+      "module": "供应商目标存储与口径"
+    },
+    {
+      "file": "src/modules/supplier-planning/02-model.js",
+      "module": "供应链采购资源管控"
+    },
+    {
+      "file": "src/modules/supplier-planning/03-charts.js",
+      "module": "供应链采购资源管控"
+    },
+    {
+      "file": "src/modules/supplier-planning/03-member-model.js",
+      "module": "供应商完整列表模型"
+    },
+    {
+      "file": "src/modules/supplier-planning/03-material-help.js",
+      "module": "物料供应商统计口径提示"
+    },
+    {
+      "file": "src/modules/supplier-planning/03-resource-help.js",
+      "module": "整机资源池统计口径提示"
+    },
+    {
+      "file": "src/modules/supplier-planning/03-view.js",
+      "module": "供应链采购资源管控"
+    },
+    {
+      "file": "src/modules/supplier-planning/03-category-picker.js",
+      "module": "供应商合作类目级联筛选"
+    },
+    {
+      "file": "src/modules/supplier-planning/03-date-filters.js",
+      "module": "供应商业务日期区间筛选"
+    },
+    {
+      "file": "src/modules/supplier-planning/03-supplier-view.js",
+      "module": "整机供应商筛选与表格"
+    },
+    {
+      "file": "src/modules/supplier-planning/04-member-list.js",
+      "module": "供应商双类型列表"
+    },
+    {
+      "file": "src/modules/supplier-planning/04-category-list.js",
+      "module": "完整三级类目列表"
+    },
+    {
+      "file": "src/modules/supplier-planning/04-drawers.js",
+      "module": "供应链采购资源管控"
+    },
+    {
+      "file": "src/modules/supplier-planning/05-controller.js",
+      "module": "供应链采购资源管控"
+    },
+    {
+      "file": "src/modules/supplier-targets/02-view.js",
+      "module": "系统管理供应商目标"
+    },
+    {
+      "file": "src/modules/supplier-targets/03-controller.js",
+      "module": "供应商目标自动保存"
+    },
+    {
+      "file": "src/modules/supplier-planning/06-quantity-display.js",
+      "module": "供应链采购资源管控"
+    },
+    {
+      "file": "src/modules/cost-control/00-samples.js",
+      "module": "降本增效全局管控"
+    },
+    {
+      "file": "src/modules/cost-control/00-monthly-reference.js",
+      "module": "降本月度截图参考样例"
+    },
+    {
+      "file": "src/modules/cost-control/01-model.js",
+      "module": "降本增效全局管控"
+    },
+    {
+      "file": "src/modules/cost-control/02-view.js",
+      "module": "降本增效全局管控"
+    },
+    {
+      "file": "src/modules/cost-control/03-department.js",
+      "module": "降本增效全局管控"
+    },
+    {
+      "file": "src/modules/cost-control/04-opportunity-model.js",
+      "module": "降本增效全局管控"
+    },
+    {
+      "file": "src/modules/cost-control/04-opportunity-samples.js",
+      "module": "降本清单任务状态样例"
+    },
+    {
+      "file": "src/modules/cost-control/05-opportunity-view.js",
+      "module": "降本增效全局管控"
+    },
+    {
+      "file": "src/modules/cost-control/07-saving-help.js",
+      "module": "降本机会计算说明"
+    },
+    {
+      "file": "src/modules/cost-control/06-controller.js",
+      "module": "降本增效全局管控"
+    },
+    {
+      "file": "src/modules/cost-config/00-metric-catalog.js",
+      "module": "动态降本指标目录"
+    },
+    {
+      "file": "src/modules/cost-config/01-model.js",
+      "module": "系统管理降本增效配置"
+    },
+    {
+      "file": "src/modules/cost-config/02-import.js",
+      "module": "系统管理降本增效配置"
+    },
+    {
+      "file": "src/modules/cost-config/02-annual-import.js",
+      "module": "降本年度双行模板与兼容导入"
+    },
+    {
+      "file": "src/modules/cost-config/03-view.js",
+      "module": "系统管理降本增效配置"
+    },
+    {
+      "file": "src/modules/cost-config/04-controller.js",
+      "module": "系统管理降本增效配置"
+    },
+    {
+      "file": "src/modules/global-diagnosis/00-issue-types.js",
+      "module": "总诊断事项类型枚举"
+    },
+    {
+      "file": "src/modules/global-diagnosis/01-model.js",
+      "module": "全局AI总诊断四部分重构"
+    },
+    {
+      "file": "src/modules/global-diagnosis/02-records.js",
+      "module": "全局AI总诊断四部分重构"
+    },
+    {
+      "file": "src/modules/global-diagnosis/02-meeting-sources.js",
+      "module": "钉钉会议Excel只读证据"
+    },
+    {
+      "file": "src/modules/global-diagnosis/02-focus-sources.js",
+      "module": "工作聚焦抓取材料与明确分工样例"
+    },
+    {
+      "file": "src/modules/global-diagnosis/02-focus-model.js",
+      "module": "工作重点对照与偏差判定"
+    },
+    {
+      "file": "src/modules/global-diagnosis/03-tasks.js",
+      "module": "全局AI总诊断四部分重构"
+    },
+    {
+      "file": "src/modules/global-diagnosis/04-view.js",
+      "module": "全局AI总诊断四部分重构"
+    },
+    {
+      "file": "src/modules/global-diagnosis/05-evidence-content.js",
+      "module": "四模块诊断依据分区展示"
+    },
+    {
+      "file": "src/modules/global-diagnosis/05-evidence.js",
+      "module": "全局AI总诊断四部分重构"
+    },
+    {
+      "file": "src/modules/global-diagnosis/06-actions.js",
+      "module": "全局AI总诊断四部分重构"
+    },
+    {
+      "file": "src/modules/global-diagnosis/07-controller.js",
+      "module": "全局AI总诊断四部分重构"
+    },
+    {
+      "file": "src/modules/core-link-config/02-import.js",
+      "module": "核心链接配置"
+    },
+    {
+      "file": "src/modules/core-link-config/03-view.js",
+      "module": "核心链接配置"
+    },
+    {
+      "file": "src/modules/core-link-config/04-controller.js",
+      "module": "核心链接配置"
     },
     {
       "file": "src/modules/startup/02-render.js",
@@ -1298,6 +1670,52 @@
     {
       "file": "styles/59-key-products.css",
       "module": "关键产品矩阵放大与明细筛选"
+    },
+    {
+      "file": "styles/60-product-operating.css"
+    },
+    {
+      "file": "styles/61-stock-balance-cards.css",
+      "module": "库存复合卡片与季品分布"
+    },
+    {
+      "file": "styles/62-inventory-groups.css",
+      "module": "库存类目品牌与明细表"
+    },
+    {
+      "file": "styles/63-supplier-planning.css",
+      "module": "供应链采购资源管控"
+    },
+    {
+      "file": "styles/64-cost-control.css",
+      "module": "降本增效全局管控"
+    },
+    {
+      "file": "styles/65-cost-config.css",
+      "module": "降本增效配置后台样式"
+    },
+    {
+      "file": "styles/66-supplier-targets.css",
+      "module": "供应商目标配置"
+    },
+    {
+      "file": "styles/67-global-diagnosis.css",
+      "module": "全局AI总诊断"
+    },
+    {
+      "file": "styles/68-product-management.css",
+      "purpose": "产品分级经营预警与榜单分级"
+    },
+    {
+      "file": "styles/73-core-link-config.css",
+      "purpose": "核心链接配置后台样式"
+    },
+    {
+      "file": "styles/74-kpm-price-filter.css",
+      "module": "关键产品列表与明细共用价格带"
+    },
+    {
+      "file": "styles/75-key-product-sidebar.css"
     }
   ],
   "images": [

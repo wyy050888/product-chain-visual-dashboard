@@ -28,7 +28,7 @@
       if(!panel().hidden){close();return;}
       app.historyPeriod?.close();
       app.periodPicker.close();
-      draftStart=start;draftEnd=end;const date=start?new Date(`${start}T00:00:00`):new Date();month=new Date(date.getFullYear(),date.getMonth(),1);
+      draftStart=start;draftEnd=end;const date=new Date(`${start||app.clock.today()}T00:00:00`);month=new Date(date.getFullYear(),date.getMonth(),1);
       panel().hidden=false;trigger().setAttribute('aria-expanded','true');render();
       (panel().querySelector('.selected') || panel().querySelector('[data-range-day]')).focus({preventScroll:true});
     });

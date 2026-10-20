@@ -1,3 +1,4 @@
+import {verifyShopCoreProducts} from './shop-core-products.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
@@ -24,26 +25,18 @@ function rules(){
  assert.equal(ctx.rpShopProblemHit({target:10,previous:10.6,current:10.7}),true);
  assert.equal(ctx.rpShopProblemHit({target:10,previous:11,current:10.8}),false);
  assert.equal(ctx.rpShopProblemHit({currentTarget:11,previousTarget:10,previous:10.6,current:11}),false);
- const a={spuCode:'A'},b={spuCode:'B'};
- assert.equal(ctx.rpShopTopSpu([{product:a,sales:10},{product:b,sales:20}]),b);
- assert.equal(ctx.rpShopTopSpu([{product:b,sales:20},{product:a,sales:20}]),a);
- assert.equal(ctx.rpShopTopSpu([{product:a,sales:0},{product:b,sales:NaN}]),null);
  vm.runInContext(fs.readFileSync(new URL('../../src/data/sample-spus.js',import.meta.url),'utf8'),ctx);
  const salesShop={id:4,brand:'康佳'},start='2026-09-11',end='2026-10-10';
  const sales=ctx.sampleShopSpuSales(salesShop,start,end);
  const gross=ctx.riskDailyRows(start,end,date=>({sales:ctx.sampleShopDailySales(salesShop,date)})).reduce((sum,r)=>sum+r.sales,0);
  assert.equal(sales.reduce((sum,r)=>sum+r.sales,0),gross);
- assert.equal(ctx.rpShopMainSpu(salesShop,start,end).spuCode,ctx.rpShopTopSpu(sales).spuCode);
  const earlier=ctx.sampleShopSpuSales(salesShop,start,'2026-09-30'),later=ctx.sampleShopSpuSales(salesShop,'2026-10-01',end);
  sales.forEach((r,i)=>assert.equal(r.sales,earlier[i].sales+later[i].sales));
- // 每一家有销量的参考店铺必须有主营SPU，且总销量、退货、净销量均可核对。
+ // 每家店铺的总销量、退货、净销量均可核对；有销量不等于达到主营门槛。
  const shops=vm.runInContext(fs.readFileSync(new URL('../../src/data/sample-shops.js',import.meta.url),'utf8')+';sampleShops',ctx);
  for(const [id,source] of shops.entries()){
   const record={...source,id,sourceQualityFine:0,frozenAmount:0};
-  const details=ctx.sampleShopSpuSales(record,start,end),main=ctx.rpShopMainSpu(record,start,end);
-  assert(main,source.name+'有销量时应有核心主营SPU');
-  assert.equal(main.brand,source.brand);
-  if(source.brand==='苏泊尔')assert.match(main.spuCode,/^DEMO-/);
+  const details=ctx.sampleShopSpuSales(record,start,end);
   const daily=ctx.riskDailyRows(start,end,date=>({sales:ctx.sampleShopDailySales(record,date)}));
   assert.equal(details.reduce((n,r)=>n+r.sales,0),daily.reduce((n,r)=>n+r.sales,0));
   assert.equal(details.reduce((n,r)=>n+r.returned,0),daily.reduce((n,r)=>n+Math.round(r.sales*.095),0));
@@ -52,10 +45,6 @@ function rules(){
   const splitA=ctx.sampleShopSpuSales(record,start,'2026-09-30'),splitB=ctx.sampleShopSpuSales(record,'2026-10-01',end);
   details.forEach((r,i)=>{assert.equal(r.sales,splitA[i].sales+splitB[i].sales);assert.equal(r.returned,splitA[i].returned+splitB[i].returned)});
  }
- assert.equal(ctx.rpShopMainSpu({id:0,brand:'缺失品牌'},start,end),null);
- assert.equal(ctx.rpShopMainSpu(salesShop,'2026-10-11','2026-10-12'),null);
- const winners=new Set(Array.from({length:9},(_,i)=>ctx.rpShopMainSpu(salesShop,'2026-0'+(i+1)+'-01','2026-0'+(i+1)+'-28').spuCode));
- assert(winners.size>1,'主营SPU应随期间销量变化，而非固定匹配第一条');
  const shop={id:4,brand:'康佳',chain:0,referenceGsv:10.7,sourceQualityFine:5000,frozenAmount:12000};
  const full=ctx.rpShopPeriodFacts(shop,'2026-09-11','2026-10-10');
  const left=ctx.rpShopPeriodFacts(shop,'2026-09-11','2026-09-30'),right=ctx.rpShopPeriodFacts(shop,'2026-10-01','2026-10-10');
@@ -86,17 +75,22 @@ export async function shopPreview(page){
  const first=card.locator('.rp-shop-entry').first();
  await card.locator('[data-risk="1"]').click();
  const table=page.locator('.rp-shop-table');
- assert.equal(await table.locator('thead th').count(),17);
- for(const key of ['gsv','netSales','limited','score']){
+ assert.equal(await table.locator('thead th').count(),13);
+ for(const key of ['gsv','netSales','limited']){
   const index=await table.locator('[data-rp-sort="'+key+'"]').evaluate(el=>el.closest('th').cellIndex);
   assert.equal(await first.locator('[data-rp-field="'+key+'"] strong').innerText(),await table.locator('tbody tr').first().locator('td').nth(index).locator('strong').innerText());
  }
- assert(await table.locator('.rp-shop-spu .risk-thumb').count()>0);
- assert.match(await table.locator('tbody tr').first().locator('td').nth(2).innerText(),/SPU码/);
- assert.equal(await table.locator('tbody').getByText('待配置',{exact:true}).count(),0);
- assert.equal(await table.locator('tbody').getByText('暂无销量数据',{exact:true}).count(),0);
- assert.equal(await table.locator('.rp-shop-spu').count(),await table.locator('tbody tr').count());
- assert((await table.locator('tbody').innerText()).includes('DEMO-SUPOR'));
+ const scoreKeys=['score','productScore','logisticsScore','serviceScore'],platform=page.locator('#rf-list-platform');
+ const scores=()=>table.locator(scoreKeys.map(key=>'[data-rp-sort="'+key+'"]').join(','));
+ assert.equal(await scores().count(),0,'全平台不展示四项评分');
+ await platform.selectOption('抖音',{force:true});assert.equal(await scores().count(),4,'具体平台恢复评分列');
+ await table.locator('[data-rp-sort="score"]').click();
+ await platform.selectOption('all',{force:true});assert.equal(await scores().count(),0,'切回全平台移除评分列');
+ assert.equal(await table.locator('[data-direction="desc"],[data-direction="asc"]').count(),0,'隐藏评分列时清除对应排序');
+ const lengths=await table.locator('tr').evaluateAll(rows=>rows.map(row=>row.cells.length));assert(lengths.every(n=>n===13),'表头与每行数据列数一致');
+ await table.evaluate(node=>node.scrollLeft=0);await page.mouse.move(0,0);await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+ assert.equal(await table.locator('.rp-shop-core,.rp-shop-core-empty').count(),await table.locator('tbody tr').count());
+ await verifyShopCoreProducts(page);
  assert.equal(await table.locator('th').filter({hasText:/^核心店铺$/}).count(),0);
  const widths=await table.locator('th:has([data-rp-sort])').evaluateAll(ns=>ns.map(n=>n.getBoundingClientRect().width));
  assert(widths.every(w=>w>=127));

@@ -18,6 +18,7 @@ export async function risk(page){
  for(const kind of [0,1,2,3,4,6]){
   await page.locator('[data-drawer-tab="ranking-'+kind+'"]').click();
   assert.equal(await page.locator('#dialogbody [data-rp-trend]').count(),[1,3,4].includes(kind)?0:1);
+  if(kind!==1){const headers=await page.locator('.rp-list-table th').allTextContents(),season=headers.indexOf('季品');assert(season>0);assert.equal(headers[season-1],'类目');const values=await page.locator('.rp-list-table tbody tr').evaluateAll((rows,index)=>rows.map(row=>[row.cells[index-1].textContent,row.cells[index].textContent]),season);assert(values.every(([category,attribute])=>/类$/.test(category)&&['夏季品','冬季品','四季品'].includes(attribute)))}
   const cells=await page.locator('.rp-list-table').evaluate(t=>({head:t.querySelectorAll('th').length,rows:[...t.querySelectorAll('tbody tr')].map(r=>r.children.length)}));
   assert.doesNotMatch(await page.locator('.rp-list-table').innerText(),/环比\s*[↑↓]?\s*0(?:\.0+)?%/);
   assert.ok(cells.rows.length>0);assert.ok(cells.rows.every(n=>n===cells.head));

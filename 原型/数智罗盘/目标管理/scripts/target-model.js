@@ -14,9 +14,9 @@
     return { coverage, reasonable, reason, linkedGsv: linkGsv };
   }
 
-  function baseRows(key, { path = '一类电商', cid = '一类不含 CID', months = 1, monthList, year = 2026 } = {}) {
+  function baseRows(key, { path = '一类电商', cid = '一类不含 CID', months = 1, monthList, year = GoalPrototype.clock.parts().year } = {}) {
     const factor = (monthList ? 1 : months) * (cid === '一类含 CID' ? 1.15 : 1);
-    const activeMonths = item => !monthList ? [9] : Number(year) !== 2026 ? [] : monthList.filter(month => !item.activeMonths || item.activeMonths.includes(Number(month)));
+    const activeMonths = item => !monthList ? [GoalPrototype.clock.parts().month] : Number(year) !== 2026 ? [] : monthList.filter(month => !item.activeMonths || item.activeMonths.includes(Number(month)));
     const amount = (item, selected) => selected.reduce((total, month) => total + (item.monthValues?.[month]?.gsv ?? item.gsv), 0) * factor;
     const weightedProfit = (item, selected) => {
       if (selected.length === 1 && (!monthList || monthList.length === 1)) return item.monthValues?.[selected[0]]?.profit ?? item.profit;

@@ -3,6 +3,8 @@ import { fileURLToPath } from 'node:url';
 import fs from 'node:fs';
 import vm from 'node:vm';
 export async function projectPanorama(page){
+ // 固定样例截止日，避免历史预期受运行日期漂移影响。
+ await page.clock.setFixedTime(new Date('2026-10-10T04:00:00Z'));await page.reload({waitUntil:'domcontentloaded',timeout:30000});
  const ctx=vm.createContext({});vm.runInContext(fs.readFileSync(new URL('../../src/modules/project-panorama/01-model.js',import.meta.url),'utf8'),ctx);
  const crossRisk={ledger:[{department:'产品部',light:'红灯'},{department:'采购部',light:'黄灯'},{department:'采购部',light:'红灯',status:'已闭环'}]};
  assert.equal(ctx.ppMatchesRisk(crossRisk,{department:['采购部'],riskLight:['红灯']}),false,'部门和灯色不能跨风险单匹配，也不能命中已闭环记录');

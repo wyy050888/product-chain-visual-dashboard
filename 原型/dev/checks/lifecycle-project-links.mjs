@@ -36,6 +36,7 @@ export async function lifecycleProjectLinks(page){
  await page.locator('#lifetable [data-life-summary] [data-life-completed="period"]').click();await verify(2,'period');assert.equal((await audit()).state.started.start,'2026-07-01');
  await page.locator('#lifetable [data-life-summary] [data-life-completed="year"]').click();await verify(2,'year');assert.equal((await audit()).state.started.end,'2026-09-30');
  await page.locator('#lifecards .lifecard').first().click();await page.locator('#lifetable [data-life-summary] [data-life-completed="period"]').click();await verify(0,'period');
+ await page.evaluate(()=>window.scrollTo({top:document.querySelector('#projects').offsetTop-80,behavior:'instant'}));
  await page.locator('[aria-controls="pp-actual-panel"]').click();await page.locator('#pp-actual-panel [data-pp-plan-mode="month"]').click();await page.locator('#pp-actual-panel [data-pp-plan-value="9"]').click();assert.deepEqual((await audit()).state.actual,{mode:'month',year:2026,value:9});
  await page.locator('[data-pp-plan-clear="actual"]').click();assert.equal((await audit()).state.actual,null);
  await page.locator('[data-pp-reset]').click();assert.equal((await audit()).state.actual,null);assert.deepEqual((await audit()).state.projectState,['进行中']);

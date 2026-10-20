@@ -18,7 +18,7 @@ function uiBindNaturalPeriod({trigger,panel,getSelection,getMaxDate,onApply}){
  };
  trigger.addEventListener('click',()=>{
   if(panel.matches(':popover-open')){close();return}
-  const selected=getSelection(),fallback=getMaxDate()||new Date().toISOString().slice(0,10),anchor=selected?.mode==='day'?selected.start:fallback;
+  const selected=getSelection(),fallback=getMaxDate()||dashboardToday(),anchor=selected?.mode==='day'?selected.start:fallback;
   state={mode:selected?.mode||'day',year:selected?.year||Number(anchor.slice(0,4)),month:selected?.mode==='month'?selected.value:Number(anchor.slice(5,7)),draft:selected?.mode==='day'?{start:selected.start,end:selected.end}:{start:null,end:null},awaitingEnd:false};
   render();panel.showPopover();position();panel.querySelector(`[data-natural-mode="${state.mode}"]`)?.focus({preventScroll:true});
  },{signal:events.signal});

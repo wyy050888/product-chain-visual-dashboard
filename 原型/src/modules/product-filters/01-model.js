@@ -14,7 +14,7 @@ function pfMatches(record,filters){const p=pfIdentity(record);return ['brand','c
 })}
 function pfOptions(options,value,allLabel='全部'){return [{value:'all',label:allLabel},...options.map(x=>typeof x==='string'?{value:x,label:x}:x)].map(x=>`<option value="${esc(x.value)}" ${pfOptionSelected(value,x.value)?'selected':''}>${esc(x.label)}</option>`).join('')}
 function pfFields(filters,keys=['brand','chain','attribute','productType'],attr='data-pf-filter',multiple=false){
- const choices={brand:[...new Set(sampleSpus.map(p=>p.brand))],chain:pfCategories,attribute:['夏季品','冬季品','四季品'],productType:[{value:'new',label:'新品'},{value:'old',label:'老品'},{value:'clearance',label:'清仓品'}]};
+ const choices={brand:[...new Set(sampleSpus.map(p=>p.brand))],chain:pfCategories,attribute:filterCatalog.seasons,productType:filterCatalog.productTypes};
  const labels={brand:'品牌',chain:'类目',attribute:'季品',productType:'属性'};
  const field=key=>`<label>${labels[key]}<select ${attr}="${key}" ${['brand','chain'].includes(key)?'multiple data-pf-multiple':''} aria-label="${labels[key]}">${pfOptions(choices[key],filters[key])}</select></label>`;
  const properties=keys.filter(k=>['attribute','productType'].includes(k));

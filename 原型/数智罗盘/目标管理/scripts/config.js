@@ -34,7 +34,7 @@
     el: ['产品名称（SPU）', '店铺', '核心链接ID', '店长策略', '店长推广', '大区', '品牌', '渠道'],
   };
   const options = {
-    月份: ['2026/09'], get 大区() { return GoalPrototype.regionConfig.list().map(row => row.name); },
+    get 月份() { return [GoalPrototype.clock.today().slice(0,7).replace('-', '/')]; }, get 大区() { return GoalPrototype.regionConfig.list().map(row => row.name); },
     平台渠道: ['天猫', '京东', '拼多多'], 品牌: ['苏泊尔', '创维', '康佳', '海尔', '其他', '美的'],
     产品类目: ['清洁类', '生活电器'], '新品/清仓品': ['新品', '清仓品'],
     一类自选品: ['自选品', '承流品'], 合理性: ['合理', '不合理'], 一盘货: ['是', '否'],
