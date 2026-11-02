@@ -10,14 +10,14 @@ function escapePattern(text){return text.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}
 export function locate(root,query){
  if(!query.trim())throw new Error('请提供业务关键词或函数名。');
  const entries=inventory(root),registry=areas(root),symbol=/^[A-Za-z_$][\w$]*$/.test(query);
- const direct=Object.entries(registry).filter(([name,area])=>name===query||area.keywords.some(k=>query.includes(k)));
+ const direct=Object.entries(registry).filter(([name,area])=>name===query||(area.keywords||[]).some(k=>query.includes(k)));
  const owners=direct.length?direct:symbol?Object.entries(registry).filter(([,area])=>area.sources.some(p=>entries.find(e=>e.file===p)?.text.includes(query))).slice(0,2):[];
- const preferred=new Set(owners.flatMap(([,area])=>[...area.sources,...area.styles]));
+ const preferred=new Set(owners.flatMap(([,area])=>[...area.sources,...(area.styles||[])]));
  for(const [name,area] of owners){
   {
    console.log('\n修改入口 '+name+'：'+area.label);
-   for(const file of [...area.sources,...area.styles])console.log('  '+file);
-   console.log('  检查：node dev.mjs check '+(area.checks.includes('filters')?'filters':area.checks.includes('risk')?'risk':'smoke'));
+   for(const file of [...area.sources,...(area.styles||[])])console.log('  '+file);
+   console.log('  检查：node dev.mjs check '+name);
    for(const note of area.manual||[])console.log('  补充验证：'+note);
   }
  }

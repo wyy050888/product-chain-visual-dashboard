@@ -1,5 +1,21 @@
 // 台账用顶层悬浮表格展示，避免被主表横向滚动区域裁切。
 let ppLedgerPopover,ppLedgerAnchor,ppLedgerTimer;
+function ppPositionLedger(anchor){
+ const edge=12,viewport=document.documentElement,rect=anchor.getBoundingClientRect();
+ const initial=ppLedgerPopover.getBoundingClientRect(),scale=initial.width/ppLedgerPopover.offsetWidth||1;
+ const width=Math.max(0,viewport.clientWidth-edge*2),height=Math.max(0,viewport.clientHeight-edge*2);
+ // 以可见区（扣除滚动条）约束外框；缩放后的坐标换回CSS像素。
+ ppLedgerPopover.style.width=Math.min(1200,width/scale)+'px';
+ ppLedgerPopover.style.maxHeight=height/scale+'px';
+ ppLedgerPopover.style.setProperty('--pp-ledger-max-height',height/scale+'px');
+ const box=ppLedgerPopover.getBoundingClientRect();
+ const left=Math.max(edge,Math.min(rect.left+rect.width/2-box.width/2,viewport.clientWidth-box.width-edge));
+ const below=rect.bottom+10+box.height<=viewport.clientHeight-edge;
+ const top=Math.max(edge,Math.min(below?rect.bottom+10:rect.top-box.height-10,viewport.clientHeight-box.height-edge));
+ ppLedgerPopover.style.left=left/scale+'px';ppLedgerPopover.style.top=top/scale+'px';
+ ppLedgerPopover.dataset.side=below?'below':'above';
+ ppLedgerPopover.style.setProperty('--pp-arrow-left',Math.max(20,Math.min(box.width/scale-20,(rect.left+rect.width/2-left)/scale))+'px');
+}
 function ppHideLedger(){
  clearTimeout(ppLedgerTimer);
  if(ppLedgerPopover?.matches(':popover-open'))ppLedgerPopover.hidePopover();
@@ -19,13 +35,7 @@ function ppShowLedger(anchor){
  }
  ppLedgerPopover.innerHTML=ppLedger(project);ppLedgerAnchor=anchor;
  anchor.setAttribute('aria-expanded','true');ppLedgerPopover.showPopover();
- const rect=anchor.getBoundingClientRect(),box=ppLedgerPopover.getBoundingClientRect();
- const left=Math.max(12,Math.min(rect.left+rect.width/2-box.width/2,innerWidth-box.width-12));
- const below=rect.bottom+10+box.height<=innerHeight-12;
- ppLedgerPopover.style.left=left+'px';
- ppLedgerPopover.style.top=Math.max(12,below?rect.bottom+10:rect.top-box.height-10)+'px';
- ppLedgerPopover.dataset.side=below?'below':'above';
- ppLedgerPopover.style.setProperty('--pp-arrow-left',Math.max(20,Math.min(box.width-20,rect.left+rect.width/2-left))+'px');
+ ppPositionLedger(anchor);
 }
 function ppScheduleLedgerClose(){
  clearTimeout(ppLedgerTimer);ppLedgerTimer=setTimeout(ppHideLedger,180);

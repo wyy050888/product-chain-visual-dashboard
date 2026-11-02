@@ -1,14 +1,15 @@
 // 表头排序使用原始数值，先排全量再分页；取消排序即保留业务规则顺序。
-function rpSortCycle(state,key){
+function rpSortCycle(state,key,defaultSort=null){
  if(state.key!==key){state.key=key;state.direction='desc'}
  else if(state.direction==='desc')state.direction='asc';
- else {state.key='';state.direction=''}
+ else if(defaultSort?.key===key)state.direction='desc';
+ else Object.assign(state,defaultSort||{key:'',direction:''})
 }
-function rpSortHeader(key,label,state,kind){
+function rpSortHeader(key,label,state,kind,defaultSort=null){
  if(['core','type','attribute','causes','mainSpu','category','season','productType'].includes(key))return label;
- const active=state.key===key,action=!active?'降序':state.direction==='desc'?'升序':'恢复榜单排序';
+ const active=state.key===key,action=!active?'降序':state.direction==='desc'?'升序':defaultSort?.key===key?'降序':'恢复榜单排序';
  const note=key==='fine'||key==='frozen'?'按金额排序；':key==='score'&&kind===1?'不同平台分组，同平台内按评分排序；':'';
- return '<button type="button" class="rp-sort-header" data-rp-sort="'+key+'" data-direction="'+(active?state.direction:'')+'" title="'+note+'点击'+action+'" aria-label="'+esc(label)+'：'+note+action+'">'+esc(label)+'<span class="rp-sort-arrows" aria-hidden="true"></span></button>';
+ return '<button type="button" class="rp-sort-header" data-rp-sort="'+key+'" data-direction="'+(active?state.direction:'')+'" title="'+note+'点击'+action+'" aria-label="'+esc(label)+'：'+note+action+'">'+esc(label)+'<span class="rp-sort-arrows" aria-hidden="true"></span></button>'+netSalesHelp(key)+(kind===0&&key==='contact'?rpQualityRatesHelp():'');
 }
 function rpSortRows(rows,state,valueOf,groupOf=()=>null){
  if(!state.key)return rows;

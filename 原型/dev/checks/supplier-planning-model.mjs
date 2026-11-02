@@ -8,23 +8,35 @@ export function verifySupplierPlanningModel(a){
  for(const rows of [a.companies,a.capabilities])for(const row of rows){if(row.admitted)assert(row.admitted>=row.reserved);if(row.cooperation)assert(row.admitted&&row.cooperation>=row.admitted)}
  assert.equal(a.annual.target,10);assert.equal(a.annual.newCooperation,9);assert.equal(a.annual.rate,90);assert.deepEqual(a.quarters.map(row=>row.newCooperation),[2,3,3,1]);
  assert.equal(a.quarters.reduce((n,row)=>n+row.target,0),10);assert.equal(a.quarters.reduce((n,row)=>n+row.newCooperation,0),a.annual.newCooperation);
- for(const row of a.quarters){assert(row.reserved>=row.admitted&&row.admitted>=row.cooperated);assert.equal(row.rate,row.target?row.newCooperation/row.target*100:null)}
+ for(const row of a.quarters){assert(row.reserved>=row.admitted&&row.admitted>=row.cooperated);assert.equal(row.rate,[100,100,100,50][row.quarter-1])}
+ const activeResource=a.companies.filter(s=>s.kinds.includes('machine')&&s.reserved<=a.annual.range.cutoff&&(!s.disabled||s.disabled>a.annual.range.cutoff));
+ for(const [metric,key] of [['newReserved','reserved'],['newAdmitted','admitted'],['newCooperation','cooperation']])assert.equal(a.annual[metric],activeResource.filter(s=>s[key]&&s[key]>=a.annual.range.start&&s[key]<=a.annual.range.cutoff).length,'年度新增使用各自日期');
  assert(a.companies.some(s=>s.cooperation>'2026-10-10'),'样例包含未到生效日合作，不能提前计入');
  assert.deepEqual(a.materialPeriod,{year:2026,mode:'year',value:1});
- const materialTargets=[9,6,7,6,5],categoryTargets=[4,3,5,3,3];
+ assert.deepEqual(a.materials.map(row=>row.brand),['美海','康创','苏泊尔']);assert(a.materials.every(row=>!('grade' in row)));
  const active=new Set(a.companies.filter(s=>s.reserved<='2026-10-10'&&(!s.disabled||s.disabled>'2026-10-10')).map(s=>s.id));
  const annualNew=(brand,category)=>{
-  const dates=new Map();for(const row of a.capabilities)if(row.kind==='material'&&row.brand===brand&&(!category||row.category===category)&&active.has(row.supplierId)&&row.cooperation&&row.cooperation<='2026-10-10'){
+  const dates=new Map();for(const row of a.capabilities)if(row.kind==='material'&&a.brands[brand].includes(row.brand)&&(!category||row.category===category)&&active.has(row.supplierId)&&row.cooperation&&row.cooperation<='2026-10-10'){
    const previous=dates.get(row.supplierId);if(!previous||row.cooperation<previous)dates.set(row.supplierId,row.cooperation);
   }
   return [...dates.values()].filter(date=>date>='2026-01-01').length;
  };
  for(const [index,brand] of a.materials.entries()){
-  assert.equal(brand.stats.target,materialTargets[index]);assert.equal(brand.stats.newCooperation,annualNew(brand.brand));assert.equal(brand.stats.rate,brand.stats.newCooperation/brand.stats.target*100);
-  for(const [categoryIndex,category] of brand.categories.entries()){assert.equal(category.stats.target,categoryTargets[(index+categoryIndex)%5]);assert.equal(category.stats.newCooperation,annualNew(brand.brand,category.category));}
+  assert.equal(brand.stats.target,12);assert.equal(brand.stats.newCooperation,annualNew(brand.brand));assert.equal(brand.stats.rate,brand.stats.newCooperation/12*100);
+  for(const category of brand.categories){assert.equal(category.stats.target,12);assert.equal(category.stats.newCooperation,annualNew(brand.brand,category.category));}
 
   assert.equal(brand.categories.length,5);assert(brand.stats.cooperated<=brand.stats.admitted);
-  for(const category of brand.categories)for(const metric of ['reserved','admitted','cooperated','newCooperation'])assert(brand.stats[metric]>=category.stats[metric]);
+  // 累计数量父级不小于子级；新增按各范围首次合作日期，不能据此比较大小。
+  for(const category of brand.categories)for(const metric of ['reserved','admitted','cooperated'])assert(brand.stats[metric]>=category.stats[metric]);
   assert(brand.categories.reduce((n,row)=>n+row.stats.admitted,0)>brand.stats.admitted,'父级按供应商去重，不能累加类目');
+  for(const [category,stats] of [[null,brand.stats],...brand.categories.map(row=>[row.category,row.stats])]){
+   const rows=a.capabilities.filter(row=>row.kind==='material'&&a.brands[brand.brand].includes(row.brand)&&(!category||row.category===category)&&active.has(row.supplierId));
+   for(const [metric,date] of [['reserved','reserved'],['admitted','admitted'],['cooperated','cooperation']])assert.equal(stats[metric],new Set(rows.filter(row=>row[date]&&row[date]<='2026-10-10').map(row=>row.supplierId)).size,'合并品牌累计数量按供应商去重');
+   for(const material of ['电机','电池','电源线','线路板','塑料件','包装']){
+    const dates=new Map();for(const row of rows.filter(row=>row.material===material&&row.admitted&&row.admitted<='2026-10-10')){const old=dates.get(row.supplierId);if(!old||row.admitted<old)dates.set(row.supplierId,row.admitted)}
+    assert.equal(stats[material],[...dates.values()].filter(date=>date>='2026-01-01').length,'核心件新增按范围首次准入日期去重，排除往年');
+   }
+   if(category)assert.equal(stats.admissionTarget,5,'年度核心件新增目标为四季之和');
+  }
  }
 }

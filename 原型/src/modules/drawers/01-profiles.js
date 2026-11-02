@@ -8,13 +8,13 @@ function drawerNodeKind(node){
  const matches=s=>node.matches(s)||!!node.querySelector(s);
  const heading=(node.matches('h3,h4,summary')?node.textContent:node.querySelector('h3,h4,summary,b')?.textContent)||'';
  if(node.classList.contains('presentation-suppressed'))return null;
- if(node.matches('header,.pc-hero,.na-hero,.md-hero,.ipd-hero,.dp-detail-head,.risk-alert-header,.ai-detail-hero,.ai-handle-context,.product-detail-image,.ai-task-receipt,.sr-detail-top,.od-hero,.cw-detail-top,.qr-platform-tabs,.drawer-platform-switch,.loss-scope-tools,.qr-time-row,.pnr-time,.nt-range-picker,.nt-platforms'))return 'shared';
+ if(node.matches('header,.pc-hero,.na-hero,.md-hero,.dp-detail-head,.risk-alert-header,.ai-detail-hero,.ai-handle-context,.product-detail-image,.ai-task-receipt,.sr-detail-top,.od-hero,.cw-detail-top,.qr-platform-tabs,.drawer-platform-switch,.loss-scope-tools,.qr-time-row,.pnr-time,.nt-range-picker,.nt-platforms'))return 'shared';
  if(matches('.risk-analysis,.ir-risk-facts,.qrb-business,.sb-business,.pdd-link-panel,.sd-advice,.cw-rulebox:not(details),.sr-ai-summary,.sr-ai-grid,.af-analysis,.af-impact-path,.pc-ai,.pc-verdict,.md-verdict,.na-verdict,.deviation-source-detail'))return 'risk';
  if(matches('.risk-trends,.qr-charts,.ir-sales-trend,.na-trends,.nt-chart-grid,.pnr-charts,.md-scenario,.nt-daily,.nt-daily-heading,#nt-daily-table')||node.tagName.toLowerCase()==='svg'||/趋势|两期|对照|基数/.test(heading))return 'trend';
  if(matches('.risk-handle-form,#risk-handle-form,#qr-handle-form,#ai-handle-form,.dp-form,.sr-form,.wf-form,.pc-dispatch-form,.md-actions,.na-actions,.cw-plan,.od-summary')||/处理方案|建议行动|标准化处置|执行方案|验收标准/.test(heading))return 'action';
- if(matches('.ipd-list-heading,.ipd-filters,#ipd-results,.ipd-pagination,.ipd-chain-info,.life-products-filters,.life-products-results,.life-products-pagination,#life-products-results'))return 'products';
+ if(matches('.life-products-filters,.life-products-results,.life-products-pagination,#life-products-results'))return 'products';
  if(matches('.ns-detail-toolbar,.ns-platform-heading,#ns-platform-table,.ns-platform-table'))return 'platform';
- if(matches('.timeline,.dp-log,.pd-evidence,.sr-timeline,#pww-evidence,#pww-evidence-pages,#pww-evidence-note')||/操作记录|变更记录|跟进记录|项目日报/.test(heading))return 'history';
+ if(matches('.timeline,.dp-log,.sr-timeline,#pww-evidence,#pww-evidence-pages,#pww-evidence-note')||/操作记录|变更记录|跟进记录|项目日报/.test(heading))return 'history';
  if(node.matches('details')&&/口径|规则|说明/.test(heading))return 'rules';
  if(node.matches('.pww-toolbar')&&node.querySelector('.tabs'))return 'history';
  if(node.matches('.aitext,.dp-callout,.sr-callout,.sd-detail-section')||/判断|归因|风险|诊断|判定/.test(heading))return 'risk';
@@ -24,7 +24,6 @@ function drawerProfile(body,title){
  const root=drawerContentRoot(body),project=root.matches('.project-control-detail');
  if(root.matches('.kpm-management-drawer,.kpm-followup-detail'))return {root,entries:[...root.children].map(node=>({node,key:'shared'})),tabs:[]};
  if(project)return drawerProjectProfile(root);
- if(root.matches('.kpm-grade-history'))return {root,entries:[...root.children].map(node=>({node,key:'shared'})),tabs:[{key:'base',label:'等级变动'}]};
  const salesTabs=root.querySelector('.tabs:has([data-salesview])');
  if(salesTabs)return drawerSalesProfile(root,salesTabs);
  const units=[];
@@ -50,7 +49,6 @@ function drawerProfile(body,title){
  const tabs=order.filter(k=>groups.includes(k)).map(key=>({key,label:key==='base'?(list?'明细列表':/配置|规则/.test(title)?'配置内容':'基本信息'):drawerPaneNames[key]}));
  if(root.matches('.na-assessment,.md-diagnosis'))tabs.forEach(t=>{if(t.key==='action')t.label='经营建议'});
  if(/工作聚焦预警/.test(title))tabs.forEach(t=>{if(t.key==='history')t.label='报告记录'});
- if(root.matches('.inventory-products-detail'))tabs.forEach(t=>{if(t.key==='base')t.label='库存概览'});
  if(!tabs.length)tabs.push({key:'base',label:'基本信息'});
  return{root,entries,tabs};
 }

@@ -4,12 +4,12 @@ function qrbContactSplit(total,seed){
  return {qualityContacts,experienceContacts:total-qualityContacts};
 }
 function qrbRateDelta(current,previous){return Number.isFinite(current)&&Number.isFinite(previous)?current-previous:null}
-function qrbContactDecision(current,previous){
+function qrbContactDecision(current,previous,metrics={}){
  const growth=qrbRateDelta(current,previous);
- return {growth,hit:growth!==null&&growth>20+1e-10};
+ return {growth,hit:brcMatch('quality.contactDelta',growth,{...metrics,contactDelta:growth})};
 }
 function qrbContactDeltaText(delta){
- if(!Number.isFinite(delta))return '环比 --';
+ if(!Number.isFinite(delta))return '环比 —';
  const rounded=Math.sign(delta)*Math.round(Math.abs(delta)*10)/10;
  return rounded===0?'环比 持平':'环比 '+(rounded>0?'+':'')+fmt(rounded,1)+'%';
 }

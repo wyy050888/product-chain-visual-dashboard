@@ -1,32 +1,24 @@
-// 图表区域和产品等级共用图片规则；空档仅在明细中保留，待业务补齐。
+// 图表区域和产品等级共用图片规则；未分级保留并在矩阵中显示灰色。
 const kpmGradeOrder=['S','A','B','C'];
-const kpmGradeRules={
- S:{salesAbove:600,profitAbove:12},
- A:{salesAbove:300,profitBelow:12},
- B:{salesAbove:60,salesBelow:300,profitAbove:15},
- C:{salesBelow:60,profitBelow:12}
-};
-const kpmChanges={up:'等级上升',down:'等级下降',same:'等级保持',new:'首次分级',pending:'待分级',uncompared:'上期待分级'};
-const kpmGradeTransitions={up:['C-B','C-A','C-S','B-A','B-S','A-S'],down:['S-A','S-B','S-C','A-B','A-C','B-C']};
-let kpmSelectedChange='all',kpmSelectedTransition='all';
-function kpmTransitionKey(assessment){return assessment.previous.level+'-'+assessment.current.level}
-function kpmMatchesChange(assessment,change='all',transition='all'){
- return (change==='all'||(change==='changed'?['up','down'].includes(assessment.change):assessment.change===change))
-  &&(transition==='all'||(['up','down'].includes(assessment.change)&&kpmTransitionKey(assessment)===transition));
+const kpmGradeRules=brcGradeRules('recent30');
+const kpmChanges={up:'等级上升',down:'等级下降',same:'等级保持',new:'首次分级',pending:'未分级',uncompared:'上期未分级'};
+let kpmSelectedChange='up';
+function kpmMatchesChange(assessment,change='all'){
+ return change==='all'||(change==='changed'?['up','down'].includes(assessment.change):assessment.change===change);
 }
-function kpmClassifyGrade(salesWan,profit,units=1){
- if(!(units>0)||!Number.isFinite(salesWan)||!Number.isFinite(profit))return null;
- for(const level of kpmGradeOrder){
-  const r=kpmGradeRules[level];
-  if((r.salesAbove===undefined||salesWan>r.salesAbove)&&(r.salesBelow===undefined||salesWan<r.salesBelow)
-   &&(r.profitAbove===undefined||profit>r.profitAbove)&&(r.profitBelow===undefined||profit<r.profitBelow))return level;
- }
- return null;
+function kpmClassifyGrade(salesWan,profit,units=1,mode='recent30'){
+ return units>0?brcProductGrade(salesWan,profit,mode):null;
 }
-function kpmGradeAssessment(identity,end,platform='all'){
- const start=shiftDate(end,-29),facts=upSummary(identity,start,end,platform);
- const level=kpmClassifyGrade(facts.gsvCents/1000000,facts.profitRate,facts.sales);
- return {start,end,level,gsvCents:facts.gsvCents,profitRate:facts.profitRate,sales:facts.sales,profitCents:facts.profitCents,returnRate:facts.returnRate,receivedRate:facts.receivedRate};
+function kpmGradeWindow(end,mode='recent30'){
+ if(mode==='recent30')return {start:shiftDate(end,-29),end};
+ const year=Number(end.slice(0,4)),month=Number(end.slice(5,7))-1;
+ const start=new Date(Date.UTC(year,mode==='year'?0:mode==='quarter'?month-month%3:month,1)).toISOString().slice(0,10);
+ return {start,end};
+}
+function kpmGradeAssessment(identity,end,platform='all',mode='recent30',start=null){
+ start=start||kpmGradeWindow(end,mode).start;const facts=upSummary(identity,start,end,platform);
+ const level=kpmClassifyGrade(facts.gsvCents/1000000,facts.profitRate,facts.sales,mode);
+ return {start,end,mode,level,gsvCents:facts.gsvCents,profitRate:facts.profitRate,sales:facts.sales,profitCents:facts.profitCents,returnRate:facts.returnRate,receivedRate:facts.receivedRate};
 }
 function kpmGradeChange(current,previous){
  if(!current.level)return 'pending';
@@ -34,8 +26,8 @@ function kpmGradeChange(current,previous){
  const diff=kpmGradeOrder.indexOf(previous.level)-kpmGradeOrder.indexOf(current.level);
  return diff>0?'up':diff<0?'down':'same';
 }
-function kpmGradeComparison(identity,end,platform='all'){
- const current=kpmGradeAssessment(identity,end,platform),previous=kpmGradeAssessment(identity,shiftDate(end,-30),platform);
+function kpmGradeComparison(identity,end,platform='all',mode='recent30',start=null){
+ const current=kpmGradeAssessment(identity,end,platform,mode,start),previousStart=mode==='day'?shiftDate(current.start,-(aiFlowDayDiff(current.start,current.end)+1)):null,previous=kpmGradeAssessment(identity,shiftDate(current.start,-1),platform,mode,previousStart);
  const change=current.level&&!previous.level&&upProduct(identity).actualLaunch>previous.end?'new':kpmGradeChange(current,previous);
  return {current,previous,change};
 }

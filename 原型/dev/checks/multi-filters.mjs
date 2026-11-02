@@ -4,16 +4,16 @@ export async function multiFilters(page){
  const values=control=>control.evaluate(e=>[...e.selectedOptions].map(o=>o.value));
  const card=k=>page.locator(`[data-rp-board="${k}"]`);
  const count=async k=>Number((await card(k).locator('[data-risk]').innerText()).match(/\d+/)[0]);
- // 新品两项取交集，单项内取并集，同时刷新左侧统计池。
+ // 新品类目多选与季品 Tab 取交集，同时刷新横向统计池。
  await page.locator('a[href="#new"]').click();
  const before=await page.evaluate(()=>window.dashboardNewProductsSnapshot());
- await page.locator('#newchain').selectOption(['清洁类','环境类'],{force:true});
- await page.locator('#newseason').selectOption(['夏季品','四季品'],{force:true});
+ await page.locator('[data-nsp-category="清洁类"]').click();await page.locator('[data-nsp-category="环境类"]').click();
+ await page.locator('[data-nsp-season="四季品"]').click();
  const selected=await page.evaluate(()=>window.dashboardNewProductsSnapshot());
- const expected=before.rows.filter(p=>['清洁类','环境类'].includes(p.category)&&['夏季品','四季品'].includes(p.attribute));
+ const expected=before.rows.filter(p=>['清洁类','环境类'].includes(p.category)&&p.attribute==='四季品');
  assert.deepEqual(selected.rows.map(p=>p.spuId),expected.map(p=>p.spuId));
  assert.equal(await page.locator('#newtop .dp-ring').getAttribute('aria-label'),`共${expected.length}个新品`);
- await page.locator('#newchain').selectOption('全部',{force:true});await page.locator('#newseason').selectOption('all',{force:true});
+ await page.locator('[data-nsp-category="all"]').click();await page.locator('[data-nsp-season="all"]').click();
  // 五个产品榜季品多选，并继承到各自完整榜单。
  await page.locator('a[href="#risk"]').click();
  for(const k of [0,2,3,4,6]){
@@ -47,10 +47,12 @@ export async function multiFilters(page){
  assert.deepEqual(await values(page.locator('[data-rp-filter="qualityRisk"]')),['fine','frozen']);
  await page.locator('[data-drawer-tab="ranking-1"]').click();assert.equal(await total(),shops);
  await page.locator('#close').click();
- // 共用单选平台不改变公司库存；亏损详情继承平台。
+ // 品质三榜共用单选平台；亏损独立选择且详情继承，公司库存保持不变。
  const stock=await card(3).locator('.rp-entry').allTextContents();
+ await card(0).locator('[data-rp-card-platform]').selectOption('抖音',{force:true});
  await card(2).locator('[data-rp-card-platform]').selectOption('快手',{force:true});
- for(const k of [1,2,6])assert.deepEqual(await values(card(k).locator('[data-rp-card-platform]')),['快手']);
+ assert.deepEqual(await values(card(2).locator('[data-rp-card-platform]')),['快手']);
+ for(const k of [0,1,6])assert.deepEqual(await values(card(k).locator('[data-rp-card-platform]')),['抖音']);
  assert.deepEqual(await card(3).locator('.rp-entry').allTextContents(),stock);
  await card(2).locator('[data-risk]').click();
  const ids=await page.locator('#rf-list-table [data-riskitem]').evaluateAll(es=>es.map(e=>e.dataset.riskitem));
@@ -59,11 +61,11 @@ export async function multiFilters(page){
  assert.equal(await page.locator('#up-platform').inputValue(),'快手');
  assert.match(await page.locator('#up-platform option:checked').innerText(),/快手/);
  await page.locator('#close').click();await page.locator('#close').click();
- // 真正勾选交互应保持菜单打开，取消最后一项恢复全部。
- const season=card(3).locator('.pf-multi');await season.locator('summary').click();
- await season.locator('input[value="夏季品"]').check();await season.locator('input[value="冬季品"]').check();
+ // 库存榜季品标签沿用多选，取消最后一项恢复全部。
+ const season=card(3).locator('.rp-season-menu');
+ await season.locator('[data-rp-season-option="夏季品"]').click();await season.locator('[data-rp-season-option="冬季品"]').click();
  assert.deepEqual(await values(card(3).locator('[data-rp-card-season]')),['夏季品','冬季品']);
- await season.locator('input[value="夏季品"]').uncheck();await season.locator('input[value="冬季品"]').uncheck();
- assert.deepEqual(await values(card(3).locator('[data-rp-card-season]')),['all']);await page.keyboard.press('Escape');
+ await season.locator('[data-rp-season-option="夏季品"]').click();await season.locator('[data-rp-season-option="冬季品"]').click();
+ assert.deepEqual(await values(card(3).locator('[data-rp-card-season]')),['all']);
  await card(0).locator('[data-rp-card-platform]').selectOption('抖音',{force:true});await card(2).locator('[data-rp-card-platform]').selectOption('all',{force:true});
 }

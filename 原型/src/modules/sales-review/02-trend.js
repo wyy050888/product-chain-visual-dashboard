@@ -1,5 +1,4 @@
-// 日趋势为固定样例：GSV和利润按月分摊，利润率按利润/GSV计算，与卡片汇总一致。
-const msTrendSeries=new Map();
+// 保留历史经营数据核对接口；销售页面不再渲染趋势或注册趋势交互。
 function msDailySeries(index,p=periodFor('sales'),range=null){
  const b=bounds(p);range||={start:b.start,end:b.cutoff};
  const values=new Map(),selected=index<0?[0,1,2,3]:[index];
@@ -39,31 +38,4 @@ function msTrendBuckets(rows,mode){
   label:mode==='year'?row.date.slice(0,4)+'年'+Number(row.date.slice(5,7))+'月':mode==='quarter'?row.date+' — '+row.end+'（周）':row.date,
   axisLabel:mode==='year'?row.date.slice(0,7):row.date}));
 }
-function msTrend(index){
- const period=periodFor('sales'),dimension={quarter:'周',year:'月'}[period.mode]||'日';
- const series=msTrendBuckets(msTrendDailySeries(index,period),period.mode);msTrendSeries.set(String(index),series);
- if(!series.length)return '<div class="ms-trend-empty">暂无趋势数据</div>';
- // 两种量纲分别缩放，共用日期轴；悬浮展示原始金额和利润率。
- const pointsFor=key=>{
-  const values=series.map(r=>r[key]).filter(Number.isFinite),max=Math.max(...values,1),min=Math.min(...values),span=Math.max(max-min,Math.abs(max)*.2,1);
-  return series.map((r,i)=>[series.length===1?150:i/(series.length-1)*300,Number.isFinite(r[key])?54-(r[key]-min)/span*44:54]);
- };
- const area=(key,color)=>{const points=pointsFor(key),line=points.map(p=>p.join(',')).join(' ');return '<polygon class="ms-trend-area" points="'+points[0][0]+',60 '+line+' '+points.at(-1)[0]+',60" fill="'+color+'" fill-opacity=".10"/><polyline data-ms-series="'+key+'" points="'+line+'" fill="none" stroke="'+color+'" stroke-width="1.5"/>'};
- const first=series[0].axisLabel,last=period.mode==='year'?series.at(-1).axisLabel:series.at(-1).end;
- return '<div class="ms-trend" data-ms-trend="'+index+'" tabindex="0" data-granularity="'+dimension+'" aria-label="GSV与利润率'+dimension+'趋势，左右方向键查看期间" data-cursor="0"><svg viewBox="0 0 300 60" preserveAspectRatio="none" aria-hidden="true">'+area('value','#8c8bff')+area('margin','#20b6a5')+'<line class="ms-trend-guide" y1="0" y2="60" stroke="#9aa8bc" stroke-dasharray="3 3" visibility="hidden"/></svg><div class="ms-trend-dates"><span>'+first+'</span><span>'+last+'</span></div><div class="ms-trend-tip" role="tooltip" hidden></div></div>';
-}
-function msShowTrend(root,cursor){
- const series=msTrendSeries.get(root.dataset.msTrend);if(!series?.length)return;
- cursor=Math.max(0,Math.min(series.length-1,cursor));root.dataset.cursor=cursor;
- const row=series[cursor],percent=series.length===1?50:cursor/(series.length-1)*100,tip=root.querySelector('.ms-trend-tip');
- tip.innerHTML='<span>'+row.label+'</span>'+ (root.dataset.granularity==='月'?'<span class="ms-trend-tip-range">'+row.date+' — '+row.end+'</span>':'')+'<strong><i class="ms-trend-gsv"></i>GSV <b>'+esc(msMoney(row.value))+'</b></strong><strong><i class="ms-trend-margin"></i>利润率 <b>'+esc(msPercent(row.margin))+'</b></strong>';tip.hidden=false;
- tip.style.left=Math.max(0,Math.min(root.clientWidth-tip.offsetWidth,percent/100*root.clientWidth-tip.offsetWidth/2))+'px';
- const guide=root.querySelector('.ms-trend-guide');guide.setAttribute('x1',percent*3);guide.setAttribute('x2',percent*3);guide.setAttribute('visibility','visible');
-}
-function msHideTrend(root){root.querySelector('.ms-trend-tip').hidden=true;root.querySelector('.ms-trend-guide').setAttribute('visibility','hidden')}
-document.addEventListener('pointermove',e=>{const root=e.target.closest('[data-ms-trend]');if(!root)return;const count=msTrendSeries.get(root.dataset.msTrend)?.length||0,box=root.getBoundingClientRect();msShowTrend(root,Math.round((e.clientX-box.left)/box.width*(count-1)))});
-document.addEventListener('pointerout',e=>{const root=e.target.closest('[data-ms-trend]');if(root&&!root.contains(e.relatedTarget))msHideTrend(root)});
-document.addEventListener('focusin',e=>{const root=e.target.closest('[data-ms-trend]');if(root)msShowTrend(root,+root.dataset.cursor)});
-document.addEventListener('focusout',e=>{const root=e.target.closest('[data-ms-trend]');if(root)msHideTrend(root)});
-document.addEventListener('keydown',e=>{const root=e.target.closest('[data-ms-trend]');if(!root)return;if(e.key==='Escape')return msHideTrend(root);if(!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;e.preventDefault();const count=msTrendSeries.get(root.dataset.msTrend).length;msShowTrend(root,e.key==='Home'?0:e.key==='End'?count-1:+root.dataset.cursor+(e.key==='ArrowRight'?1:-1))});
 window.dashboardSalesTrendSnapshot=(index,daily=false)=>daily?msTrendDailySeries(index):msTrendBuckets(msTrendDailySeries(index),periodFor('sales').mode);

@@ -1,0 +1,80 @@
+// 任务表和报告问题说明共用三行预览；状态只作用于当前单元格，分页重绘后恢复收起。
+function gdCellPreview(markup){return '<div class="gd-task-cell" data-ui-cell-inline><div class="gd-task-preview" data-ui-cell-content>'+markup+'</div><button type="button" class="gd-task-more" data-gd-cell-more aria-expanded="false" hidden>展开</button></div>'}
+let gdTaskPreviewObserver=null,gdTaskPreviewFrame=0,gdTaskPreviewSequence=0;
+const gdTaskPreviewAnimations=new WeakMap();
+// 读取最后一个可见文字行的真实末端，避免把入口钉在宽单元格的最右侧。
+function gdReadCellTail(preview,expanded){
+ const cell=preview.parentElement,box=preview.getBoundingClientRect(),origin=cell.getBoundingClientRect();
+ const width=Math.min(parseFloat(getComputedStyle(cell).getPropertyValue('--gd-toggle-width')),box.width);
+ const walker=document.createTreeWalker(preview,NodeFilter.SHOW_TEXT),range=document.createRange(),rects=[];
+ let node;
+ while((node=walker.nextNode())){
+  if(!node.textContent.trim())continue;
+  range.selectNodeContents(node);
+  for(const rect of range.getClientRects()){
+   if(!rect.height||rect.top>=box.bottom-1||rect.bottom<=box.top||rect.left>=box.right||rect.right<=box.left)continue;
+   rects.push(rect);
+  }
+ }
+ // 以最后一行的实际文字框定位，不将块间距或不同字号折算成固定行号。
+ const last=rects.reduce((tail,rect)=>!tail||rect.bottom>tail.bottom?rect:tail,null);
+ const line=last?rects.filter(rect=>rect.top<last.bottom-1&&rect.bottom>last.top+1):[];
+ const right=line.reduce((value,rect)=>Math.max(value,Math.min(rect.right,box.right)),box.left);
+ const fits=right+6+width<=box.right,nextLine=expanded&&!fits;
+ const lineTop=last?Math.max(0,(last.top+last.bottom-22)/2-origin.top):0;
+ const top=nextLine?box.bottom-origin.top:lineTop;
+ return {cell,left:nextLine?0:Math.max(0,Math.min(right-box.left+6,box.width-width)),top,extra:expanded?Math.max(0,top+22-(box.bottom-origin.top)):0,compact:box.width<64};
+}
+function gdApplyCellTail(state){
+ const {cell,left,top,extra,compact}=state;
+ cell.style.setProperty('--gd-toggle-left',left+'px');cell.style.setProperty('--gd-toggle-top',top+'px');
+ cell.style.setProperty('--gd-toggle-extra',extra+'px');cell.classList.toggle('is-compact',compact);
+}
+function gdMountTaskPreviews(root){
+ gdTaskPreviewObserver?.disconnect();cancelAnimationFrame(gdTaskPreviewFrame);
+ const previews=[...root.querySelectorAll('.gd-table-scroll .gd-task-preview')];
+ const refresh=()=>{
+  cancelAnimationFrame(gdTaskPreviewFrame);
+  gdTaskPreviewFrame=requestAnimationFrame(()=>{
+   const states=previews.filter(el=>el.isConnected&&!el.parentElement.classList.contains('is-transitioning')).map(el=>{
+    const button=el.parentElement.querySelector('[data-gd-cell-more]'),expanded=button.getAttribute('aria-expanded')==='true',clipped=uiCellClipped(el);
+    return {button,expanded,clipped,label:el.closest('td').dataset.label,tail:expanded||clipped?gdReadCellTail(el,expanded):null};
+   });
+   for(const {button,expanded,clipped,label,tail} of states){
+    if(tail)gdApplyCellTail(tail);
+    button.hidden=!expanded&&!clipped;button.setAttribute('aria-label',(expanded?'收起':'展开')+label+'完整内容');
+   }
+  });
+ };
+ gdTaskPreviewObserver=new ResizeObserver(refresh);
+ for(const preview of previews){
+  preview.id='gd-task-preview-'+(++gdTaskPreviewSequence);
+  preview.parentElement.querySelector('[data-gd-cell-more]').setAttribute('aria-controls',preview.id);
+  gdTaskPreviewObserver.observe(preview);
+ }
+ refresh();
+}
+function gdToggleTaskPreview(button){
+ const cell=button.closest('.gd-task-cell'),expanded=button.getAttribute('aria-expanded')!=='true';
+ // 连续点击从当前可见高度接续；动画只作用于本单元格，不重绘任务或变更正文。
+ const from=cell.getBoundingClientRect().height,previous=gdTaskPreviewAnimations.get(cell);
+ if(previous){gdTaskPreviewAnimations.delete(cell);previous.cancel()}
+ cell.classList.remove('is-transitioning');cell.classList.toggle('is-expanded',expanded);
+ button.setAttribute('aria-expanded',String(expanded));button.textContent=expanded?'收起':'展开';
+ button.setAttribute('aria-label',(expanded?'收起':'展开')+button.closest('td').dataset.label+'完整内容');
+ uiHideCellTooltip();
+ gdApplyCellTail(gdReadCellTail(cell.querySelector('.gd-task-preview'),expanded));
+ const to=cell.getBoundingClientRect().height;
+ if(matchMedia('(prefers-reduced-motion: reduce)').matches||Math.abs(to-from)<1)return;
+ // 过渡期间取消行截断，由外层高度逐步揭示/隐藏正文；结束后恢复自然高度。
+ cell.classList.add('is-transitioning');
+ const animation=cell.animate([{height:from+'px'},{height:to+'px'}],{duration:240,easing:'cubic-bezier(.2,.7,.2,1)'});
+ gdTaskPreviewAnimations.set(cell,animation);
+ animation.finished.then(()=>{
+  if(gdTaskPreviewAnimations.get(cell)!==animation)return;
+  gdTaskPreviewAnimations.delete(cell);cell.classList.remove('is-transitioning');
+ },()=>{});
+}
+document.addEventListener('click',event=>{
+ const button=event.target.closest('[data-gd-cell-more]');if(button)gdToggleTaskPreview(button);
+});

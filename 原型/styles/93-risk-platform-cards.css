@@ -1,0 +1,113 @@
+/* 品质三榜各占整行，桌面均为三列六卡；中屏两列、窄屏单列。 */
+#riskrail .rp-board-group-quality .rp-group-grid{grid-template-columns:minmax(0,1fr);gap:20px}
+/* 六卡区域与榜单外框底边保持留白，沿用榜单之间的20px间距。 */
+#riskrail .rp-board-group-quality .riskcard{padding-bottom:16px}
+#riskrail .rp-platform-board>.rp-items,#riskrail .rp-shop-board>.rp-items{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;grid-template-rows:none;grid-auto-rows:auto;align-content:start;flex:none;overflow:visible;padding:4px 0 0;border:0}
+#riskrail :is(.rp-platform-board,.rp-shop-board)>.rp-items>.empty{grid-column:1/-1;grid-row:auto}
+#riskrail :is(.rp-platform-board,.rp-shop-board)>.rp-items>.rp-entry{min-width:0;min-height:0;padding:14px;border:1px solid #e2e9f3;border-radius:8px;background:#fff;margin:0;box-shadow:none}
+#riskrail :is(.rp-platform-board,.rp-shop-board)>.rp-items>.rp-entry:hover{background:#fcfdff;border-color:#cbdcf1}
+#riskrail .rp-platform-product .rp-entry-main{display:block;min-width:0}
+#riskrail .rp-platform-product .rp-entry-main>header{display:flex;align-items:center;gap:8px;min-height:56px;margin:0 0 10px;padding:0}
+#riskrail .rp-platform-product .rp-identity{flex:1;min-width:0}
+#riskrail .rp-platform-product .rp-identity-title>b{line-height:22px;max-height:44px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;white-space:normal}
+#riskrail .rp-platform-product .rp-identity-title{min-width:0}
+#riskrail .rp-platform-product .rp-identity-title>.rp-detail-link{margin-left:auto}
+/* 平台行自然撑高，不产生纵向区域滚动；窄屏仅保留指标横向阅读。 */
+#riskrail .rp-platform-card-scroll{min-width:0;height:auto;max-height:none;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;border:0;border-radius:0;background:transparent}
+#riskrail .rp-platform-card-table{min-width:450px;font-variant-numeric:tabular-nums}
+/* 两个产品榜共用店铺卡的白底、细分隔及左对齐层级；指标名只在顶部显示一次。 */
+#riskrail :is(.rp-platform-card-head,.rp-platform-card-row){display:grid;grid-template-columns:30px repeat(var(--rp-platform-metrics),minmax(0,1fr));column-gap:10px;padding:0}
+#riskrail .rp-platform-card-head{min-height:30px;padding-block:6px;margin-bottom:8px;align-items:center;background:#f8f9fb;border:0;border-radius:4px;box-shadow:none;color:#7f8fa5;font-size:12px;line-height:18px;white-space:nowrap;text-align:left}
+#riskrail .rp-platform-card-row{min-height:0;padding:10px 0;align-items:center;border-top:1px solid #edf1f7;background:transparent}
+#riskrail .rp-platform-card-head+.rp-platform-card-row{padding-top:0;border-top:0}
+#riskrail .rp-platform-card-row:last-child{padding-bottom:0}
+#riskrail .rp-platform-card-logo{display:flex;align-items:center;justify-content:center}
+#riskrail .rp-platform-card-logo>button{display:flex;align-items:center;justify-content:center;width:30px;height:30px;padding:5px;border:1px solid transparent;border-radius:5px;background:transparent}
+#riskrail .rp-platform-card-logo>button:hover{background:#e5efff;border-color:#bfd7ff}
+#riskrail .rp-platform-card-logo>button:focus-visible{outline:2px solid #1677ff;outline-offset:2px}
+#riskrail .rp-platform-card-logo .rp-platform-mark{display:block;width:20px;height:20px;margin:0}
+/* 每格固定上下两行，空辅助值保留基线，跨平台数值纵向对齐。 */
+#riskrail .rp-platform-product .rp-platform-metric{display:grid;grid-template-rows:24px 18px;row-gap:4px;align-content:center;min-width:0;text-align:left;white-space:nowrap}
+#riskrail .rp-platform-product .rp-platform-metric>strong{display:flex;align-items:center;justify-content:flex-start;min-width:0;font-size:15px;font-weight:500;line-height:24px}
+#riskrail .rp-platform-product .rp-platform-metric>small{display:flex;align-items:center;justify-content:flex-start;gap:3px;margin:0;min-height:18px;font-size:11px;line-height:18px;white-space:nowrap}
+#riskrail .rp-platform-product .rp-platform-metric .rp-comparison-label{font-size:inherit}
+#riskrail .rp-platform-card-head .net-sales-help{margin-left:3px;vertical-align:middle}
+#riskrail .rp-platform-metric-label{display:block;font-size:12px;font-weight:400;line-height:18px;color:#7f8fa5}
+/* 指标名称弱化为灰色辅助文字，仅保留淡底线，沿用原网格坐标。 */
+#riskrail>.rp-loss-wide .rp-loss-columns{background:#f8f9fb;color:#7f8fa5;border:0;border-radius:4px;box-shadow:none;font-weight:400}
+/* 店铺只属于单一平台：身份、评分、四项经营指标分层，指标数值仍上下两行。 */
+#riskrail .rp-shop-board .rp-shop-entry .rp-entry-main>header{display:flex;flex-wrap:wrap;align-items:center;gap:10px 8px;margin:0 0 10px;min-height:0}
+#riskrail .rp-shop-board .rp-shop-entry .rp-shop-identity{flex:1;flex-basis:calc(100% - 40px);min-width:0}
+#riskrail .rp-shop-board .rp-shop-identity>.rp-shop-identity-text{flex:1;min-width:0}
+#riskrail .rp-shop-board .rp-shop-identity .rp-identity-title{min-height:22px;align-items:center}
+#riskrail .rp-shop-board .rp-shop-identity small{margin-top:2px;line-height:17px}
+#riskrail .rp-shop-board .rp-shop-identity>.rp-detail-link{flex:none;margin-left:auto;align-self:center;white-space:nowrap}
+#riskrail .rp-shop-board .rp-shop-identity .rp-platform-name>span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;white-space:normal;line-height:22px;overflow:hidden}
+#riskrail .rp-shop-board .rp-shop-scores{flex-basis:100%;width:100%;min-height:46px;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:0;text-align:left;align-items:start}
+#riskrail .rp-shop-board .rp-shop-scores.rp-shop-link-counts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:center;gap:10px;width:100%;min-height:0;margin-bottom:8px}
+#riskrail .rp-shop-board .rp-shop-entry .rp-entry-main>header:has(.rp-shop-link-counts){margin-bottom:0}
+/* 恢复历史浅红/浅黄标签，只限定外侧拼多多链接数，保留原数量及点击行为。 */
+#riskrail .rp-shop-board .rp-shop-link-counts .rp-pdd-count--card{justify-self:start;justify-content:flex-start;gap:4px;padding:4px 9px;border-radius:5px;max-width:100%;box-sizing:border-box}
+#riskrail .rp-shop-board .rp-shop-link-counts .rp-pdd-count--red{--rp-pdd-count-background:#fff2f3;color:#d2445b;background:var(--rp-pdd-count-background)}
+#riskrail .rp-shop-board .rp-shop-link-counts .rp-pdd-count--yellow{--rp-pdd-count-background:#fff9e9;color:#d99812;background:var(--rp-pdd-count-background)}
+#riskrail .rp-shop-board .rp-shop-link-counts .rp-pdd-count--card :is(strong,span){color:inherit}
+/* 名称靠左、数量靠右，风险摘要与下方经营指标共享卡片宽度。 */
+#riskrail .rp-shop-board .rp-shop-link-counts .rp-shop-link-summary{justify-self:stretch;justify-content:space-between;min-width:0;padding:6px 12px;gap:8px}
+#riskrail .rp-shop-board .rp-shop-link-summary>.rp-shop-link-label{font-size:12px;line-height:20px;white-space:nowrap}
+#riskrail .rp-shop-board .rp-shop-link-summary>.rp-shop-link-value{display:flex;align-items:baseline;gap:4px;flex:none}
+#riskrail .rp-shop-board .rp-shop-link-summary .rp-shop-link-value strong{font-size:17px;line-height:22px}
+#riskrail .rp-shop-board .rp-shop-link-summary.rp-pdd-count--red .rp-shop-link-value strong{color:var(--red)}
+#riskrail .rp-shop-board .rp-shop-link-summary.rp-pdd-count--yellow .rp-shop-link-value strong{color:var(--orange)}
+#riskrail .rp-shop-board .rp-shop-link-summary .rp-shop-link-value small{margin:0;font-size:12px;line-height:18px;font-weight:400}
+#riskrail .rp-shop-board .rp-shop-scores small{font-size:12px;line-height:18px;margin-bottom:4px}
+#riskrail .rp-shop-board .rp-shop-scores strong{font-size:15px;line-height:24px}
+#riskrail .rp-shop-board .rp-shop-values{grid-template-columns:repeat(var(--rp-shop-metrics,4),minmax(0,1fr));gap:10px;padding-top:10px;border-top:1px solid #edf1f7}
+#riskrail .rp-shop-board .rp-shop-metric>strong{line-height:24px;font-size:15px;font-weight:500}
+#riskrail .rp-shop-board .rp-shop-metric>small{line-height:18px;min-height:18px;margin-top:4px;font-size:11px}
+#riskrail .rp-shop-board .rp-shop-mobile-label{line-height:18px;padding-block:6px;margin-bottom:8px;font-size:12px;font-weight:400;color:#7f8fa5;background:transparent;border:0;border-radius:0;box-shadow:none}
+@media(max-width:1679px){
+ #riskrail .rp-platform-board>.rp-items,#riskrail .rp-shop-board>.rp-items{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:1100px){
+ #riskrail .rp-platform-board>.rp-items,#riskrail .rp-shop-board>.rp-items{grid-template-columns:minmax(0,1fr)}
+}
+@media(max-width:600px){
+ #riskrail :is(.rp-platform-board,.rp-shop-board)>.rp-items>.rp-entry{padding:10px}
+ #riskrail .rp-shop-board .rp-shop-values{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 10px}
+}
+
+/* 新老品与平台同层筛选；空间不足时换行，不压缩平台标签。 */
+#riskrail [data-rp-platform-menu="6"]{display:flex;flex-wrap:wrap;align-items:center;gap:4px 16px}
+#riskrail [data-rp-platform-menu="6"]>.rp-platform-tags{flex:0 1 auto}
+#riskrail .rp-return-type-tags{display:flex;align-items:center;gap:6px;padding:3px 2px 5px;flex:none}
+
+/* 整行榜：标题与平台居左，季品和查看全部靠右，日期独立为紧凑辅助行。 */
+#riskrail .rp-board-group-quality .riskcard>.rp-compact-header{display:grid;grid-template-columns:max-content minmax(0,1fr) max-content;align-items:center;align-content:center;gap:6px 20px;min-height:48px;margin-bottom:0;padding-bottom:4px}
+#riskrail .rp-compact-header>.rp-platform-menu{order:1;min-height:0;margin:0;padding:0;min-width:0}
+#riskrail .rp-compact-header>.rp-quality-actions{order:2;flex-wrap:nowrap;margin-left:0;gap:12px}
+#riskrail .rp-compact-header .qr-card-filter{margin:0;min-height:0}
+#riskrail .riskcard>.rp-quality-date{display:block;flex:none;min-height:0;margin:0 0 6px;padding:0;font-size:13px;line-height:20px;color:#8a98aa}
+@media(max-width:1100px){
+ #riskrail .rp-board-group-quality .riskcard>.rp-compact-header{grid-template-columns:minmax(0,1fr) max-content;column-gap:12px}
+ #riskrail .rp-compact-header>h3{grid-column:1;grid-row:1}
+ #riskrail .rp-compact-header>.rp-quality-actions{grid-column:2;grid-row:1}
+ #riskrail .rp-compact-header>.rp-platform-menu{grid-column:1/-1;grid-row:2}
+}
+@media(max-width:600px){
+ #riskrail .rp-board-group-quality .riskcard>.rp-compact-header{grid-template-columns:minmax(0,1fr);gap:4px;padding-top:10px}
+ #riskrail .rp-compact-header>.rp-quality-actions{grid-column:1;grid-row:2;justify-content:space-between;width:100%}
+ #riskrail .rp-compact-header>.rp-platform-menu{grid-column:1;grid-row:3}
+}
+
+/* 违规、退货季品外露为标签；退货依次为平台、新老品、季品。 */
+#riskrail :is([data-rp-platform-menu="0"],[data-rp-platform-menu="6"]){display:flex;flex-wrap:wrap;align-items:center;gap:4px 16px}
+#riskrail :is([data-rp-platform-menu="0"],[data-rp-platform-menu="6"])>.rp-platform-tags{flex:0 1 auto}
+#riskrail :is([data-rp-platform-menu="0"],[data-rp-platform-menu="6"])>.qr-card-filter{display:flex;flex:0 1 auto;min-width:0;padding:0}
+#riskrail :is([data-rp-platform-menu="0"],[data-rp-platform-menu="6"]) .rp-season-menu{min-height:0;margin:0;padding:0;max-width:100%}
+
+/* 筛选维度间的装饰分割线，不占用按钮和标签的布局宽度。 */
+#riskrail :is([data-rp-platform-menu="0"],[data-rp-platform-menu="6"])>:is(.qr-card-filter,.rp-return-type-tags){position:relative}
+#riskrail :is([data-rp-platform-menu="0"],[data-rp-platform-menu="6"])>:is(.qr-card-filter,.rp-return-type-tags)::before{content:"";position:absolute;left:-8px;top:50%;width:1px;height:22px;background:#c6cfdb;transform:translateY(-50%);pointer-events:none}
+@media(max-width:1100px){
+ #riskrail :is([data-rp-platform-menu="0"],[data-rp-platform-menu="6"])>:is(.qr-card-filter,.rp-return-type-tags)::before{display:none}
+}

@@ -22,7 +22,7 @@ function groupFilterField(field,title){
     for(const node of [...field.childNodes]){
       if(node.nodeType===3||node.nodeType===1&&node.classList.contains('unified-field-name'))node.remove();
     }
-    field.classList.add('unified-input-group','ui-search-field','ui-business-search');
+    uiMountSearchField(control,field);field.classList.add('ui-business-search');
     if(!control.hasAttribute('aria-label'))control.setAttribute('aria-label',title||'搜索');
     return;
   }
@@ -78,11 +78,7 @@ function arrangeDashboardFilters(){
     let extras=bar.querySelector('.unified-filter-extras');
     if(!extras){extras=document.createElement('div');extras.className='unified-filter-extras';bar.append(extras)}
     if(id==='new'){
-      const target=section.querySelector('#new-linked-filter')||section.querySelector('.titlegroup');
-      attachFilterField(target,'newchain','类目');
-      attachFilterField(target,'newseason','季品');
-      $('#newchain').setAttribute('aria-label','新品类目');
-      $('#newseason').setAttribute('aria-label','新品季品');
+      // 类目、季品使用顶部 Tab；原类目控件保留给隔离工作台共用状态。
       $('#new-reset')?.remove();
       bar.hidden=true;
     }else {

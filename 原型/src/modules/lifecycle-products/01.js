@@ -23,9 +23,10 @@ function lifecyclePendingProducts(stage,p){
 }
 const renderLifeBeforeProductDrilldown=renderLife;
 renderLife=function(){renderLifeBeforeProductDrilldown();
+ const completionColumns=$$('#lifetable th').flatMap((header,column)=>header.textContent.includes('年度累计完成')?[[column,'year']]:header.textContent.includes('实际完成')?[[column,'period']]:[]);
  $$('#lifetable tbody tr, #lifetable tfoot tr').forEach((row,index)=>{
-  const total=row.hasAttribute('data-life-summary')||row.parentElement.tagName==='TFOOT',dimension=total?'summary':lifeView,rowIndex=total?0:index-(row.parentElement.querySelector('[data-life-summary]')?1:0);
-  for(const [column,scope] of [[2,'period'],[6,'year']]){const cell=row.cells[column];if(!cell)continue;const label=cell.textContent.trim(),header=$$('#lifetable th')[column]?.textContent||'完成产品';cell.innerHTML=`<button type="button" class="life-completed-number" data-life-completed="${scope}" data-life-dimension="${dimension}" data-life-row="${rowIndex}" aria-label="查看${esc(row.cells[0].textContent)}${esc(header)}的产品，${esc(label)}项">${esc(label)}<span aria-hidden="true"> ›</span></button>`;}
+  const total=row.hasAttribute('data-life-summary')||row.parentElement.tagName==='TFOOT',dimension=total?'summary':lifeView,rowIndex=total?0:dimension==='chain'?chains.indexOf(row.cells[0].textContent.trim()):index-(row.parentElement.querySelector('[data-life-summary]')?1:0);
+  for(const [column,scope] of completionColumns){const cell=row.cells[column];if(!cell)continue;const label=cell.textContent.trim(),header=$$('#lifetable th')[column]?.textContent||'完成产品';cell.innerHTML=`<button type="button" class="life-completed-number" data-life-completed="${scope}" data-life-dimension="${dimension}" data-life-row="${rowIndex}" aria-label="查看${esc(row.cells[0].textContent)}${esc(header)}的产品，${esc(label)}项">${esc(label)}<span aria-hidden="true"> ›</span></button>`;}
  });
 };
 function openLifecycleProducts(scope,dimension,rowIndex){withPeriod('lifecycle',()=>{
@@ -33,10 +34,10 @@ function openLifecycleProducts(scope,dimension,rowIndex){withPeriod('lifecycle',
  const dimensionName=dimension==='chain'?chains[rowIndex]:dimension==='channel'?channels[rowIndex]:'公司整体';
  const records=(pending?lifecyclePendingProducts(stage,p):lifecycleCompletionProducts(stage,scope,p)).filter(r=>dimension==='chain'?r.chain===rowIndex:dimension==='channel'?r.channel===rowIndex:true);
  const products=new Set(records.map(r=>r.model+'|'+r.brand)).size,summary=dimension==='chain'?lifeChainRows(stage,p)[rowIndex]:lifeData(stage),netGap=Math.max(0,summary.target-summary.actual),offset=Math.max(0,records.length-netGap);
- const productFilters=pfDefaults();let page=1,query='',brand='全部',taskState='全部';const pageSize=DRAWER_PAGE_SIZE;
- openModal(lifeNames[stage]+' · '+scopeName,`<article class="life-products-detail"><div class="life-products-overview"><div><span class="tag">${esc(dimensionName)}</span><h3>${lifeNames[stage]} · ${pending?'未完成计划项':'已完成产品'}</h3><p>${rangeStart} — ${b.cutoff}</p></div><div class="life-products-count"><div><strong>${fmt(records.length)}</strong><small>${pending?'未完成项':'完成项'}</small></div><div><strong>${products}</strong><small>个产品</small></div></div></div><div class="life-products-filters"><label>产品搜索<input id="life-product-search" type="search" placeholder="产品名称 / SPU码 / 型号" aria-label="产品搜索"></label><label>品牌<select id="life-product-brand"><option>全部</option>${brands.map(name=>`<option>${name}</option>`).join('')}</select></label>${pending?'<label>状态<select id="life-product-state"><option>全部</option><option>逾期未完成</option><option>待完成</option></select></label>':''}<span id="life-products-match" aria-live="polite"></span></div><div id="life-products-results"></div><div class="life-products-pagination"></div><p class="life-products-foot">${pending?'未完成计划明细为演示数据，按当前规划、品类及周期统计。'+(offset?'存在其他品类超额完成 '+offset+' 项；未完成 '+records.length+' 项，抵扣后净缺口 '+netGap+' 项。':'未完成 '+records.length+' 项，与本期目标差额对应。'):'按完成项展示对应产品，同一产品可关联不同渠道或任务；以下为与看板数量对应的演示完成记录。'}</p></article>`);
+ const productFilters=pfDefaults();let page=1,query='',brand='全部',taskState='全部';const pageSize=listPageSize($('.life-products-pagination'));
+ openModal(lifeNames[stage]+' · '+scopeName,`<article class="life-products-detail"><div class="life-products-overview"><div><span class="tag">${esc(dimensionName)}</span><h3>${lifeNames[stage]} · ${pending?'未完成计划项':'已完成产品'}</h3><p>${rangeStart} — ${b.cutoff}</p></div><div class="life-products-count"><div><strong>${fmt(records.length)}</strong><small>${pending?'未完成项':'完成项'}</small></div><div><strong>${products}</strong><small>个产品</small></div></div></div><div class="life-products-filters"><label>产品搜索<input id="life-product-search" type="search" placeholder="产品名称 / SPU码 / 型号" aria-label="产品搜索"></label><label>品牌<select id="life-product-brand"><option>全部</option>${brands.map(name=>`<option>${name}</option>`).join('')}</select></label>${pending?'<label>状态<select id="life-product-state"><option>全部</option><option>逾期未完成</option><option>待完成</option></select></label>':''}<span id="life-products-match" aria-live="polite"></span></div><div id="life-products-results"></div><div class="life-products-pagination"></div><p class="life-products-foot">${pending?'未完成计划明细为演示数据，按当前规划、品类及周期统计。'+(offset?'存在其他品类超额完成 '+offset+' 项；未完成 '+records.length+' 项，抵扣后净缺口 '+netGap+' 项。':'未完成 '+records.length+' 项，与本期目标差额对应。'):'按完成项展示对应产品，同一产品可关联不同平台或任务；以下为与看板数量对应的演示完成记录。'}</p></article>`);
  $('#dialogsub').textContent=dimensionName+' · '+scopeName+' · '+rangeStart+' — '+b.cutoff;
- const headers=pending?['产品图片','产品名称 / 计划项','型号','品类','品牌','渠道','计划完成日期','责任链主','当前状态 / 原因']:['产品图片','产品名称','型号','品类','品牌','渠道','完成日期','完成记录'];
+ const headers=pending?['产品图片','产品名称 / 计划项','型号','品类','品牌','平台','计划完成日期','责任链主','当前状态 / 原因']:['产品图片','产品名称','型号','品类','品牌','平台','完成日期','完成记录'];
  const filtered=()=>records.filter(r=>pfMatches(r,productFilters)&&(taskState==='全部'||r.state===taskState)&&pfIncludes(brand,r.brand)&&(!query||uiProductSearchMatch(r,query)));
  function render(){const rows=filtered(),pages=Math.max(1,Math.ceil(rows.length/pageSize));page=Math.min(page,pages);const start=(page-1)*pageSize;
   $('#life-products-match').textContent=`筛选结果 ${rows.length} / ${records.length} 项`;
@@ -46,7 +47,13 @@ function openLifecycleProducts(scope,dimension,rowIndex){withPeriod('lifecycle',
  pfMount($('.life-products-filters'),productFilters,()=>{page=1;render()},['chain','attribute','productType']);render();if(pending)$('#life-product-state').onchange=e=>{taskState=e.target.value;page=1;render()};$('#life-product-search').oninput=e=>{query=e.target.value.trim();page=1;render()};$('#life-product-brand').onchange=e=>{brand=pfControlValue(e.target);page=1;render()};
  
  });}
-document.addEventListener('click',e=>{const button=e.target.closest('[data-life-completed]');if(button){if(button.closest('#lifecycle')&&ppOpenFromLifecycle(button.dataset.lifeCompleted,button.dataset.lifeDimension,+button.dataset.lifeRow))return;openLifecycleProducts(button.dataset.lifeCompleted,button.dataset.lifeDimension,+button.dataset.lifeRow)}});
+// 卡片完成数字只显示说明，点击卡片其他区域仍切换当前规划。
+document.addEventListener('click',e=>{
+ const value=e.target.closest('#lifecycle #lifecards [data-lt-card-actual]');if(!value)return;
+ e.preventDefault();e.stopPropagation();
+ ppLifecycleCompletionToast('period',+value.closest('[data-life]').dataset.life,ltChainScope());
+},true);
+document.addEventListener('click',e=>{const button=e.target.closest('[data-life-completed]');if(button){if(button.closest('#lifecycle')&&ppLifecycleCompletionToast(button.dataset.lifeCompleted,lifeIndex,button.dataset.lifeDimension==='chain'?button.dataset.lifeRow:ltChainScope()))return;openLifecycleProducts(button.dataset.lifeCompleted,button.dataset.lifeDimension,+button.dataset.lifeRow)}});
 
 const newTrendPlatforms=filterCatalog.platforms.map(name=>({name,color:filterCatalog.platformColors[name]}));
 const newTrendMetrics=[{key:'volume',name:'销量',unit:'件',digits:0},{key:'returnRate',name:'退货率',unit:'%',digits:2},{key:'revenue',name:'销售额',unit:'万元',digits:2},{key:'margin',name:'利润率',unit:'%',digits:2}];

@@ -1,9 +1,9 @@
 // 五个产品榜单统一展示公司产品分级；平台仅筛风险事实，分级与产品详情一致。
 const rpGradeCache=boundedCache(4);
 function rpRankingGrade(record){
- const range=riskRange(),end=range.cutoff||range.end,identity=upIdentity(rpProduct(record)||record),key=end+'|'+upRuleRevision;
+ const range=riskRange(),end=range.cutoff||range.end,period=periodFor('risk'),mode=['recent30','month','quarter','year'].includes(period.mode)?period.mode:'month',start=period.mode==='day'?kpmGradeWindow(end,'month').start:range.start,identity=upIdentity(rpProduct(record)||record),key=mode+'|'+start+'|'+end+'|'+upRuleRevision;
  let rows=rpGradeCache.get(key);if(!rows){rows=new Map();rpGradeCache.set(key,rows)}
- const id=identity.spuId;if(!rows.has(id))rows.set(id,kpmGradeAssessment(identity,end,'all').level||'unrated');
+ const id=identity.spuId;if(!rows.has(id))rows.set(id,kpmGradeAssessment(identity,end,'all',mode,start).level||'unrated');
  return rows.get(id);
 }
 function rpRankingGradeMarkup(record){

@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 const read=name=>fs.readFileSync(new URL('../../'+name,import.meta.url),'utf8');
 export function verifyLifecycleFacts(){
- const ctx=vm.createContext({window:{},chains:['清洁链','厨房链','环境链','个护 & 健康链'],ltDashboardActive:()=>false,lifeNames:Array.from({length:8},(_,i)=>"业务计划"+i),
+ const ctx=vm.createContext({window:{},chains:['清洁','厨电','环境','个护&健康'],ltDashboardActive:()=>false,lifeNames:Array.from({length:8},(_,i)=>"业务计划"+i),
   names:Array.from({length:4},(_,chain)=>Array.from({length:6},(_,i)=>'测试产品'+chain+'-'+i)),sampleSpuByName:name=>({name}),sampleSpuFields:row=>row});
  vm.runInContext(read('src/data/filter-catalog.js')+'\nconst channels=filterCatalog.platforms;',ctx);
  const period=read('src/modules/period/01.js');vm.runInContext(period.slice(0,period.indexOf('const shiftedDates=')),ctx);
@@ -29,5 +29,5 @@ export function verifyLifecycleFacts(){
  const rows=ctx.salesChannelData({name:'公司整体'});assert.equal(rows.length,6);
  for(const [key,value] of Object.entries({sku:7,sale:100.23,target:99.77,annual:500.21,ytd:350.3,gross:-20.12}))assert(Math.abs(rows.reduce((n,row)=>n+row[key],0)-value)<1e-8,key+'金额、数量守恒');
  assert(rows.every(row=>!Object.hasOwn(row,'crossSplit')),'不保留跨境拆分结构');
- console.log('通过：生命周期品链/六平台/完成明细守恒、未来无实际、六平台金额及数量守恒');
+ console.log('通过：生命周期品链/六平台/完成明细守恒、未来无实际、六平台销售金额及数量守恒');
 }

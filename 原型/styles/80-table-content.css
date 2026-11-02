@@ -1,0 +1,47 @@
+/* 表格内容规格。只统一单元格内的阅读层级，不改变业务颜色、列宽和排序。
+   !important仅用于跨历史模块的字号/图片尺寸归一，新增表格直接复用这些语义类。 */
+:root{
+ --table-body-size:var(--type-primary-data,14px);
+ --table-secondary-size:var(--type-meta,12px);
+ --table-tag-size:var(--type-meta,12px);
+ --table-product-size:var(--product-thumbnail-size,44px);
+}
+table :is(th,td){font-size:var(--table-body-size)!important;line-height:1.6;font-variant-numeric:tabular-nums}
+table th{font-weight:500}
+/* 单元格主文案和数量使用同一字号；独立的图标、帮助按钮维持原规格。 */
+table :is(th,td) :is(span,div,p,a,button,label,dl,dt,dd,b,strong,em,time,code,input,select,textarea):not(:where(.ai-logo,.ai-logo *,.metric-help,.metric-help *,.rp-sort-arrows,.risk-thumb,.pp-traffic-label)){
+ font-size:var(--table-body-size)!important;
+}
+/* 编码、环比、偏差、单位和解释文字属于辅助层，不跟随主数字变大。 */
+table :is(th,td) :is(small,small *,.rp-list-value em,.rp-list-value em *,
+ .rp-comparison-label,.rp-comparison-value,.kpm-structure-share,.kpm-evidence-source,
+ .cc-money-unit,.muted,.note){
+ font-size:var(--table-secondary-size)!important;
+}
+/* 产品名称与普通正文同字号，字重区分身份信息。 */
+table :is(.prodname,.pp-product,.br-product-name,.scp-project-link) :is(strong,b){font-weight:500}
+table :is(.num,.rp-value,.scp-count){font-variant-numeric:tabular-nums}
+/* 状态、等级、产品属性共用标签规格；保留各标签现有红黄绿及分级色。 */
+table :is(th,td) :is(.tag,.kpm-grade,.kpm-change-grade,.rp-product-grade,.rp-product-tag,
+ .scp-brand-grade,.pp-project-state,.pp-risk-state,.up-todo-status,.up-todo-priority,
+ .up-todo-overdue,.gd-business-type){
+ display:inline-flex;align-items:center;justify-content:center;
+ min-height:22px;padding:0 7px;border-radius:4px;
+ font-size:var(--table-tag-size)!important;font-weight:500;line-height:20px;
+}
+table :is(th,td) :is(.tag,.kpm-grade,.kpm-change-grade,.rp-product-grade,.rp-product-tag,
+ .scp-brand-grade,.pp-project-state,.pp-risk-state,.up-todo-status,.up-todo-priority,
+ .up-todo-overdue,.gd-business-type) :is(span,b,strong,em,small){font-size:var(--table-tag-size)!important}
+/* 产品、店铺占位和缺图占位共用全局缩略图尺寸；平台logo、趋势图与AI标识不受影响。 */
+table :is(.risk-thumb,.product-thumb,.pp-product>img,.pp-placeholder,.thumb){
+ width:var(--table-product-size)!important;height:var(--table-product-size)!important;
+ min-width:var(--table-product-size);max-width:none;flex:none!important;
+ object-fit:cover!important;border-radius:6px!important;
+}
+table :is(.risk-shop-icon,.pp-placeholder,.thumb){font-size:18px!important}
+
+/* 六榜抽屉身份格式：名称在上、编码/店铺ID在下，不沿用首页卡片的隐藏规则。 */
+#dialogbody :is(#qr-list-table,#rf-list-table).rp-list-table :is(th,td):nth-child(2){padding-inline:14px}
+#dialogbody :is(#qr-list-table,#rf-list-table).rp-list-table .rp-identity{width:100%;max-width:none}
+#dialogbody .rp-list-table .rp-identity b{font-size:var(--table-body-size)!important;font-weight:500;line-height:1.6}
+#dialogbody .rp-list-table .rp-identity small{display:block;font-size:var(--table-secondary-size)!important;line-height:18px;margin-top:4px;color:#8693a4;white-space:normal;overflow-wrap:anywhere}

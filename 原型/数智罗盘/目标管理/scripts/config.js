@@ -3,7 +3,7 @@
   const labels = {
     month: '月份', region: '大区', brand: '品牌', channel: '平台渠道', shop: '店铺',
     strategy: '店长策略', promotion: '店长推广', product: '产品名称（SPU）',
-    category: '产品类目', linkId: '核心链接ID', gsv: '目标GSV（w）', profit: '目标利润率（%）',
+    category: '链群', linkId: '核心链接ID', gsv: '目标GSV（w）', profit: '目标利润率（%）',
     newTag: '新品/清仓品', sharedStock: '是否一盘货', selectedProduct: '一类自选品',
     rank: '链接排名目标', clickRate: '链接点击率目标（%）', conversionRate: '链接转化率目标（%）',
     feeRate: '费率目标（%）', created: '创建人/创建时间', updated: '更新人/更新时间',
@@ -36,7 +36,7 @@
   const options = {
     get 月份() { return [GoalPrototype.clock.today().slice(0,7).replace('-', '/')]; }, get 大区() { return GoalPrototype.regionConfig.list().map(row => row.name); },
     平台渠道: ['天猫', '京东', '拼多多'], 品牌: ['苏泊尔', '创维', '康佳', '海尔', '其他', '美的'],
-    产品类目: ['清洁类', '生活电器'], '新品/清仓品': ['新品', '清仓品'],
+    链群: window.FilterCatalog.chains, '新品/清仓品': ['新品', '清仓品'],
     一类自选品: ['自选品', '承流品'], 合理性: ['合理', '不合理'], 一盘货: ['是', '否'],
   };
   const productConfigTip = '取目标月份的最新配置；调整请前往「运营罗盘 → 产品档案库」。';

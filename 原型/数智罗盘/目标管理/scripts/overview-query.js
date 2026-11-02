@@ -1,6 +1,6 @@
 (() => {
   const { $, $$ } = GoalPrototype;
-  const fields = { 店铺: 'shopId', 店长策略: 'strategy', 店长推广: 'promotion', 合理性: 'reasonable', '产品名称（SPU）': 'product', '新品/清仓品': 'newTag', 一盘货: 'sharedStock', 一类自选品: 'selectedProduct', 产品类目: 'category', 核心链接ID: 'linkId' };
+  const fields = { 店铺: 'shopId', 店长策略: 'strategy', 店长推广: 'promotion', 合理性: 'reasonable', '产品名称（SPU）': 'product', '新品/清仓品': 'newTag', 一盘货: 'sharedStock', 一类自选品: 'selectedProduct', 链群: 'category', 核心链接ID: 'linkId' };
   const partial = new Set(['店铺', '产品名称（SPU）', '核心链接ID', '店长策略', '店长推广']);
   let searchTimer, composing = false;
   function cancelPending() { clearTimeout(searchTimer); searchTimer = null; }

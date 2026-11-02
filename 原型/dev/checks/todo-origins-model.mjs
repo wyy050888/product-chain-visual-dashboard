@@ -1,0 +1,41 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import vm from 'node:vm';
+import {verifyTodoDescription} from './todo-description.mjs';
+
+export function verifyTodoOriginsModel(){
+ const box=vm.createContext({upSpus:new Map([['SPU-SOURCE-003',{name:'创维取暖器A944'}]])});
+ vm.runInContext(fs.readFileSync(new URL('../../src/modules/shared-classification/02-diagnosis-catalog.js',import.meta.url),'utf8'),box);
+ vm.runInContext(fs.readFileSync(new URL('../../src/modules/unified-product/07-todo-origin.js',import.meta.url),'utf8'),box);
+ const task={id:'history-origin',spuId:'SPU-SOURCE-003',source:'global-diagnosis',start:'2026-10-01',end:'2026-10-10',assignedAt:'2026-10-12T09:00:00+08:00',description:'全公司 · 亏损金额29.0w',status:'working',logs:[{action:'feedback',note:'保留历史办理'}],responsibilities:[{id:'r1',assignee:'陈嘉',status:'working',feedback:'已联系工厂'}]};
+ const saved=JSON.stringify(task),enriched=box.upTodoWithOrigin(task),origin=enriched.originEvidence;
+ assert.equal(JSON.stringify(task),saved,'补来源不直接修改传入任务');
+ const {originEvidence,...rest}=enriched;assert.equal(JSON.stringify(rest),saved,'除来源外所有办理字段保留');
+ assert.equal(origin.sources[0].sourceType,'AI分析');assert.match(origin.sources[0].sourceName,/创维取暖器A944AI经营诊断261010/);assert.equal(origin.sources[0].date,'2026-10-10');assert.match(origin.sources[0].content,/29\.0w/);assert(origin.sources[0].capturedAt);
+ assert.equal(box.upTodoWithOrigin(enriched),enriched,'再次加载不覆盖快照或抓取时间');
+ for(const source of ['rule-suggestion','demo-history','demo-cost-history','ai-business-followup','ai','sample'])assert(box.upTodoHasOrigin(box.upTodoWithOrigin({...task,source})),source);
+ for(const source of ['manual','unknown'])assert.equal(box.upTodoWithOrigin({...task,source}).originEvidence,undefined,'不补造人工及未知任务来源');
+ const old={...task,id:'legacy-a944-no-source',source:undefined,end:'',assignedAt:'2026-10-12T09:00:00+08:00',description:'全公司 · 亏损金额29.0w',plan:'复核定价、毛利与库存结构，制定销售去化或产品调整方案。'};
+ assert(box.upTodoHasOrigin(box.upTodoWithOrigin(old)),'截图同款旧亏损模板缺少source也能补齐');assert.equal(box.upTodoWithOrigin(old).originEvidence.sources[0].date,'2026-10-12');
+ assert.equal(box.upTodoWithOrigin({...old,source:'manual'}).originEvidence,undefined,'不将人工创建记录改标为AI');assert.equal(box.upTodoWithOrigin({...old,plan:'人工约定的另一项工作'}).originEvidence,undefined,'仅指标相似不能借用样例来源');
+ assert(box.upTodoHasOrigin(box.upTodoWithOrigin({...old,plan:'旧行动',id:'global-diagnosis|legacy-risk'})),'兼容旧稳定编号');
+ assert(box.upTodoHasOrigin(box.upTodoWithOrigin({...old,plan:'旧行动',source:'old-auto',assignedBy:'AI'})),'兼容旧自动下发标记');
+ assert(box.upTodoHasOrigin(box.upTodoWithOrigin({...old,plan:'旧行动',logs:[{action:'assign',actor:'AI',at:old.assignedAt}]})),'兼容旧下发日志');
+ assert(box.upTodoHasOrigin(box.upTodoWithOrigin({...task,originEvidence:{sources:[{sourceName:'未记录来源名称',content:'旧占位内容'}]}})),'占位来源不能阻止样例补齐');
+ const edited=box.upTodoWithOrigin({...task,descriptionVersion:2,description:'人工新改写的问题',basis:['原分析事实29.0w']});assert.doesNotMatch(edited.originEvidence.sources[0].content,/人工新改写/);assert.match(edited.originEvidence.sources[0].content,/原分析事实/);
+ assert.equal(box.upTodoWithOrigin({...task,description:'',basis:[]}).originEvidence,undefined,'空事实不能构造分析');
+ assert.equal(box.upTodoOriginDate('2026-02-30'),'');
+ for(const value of ['2026/10/12','26/10/12','2026-10-12T09:00:00+08:00'])assert.equal(box.upTodoOriginDate(value),'2026-10-12');
+ const cycle={...task,id:'grade-cycle|bom-033',source:'grade-management-demo',objectName:'创维壁挂风扇',description:'年度降本项目周报：已确认降本3.6%，继续验证备选物料。'};
+ box.upTodos={[cycle.id]:cycle};box.upPersistTodos=next=>{box.upTodos=next};box.upWindow=()=>({end:'2026-10-23'});
+ vm.runInContext(fs.readFileSync(new URL('../../src/modules/key-products/13-management-samples.js',import.meta.url),'utf8'),box);
+ const cycleOrigin=box.upTodos[cycle.id].originEvidence;assert.equal(cycleOrigin.mode,'records');assert.equal(cycleOrigin.sources[0].date,'2026-10-08');assert.match(cycleOrigin.sources[0].sourceName,/唐琪的年度降本项目周报261008/);assert.equal(cycleOrigin.sources[0].content,cycle.description);assert.equal(box.upTodos[cycle.id].responsibilities,cycle.responsibilities);
+ const cycleSnapshot=JSON.stringify(box.upTodos);box.kpmBindCycleOrigins();assert.equal(JSON.stringify(box.upTodos),cycleSnapshot,'评审样例来源只补齐一次');
+ box.esc=value=>String(value).replaceAll('&','&amp;').replaceAll('<','&lt;');box.DATA_CUTOFF='2026-10-23';
+ for(const file of ['05-source-location.js','05-todo-basis.js'])vm.runInContext(fs.readFileSync(new URL('../../src/modules/global-diagnosis/'+file,import.meta.url),'utf8'),box);
+ assert.match(box.gdTodoBasisMarkup({},box.upTodos[cycle.id]),/<h5>事项说明<\/h5>/,'明确原始记录不标成AI推断');
+ const report={id:'log-source',source:'钉钉日报\n沈舟 · 项目部\n2026-10-21',date:'2026-10-21',owner:'沈舟',department:'项目部',capturedDate:'2026-10-23',content:'已协调交期，统一节点仍待确认。'};
+ const reportOrigin=box.gdTaskOriginEvidence({id:'work-source',isWorkTask:true,objectName:'样机项目',problem:'交期仍待确认',sources:[report]},{id:'task-source'});
+ assert.equal(box.gdSourceLocation(reportOrigin.sources[0]).name,'项目部 · 沈舟的日报261021','部门只展示一次，报告沿用真实姓名和日期');assert.equal(JSON.stringify(reportOrigin),JSON.stringify(JSON.parse(JSON.stringify(reportOrigin))),'快照内存和持久化结构一致');
+ verifyTodoDescription();
+}

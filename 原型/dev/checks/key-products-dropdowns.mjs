@@ -1,13 +1,14 @@
+import {clearKeyProductFilters} from './key-products-default-filters.mjs';
 import assert from 'node:assert/strict';
 const settle=page=>page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
 export async function verifyKeyProductDropdowns(page){
  const root=page.locator('#matrix'),snapshot=()=>page.evaluate(()=>window.dashboardKeyProductsSnapshot());
- const reset=()=>root.locator('[data-kpm-reset]').click(),menus=root.locator('.kpm-tools .pf-multi');
+ const reset=()=>clearKeyProductFilters(page),menus=root.locator('.kpm-tools .pf-multi');
  const menu=key=>root.locator('.pf-multi:has([data-kpm-filter="'+key+'"])');
  await menus.first().evaluate(e=>e.scrollIntoView({behavior:'instant',block:'center'}));await settle(page);
  const base=(await snapshot()).rows;
  // 从可见复选框操作，覆盖“全部”互斥、并集与取消最后一项。
- for(const key of ['brand','category','season']){
+ for(const key of ['brand']){
   const host=menu(key),boxes=host.locator('input[data-pf-multi-option]');
   await host.locator('summary').click();await boxes.nth(1).check();await boxes.nth(2).check();
   const values=await boxes.evaluateAll(es=>es.filter(e=>e.checked).map(e=>e.value));
@@ -24,7 +25,7 @@ export async function verifyKeyProductDropdowns(page){
   await reset();
  }
  const picked={};
- for(const key of ['brand','category','season']){
+ for(const key of ['brand']){
   const host=menu(key);await host.locator('summary').click();
   const box=host.locator('input').nth(1);picked[key]=await box.inputValue();await box.check();
   assert.equal(await menus.locator('summary').evaluateAll(es=>es.filter(e=>e.parentElement.open).length),1,'同时仅展开一个菜单');
@@ -36,7 +37,7 @@ export async function verifyKeyProductDropdowns(page){
  assert.equal(await brand.getAttribute('open'),'');await brand.locator('input').nth(1).focus();await page.keyboard.press('Space');
  assert.notEqual((await snapshot()).filters.brand,'all','键盘空格可切换选项');
  await brand.locator('input').last().focus();await page.keyboard.press('Tab');assert.equal(await brand.getAttribute('open'),null,'Tab离开后关闭');
- await brand.locator('summary').click();await root.locator('.kpm-chart-head h3').click();assert.equal(await brand.getAttribute('open'),null,'点击外部关闭');await reset();
+ await brand.locator('summary').click();await root.locator('.kpm-details-title').click();assert.equal(await brand.getAttribute('open'),null,'点击外部关闭');await reset();
  // 桌面、窄屏及短屏：不放大复选框、不产生横向滚动，菜单始终位于视口。
  for(const width of [1920,1440,1280,1100,768,390,320]){
   await page.setViewportSize({width,height:700});
@@ -61,15 +62,5 @@ export async function verifyKeyProductDropdowns(page){
  assert.deepEqual((({start,end})=>({start,end}))((await snapshot()).range),{start:'2026-04-01',end:'2026-06-30'});
  await root.locator('[data-time-mode="year"]').click();await root.locator('[data-time-year]').selectOption('2025');assert.equal((await snapshot()).range.end,'2025-12-31');
  await root.locator('[data-time-mode="recent30"]').click();await reset();
- // 历史变动下拉的全部选项，包括无记录路径，均对照真实历史数据。
- const current=(await snapshot()).visible[0],rows=await page.evaluate(id=>window.dashboardKeyProductGradeHistory(id),current.spuId);
- await root.locator('#matrixtable [data-kpm-history]').first().click();const history=page.locator('.kpm-grade-history'),select=history.locator('[data-kpm-history-filter]');
- for(const value of await select.locator('option').evaluateAll(es=>es.map(e=>e.value))){
-  await select.selectOption(value);
-  const expected=rows.filter(r=>value==='all'||(value==='changed'?['up','down'].includes(r.change):value.includes('-')?[r.previous.level,r.current.level].join('-')===value:r.change===value));
-  assert.equal(await history.locator('tbody tr').count(),expected.length,'历史筛选 '+value);
-  assert.equal(await history.locator('.kpm-history-compare').isVisible(),!!expected.length,'空筛选隐藏旧对照 '+value);
- }
- await select.selectOption('all');assert.equal(await history.locator('tbody tr').count(),rows.length);await page.locator('#close').click();await reset();
- console.log('通过：关键产品全部筛选、日期、历史下拉与7档宽度/短屏/键盘回归');
+ console.log('通过：关键产品全部筛选、日期与7档宽度/短屏/键盘回归');
 }

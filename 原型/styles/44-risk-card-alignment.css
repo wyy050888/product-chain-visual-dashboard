@@ -1,15 +1,15 @@
+/* 指标名、主值、辅助值共用间距；大屏舒展，窄屏保留紧凑节奏。 */
+#riskrail {--rp-label-gap:3px;--rp-value-gap:2px;--rp-value-line:24px;--rp-secondary-line:16px;--rp-identity-gap:13px}
 /* 多列看板统一卡片和六条记录的高度；保留内容的最小高度，避免裁切指标。 */
 @media(min-width:901px){
+ #riskrail {--rp-label-gap:6px;--rp-value-gap:5px;--rp-value-line:26px;--rp-secondary-line:18px;--rp-identity-gap:16px}
  #riskrail {align-items:stretch;grid-auto-rows:1fr}
  #riskrail .riskcard .rp-items {flex:1;display:grid;grid-template-rows:repeat(6,minmax(min-content,1fr));align-content:stretch}
- #riskrail .riskcard .rp-items:has(>.rp-quality-columns,>.rp-shop-columns) {grid-template-rows:32px repeat(6,minmax(min-content,1fr))}
- #riskrail .riskcard .rp-entry {display:flex;flex-direction:column;justify-content:center;min-height:106px;padding-block:7px}
+ #riskrail .riskcard .rp-entry {display:flex;flex-direction:column;justify-content:flex-start;min-height:106px;padding-block:10px}
  #riskrail .rp-shop-entry .rp-entry-main>header {min-height:40px;margin-bottom:7px}
  #riskrail .rp-items>.empty {grid-row:1/-1;align-self:center}
-}
-/* 中等桌面宽度下，品质/亏损指标换行并自带名称，不保留隐藏列头的网格行。 */
-@media(max-width:1799px) and (min-width:1201px){
- #riskrail .riskcard .rp-items:has(>.rp-quality-columns) {grid-template-rows:repeat(6,minmax(min-content,1fr))}
+ #riskrail .rp-shop-scores small {margin-bottom:3px}
+ #riskrail .rp-shop-scores strong {line-height:24px}
 }
 /* 单列窄屏按内容自然展开，避免为跨卡片对齐留下大块空白。 */
 
@@ -22,12 +22,61 @@
 #riskrail [data-rp-kind="6"] :is([data-rp-field="return"],[data-rp-field="received"])>strong {font-size:16px;font-weight:600}
 #riskrail .rp-shop-scores {grid-template-columns:repeat(4,44px);gap:4px}
 #riskrail .rp-shop-scores [data-rp-field="score"] strong {font-size:14px;font-weight:600}
-@media(max-width:1799px) and (min-width:1201px),(max-width:600px){
- #riskrail .rp-shop-scores {grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+
+/* 六榜逐条标注指标：所有屏宽均为标签、主值、辅助值三行。 */
+#riskrail :is(.rp-quality-columns,.rp-shop-columns) {display:none}
+#riskrail :is(.rp-quality-mobile-label,.rp-shop-mobile-label,.rp-quality-pair-label) {display:block;color:#7e8b9e;font-size:11px;line-height:16px;margin-bottom:var(--rp-label-gap)}
+#riskrail .riskcard :is(.rp-quality-metric,.rp-shop-metric)>strong {line-height:var(--rp-value-line)}
+#riskrail :is(.rp-quality-metric,.rp-shop-metric)>small,
+#riskrail .rp-quality-rate-summary {margin-top:var(--rp-value-gap);line-height:var(--rp-secondary-line)}
+/* 组合标签与其他指标标签采用相同字号，三行保持相同基线。 */
+#riskrail .rp-quality-pair-label {font-size:var(--type-meta,12px)}
+
+/* 产品/店铺身份与指标组之间统一留白。 */
+#riskrail :is(.rp-quality-entry,.rp-shop-entry,.pc-risk-entry) .rp-entry-main>header {margin-bottom:var(--rp-identity-gap)}
+
+/* 窄卡只切换指标列数，标签和值始终保留在同一单元内。 */
+@container risk-card (max-width:560px){
+ #riskrail .riskcard .rp-quality-values {grid-template-columns:repeat(3,minmax(0,1fr));padding-left:0;gap:20px 10px}
+ #riskrail .rp-quality-rate-pair {display:contents}
+ #riskrail :is(.rp-quality-pair-label,.rp-quality-rate-summary) {display:none}
+ #riskrail .rp-quality-rate-pair>.rp-quality-metric>small {display:block}
+ #riskrail .rp-quality-rate-pair .rp-quality-mobile-label {display:block}
+ #riskrail .rp-quality-rate-pair>.rp-quality-metric {display:block}
+ #riskrail .rp-quality-rate-pair>.rp-quality-metric:nth-of-type(2)>:is(strong,small)::before {display:none}
+ #riskrail .rp-quality-rate-pair>.rp-quality-metric:nth-of-type(2) .rp-comparison-label {display:inline}
+ #riskrail .rp-shop-entry .rp-entry-main>header {flex-wrap:wrap}
+ #riskrail .rp-shop-entry .rp-shop-identity {flex-basis:calc(100% - 40px)}
+ #riskrail .rp-shop-scores {margin-left:0;flex-basis:100%;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;text-align:left}
+ #riskrail .rp-shop-scores>div {min-width:0}
+ #riskrail .rp-shop-scores:not(.rp-shop-link-counts) small {font-size:11px;line-height:16px;margin-bottom:3px}
+ #riskrail .rp-shop-scores:not(.rp-shop-link-counts) strong {font-size:16px;font-weight:600;line-height:24px}
+ #riskrail .rp-shop-scores.rp-shop-link-counts {grid-template-columns:repeat(2,minmax(0,1fr))}
+ /* 窄卡的链接红黄灯以轻底色区分，保持两列对齐。 */
+ #riskrail .rp-shop-link-counts .rp-pdd-count--card {padding:6px 8px}
+ #riskrail .rp-shop-link-counts .rp-pdd-count--red {--rp-pdd-count-background:#fff1f3}
+ #riskrail .rp-shop-link-counts .rp-pdd-count--yellow {--rp-pdd-count-background:var(--orange-soft)}
 }
 
-/* 主数值与辅助指标分行留白，六榜统一；不影响店铺评分和抽屉。 */
-#riskrail :is(.rp-quality-metric,.rp-shop-metric)>small {margin-top:6px}
+/* 手机和三列看板中的窄卡片保持两列，长标签与组合指标占完整一行。 */
+@container risk-card (max-width:360px){
+ #riskrail .riskcard :is(.rp-quality-values,.rp-shop-values) {grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 10px}
+ #riskrail .rp-shop-scores {column-gap:10px}
+}
 
-/* 主信息与指标之间留出独立间距，保留指标内部两行间距。 */
-#riskrail :is(.rp-quality-entry,.rp-shop-entry) .rp-entry-main>header {margin-bottom:13px}
+/* 三卡同排且指标折行时：店铺评分对应第一排，经营指标对应第二排。 */
+@media(min-width:901px){
+ @container risk-card (max-width:560px){
+  #riskrail .rp-shop-entry .rp-entry-main>header {row-gap:var(--rp-identity-gap);margin-bottom:20px}
+  #riskrail .rp-shop-scores {min-height:calc(16px + var(--rp-label-gap) + var(--rp-value-line) + var(--rp-value-gap) + var(--rp-secondary-line));align-items:start}
+  #riskrail .rp-shop-scores:not(.rp-shop-link-counts) small {margin-bottom:var(--rp-label-gap)}
+  #riskrail .rp-shop-scores:not(.rp-shop-link-counts) strong {line-height:var(--rp-value-line)}
+ }
+}
+
+/* 三列最窄档标题操作会折行，三卡预留相同标题高度。 */
+@media(min-width:901px){
+ @container risk-card (max-width:360px){
+  #riskrail .riskcard[data-rp-board] .rhead {min-height:84px;align-content:center}
+ }
+}

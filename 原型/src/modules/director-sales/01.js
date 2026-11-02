@@ -7,7 +7,7 @@ let nsPlatform='all',nsScopeKey='';
 const nsMoney=v=>pfMoneyYuan((v/10000)*10000);
 const nsRate=v=>v===null?'—':fmt(v,1)+'%';
 function nsLight(v){return v===null?'none':v>=100?'green':v>=80?'orange':'red'}
-function nsAttainment(v){const tone=nsLight(v),label={none:'无目标',green:'已达标',orange:'接近目标',red:'未达标'}[tone];return `<span class="ns-attainment ${tone}" title="${label}" aria-label="${nsRate(v)}，${label}"><i></i>${nsRate(v)}</span>`}
+function nsAttainment(v){const tone=nsLight(v),label={none:'无目标',green:'已达标',orange:'接近目标',red:'未达标'}[tone];return `<span class="ns-attainment ${tone}" aria-label="${nsRate(v)}，${label}"><i></i>${nsRate(v)}</span>`}
 function nsSummarize(p,rows){
  const sum=k=>rows.reduce((n,r)=>n+r[k],0),gsvCents=sum('gsvCents'),targetCents=sum('targetCents'),profitCents=sum('profitCents'),targetProfitCents=sum('targetProfitCents'),units=sum('units'),returns=sum('returns');
  return {...p,gsvCents,targetCents,profitCents,targetProfitCents,units,returns,gsv:gsvCents/100,gsvTarget:targetCents/100,profitAmount:profitCents/100,targetProfit:targetProfitCents/100,price:units?gsvCents/100/units:0,scaleRate:targetCents?gsvCents/targetCents*100:null,profitRate:gsvCents?profitCents/gsvCents*100:0,profitAttainment:targetProfitCents?profitCents/targetProfitCents*100:null,returnRate:units?returns/units*100:0};

@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import vm from 'node:vm';
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { performance } from 'node:perf_hooks';
 
@@ -15,7 +15,10 @@ function writeIfChanged(relative,content){
  const file=path.resolve(root,relative);
  if(!file.startsWith(root+path.sep))throw new Error('路径超出原型目录：'+relative);
  if(fs.existsSync(file)&&fs.readFileSync(file,'utf8')===content)return 0;
- fs.mkdirSync(path.dirname(file),{recursive:true});fs.writeFileSync(file,content);return 1;
+ fs.mkdirSync(path.dirname(file),{recursive:true});
+ const temporary=file+'.'+randomUUID()+'.tmp';
+ try{fs.writeFileSync(temporary,content);fs.renameSync(temporary,file)}finally{if(fs.existsSync(temporary))fs.unlinkSync(temporary)}
+ return 1;
 }
 const version=content=>createHash('sha256').update(content).digest('hex').slice(0,12);
 
@@ -24,6 +27,7 @@ export function buildPrototype({quiet=false}={}){
  const started=performance.now(),manifest=JSON.parse(read('manifest.json'));
  const previewStyles=manifest.styles.map(item=>read(item.file)).join('\n');
  const app=read('src/runtime/open.js')+'const drawerPreviewCss = '+JSON.stringify(previewStyles)+';\n'
+  +'const dashboardPages = '+JSON.stringify(manifest.pages)+';\n'
   +manifest.scripts.map(item=>read(item.file)).join('')+read('src/runtime/close.js');
  new vm.Script(app,{filename:'assets/app.js'});
  for(const file of manifest.images)if(!fs.existsSync(path.join(root,file)))throw new Error('图片缺失：'+file);
@@ -36,7 +40,13 @@ export function buildPrototype({quiet=false}={}){
  for(const marker of ['<!-- DASHBOARD_STYLES -->','<!-- DASHBOARD_SCRIPT -->','<!-- DASHBOARD_BOOT_HEAD -->','<!-- DASHBOARD_BOOT_BODY -->'])if(page.split(marker).length!==2)throw new Error('页面模板标记异常：'+marker);
  page=page.replace('<!-- DASHBOARD_BOOT_HEAD -->',bootHead).replace('<!-- DASHBOARD_BOOT_BODY -->',bootBody).replace('<!-- DASHBOARD_STYLES -->',styles)
   .replace('<!-- DASHBOARD_SCRIPT -->','<script defer src="assets/app.js?v='+version(app)+'"></script>');
- const written=writeIfChanged('assets/app.js',app)+writeIfChanged(manifest.entry,page);
+ let written=writeIfChanged('assets/app.js',app);
+ for(const entry of manifest.pages){
+  const html=page.replace('data-dashboard-view="director"','data-dashboard-view="'+entry.view+'"')
+   .replace('<!-- DASHBOARD_BOOT_TITLE -->','正在加载'+(entry.view==='director'?'产品链看板':entry.title))
+   .replace(/<title>[^<]*<\/title>/,'<title>'+entry.title+'</title>');
+  written+=writeIfChanged(entry.file,html);
+ }
  const result={scripts:manifest.scripts.length,styles:manifest.styles.length,images:manifest.images.length,written,ms:Number((performance.now()-started).toFixed(1))};
  if(!quiet)console.log('构建完成：'+result.scripts+' 个脚本模块，'+result.styles+' 个样式文件，'+result.images+' 张图片；更新 '+written+' 个生成文件；'+result.ms+'ms。');
  return result;

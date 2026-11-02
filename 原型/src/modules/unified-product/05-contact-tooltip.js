@@ -1,4 +1,4 @@
-// 两类进线即时提示；仅展示台账原值，不复用条数占比作为进线率。
+// 两类进线共用一个浮窗，条数占比以两类进线总条数为分母。
 const upContactTooltip=document.createElement('div');
 upContactTooltip.id='up-contact-tooltip';upContactTooltip.className='metric-tooltip up-contact-tooltip';
 upContactTooltip.setAttribute('role','tooltip');upContactTooltip.hidden=true;document.body.append(upContactTooltip);
@@ -10,8 +10,8 @@ function upShowContactTooltip(anchor,event){
  if(!anchor?.isConnected)return;
  if(upContactAnchor!==anchor||upContactTooltip.hidden){
   upHideContactTooltip();upHideSalesTooltip();hideMetricTooltip();uiHideCellTooltip();
-  const part=JSON.parse(anchor.dataset.upContactDetail),rows=[['进线条数',Number.isFinite(part.count)?fmt(part.count)+'条':'—'],['条数占比',upPercent(part.share)],['进线率',upPercent(part.rate)],['环比',part.comparison.replace(/^环比\s*/,''),part.tone]];
-  upContactTooltip.innerHTML=`<strong class="up-contact-tooltip-heading">${esc(part.name)}</strong>${rows.map(([name,value,tone])=>`<div class="up-contact-tooltip-row"><span>${name}</span><b class="${tone||''}">${esc(value)}</b></div>`).join('')}`;
+  const parts=[...anchor.closest('.up-contact-bar').querySelectorAll('[data-up-contact-detail]')].map(node=>JSON.parse(node.dataset.upContactDetail));
+  upContactTooltip.innerHTML=parts.map(part=>`<div class="up-contact-tooltip-row"><span><i class="${part.key}"></i>${esc(part.name.replace(/进线$/,''))}</span><b>${Number.isFinite(part.count)?fmt(part.count)+'条':'—'} ${upPercent(part.share).replace(/\.0%$/,'%')}</b></div>`).join('');
   upContactAnchor=anchor;anchor.setAttribute('aria-describedby',upContactTooltip.id);upContactTooltip.hidden=false;
  }
  const rect=anchor.getBoundingClientRect(),box=upContactTooltip.getBoundingClientRect(),x=event?.clientX??rect.right,y=event?.clientY??rect.bottom;
@@ -20,7 +20,8 @@ function upShowContactTooltip(anchor,event){
 }
 for(const type of ['pointerover','pointermove'])document.addEventListener(type,e=>{const anchor=e.target.closest?.('[data-up-contact-detail]');if(anchor)upShowContactTooltip(anchor,e)});
 document.addEventListener('pointerout',e=>{if(upContactAnchor?.contains(e.target)&&!upContactAnchor.contains(e.relatedTarget))upHideContactTooltip()});
-document.addEventListener('focusin',e=>{const anchor=e.target.closest?.('[data-up-contact-detail]');if(anchor)upShowContactTooltip(anchor)});
+// 键盘聚焦可能先滚动抽屉；等滚动事件处理后再显示，避免刚打开就被收起。
+document.addEventListener('focusin',e=>{const anchor=e.target.closest?.('[data-up-contact-detail]');if(anchor)requestAnimationFrame(()=>{if(anchor===document.activeElement)upShowContactTooltip(anchor)})});
 document.addEventListener('focusout',e=>{if(upContactAnchor?.contains(e.target))upHideContactTooltip()});
 document.addEventListener('click',e=>{const anchor=e.target.closest?.('[data-up-contact-detail]');if(anchor)upShowContactTooltip(anchor,e);else upHideContactTooltip()},true);
 document.addEventListener('scroll',upHideContactTooltip,true);document.addEventListener('change',upHideContactTooltip,true);

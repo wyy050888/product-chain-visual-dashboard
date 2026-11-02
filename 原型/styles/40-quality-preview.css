@@ -1,95 +1,95 @@
 /* 仅品质风险榜试版：统一列头、身份一行、主值与对比两行。 */
 /* 风险榜冷灰蓝渐隐头部；装饰不承载指标，不遮挡筛选菜单。 */
-#riskrail :is(.qr-card,.rp-shop-card,.rp-loss-card,.rp-stock-card,.rp-return-card) {border-color:#dfe6ef}
-#riskrail :is(.qr-card,.rp-shop-card,.rp-loss-card,.rp-stock-card,.rp-return-card) .rhead {position:relative;isolation:isolate;flex-wrap:wrap;margin:-12px -14px 6px;padding:14px 14px 16px;min-height:58px;background:radial-gradient(ellipse at 90% 0,#d6e3f3a6,transparent 55%),linear-gradient(180deg,#edf2f8 0%,#f7f9fc 62%,#fff 100%);border-bottom:0;border-radius:9px 9px 0 0}
-#riskrail :is(.qr-card,.rp-shop-card,.rp-loss-card,.rp-stock-card,.rp-return-card) .rhead .riskbadge {display:none}
-#riskrail :is(.qr-card,.rp-shop-card,.rp-loss-card,.rp-stock-card,.rp-return-card) .rhead h3 {letter-spacing:.3px}
+#riskrail :is(.qr-card,.rp-shop-card,.rp-loss-card,.rp-stock-card,.rp-return-card,.pc-risk-card) {border-color:#dfe6ef}
+#riskrail :is(.qr-card,.rp-shop-card,.rp-loss-card,.rp-stock-card,.rp-return-card,.pc-risk-card) .rhead {position:relative;isolation:isolate;flex-wrap:wrap;margin:-12px -14px 2px;padding:14px 14px 6px;min-height:48px;background:radial-gradient(ellipse at 90% 0,#d6e3f3a6,transparent 55%),linear-gradient(180deg,#edf2f8 0%,#f7f9fc 62%,#fff 100%);border-bottom:0;border-radius:9px 9px 0 0}
+#riskrail :is(.qr-card,.rp-shop-card,.rp-loss-card,.rp-stock-card,.rp-return-card,.pc-risk-card) .rhead .riskbadge {display:none}
+#riskrail :is(.qr-card,.rp-shop-card,.rp-loss-card,.rp-stock-card,.rp-return-card,.pc-risk-card) .rhead h3 {letter-spacing:.3px}
 
-#riskrail :is(.qr-card,.rp-shop-card,.rp-loss-card,.rp-stock-card,.rp-return-card) .rhead h3 {font-size:18px;line-height:26px;font-weight:600}
-#riskrail :is(.qr-card,.rp-shop-card,.rp-loss-card,.rp-stock-card,.rp-return-card) .rp-quality-actions {display:flex;align-items:center;gap:12px;margin-left:auto;min-width:0}
-#riskrail :is(.qr-card,.rp-shop-card,.rp-loss-card,.rp-stock-card,.rp-return-card) .rp-quality-actions .qr-card-filter {display:flex;align-items:center;gap:6px;margin:0;min-height:0}
-#riskrail :is(.qr-card,.rp-shop-card,.rp-loss-card,.rp-stock-card,.rp-return-card) .rp-quality-actions select {height:28px;min-height:28px;max-width:120px;padding:0 24px 0 10px;line-height:normal;font-size:12px;text-align:center;text-align-last:center;border-color:#e0e6ef;background-color:#fff;background-position:right 8px center}
-#riskrail :is(.qr-card,.rp-shop-card,.rp-loss-card,.rp-stock-card,.rp-return-card) .rp-quality-actions>.link {font-size:12px;white-space:nowrap;flex:none}
+#riskrail :is(.qr-card,.rp-shop-card,.rp-loss-card,.rp-stock-card,.rp-return-card,.pc-risk-card) .rhead h3 {font-size:18px;line-height:26px;font-weight:600}
+#riskrail :is(.qr-card,.rp-shop-card,.rp-loss-card,.rp-stock-card,.rp-return-card,.pc-risk-card) .rp-quality-actions {display:flex;align-items:center;gap:12px;margin-left:auto;min-width:0}
+#riskrail :is(.qr-card,.rp-shop-card,.rp-loss-card,.rp-stock-card,.rp-return-card,.pc-risk-card) .rp-quality-actions .qr-card-filter {display:flex;align-items:center;gap:6px;margin:0;min-height:0}
+#riskrail :is(.qr-card,.rp-shop-card,.rp-loss-card,.rp-stock-card,.rp-return-card,.pc-risk-card) .rp-quality-actions select {height:28px;min-height:28px;max-width:120px;padding:0 24px 0 10px;line-height:normal;font-size:12px;text-align:center;text-align-last:center;border-color:#e0e6ef;background-color:#fff;background-position:right 8px center}
+#riskrail :is(.qr-card,.rp-shop-card,.rp-loss-card,.rp-stock-card,.rp-return-card,.pc-risk-card) .rp-quality-actions>.link {font-size:12px;white-space:nowrap;flex:none}
 
-#riskrail :is(.qr-card,.rp-shop-card,.rp-loss-card,.rp-stock-card,.rp-return-card) .rp-items {border-top:0}
-#riskrail .rp-quality-columns,#riskrail .rp-quality-values {display:grid;grid-template-columns:repeat(4,minmax(0,1fr)) minmax(145px,1.45fr);gap:16px;padding-left:0}
+#riskrail :is(.qr-card,.rp-shop-card,.rp-loss-card,.rp-stock-card,.rp-return-card,.pc-risk-card) .rp-items {border-top:0}
+#riskrail .rp-quality-columns,#riskrail .rp-quality-values {display:grid;grid-template-columns:var(--rp-metric-columns,repeat(4,minmax(0,1fr)) minmax(145px,1.45fr));gap:16px;padding-left:0}
+#riskrail [data-rp-kind="0"] .rp-quality-values {grid-template-columns:repeat(5,minmax(0,1fr))}
+#riskrail .qr-card {--rp-metric-columns:repeat(2,minmax(0,1fr)) minmax(145px,1.45fr) repeat(2,minmax(0,1fr))}
 #riskrail .rp-quality-columns {padding-block:8px;background:#f6f8fb;border-radius:5px;color:#7e8b9e;font-size:11px;line-height:16px}
-#riskrail .rp-quality-entry {padding:9px 0}
-#riskrail .rp-quality-entry .rp-entry-main>header {margin-bottom:7px;min-height:28px}
+#riskrail :is(.rp-quality-entry,.pc-risk-entry) {padding:9px 0}
+#riskrail :is(.rp-quality-entry,.pc-risk-entry) .rp-entry-main>header {margin-bottom:7px;min-height:28px}
 #riskrail .rp-quality-entry .rp-identity small {display:none}
-#riskrail .rp-quality-entry .rp-entry-main .rp-identity b {font-size:16px;font-weight:400;line-height:22px;color:#203650}
+/* 卡片中的产品名与店铺名共用身份样式；亏损明细表由表格规范管理。 */
+#riskrail .riskcard:not(.rp-loss-wide) .rp-entry-main .rp-identity b {font-size:16px;font-weight:400;line-height:22px;color:#203650}
 #riskrail .rp-quality-entry .rp-detail-link {font-size:11px;font-weight:400;color:#7b8ea6}
 #riskrail .rp-quality-metric {min-width:0;font-variant-numeric:tabular-nums}
 #riskrail .rp-quality-metric strong {display:block;font-size:16px;font-weight:600;line-height:26px;white-space:nowrap;color:#52657d}
 #riskrail .rp-quality-metric small {display:block;color:#8693a4;font-size:11px;line-height:17px;white-space:nowrap}
 #riskrail .rp-quality-mobile-label {display:none}
 #dialogbody :is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table) .rp-list-value em {font-size:11px;white-space:nowrap;margin-top:2px;color:#8693a4}
-#dialogbody :is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table) .rp-trend-heading select {max-width:110px}
-@media(max-width:1799px) and (min-width:1201px),(max-width:600px){
- #riskrail .rp-quality-columns {display:none}
- #riskrail .rp-quality-values {grid-template-columns:repeat(3,minmax(0,1fr));padding-left:0;gap:10px 8px}
- #riskrail .rp-quality-mobile-label {display:block;font-size:11px;line-height:16px;color:#7e8b9e}
-}
 
-/* 品质抽屉保留充足指标列宽，横向滚动时固定身份、趋势与操作。 */
+/* 品质抽屉保留充足指标列宽，横向滚动时固定身份与操作。 */
 #dialogbody :is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table).rp-list-table table {table-layout:fixed!important;min-width:2398px!important}
 #dialogbody :is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table).rp-list-table :is(th,td) {min-width:0!important;width:128px;padding:12px 14px}
 #dialogbody :is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table).rp-list-table :is(th,td):first-child {width:48px;min-width:48px!important}
 #dialogbody :is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table).rp-list-table :is(th,td):nth-child(2) {width:260px;min-width:260px!important;left:48px}
 #dialogbody :is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table).rp-list-table :is(th,td):nth-child(5) {width:140px}
-#dialogbody :is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table).rp-list-table :is(th,td):has(.rp-trend-heading,.rp-mini-trend,.rp-trend-empty) {width:190px;min-width:190px!important;right:96px}
 #dialogbody :is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table).rp-list-table :is(th,td):last-child {width:96px;min-width:96px!important}
 #dialogbody :is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table) .rp-identity b {font-size:13px}
 #dialogbody :is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table) .rp-identity small {font-size:10px}
 #dialogbody :is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table) .rp-list-value .rp-value {font-size:13px}
-#dialogbody :is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table) .rp-sort-header {font-size:12px;gap:4px}
-@media(max-width:700px){
- #dialogbody :is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table).rp-list-table :is(th,td):has(.rp-trend-heading,.rp-mini-trend,.rp-trend-empty) {position:static}
-}
+#dialogbody :is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table) .rp-sort-header {font-size:12px}
+
 
 /* 两行独立着色：与其他榜单的红绿判定隔离。 */
-:is(#riskrail .rp-quality-metric,#riskrail .rp-shop-metric,#riskrail .rp-shop-scores,#dialogbody :is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table) .rp-list-value,#dialogbody .rp-shop-table .rp-list-value) :is(strong,small,em).rp-quality-red {color:#c33d56}
-:is(#riskrail .rp-quality-metric,#riskrail .rp-shop-metric,#riskrail .rp-shop-scores,#dialogbody :is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table) .rp-list-value,#dialogbody .rp-shop-table .rp-list-value) :is(strong,small,em).rp-quality-green {color:#00a486}
-:is(#riskrail .rp-quality-metric,#riskrail .rp-shop-metric,#riskrail .rp-shop-scores,#dialogbody :is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table) .rp-list-value,#dialogbody .rp-shop-table .rp-list-value) :is(strong,small,em).rp-quality-yellow {color:var(--orange)}
-:is(#riskrail .rp-quality-metric,#riskrail .rp-shop-metric,#riskrail .rp-shop-scores,#dialogbody :is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table) .rp-list-value,#dialogbody .rp-shop-table .rp-list-value) :is(strong,small,em).rp-quality-gray {color:#8693a4}
+:is(#riskrail :is(.rp-quality-metric,.rp-quality-rate-summary),#riskrail .rp-shop-metric,#riskrail .rp-shop-scores,#dialogbody :is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table) .rp-list-value,#dialogbody .rp-shop-table .rp-list-value) :is(strong,small,em).rp-quality-red {color:var(--red)}
+:is(#riskrail :is(.rp-quality-metric,.rp-quality-rate-summary),#riskrail .rp-shop-metric,#riskrail .rp-shop-scores,#dialogbody :is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table) .rp-list-value,#dialogbody .rp-shop-table .rp-list-value) :is(strong,small,em).rp-quality-green {color:var(--green)}
+:is(#riskrail :is(.rp-quality-metric,.rp-quality-rate-summary),#riskrail .rp-shop-metric,#riskrail .rp-shop-scores,#dialogbody :is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table) .rp-list-value,#dialogbody .rp-shop-table .rp-list-value) :is(strong,small,em).rp-quality-yellow {color:var(--orange)}
+:is(#riskrail :is(.rp-quality-metric,.rp-quality-rate-summary),#riskrail .rp-shop-metric,#riskrail .rp-shop-scores,#dialogbody :is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table) .rp-list-value,#dialogbody .rp-shop-table .rp-list-value) :is(strong,small,em).rp-quality-gray {color:#8693a4}
 
 @media(max-width:600px){
- #riskrail :is(.qr-card,.rp-shop-card,.rp-loss-card,.rp-stock-card,.rp-return-card) .rhead {margin:-10px -10px 6px;padding:12px 10px 14px;min-height:54px}
+ #riskrail :is(.qr-card,.rp-shop-card,.rp-loss-card,.rp-stock-card,.rp-return-card,.pc-risk-card) .rhead {margin:-10px -10px 2px;padding:12px 10px 6px;min-height:46px}
 }
 
-:is(#riskrail .rp-quality-metric,#riskrail .rp-shop-metric,#riskrail .rp-shop-scores,#dialogbody :is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table) .rp-list-value,#dialogbody .rp-shop-table .rp-list-value) strong.rp-quality-normal {color:#52657d}
-:is(#riskrail .rp-quality-metric,#riskrail .rp-shop-metric,#riskrail .rp-shop-scores,#dialogbody :is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table) .rp-list-value,#dialogbody .rp-shop-table .rp-list-value) :is(small,em).rp-quality-normal,
-:is(#riskrail .rp-quality-metric,#riskrail .rp-shop-metric,#riskrail .rp-shop-scores,#dialogbody :is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table) .rp-list-value,#dialogbody .rp-shop-table .rp-list-value) .rp-comparison-label {color:#8693a4}
+:is(#riskrail :is(.rp-quality-metric,.rp-quality-rate-summary),#riskrail .rp-shop-metric,#riskrail .rp-shop-scores,#dialogbody :is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table) .rp-list-value,#dialogbody .rp-shop-table .rp-list-value) strong.rp-quality-normal {color:#52657d}
+:is(#riskrail :is(.rp-quality-metric,.rp-quality-rate-summary),#riskrail .rp-shop-metric,#riskrail .rp-shop-scores,#dialogbody :is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table) .rp-list-value,#dialogbody .rp-shop-table .rp-list-value) :is(small,em).rp-quality-normal,
+:is(#riskrail :is(.rp-quality-metric,.rp-quality-rate-summary),#riskrail .rp-shop-metric,#riskrail .rp-shop-scores,#dialogbody :is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table) .rp-list-value,#dialogbody .rp-shop-table .rp-list-value) .rp-comparison-label {color:#8693a4}
 
 /* 进线率与差评率上下按相同顺序并列，保留各自环比颜色。 */
-#riskrail .rp-pair-values {display:flex;align-items:baseline;gap:3px}
-#riskrail .rp-quality-rate-pair .rp-pair-divider {color:#8693a4;font-weight:400}
+#riskrail .rp-quality-rate-pair {display:grid;grid-template-columns:max-content max-content;column-gap:3px;min-width:0}
+#riskrail .rp-quality-pair-label {grid-column:1/-1;grid-row:1;contain:inline-size;white-space:nowrap}
+#riskrail .rp-quality-rate-pair>.rp-quality-metric {display:contents}
+#riskrail .rp-quality-rate-pair .rp-quality-mobile-label {display:none}
+#riskrail .rp-quality-rate-pair strong {grid-row:2}
+#riskrail .rp-quality-rate-pair>.rp-quality-metric>small {display:none}
+#riskrail .rp-quality-rate-summary {grid-row:3;grid-column:1/-1;contain:inline-size;white-space:nowrap;color:#8693a4;font-size:11px;line-height:16px;margin-top:2px}
+#riskrail .rp-quality-pair-separator {margin-inline:3px}
+#riskrail .rp-quality-rate-pair>.rp-quality-metric:first-of-type :is(strong,small) {grid-column:1}
+#riskrail .rp-quality-rate-pair>.rp-quality-metric:nth-of-type(2) :is(strong,small) {grid-column:2}
+#riskrail .rp-quality-rate-pair>.rp-quality-metric:nth-of-type(2)>:is(strong,small)::before {content:"/";margin-right:3px;color:#8693a4;font-weight:400}
+#riskrail .rp-quality-rate-pair>.rp-quality-metric:nth-of-type(2) .rp-comparison-label {display:none}
 #riskrail .rp-quality-rate-pair small em {font-style:normal}
-#riskrail .rp-quality-rate-pair small .rp-pair-divider {margin:0 2px}
-@media(max-width:1799px) and (min-width:1201px),(max-width:600px){
- #riskrail .rp-quality-rate-pair {grid-column:span 2}
-}
 
 /* 序号沿用风险盾牌语言；前三位逐级减弱，避免奖牌语义。 */
-#riskrail :is(.rp-quality-entry,.rp-shop-entry) .rp-entry-main>header>.rank {position:relative;isolation:isolate;display:grid;place-items:center;flex:0 0 24px;height:28px;padding-bottom:3px;font-size:11px;font-weight:600;font-style:normal;font-variant-numeric:tabular-nums;color:#7b8da3}
-#riskrail :is(.rp-quality-entry,.rp-shop-entry) .rank::before {content:"";position:absolute;inset:0;z-index:-1;clip-path:polygon(0 0,100% 0,100% 73%,50% 100%,0 73%);border-radius:4px 4px 0 0;background:linear-gradient(155deg,#f1f4f8,#e7edf4)}
-#riskrail :is(.rp-quality-entry,.rp-shop-entry):nth-of-type(1) .rp-entry-main>header>.rank {color:#fff}
-#riskrail :is(.rp-quality-entry,.rp-shop-entry):nth-of-type(1) .rank::before {background:linear-gradient(145deg,#6d8fb7,#3f618c)}
-#riskrail :is(.rp-quality-entry,.rp-shop-entry):nth-of-type(2) .rp-entry-main>header>.rank {color:#365b86}
-#riskrail :is(.rp-quality-entry,.rp-shop-entry):nth-of-type(2) .rank::before {background:linear-gradient(145deg,#e0eaf6,#b8cee6)}
-#riskrail :is(.rp-quality-entry,.rp-shop-entry):nth-of-type(3) .rp-entry-main>header>.rank {color:#526e91}
-#riskrail :is(.rp-quality-entry,.rp-shop-entry):nth-of-type(3) .rank::before {background:linear-gradient(145deg,#edf2f8,#d3dfed)}
+#riskrail :is(.rp-quality-entry,.rp-shop-entry,.pc-risk-entry) .rp-entry-main>header>.rank {position:relative;isolation:isolate;display:grid;place-items:center;flex:0 0 24px;height:28px;padding-bottom:3px;font-size:11px;font-weight:600;font-style:normal;font-variant-numeric:tabular-nums;color:#7b8da3}
+#riskrail :is(.rp-quality-entry,.rp-shop-entry,.pc-risk-entry) .rank::before {content:"";position:absolute;inset:0;z-index:-1;clip-path:polygon(0 0,100% 0,100% 73%,50% 100%,0 73%);border-radius:4px 4px 0 0;background:linear-gradient(155deg,#f1f4f8,#e7edf4)}
+#riskrail :is(.rp-quality-entry,.rp-shop-entry,.pc-risk-entry):nth-of-type(1) .rp-entry-main>header>.rank {color:#fff}
+#riskrail :is(.rp-quality-entry,.rp-shop-entry,.pc-risk-entry):nth-of-type(1) .rank::before {background:linear-gradient(145deg,#6d8fb7,#3f618c)}
+#riskrail :is(.rp-quality-entry,.rp-shop-entry,.pc-risk-entry):nth-of-type(2) .rp-entry-main>header>.rank {color:#365b86}
+#riskrail :is(.rp-quality-entry,.rp-shop-entry,.pc-risk-entry):nth-of-type(2) .rank::before {background:linear-gradient(145deg,#e0eaf6,#b8cee6)}
+#riskrail :is(.rp-quality-entry,.rp-shop-entry,.pc-risk-entry):nth-of-type(3) .rp-entry-main>header>.rank {color:#526e91}
+#riskrail :is(.rp-quality-entry,.rp-shop-entry,.pc-risk-entry):nth-of-type(3) .rank::before {background:linear-gradient(145deg,#edf2f8,#d3dfed)}
 
 /* 属性沿用产品筛选口径；新品用蓝色星芒标签突出，避免混用风险红绿灯。 */
-:is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table,.up-product-heading) .rp-product-tags {display:flex;flex-wrap:wrap;gap:5px}
-:is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table,.up-product-heading) .rp-product-tag {display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border:1px solid #dce3ed;border-radius:5px;background:#f2f5f9;color:#6c7c90;font-size:12px;line-height:20px;white-space:nowrap}
-:is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table,.up-product-heading) .rp-product-tag--new {border-color:#b9d4ff;background:linear-gradient(120deg,#e8f2ff,#f0efff);color:#3165b5;font-weight:600;box-shadow:0 1px 3px #507bb018}
-:is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table,.up-product-heading) .rp-product-tag-spark {font-size:13px;color:#5687cf}
-:is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table,.up-product-heading) .rp-product-tag--clearance {border-color:#ead7b4;background:#fbf5e9;color:var(--orange)}
+:is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table,.up-product-heading,.ip-stagnant-table) .rp-product-tags {display:flex;flex-wrap:wrap;gap:5px}
+:is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table,.up-product-heading,.ip-stagnant-table) .rp-product-tag {display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border:1px solid #dce3ed;border-radius:5px;background:#f2f5f9;color:#6c7c90;font-size:12px;line-height:20px;white-space:nowrap}
+:is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table,.up-product-heading,.ip-stagnant-table) .rp-product-tag--new {border-color:#b9d4ff;background:linear-gradient(120deg,#e8f2ff,#f0efff);color:#3165b5;font-weight:600;box-shadow:0 1px 3px #507bb018}
+:is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table,.up-product-heading,.ip-stagnant-table) .rp-product-tag-spark {font-size:13px;color:#5687cf}
+:is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table,.up-product-heading,.ip-stagnant-table) .rp-product-tag--clearance {border-color:var(--orange-line);background:var(--orange-soft);color:var(--orange)}
 
 /* 退货恶化榜的独立环比指标也沿用统一颜色。 */
-:is(#riskrail,#dialogbody .rp-list-table) .rp-value.rp-quality-green {color:#00a486}
-:is(#riskrail,#dialogbody .rp-list-table) .rp-value.rp-quality-red {color:#c33d56}
+:is(#riskrail,#dialogbody .rp-list-table) .rp-value.rp-quality-green {color:var(--green)}
+:is(#riskrail,#dialogbody .rp-list-table) .rp-value.rp-quality-red {color:var(--red)}
 :is(#riskrail,#dialogbody .rp-list-table) .rp-value.rp-quality-gray {color:#8693a4}
 
 /* 卡片季品筛选紧邻平台，窄屏允许标题与操作分行，避免挤压。 */
@@ -112,7 +112,7 @@
 #riskrail .riskcard[data-rp-board] .rhead .rp-quality-actions {order:2}
 
 /* 表头口径提示：公式底色与来源定义分层，不改变卡片原有字号。 */
-#riskrail .rp-quality-rate-help {vertical-align:middle;margin-left:5px}
+#dialogbody .rp-quality-rate-help {vertical-align:middle;margin-left:5px}
 .metric-tooltip.metric-tooltip-quality-rates {box-sizing:border-box;width:440px;max-width:calc(100vw - 16px);padding:16px 18px;white-space:normal;background:#fff;border:1px solid #dce6f2;border-radius:9px;box-shadow:0 8px 28px #193a6426;color:#536981;font-size:12px;line-height:1.7}
 .metric-tooltip-quality-rates>h4 {margin:0 0 12px;color:#203650;font-size:14px;font-weight:600}
 .metric-tooltip-quality-rates .qr-rate-tip-section+.qr-rate-tip-section {margin-top:14px;padding-top:12px;border-top:1px solid #e8eef6}
@@ -122,3 +122,8 @@
 .metric-tooltip-quality-rates dt {color:#8693a4}
 .metric-tooltip-quality-rates dd {margin:0;overflow-wrap:anywhere}
 .metric-tooltip-quality-rates p {margin:9px 0 0;color:#7e8b9e}
+
+/* 库存两榜直接展示SKU身份与编码，保留SPU详情入口。 */
+#riskrail .rp-quality-entry .rp-sku-identity small {display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#8693a4;font-size:10px;line-height:16px}
+#riskrail .rp-shortage-tag{margin-top:4px;max-width:100%;font-size:12px;line-height:18px;white-space:normal}
+#dialogbody .rp-shortage-tag{margin-top:4px;font-size:12px}

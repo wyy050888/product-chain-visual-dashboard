@@ -1,10 +1,10 @@
 function ltSummaryCell(values){
  const meta=ltAggregate(values);
- return meta.value>0?`<span class="lt-amount">${fmt(meta.value)}</span>`:'<span class="lt-unconfigured">未配置</span>';
+ return meta.state==='complete'?`<span class="lt-amount">${fmt(meta.value)}</span>`:'<span class="lt-unconfigured">—</span>';
 }
 function ltQuarterCell(value,plan,quarter){
- const valid=ltNumeric(value),name=ltPlans[plan].name+' Q'+(quarter+1);
- return `<input type="number" min="0" max="99999" step="1" value="${esc(value)}" data-lt-number="${plan}:${quarter}" data-lt-year="${ltEditor.year}" data-lt-category-index="${ltEditor.category}" aria-label="${name}目标数" class="lt-target-input${value===0?' lt-input-empty':''}" ${valid?'':'aria-invalid="true"'}>`;
+ const valid=value===null||ltNumeric(value),name=ltPlans[plan].name+' Q'+(quarter+1);
+ return `<input type="number" min="0" max="${ltEditor.category===3?199998:99999}" step="1" value="${esc(value??'')}" data-lt-number="${plan}:${quarter}" data-lt-year="${ltEditor.year}" data-lt-category-index="${ltEditor.category}" aria-label="${name}目标数" class="lt-target-input${value===null?' lt-input-empty':''}" ${valid?'':'aria-invalid="true"'}>`;
 }
 function ltQuarterTable(){
  const grid=ltYearValues(ltEditor.year)[ltEditor.category];

@@ -1,48 +1,67 @@
 import {verifyTargetHeader} from './target-header.mjs';
+import {inspectImportWorkbook,cleanTemplateHeader} from './import-template-workbook.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import {fileURLToPath} from 'node:url';
-import {pddLinks} from './pdd-links.mjs';
+import vm from 'node:vm';
+function verifySampleMonths(){
+ const sample={shopId:'1',linkId:'10',name:'内置样例',spuId:'S'},memory=new Map();
+ const context=vm.createContext({klcCatalog:[sample],dashboardSyncDate:()=> '2026-10-22',window:{},localStorage:{getItem:key=>memory.get(key)||null}});
+ vm.runInContext(fs.readFileSync(new URL('../../src/modules/core-link-config/01-model.js',import.meta.url),'utf8'),context);
+ const seed=JSON.parse(JSON.stringify(context.klcSeed())),version=seed.records[0].versions[0];
+ assert.equal(version.monitorMonth,'2026-10');delete version.monitorMonth;
+ const read=store=>{memory.set('dashboard-core-links-v1',JSON.stringify(store));return context.klcLoad()};
+ assert.equal(read(seed).records[0].versions[0].monitorMonth,'2026-10','已有浏览器内的原始样例也能补齐');
+ for(const changes of [{monitorMonth:'2027-04'},{name:'用户编辑名称'},{updatedAt:'2026-10-21 12:00:00'},{to:'2026-10-21'}]){
+  const copy=structuredClone(seed);Object.assign(copy.records[0].versions[0],changes);
+  assert.equal(read(copy).records[0].versions[0].monitorMonth,changes.monitorMonth,'保留用户值或历史记录，不自动填写非原始样例');
+ }
+ const custom=structuredClone(seed);custom.records[0].linkId='999';assert.equal(read(custom).records[0].versions[0].monitorMonth,undefined,'不补造手工导入链接的月份');
+}
 export async function coreLinks(page){
- const storage='dashboard-core-links-v1',audit=()=>page.evaluate(()=>window.coreLinkConfigSnapshot()),editor=page.locator('#klc-editor');
- await page.evaluate(k=>localStorage.removeItem(k),storage);await page.reload();await pddLinks(page);
- await page.locator('#riskrail [data-risk="1"]').click();assert(await page.locator('#rp-core-link-config').isVisible());
- await page.locator('#rf-list-platform').selectOption('拼多多',{force:true});await page.locator('#rp-core-link-config').click();
- assert.equal(new URL(page.url()).hash,'#system-core-links');assert(await page.locator('#overlay').isHidden());assert(await page.locator('#klc-page').isVisible());assert.equal(await page.locator('[data-system-route="#system-core-links"]').getAttribute('aria-current'),'page');
- assert.equal(await page.locator('#klc-body tr').count(),10);assert.equal(await page.locator('#klc-pagination .list-pagination').getAttribute('data-list-size'),'10');
- assert(!/启用|停用|状态|关联SPU/.test(await page.locator('#klc-page').innerText()));await verifyTargetHeader(page,'#klc-page','核心链接配置',['拼多多']);
- const before=await audit(),shopId=before.rows[0].shopId,first=before.rows[0];
- const downloadPromise=page.waitForEvent('download');await page.locator('#klc-template').click();const file=await downloadPromise;assert.equal(file.suggestedFilename(),'核心链接配置模板.csv');const template=fs.readFileSync(await file.path(),'utf8');assert(!/状态|编号|责任人|关联SPU/.test(template));
- assert.equal(await page.locator('#klc-add').count(),0);assert.deepEqual(await page.locator('#klc-page .klc-actions button').allTextContents(),['导入','下载模板']);
- await page.locator('[data-klc-edit]').first().click();assert.equal(await editor.locator('h2').innerText(),'编辑链接');assert(await editor.locator('[name=shopId]').isDisabled());assert(await editor.locator('[name=linkId]').getAttribute('readonly')!==null);await editor.locator('[name=name]').fill('编辑后的链接');await page.locator('#klc-save').click();assert.equal((await audit()).rows.length,before.rows.length);assert.equal((await audit()).rows[0].name,'编辑后的链接');
- const longId='123456789012345678901234567890';
- const upload=async rows=>{await page.locator('#klc-file').setInputFiles({name:'核心链接.csv',mimeType:'text/csv',buffer:Buffer.from('\uFEFF'+[['所属店铺','链接ID','商品名称'],...rows].map(r=>r.join(',')).join('\r\n'))});await page.locator('[data-klc-preview] p').waitFor().catch(async()=>{throw Error(await page.locator('#klc-import-dialog').innerText())})};
- await page.locator('#klc-import').click();
- const baseline=JSON.stringify(await audit());await upload([[shopId,longId,'新增'],[shopId,longId,'重复']]);assert.match(await page.locator('[data-klc-preview]').innerText(),/重复/);assert(await page.locator('#klc-confirm-import').isDisabled());assert.equal(JSON.stringify(await audit()),baseline);
- const errDownload=page.waitForEvent('download');await page.locator('#klc-errors').click();assert.match(fs.readFileSync(await(await errDownload).path(),'utf8'),/重复/);
- await upload([[shopId,first.linkId,'导入修改'],[shopId,longId,'导入新增']]);assert(await page.locator('#klc-confirm-import').isDisabled());await page.locator('#klc-overwrite').check();
- await page.evaluate(()=>{window.klcNativeSet=Storage.prototype.setItem;Storage.prototype.setItem=function(k,v){if(k==='dashboard-core-links-v1')throw Error('blocked');return window.klcNativeSet.call(this,k,v)}});await page.locator('#klc-confirm-import').click();assert.match(await page.locator('#klc-import-dialog footer .klc-error').innerText(),/保存失败/);assert.equal(JSON.stringify(await audit()),baseline);await page.evaluate(()=>Storage.prototype.setItem=window.klcNativeSet);await page.locator('#klc-confirm-import').click();assert(await page.locator('#klc-import-dialog').isHidden());
- let current=await audit();assert.equal(current.rows.find(r=>r.linkId===first.linkId).name,'导入修改');
- await page.reload();current=await audit();assert(current.rows.some(r=>r.linkId===longId));
- const state=await audit(),past=await page.evaluate(()=>window.coreLinkConfigSnapshot('2026-10-09'));assert.equal(state.links.find(l=>l.id===longId).assessment,'unknown');assert.equal(state.links.find(l=>l.id===longId).metrics[0].thirdRank,'--');assert(!past.links.some(l=>l.id===longId));
- await page.locator('#klc-query').fill(longId);assert.equal(await page.locator('#klc-body tr').count(),1);await page.locator('[data-klc-edit]').click();assert.equal(await editor.locator('[name=linkId]').inputValue(),longId);await editor.locator('[name=name]').fill('导入后编辑');await page.locator('#klc-save').click();assert.equal((await audit()).rows.find(r=>r.linkId===longId).name,'导入后编辑');
- await page.locator('[data-klc-remove]').click();await page.locator('#klc-remove-confirm').click();assert(!(await audit()).rows.some(r=>r.linkId===longId));assert((await audit()).records.some(r=>r.linkId===longId));await page.locator('#klc-reset').click();
-
- // 真实XLSX上传，长数字字符串应完整保留。
- await page.locator('#klc-import').click();await page.locator('#klc-file').setInputFiles(fileURLToPath(new URL('../fixtures/core-links-import.xlsx',import.meta.url)));await page.locator('[data-klc-preview] p').waitFor().catch(async()=>{throw Error(await page.locator('#klc-import-dialog').innerText())});assert.match(await page.locator('[data-klc-preview]').innerText(),/新增 1 条/);await page.locator('#klc-confirm-import').click();assert((await audit()).rows.some(r=>r.linkId==='99887766554433221100998877'));
- const history=await page.evaluate(()=>window.coreLinkConfigSnapshot('2026-10-09'));assert.equal(history.rows.find(r=>r.linkId===first.linkId).name,first.name);
- for(const width of [1920,1366,390]){await page.setViewportSize({width,height:1000});assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2))}
- await page.setViewportSize({width:1920,height:1080});await page.screenshot({path:fileURLToPath(new URL('../../outputs/core-links.png',import.meta.url))});
- // 名单不设20条上限，缺失数据单列展示，历史名单不随移除回写。
- await page.locator('#klc-import').click();await upload(Array.from({length:25},(_,i)=>[shopId,'8877665544332211'+String(i).padStart(3,'0'),'扩充链接'+i]));await page.locator('#klc-confirm-import').click();assert((await audit()).rows.length>20);
- let store=JSON.parse(await page.evaluate(k=>localStorage.getItem(k),storage));store.records.forEach(r=>r.versions.forEach(v=>{if(!v.to)v.to='2026-10-10'}));store.revision++;
- await page.evaluate(({storage,store})=>localStorage.setItem(storage,JSON.stringify(store)),{storage,store});await page.reload();assert.equal((await audit()).rows.length,0);
- await page.locator('#klc-import').click();await upload([[shopId,'99998888777766665555','']]);await page.locator('#klc-confirm-import').click();
- 
- await page.evaluate(()=>location.hash='#overview');await page.locator('#riskrail .rp-shop-card [data-rp-row="1:6"]').waitFor();
- const unknown=page.locator('#riskrail .rp-shop-card [data-rp-row="1:6"] .rp-shop-link-counts');assert.equal(await unknown.locator('strong').allTextContents().then(a=>a.join(' ')),'-- --');
- await page.locator('#riskrail .rp-shop-card [data-rp-row="1:6"]').click();await page.locator('[data-drawer-tab="violations"]').click();assert.equal(await page.locator('[data-sd-link-tone="unknown"] [data-rp-pdd-link]').count(),1);assert.equal(await page.locator('[data-sd-link-tone="unknown"] tbody td').allTextContents().then(a=>a.slice(1).every(v=>v==='--')),true);await page.locator('#close').click();
- store=JSON.parse(await page.evaluate(k=>localStorage.getItem(k),storage));store.records.forEach(r=>r.versions.forEach(v=>{if(!v.to)v.to='2026-10-10'}));store.revision++;
- await page.evaluate(({storage,store})=>localStorage.setItem(storage,JSON.stringify(store)),{storage,store});await page.reload();assert.match(await page.locator('#riskrail .rp-shop-card [data-rp-row="1:6"] .rp-shop-link-counts').innerText(),/未配置核心链接/);
- await page.evaluate(k=>localStorage.removeItem(k),storage);await page.reload();
+ verifySampleMonths();
+ const keys=['dashboard-core-links-v1','dashboard-import-history-v1'];
+ const original=await page.evaluate(keys=>keys.map(key=>localStorage.getItem(key)),keys);
+ const audit=()=>page.evaluate(()=>coreLinkConfigSnapshot());
+ const headers=['月份','商品链接名称','链接ID','店铺名称','店铺ID'];
+ const csv=rows=>Buffer.from('\uFEFF'+rows.map(row=>row.map(value=>JSON.stringify(String(value))).join(',')).join('\r\n'));
+ const upload=async rows=>{await page.locator('#klc-file').setInputFiles({name:'按月覆盖.csv',mimeType:'text/csv',buffer:csv([headers,...rows])})};
+ const close=()=>page.locator('#klc-import-dialog [data-klc-close]').first().click();
+ const confirm=async()=>{await page.locator('#klc-confirm-import').click();await page.waitForFunction(()=>!document.getElementById('klc-import-dialog').hasAttribute('aria-busy'))};
+ try{
+  await page.evaluate(key=>localStorage.removeItem(key),keys[0]);await page.reload();await page.evaluate(()=>location.hash='#system-core-links');
+  await verifyTargetHeader(page,'#klc-page','核心链接导入',['拼多多']);
+  assert.deepEqual(await page.locator('#klc-page .klc-table thead th').allTextContents(),['月份','商品信息','所属店铺','更新人','更新时间','操作']);
+  assert.equal(await page.locator('[data-klc-edit],#klc-editor,#klc-save').count(),0);
+  assert.equal(await page.locator('#klc-body tr').first().locator('td').first().getAttribute('data-klc-month'),'');
+  const before=await audit(),known=before.rows.find(row=>row.spuId),month=known.monitorMonth,display=month.replace('-','/');
+  const next=new Date(month+'-01T00:00:00Z');next.setUTCMonth(next.getUTCMonth()+1);const second=next.toISOString().slice(0,7);next.setUTCMonth(next.getUTCMonth()+1);const third=next.toISOString().slice(0,7);
+  const row=(period,id=known.linkId,name='按月导入链接')=>[period.replace('-','/'),name,id,'店铺展示名称',known.shopId];
+  await page.locator('#klc-month').click();await page.locator('#klc-month-panel [data-natural-value="'+Number(month.slice(5,7))+'"]').click();assert((await page.locator('#klc-body [data-klc-month]').allTextContents()).every(value=>value===display));await page.locator('#klc-reset').click();
+  await page.locator('#klc-import').click();await page.locator('.klc-import-notice').waitFor();assert.match(await page.locator('.klc-import-notice').innerText(),/覆盖.*全部已有数据.*未列出的链接.*其他月份不变/);
+  const baseline=JSON.stringify(await audit());
+  for(const rows of [[row(month),row(month)],[row('2026-13')],[['2026-10','链接','123','店铺',known.shopId]]]){await upload(rows);await confirm();assert.match(await page.locator('.ui-import-feedback').innerText(),/导入失败/);assert.equal(JSON.stringify(await audit()),baseline)}
+  await upload([row(second),row(third)]);assert(await page.locator('#klc-confirm-import').isEnabled(),'新月份无旧数据，不要求覆盖确认');await confirm();
+  let data=await audit();assert.equal(data.rows.length,before.rows.length+2);assert.equal(data.rows.filter(r=>r.shopId===known.shopId&&r.linkId===known.linkId).length,3,'同一链接可同时存在不同月份');
+  const untouched=data.rows.filter(r=>r.monitorMonth===third),oldMonth=data.rows.filter(r=>r.monitorMonth===month);
+  await page.locator('#klc-query').fill(known.linkId);await page.locator('#klc-shop').fill(known.shopId);
+  await page.locator('#klc-import').click();const longId='799999900123456789012345678901';
+  await upload([row(month,known.linkId,'当月替换'),row(second,longId,'次月替换')]);
+  assert(await page.locator('#klc-confirm-import').isEnabled());await close();assert.deepEqual(await audit(),data,'取消整月覆盖不修改数据');
+  await page.locator('#klc-import').click();await upload([row(month,known.linkId,'当月替换'),row(second,longId,'次月替换')]);
+  await page.evaluate(()=>{window.klcSet=Storage.prototype.setItem;Storage.prototype.setItem=function(key,value){if(key==='dashboard-core-links-v1')throw Error('quota');return window.klcSet.call(this,key,value)}});
+  await confirm();assert.match(await page.locator('.ui-import-feedback').innerText(),/导入失败/);assert.deepEqual(await audit(),data,'保存失败不能部分覆盖');
+  await page.evaluate(()=>{Storage.prototype.setItem=window.klcSet;delete window.klcSet});await confirm();
+  data=await audit();assert.equal(data.rows.filter(r=>r.monitorMonth===month).length,1,'文件覆盖整个月份，与页面搜索、店铺过滤无关');assert.equal(data.rows.filter(r=>r.monitorMonth===second).length,1);assert.deepEqual(data.rows.filter(r=>r.monitorMonth===third),untouched,'文件外月份完整保留');
+  assert.equal(data.rows.find(r=>r.monitorMonth===month).spuId,known.spuId);assert.equal(data.rows.find(r=>r.monitorMonth===second).linkId,longId);
+  const affected=await page.evaluate(()=>coreLinkConfigSnapshot().links);assert.equal(affected.filter(r=>r.shopId===known.shopId&&r.monitorMonth===month&&r.linkId===known.linkId).length,1,'前台消费同月最新核心链接');
+  const committed=await audit();await page.reload();assert.deepEqual(await audit(),committed,'刷新保留整月替换结果及其他月份');
+  await page.locator('#klc-reset').click();await page.locator('#klc-query').fill(known.linkId);const secondBefore=(await audit()).rows.filter(r=>r.monitorMonth===third);
+  const target=page.locator('#klc-body tr').filter({has:page.locator('[data-klc-month]',{hasText:display})});await target.locator('[data-klc-remove]').click();await page.locator('#klc-remove-confirm').click();
+  assert.equal((await audit()).rows.filter(r=>r.monitorMonth===month).length,0);assert.deepEqual((await audit()).rows.filter(r=>r.monitorMonth===third),secondBefore,'移除只操作当前月份');
+  for(const width of [1920,1366,390]){await page.setViewportSize({width,height:900});assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2))}
+  await page.setViewportSize({width:1920,height:1080});
+ }finally{
+  await page.evaluate(({keys,original})=>{if(window.klcSet){Storage.prototype.setItem=window.klcSet;delete window.klcSet}keys.forEach((key,i)=>original[i]===null?localStorage.removeItem(key):localStorage.setItem(key,original[i]))},{keys,original});await page.reload();
+ }
+ console.log('通过：月份首列、去除编辑、整月跨店铺覆盖、多月份/同链接隔离、取消和失败回滚、SPU关联及长ID、前台消费与持久化。');
 }

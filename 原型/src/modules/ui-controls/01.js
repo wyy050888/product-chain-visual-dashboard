@@ -37,10 +37,11 @@ function polishDashboardControls(root){
   }
   for(const select of root.querySelectorAll(uiFilterSelector)){
     const filtered=!['全部','all',''].includes(select.value);
-    select.classList.toggle('ui-filter-active',filtered);
+    if(select.classList.contains('ui-filter-active')!==filtered)select.classList.toggle('ui-filter-active',filtered);
   }
-  projectSearchClear.hidden=!projectSearchInput.value;
-  projectResetButton.disabled=!projectSearchInput.value&&$('#projectchain').value==='全部'&&$('#projecttype').value==='全部'&&projectStatus==='all';
+  const hideClear=!projectSearchInput.value,disableReset=hideClear&&$('#projectchain').value==='全部'&&$('#projecttype').value==='全部'&&projectStatus==='all';
+  if(projectSearchClear.hidden!==hideClear)projectSearchClear.hidden=hideClear;
+  if(projectResetButton.disabled!==disableReset)projectResetButton.disabled=disableReset;
 }
 // 按左右键切换时，业务渲染可能替换按钮；下一帧把焦点还给相同选项。
 document.addEventListener('keydown',event=>{
@@ -66,12 +67,13 @@ document.addEventListener('change',()=>polishDashboardControls(document.body));
 const uiControlsObserver=new MutationObserver(records=>{
   const scopes=new Set();
   for(const record of records){
-    if(record.target.closest?.('.metric-help,.metric-tooltip,.portal-header'))continue;
+    if(record.target.closest?.('.metric-help,.metric-tooltip,.portal-header,.ui-year-field'))continue;
     if(record.type==='childList'&&!record.addedNodes.length)continue;
+    if(record.type==='childList'&&[...record.addedNodes].every(node=>node.nodeType===1&&node.matches('.ui-column-handle,colgroup,col,.metric-help,.metric-tooltip,.ui-year-field')))continue;
     const scope=record.target.closest?.('section.section,#dialogbody')||record.target;
     if(scope.querySelectorAll)scopes.add(scope);
   }
-  for(const scope of scopes)polishDashboardControls(scope);
+  for(const scope of scopes)if(scope.isConnected&&![...scopes].some(parent=>parent!==scope&&parent.contains(scope)))polishDashboardControls(scope);
 });
 uiControlsObserver.observe(document.querySelector('.page'),{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
 uiControlsObserver.observe($('#dialogbody'),{subtree:true,childList:true,attributes:true,attributeFilter:['class']});

@@ -1,7 +1,7 @@
 
 scQuantityObservations=function(ledger){
  const ps=projects(),cutoff=bounds().cutoff;
- const category=sqOriginalQuantity(ledger).map(r=>{const related=ps.filter(p=>r.coreMaterial?p.brand===r.brand&&sqUsesMaterial(p,r.material):sqCategory(p)===r.categoryPath);return {...r,quantityRule:r.coreMaterial?'核心物料准入储备不足':'三级类目准入储备不足',name:(r.coreMaterial?r.brand+' · '+r.material:r.category)+' · 准入储备不足',relatedProjects:related,projectId:related[0]?.id??null,project:related.length?related.map(p=>p.name+' '+p.model).join('、'):'未关联项目'};});
+ const category=sqOriginalQuantity(ledger).map(r=>{const related=ps.filter(p=>r.coreMaterial?p.brand===r.brand&&sqUsesMaterial(p,r.material):sqCategory(p)===r.categoryPath);return {...r,quantityRule:r.coreMaterial?'核心物料准入储备不足':'三级分类准入储备不足',name:(r.coreMaterial?r.brand+' · '+r.material:r.category)+' · 准入储备不足',relatedProjects:related,projectId:related[0]?.id??null,project:related.length?related.map(p=>p.name+' '+p.model).join('、'):'未关联项目'};});
  const self=ps.filter(p=>p.type.startsWith('自研'));
  const assigned=new Map(self.map(p=>[p.id,[]]));
  ledger.filter(s=>s.kind===0&&s.date<=cutoff).forEach(s=>{const eligible=self.filter(p=>sqCategory(p)===s.categoryPath);if(eligible.length)assigned.get(eligible[Math.abs(s.id)%eligible.length].id).push(s);});

@@ -30,12 +30,13 @@ function upStockFacts(r) {
   const financePriceCents=r.num?Math.round(r.amountCents*10000/r.num):0;
   const coverage=s.sales?warehouse/(s.sales/days):null;
   const {dailyNet15,coverage15:slowCoverage,totalCoverage15}=upSellableStock(p,warehouse,range.end,totalUnits);
-  const slow=warehouse>0&&slowCoverage!==null&&slowCoverage>=60;
-  return {...upStockBalanceFacts(r,{warehouse,factory,undelivered,totalUnits,financePriceCents}),warehouse,factory,undelivered,totalUnits,financePriceCents,goodsValueCents:Number.isFinite(r.inventoryBalance?.goodsValueCents)?r.inventoryBalance.goodsValueCents:totalUnits*financePriceCents,
-    coverage,slowCoverage,slow,dailyNet15,coverage15:slowCoverage,totalCoverage15,sales:s.sales,gsvCents:s.gsvCents,
+  const balance=upStockBalanceFacts(r,{warehouse,factory,undelivered,totalUnits,financePriceCents}),metrics=brcStockMetrics({...balance,warehouse,dailyNet15,coverage15:slowCoverage,totalCoverage15});
+  const slow=brcStockStagnant({warehouse,dailyNet15,...metrics});
+  return {...balance,warehouse,factory,undelivered,totalUnits,financePriceCents,goodsValueCents:Number.isFinite(r.inventoryBalance?.goodsValueCents)?r.inventoryBalance.goodsValueCents:totalUnits*financePriceCents,
+    coverage,slowCoverage,slow,dailyNet15,...metrics,sales:s.sales,gsvCents:s.gsvCents,
     staleMaxAgeDays:r.staleOldestReceivedDate?Math.max(0,aiFlowDayDiff(r.staleOldestReceivedDate,range.end)):null,
     staleOldestSellableUnits:r.staleOldestReceivedDate&&Number.isFinite(r.staleOldestSellableUnits)?r.staleOldestSellableUnits:null,
-    staleUnits:r.amountCents?Math.round(r.num*r.staleCents/r.amountCents):0,
+    staleUnits:Number.isFinite(r.staleUnits)?r.staleUnits:r.amountCents?Math.round(r.num*r.staleCents/r.amountCents):0,
     staleValueCents:Math.round(r.staleCents*10000)};
 }
 const upOriginalSlowRows=srRows;
@@ -46,9 +47,9 @@ function upPlatformStockFacts(r,platform='all'){
  const stock=upStockFacts(r);
  if(platform==='all')return {...r,...stock,metricPlatform:platform};
  const p=upIdentity(r),w=upWindow(),s=upSummary(p,w.start,w.end,platform),recent=upSummary(p,shiftDate(w.end,-14),w.end,platform),days=Math.max(1,aiFlowDayDiff(w.start,w.end)+1);
- const dailyNet15=(recent.sales-recent.returned)/15,slowCoverage=dailyNet15>0?stock.warehouse/dailyNet15:null;
+ const dailyNet15=(recent.sales-recent.returned)/15,slowCoverage=dailyNet15>0?stock.warehouse/dailyNet15:null,totalCoverage15=dailyNet15>0?stock.totalUnits/dailyNet15:null,sellableCoverage15=dailyNet15>0?stock.sellableUnits/dailyNet15:null;
  return {...r,...stock,metricPlatform:platform,sales:s.sales,gsvCents:s.gsvCents,sales15:recent.sales,
-  coverage:s.sales?stock.warehouse/(s.sales/days):null,slowCoverage,slow:stock.warehouse>0&&slowCoverage!==null&&slowCoverage>=60,
+  coverage:s.sales?stock.warehouse/(s.sales/days):null,coverage15:slowCoverage,totalCoverage15,sellableCoverage15,slowCoverage,slow:brcStockStagnant({...stock,dailyNet15,coverage15:slowCoverage,totalCoverage15,sellableCoverage15}),
   turn:r.avg?s.sales*(r.num?r.amountCents/100/r.num:0)/r.avg:null};
 }
 function upPlatformStockRisk(r,platform='all'){
@@ -56,8 +57,7 @@ function upPlatformStockRisk(r,platform='all'){
  return {...facts,reasons:irReasons(facts)};
 }
 
-// 无销售基数时比率为空，不用0%触发利润风险。
-for(const rule of irPlatformRules){const hit=rule.hit;rule.hit=value=>Number.isFinite(value)&&hit(value)}
+// 无销售基数时比率为空，由完整谓词处理缺失值；切换为次数指标时不依赖利润率是否有值。
 const upOriginalHighStock=irLedger;
 irLedger=function() {
   const w=upWindow();

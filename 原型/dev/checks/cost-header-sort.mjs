@@ -42,7 +42,7 @@ export async function verifyCostHeaderSort(page){
  await period.locator('[data-time-mode="month"]').click();await period.locator('[data-time-value]').selectOption('10');assert.deepEqual(await ids(),original);
  await host.locator('[data-cc-sort="year-rate"]').click();const first=host.locator('tbody tr').first(),id=await first.getAttribute('data-cc-row');await first.locator('[data-cc-department]').click();assert.equal(await page.locator('.cc-drawer').getAttribute('data-cc-department'),id,'排序后查看仍对应正确部门');await page.locator('#close').click();
  for(const width of [1920,1366,390]){
-  await page.setViewportSize({width,height:1080});assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2),'排序表头不撑宽页面 '+width);
+  await page.setViewportSize({width,height:1080});assert(await root.evaluate(el=>el.scrollWidth<=el.clientWidth+1),'排序表头不撑宽降本模块 '+width);
   assert(await host.locator('th').evaluateAll(nodes=>nodes.every(n=>n.scrollWidth<=n.clientWidth+1)),'复合表头内容限制在列内 '+width);
  }
  await page.setViewportSize({width:1920,height:1080});await host.locator('thead').screenshot({path:fileURLToPath(new URL('../../outputs/cost-sort-header.png',import.meta.url))});

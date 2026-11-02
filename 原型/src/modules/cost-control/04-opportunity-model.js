@@ -26,12 +26,12 @@ function ccOpportunityRows(){
  const rows=[...upSpus.values()].map(product=>{
   const p=upProduct(product),facts=upSummary(product,start,end,'all');return {spuId:p.spuId,product:p,category:pfCategory(p),brand:p.brand,gsvCents:facts.gsvCents,profitRate:facts.profitRate,start,end};
  }).filter(row=>Number.isFinite(row.profitRate)&&row.gsvCents/1000000>=config.high&&row.profitRate<config.profit).sort((a,b)=>b.gsvCents-a.gsvCents||a.spuId.localeCompare(b.spuId));
- rows.forEach(row=>{
+ pfWithCompanyStockBatch(()=>rows.forEach(row=>{
   row.costQuotes=ccCostQuotes(row.product);row.unitCents=ccEstimateUnitSaving(row.costQuotes);
   row.direction=['核心物料议价、装配工艺优化','BOM方案优化、关键器件替代','电机及结构件议价、装配效率优化','器件替代验证、包材优化'][row.product.chain];
   // 使用全产品分析期间作为待办身份，跨页面筛选不会产生重复建议。
   row.taskId='cost-reduction|'+row.spuId+'|'+DATA_CUTOFF;
- });
+ }));
  ccOpportunityCache={key,rows};return rows;
 }
 function ccCostProposal(row){

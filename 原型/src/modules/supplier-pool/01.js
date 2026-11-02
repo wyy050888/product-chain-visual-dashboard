@@ -2,10 +2,10 @@
 
 // Independent supplier-type / third-level-category pools. Counts are deduplicated supplier IDs.
 const scPaths=[
- ['清洁类/地面清洁/扫地机器人','清洁类/地面清洁/洗地机'],
- ['厨房类/食物料理/破壁机','厨房类/烹饪电器/空气炸锅'],
- ['环境类/空气调节/循环扇','环境类/取暖电器/暖风机'],
- ['个护类/男士理容/剃须刀','个护类/美发护理/吹风机']
+ ['清洁/地面清洁/扫地机器人','清洁/地面清洁/洗地机'],
+ ['厨电/食物料理/破壁机','厨电/烹饪电器/空气炸锅'],
+ ['环境/空气调节/循环扇','环境/取暖电器/暖风机'],
+ ['个护&健康/男士理容/剃须刀','个护&健康/美发护理/吹风机']
 ];
 const scMaterialPaths=[
  ['清洁物料/驱动系统/无刷电机','清洁物料/电源系统/锂电池包'],
@@ -20,17 +20,17 @@ function scGroups(ledger=svLedger()){
  return [0,1].flatMap(kind=>chains.flatMap((_,chain)=>[0,1].map(leaf=>{const id=kind+'-'+chain+'-'+leaf,rows=ledger.filter(s=>s.categoryId3===id&&s.date<=cutoff),unique=arr=>[...new Map(arr.map(s=>[s.key,s])).values()],pool={intent:unique(rows.filter(s=>s.state==='意向储备')),admission:unique(rows.filter(s=>s.state==='准入储备')),strategic:unique(rows.filter(s=>s.strategic&&s.state==='已合作'&&s.cooperation<=cutoff))},quarterTarget=(kind?2:3)+(leaf===0&&quarter===3?1:0),yearTarget=(kind?8:12)+(leaf===0?1:0),yearNew=unique(rows.filter(s=>s.date>=yearStart)).length,quarterActual=unique(rows.filter(s=>s.date>=quarterStart)).length;
  return {id,kind,chain,leaf,path:(kind?scMaterialPaths:scPaths)[chain][leaf],name:(kind?scMaterialPaths:scPaths)[chain][leaf].split('/').at(-1),owner:pbPeople[chain+(kind?4:0)],rows,pool,counts:Object.fromEntries(scMetrics.map(m=>[m.key,pool[m.key].length])),quarter,quarterTarget,quarterActual,yearNew,yearTarget,yearActual:yearNew,periodTarget:Array.from({length:range.last-range.first+1},(_,i)=>{const month=range.first+i,q=Math.ceil(month/3),qt=(kind?2:3)+(leaf===0&&q===3?1:0);return splitTarget(qt,[1,1,1])[(month-1)%3]}).reduce((a,b)=>a+b,0),periodActual:unique(rows.filter(s=>s.date>=range.start)).length,cutoff};})));
 }
-const scCoreBrands=filterCatalog.supplierCoreBrands,scCoreMaterials=filterCatalog.supplierCoreMaterials;
+const scCoreBrands=filterCatalog.supplierSourceBrands.map(brand=>[brand]),scCoreMaterials=filterCatalog.supplierCoreMaterials;
 function scMetricsFor(g){return g.coreMaterial?[{key:'admission',label:'准入储备',target:5}]:[scMetrics[1]];}
 const scCategoryGroups=scGroups;
 scGroups=function(ledger=svLedger()){
  const original=scCategoryGroups(ledger),materialTotals=original.filter(g=>g.kind===1).reduce((a,g)=>{for(const key of ['quarterTarget','yearTarget','periodTarget'])a[key]+=g[key];return a;},{quarterTarget:0,yearTarget:0,periodTarget:0}),p=periodFor(),range=bounds(p),quarter=Math.ceil(+range.cutoff.slice(5,7)/3),qStart=`${p.year}-${String((quarter-1)*3+1).padStart(2,'0')}-01`,allocations=Object.fromEntries(Object.entries(materialTotals).map(([key,n])=>[key,splitTarget(n,Array(20).fill(1))]));
- const groups=scCoreBrands.flatMap(([brand,grade],bi)=>scCoreMaterials.map((material,mi)=>{
+ const groups=scCoreBrands.flatMap(([brand],bi)=>scCoreMaterials.map((material,mi)=>{
   const index=bi*4+mi,id='core-'+bi+'-'+mi,rows=[...new Map(ledger.filter(s=>s.kind===1&&s.brand===brand&&s.material===material&&s.date<=range.cutoff).map(s=>[s.key,{...s,cooperationProducts:s.state==='已合作'?brand+' · '+material:'暂无合作（拟供：'+brand+' · '+material+'）'}])).values()],pool={intent:rows.filter(s=>s.state==='意向储备'),admission:rows.filter(s=>s.state==='准入储备'),strategic:rows.filter(s=>s.strategic&&s.cooperation<=range.cutoff)},yearNew=rows.filter(s=>s.date>=p.year+'-01-01').length;
-  return {id,kind:1,coreMaterial:true,brand,grade,material,chain:rows[0]?.chain??mi,leaf:mi,path:grade+'级品牌 · '+brand+' / '+material,name:brand+' · '+material,owner:rows[0]?.owner||pbPeople[4+mi],rows,pool,counts:Object.fromEntries(scMetrics.map(m=>[m.key,pool[m.key].length])),quarter,quarterTarget:allocations.quarterTarget[index],quarterActual:rows.filter(s=>s.date>=qStart).length,yearTarget:allocations.yearTarget[index],yearActual:yearNew,yearNew,periodTarget:allocations.periodTarget[index],periodActual:rows.filter(s=>s.date>=range.start).length,cutoff:range.cutoff};
+  return {id,kind:1,coreMaterial:true,brand,material,chain:rows[0]?.chain??mi,leaf:mi,path:brand+' / '+material,name:brand+' · '+material,owner:rows[0]?.owner||pbPeople[4+mi],rows,pool,counts:Object.fromEntries(scMetrics.map(m=>[m.key,pool[m.key].length])),quarter,quarterTarget:allocations.quarterTarget[index],quarterActual:rows.filter(s=>s.date>=qStart).length,yearTarget:allocations.yearTarget[index],yearActual:yearNew,yearNew,periodTarget:allocations.periodTarget[index],periodActual:rows.filter(s=>s.date>=range.start).length,cutoff:range.cutoff};
  }));return [...original.filter(g=>g.kind===0),...groups];
 };
-function scQuantityObservations(ledger){return scGroups(ledger).flatMap(g=>scMetricsFor(g).map(m=>{const s=g.rows[0]||{tier:g.kind,chain:g.chain,kind:g.kind,brand:'—',code:'CAT-'+g.id,name:g.name,key:'CAT-'+g.id,state:'类目储备池'},value=g.counts[m.key];return {...s,kind:'supplier-risk',supplierType:g.kind?'物料':'整机',supplierKey:s.key,supplier:s.name,originalState:'类目储备池',owner:g.owner,key:svKey('category-v2-'+g.id+'-'+m.key),categoryId:0,coreMaterial:!!g.coreMaterial,brand:g.brand||s.brand,material:g.material||s.material,ruleVersion:'category-v2',categoryGroup:g.id,categoryPath:g.path,category:g.name,reserveStage:m.key,dimension:svTabs[0],name:g.name+' · '+m.label+'数量不足',project:g.path+'供应商储备',projectId:null,date:g.cutoff,due:shiftDate(g.cutoff,7),department:'采购部',value,target:m.target,gap:Math.max(0,m.target-value),metric:value+' / '+m.target+' 家',rule:g.path+'：'+m.label+'数量 < '+m.target+' 家',level:g.coreMaterial||value===0||m.key==='strategic'?'高危':'中风险',issue:g.path+'的'+m.label+'数量为 '+value+' 家，低于 '+m.target+' 家，缺口 '+Math.max(0,m.target-value)+' 家。',memberKeys:g.pool[m.key].map(s=>s.key),source:g.coreMaterial?'供应商统一台账 · 品牌 / 核心物料 · 准入储备去重计数':'供应商统一台账 · 类型 / 三级类目 · 去重计数'};}));}
+function scQuantityObservations(ledger){return scGroups(ledger).flatMap(g=>scMetricsFor(g).map(m=>{const s=g.rows[0]||{tier:g.kind,chain:g.chain,kind:g.kind,brand:'—',code:'CAT-'+g.id,name:g.name,key:'CAT-'+g.id,state:'链群储备池'},value=g.counts[m.key];return {...s,kind:'supplier-risk',supplierType:g.kind?'物料':'整机',supplierKey:s.key,supplier:s.name,originalState:'链群储备池',owner:g.owner,key:svKey('category-v2-'+g.id+'-'+m.key),categoryId:0,coreMaterial:!!g.coreMaterial,brand:g.brand||s.brand,material:g.material||s.material,ruleVersion:'category-v2',categoryGroup:g.id,categoryPath:g.path,category:g.name,reserveStage:m.key,dimension:svTabs[0],name:g.name+' · '+m.label+'数量不足',project:g.path+'供应商储备',projectId:null,date:g.cutoff,due:shiftDate(g.cutoff,7),department:'采购部',value,target:m.target,gap:Math.max(0,m.target-value),metric:value+' / '+m.target+' 家',rule:g.path+'：'+m.label+'数量 < '+m.target+' 家',level:g.coreMaterial||value===0||m.key==='strategic'?'高危':'中风险',issue:g.path+'的'+m.label+'数量为 '+value+' 家，低于 '+m.target+' 家，缺口 '+Math.max(0,m.target-value)+' 家。',memberKeys:g.pool[m.key].map(s=>s.key),source:g.coreMaterial?'供应商统一台账 · 品牌 / 核心物料 · 准入储备去重计数':'供应商统一台账 · 类型 / 三级分类 · 去重计数'};}));}
 
 const svActor=()=>svState.role==='manager'?'采购部部长':svState.buyer;
 function svPersist(){return pbSave();}

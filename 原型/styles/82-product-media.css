@@ -1,0 +1,45 @@
+/* 商品图片统一规格：以语义选择器覆盖历史尺寸，平台 Logo 与图片查看器沿用原规格。 */
+:root{
+ --product-thumbnail-size:56px;
+ --product-detail-image-size:72px;
+ --product-cover-image-size:96px;
+ --table-product-size:var(--product-thumbnail-size);
+}
+:is(.risk-thumb,.product-thumb,.pp-placeholder,.prodname>.thumb,
+ .pp-product>img,.pb-rank-product>img,.dp-product img,.sw-project img,
+ .cw-product img,.ns-product img,.wf-product img,.kpm-point-product img,
+ .scp-project-link img,.sd-spu-identity img){
+ width:var(--product-thumbnail-size)!important;
+ height:var(--product-thumbnail-size)!important;
+ min-width:var(--product-thumbnail-size)!important;
+ max-width:none!important;
+ flex:0 0 auto!important;
+ object-fit:cover!important;
+ object-view-box:var(--product-image-crop,none);
+}
+/* 详情身份区保留更大的图片层级；缺图占位与同区图片尺寸一致。 */
+:is(.up-hero,.dp-detail-head,.pc-product,.pc-hero,.md-hero,.nt-product,
+ .na-hero,.od-hero,.ns-detail-hero,.psw-hero,.cw-detail-top)
+ :is(.risk-thumb,.product-thumb),
+.dp-detail-head>img,.ns-detail-hero>img,.psw-hero>img,.cw-detail-top .cw-product>img{
+ width:var(--product-detail-image-size)!important;
+ height:var(--product-detail-image-size)!important;
+ min-width:var(--product-detail-image-size)!important;
+ object-fit:contain!important;
+ object-view-box:none;
+}
+.product-detail-image :is(img,.risk-thumb){
+ width:var(--product-cover-image-size)!important;
+ height:var(--product-cover-image-size)!important;
+ min-width:var(--product-cover-image-size)!important;
+ object-fit:contain!important;
+ object-view-box:none;
+}
+/* 窄屏缩略图仍大于旧规格，为产品名称与操作保留空间。 */
+@media(max-width:600px){
+ :root{
+  --product-thumbnail-size:48px;
+  --product-detail-image-size:64px;
+  --product-cover-image-size:84px;
+ }
+}

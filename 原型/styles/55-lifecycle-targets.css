@@ -3,12 +3,19 @@
 body.lt-system-active>main.page{display:none}
 #lt-system{display:grid;grid-template-columns:168px minmax(0,1fr);min-height:calc(100dvh - 60px);background:linear-gradient(140deg,#edf4ff,#f6f9ff 55%);color:#243650;font-size:13px}
 #lt-system .lt-sidebar{padding:20px 10px;background:#eef4ff}
-#lt-system .lt-menu-group>summary{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:13px 20px;color:#526780;cursor:pointer;list-style:none;font-size:14px}
+#lt-system .lt-menu-group>summary{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:44px;padding:11px 20px;color:#344b68;cursor:pointer;list-style:none;font-size:14px;line-height:22px}
 #lt-system .lt-menu-group>summary::-webkit-details-marker{display:none}
-#lt-system .lt-menu-group>summary>span{font-size:12px;color:#8d9bb1;transform:rotate(180deg)}
-#lt-system .lt-menu-group[open]>summary>span{transform:none}
-#lt-system .lt-sidebar a{display:block;padding:12px 14px 12px 24px;margin-top:4px;border-radius:6px;background:transparent;color:#526780;font-size:13px}
-#lt-system .lt-content{min-width:0;padding:10px 12px 24px 0}
+#lt-system .lt-menu-group>summary>span{flex:none;width:6px;height:6px;border-right:1px solid #667b96;border-bottom:1px solid #667b96;font-size:0;transform:rotate(45deg);transition:transform .15s}
+#lt-system .lt-menu-group[open]>summary>span{transform:rotate(225deg)}
+#lt-system .lt-sidebar :is(a,.lt-menu-disabled){display:block;min-height:42px;padding:11px 10px 11px 38px;margin-top:2px;border-radius:6px;background:transparent;color:#526780;font-size:13px;line-height:20px}
+#lt-system .lt-menu-group{margin-bottom:4px}
+#lt-system .lt-sidebar .lt-menu-disabled{color:#9aa7b7;cursor:not-allowed;background:transparent}
+#lt-system .lt-menu-group>summary:hover,#lt-system .lt-sidebar a:hover{background:#e4edfd}
+#lt-system .lt-content{display:flex;flex-direction:column;min-width:0;padding:10px 12px 24px 0}
+/* 短页面由白色业务面板填满工作区，长页面按内容自然延伸。 */
+#sm-content>section:not([hidden]){display:flex;flex:1 0 auto;flex-direction:column;min-width:0}
+#sm-content>section>.lt-page-head{flex-shrink:0}
+#sm-content>section>.lt-panel:last-child{flex:1 0 auto}
 #lt-system .lt-page-head{display:flex;align-items:center;height:56px;padding:0 22px;background:#fff;border-radius:8px;margin-bottom:12px}
 #lt-system .lt-page-head>span{position:relative;height:100%;display:flex;align-items:center;color:#1677ff;font-size:14px;font-weight:500}
 #lt-system .lt-page-head>span:after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:#1677ff}
@@ -43,13 +50,27 @@ body.lt-system-active .head.portal-header .chain-trigger{border-bottom-color:tra
 #lifecycle .life-count-row{flex-wrap:wrap;row-gap:3px}
 
 #lifecycle .lt-card-state{font-size:17px;color:#8593a9;font-weight:500}
+#lifecycle .lifecard{min-width:0;padding:14px 12px}
+#lifecycle .lt-card-completion{display:flex;align-items:baseline;gap:8px;margin:10px 0 14px}
+#lifecycle .lt-card-counts>div>span{font-size:12px;color:var(--muted);white-space:nowrap}
+#lifecycle .lt-card-completion>strong{margin:0;font-size:24px;line-height:1.3;white-space:nowrap}
+#lifecycle .lt-card-counts{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+#lifecycle .lt-card-counts>div{display:flex;align-items:baseline;gap:4px;min-width:0}
+#lifecycle .lt-card-counts b{font-size:14px;line-height:22px;font-weight:500;font-variant-numeric:tabular-nums;color:var(--ink);white-space:nowrap}
 @media(max-width:1200px){#lt-system{grid-template-columns:156px minmax(0,1fr)}#lt-system .lt-panel{padding:16px}}
-@media(max-width:700px){#lt-system{grid-template-columns:minmax(0,1fr)}#lt-system .lt-sidebar{padding:0 10px;background:transparent}#lt-system .lt-menu-group{display:flex;align-items:center;gap:8px}#lt-system .lt-menu-group>summary{padding:12px 8px;float:left}#lt-system .lt-sidebar a{display:inline-block;margin:0;padding:9px 14px}#lt-system .lt-content{padding:8px 10px 20px}#lt-system .lt-page-head{display:none}#lt-system .lt-panel{padding:14px 12px}#lt-system .lt-year-field{margin-left:auto}#lifecycle #lt-open-targets{margin-left:6px}}
+@media(max-width:700px){#lt-system{grid-template-columns:minmax(0,1fr)}#lt-system .lt-sidebar{padding:0 10px;background:transparent}#lt-system .lt-menu-group{display:block}#lt-system .lt-menu-group>summary{padding:12px 8px;float:none}#lt-system .lt-sidebar :is(a,.lt-menu-disabled){display:inline-block;margin:0;padding:9px 14px}#lt-system .lt-content{padding:8px 10px 20px}#lt-system .lt-page-head{display:none}#lt-system .lt-panel{padding:14px 12px}#lt-system .lt-year-field{margin-left:auto}#lifecycle #lt-open-targets{margin-left:6px}}
 
 #lt-system .lt-sidebar a[aria-current=page]{background:#dbe8ff;color:#1677ff}
 #sm-content>section[hidden]{display:none!important}
 
 /* 目标管理页面：标题与业务Tab同行，标题保持普通黑色标题样式。 */
+#lt-system .sm-data-action{display:inline-flex;align-items:center;justify-content:center;gap:7px;flex-shrink:0;height:35px;padding:0 14px;border:1px solid #d3dff2;border-radius:4px;background:#fff;color:#536b8c;font-family:inherit;font-size:13px;font-weight:400;line-height:20px;white-space:nowrap;cursor:pointer}
+#lt-system .sm-data-action svg{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+#lt-system .sm-data-action:hover{color:#1677ff;border-color:#91bfff;background:#f8fbff}
+#lt-system .sm-data-import{color:#fff;background:#1677ff;border-color:#1677ff}
+#lt-system .sm-data-import:hover{color:#fff;background:#4096ff;border-color:#4096ff}
+#lt-system .sm-data-action:focus-visible{outline:2px solid #91bfff;outline-offset:2px}
+#lt-system .sm-data-action:disabled{opacity:.45;cursor:not-allowed}
 #lt-system .sm-target-head{gap:32px}
 #lt-system .sm-page-title{margin:0;color:#1f2329;font-size:16px;font-weight:600;line-height:24px;white-space:nowrap;flex-shrink:0}
 #lt-system .sm-target-head>.sm-page-tabs{display:flex;align-items:stretch;gap:24px;min-width:0;height:100%;overflow-x:auto;margin-right:auto}
@@ -57,3 +78,29 @@ body.lt-system-active .head.portal-header .chain-trigger{border-bottom-color:tra
 #lt-system .sm-target-head>.sm-page-tabs button.active{color:#1677ff;border-bottom-color:#1677ff}
 #lt-system .sm-target-head>.lt-year-field{margin-left:auto;flex-shrink:0}
 @media(max-width:700px){#lt-system .sm-target-head{display:flex;height:auto;min-height:56px;gap:0 20px;flex-wrap:wrap;padding:0 14px}#lt-system .sm-target-head .sm-page-title{padding:16px 0 8px}#lt-system .sm-target-head>.lt-year-field{order:1}#lt-system .sm-target-head>.sm-page-tabs{order:2;flex:1 1 100%;height:44px;width:100%;gap:20px}}
+
+@media(max-width:700px){#lt-system .lt-sidebar .lt-menu-group>:is(a,.lt-menu-disabled){padding-left:32px}}
+
+/* 标题栏复用四链群名称，个护/健康始终作为一个筛选项。 */
+#lifecycle>.sectionhead{flex-wrap:wrap}
+#lifecycle #lt-open-targets{margin-right:auto;margin-left:0}
+#lifecycle #lt-chain-tabs{display:flex;flex-wrap:nowrap;gap:0;max-width:100%;min-width:0;margin:0 0 0 12px;padding:0;background:transparent;overflow-x:auto;border-radius:4px}
+#lifecycle #lt-chain-tabs[hidden]{display:none}
+#lifecycle #lt-chain-tabs button{flex:none;padding:5px 10px;min-height:32px;border:1px solid #d8e4f4;border-radius:0;background:#fff;color:#637c9b;white-space:nowrap;font-size:13px;line-height:20px}
+#lifecycle #lt-chain-tabs button+button{margin-left:-1px}
+#lifecycle #lt-chain-tabs button:first-child{border-radius:4px 0 0 4px}
+#lifecycle #lt-chain-tabs button:last-child{border-radius:0 4px 4px 0}
+#lifecycle #lt-chain-tabs button.active{position:relative;border-color:#91bcff;background:#edf5ff;color:#1677ff}
+#lifecycle #lt-chain-tabs button:focus-visible{position:relative;outline:2px solid #91bcff;outline-offset:-2px}
+@media(max-width:1200px){#lifecycle #lt-chain-tabs{order:3;flex:1 1 auto;max-width:calc(100% - 104px);margin:8px 0 0}#lifecycle #lt-open-targets{order:4;flex:none;margin:8px 0 0}}
+@media(max-width:600px){#lifecycle #lt-chain-tabs button{font-size:12px;padding-inline:8px}}
+
+/* 桌面后台左右独立：滚动工作区不带动菜单或顶部导航。 */
+@media(min-width:701px){
+ body.lt-system-active{overflow:hidden}
+ #lt-system{position:fixed;inset:60px 0 0;min-height:0;overflow:hidden}
+ #lt-system :is(.lt-sidebar,.lt-content){min-height:0;height:100%;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
+ #lt-system .lt-sidebar{scrollbar-width:none}
+ #lt-system .lt-sidebar::-webkit-scrollbar{display:none;width:0;height:0}
+ html:is(:fullscreen,.dashboard-fullscreen) #lt-system{top:0}
+}

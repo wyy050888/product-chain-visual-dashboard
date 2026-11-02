@@ -59,11 +59,11 @@ function ppSampleLedger(source){
  return ppSampleRiskEvents(source,records);
 }
 
-// 缺失报价仅用于演示；不覆盖真实数组或已导入的金额。
+// 仅补充项目类型适用的报价样例；不覆盖真实数组或已导入金额。
 function ppSampleQuotes(source){
  const sampleFields=[],result={...source},base=Number.isFinite(source.cost)?source.cost:180+(Math.abs(Number(source.id)||0)%8)*30;
- if(source.targetCosts==null&&!Number.isFinite(source.cost)){result.targetCosts=[{version:'基础款',factory:base}];sampleFields.push('targetCosts')}
- if(source.finalQuotes==null){result.finalQuotes=[{version:'基础款',factory:base+12,channel:Math.round((base+12)*1.12),company:Math.round((base+12)*1.2)}];sampleFields.push('finalQuotes')}
- if(source.targetPrices==null&&!Number.isFinite(source.price)){result.targetPrices=[{version:'基础款',price:Math.round(base*2.2/100)*100+99}];sampleFields.push('targetPrices')}
+ if(ppQuoteApplicable(source,'targetCosts')&&source.targetCosts==null&&!Number.isFinite(source.cost)){result.targetCosts=[{version:'基础款',factory:base}];sampleFields.push('targetCosts')}
+ if(ppQuoteApplicable(source,'finalQuotes')&&source.finalQuotes==null){result.finalQuotes=[{version:'基础款',factory:base+12,channel:Math.round((base+12)*1.12),company:Math.round((base+12)*1.2)}];sampleFields.push('finalQuotes')}
+ if(ppQuoteApplicable(source,'targetPrices')&&source.targetPrices==null&&!Number.isFinite(source.price)){result.targetPrices=[{version:'基础款',price:Math.round(base*2.2/100)*100+99}];sampleFields.push('targetPrices')}
  return {...result,sampleFields};
 }

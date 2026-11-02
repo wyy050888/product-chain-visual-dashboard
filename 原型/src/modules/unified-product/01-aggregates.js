@@ -2,6 +2,10 @@
 const upMonthCache=boundedCache(3200,100000);
 const upDailyCache=boundedCache(1600,100000),upSummaryCache=boundedCache(6400);
 const upEmptyMonths=new Map();
+// 未收退率共用原始件数计算，避免对已格式化的百分比做减法。
+function upUnreceivedRate({sales,returned,received}){
+ return Number.isFinite(sales)&&sales>0&&Number.isFinite(returned)&&Number.isFinite(received)&&returned>=received?(returned-received)/sales*100:null;
+}
 function upChannels(platform){return platform==='all'?qrPlatforms:Array.isArray(platform)?qrPlatforms.filter(p=>platform.includes(p)):[platform]}
 function upMonthFacts(p,platform,month,version){
  const start=month+'-01',days=new Date(Date.UTC(+month.slice(0,4),+month.slice(5,7),0)).getUTCDate();

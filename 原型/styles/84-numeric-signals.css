@@ -1,0 +1,19 @@
+/* 数值标签：只在总看板及其详情启用；部门看板不改变。 */
+body:not(:has(main.page > #department-view:not([hidden]),main.page > #purchasing-view:not([hidden]))) .number-signal{
+ display:inline-flex;align-items:baseline;justify-content:center;box-sizing:border-box;
+ padding:1px 4px;border:0!important;border-radius:4px;box-shadow:none!important;
+ line-height:inherit;white-space:nowrap;vertical-align:baseline;
+}
+body:not(:has(main.page > #department-view:not([hidden]),main.page > #purchasing-view:not([hidden]))) .number-signal--red{background:#ffe0e6!important;color:var(--red)!important}
+body:not(:has(main.page > #department-view:not([hidden]),main.page > #purchasing-view:not([hidden]))) .number-signal--yellow{background:var(--orange-soft)!important;color:var(--orange)!important}
+body:not(:has(main.page > #department-view:not([hidden]),main.page > #purchasing-view:not([hidden]))) .number-signal--green{background:var(--green-soft)!important;color:var(--green)!important}
+/* 拼多多链接数量使用红黄文字，不加标签底色；描述保留辅助文字色。 */
+body:not(:has(main.page > #department-view:not([hidden]),main.page > #purchasing-view:not([hidden]))) .rp-pdd-count{background:var(--rp-pdd-count-background,transparent)!important;border-color:transparent!important}
+body:not(:has(main.page > #department-view:not([hidden]),main.page > #purchasing-view:not([hidden]))) .rp-pdd-count--red>strong{color:var(--red)!important}
+body:not(:has(main.page > #department-view:not([hidden]),main.page > #purchasing-view:not([hidden]))) .rp-pdd-count--yellow>strong{color:var(--orange)!important}
+body:not(:has(main.page > #department-view:not([hidden]),main.page > #purchasing-view:not([hidden]))) .rp-pdd-count>span{color:#7d8da6!important}
+
+/* 包装的内层数值继承字号；原生指标/按钮自身的字号继续由模块管理。 */
+.number-signal-text{font:inherit!important}
+
+body:not(:has(main.page > #department-view:not([hidden]),main.page > #purchasing-view:not([hidden]))) .number-signal-plain{background:transparent!important;border:0!important;padding:0;box-shadow:none!important}

@@ -17,8 +17,10 @@ export async function dynamicDates(page){
    const start=shift(today,-29),label=shown(start)+' — '+shown(today),month=Number(today.slice(5,7));
    assert.equal(await page.locator('#risk-date-trigger').innerText(),label,'首页默认当天及前29天');
    assert.equal(await page.locator('#ai .risk-date-trigger').innerText(),label,'总诊断与首页默认一致');
-   assert.deepEqual(await page.locator('.ip-metric-range').allTextContents(),[label,label],'库存双表默认一致');
-   assert.equal(await page.locator('#time-note-matrix .period-range').innerText(),label,'关键产品默认一致');
+   assert.deepEqual(await page.locator('#inventory .ip-metric-range').allTextContents(),[shown(today.slice(0,7)+'-01')+' — '+shown(today)],'库存默认本月，日期随当天变化');
+   assert.deepEqual(await page.locator('#inventory [data-ip-time-mode]').allTextContents(),['月','季','年']);
+   assert.equal(await page.locator('#inventory [data-ip-time-year]').inputValue(),today.slice(0,4));assert.equal(await page.locator('#inventory [data-ip-time-value]').inputValue(),String(month));
+   assert.equal(await page.locator('#product-date-trigger-matrix').innerText(),label,'关键产品默认一致');
    await page.locator('#risk-date-trigger').click();
    const panel=page.locator('#risk-date-popover');
    assert.equal(await panel.locator('[data-range-preset="30"]').getAttribute('aria-pressed'),'true');
@@ -37,18 +39,8 @@ export async function dynamicDates(page){
    assert.equal(await page.locator('#time-risk [data-time-value] option').count(),month,'当前年度月份上限自动更新');
    await page.locator('#time-risk [data-time-mode="year"]').click({timeout:30000,waitUntil:'domcontentloaded'});
    assert.equal(await page.locator('#time-note-risk .period-range').innerText(),shown(today.slice(0,4)+'-01-01')+' — '+shown(today));
-   const supplier=page.locator('.scp-resource-card [data-scp-annual-metric="newCooperation"] [data-scp-members]');
-   await supplier.click();
-   const cooperation=page.locator('[data-scp-date="cooperation"]');
-   assert.equal(await cooperation.locator('[data-scp-date-from]').inputValue(),today.slice(0,4)+'-01-01');
-   assert.equal(await cooperation.locator('[data-scp-date-to]').inputValue(),today,'年度新增仍为年初至当天');
-   for(const key of ['registered','reserved','admitted','cooperation']){
-    const field=page.locator('[data-scp-date="'+key+'"]');await field.locator('[data-scp-date-open]').click();
-    await page.locator('#up-date-popover [data-range-preset="30"]').click();
-    assert.equal(await field.locator('[data-scp-date-from]').inputValue(),start);
-    assert.equal(await field.locator('[data-scp-date-to]').inputValue(),today,'供应商四日期快捷项共用当天');
-   }
-   await page.locator('#close').click();console.log('通过：动态近30天 '+start+'—'+today);
+   assert.equal(await page.locator('.scp-resource-card [data-scp-members],.scp-resource-card [data-scp-jump]').count(),0,'年度概览不提供跳转');
+   console.log('通过：动态近30天 '+start+'—'+today);
   }finally{await fixture.close()}
  }
 }

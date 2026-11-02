@@ -19,8 +19,8 @@ function swTimeline(r,s,cutoff){
   return {stage,name:active||actual!=='未完成'?(s?.name||r.supplier):'—',date:actual,active,target:active?r.targetDate:null,days:active?r.value:0};});
 }
 function swHeaders(type){return [
- ['采购人员','供应商类型','供应商状态','产品类目','产品项目','预警事项 / 缺口','操作'],
- ['采购人员','产品类目','产品项目','意向储备供应商名称','意向储备完成时间','准入储备供应商名称','验厂完成时间','合作供应商名称','供应商落地确认时间','操作'],
+ ['采购人员','供应商类型','供应商状态','产品链群','产品项目','预警事项 / 缺口','操作'],
+ ['采购人员','产品链群','产品项目','意向储备供应商名称','意向储备完成时间','准入储备供应商名称','验厂完成时间','合作供应商名称','供应商落地确认时间','操作'],
  ['采购人员','供应商名称','供应商类型','供应商状态','缺失必填信息','缺失合同','操作'],
  ['采购人员','供应商名称','供应商类型','供应商状态','星级','操作']
  ][type];}
@@ -43,7 +43,7 @@ function swOpenWarnings({procurement=false,redOnly=false,initialType=0}={}){
  
  const dispatch=r=>run(()=>{svDispatch(r);const form=$('#sr-dispatch');if(form){const submit=form.onsubmit;form.onsubmit=e=>run(()=>submit(e));}});
  const filtered=()=>source.filter(r=>r.categoryId===type&&(type!==3||r.value<2)&&(owner==='all'||r.owner===owner)&&(kind==='all'||r.supplierType===kind)&&(state==='all'||swSupplierState(r)===state)&&(!query||[r.supplier,r.name,r.quantityRule,r.project,r.categoryPath,r.brand,r.material,chains[r.chain]].join(' ').toLowerCase().includes(query.toLowerCase())));
- const fill=()=>{const rows=filtered(),pages=Math.max(1,Math.ceil(rows.length/DRAWER_PAGE_SIZE));page=Math.min(page,pages);$('#sw-count').textContent=swTypes[type]+' · '+rows.length+' 条'+(type===3?' · 星级＜2星触发预警':'');$('#sw-table').innerHTML=dpTable(swHeaders(type),rows.slice((page-1)*DRAWER_PAGE_SIZE,page*DRAWER_PAGE_SIZE).map(r=>swCells(r,ledger,range.cutoff)));$('#sw-table table').classList.add('sw-table');const heads=swHeaders(type);$$('#sw-table tbody tr').forEach(tr=>[...tr.cells].forEach((td,i)=>td.dataset.label=heads[i]||''));mountListPager($('#sw-pages'),rows.length,page,next=>{page=next;fill()});};
+ const fill=()=>{const rows=filtered(),pages=Math.max(1,Math.ceil(rows.length/listPageSize('sw-pages',20)));page=Math.min(page,pages);$('#sw-count').textContent=swTypes[type]+' · '+rows.length+' 条'+(type===3?' · 星级＜2星触发预警':'');$('#sw-table').innerHTML=dpTable(swHeaders(type),rows.slice((page-1)*listPageSize('sw-pages',20),page*listPageSize('sw-pages',20)).map(r=>swCells(r,ledger,range.cutoff)));$('#sw-table table').classList.add('sw-table');const heads=swHeaders(type);$$('#sw-table tbody tr').forEach(tr=>[...tr.cells].forEach((td,i)=>td.dataset.label=heads[i]||''));mountListPager($('#sw-pages'),rows.length,page,next=>{page=next;fill()});};
  $('#sw-type').onchange=e=>{type=+e.target.value;page=1;fill()};for(const [id,set] of [['sw-owner',v=>owner=v],['sw-kind',v=>kind=v],['sw-state',v=>state=v]])$('#'+id).onchange=e=>{set(e.target.value);page=1;fill()};$('#sw-query').oninput=e=>{query=e.target.value.trim();page=1;fill()};
  
  $('#sw-table').onclick=e=>{const button=e.target.closest('[data-sw-detail],[data-sw-handle]');if(!button)return;const key=button.dataset.swDetail||button.dataset.swHandle,r=source.find(r=>r.key===key);if(!r||!svPermission(r))return;run(()=>{if(button.dataset.swHandle){if(r.categoryId===0&&r.categoryGroup){scDetail(r.categoryGroup);$('#sc-assign')?.scrollIntoView({block:'start'});}else dispatch(r);}else{svDetail(r);if(r.categoryId!==0||!r.categoryGroup){$('#dialogactions').insertAdjacentHTML('afterbegin','<button class="btn primary small" id="sw-detail-handle">立即处理</button>');$('#sw-detail-handle').onclick=()=>dispatch(r);}if(r.categoryId===1){const cells=swCells(r,ledger,range.cutoff,true);$('#dialogbody').insertAdjacentHTML('afterbegin',svInfo(swHeaders(1).slice(0,-1).map((h,i)=>[h,cells[i]])));}}});};fill();

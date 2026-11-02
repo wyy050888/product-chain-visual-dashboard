@@ -4,8 +4,8 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 
 export function verifyCostDepartmentAliases(){
- const sandbox={...modelClock(),ccDepartments:[{id:'purchase',name:'采购部（去计划）',metrics:['产品降本']},{id:'shipping',name:'发货部（去仓储）',metrics:['快递降价']}],ccItems:[{id:'purchase-0',department:'purchase',metricIndex:0,metric:'产品降本'},{id:'shipping-0',department:'shipping',metricIndex:0,metric:'快递降价'}],ccMetrics:[],ccLedger:[],DATA_CUTOFF:'2026-10-10',localStorage:{getItem:()=>null}};
- vm.createContext(sandbox);
+ const sandbox={...modelClock(),ccDepartments:[{id:'purchase',name:'采购部（去计划）',metrics:['产品降本']},{id:'shipping',name:'发货部（去仓储）',metrics:['快递降价']}],ccItems:[{id:'purchase-0',department:'purchase',category:'product',metricIndex:0,metric:'产品降本'},{id:'shipping-0',department:'shipping',category:'logistics',metricIndex:0,metric:'快递降价'}],ccMetrics:[],ccLedger:[],DATA_CUTOFF:'2026-10-10',localStorage:{getItem:()=>null}};
+ vm.createContext(sandbox);vm.runInContext(fs.readFileSync(new URL('../../src/modules/cost-control/00-categories.js',import.meta.url),'utf8'),sandbox);
  for(const name of ['00-metric-catalog.js','01-model.js','02-import.js','02-annual-import.js'])vm.runInContext(fs.readFileSync(new URL('../../src/modules/cost-config/'+name,import.meta.url),'utf8'),sandbox);
  const annualHeaders=['责任部门','降本指标','年度','数据类型',...Array.from({length:12},(_,i)=>(i+1)+'月'),'备注'];
  const annual=(department,metric,type,value)=>[department,metric,'2026',type,value,...Array(11).fill(''),''];

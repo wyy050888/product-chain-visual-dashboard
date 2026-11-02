@@ -1,5 +1,7 @@
 /* 总看板关键产品独立布局，不覆盖产品部/采购克隆矩阵。 */
 #matrix.kpm-main .matrixlayout{grid-template-columns:minmax(0,3fr) minmax(0,7fr);align-items:start;gap:18px}
+#matrix.kpm-main #matrixchart [data-kpm-zero-axis]{stroke:#8495ab;stroke-width:1;stroke-dasharray:3 5;vector-effect:non-scaling-stroke}
+#matrix.kpm-main #matrixchart [data-kpm-zero-tick]{fill:#60758f;font-weight:500}
 #matrix.kpm-main .matrixplot,#matrix.kpm-main .matrixlist{padding:18px;min-width:0}
 .kpm-main .kpm-chart-head{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;margin-bottom:10px}
 .kpm-main .kpm-chart-head h3{grid-column:1;grid-row:1}
@@ -21,18 +23,16 @@
 .kpm-main .kpm-tools{display:grid;grid-template-columns:minmax(220px,2fr) repeat(3,minmax(100px,1fr)) auto;gap:10px;margin-bottom:16px;align-items:center;position:relative;z-index:5}
 .kpm-main .kpm-tools>label{min-width:0;color:#71849b;font-size:12px}.kpm-main .kpm-tools>label>select,.kpm-main .kpm-tools>label>.pf-multi{margin-top:6px}.kpm-main .kpm-tools .kpm-search{align-self:end}.kpm-main .kpm-tools>.link{align-self:end;height:36px}
 /* 搜索框尺寸不得作用于下拉菜单内的复选框。 */
-.kpm-main .kpm-tools .kpm-search input[type="search"]{width:100%;box-sizing:border-box;height:36px;font-size:12px;min-width:0}
 .kpm-main .kpm-tools>.link{justify-self:end;font-size:12px}
 .kpm-main .kpm-tools .pf-multi{min-width:0;width:100%}
 .kpm-main .kpm-tools summary{width:100%;box-sizing:border-box;min-width:0;height:36px;font-size:12px}
 .kpm-main .kpm-tools .pf-multi-value{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .kpm-main .kpm-tools .pf-multi-menu{max-height:270px;overflow-y:auto;min-width:100%;box-sizing:border-box;z-index:15}
-/* 分级和升降路径共享一行；窄屏只在此筛选条内横向滚动。 */
-#matrix.kpm-main .kpm-filter-strip{display:flex;align-items:center;flex-wrap:nowrap;gap:12px;min-width:0;max-width:100%;overflow-x:auto;margin-bottom:12px;padding-bottom:4px;scrollbar-width:thin}
+/* 分级和等级变动共享标签样式；窄屏只在此筛选条内横向滚动。 */
 #matrix.kpm-main #matrixtabs{display:flex;align-items:center;flex:none;gap:4px;flex-wrap:nowrap;margin:0;padding:0 12px 0 0;border-right:1px solid #e5ebf4}
 .kpm-main #matrixtabs button{flex:none;font-size:11px;white-space:nowrap;padding:7px 8px}
 .kpm-main #matrixtabs button>span{margin-left:6px;font-size:11px;opacity:.7}
-#matrix.kpm-main #matrixtable{overflow:auto;max-height:var(--kpm-table-max-height,none);width:100%;min-width:0;border:0;border-radius:0}
+#matrix.kpm-main #matrixtable{overflow:auto;max-height:var(--kpm-table-max-height,none);width:100%;min-width:0;border:0;border-radius:0;scrollbar-width:thin}
 .kpm-main #matrixtable table{min-width:1580px;width:100%;border-collapse:separate;border-spacing:0;table-layout:auto;font-size:12px}
 .kpm-main #matrixtable th{position:sticky;top:0;z-index:2;background:#f4f7fc;font-weight:400;white-space:nowrap;padding:14px 16px}
 .kpm-main #matrixtable td{padding:16px;height:88px;box-sizing:border-box;vertical-align:middle;white-space:nowrap}
@@ -44,9 +44,6 @@
 .kpm-main #matrixtable th:last-child{background:#f4f7fc;z-index:3}
 .kpm-main .kpm-grade{display:inline-flex;align-items:center;gap:6px;border-radius:5px;padding:5px 7px;font-size:11px;background:#f0f3f8;color:#71849b}
 .kpm-main .kpm-grade b{font-size:14px}
-.kpm-main .kpm-sort{border:0;background:transparent;color:inherit;font:inherit;cursor:pointer;padding:0;white-space:nowrap}
-.kpm-main .kpm-sort>span{font-size:11px;color:#9aadca;margin-left:5px}
-.kpm-main .kpm-sort[data-direction]:not([data-direction=""]){color:#1677ff}
 .kpm-main .kpm-empty{padding:60px 15px;text-align:center;font-size:13px;color:#8393ad}
 #matrix.kpm-main #matrix-product-pager{margin-top:16px;min-width:0}
 #matrix.kpm-main #matrix-product-pager .list-pagination{flex-wrap:wrap;gap:10px}
@@ -55,19 +52,23 @@
 
 .kpm-main .kpm-chart-legend{display:flex;flex-wrap:nowrap;align-items:center;gap:12px;justify-content:flex-start;min-width:0;max-width:100%;overflow-x:auto;white-space:nowrap;font-size:11px;color:#8393ad;margin:0;padding-bottom:2px;scrollbar-width:thin}
 .kpm-main .kpm-chart-legend>span{display:inline-flex;flex:none;align-items:center;gap:5px;white-space:nowrap}
-.kpm-main .kpm-chart-legend i{flex:none;width:7px;height:7px;border-radius:50%;background:#35ac8e}
+.kpm-main .kpm-chart-legend i{flex:none;width:7px;height:7px;border-radius:50%;background:var(--green)}
 
 
 /* 经营矩阵圆点即时提示，独立定位以免被图表滚动容器裁切。 */
-.kpm-point-tooltip{position:fixed;z-index:5100;width:320px;max-width:calc(100vw - 16px);padding:15px;border:1px solid #dce6f7;border-radius:9px;background:#fff;box-shadow:0 8px 28px #23416d24;color:#294561;pointer-events:none;box-sizing:border-box}
+.kpm-point-tooltip{position:fixed;z-index:5100;width:440px;max-width:calc(100vw - 16px);padding:15px;border:1px solid #dce6f7;border-radius:9px;background:#fff;box-shadow:0 8px 28px #23416d24;color:#294561;pointer-events:auto;box-sizing:border-box}
 .kpm-point-tooltip[hidden]{display:none}
-.kpm-point-product{display:flex;align-items:center;gap:10px}
-.kpm-point-product>:first-child{width:40px;height:40px;flex:none}
-.kpm-point-product img{width:40px;height:40px;object-fit:contain}
-.kpm-point-product>div{min-width:0}.kpm-point-product b{display:block;font-size:13px;line-height:1.5;font-weight:500;overflow-wrap:anywhere}
-.kpm-point-grade{display:inline-block;margin-top:5px;padding:3px 6px;border-radius:4px;font-size:11px;background:#eaf7f2;color:#259c7d}
+/* 图片列跟随全局缩略图尺寸，避免图片越过网格占用名称区域。 */
+.kpm-point-product{--kpm-point-image-size:var(--product-thumbnail-size,56px);display:grid;grid-template-columns:var(--kpm-point-image-size) minmax(0,1fr) max-content;align-items:start;gap:12px}
+.kpm-point-product>:first-child{width:var(--kpm-point-image-size);height:var(--kpm-point-image-size);flex:none}
+.kpm-point-product>div{min-width:0}.kpm-point-product b{display:block;max-width:100%;font-size:13px;line-height:20px;font-weight:500;white-space:normal;overflow-wrap:anywhere}
+.kpm-point-info{display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+.kpm-point-grade{display:inline-block;max-width:100%;padding:3px 6px;border-radius:4px;font-size:11px;background:var(--green-soft);color:var(--green)}
+.kpm-point-guide{display:flex;flex-direction:column;align-items:flex-end;gap:5px;min-width:64px;text-align:right;white-space:nowrap}
+.kpm-point-guide>span{font-size:12px;color:#8393ad}
+.kpm-point-guide>strong{font-size:14px;font-weight:500;font-variant-numeric:tabular-nums}
 .kpm-point-period{padding:8px 0;margin-top:6px;font-size:10px;color:#8393ad;border-top:1px solid #edf1f8}
-.kpm-point-values{display:grid;grid-template-columns:1fr 1fr;gap:12px 20px}
+.kpm-point-values{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px 20px}
 .kpm-point-values>div{display:flex;flex-direction:column;gap:4px;min-width:0}.kpm-point-values span{font-size:11px;color:#8393ad}.kpm-point-values strong{font-size:15px;font-weight:500;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}.kpm-point-values .negative{color:#ff3157}
 
 /* 明细区域保留表头与行分隔，不再叠加卡片和表格外框。 */
@@ -76,7 +77,7 @@
 .kpm-main .kpm-expand{display:inline-flex;align-items:center;justify-content:center;border:1px solid #dce6f7;border-radius:5px;padding:4px 9px;background:#fff;color:#3678ed;font-size:12px;white-space:nowrap}
 .kpm-main .kpm-expand:hover{border-color:#8eb5f5;background:#f4f8ff}
 html.kpm-zoom-open{overflow:hidden}
-#matrix.kpm-main .kpm-chart-zoom{position:fixed;inset:0;width:min(1440px,calc(100vw - 48px));height:min(940px,calc(100dvh - 48px));max-width:none;max-height:none;margin:auto;padding:0;border:1px solid #dce6f7;border-radius:12px;background:#fff;box-shadow:0 20px 70px #172e4f38;overflow:hidden}
+#matrix.kpm-main .kpm-chart-zoom{position:fixed;inset:0;width:min(1680px,calc(100vw - 48px));height:min(940px,calc(100dvh - 48px));max-width:none;max-height:none;margin:auto;padding:0;border:1px solid #dce6f7;border-radius:12px;background:#fff;box-shadow:0 20px 70px #172e4f38;overflow:hidden}
 #matrix.kpm-main .kpm-chart-zoom::backdrop{background:#172e4f66}
 #matrix.kpm-main .kpm-chart-zoom .matrixplot{display:flex;flex-direction:column;height:100%;width:100%;margin:0;padding:24px;border:0;border-radius:0}
 #matrix.kpm-main .kpm-chart-zoom .kpm-chart-head h3{font-size:22px;font-weight:600;line-height:1.4}
@@ -90,67 +91,28 @@ html.kpm-zoom-open{overflow:hidden}
 /* 图表与浮层保留强调色；明细表的GSV、利润率使用普通文字色。 */
 .kpm-point-values>[data-kpm-metric="gsv"]{color:#1677ff;font-weight:600}
 .kpm-point-values>[data-kpm-metric="profit"]{color:#7651d4;font-weight:600}
-.kpm-main #matrixtable [data-kpm-sort="sales"]{color:inherit}
-.kpm-main #matrixtable [data-kpm-sort="profit"]{color:inherit}
 .kpm-main #matrixchart .kpm-axis-gsv{fill:#1677ff;font-weight:600}
 .kpm-main #matrixchart .kpm-axis-profit{fill:#7651d4;font-weight:600}
 .kpm-point-values>:is([data-kpm-metric="gsv"],[data-kpm-metric="profit"])>span{color:inherit}
 .kpm-point-values>:is([data-kpm-metric="gsv"],[data-kpm-metric="profit"])>strong{font-weight:650}
 
 /* 图表分区、圆点、图例与明细共用SABC等级和颜色。 */
-.metric-tooltip-kpm-grade .kpm-rule-grade.S,.kpm-main .kpm-change-grade.S,.kpm-main .kpm-grade.S,.kpm-grade-history .kpm-grade.S,.kpm-point-grade.S,#dialogbody .up-product-grade.S{background:#eaf7f2;color:#259c7d}
-.metric-tooltip-kpm-grade .kpm-rule-grade.A,.kpm-main .kpm-change-grade.A,.kpm-main .kpm-grade.A,.kpm-grade-history .kpm-grade.A,.kpm-point-grade.A,#dialogbody .up-product-grade.A{background:#fff5e4;color:#cb8d25}
-.metric-tooltip-kpm-grade .kpm-rule-grade.B,.kpm-main .kpm-change-grade.B,.kpm-main .kpm-grade.B,.kpm-grade-history .kpm-grade.B,.kpm-point-grade.B,#dialogbody .up-product-grade.B{background:#eef1ff;color:#6c7ecf}
-.metric-tooltip-kpm-grade .kpm-rule-grade.C,.kpm-main .kpm-change-grade.C,.kpm-main .kpm-grade.C,.kpm-grade-history .kpm-grade.C,.kpm-point-grade.C,#dialogbody .up-product-grade.C{background:#fff0f2;color:#da6b7b}
-.kpm-main .kpm-chart-legend .S i{background:#35ac8e}.kpm-main .kpm-chart-legend .A i{background:#e7ad50}.kpm-main .kpm-chart-legend .B i{background:#7c8eec}.kpm-main .kpm-chart-legend .C i{background:#e98191}
+.metric-tooltip-kpm-grade .kpm-rule-grade.S,.kpm-main .kpm-change-grade.S,.kpm-main .kpm-grade.S,.kpm-point-grade.S,#dialogbody .up-product-grade.S{background:var(--green-soft);color:var(--green)}
+.metric-tooltip-kpm-grade .kpm-rule-grade.A,.kpm-main .kpm-change-grade.A,.kpm-main .kpm-grade.A,.kpm-point-grade.A,#dialogbody .up-product-grade.A{background:var(--orange-soft);color:var(--orange)}
+.metric-tooltip-kpm-grade .kpm-rule-grade.B,.kpm-main .kpm-change-grade.B,.kpm-main .kpm-grade.B,.kpm-point-grade.B,#dialogbody .up-product-grade.B{background:#eef1ff;color:#6c7ecf}
+.metric-tooltip-kpm-grade .kpm-rule-grade.C,.kpm-main .kpm-change-grade.C,.kpm-main .kpm-grade.C,.kpm-point-grade.C,#dialogbody .up-product-grade.C{background:#fff0f2;color:#da6b7b}
+.kpm-main .kpm-chart-legend .S i{background:var(--green)}.kpm-main .kpm-chart-legend .A i{background:var(--orange)}.kpm-main .kpm-chart-legend .B i{background:#7c8eec}.kpm-main .kpm-chart-legend .C i{background:#e98191}
 #matrix.kpm-main .kpm-chart-zoom .kpm-expand{border:0;background:transparent;color:#7b8ba3;font-size:26px;width:32px;height:32px;padding:0;line-height:1}
 #matrix.kpm-main .kpm-chart-zoom .kpm-expand:hover{background:#f2f5fa;color:#294561}
-/* 升降各为一组轻底色筛选条，路径直接可见，不逐项叠加胶囊边框。 */
-#matrix.kpm-main #kpm-change-tabs{display:flex;align-items:center;flex:none;flex-wrap:nowrap;gap:24px;margin:0;padding:0}
-.kpm-main .kpm-change-row{display:flex;flex:none;align-items:center;gap:8px;padding:4px;border-radius:6px;background:#f7f9fc}
-.kpm-main .kpm-change-row>[data-kpm-change]{flex:none;white-space:nowrap;font-weight:600}
-.kpm-main .kpm-change-row>[data-kpm-change]::after{content:"";display:block;height:14px;border-right:1px solid #dce4ef;margin-left:5px}
-.kpm-main .kpm-change-paths{display:flex;flex-wrap:nowrap;gap:6px}
-.kpm-main #kpm-change-tabs button{display:inline-flex;align-items:center;justify-content:center;min-height:28px;border:0;border-radius:4px;background:transparent;color:#6d7e96;font:inherit;font-size:11px;padding:4px 7px;white-space:nowrap;cursor:pointer}
-.kpm-main #kpm-change-tabs button>span{margin-left:5px;color:#99a6b8;font-size:10px;font-variant-numeric:tabular-nums}
-.kpm-main #kpm-change-tabs button:hover{background:#eaf0f7;color:#284867}
-.kpm-main #kpm-change-tabs [data-kpm-change="up"]{color:#259c7d;font-weight:600}
-.kpm-main #kpm-change-tabs [data-kpm-change="down"]{color:#d68a2c;font-weight:600}
-.kpm-main #kpm-change-tabs button.active.up{background:#e4f4ed;color:#1f9776}
-.kpm-main #kpm-change-tabs button.active.down{background:#fff0dc;color:#c67e23}
-.kpm-main #kpm-change-tabs button.active>span,.kpm-main #kpm-change-tabs [data-kpm-change]>span{color:inherit}
-.kpm-main #kpm-change-tabs button:focus-visible{outline:2px solid #83b4ff;outline-offset:-2px}
+.kpm-main #matrixtabs button:focus-visible{outline:2px solid #83b4ff;outline-offset:2px}
 
 #matrix.kpm-main #matrixtable :is(th,td):last-child{width:70px;min-width:70px}
-.kpm-change{border:0;background:transparent;text-align:left;padding:0;cursor:pointer;font:inherit;color:#71849b}
-.kpm-change b{font-size:12px;font-weight:500}.kpm-change small,.kpm-history-change small{display:block;margin-top:6px;font-size:11px;color:#93a0b4}
-.kpm-change:hover b{text-decoration:underline;text-underline-offset:3px}
-:is(.kpm-change,.kpm-history-change).up{color:#24a484}:is(.kpm-change,.kpm-history-change).down{color:#e58b31}
-.kpm-grade-history{color:#294561;font-size:12px}
-.kpm-history-product{display:flex;align-items:center;gap:12px;padding:5px 0 22px;border-bottom:1px solid #e9eef7}
-.kpm-history-product>div{flex:1;min-width:0}.kpm-history-product .link{font-size:15px;font-weight:600;text-align:left}
-.kpm-history-product small{display:block;margin-top:7px;color:#93a0b4;overflow-wrap:anywhere}
-.kpm-history-compare{display:grid;grid-template-columns:minmax(0,1fr) 24px minmax(0,1fr);gap:18px;align-items:center;margin:24px 0 32px}
-.kpm-history-compare>span{text-align:center;color:#a1b0c5;font-size:22px}
-.kpm-history-period{background:#f7f9fd;border:1px solid #e7edf7;border-radius:8px;padding:20px;min-width:0}
-.kpm-history-period>small{font-size:13px;color:#788ca7}.kpm-history-period time{display:block;font-size:12px;margin:8px 0 16px;color:#93a0b4}
-.kpm-history-period>div{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px}
-.kpm-history-period>div>span{color:#8292ac;font-size:11px}.kpm-history-period strong{display:block;margin-top:7px;font-size:20px;font-weight:600}
-.kpm-grade-history .kpm-grade{display:inline-flex;align-items:center;gap:6px;border-radius:5px;padding:5px 7px;font-size:11px;background:#edf1f7;color:#788ca7}
-.kpm-grade-history .kpm-grade b{font-size:15px}
-.kpm-history-toolbar{display:flex;justify-content:space-between;gap:12px;align-items:center;margin:0 0 14px}.kpm-history-toolbar h3{font-size:14px;margin:0}
-.kpm-history-toolbar label{display:flex;gap:10px;align-items:center;color:#8292ac}.kpm-history-toolbar select{min-width:120px}
-.kpm-history-table{overflow:auto}.kpm-history-table table{min-width:680px;width:100%;font-size:12px}.kpm-history-table th{font-weight:400;background:#f4f7fc;color:#8292ac}.kpm-history-table :is(th,td){padding:16px 12px;white-space:nowrap}
-.kpm-grade-history .kpm-value-gsv{color:#1677ff}.kpm-grade-history .kpm-value-profit{color:#7651d4}.kpm-grade-history .kpm-value-profit.red{color:#ff3157}
-.kpm-grade-history .kpm-empty{padding:45px;text-align:center;color:#93a0b4}
-@media(max-width:600px){.kpm-history-compare{grid-template-columns:1fr;gap:12px}.kpm-history-compare>span{display:none}.kpm-history-period{padding:14px}.kpm-history-product{flex-wrap:wrap}.kpm-history-product>.btn{margin-left:auto}.kpm-history-product .link{font-size:13px}}
+.kpm-change{border:0;background:transparent;text-align:left;padding:0;cursor:default;font:inherit;color:#71849b}
+.kpm-change.up{color:var(--green)}.kpm-change.down{color:var(--orange)}
 
-#matrix.kpm-main #matrixtable :is(th,td):nth-child(2){width:80px;min-width:80px}
-#matrix.kpm-main #matrixtable :is(th,td):nth-child(3){width:120px;min-width:120px}
+#matrix.kpm-main #matrixtable :is(th,td):nth-child(2){width:120px;min-width:120px}
 
-#dialog:has(.kpm-grade-history)>#drawer-tabs{display:none}
 
-.kpm-history-compare[hidden]{display:none}.kpm-history-table tr:has([data-kpm-history-pick][aria-pressed="true"]) td{background:#f2f7ff}
 
 
 
@@ -162,8 +124,8 @@ html.kpm-zoom-open{overflow:hidden}
 .kpm-main .rp-list-value{display:flex;flex-direction:column;align-items:flex-start;gap:6px}
 .kpm-main .rp-list-value strong{font-size:13px;font-weight:500}
 .kpm-main .rp-list-value em{font-style:normal;font-size:11px;color:#8393ad;white-space:nowrap}
-.kpm-main .rp-list-value :is(strong,em).rp-quality-green{color:#00a486}
-.kpm-main .rp-list-value :is(strong,em).rp-quality-red{color:#ff3157}
+.kpm-main .rp-list-value :is(strong,em).rp-quality-green{color:var(--green)}
+.kpm-main .rp-list-value :is(strong,em).rp-quality-red{color:var(--red)}
 .kpm-main .rp-list-value :is(strong,em).rp-quality-yellow{color:var(--orange)}
 .kpm-main .rp-list-value :is(strong,em).rp-quality-gray,.kpm-main .rp-comparison-label{color:#8693a4}
 .kpm-main .rp-list-value strong.rp-quality-normal{color:#52657d}
@@ -183,7 +145,6 @@ html.kpm-zoom-open{overflow:hidden}
 #matrix.kpm-main #matrixtable .kpm-change{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;vertical-align:middle}
 .kpm-main .kpm-change-grade{display:inline-flex;align-items:center;justify-content:center;min-width:24px;padding:4px 6px;border-radius:5px;font-size:12px;line-height:18px;background:#f0f3f8;color:#71849b}
 .kpm-main .kpm-change-arrow{color:#8c9bb1;font-size:12px}
-.kpm-main .kpm-change:focus-visible{outline:2px solid #83b4ff;outline-offset:3px;border-radius:4px}
 
 /* 标题问号：按实际规则生成的分级说明卡，沿用共享浮层交互和边界定位。 */
 .metric-tooltip.metric-tooltip-kpm-grade{width:400px;max-width:calc(100vw - 16px);max-height:calc(100dvh - 16px);overflow-y:auto;padding:16px;border-radius:10px;box-shadow:0 10px 32px #23416d24;line-height:1.6}

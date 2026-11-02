@@ -1,4 +1,4 @@
-// 所有业务弹窗共用右侧抽屉；日历、指标提示继续使用原轻量浮层。
+// 业务详情共用右侧抽屉，文件导入使用居中弹窗；日历、指标提示保留轻量浮层。
 const drawerNav=document.createElement('nav');
 drawerNav.id='drawer-tabs';drawerNav.className='drawer-tabs';drawerNav.setAttribute('role','tablist');drawerNav.setAttribute('aria-label','详情内容');
 $('#dialog .dialoghead').after(drawerNav);
@@ -28,6 +28,7 @@ function drawerApply(){
  }
  for(const button of drawerNav.querySelectorAll('[data-drawer-tab]')){
   const selected=button.dataset.drawerTab===key;
+  button.disabled=!!profile.tabs.find(tab=>tab.key===button.dataset.drawerTab)?.disabled;
   button.classList.toggle('selected',selected);button.setAttribute('aria-selected',String(selected));button.tabIndex=selected?0:-1;
  }
  $('#dialogbody').setAttribute('role',profile.tabs.length?'tabpanel':'region');
@@ -61,14 +62,21 @@ function drawerRefresh(){
  const subtitle=$('#dialogsub'),seen=new Set();
  const cleaned=subtitle.textContent.split(/\s*[|｜]\s*/).filter(part=>{const dates=part.match(/\d{4}-\d{2}-\d{2}/g);if(!dates)return true;const key=dates.join('|');if(seen.has(key))return false;seen.add(key);return true}).join(' · ');
  if(!subtitle.querySelector('.period-picker')&&subtitle.textContent!==cleaned)subtitle.textContent=cleaned;
- const signature=profile.tabs.map(t=>t.key+':'+t.label).join('|');
+ // 可选标签栏右侧内容：节点和引用随现有抽屉快照保存，返回时无需重新生成。
+ const tabAside=profile.tabAside||drawerView.tabAside;drawerView.tabAside=tabAside;
+ const signature=profile.tabs.map(t=>t.key+':'+t.label).join('|')+(tabAside?'|aside':'');
  if(signature!==drawerView.signature){
   drawerView.signature=signature;
-  drawerNav.replaceChildren(...profile.tabs.map(t=>{
+  const buttons=profile.tabs.map(t=>{
    const b=document.createElement('button');b.type='button';b.id=`drawer-tab-${drawerView.sequence}-${t.key}`;b.dataset.drawerTab=t.key;b.textContent=t.label;
    b.setAttribute('role','tab');b.setAttribute('aria-controls','dialogbody');return b;
-  }));
+  });
+  if(tabAside){
+   const group=document.createElement('div');group.className='drawer-tab-buttons';group.setAttribute('role','tablist');group.setAttribute('aria-label','详情内容');group.append(...buttons);
+   drawerNav.replaceChildren(group,tabAside);
+  }else drawerNav.replaceChildren(...buttons);
  }
+ drawerNav.setAttribute('role',tabAside?'group':'tablist');
  drawerApply();
 }
 function drawerQueueRefresh(){
@@ -79,8 +87,11 @@ const drawerPreviousOpen=openModal;
 openModal=function(title,body,unusedDrawer=false,sub=''){
  const previous=!$('#overlay').hidden&&drawerView?.title===title?drawerView.key:null;
  $('#dialog .dialoghead').after(drawerNav);
- const result=drawerPreviousOpen(title,body,true,sub);
- const dialog=$('#dialog');dialog.classList.add('drawer','business-drawer');
+ const isImport=/导入/.test(title)&&/type=["']?file/.test(body);
+ const result=drawerPreviousOpen(title,body,!isImport,sub);
+ const dialog=$('#dialog');dialog.classList.toggle('ui-import-modal',isImport);
+ if(isImport){dialog.classList.remove('drawer','business-drawer');drawerView=null;drawerNav.replaceChildren();$('#close').setAttribute('aria-label','关闭');return result}
+ dialog.classList.add('drawer','business-drawer');
  $('#close').setAttribute('aria-label','关闭抽屉');
  drawerView={title,key:previous||'base',profile:null,signature:null,sequence:++drawerSequence,nativeKey:null};
  // 延后组织内容，先完成业务函数同步填表、绑定事件和装饰。
@@ -98,7 +109,7 @@ new MutationObserver(()=>{if($('#overlay').hidden)drawerView=null}).observe($('#
 drawerNav.addEventListener('click',e=>{const b=e.target.closest('[data-drawer-tab]');if(b)drawerSelect(b.dataset.drawerTab)});
 drawerNav.addEventListener('keydown',e=>{
  if(!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;
- const buttons=[...drawerNav.querySelectorAll('button')],current=buttons.indexOf(document.activeElement);if(current<0)return;
+ const buttons=[...drawerNav.querySelectorAll('[data-drawer-tab]:not(:disabled)')],current=buttons.indexOf(document.activeElement);if(current<0)return;
  e.preventDefault();const index=e.key==='Home'?0:e.key==='End'?buttons.length-1:(current+(e.key==='ArrowLeft'?-1:1)+buttons.length)%buttons.length;
  drawerSelect(buttons[index].dataset.drawerTab,true);
 });

@@ -1,0 +1,113 @@
+/* 全局阅读层级。管理字体与普通主数值颜色，保留红黄绿判灯、辅助行、背景、图片及图表尺寸。
+   !important仅用于跨历史模块的语义字号归一；新模块直接使用这些token。 */
+:root{
+ --ui-font-family:"Segoe UI","Microsoft YaHei","PingFang SC",Arial,sans-serif;
+ --type-module:20px;--type-section:18px;--type-card:16px;
+ --type-body:14px;--type-data:13px;--type-primary-data:14px;--type-meta:12px;
+ --type-kpi:28px;--type-compact-kpi:24px;--type-secondary-kpi:20px;
+ --color-primary-data:#273e5a;
+ --weight-regular:400;--weight-medium:500;--weight-heading:600;
+}
+body{font-family:var(--ui-font-family);font-size:var(--type-body);line-height:1.6}
+:is(.page,.dp-view,#dialogbody) p:not(:where(table *)){font-size:var(--type-body)!important;font-weight:var(--weight-regular)}
+button,input,select,textarea,.num,.cec-dialog{font-family:var(--ui-font-family)}
+
+/* 模块 > 明细分区 > 图表/普通卡片，标题字重统一，不再混用650/700。 */
+.page :is(h3,h4),.dp-view :is(h3,h4),#dialogbody :is(h3,h4){
+ font-size:var(--type-card)!important;font-weight:var(--weight-heading)!important;line-height:1.5;
+}
+.page>.section>.sectionhead h2,.dp-view .sectionhead h2,#dialog>.dialoghead h2{
+ font-size:var(--type-module)!important;font-weight:var(--weight-heading)!important;line-height:1.4;
+}
+.page :is(.nsp-details-title,.kpm-details-title,.kpm-structure-heading h3,.pp-section-title),
+.page #matrix.kpm-main .kpm-sidebar :is(.kpm-chart-head h3,.kpm-price-heading h3),
+.page .pp-ai-heading h3,.page .scp-section-heading h3,.page .ms-scope-heading h3,
+.page :is(.ip-group-panel,.ip-brand-share-card,.ip-stagnant-heading) h3{
+ font-size:var(--type-section)!important;font-weight:var(--weight-heading)!important;line-height:1.45;
+}
+/* 八列紧凑卡的名称属于字段标题；产品基本资料标题属于卡片标题。 */
+.page .stock-card-head h4{font-size:var(--type-body)!important;font-weight:var(--weight-medium)!important;line-height:22px}
+#dialogbody .up-hero h2{font-size:var(--type-card)!important;font-weight:var(--weight-heading)!important}
+.page h5,#dialogbody h5{font-size:var(--type-meta)!important;font-weight:var(--weight-medium)!important}
+
+/* 搜索、选项、日期、Tab和操作文字共用13px；图形按钮和品牌Logo维持原尺寸。 */
+:is(.page,.dp-view,#dialog,.cec-dialog) :is(
+ input:not([type=radio]):not([type=checkbox]),select,textarea,
+ .pf-multi summary,.pf-multi-value,.unified-field-name,.unified-filter-field>span,
+ .unified-input-group>span,.nsp-choice-title,.nsp-choice-option,
+ .pp-plan-trigger,.nsp-launch-trigger,.period-segment button,.tabs>button,
+ .link,.btn,.list-pagination button,.list-pagination input
+){font-size:var(--type-data)!important;font-weight:var(--weight-regular)}
+:is(.page,.dp-view,#dialog) :is(.tabs>button.active,.tabs>[aria-selected=true],.period-segment>[aria-pressed=true]){font-weight:var(--weight-heading)}
+:is(.page,.dp-view,#dialog) .tag{font-size:var(--type-meta)!important;font-weight:var(--weight-medium)}
+
+/* 日期范围、单位、环比、编码、注释统一辅助层；问号及排序图形不参与。 */
+:is(.page,.dp-view,#dialog,#metric-tooltip) small,
+:is(.page,.dp-view,#dialog) :is(
+ .note,.period-range,.ip-metric-range,.period-note,.unit,.metriclabel,.legend,
+ .ms-trend-dates,.ms-mini-deltas,.ms-inline-deviation,.ms-time-progress,
+ .stock-card-share,.stock-card-foot,.stock-summary-label,
+ .scp-chart-caption,.scp-coverage-legend,.scp-chart-legend,
+ .pp-summary-rate-label,.pp-analysis-metrics span,.pp-root-summary,.pp-root-content small,
+ .kpm-grade-overview-note,.kpm-alert-note,.list-pagination,.lifecard p,
+ .nsp-tab-label,.pp-scope-label,.kpm-tab-label
+){font-size:var(--type-meta)!important;font-weight:var(--weight-regular)}
+/* 日期/数量等辅助层里的数字也用12px，防止父子节点再次各自放大。 */
+:is(.page,.dp-view,#dialog) :is(.stock-card-foot,.ms-mini-deltas,.ms-inline-deviation,.list-pagination) :is(span,b,strong){font-size:var(--type-meta)!important}
+
+/* 主指标28px；八列和侧栏紧凑指标24px；次指标20px。 */
+.page :is(.ms-primary .ms-metric strong,#newtop .newmetric .num,#newtop .dp-ring>b,
+ .pp-summary-count b,.pp-summary-rate,.cc-card-metrics .cc-actual strong,
+ .scp-annual-primary strong,.scp-annual-primary .scp-count){
+ font-size:var(--type-kpi)!important;font-weight:var(--weight-heading)!important;line-height:1.25;font-variant-numeric:tabular-nums;
+}
+.page :is(.lifecard>.num,.pp-analysis-metrics strong,.stock-summary-card .primary strong,.stock-summary-worth strong,[data-stock-refurb-pending],
+ .stock-refurb-main>strong,.scp-annual-secondary strong,.scp-annual-secondary .scp-count,.scp-annual .scp-rate),
+#dialogbody :is(.up-metric strong,.up-quality-metric strong,.up-attainment-primary strong){
+ font-size:var(--type-compact-kpi)!important;font-weight:var(--weight-heading)!important;line-height:1.3;font-variant-numeric:tabular-nums;
+}
+.page .cc-card-metrics>div:not(.cc-actual) strong{
+ font-size:var(--type-secondary-kpi)!important;font-weight:var(--weight-medium)!important;line-height:1.3;font-variant-numeric:tabular-nums;
+}
+/* 风险榜主数字16px/600，辅助行仍为12px；表格和销售明细主值保留14px。 */
+#riskrail :is(.rp-quality-metric,.rp-shop-metric,.rp-shop-scores) strong{
+ font-size:var(--type-card)!important;font-weight:var(--weight-heading)!important;
+ line-height:1.5;font-variant-numeric:tabular-nums;
+}
+.page .ms-mini-metrics>strong,
+:is(.page,.dp-view,#dialogbody) .rp-list-value>.rp-value{
+ font-size:var(--type-primary-data)!important;font-weight:var(--weight-heading)!important;
+ line-height:1.5;font-variant-numeric:tabular-nums;
+}
+/* 普通主数值共用深蓝色；风险信号及缺失态继续沿用原语义颜色。 */
+:is(
+ #riskrail :is(.rp-quality-metric,.rp-shop-metric,.rp-shop-scores) strong,
+ .page .ms-mini-metrics>strong,
+ :is(.page,.dp-view,#dialogbody) .rp-list-value>.rp-value
+):not(.red,.green,.orange,.yellow,.muted,.rp-quality-red,.rp-quality-green,.rp-quality-yellow,.rp-quality-gray){color:var(--color-primary-data)!important}
+#riskrail :is(.rp-quality-columns,.rp-shop-columns,.rp-quality-mobile-label,.rp-shop-mobile-label){font-size:var(--type-meta)!important}
+
+/* HTML图表标签统一13px；SVG保留其缩放补偿机制，不能用固定字号覆盖。 */
+.page :is(.pp-bar-label,.pp-distribution-counts b,.pp-risk-counts button,
+ .scp-category-bar strong,.scp-chart-bar strong,.scp-coverage-axis,.scp-coverage-brand){
+ font-size:var(--type-data)!important;font-weight:var(--weight-regular)!important;
+}
+
+.page .scp-category-values .scp-quarter-actual>b{font-size:var(--type-data)!important;font-weight:var(--weight-regular)!important}
+.page :is(.nsp-scope-tabs,.pp-scope-group,.kpm-scope-tabs) button>span{font-size:var(--type-meta)!important}
+
+
+/* 补齐历史模块中散落的微小字：保留信息层级，不保留8—11px的可读文字。 */
+.page :is(.rank,.pp-root-rank,.rp-pdd-count--card>span,.ms-delta-label,
+ .ms-primary-delta,.ms-primary-delta>span,.ms-breakdown-head>span,
+ .nsp-success-target,.kpm-scope-label,.kpm-price-heading>span,.cc-money-unit,
+ .stock-season-legend,.stock-season-legend>span,.stock-refurb-buckets span,
+ .stock-season-tip-share,.up-contribution-note),
+#dialogbody :is(.stock-season-legend,.stock-season-legend>span,.stock-refurb-buckets span,.up-contribution-note){
+ font-size:var(--type-meta)!important;
+}
+.page .tabs button>span,.page .kpm-scope-tabs :is(.up,.down)>span{font-size:var(--type-meta)!important}
+.page .ms-line-values>span:not(.ms-inline-deviation){font-size:var(--type-data)!important}
+
+
+

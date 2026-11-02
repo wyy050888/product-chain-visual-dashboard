@@ -21,8 +21,7 @@ function upViolationDetail(product,event){
  const seed=[...product.spuId+event.id].reduce((n,c)=>(n*31+c.charCodeAt(0))>>>0,0),time=' '+String(9+seed%9).padStart(2,'0')+':'+String(seed%60).padStart(2,'0')+':00';
  const occurredAt=event.date+time,amount=Number(event.amount)||0;
  // 商品链接标题与SPU名称独立；优先读取违规记录中的链接快照，缺失时使用平台样例。
- const linkSeed=[...product.spuId+'|'+event.platform].reduce((n,c)=>(n*31+c.charCodeAt(0))>>>0,0);
- const linkId=event.linkId??('73'+String(linkSeed).padStart(10,'0'));
+ const linkId=qrbViolationLinkId(product,event.platform,event);
  const sampleTitles={
   '抖音':`【${product.brand}品牌直营】${product.name} 官方旗舰店`,
   '快手':`${product.name} ${product.brand}官方直营精选`,

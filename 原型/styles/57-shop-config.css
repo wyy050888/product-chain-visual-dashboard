@@ -5,7 +5,7 @@
 #shc-platforms>button.active{background:#edf4ff;border-color:#83b5ff;color:#1677ff}
 #shc-platforms small{color:#8396b2;font-size:12px}
 #shc-filters{display:grid;grid-template-columns:minmax(260px,1.6fr) repeat(3,minmax(170px,1fr)) auto;gap:12px;align-items:center;margin-bottom:18px}
-#shc-filters input[type=search]{width:100%!important;min-width:0;height:36px;border:1px solid #dce4ef;border-radius:5px;padding:0 11px;font:inherit}
+#shc-filters>.ui-search-field{width:100%;min-width:0}
 #shc-content .shc-filter{display:grid;grid-template-columns:72px minmax(0,1fr);align-items:center;min-width:0;height:36px;padding:0 10px;border:1px solid #dce4ef;border-radius:5px;font-size:12px;white-space:nowrap}
 #shc-content .shc-filter>select{width:100%;min-width:0;height:34px;min-height:0;border:0;padding:0 18px 0 3px;background:var(--filter-chevron) right center/12px no-repeat;appearance:none;font:inherit;color:#304c70;text-align:center}
 #shc-content #shc-error{color:#c43149;font-size:12px}#shc-error:not(:empty){margin-bottom:12px}
@@ -24,7 +24,7 @@
 #shc-content .shc-switch-text{margin-left:9px;font-size:13px;color:#526780}
 #shc-content .shc-empty{text-align:center;color:#98a5b8;padding:48px}
 #shc-pages .list-pagination{padding-top:18px}
-@media(max-width:1200px){#shc-filters{grid-template-columns:repeat(2,minmax(0,1fr))}#shc-filters input[type=search]{grid-column:1/-1}#shc-filters>[data-shc-reset]{justify-self:end}}
-@media(max-width:500px){#shc-filters{grid-template-columns:minmax(0,1fr)}#shc-filters input[type=search]{grid-column:auto}#shc-platforms{gap:6px}#shc-platforms>button{padding:6px 9px}#shc-content #shc-return{font-size:11px;padding:6px}}
+@media(max-width:1200px){#shc-filters{grid-template-columns:repeat(2,minmax(0,1fr))}#shc-filters>.ui-search-field{grid-column:1/-1}#shc-filters>[data-shc-reset]{justify-self:end}}
+@media(max-width:500px){#shc-filters{grid-template-columns:minmax(0,1fr)}#shc-filters>.ui-search-field{grid-column:auto}#shc-platforms{gap:6px}#shc-platforms>button{padding:6px 9px}#shc-content #shc-return{font-size:11px;padding:6px}}
 
 #shc-content .shc-platform{display:inline-flex;align-items:center;gap:8px;white-space:nowrap}

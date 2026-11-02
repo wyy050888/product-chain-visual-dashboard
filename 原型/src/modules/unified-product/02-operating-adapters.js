@@ -33,14 +33,14 @@ riskLossPeriod = function(record) {
 rfReturnFacts = function(record) {
   const p=upIdentity(record), s=upSummary(p,record.start,record.end,record.channel);
   const previous=upSummary(p,record.prevStart,record.prevEnd,record.channel);
-  return {...s, previousGsvCents:previous.gsvCents, targetCents:s.targetCents,
-    receivedLimit:Math.floor(s.sales*record.receivedTarget/100)};
+  return copyFactRecord(s,{previousGsvCents:previous.gsvCents,targetCents:s.targetCents,
+    receivedLimit:null});
 };
 const upOriginalReturnRows = rrAll;
 rrAll = function() {
   return upOriginalReturnRows().map(r=>{
     const s=upSummary(upIdentity(r),r.start,r.end,r.channel), prev=upSummary(upIdentity(r),r.prevStart,r.prevEnd,r.channel);
-    return {...r,price:s.sales?s.gmvCents/100/s.sales:0,salesAmount:s.gmvCents/1000000,previousSalesAmount:prev.gmvCents/1000000};
+    return copyFactRecord(r,{price:s.sales?s.gmvCents/100/s.sales:0,salesAmount:s.gmvCents/1000000,previousSalesAmount:prev.gmvCents/1000000});
   });
 };
 nsSalesFacts = function(rows) {

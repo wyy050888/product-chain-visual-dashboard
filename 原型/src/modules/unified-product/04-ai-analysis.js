@@ -6,13 +6,13 @@ function upAiAnalysis(m,state){
  const active=rows.filter(r=>r.sales>0),demo=upAiDemoContext(m,state),assessment=upAiAssessment(m,state,demo),issues=[];
  const add=(key,title,evidence,impact,owner)=>issues.push({key,title,evidence,impact,owner,action:'',watch:'页面利润率、用户反馈和供需缺口'});
  const lossRows=active.filter(r=>Number.isFinite(r.profitRate)&&r.profitRate<0).sort((a,b)=>a.profitCents-b.profitCents);
- const profitNeed=lossRows.length||s.profitRate<0||['A','C'].includes(assessment.grade);
+ const profitNeed=lossRows.length||s.profitRate<0||['A','C'].includes(assessment.grade)&&brcProductOperatingMatch(assessment.grade,s.profitRate);
  if(profitNeed)add('profit',s.profitRate<0?'页面利润率为负，需比较改善与退出方案':'需核实利润缺口及渠道成本改善条件',
-  '累计页面利润率'+upPercent(s.profitRate)+'；'+(lossRows.length?lossRows.map(r=>r.platform).join('、')+'页面利润率为负。':'当前等级需核实成本改善空间。'),
+  '累计页面利润率'+upPercent(s.profitRate)+'；'+(lossRows.length?lossRows.map(r=>r.platform).join('、')+'页面利润率为负。':'当前利润表现需核实成本改善空间。'),
   '渠道成本等于渠道供价；演示成本档案及采购日报支持比较降本条件，估算净利润不参与评级。','产品中心、采购部');
  const returns=active.filter(r=>r.gap>1e-10).sort((a,b)=>b.returned-a.returned);
  if(returns.length){const r=returns[0];add('returns','定位'+r.platform+'退货原因及影响SKU',
-  r.platform+'总退'+upPercent(r.returnRate)+'，高于目标'+fmt(r.gap,1)+'个百分点；退货'+fmt(r.returned)+'件。',
+  r.platform+'总退'+upPercent(r.returnRate)+'，高于目标'+fmt(r.gap,1)+'%；退货'+fmt(r.returned)+'件。',
   '总退偏高不能直接证明设计缺陷或供应商责任；演示品质周报尚未复现一致性技术异常，应结合订单及使用反馈完成原因验证。','品质中心、用户中心');}
  const events=upViolationRows({quality:qrPlatforms.map(platform=>qrObservation(m.product,platform,state.start,state.end))});
  if(events.length)add('violations','逐单核对违规原因及处理状态','历史累计'+events.length+'条违规记录，当前影响按处理状态核验。',

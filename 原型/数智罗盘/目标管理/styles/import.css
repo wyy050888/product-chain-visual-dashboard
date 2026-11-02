@@ -37,3 +37,25 @@
 #importChoice .dialog-body { color: #738199; font-size: 13px; line-height: 1.8; }
 #refImport .dialog-footer { display: flex; align-items: center; justify-content: flex-end; }
 @media (prefers-reduced-motion: reduce) { #importProgressBar::-webkit-progress-value { transition: none; } }
+
+#refImport .import-tools{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 12px;background:#f4f7fc;border-radius:4px;font-size:13px;color:#52677f}
+#importHistory{margin-left:auto}
+#refImport #importDrop{min-height:126px;box-sizing:border-box;padding:18px;border:1px dashed #b8d2f4;background:#fbfdff;border-radius:6px;display:flex;justify-content:center;flex-direction:column}
+#importDrop.has-file{cursor:default}
+#importDrop.has-file .import-file-icon{display:none}
+#importDrop.has-file .import-file-row{width:100%;max-width:720px;margin:auto}
+#importDrop.has-file #importChoose{cursor:default;white-space:normal;font-size:14px;overflow-wrap:anywhere}
+#importDrop.has-file .import-file-meta{margin-top:4px}
+#importErrors[hidden]{display:none}
+
+#refImport{width:min(960px,calc(100vw - 32px));max-width:960px;max-height:calc(100dvh - 48px);border:1px solid #dce5f2;border-radius:10px}
+#refImport .dialog-heading{min-height:64px;padding:16px 24px;box-sizing:border-box}
+#refImport .dialog-heading h2{font-size:18px;font-weight:600}
+#refImport .dialog-body{padding:20px 24px}
+#refImport .dialog-footer{padding:14px 24px}
+#refImport .text-link{color:#1677ff}
+#refImport #importConfirm{background:#1677ff;border-color:#1677ff}
+#importDrop.has-file .import-file-info{display:flex;align-items:center;gap:12px}
+#importDrop.has-file #importChoose{flex:1}
+#importDrop.has-file .import-file-meta{margin:0;white-space:nowrap}
+@media(max-width:600px){#refImport .dialog-heading,#refImport .dialog-body,#refImport .dialog-footer{padding:16px}.import-tools>span{flex-basis:100%}}

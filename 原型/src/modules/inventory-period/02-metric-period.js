@@ -1,18 +1,15 @@
-// 三项期间指标独立于库存快照；首页两表互不串用，抽屉继承后独立维护。
-const ipDefaultMetricPeriod=()=>({mode:'recent30',year:+DATA_CUTOFF.slice(0,4),value:+DATA_CUTOFF.slice(5,7)});
-const ipMetricPeriods={category:ipDefaultMetricPeriod(),brand:ipDefaultMetricPeriod()};
+// 库存余额保持最新，周转/交付/翻新取所选期间。
+const ipDefaultMetricPeriod=()=>({mode:'quarter',year:+DATA_CUTOFF.slice(0,4),value:Math.ceil(+DATA_CUTOFF.slice(5,7)/3)});
+let ipMetricPeriod=ipDefaultMetricPeriod();
 function ipWithMetricPeriod(period,run){
  const key='inventory-metrics',prior=localPeriods[key];localPeriods[key]={...period};
  try{return withPeriod(key,run)}finally{if(prior)localPeriods[key]=prior;else delete localPeriods[key]}
 }
 function ipMetricPeriodMarkup(period){
- const prior=localPeriods.matrix;localPeriods.matrix={...period};let html;
- try{html=periodControls('matrix')}finally{if(prior)localPeriods.matrix=prior;else delete localPeriods.matrix}
- const range=bounds(period);
- return `<div class="ip-metric-period"><span class="metric-help" role="button" tabindex="0" aria-label="时间筛选影响指标" data-metric-rule="时间筛选影响指标：库存周转率、交付及时率、翻新延期天数"></span>${html.replaceAll('data-time-','data-ip-time-').replaceAll('关键产品','库存指标')}<small class="ip-metric-range">${range.start} — ${range.cutoff}</small></div>`;
+ const html=periodControls('inventory',{period,label:'库存指标',follow:false});
+ return `<div class="ip-metric-period"><small class="ip-metric-scope">筛选影响：库存周转率、交付及时率、翻新闭环率</small>${html.replaceAll('data-time-','data-ip-time-')}</div>`;
 }
 function ipMountMetricPeriod(host,period,onChange){
- host.querySelector('.follow-time')?.remove();
  host.onclick=event=>{
   const button=event.target.closest('[data-ip-time-mode]');if(!button)return;
   event.preventDefault();event.stopPropagation();

@@ -1,4 +1,6 @@
 /* 表头边缘拖动；不改变未调整表格的默认布局和表头文字。 */
+/* 零优先级兜底定位，具体表格的sticky/absolute规则继续优先；初始化无需逐列读取样式。 */
+:where(thead>tr>:is(th,td)){position:relative}
 .ui-column-handle{position:absolute;right:0;top:0;bottom:0;width:8px;cursor:col-resize;touch-action:none;z-index:5;user-select:none}
 .ui-column-handle:focus-visible{outline:1px solid #91beff;outline-offset:-1px}
 .ui-column-resizing,.ui-column-resizing *{cursor:col-resize!important;user-select:none!important}

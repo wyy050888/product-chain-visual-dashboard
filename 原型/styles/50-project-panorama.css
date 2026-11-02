@@ -32,9 +32,9 @@
 #projects.pp-main .pp-bar-line b{font-weight:500}
 #projects.pp-main .pp-track{display:flex;flex:1;height:18px;border-radius:5px;overflow:hidden;background:#f0f3f9}
 #projects.pp-main .pp-track i{display:block;height:100%}
-#projects.pp-main .pp-red{background:#ff6174}
+#projects.pp-main .pp-red{background:var(--red)}
 #projects.pp-main .pp-yellow{background:var(--orange-fill)}
-#projects.pp-main .pp-distribution{--pp-green-fill:#0faf62;--pp-green-text:#0faf62}
+#projects.pp-main .pp-distribution{--pp-green-fill:var(--green);--pp-green-text:var(--green)}
 #projects.pp-main .pp-green{background:var(--pp-green-fill)}
 #projects.pp-main .pp-distribution .green{color:var(--pp-green-text)}
 #projects.pp-main .pp-distribution .dot.green{background:var(--pp-green-fill)}
@@ -58,12 +58,13 @@
 #projects.pp-main #pp-overview .pp-bars>.pp-link{padding:5px 8px}
 #projects.pp-main #pp-overview .pp-bar-label{margin-bottom:4px}
 #projects.pp-main .pp-main-table{min-width:0;display:flex;flex-direction:column}
+#projects.pp-main .pp-light-tabs{margin-bottom:14px;gap:6px}
+#projects.pp-main .pp-light-tabs button{white-space:nowrap}
+#projects.pp-main .pp-light-tabs button>span{margin-left:7px;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+#projects.pp-main .pp-light-tabs button.active>span{color:var(--blue)}
 #projects.pp-main .pp-filters{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:end;margin-bottom:14px}
 #projects.pp-main .pp-filter-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;align-items:center;min-width:0}
 #projects.pp-main .pp-filter-row>label,#projects.pp-main .pp-filter-row>.pf-multi{min-width:0;max-width:none;width:100%;margin:0}
-#projects.pp-main .pp-filter-row input[type=search]{flex:1;min-width:0;width:100%!important;height:100%;border:0;border-radius:inherit;background:transparent;padding:0 10px;outline:none;box-shadow:none}
-#projects.pp-main .pp-filter-row .ui-search-field{border:1px solid #d7e0ee;border-radius:6px;display:flex;align-items:center;height:36px}
-#projects.pp-main .pp-filter-row .ui-search-field:focus-within{border-color:#1677ff;box-shadow:0 0 0 3px #1677ff12}
 #projects.pp-main .pp-filter-row .pf-multi-menu{min-width:220px;max-width:min(420px,85vw)}
 #projects.pp-main .pp-filter-row .pf-multi-option{white-space:normal;line-height:1.5}
 #projects.pp-main .pp-plan{position:relative;min-width:0}
@@ -96,8 +97,8 @@
 #projects.pp-main .pp-plan-trigger i{font-style:normal;margin-right:16px}
 #projects.pp-main [data-pp-plan-clear]{position:absolute;right:8px;top:8px;background:#fff;border:0;color:#8498b6;cursor:pointer}
 #projects.pp-main .pp-reset{height:36px;padding:0 8px;white-space:nowrap}
-#projects.pp-main .pp-table-scroll{width:100%;overflow:auto;border:1px solid #e4ebf7;border-radius:7px;flex:1;background:white}
-#projects.pp-main .pp-table{table-layout:fixed;min-width:2740px;width:100%;border-collapse:separate;border-spacing:0}
+#projects.pp-main .pp-table-scroll{width:100%;overflow:auto;contain:paint;border:1px solid #e4ebf7;border-radius:7px;flex:1;background:white}
+#projects.pp-main .pp-table{table-layout:fixed;min-width:2488px;width:100%;border-collapse:separate;border-spacing:0}
 #projects.pp-main .pp-table th{font-size:12px;color:#7589a7;font-weight:500;height:44px;white-space:nowrap;background:#f5f8fc;padding:12px 14px}
 #projects.pp-main .pp-table td{height:96px;padding:14px;vertical-align:middle;border-bottom:1px solid #e9eff8;font-size:12px;color:#354c70;white-space:normal;line-height:1.7;overflow:visible}
 #projects.pp-main .pp-table>thead>tr>th:first-child,#projects.pp-main .pp-table>tbody>tr>td:first-child{position:sticky;left:0;z-index:2;border-right:1px solid #e8eef8;background:#fff}
@@ -118,12 +119,12 @@
 #projects.pp-main .pp-wrap{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;white-space:normal;overflow-wrap:anywhere}
 #projects.pp-main .pp-root-cause{font:inherit;color:#1677ff;text-align:left;background:none;border:0;padding:0;cursor:pointer;width:100%}
 #projects.pp-main .pp-root-cause.muted{color:#8494ad}
-#projects.pp-main .pp-pages{padding:18px 0 0;margin-top:auto}
-#projects.pp-main .pp-pages .list-pagination{margin:0}
+#projects.pp-main .pp-pages{padding:8px 0 0;margin-top:0}
+#projects.pp-main .pp-pages .list-pagination{margin:0;padding:0}
 #projects.pp-main .pp-ai{margin:20px 18px;border:1px solid #e1e9f5;border-radius:10px;padding:20px;background:linear-gradient(120deg,#f7f9ff,#fff)}
 #projects.pp-main .pp-ai-heading{display:flex;justify-content:space-between;align-items:center;gap:12px}
 #projects.pp-main .pp-ai-heading h3{font-size:16px;margin:0}
-#projects.pp-main .pp-ai-heading h3>span{font-size:12px;color:#6175ef;background:#e9edff;padding:4px 6px;border-radius:5px;margin-right:6px}
+#projects.pp-main .pp-ai-heading h3{display:flex;align-items:center;gap:8px}
 #projects.pp-main .pp-ai-heading small{font-size:11px;color:#8293ae}
 #projects.pp-main .pp-ai-summary{font-size:13px;line-height:1.8;color:#526c90;margin:14px 0}
 #projects.pp-main .pp-ai-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
@@ -141,11 +142,11 @@
 @media(max-width:1100px){#projects.pp-main .pp-layout{grid-template-columns:1fr}#projects.pp-main #pp-overview{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch}#projects.pp-main .pp-ai-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#projects.pp-main .pp-rate-split{gap:0}}
 
 /* 根因分析悬浮表格：内容可移入阅读，窄屏在浮层内部横向滚动。 */
-#pp-ledger-popover{position:fixed;inset:auto;margin:0;width:min(1200px,calc(100vw - 24px));max-height:calc(100vh - 24px);padding:12px;border:1px solid #dfe6f1;border-radius:5px;background:white;color:#354c70;box-shadow:0 3px 16px #253a5b24;overflow:visible}
+#pp-ledger-popover{position:fixed;inset:auto;margin:0;box-sizing:border-box;width:min(1200px,calc(100vw - 24px));max-height:calc(100vh - 24px);padding:12px;border:1px solid #dfe6f1;border-radius:5px;background:white;color:#354c70;box-shadow:0 3px 16px #253a5b24;overflow:visible}
 #pp-ledger-popover::before{content:'';position:absolute;left:var(--pp-arrow-left);width:9px;height:9px;background:#fff;border:1px solid #dfe6f1;transform:translateX(-50%) rotate(45deg)}
 #pp-ledger-popover[data-side=below]::before{top:-5px;border-right:0;border-bottom:0}
 #pp-ledger-popover[data-side=above]::before{bottom:-5px;border-left:0;border-top:0}
-#pp-ledger-popover .pp-ledger{max-height:calc(100vh - 50px);overflow:auto}
+#pp-ledger-popover .pp-ledger{min-width:0;max-width:100%;max-height:calc(var(--pp-ledger-max-height,100vh) - 26px);overflow:auto;overscroll-behavior:contain}
 #pp-ledger-popover .pp-card-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:10px;color:#7b8ea9;font-size:11px}
 #pp-ledger-popover h4{margin:0;color:#354c70;font-size:12px;font-weight:500}
 #pp-ledger-popover table{width:100%;min-width:1000px;border-collapse:collapse;table-layout:fixed}
@@ -169,21 +170,20 @@
 @media(max-width:600px){#projects.pp-main .pp-filters{grid-template-columns:minmax(0,1fr)}#projects.pp-main .pp-filter-row{grid-template-columns:minmax(0,1fr)}#projects.pp-main .pp-reset{justify-self:end}}
 
 /* 主表与抽屉共用排序图标；主表显式使用弹性布局，避免图标沿文字基线下沉。 */
-#projects.pp-main .rp-sort-header{display:inline-flex;align-items:center;gap:6px;padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:nowrap;vertical-align:middle;cursor:pointer}
-#projects.pp-main .rp-sort-header:focus-visible{outline:2px solid #1677ff;outline-offset:3px}
+#projects.pp-main .rp-sort-header{white-space:nowrap}
 
 #projects.pp-main .pp-plan-dates{display:flex;flex-direction:column;gap:6px;align-items:flex-start}
 #projects.pp-main .pp-plan-dates small{font-size:11px;white-space:nowrap}
 
-/* 高危红灯用深红区分；仅作用于项目展示，不改变风险单灯色。 */
-#projects.pp-main .pp-high-risk,.pp-analysis-detail .pp-high-risk{color:#b4233b}
-#projects.pp-main .pp-high,#projects.pp-main .dot.pp-high-risk{background:#b4233b}
-#projects.pp-main .tag.pp-high-risk,.pp-analysis-detail .tag.pp-high-risk{background:#fce7ec;color:#b4233b;font-weight:600;white-space:nowrap}
+/* 高危项目用钴蓝区分；仅作用于项目展示，不改变风险单灯色判定。 */
+#projects.pp-main .pp-high-risk,.pp-analysis-detail .pp-high-risk{color:var(--red-high)}
+#projects.pp-main .pp-high,#projects.pp-main .dot.pp-high-risk{background:var(--red-high)}
+#projects.pp-main .tag.pp-high-risk,.pp-analysis-detail .tag.pp-high-risk{background:var(--red-high-soft);color:var(--red-high);font-weight:600;white-space:nowrap}
 #projects.pp-main .pp-delay-high,.pp-analysis-detail .pp-delay-high{font-weight:600}
 #projects.pp-main .pp-distribution .pp-bar-line>span:last-child{min-width:100px}
 
 /* 项目主表与风险明细共用状态标签；暂停、取消使用相同灰色。 */
-:is(#projects.pp-main,.pp-risk-detail) .pp-project-state{display:inline-block;padding:2px 8px;border:0;border-radius:3px;font-size:13px;font-weight:400;line-height:20px;white-space:nowrap;vertical-align:middle}
-:is(#projects.pp-main,.pp-risk-detail) .pp-project-state-active{background:#eaf3ff;color:#1677ff}
-:is(#projects.pp-main,.pp-risk-detail) .pp-project-state-done{background:#e8ffea;color:#00b42a}
-:is(#projects.pp-main,.pp-risk-detail) .pp-project-state-muted{background:#f5f6f8;color:#4b5563}
+#projects.pp-main .pp-project-state{display:inline-block;padding:2px 8px;border:0;border-radius:3px;font-size:13px;font-weight:400;line-height:20px;white-space:nowrap;vertical-align:middle}
+#projects.pp-main .pp-project-state-active{background:#eaf3ff;color:#1677ff}
+#projects.pp-main .pp-project-state-done{background:var(--green-soft);color:var(--green)}
+#projects.pp-main .pp-project-state-muted{background:#f5f6f8;color:#4b5563}

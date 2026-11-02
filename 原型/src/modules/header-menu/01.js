@@ -1,4 +1,4 @@
-// 部门页面沿用已有处理器；本模块仅管理下拉菜单及键盘焦点。
+// 部门页面沿用已有处理器；本模块管理顶栏入口、下拉菜单及键盘焦点。
 const chainTrigger = $('#chain-menu-trigger');
 const chainMenu = $('#chain-menu');
 const chainSwitch = chainTrigger.parentElement;
@@ -61,3 +61,6 @@ $('.head .brand').addEventListener('click', event => {
   dpNavButtons[0].click();
   closeChainMenu();
 });
+
+// 库存大屏入口暂按交互稿提示跳转文案。
+$('#inventory-screen-button').addEventListener('click',()=>toast('跳转库存大屏'));

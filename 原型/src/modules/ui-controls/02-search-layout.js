@@ -1,5 +1,5 @@
 // 只调整既有业务筛选的视觉布局，原输入节点和业务事件保持不变。
-const uiBusinessBars='.rp-list-tools,.ipd-filters,.life-products-filters,.dp-filter,.pb-filters,.cw-toolbar,.sw-controls,.ai-dimension-filters,.unified-filter-extras,.pf-tools';
+const uiBusinessBars='.rp-list-tools,.life-products-filters,.dp-filter,.pb-filters,.cw-toolbar,.sw-controls,.ai-dimension-filters,.unified-filter-extras,.pf-tools';
 function uiProductSearchMatch(record,query){
  const p=upIdentity(record);
  return [record.name,record.spuCode||p?.spuCode,record.model||p?.model].filter(Boolean).join(' ').toLocaleLowerCase().includes(query.trim().toLocaleLowerCase());
@@ -24,10 +24,10 @@ function uiArrangeBusinessFilters(root){
  }
 }
 let uiBusinessLayoutScheduled=false;
+const uiSearchNodes='input[type=search],.ui-search-field,.kpm-search,.up-todo-search';
 const uiBusinessLayoutObserver=new MutationObserver(records=>{
- if(uiBusinessLayoutScheduled||!records.some(r=>[...r.addedNodes].some(n=>n.nodeType===1&&(n.matches(uiBusinessBars)||n.querySelector(uiBusinessBars)))))return;
- uiBusinessLayoutScheduled=true;queueMicrotask(()=>{uiBusinessLayoutScheduled=false;uiArrangeBusinessFilters(document)});
+ if(uiBusinessLayoutScheduled||!records.some(r=>[...r.addedNodes].some(n=>n.nodeType===1&&(n.matches(uiBusinessBars+','+uiSearchNodes)||n.querySelector(uiBusinessBars+','+uiSearchNodes)))))return;
+ uiBusinessLayoutScheduled=true;queueMicrotask(()=>{uiBusinessLayoutScheduled=false;uiArrangeBusinessFilters(document);uiNormalizeSearchFields(document)});
 });
-uiBusinessLayoutObserver.observe($('.page'),{childList:true,subtree:true});
-uiBusinessLayoutObserver.observe($('#dialogbody'),{childList:true,subtree:true});
-uiArrangeBusinessFilters(document);
+uiBusinessLayoutObserver.observe(document.body,{childList:true,subtree:true});
+uiArrangeBusinessFilters(document);uiNormalizeSearchFields(document);

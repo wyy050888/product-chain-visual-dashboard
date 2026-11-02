@@ -8,6 +8,7 @@ export async function riskCardClick(page){
  const close=async()=>{await page.locator('#close').click();assert(await page.locator('#overlay').isHidden())};
  for(const kind of [0,1,2,3,4,6]){
   const rows=page.locator('#riskrail .rp-entry[data-rp-kind="'+kind+'"]'),row=rows.nth(Math.min(2,await rows.count()-1));
+  if(!(await rows.count())){assert(await page.locator('#riskrail [data-rp-board="'+kind+'"] .empty').isVisible());continue}
   assert(await rows.count()>0);await row.locator('.rp-detail-link').click();await page.locator('.up-detail').waitFor();const expected=await current();await close();
   for(const target of [row.locator('.rp-identity b').first(),row.locator('[data-rp-field] strong').first()]){
    await target.click();await page.locator('.up-detail').waitFor();assert.deepEqual(await current(),expected,'名称或指标点击与详情入口一致：'+kind);

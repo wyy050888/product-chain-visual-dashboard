@@ -23,9 +23,10 @@ export async function detailPeriod(page){
   const tomorrow=await page.evaluate(()=>{const d=new Date(new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Shanghai'}).format(new Date())+'T00:00:00Z');d.setUTCDate(d.getUTCDate()+1);return d.toISOString().slice(0,10)});
   const nextDay=page.locator('#up-date-popover [data-range-date="'+tomorrow+'"]:not(.outside)');if(await nextDay.count())assert(await nextDay.isDisabled(),'日期上限随当天更新，明天仍不可选');
   const selectedRange=[await root.getAttribute(start),await root.getAttribute(end)];
-  // 关闭日期相关标签时，同步清理浮层，不留下隐藏控件对应的日历。
-  await tab('handling').click();assert(await period.isHidden());assert.equal(await page.locator('#up-date-popover').count(),0);
+  assert.equal(await tab('handling').count(),0,'风险待办页签已移除');
   if(!shop){await tab('stock').click();assert(await period.isHidden())}
+  else{await tab('operating').click();assert(await period.isVisible())}
+  assert.equal(await page.locator('#up-date-popover').count(),0,'切换页签清理日历浮层');
   await tab('operating').click();assert(await period.isVisible());assert.deepEqual([await root.getAttribute(start),await root.getAttribute(end)],selectedRange);
   await page.setViewportSize({width:390,height:900});await tab('operating').click();
   assert.equal(await page.locator('#dialogbody').evaluate(e=>e.scrollWidth>e.clientWidth+1),false,'窄屏不撑破正文');

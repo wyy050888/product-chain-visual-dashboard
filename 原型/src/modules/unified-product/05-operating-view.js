@@ -1,18 +1,14 @@
-// 渠道表与贡献图共用GSV默认顺序和期间汇总，缺失置后。
-const upOperatingChannels=['百度&CID','天猫','京东','抖音','一类达播','商务达播','快手','拼多多','视频号'];
-function upOperatingChannelRows(rows){
- const byChannel=new Map(rows.map(row=>[row.platform,row]));
- return upOperatingChannels.map(platform=>byChannel.get(platform)||{platform}).sort((a,b)=>{
-  const hasA=Number.isFinite(a.gsvCents),hasB=Number.isFinite(b.gsvCents);
-  return Number(hasB)-Number(hasA)||(hasA&&hasB?b.gsvCents-a.gsvCents:0);
- });
+// 详情业绩表与贡献图共用六平台事实，保留旧函数名兼容排序入口。
+const upOperatingChannels=filterCatalog.platforms;
+function upOperatingChannelRows(platformRows,channelRows=[]){
+ return salesChannelRows(platformRows,channelRows);
 }
 // 经营指标按筛选期间，日筛选的右侧达成使用结束日所在月份。
 function upOperatingView(m,state) {
   const s=m.current,{actual:a,targets:t,prefix,progress}=m.attainment;
-  const channelRows=upOperatingChannelRows(m.platformRows);
+  const channelRows=upOperatingChannelRows(m.platformRows,m.channelRows||[]);
   const metrics=upGrid(upOperatingMetrics(m,state).map(f=>`<div class="up-metric" data-up-metric="${f.key}">
-    <small data-up-basic="true">${f.name}</small><div class="up-operating-value"><strong class="${f.tone||''}">${esc(f.value)}</strong><span class="up-operating-comparison ${f.targetTone}">${rpTargetText(f)}</span></div></div>`));
+    <small data-up-basic="true">${esc(f.name)}</small><div class="up-operating-value"><strong class="${f.tone||''}">${numberSignalMain(f)}</strong><span class="up-operating-comparison ${f.targetTone}">${rpTargetText(f)}</span></div></div>`));
   const hasTarget=!!upIdentity(m.product)?.sampleTargets||m.product.cohort==='new'||sampleSpus.find(p=>p.spuId===m.product.spuId)?.cohort==='new';
   const target=hasTarget?t.targetCents:null;
   const targetMargin=hasTarget&&target>0?t.targetProfitCents/target*100:null;
@@ -31,12 +27,12 @@ function upOperatingView(m,state) {
     </div>
     <div class="up-attainment-goal"><span>${prefix}GSV目标</span><span class="up-attainment-values"><span>${target===null?'—':upMoney(target)}</span>${msInlineDeviation(gsvDeviation)}</span></div>
     <div class="up-attainment-rate"><span>${prefix}规模达成率</span><span class="up-attainment-values"><span>${upPercent(scale)}</span>${msInlineDeviation(scaleDeviation)}</span></div>
-    <div class="up-attainment-progress" role="progressbar" aria-label="规模达成率" aria-valuemin="0" aria-valuemax="100" ${Number.isFinite(scale)?`aria-valuenow="${width}"`:''} aria-valuetext="${Number.isFinite(scale)?upPercent(scale):'未配置目标'}"><i style="width:${width}%"></i></div>
+    <div class="up-attainment-progress" role="progressbar" aria-label="规模达成率" aria-valuemin="0" aria-valuemax="100" ${Number.isFinite(scale)?`aria-valuenow="${width}"`:''} aria-valuetext="${Number.isFinite(scale)?upPercent(scale):'未配置目标'}"><i style="width:${width}%;background:var(--${msTone(scaleDeviation)})"></i></div>
   </section>`;
   return `<div class="up-operating-overview"><div class="up-operating-kpis">${metrics}</div>${targets}</div>${upSalesTrend(s.points)}
-    <section class="up-channel-section" aria-label="各渠道业绩数据"><header class="up-channel-heading"><h3>各渠道业绩数据</h3>${upChannelContributionNote(channelRows)}</header><div class="up-channel-comparison">
-    <div class="up-platform-performance" aria-label="各渠道业绩表格"><div class="up-table">${upChannelTable(channelRows,state)}</div></div>
-    ${upChannelContributionView(channelRows,state)}</div></section>${state.platform==='all'?upGradeTrendView(m.product,state):''}`;
+    <section class="up-channel-section" aria-label="产品分平台业绩"><header class="up-channel-heading"><h3>产品分平台业绩</h3>${upChannelContributionNote(channelRows,m.company)}</header><div class="up-channel-comparison">
+    <div class="up-platform-performance" aria-label="各平台业绩表格"><div class="up-table">${upChannelTable(channelRows,state)}</div></div>
+    ${upChannelContributionView(channelRows,state,m.company)}</div></section>${state.platform==='all'?upGradeTrendView(m.product,state):''}`;
 }
 
 // 比较使用紧邻等长区间；复用六榜环比和退货偏差规则，避免单独维护阈值。
@@ -50,14 +46,18 @@ function upOperatingMetrics(m,state){
     ['feeRate','费率',s.feeRate,p.feeRate,upPercent],
     ['margin','利润率',s.profitRate,p.profitRate,upPercent]
   ].map(([key,name,now,before,format])=>({key,name,value:format(now),
-    tone:key==='margin'&&now<0?'red':'',...rpLossMarginComparison(now,before)}));
+    tone:'',...(key==='margin'?rpProfitRateComparison(now,before):rpLossMarginComparison(now,before,{reverse:key==='feeRate',signed:key==='feeRate'}))}));
   const {returnTarget:totalTarget,receivedTarget}=upReturnTargets(m,state);
   for(const [key,name,actual,target] of [['returned','总退',s.returnRate,totalTarget],['received','已收退',s.receivedRate,receivedTarget]])
-    fields.push({key,name,value:upPercent(actual),...rpQualityReturnRule(actual,target)});
+    fields.push({key,name,value:upPercent(actual),...rpQualityReturnRule(actual,target,key)});
   return fields;
 }
 
 // 指标偏差与趋势辅助线共用目标，保持平台、期间口径一致。
 function upReturnTargets(m,state){
- return {returnTarget:rpLossReturnTarget(upIdentity(m.product),state.platform,state.start,state.end),receivedTarget:8};
+ const product=upIdentity(m.product),channels=upChannels(state.platform);
+ if(channels.length===1)return qrbReturnTargets(product,channels[0]);
+ let sales=0,weighted=0,complete=true;
+ for(const channel of channels){const n=upSummary(product,state.start,state.end,channel).sales;if(n<=0)continue;const target=qrbReturnTargets(product,channel).receivedTarget;sales+=n;if(Number.isFinite(target))weighted+=n*target;else complete=false}
+ return {returnTarget:rpLossReturnTarget(product,state.platform,state.start,state.end),receivedTarget:complete&&sales?weighted/sales:null};
 }

@@ -1,10 +1,8 @@
 /* 亏损卡片五列主指标，抽屉沿用品质榜样式并保持充足列宽。 */
-#riskrail :is(.rp-loss-columns,.rp-return-columns),#riskrail :is(.rp-loss-values,.rp-return-values) {grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+#riskrail .rp-loss-columns,#riskrail .rp-loss-values {grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+#riskrail .rp-return-columns,#riskrail .rp-return-values {grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
 #riskrail :is(.rp-loss-columns,.rp-return-columns)>span {white-space:nowrap}
 #riskrail :is(.rp-loss-columns,.rp-return-columns) .metric-help {margin-left:4px}
 #dialogbody #rf-list-table.rp-loss-table table {min-width:1886px!important}
-#dialogbody #rf-list-table.rp-return-table table {min-width:1502px!important}
-@media(max-width:1799px) and (min-width:1201px),(max-width:600px){
- #riskrail :is(.rp-loss-columns,.rp-return-columns) {display:none}
- #riskrail :is(.rp-loss-values,.rp-return-values) {grid-template-columns:repeat(3,minmax(0,1fr));gap:10px 8px}
-}
+/* 两个独立环比列增加256px，保留横向滚动，避免属性列被固定趋势列遮住。 */
+#dialogbody #rf-list-table.rp-return-table table {min-width:1758px!important}

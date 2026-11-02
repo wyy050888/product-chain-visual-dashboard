@@ -4,8 +4,10 @@ import vm from 'node:vm';
 
 export function verifyTodoDescription(){
  const context=vm.createContext({esc:s=>String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;')});
+ vm.runInContext(fs.readFileSync(new URL('../../src/modules/shared-classification/02-diagnosis-catalog.js',import.meta.url),'utf8'),context);
+ vm.runInContext(fs.readFileSync(new URL('../../src/modules/unified-product/07-todo-origin.js',import.meta.url),'utf8'),context);
  vm.runInContext(fs.readFileSync(new URL('../../src/modules/unified-product/07-todo-description.js',import.meta.url),'utf8'),context);
- const facts='全平台页面利润率-13.0%，继续新增投入会扩大亏损风险。\n天猫总退18.6%，高于目标12.6个百分点。';
+ const facts='全平台页面利润率-13.0%，继续新增投入会扩大亏损风险。\n天猫总退18.6%，高于目标12.6%。';
  const reason='整改与供货存在前置依赖，应先确认原因。',period='2026-09-04 — 2026-09-10';
  const task={description:facts+'\n\n判断理由：'+reason+'\n统计期间：'+period+facts+'\n\n判断理由：'+reason+'\n统计期间：'+period,basis:[facts]};
  const original=JSON.stringify(task),parts=context.upTodoDescriptionParts(task);
@@ -21,4 +23,5 @@ export function verifyTodoDescription(){
  assert.equal(context.upTodoDescriptionMarkup({description:''}),'—');
  const current={source:'rule-suggestion',description:'事实依据（方案演示）：\n'+facts+'\n分析口径：截至2026-10-10；9月按门槛匹配A级，处于亏损状态。\n\n判断理由：'+reason+'\n统计期间：2026-01-01 — 2026-10-10'};
  assert.deepEqual(Array.from(context.upTodoDescriptionParts(current),p=>p.kind),['facts','reason','scope','period']);
+ assert.equal(context.upTodoProblemSummary({...current,problemSummary:'利润率未达标'}),'利润率未达标');assert(context.upTodoHasEvidence(current));assert(!context.upTodoHasEvidence(manual));assert(context.upTodoEvidenceMarkup(current).includes('统计期间'));const withSignal={...current,gdAutomatic:true,gdProblem:'当前待核实问题',gdImpact:'当前影响'};assert(context.upTodoEvidenceMarkup(withSignal).includes('全平台页面利润率-13.0%'),'查看依据保留原下发事实，不被当前信号替换');assert.equal(context.upTodoProblemSummary(withSignal),'当前待核实问题');
 }

@@ -5,35 +5,23 @@
 .page .unified-filter-extras .ui-search-field {flex:0 1 360px;min-width:280px;order:-1}
 .page .unified-filter-extras .ui-search-field>input {width:100%!important}
 #dialogbody .rp-list-table {margin-top:10px}
-/* 浅灰列头和轻分隔；趋势与操作固定在右侧，横向浏览也能读到。 */
+/* 浅灰列头和轻分隔；操作固定在右侧，横向浏览也能读到。 */
 #dialogbody :is(#qr-list-table,#rf-list-table).rp-list-table th {white-space:nowrap!important;height:44px;padding:10px 12px;background:#f5f6f8;color:#778397;font-weight:400;border-bottom:1px solid #e8ecf1}
 #dialogbody :is(#qr-list-table,#rf-list-table).rp-list-table tr:nth-child(even)>td {background:#fafbfc}
 #dialogbody :is(#qr-list-table,#rf-list-table).rp-list-table tr:hover>td {background:#f2f7ff}
-#dialogbody :is(#qr-list-table,#rf-list-table).rp-list-table :is(th,td):has(.rp-trend-heading,.rp-mini-trend,.rp-trend-empty) {position:sticky;right:95px;z-index:1;min-width:170px!important;width:170px;border-left:1px solid #eef1f5}
-#dialogbody :is(#qr-list-table,#rf-list-table).rp-list-table th:has(.rp-trend-heading) {z-index:2}
 #dialogbody :is(#qr-list-table,#rf-list-table).rp-list-table :is(th,td):first-child {padding-left:8px;padding-right:8px;white-space:nowrap}
-.rp-trend-heading {display:flex;align-items:center;justify-content:center;gap:2px;white-space:nowrap;font-size:12px}
-.rp-trend-heading select {border:0;box-shadow:none;background:transparent;color:#387ec4;font-size:12px;height:24px;min-height:24px;padding:0 15px 0 3px;max-width:76px;cursor:pointer}
-.rp-mini-trend {display:block;width:126px;height:48px;margin:auto;overflow:visible}
-.rp-mini-trend [tabindex]:hover,.rp-mini-trend [tabindex]:focus {fill:#1677ff18;outline:none}
-.rp-trend-empty {display:block;text-align:center;color:#98a2af;font-size:12px}
 @media(max-width:700px){
  .ui-business-filters .unified-input-group.ui-business-search,.page .unified-filter-extras .ui-search-field {flex:1 1 100%;width:100%;min-width:0}
- #dialogbody :is(#qr-list-table,#rf-list-table).rp-list-table :is(th,td):has(.rp-trend-heading,.rp-mini-trend,.rp-trend-empty) {position:static}
 }
 
-/* 趋势提示挂在body，避开表格滚动和固定列的裁切。 */
-.rp-trend-tooltip {min-width:160px;max-width:min(240px,calc(100vw - 16px));padding:9px 12px;pointer-events:none}
-.rp-trend-tooltip-date {color:#8492a5;font-size:11px;margin-bottom:4px}
-.rp-trend-tooltip-value {display:flex;align-items:center;justify-content:space-between;gap:18px;color:#526379}
-.rp-trend-tooltip-value strong {font-size:13px;font-weight:500;color:#203652;font-variant-numeric:tabular-nums}
 
 /* 完整榜单：排序入口与现有表头同排；勾选筛选不套字段名分栏。 */
-:is(#dialogbody,#newtable) .rp-sort-header {display:inline-flex;align-items:center;gap:6px;padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:nowrap;cursor:pointer}
-:is(#dialogbody,#newtable) .rp-sort-header:focus-visible {outline:2px solid #1677ff;outline-offset:3px}
-:is(#dialogbody,#newtable) .rp-sort-header[data-direction]:not([data-direction=""]) {color:#1677ff}
-.rp-sort-arrows {display:inline-flex;flex-direction:column;gap:2px}
-.rp-sort-arrows::before,.rp-sort-arrows::after {content:'';width:0;height:0;border-inline:3px solid transparent}
+.rp-sort-header {display:inline-flex;align-items:center;gap:6px;padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:nowrap;vertical-align:middle;cursor:pointer}
+.rp-sort-header:focus-visible {outline:2px solid #1677ff;outline-offset:3px}
+.rp-sort-header[data-direction]:not([data-direction=""]) {color:#1677ff}
+/* 全局排序图标：固定6×10px，上下三角各4px，所有表头共享方向色。 */
+.rp-sort-arrows {display:inline-flex;flex:0 0 6px;align-items:center;justify-content:center;flex-direction:column;width:6px;height:10px;gap:2px;margin:0;vertical-align:middle;pointer-events:none}
+.rp-sort-arrows::before,.rp-sort-arrows::after {content:'';display:block;flex:none;width:0;height:0;border-inline:3px solid transparent}
 .rp-sort-arrows::before {border-bottom:4px solid #b9c4d3}
 .rp-sort-arrows::after {border-top:4px solid #b9c4d3}
 [data-direction="asc"]>.rp-sort-arrows::before {border-bottom-color:#1677ff}
@@ -47,3 +35,5 @@
 
 /* 原表头整体纵向吸附，层级高于左右固定的数据列。 */
 #dialogbody .rp-list-table thead {position:relative;z-index:4;will-change:transform}
+
+[data-rp-default-order][hidden]{display:none}

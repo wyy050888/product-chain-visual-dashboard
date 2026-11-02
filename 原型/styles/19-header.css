@@ -87,6 +87,8 @@
   color: #66738a;
   font-size: 13px;
 }
+.head.portal-header .inventory-screen-button{flex:none;height:32px;min-width:88px;margin-right:16px;padding:0 16px;border:1px solid #2164ff;border-radius:3px;background:#2164ff;color:#fff;font:inherit;font-size:14px;line-height:30px;white-space:nowrap;cursor:pointer}
+.head.portal-header .inventory-screen-button:hover{border-color:#1459e6;background:#1459e6}
 .head.portal-header .headright > .admin-account {
   display: inline-flex;
   align-items: center;
@@ -157,3 +159,5 @@
 /* 全屏展示只保留模块导航与退出入口，主菜单不占位。 */
 html:is(:fullscreen,.dashboard-fullscreen) .head.portal-header{display:none}
 html:is(:fullscreen,.dashboard-fullscreen) :is(.navigation-toolbar,.dp-nav){top:0}
+
+@media(max-width:380px){.head.portal-header .headright > .admin-account{display:none}.head.portal-header .inventory-screen-button{margin-right:0}}

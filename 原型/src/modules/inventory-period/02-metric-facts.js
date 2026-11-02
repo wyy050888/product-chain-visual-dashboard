@@ -1,4 +1,4 @@
-// 期间成本/交付/翻新从月度日期台账读取，仅把这三项结果合并到最新库存记录。
+// 期间成本/交付/翻新从日期台账读取，库存余额保持最新。
 const ipMetricMonthCache=boundedCache(36),ipMetricCostCache=boundedCache(24);
 function ipMetricMonths(start,end){
  const keys=[];let cursor=start.slice(0,7)+'-01';
@@ -17,9 +17,6 @@ function ipMetricMonth(month){
 }
 function ipMetricRecords(records,period){
  const range=bounds(period),months=ipMetricMonths(range.start,range.cutoff).map(ipMetricMonth);
- const after=new Date(range.cutoff+'T00:00:00Z');after.setUTCDate(1);after.setUTCMonth(after.getUTCMonth()+3);after.setUTCDate(0);
- const eventEnd=iso(after)<DATA_CUTOFF?iso(after):DATA_CUTOFF;
- const events=ipMetricMonths(range.start,eventEnd).map(ipMetricMonth);
  const key=range.start+'|'+range.cutoff;let costs=ipMetricCostCache.get(key);
  if(!costs){costs=new Map(upWithRange({start:range.start,end:range.cutoff},()=>inventoryProductLedger()).map(row=>[row.spuId,{cost:row.cost,avg:row.avg}]));ipMetricCostCache.set(key,costs)}
  return records.map(record=>{
@@ -30,10 +27,9 @@ function ipMetricRecords(records,period){
    const first=aiFlowDayDiff(month.start,start),last=aiFlowDayDiff(month.start,end);
    deliveryDue+=targetSum(row.planned.slice(first,last+1));deliveryOn+=targetSum(row.delivered.slice(first,last+1));
   }
-  const reports=events.map(month=>month.rows.get(record.spuId)).filter(row=>row?.refurbReported>=range.start&&row.refurbReported<=range.cutoff&&Number.isFinite(row.refurbDelay));
-  const latest=reports.sort((a,b)=>b.refurbDelay-a.refurbDelay)[0];
+  const refurbOrders=ipRefurbPeriodOrders(months.flatMap(month=>month.rows.get(record.spuId)?.refurbOrders||[]),range.start,range.cutoff);
   const {cost=0,avg=0}=costs.get(record.spuId)||{};
-  const row={...record,cost,avg,deliveryOn,deliveryDue,refurbDelay:latest?.refurbDelay??null,refurbReported:latest?.refurbReported??null,refurbReturn:latest?.refurbReturn??null};
+  const row={...record,cost,avg,deliveryOn,deliveryDue,refurbOrders,refurbEnd:range.cutoff};
   return {...row,...ipStockSum([row])};
  });
 }

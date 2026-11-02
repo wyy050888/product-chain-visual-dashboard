@@ -12,35 +12,118 @@
 .stock-overview-cards .stock-card-foot strong{font-size:12px;font-weight:500;color:#526b85;white-space:nowrap}
 .stock-overview-cards .metric-help{width:13px;height:13px;flex-basis:13px;margin-left:3px}
 .stock-season-bar{display:flex;gap:1px;width:94px;height:7px;flex:none;border-radius:4px;overflow:hidden;background:#e7ecf6}
-.stock-season-segment{display:block;min-width:0;flex-basis:0;cursor:help}.stock-season-segment:focus-visible{outline:2px solid #193f68;outline-offset:-2px}
+.stock-season-segment{display:block;min-width:0;flex-basis:0}.stock-season-segment:focus-visible{outline:2px solid #193f68;outline-offset:-2px}
 .stock-season-legend{display:flex;align-items:center;flex-wrap:wrap;gap:4px 9px;font-size:10px;color:#8390a5}
 .stock-season-legend>span{display:inline-flex;align-items:center;gap:4px;white-space:nowrap}.stock-season-legend i{width:5px;height:5px;border-radius:50%}
-.season-0{background:#4389f5}.season-1{background:#9271df}.season-2{background:#44baa7}
+.season-0{background:#4389f5}.season-1{background:#9271df}.season-2{background:var(--green)}
 @media(min-width:1401px){#dialogbody .stock-overview-cards .primary strong{font-size:18px}#dialogbody .stock-overview-cards .stock-balance-card{padding:12px}}
 @media(max-width:1400px){#inventory .stock-overview-cards,#dialogbody .stock-overview-cards{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:850px){#inventory .stock-overview-cards,#dialogbody .stock-overview-cards{grid-template-columns:repeat(2,minmax(0,1fr))}.stock-overview-cards .primary strong,#dialogbody .stock-overview-cards .primary strong{font-size:19px}}
 @media(max-width:500px){#inventory .stock-overview-cards,#dialogbody .stock-overview-cards{grid-template-columns:1fr}}
 
-/* 产品库存按七项同排展示，后三卡适度压缩；窄屏只在卡片区内横向滚动。 */
-#dialogbody .stock-product-scroll{max-width:100%;overflow-x:auto;padding-bottom:2px}
-#dialogbody .stock-overview-cards.stock-product-cards{grid-template-columns:repeat(4,minmax(186px,1fr)) repeat(3,minmax(130px,.65fr));min-width:1206px;gap:12px}
+/* 产品库存八卡两行：先展示余额，再展示净销量及三项期间指标。 */
+#dialogbody .stock-product-scroll{max-width:100%;min-width:0;padding-bottom:2px}
+#dialogbody .stock-overview-cards.stock-product-cards{grid-template-columns:repeat(4,minmax(0,1fr));min-width:0;gap:12px}
 #dialogbody .stock-product-cards .stock-balance-card{padding:12px}
 #dialogbody .stock-product-cards .primary strong{font-size:18px}
-#dialogbody .stock-product-cards .stock-card-head{gap:4px}
+#dialogbody .stock-product-cards .stock-card-head{gap:4px;min-height:48px}
 #dialogbody .stock-product-cards .stock-card-head>span{font-size:10px}
-#dialogbody .stock-product-cards .stock-card-head h4{font-size:11px}
+#dialogbody .stock-product-cards .stock-card-head h4{font-size:11px;white-space:normal}
 #dialogbody .stock-product-cards .stock-card-pair{gap:6px}
 
 #dialogbody .up-stock-sku-table{min-width:2140px}
 #dialogbody .up-stock-sku-table :is(th,td):nth-child(n+3){text-align:right;font-variant-numeric:tabular-nums}
 
-/* 可售卡右侧集中呈现季品占比，下行留给货值。 */
-.stock-overview-cards .stock-sellable-card{display:grid;grid-template-columns:minmax(0,1fr) minmax(126px,46%);column-gap:8px}
-.stock-sellable-card>.stock-card-head,.stock-sellable-card>.primary{grid-column:1}
-.stock-sellable-card>.stock-season-aside{grid-column:2;grid-row:1/3;align-self:center;display:flex;flex-direction:column;gap:9px;min-width:0}
-.stock-season-aside .stock-season-bar{width:100%}
-.stock-season-aside .stock-season-legend{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:3px}
-.stock-season-aside .stock-season-legend>span{display:flex;flex-direction:column;gap:3px;font-size:9px}
+/* 季品条置于卡片标题右侧；数量与金额占比由公共悬浮提示展示。 */
+.stock-season-aside{display:flex;flex-direction:column;gap:4px;width:104px;flex:none;min-width:0}
+.stock-season-aside .stock-season-bar{width:100%;height:5px}
+.stock-season-aside .stock-season-legend{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:2px}
+.stock-season-aside .stock-season-legend>span{display:flex;justify-content:center;font-size:8px}
 .stock-season-aside .stock-season-legend>span>span{display:inline-flex;align-items:center;gap:2px;white-space:nowrap}
-.stock-season-aside .stock-season-legend b{font-size:10px;font-weight:400;color:#71849b}
-.stock-sellable-card>.stock-sellable-value{grid-column:1/-1;justify-content:space-between;gap:8px}
+.stock-season-aside .stock-season-legend i{width:4px;height:4px}
+.stock-sellable-card>.stock-sellable-value{justify-content:space-between;gap:8px}
+
+/* 总览两行四列：数量、货值分组；详情八卡继续使用独立布局。 */
+#inventory #inventorymetrics{max-width:100%;overflow:visible;padding:0}
+#inventory .stock-overview-cards{grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;padding:0;background:transparent}
+#inventory .stock-summary-card{position:relative;display:flex;flex-direction:column;min-width:0;height:112px;padding:12px 16px;border:1px solid #e2e9f3;border-radius:8px;background:#f8faff}
+#inventory .stock-summary-card .stock-card-head{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:baseline;min-height:22px;gap:14px;margin:0 0 4px}
+#inventory .stock-summary-card .stock-card-head>.stock-summary-label{min-width:0;padding-left:14px;line-height:22px}
+#inventory .stock-summary-card .stock-card-head h4{font-size:13px;font-weight:600;color:#526b85;line-height:22px}
+#inventory .stock-summary-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:baseline;align-content:end;gap:14px;min-height:40px}
+#inventory .stock-summary-card .primary{display:flex;align-items:baseline;gap:4px;min-width:0;margin:0;line-height:32px}
+#inventory .stock-summary-card .primary strong{font-size:24px;line-height:32px;font-weight:600}
+#inventory .stock-summary-worth{display:flex;flex-direction:column;gap:0;min-width:0;padding-left:14px;border-left:1px solid #e1e8f2}
+#inventory .stock-summary-label{display:block;font-size:10px;line-height:14px;color:#8390a5;font-weight:400}
+#inventory .stock-summary-worth>div{display:flex;align-items:baseline;gap:3px;min-width:0;white-space:nowrap}
+#inventory .stock-stale-card :is(.primary,.stock-summary-worth>div){flex-wrap:wrap;row-gap:0}
+#inventory .stock-summary-worth strong{font-size:var(--type-compact-kpi,24px);line-height:32px;font-weight:600;color:#355474;font-variant-numeric:tabular-nums;white-space:nowrap}
+#inventory .stock-summary-card .stock-card-foot{justify-content:flex-start;gap:8px;margin:4px 0 0;font-size:10px;line-height:16px}
+#inventory .stock-summary-card .stock-card-foot strong{font-size:11px;font-weight:500}
+#inventory .stock-summary-card .stock-card-share{font-size:10px;line-height:16px}
+#inventory .stock-summary-card.stock-summary-single{display:flex;flex-direction:column}
+#inventory .stock-summary-single .stock-card-head{margin:0 0 4px}
+#inventory .stock-summary-single .stock-summary-body{display:flex;align-items:end;min-height:40px}
+#inventory .stock-summary-single .primary strong{font-size:var(--type-compact-kpi,24px);line-height:32px}
+#inventory .stock-refurb-main{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:baseline;align-content:end;gap:14px;min-height:40px;margin:0}
+#inventory .stock-refurb-main>strong{font-size:24px;line-height:32px;font-weight:600}
+#inventory .stock-refurb-pending{display:flex;flex-direction:column;min-width:0;gap:0;padding-left:14px;border-left:1px solid #e1e8f2}
+#inventory .stock-refurb-pending>span:last-child{display:flex;gap:3px;align-items:baseline;line-height:32px;white-space:nowrap}
+#inventory .stock-refurb-pending [data-stock-refurb-pending]{font-size:var(--type-compact-kpi,24px);color:#355474;font-weight:600;font-variant-numeric:tabular-nums}
+@media(max-width:1400px){#inventory .stock-overview-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){#inventory .stock-overview-cards{grid-template-columns:minmax(0,1fr);gap:10px}#inventory .stock-summary-card{padding-left:12px;padding-right:12px}#inventory .stock-summary-card .stock-card-head,#inventory .stock-summary-body,#inventory .stock-refurb-main{gap:10px}#inventory .stock-summary-card .stock-card-head>.stock-summary-label,#inventory .stock-summary-worth,#inventory .stock-refurb-pending{padding-left:10px}}
+
+.stock-overview-cards .stock-card-share{font-size:11px;font-weight:400;color:#8b96a8;white-space:nowrap}
+.stock-overview-cards .stock-stale-card .primary{white-space:nowrap}
+.stock-overview-cards .stock-stale-card .primary strong{font-size:21px}
+
+
+.stock-refurb-main{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin:0 0 10px}
+.stock-refurb-main>strong{font-size:22px;line-height:30px;font-weight:600;color:#294561}
+.stock-refurb-main>span{font-size:10px;color:#8390a5}.stock-refurb-main>span b{font-weight:500;color:#526b85}
+.stock-refurb-buckets{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:0 0 10px}
+.stock-refurb-buckets>div{display:flex;flex-direction:column;gap:4px;border-left:2px solid #d4def0;padding-left:7px;min-width:0}
+.stock-refurb-buckets>div:first-child{border-left-color:var(--green)}.stock-refurb-buckets>div:last-child{border-left-color:#f29b73}
+.stock-refurb-buckets span{font-size:10px;color:#8390a5;white-space:nowrap}.stock-refurb-buckets b{font-size:14px;font-weight:500;color:#526b85}
+.metric-tooltip.metric-tooltip-stock-refurb{box-sizing:border-box;width:360px;max-width:calc(100vw - 16px);max-height:calc(100dvh - 16px);overflow:auto;white-space:normal;padding:16px;color:#526b85}
+.metric-tooltip-stock-refurb h4{margin:0 0 10px;font-size:14px;color:#294561}
+.metric-tooltip-stock-refurb .stock-refurb-formula{margin:0 0 12px;color:#1677ff;font-size:13px;font-weight:500;line-height:1.8}
+.metric-tooltip-stock-refurb dl{display:grid;grid-template-columns:58px minmax(0,1fr);gap:10px 12px;margin:0;font-size:12px;line-height:1.8}
+.metric-tooltip-stock-refurb dt{font-weight:600;color:#294561}.metric-tooltip-stock-refurb dd{margin:0}
+@media(max-width:850px){.stock-refurb-buckets{gap:4px}.stock-refurb-buckets>div{padding-left:4px}.stock-refurb-buckets span{font-size:9px}}
+
+.ip-refurb-rate{display:inline-flex;align-items:baseline;gap:8px;white-space:nowrap;border:0;padding:0;background:transparent;color:#1677ff;font:inherit;cursor:pointer;line-height:1.6;font-variant-numeric:tabular-nums}
+.ip-refurb-arrow{display:inline-block;margin:0;color:inherit;font-size:18px!important;font-style:normal;font-weight:400;line-height:1}
+.ip-refurb-rate:focus-visible{outline:2px solid #1677ff;outline-offset:3px;border-radius:2px}
+.stock-refurb-tip-summary{margin:12px 0 0;color:#7c8da4;font-size:11px;line-height:1.8}
+.ip-refurb-distribution{position:fixed;inset:auto;margin:0;box-sizing:border-box;width:380px;max-width:calc(100vw - 16px);max-height:calc(100dvh - 16px);overflow:auto;padding:16px;border:1px solid #d9e2ef;border-radius:8px;background:#fff;color:#526b85;box-shadow:0 8px 28px #17365b26;font-size:12px}
+.ip-refurb-distribution header{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.ip-refurb-distribution h4{flex:1;margin:0;color:#294561;font-size:14px}
+.ip-refurb-distribution-row{display:grid;grid-template-columns:minmax(110px,1.4fr) minmax(32px,1fr) 32px;gap:10px;align-items:center;min-height:30px}
+.ip-refurb-distribution-track{height:7px;overflow:hidden;border-radius:4px;background:#eef2f8}
+.ip-refurb-distribution-track i{display:block;height:100%;border-radius:inherit;background:#709df2}
+.ip-refurb-distribution-row b{text-align:right;font-weight:500;font-variant-numeric:tabular-nums}
+
+.metric-tooltip .stock-season-tip-title{margin:0 0 8px;color:#294561;font-size:12px;font-weight:600}
+.metric-tooltip .stock-season-tip-row{display:flex;align-items:baseline;gap:5px;white-space:nowrap;line-height:24px}
+.metric-tooltip .stock-season-tip-share{color:#8b96a8;font-size:11px}
+
+/* 呆滞指标与季品分布各占一张卡，分布不再挤在指标标题旁。 */
+#inventory .stock-stale-distribution-body{display:grid;gap:8px;min-width:0;padding-top:5px}
+#inventory .stock-stale-distribution .stock-season-bar{width:100%;height:8px}
+#inventory .stock-stale-distribution-legend{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+#inventory .stock-stale-distribution-legend>div{display:grid;gap:2px;min-width:0}
+#inventory .stock-stale-distribution-legend>div>span{display:flex;align-items:center;gap:4px;font-size:var(--type-meta,12px);line-height:18px;color:#8390a5;white-space:nowrap}
+#inventory .stock-stale-distribution-legend i{width:5px;height:5px;flex:none;border-radius:50%}
+#inventory .stock-stale-distribution-legend strong{font-size:var(--type-data,13px);line-height:18px;font-weight:500;color:#526b85;font-variant-numeric:tabular-nums}
+
+/* 原周转率卡片位置一分为二，共用期间与判灯，其他卡片位置保持。 */
+#inventory .stock-period-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;min-width:0}
+#inventory .stock-period-cards .stock-card-head{grid-template-columns:minmax(0,1fr)}
+@media(max-width:600px){#inventory .stock-period-cards{grid-template-columns:minmax(0,1fr);gap:10px}}
+
+#dialogbody .up-stock-period{flex:none;max-width:100%;min-width:0;padding:5px 0}
+#dialogbody .up-stock-period[hidden]{display:none!important}
+@media(max-width:1200px){#dialogbody .up-detail:has(>.up-detail-tabs .up-stock-period:not([hidden]))>.up-detail-tabs{flex-wrap:wrap;gap:0}#dialogbody .up-stock-period{margin-left:auto}}
+@media(max-width:900px){#dialogbody .stock-overview-cards.stock-product-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:500px){#dialogbody .stock-overview-cards.stock-product-cards{grid-template-columns:minmax(0,1fr)}}

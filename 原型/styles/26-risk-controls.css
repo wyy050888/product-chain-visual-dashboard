@@ -6,13 +6,13 @@
 #riskrail .risk-card-actions select { min-height:30px; height:30px; max-width:130px; padding:3px 22px; font-size:12px; background-image:var(--filter-chevron); background-position:right 8px center; background-size:12px 12px; background-repeat:no-repeat; }
 #riskrail .risk-card-actions .sr-filter-label { display:flex; align-items:center; gap:6px; font-size:11px; }
 #riskrail .risk-card-actions .link { font-size:12px; white-space:nowrap; }
-:is(#risk,#dialogsub,.up-detail-period) .risk-date-trigger {
+:is(#risk,#new,#matrix,#dialogsub,.up-detail-period) .risk-date-trigger {
   display:inline-flex; flex:0 0 auto; flex-wrap:nowrap; align-items:center; justify-content:space-between; gap:10px;
   height:34px; padding:6px 10px; border:1px solid #dbe3ef; border-radius:6px;
   background:#fff; color:#34455f; font-size:12px; white-space:nowrap;
 }
-:is(#risk,#dialogsub,.up-detail-period) .risk-date-trigger:hover { border-color:#a8bfdf; }
-:is(#risk,#dialogsub,.up-detail-period) .risk-date-trigger[aria-expanded=true] { border-color:#1677ff; box-shadow:0 0 0 3px #1677ff12; }
+:is(#risk,#new,#matrix,#dialogsub,.up-detail-period) .risk-date-trigger:hover { border-color:#a8bfdf; }
+:is(#risk,#new,#matrix,#dialogsub,.up-detail-period) .risk-date-trigger[aria-expanded=true] { border-color:#1677ff; box-shadow:0 0 0 3px #1677ff12; }
 .risk-date-trigger svg { display:block; flex:none; width:16px; height:16px; fill:none; stroke:#8190a7; stroke-width:1.4; }
 .risk-date-popover {
   position:fixed; z-index:5000; width:710px; max-width:calc(100vw - 24px); max-height:calc(100vh - 24px);
@@ -44,6 +44,19 @@
 .risk-calendar-grid button.outside { background:transparent; }
 .risk-date-popover button:disabled { opacity:.55; cursor:not-allowed; }
 .risk-date-popover button:focus-visible { outline:2px solid #1677ff; outline-offset:1px; }
+.risk-date-popover[popover] { inset:auto; margin:0; padding:0; }
+.risk-date-popover.is-single { width:322px; border-radius:4px; box-shadow:0 2px 12px #203b5b26; }
+.risk-date-popover.is-single .risk-calendar-body { padding:10px 0 14px; }
+.risk-date-popover.is-single .risk-calendar-months { grid-template-columns:minmax(0,1fr); }
+.risk-date-popover.is-single .risk-calendar-month { padding:0 16px; }
+.risk-date-popover.is-single .risk-calendar-month h3 { height:40px;line-height:40px;font-size:16px;font-weight:500; }
+.risk-date-popover.is-single .risk-calendar-nav { inset:3px 13px auto;display:grid;grid-template-columns:20px 20px 1fr 20px 20px; }
+.risk-date-popover.is-single .risk-calendar-nav button { width:20px;height:32px;font-size:18px; }
+.risk-date-popover.is-single .risk-calendar-nav button:nth-child(3) { grid-column:4; }
+.risk-date-popover.is-single .risk-calendar-week { margin-top:14px;padding-bottom:10px; }
+.risk-date-popover.is-single .risk-calendar-grid { row-gap:10px;margin-top:8px; }
+.risk-date-popover.is-single .risk-calendar-grid button { width:26px;height:26px;line-height:26px;justify-self:center;border-radius:50%; }
+.risk-date-popover.is-single .risk-calendar-grid button.range-edge { background:#1677ff;color:#fff;border-radius:50%; }
 @media(max-width:700px) {
   .risk-date-popover { width:430px; }
   .risk-calendar-months { grid-template-columns:minmax(0,1fr); }

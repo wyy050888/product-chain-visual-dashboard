@@ -1,15 +1,14 @@
-/* 榜单平台筛选：回显和下拉选项共用官方标识。 */
-#riskrail .rp-platform-menu {position:relative;flex:none;font-size:12px;color:#203652}
-#riskrail .rp-platform-menu>select[hidden] {display:none!important}
-#riskrail .rp-platform-menu>summary {display:flex;align-items:center;justify-content:center;gap:6px;box-sizing:border-box;height:28px;padding:0 10px;border:1px solid #e0e6ef;border-radius:5px;background:#fff;cursor:pointer;list-style:none;white-space:nowrap}
-#riskrail .rp-platform-menu>summary::-webkit-details-marker {display:none}
-#riskrail .rp-platform-menu>summary>i {width:5px;height:5px;margin-left:3px;transform:translateY(-2px) rotate(45deg);border-right:1px solid #71839d;border-bottom:1px solid #71839d}
-#riskrail .rp-platform-menu .rp-platform-mark {width:16px;height:16px;object-fit:contain;flex:none}
-#riskrail .rp-platform-menu[open] {z-index:30}
-#riskrail .rp-platform-menu[open]>summary {border-color:#1677ff}
-#riskrail .rp-platform-menu>summary>span{max-width:150px;overflow:hidden;text-overflow:ellipsis}
-#riskrail .rp-platform-options {position:absolute;top:calc(100% + 5px);right:0;min-width:112px;padding:4px;background:#fff;border:1px solid #e0e6ef;border-radius:6px;box-shadow:0 5px 18px #2036521a}
-#riskrail .rp-platform-options>button {display:flex;align-items:center;gap:8px;width:100%;min-height:32px;padding:6px 10px;border:0;border-radius:4px;background:#fff;color:#203652;font:inherit;text-align:left;white-space:nowrap;cursor:pointer}
-#riskrail .rp-platform-options>button:hover,#riskrail .rp-platform-options>button:focus-visible {background:#f2f6fc}
-#riskrail .rp-platform-options>button[aria-checked="true"] {background:#eaf2ff;color:#1677ff}
-#riskrail .rp-platform-menu :is(summary,button):focus-visible {outline:2px solid #1677ff;outline-offset:2px}
+/* 六榜共用范围栏：四榜展示平台数量标签，库存两榜展示季品标签。 */
+#riskrail .rp-card-facets {box-sizing:border-box;min-width:0;min-height:40px;margin:0 0 10px;padding:1px 0;flex:none}
+#riskrail :is(.rp-platform-menu,.rp-season-menu)>select[hidden] {display:none!important}
+#riskrail .rp-platform-tags {display:flex;flex-wrap:nowrap;align-items:center;gap:6px;min-width:0;max-width:100%;overflow-x:auto;overflow-y:hidden;padding:3px 2px 5px;scrollbar-width:thin;scrollbar-color:#dce1f1 transparent;overscroll-behavior-x:contain}
+#riskrail .rp-platform-tag,#riskrail .rp-season-tag {display:inline-flex;align-items:center;justify-content:center;gap:4px;box-sizing:border-box;min-width:0;min-height:28px;padding:3px 7px;border:1px solid #dbe4f0;border-radius:6px;background:#fff;color:#536b89;font-size:12px;line-height:20px;white-space:nowrap}
+#riskrail :is(.rp-platform-tag,.rp-season-tag) {flex:none;cursor:pointer;transition:background-color .12s,border-color .12s}
+#riskrail :is(.rp-platform-tag,.rp-season-tag):hover {background:#f0f6ff;border-color:#a7c9f8}
+#riskrail :is(.rp-platform-tag[aria-checked="true"],.rp-season-tag[aria-pressed="true"],.rp-season-tag[aria-checked="true"]) {color:#135fc3;background:#e6f0ff;border-color:#75aaf0;box-shadow:inset 0 0 0 1px #75aaf01f}
+#riskrail :is(.rp-platform-tag,.rp-season-tag):focus-visible {outline:2px solid #1677ff;outline-offset:2px}
+#riskrail .rp-platform-tag .rp-platform-mark {display:block;width:16px;height:16px;object-fit:contain;flex:none}
+#riskrail .rp-platform-count {display:inline-flex;align-items:center;justify-content:center;min-width:18px;padding:0 4px;border-radius:4px;background:#eef2f7;color:#536b89;font-size:12px;font-weight:500;line-height:18px;font-variant-numeric:tabular-nums}
+#riskrail :is(.rp-platform-tag[aria-checked="true"],.rp-season-tag[aria-pressed="true"],.rp-season-tag[aria-checked="true"]) .rp-platform-count {background:#196bd6;color:#fff}
+
+#riskrail .rp-season-tags {display:flex;flex-wrap:nowrap;align-items:center;gap:6px;padding:3px 2px 5px;min-width:0;max-width:100%;overflow-x:auto;scrollbar-width:thin}

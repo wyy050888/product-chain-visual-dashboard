@@ -33,7 +33,7 @@ export async function detailOperating(page){
  const layout=await page.locator('.up-detail').evaluate(root=>({hero:root.querySelector('.up-hero').getBoundingClientRect().bottom,tabs:root.querySelector('.drawer-tabs').getBoundingClientRect().top}));
  assert(layout.hero<=layout.tabs);
  assert.equal(await page.locator('.up-operating-kpis .up-metric').count(),8);
- assert.deepEqual(await page.locator('.up-operating-kpis .up-metric small').allTextContents(),['GSV','销量','去退后销量','消耗','费率','利润率','总退','已收退']);
+ assert.deepEqual(await page.locator('.up-operating-kpis .up-metric small').allTextContents(),['GSV','销量','销量','消耗','费率','利润率','总退','已收退']);
  assert.deepEqual(await page.locator('.up-operating-comparison .rp-comparison-label').allTextContents(),['环比','环比','环比','环比','环比','环比','偏差','偏差']);
  const overview=await page.locator('.up-operating-overview').evaluate(root=>{
   const left=root.querySelector('.up-operating-kpis').getBoundingClientRect(),right=root.querySelector('.up-attainment').getBoundingClientRect();
@@ -41,7 +41,7 @@ export async function detailOperating(page){
  });
  assert(overview.leftEnd<overview.rightStart&&overview.topGap<1,'桌面指标在左，达成在右');
  assert.equal(await page.locator('.up-sales-trend [data-up-series]').count(),3);
- assert.equal(await page.locator('.up-operating-trend [data-up-axis]').count(),1);
+ assert.equal(await page.locator('.up-operating-trend [data-up-axis]').count(),2);
  assert.equal(await page.locator('.up-operating-trend [data-up-series] text').count(),0);
  const point=page.locator('[data-up-trend-point]').first();
  await point.hover();
@@ -51,7 +51,7 @@ export async function detailOperating(page){
  assert.deepEqual(await page.locator('.up-sales-tooltip-row>b').allTextContents(),await point.evaluate(e=>[e.dataset.gsv,e.dataset.sales,e.dataset.margin]));
  await page.mouse.move(0,0);
  assert.equal(await page.locator('#up-sales-tooltip').isVisible(),false);
- assert.equal(await page.locator('[data-up-panel="operating"] .up-table').first().locator('tbody tr').count(),9);
+ assert.equal(await page.locator('[data-up-panel="operating"] .up-table').first().locator('tbody tr').count(),6);
  await verifyChannelContribution(page);await operatingEnhancements(page);
  const channelFacts=()=>page.locator('.up-channel-contribution li').evaluateAll(es=>es.map(e=>[e.dataset.upContributionChannel,e.dataset.gsvCents,e.dataset.profitCents]));
  const channelBefore=await channelFacts();
@@ -76,7 +76,7 @@ export async function detailOperating(page){
  await page.locator('#up-date-trigger').click();
  await page.locator('#up-date-popover [data-range-preset="30"]').click();
  assert.equal(await page.locator('.up-grade-trend').getAttribute('data-grade-mode'),'month');
- assert.equal(await page.locator('.up-grade-period [data-drawer-time-value]').inputValue(),'10','跨月日范围的趋势定位结束日所在月');
+ assert.equal(await page.locator('.up-grade-trend [data-up-grade-tick]').last().textContent(),'2026/10','跨月日范围的趋势定位结束日所在月');
  assert.equal(await page.locator('.up-attainment').innerText(),monthlyAttainment);
  assert.notEqual(await page.locator('[data-up-metric="gsv"] strong').innerText(),sevenDayGsv);
  await page.locator('.up-detail-period [data-drawer-time-mode="month"]').click();
@@ -87,19 +87,13 @@ export async function detailOperating(page){
  await page.locator('#up-date-popover [data-range-preset="7"]').click();
  await page.locator('#up-date-trigger').click();await page.keyboard.press('Escape');
  assert.equal(await page.locator('#up-date-popover').count(),0);assert.equal(await page.locator('#overlay').evaluate(e=>e.hidden),false);
- // 改期间后平台切换仍保留日期，处理草稿按原范围保存。
- await page.locator('[data-drawer-tab="handling"]').click();
- await page.locator('[data-todo-tab="suggestions"]').click();
- await page.locator('[data-todo-open="assign"]').first().click();
- await page.locator('.up-todo-dialog [name="plan"]').fill('此为验证草稿，切换标签后应完整保留内容');
- await page.keyboard.press('Escape');
+ // 剩余页签正常切换，详情不再提供风险待办。
+ assert.equal(await page.locator('[data-drawer-tab="handling"],[data-up-panel="handling"]').count(),0);
  await page.locator('[data-drawer-tab="quality"]').click();
  assert.equal(await page.locator('[data-up-panel="quality"] #up-quality-target').count(),0);
- await page.locator('[data-drawer-tab="handling"]').click();
- await page.locator('[data-todo-open="assign"]').first().click();
- assert.match(await page.locator('.up-todo-dialog [name="plan"]').inputValue(),/验证草稿/);
- await page.keyboard.press('Escape');
+ await page.locator('[data-drawer-tab="stock"]').click();
  await page.locator('[data-drawer-tab="operating"]').click();
+ assert.equal(await page.locator('.up-detail').getAttribute('data-up-start'),'2026-10-04');
  for(const width of [1920,1100,390]){
   await page.setViewportSize({width,height:1080});
   const bounds=await page.locator('#dialog').boundingBox();assert(bounds.x>=-1&&bounds.width<=width+1);

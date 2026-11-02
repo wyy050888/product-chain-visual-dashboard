@@ -1,0 +1,21 @@
+/* 原select保留值、事件与尺寸供业务取值；图文按钮负责交互，选项进入顶层避免裁切。 */
+.ui-platform-select{position:relative;min-width:0}
+.ui-platform-select:not(.unified-input-group){display:inline-flex;align-items:center;max-width:100%}
+.ui-platform-select:not(.unified-input-group)>.ui-platform-trigger{min-width:110px;border:1px solid #dce5f3;background:#fff}
+.ui-platform-select>select[data-ui-platform-select]{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;max-width:none!important;background-image:none!important;opacity:0;pointer-events:none}
+.ui-platform-select>.ui-platform-trigger{position:relative;display:flex;align-items:center;justify-content:center;flex:1;gap:6px;min-width:0;min-height:34px;margin:0;padding:0 26px 0 12px;border:0;border-radius:5px;background:transparent;color:inherit;font:inherit;font-size:13px;cursor:pointer}
+.ui-platform-trigger>.ui-platform-value{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-width:0;overflow:hidden;white-space:nowrap}
+.ui-platform-value>span{overflow:hidden;text-overflow:ellipsis}
+.ui-platform-trigger>.ui-dropdown-icon{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:12px;height:12px;pointer-events:none}
+.ui-platform-trigger[aria-expanded=true]>.ui-dropdown-icon{transform:translateY(-50%) rotate(180deg)}
+.ui-platform-trigger:focus-visible{outline:2px solid var(--blue);outline-offset:-2px}
+.ui-platform-trigger:disabled{cursor:default;opacity:.5}
+.ui-platform-options{position:fixed;inset:auto;margin:0;padding:4px;box-sizing:border-box;max-width:calc(100vw - 16px);max-height:300px;overflow:auto;border:1px solid #dce5f3;border-radius:6px;background:#fff;color:#34455f;box-shadow:0 6px 20px #243c6026;font-family:var(--ui-font-family);font-size:13px}
+.ui-platform-options::backdrop{background:transparent}
+.ui-platform-option{display:flex;align-items:center;gap:8px;box-sizing:border-box;width:100%;min-height:34px;padding:6px 10px;border:0;border-radius:4px;background:transparent;color:inherit;font:inherit;text-align:left;cursor:pointer}
+.ui-platform-option:hover,.ui-platform-option:focus-visible{background:#f1f6ff;outline:none}
+.ui-platform-option[aria-selected=true]{background:#eaf2ff;color:#1677ff}
+.ui-platform-option[aria-selected=true]::after{content:'✓';margin-left:auto;color:#1677ff}
+.ui-platform-option:disabled{opacity:.45;cursor:default}
+:is(.ui-platform-value,.ui-platform-option,.pf-multi-option>span,.pf-multi-value)>.platform-mark{width:16px;height:16px;flex:none;object-fit:contain;vertical-align:middle}
+.pf-multi-option>span:has(>.platform-mark),.pf-multi-value:has(>.platform-mark){display:inline-flex;align-items:center;gap:6px}

@@ -1,4 +1,7 @@
 /* 分区、表格与弹窗布局，维持全部判断指标外显。 */
+/* 原生模态与业务遮罩共用页面锁；按实际开层状态生效，最后一层关闭后自动释放。 */
+html { scrollbar-gutter:stable; }
+html:has(dialog:modal),html:has(#overlay:not([hidden])) { overflow:hidden; overscroll-behavior:none; }
 .page .section { border-color:#e4eaf3; border-radius:10px; margin-bottom:18px; padding:22px; }
 .page .sectionhead { gap:14px; margin-bottom:20px; }
 .page .sectionhead h2 { font-size:20px; letter-spacing:0; line-height:1.4; }
@@ -41,8 +44,8 @@
 #projecttable .prodname { min-width:0; }
 #projecttable .prodname>div { min-width:0; }
 #projecttable .prodname strong { white-space:normal; font-weight:500; }
-#newtable :is(th,td):last-child,#inventorytable :is(th,td):last-child { position:sticky; right:0; background:#fff; border-left:1px solid #e9eef6; }
-#newtable th:last-child,#inventorytable th:last-child { background:#f5f8fc; }
+#newtable :is(th,td):last-child { position:sticky; right:0; background:#fff; border-left:1px solid #e9eef6; }
+#newtable th:last-child { background:#f5f8fc; }
 .page .dept { border-color:#e4eaf3; border-radius:7px; padding:14px; }
 .page .dept:hover { background:#f8fbff; border-color:#b6d2f6; }
 .page .dept.active,.page .dept.selected { background:#edf5ff; border-color:#91bffd; }
@@ -73,7 +76,7 @@
 :is(.page,.dialog,.drawer-parent-preview) :is(
   table,.tablewrap,.ai-detail-table,.deviation-table,.department-cause-table,
   #target-edit-table,.af-task-scroll,.pc-task-scroll,.life-products-table,
-  .nt-daily-scroll,.ipd-table,.dp-table,.ns-platform-table,.wf-table,.rp-list-table
+  .nt-daily-scroll,.dp-table,.ns-platform-table,.wf-table,.rp-list-table
 ) { border-left:0; border-right:0; }
 :is(.page,.dialog,.drawer-parent-preview) table > :is(thead,tbody,tfoot) > tr { border-left:0!important; border-right:0!important; }
 :is(.page,.dialog,.drawer-parent-preview) table :is(th,td):first-child { border-left:0!important; }

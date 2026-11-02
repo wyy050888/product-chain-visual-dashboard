@@ -2,24 +2,26 @@ import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
 export async function shopFilters(page){
  await page.locator('#riskrail [data-risk="1"]').click();
+ await page.locator('[data-rp-reset]').click(); // 重置会恢复全平台，基准也从全平台开始。
  const total=async()=>Number(await page.locator('#rp-list-pagination nav').getAttribute('data-list-total'));
- assert.equal(await page.locator('.pf-multi[data-pf-multi-label="核心主营产品类目"] .unified-field-name').innerText(),'核心主营产品类目');
+ assert.equal(await page.locator('.pf-multi[data-pf-multi-label="核心主营产品链群"] .unified-field-name').innerText(),'核心主营产品链群');
  const baseline=await total(),menu=page.locator('#dialogbody .pf-attribute');
  const coreRows=await page.locator('#rf-list-table tbody tr').evaluateAll(rows=>rows.map(row=>({name:row.querySelector('.rp-shop-identity b').title,hasCore:Boolean(row.querySelector('.rp-shop-core'))})));
  const coreCount=coreRows.filter(row=>row.hasCore).length;
- const category=page.locator('[data-rp-filter="chain"]'),categories=['个护类','环境类','清洁类','厨电类','健康类'];
+ const category=page.locator('[data-rp-filter="chain"]'),categories=['环境','清洁','厨电','个护&健康'];
  assert.deepEqual(await category.locator('option').allTextContents(),['全部',...categories]);
- const categoryMenu=page.locator('.pf-multi[data-pf-multi-label="核心主营产品类目"]');
+ const categoryMenu=page.locator('.pf-multi[data-pf-multi-label="核心主营产品链群"]');
  await categoryMenu.locator('summary').click();
  let categoryTotal=0;
  for(const value of categories){const box=categoryMenu.locator('[data-pf-multi-option][value="'+value+'"]');await box.check();categoryTotal+=await total();await box.uncheck()}
- assert(categoryTotal>=coreCount&&categoryTotal<=coreCount*5,'仅达标主营参与类目筛选，跨类目店铺可以重复命中多个单类目');
+ assert(categoryTotal>=coreCount&&categoryTotal<=coreCount*4,'仅达标主营参与类目筛选，跨类目店铺可以重复命中多个单类目');
  assert.equal(await total(),baseline);await categoryMenu.locator('summary').click();
  const search=page.locator('[data-rp-filter="query"]');
  assert.match(await search.getAttribute('placeholder'),/店铺名称.*店铺ID.*产品名称.*SPU码.*型号/);
  const first=page.locator('#rf-list-table tbody tr').first();
  const shopName=await first.locator('.rp-shop-identity b').getAttribute('title');
- const shopId=(await first.locator('.rp-shop-identity small').innerText()).match(/ID：\s*(\d+)/)[1];
+ const identity=first.locator('.rp-shop-identity small');
+ const shopId=((await identity.getAttribute('title'))||(await identity.textContent())).match(/ID[：:]\s*([^\s·]+)/)[1];
  for(const query of [shopName,shopId]){
   await search.fill(query);assert(await total()>0,'搜索应命中：'+query);
   assert((await page.locator('#rf-list-table tbody').innerText()).includes(shopName));

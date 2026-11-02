@@ -1,34 +1,38 @@
-// 面板只展示经营信号，点击明细不改变右侧产品表的筛选或分页。
-const kpmManagementPurpose={changes:'识别产品升降级，判断主力是否走弱',cycles:'判断既有方案是否带来经营改善',structure:'观察利润支柱补充与尾部产品变化'};
-function kpmManagementLamp(tone,label){
- const labels={red:'红灯',yellow:'黄灯',green:'绿灯'};
- return `<span data-up-basic class="kpm-management-lamp ${tone||'neutral'}"><i aria-hidden="true"></i>${esc(label||labels[tone]||'跟进')}</span>`;
+// 六卡共用基础范围，计数忽略自身等级和异动筛选。
+function kpmManagementStructureView(rows){
+ const changes=['up','down'].map(key=>{
+  const count=rows.filter(p=>p.assessment.change===key).length,active=kpmSelectedChange===key&&kpmSelectedGrade==='all';
+  return '<button type="button" class="kpm-structure-item kpm-change-card '+key+(active?' active':'')+'" data-kpm-summary-change="'+key+'" aria-pressed="'+active+'"><span class="kpm-structure-title"><i aria-hidden="true"></i>'+kpmChanges[key]+'</span><span class="kpm-structure-quantity"><strong class="kpm-structure-count">'+count+'</strong><span class="kpm-structure-unit">个</span></span></button>';
+ }).join('');
+ const metric=(s,operating=false)=>{
+  const facts=operating?s.operating:s,label=operating?kpmGrades[s.level]:s.level+'级产品';
+  const direction=facts.count===facts.before?'flat':facts.count>facts.before?'up':'down',active=kpmSelectedGrade===s.level&&(operating?kpmSelectedOperating===s.level:!kpmSelectedOperating);
+  return '<button type="button" class="kpm-structure-metric '+(operating?'kpm-operating-metric':'kpm-scale-metric')+(active?' active':'')+'" data-kpm-'+(operating?'operating':'grade')+'="'+s.level+'" aria-pressed="'+active+'"><span class="'+(operating?'kpm-operating-title':'kpm-structure-title')+'">'+(operating?label:'<i aria-hidden="true"></i><span class="kpm-structure-level">'+s.level+'</span>级产品')+'</span><span class="kpm-metric-quantity"><strong class="'+(operating?'kpm-operating-count':'kpm-structure-count')+'">'+facts.count+'</strong><span class="kpm-structure-unit">个</span></span><span class="kpm-metric-comparison"><span>较上期</span><b class="kpm-structure-delta" data-direction="'+direction+'" aria-label="较上期变化">'+(direction==='flat'?'持平':(direction==='up'?'↑':'↓')+Math.abs(facts.count-facts.before))+'</b></span></button>';
+ };
+ return '<div class="kpm-structure-summary" role="group" aria-label="等级升降及规模、经营两组指标">'+changes+kpmManagementStructure(rows).filter(s=>s.level!=='unrated').map(s=>'<div class="kpm-structure-item kpm-dual-card" data-kpm-card-grade="'+s.level+'">'+metric(s)+metric(s,true)+'</div>').join('')+'</div>';
 }
-// 金额保留两位小数，单位沿用元/万元阈值，占比作为次要信息同列展示。
-function kpmStructureGsv(row){
- const large=Math.abs(row.gsv)>1000000,amount=(row.gsv/(large?1000000:100)).toFixed(2)+(large?'w':'元');
- return `<span class="kpm-structure-gsv">${amount}</span><span class="kpm-structure-share">（${upPercent(row.share)}）</span>`;
+// 明细上方的六卡独立于两个图表，重绘数量不会移动原矩阵节点。
+function kpmManagementStructureSection(rows){
+ return '<header class="kpm-structure-heading"><h3>产品分级经营</h3></header>'+kpmManagementStructureView(rows);
 }
 function kpmManagementView(rows){
- const tabs=Object.entries(kpmManagementTabs).map(([key,label])=>`<button type="button" role="tab" data-kpm-management-tab="${key}" aria-selected="${key===kpmManagementTab}">${label}</button>`).join('');
- const signals=`<div class="kpm-management-rows">${kpmManagementGroups(rows).map(g=>`<button type="button" class="kpm-management-row ${g.tone}" data-kpm-management-pick="${g.key}" ${g.ids.length?'':'disabled'}>${kpmManagementLamp(g.tone)}<span><b>${g.label}</b></span><strong>${g.ids.length}<small>个</small></strong><i aria-hidden="true">›</i></button>`).join('')}</div>`;
- const structure=kpmManagementTab==='structure'?`<table class="kpm-structure-table"><thead><tr><th data-up-basic>等级</th><th data-up-basic>个数</th><th data-up-basic>GSV</th><th data-up-basic>利润率</th></tr></thead><tbody>${kpmManagementStructure(rows).map(s=>`<tr><td><button class="link" data-kpm-management-pick="grade-${s.level}" ${s.count?'':'disabled'}>${s.level==='unrated'?'待分级':s.level}</button></td><td>${s.count}<small>${s.count===s.before?'持平':(s.count>s.before?'↑':'↓')+Math.abs(s.count-s.before)}</small></td><td>${kpmStructureGsv(s)}</td><td class="${s.margin<0?'negative':''}">${upPercent(s.margin)}</td></tr>`).join('')}</tbody></table>`:'';
- return `<section class="kpm-management" data-management-view="${kpmManagementTab}" aria-label="产品分级经营预警"><header><h3>产品分级经营预警</h3></header><div class="kpm-management-tabs" role="tablist">${tabs}</div><div class="kpm-management-purpose"><span aria-hidden="true">i</span><small>${kpmManagementPurpose[kpmManagementTab]}</small></div><div class="kpm-management-body">${signals}${structure}</div></section>`;
+ return '<section class="kpm-management" data-management-view="matrix" aria-label="产品经营矩阵"><div class="kpm-management-body"><section class="kpm-management-section" data-kpm-management-section="structure" aria-labelledby="kpm-structure-heading"><div data-kpm-plot-slot></div></section></div></section>';
+}
+function kpmRenderManagementFacts(rows,gradeRows){
+ const structure=$('#matrix.kpm-main #matrix-structure-summary');
+ if(structure)structure.innerHTML=kpmManagementStructureSection(gradeRows);
 }
 function kpmRenderManagementOnly(){
- const host=$('#matrix.kpm-main #matrix-ai-summary');if(!host)return;
- withPeriod('matrix',()=>{host.innerHTML=kpmManagementView(kpmFilterRows(kpmRows()))});
+ if(!$('#matrix.kpm-main .kpm-management'))return;
+ withPeriod('matrix',()=>{const rows=kpmRows();kpmRenderManagementFacts(kpmFilterRows(rows,true,false),kpmFilterRows(rows,false,false))});
 }
+
 document.addEventListener('click',event=>{
- const tab=event.target.closest('#matrix.kpm-main [data-kpm-management-tab]');
- if(tab){kpmManagementTab=tab.dataset.kpmManagementTab;kpmRenderManagementOnly();return}
- const pick=event.target.closest('#matrix.kpm-main [data-kpm-management-pick]');
- if(pick)kpmOpenManagementList(pick.dataset.kpmManagementPick);
+ const summary=event.target.closest('#matrix.kpm-main [data-kpm-summary-change]');
+ if(summary){
+  const key=summary.dataset.kpmSummaryChange;kpmSelectedGrade='all';kpmSelectedOperating=null;
+  if(kpmSelectedChange===key){kpmSelectedChange='all';kpmPage.value=1;kpmRender();}else kpmSelectChangeFilter(key);
+  $('#matrix [data-kpm-summary-change="'+key+'"]').focus({preventScroll:true});return;
+ }
 });
 document.addEventListener('product-todos-updated',kpmRenderManagementOnly);
-document.addEventListener('keydown',event=>{
- const tab=event.target.closest('#matrix.kpm-main [data-kpm-management-tab]');if(!tab||!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;
- event.preventDefault();const keys=Object.keys(kpmManagementTabs),index=keys.indexOf(tab.dataset.kpmManagementTab);
- const next=event.key==='Home'?0:event.key==='End'?keys.length-1:(index+(event.key==='ArrowLeft'?-1:1)+keys.length)%keys.length;
- kpmManagementTab=keys[next];kpmRenderManagementOnly();document.querySelector('[data-kpm-management-tab="'+keys[next]+'"]').focus({preventScroll:true});
-});

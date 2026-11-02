@@ -1,14 +1,15 @@
-/* 库存与呆滞均为五指标，沿用品质榜列头与等高布局。 */
-#riskrail :is(.rp-stock-columns-3,.rp-stock-values-3) {grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
-#riskrail :is(.rp-stock-columns-4,.rp-stock-values-4) {grid-template-columns:minmax(82px,.95fr) minmax(110px,1.25fr) minmax(80px,.9fr) minmax(110px,1.25fr) minmax(104px,1.15fr);gap:8px}
+/* 缺货五项、呆滞六项；窄卡继续沿用三列/两列换行。 */
+#riskrail :is(.rp-stock-columns,.rp-stock-values) {grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+#riskrail :is(.rp-stock-columns-4,.rp-stock-values-4) {grid-template-columns:repeat(6,minmax(0,1fr))}
 #riskrail .rp-stock-columns>span {white-space:nowrap}
-#dialogbody #rf-list-table.rp-stock-table table {min-width:2080px!important}
+/* 与产品榜单共用260px身份列和128px指标列，按实际列数自然形成表宽。 */
+#dialogbody #rf-list-table.rp-stock-table table {min-width:100%!important}
+#dialogbody #rf-list-table.rp-stock-table :is(th,td) {width:128px;min-width:0!important}
+#dialogbody #rf-list-table.rp-stock-table :is(th,td):first-child {width:48px;min-width:48px!important}
+#dialogbody #rf-list-table.rp-stock-table :is(th,td):nth-child(2) {width:260px;min-width:260px!important}
+#dialogbody #rf-list-table.rp-stock-table th:has([data-rp-sort="dailyNet15"]) {width:160px}
+#dialogbody #rf-list-table.rp-stock-table :is(th,td):last-child {width:96px;min-width:96px!important}
 #dialogbody #rf-list-table.rp-stock-table.rp-stock-grouped table {min-width:1320px!important}
-@media(max-width:1799px) and (min-width:901px),(max-width:600px){
- #riskrail .rp-stock-columns {display:none}
- #riskrail :is(.rp-stock-values-3,.rp-stock-values-4) {grid-template-columns:repeat(3,minmax(0,1fr));gap:10px 8px}
- #riskrail .rp-stock-values-4 [data-rp-field="dailyNet15"] {grid-column:span 2}
-}
 
 /* 单位使用正常字重，数值保留原有强调。 */
 #riskrail .rp-stock-entry .rp-stock-unit {font-weight:400}

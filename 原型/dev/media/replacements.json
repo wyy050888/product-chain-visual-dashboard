@@ -1,0 +1,266 @@
+{
+  "authorization": "2026-10-22 用户允许同品牌同品类清晰示意图。仅替换图片，不修改商品身份和业务数据。",
+  "replacements": [
+    {
+      "target": "assets/spu-images/spu-01.png",
+      "kind": "same-brand-category-illustration",
+      "source": "assets/reference-images/image87.jpeg"
+    },
+    {
+      "target": "assets/spu-images/spu-02.png",
+      "kind": "same-brand-category-illustration",
+      "source": "assets/reference-images/image26.png"
+    },
+    {
+      "target": "assets/spu-images/spu-03.png",
+      "kind": "same-brand-category-illustration",
+      "source": "assets/reference-images/image31.png"
+    },
+    {
+      "target": "assets/spu-images/spu-04.png",
+      "kind": "same-brand-category-illustration",
+      "source": "assets/reference-images/image14.png"
+    },
+    {
+      "target": "assets/spu-images/spu-05.png",
+      "kind": "same-brand-category-illustration",
+      "source": "assets/reference-images/image10.jpeg"
+    },
+    {
+      "target": "assets/spu-images/spu-06.png",
+      "kind": "same-brand-category-illustration",
+      "source": "assets/reference-images/image21.png"
+    },
+    {
+      "target": "assets/spu-images/spu-07.png",
+      "kind": "same-brand-category-illustration",
+      "source": "assets/reference-images/image123.png"
+    },
+    {
+      "target": "assets/spu-images/spu-09.png",
+      "kind": "same-brand-category-illustration",
+      "source": "assets/reference-images/image92.png"
+    },
+    {
+      "target": "assets/spu-images/spu-10.png",
+      "kind": "same-brand-category-illustration",
+      "source": "dev/media/originals/konka-nose.image",
+      "crop": [
+        395,
+        30,
+        310,
+        565
+      ]
+    },
+    {
+      "target": "assets/spu-images/spu-12.png",
+      "kind": "same-brand-category-illustration",
+      "source": "assets/reference-images/image28.png"
+    },
+    {
+      "target": "assets/spu-images/spu-13.png",
+      "kind": "same-brand-category-illustration",
+      "source": "assets/reference-images/image25.png"
+    },
+    {
+      "target": "assets/spu-images/spu-14.png",
+      "kind": "same-brand-category-illustration",
+      "source": "assets/reference-images/image25.png"
+    },
+    {
+      "target": "assets/spu-images/spu-15.png",
+      "kind": "same-brand-category-illustration",
+      "source": "dev/media/originals/konka-mite.image",
+      "crop": [
+        135,
+        165,
+        665,
+        495
+      ]
+    },
+    {
+      "target": "assets/spu-images/spu-16.png",
+      "kind": "same-brand-category-illustration",
+      "source": "assets/reference-images/image14.png"
+    },
+    {
+      "target": "assets/spu-images/spu-17.png",
+      "kind": "same-brand-category-illustration",
+      "source": "assets/reference-images/image28.png"
+    },
+    {
+      "target": "assets/spu-images/spu-20.png",
+      "kind": "same-brand-category-illustration",
+      "source": "assets/reference-images/image31.png"
+    },
+    {
+      "target": "assets/spu-images/spu-23.png",
+      "kind": "same-brand-category-illustration",
+      "source": "assets/reference-images/image14.png"
+    },
+    {
+      "target": "assets/spu-images/spu-24.png",
+      "kind": "same-brand-category-illustration",
+      "source": "assets/reference-images/image26.png"
+    },
+    {
+      "target": "assets/spu-images/spu-25.png",
+      "kind": "same-brand-category-illustration",
+      "source": "assets/reference-images/image28.png"
+    },
+    {
+      "target": "assets/spu-images/spu-26.png",
+      "kind": "same-brand-category-illustration",
+      "source": "assets/reference-images/image25.png"
+    },
+    {
+      "target": "assets/spu-images/spu-27.png",
+      "kind": "same-brand-category-illustration",
+      "source": "assets/reference-images/image22.png"
+    },
+    {
+      "target": "assets/spu-images/spu-33.png",
+      "kind": "same-brand-category-illustration",
+      "source": "dev/media/originals/skyworth-wallfan.image",
+      "crop": [
+        245,
+        50,
+        555,
+        590
+      ]
+    },
+    {
+      "target": "assets/spu-images/spu-34.png",
+      "kind": "same-brand-category-illustration",
+      "source": "dev/media/originals/skyworth-wallfan.image",
+      "crop": [
+        245,
+        50,
+        555,
+        590
+      ]
+    },
+    {
+      "target": "assets/spu-images/spu-35.png",
+      "kind": "same-brand-category-illustration",
+      "source": "dev/media/originals/skyworth-wallfan.image",
+      "crop": [
+        245,
+        50,
+        555,
+        590
+      ]
+    },
+    {
+      "target": "assets/spu-images/spu-36.png",
+      "kind": "same-brand-category-illustration",
+      "source": "assets/reference-images/image38.png"
+    },
+    {
+      "target": "assets/spu-images/spu-38.png",
+      "kind": "same-brand-category-illustration",
+      "source": "dev/media/originals/konka-deskfan.image",
+      "crop": [
+        310,
+        65,
+        470,
+        625
+      ]
+    },
+    {
+      "target": "assets/spu-images/spu-39.png",
+      "kind": "same-brand-category-illustration",
+      "source": "dev/media/originals/skyworth-toothbrush.image",
+      "crop": [
+        200,
+        195,
+        360,
+        365
+      ]
+    },
+    {
+      "target": "assets/spu-images/spu-40.png",
+      "kind": "same-brand-category-illustration",
+      "source": "assets/reference-images/image108.png"
+    },
+    {
+      "target": "assets/spu-images/spu-42.png",
+      "kind": "same-brand-category-illustration",
+      "source": "dev/media/originals/skyworth-shaver.image",
+      "crop": [
+        245,
+        55,
+        545,
+        710
+      ]
+    },
+    {
+      "target": "assets/spu-images/spu-43.png",
+      "kind": "same-brand-category-illustration",
+      "source": "dev/media/originals/konka-blender.image",
+      "crop": [
+        270,
+        65,
+        310,
+        510
+      ]
+    },
+    {
+      "target": "assets/spu-images/spu-46.png",
+      "kind": "same-brand-category-illustration",
+      "source": "dev/media/originals/konka-handfan.image",
+      "crop": [
+        85,
+        20,
+        650,
+        745
+      ]
+    },
+    {
+      "target": "assets/spu-images/spu-49.png",
+      "kind": "same-brand-category-illustration",
+      "source": "assets/reference-images/image7.png"
+    },
+    {
+      "target": "assets/spu-images/spu-50.png",
+      "kind": "same-brand-category-illustration",
+      "source": "assets/reference-images/image14.png"
+    },
+    {
+      "target": "assets/reference-images/image86.png",
+      "source": "assets/reference-images/image57.png",
+      "kind": "same-brand-category-illustration"
+    },
+    {
+      "target": "assets/spu-images/spu-11.png",
+      "source": "dev/media/originals/generic-massager.png",
+      "kind": "unbranded-category-illustration"
+    },
+    {
+      "target": "assets/spu-images/spu-28.png",
+      "source": "dev/media/originals/generic-cupping.png",
+      "kind": "unbranded-category-illustration"
+    },
+    {
+      "target": "assets/spu-images/spu-32.png",
+      "source": "dev/media/originals/generic-glasses.png",
+      "kind": "unbranded-category-illustration"
+    },
+    {
+      "target": "assets/spu-images/spu-37.png",
+      "source": "dev/media/originals/generic-baby-food.png",
+      "kind": "unbranded-category-illustration"
+    },
+    {
+      "target": "assets/spu-images/spu-47.png",
+      "source": "dev/media/originals/generic-water-blanket.png",
+      "kind": "unbranded-category-illustration"
+    },
+    {
+      "target": "assets/spu-images/spu-48.png",
+      "source": "dev/media/originals/generic-beauty-mask.png",
+      "kind": "unbranded-category-illustration"
+    }
+  ],
+  "unresolved": []
+}

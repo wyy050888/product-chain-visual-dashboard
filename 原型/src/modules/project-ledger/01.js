@@ -15,21 +15,3 @@ function projectIssueRecord(p){
 function projectIssueFields(r){const p=r.p;return [
  ['项目任务',r.task],['问题类别',r.category],['问题描述',r.description],['责任部门',p.dept],['责任链主',r.chainOwner],['责任链负责人',r.chainLead],['红黄绿灯状态',p.status],['发生日期',r.occurred||'—（未发生异常）'],['整改期限',r.due||'—（无需整改）'],['实际整改日期',r.actual||'—（'+(r.active?'尚未完成':'无需整改')+'）'],['闭环验证日期',r.verified||'—（'+(r.hasIssue?'尚未验证':'不适用')+'）'],['当前状态',r.state],['闭环验证',r.verification],['创建时间',r.created]
  ];}
-projectDetail=bindDetail(()=>activeModule||(!$('#overlay').hidden?modalModule:null)||'projects',function(id){
- const p=projects().find(p=>p.id===+id);if(!p){toast('当前周期未找到该项目');return}
- const r=projectIssueRecord(p),tone=p.status==='红灯'?'red':p.status==='黄灯'?'orange':'green';
- const item=(label,value)=>`<div class="pd-field"><dt>${label}</dt><dd>${esc(value)}</dd></div>`;
- const milestones=[['发生日期',r.occurred,r.hasIssue?'问题登记，启动责任认领':'未发生异常'],['整改期限',r.due,r.active&&r.due<bounds().cutoff?'已逾期，需跟进整改':'计划完成整改'],['实际整改日期',r.actual,r.actual?'整改材料已提交':r.active?'尚未完成':'无需整改'],['闭环验证日期',r.verified,r.verified?'验证通过，问题已闭环':r.hasIssue?'尚未验证':'不适用']];
- openModal('项目详情 · '+p.name,`<article class="project-detail-v2">
- <div class="pd-overview"><div><span class="pd-eyebrow">${esc(p.model)} · ${esc(chains[p.chain])} · ${esc(p.brand)} · ${esc(p.type)}</span><h3>${esc(p.name)}</h3><p>计划上线 ${p.plan}　·　${p.delay?'已延期 '+p.delay+' 天':'按计划跟进'}　·　截至 ${bounds().cutoff}</p></div><div class="pd-status"><small>红黄绿灯状态</small>${traffic(p.status)}<small>当前状态</small><strong class="${tone}">${r.state}</strong></div></div>
- <section class="pd-section"><div class="pd-heading"><h3>问题归因与项目任务</h3><span class="tag ${tone}">${r.closed?'历史问题 · 已闭环':r.active?'当前问题':'无待整改问题'}</span></div>
- <dl class="pd-grid">${item('项目任务',r.task)}${item('问题类别',r.category)}</dl>
- <div class="pd-reason ${tone}"><span>问题描述</span><p>${esc(r.description)}</p><span>业务影响</span><p>${esc(r.impact)}</p></div>
- <div class="pd-plan"><strong>${r.closed?'已执行整改方案':'整改方案与交付要求'}</strong><p>${esc(r.hasIssue?r.t.action:'按节点提交交付物并完成评审，有异常及时登记并指定整改责任人。')}</p>${r.hasIssue?`<small>交付要求：${esc(r.t.proof)}。</small>`:''}</div></section>
- <section class="pd-section"><div class="pd-heading"><h3>责任分工</h3><small>任务跟进人：${esc(p.owner)}</small></div><dl class="pd-grid pd-grid-three">${item('责任部门',p.dept)}${item('责任链主',r.chainOwner)}${item('责任链负责人',r.chainLead)}</dl></section>
- <section class="pd-section"><div class="pd-heading"><h3>整改与闭环时间线</h3><small>创建时间：${r.created}</small></div><ol class="pd-milestones">${milestones.map(([label,date,note],i)=>`<li class="${date?'recorded':''} ${i===1&&r.active&&date<bounds().cutoff?'overdue':''}"><span>${label}</span><strong>${date||'—'}</strong><small>${note}</small></li>`).join('')}</ol></section>
- <section class="pd-section"><div class="pd-heading"><h3>闭环验证</h3><span class="tag ${r.closed?'green':r.active?'orange':''}">${r.verification}</span></div><dl class="pd-grid">${item('验证责任人',r.hasIssue?r.t.validator:'—')}${item('验证结论',r.closed?'交付材料完整，验收标准通过，同意关闭。':r.review?'整改已提交，待独立复核通过后关闭。':r.active?'整改尚未完成，暂不具备闭环条件。':'当前无整改事项。')}</dl>${r.hasIssue?`<div class="pd-evidence"><strong>闭环验证要求</strong><p>${esc(r.t.proof)}齐全，并由验证责任人确认结果符合验收标准。</p><small>验证依据：${r.closed?'验收记录 YS-'+p.model+' · '+r.verified+'；归档附件已完成核对（演示记录）。':r.review?'整改材料 ZG-'+p.model+' 已提交（演示记录）；验证结论待补充。':'待责任部门提交整改材料与验收证据。'}</small></div>`:''}</section>
- <details class="pd-more"><summary>项目基础信息</summary><dl class="pd-grid pd-grid-three">${item('立项日期',p.started||dateBack(100))}${item('实际上线日期',p.actual==='—'?'实际日期待补录':p.actual)}${item('当前阶段',p.stage)}${item('单品成本',p.cost===null?'—':'¥ '+p.cost)}${item('单品售价',p.price===null?'—':'¥ '+p.price)}${item('记录编号','ISS-'+p.model)}</dl></details>
- </article>`);
- 
-});

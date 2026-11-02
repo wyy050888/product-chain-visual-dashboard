@@ -1,8 +1,15 @@
 // 总诊断持有独立筛选；业务事实读取各模块当前口径，不改动模块筛选。
-const gdParts=[['execution','执行诊断'],['closure','任务闭环'],['coordination','产品链紧急协同'],['resource','资源建议']];
-const gdTabs={execution:[['reports','日志诊断'],['focus','工作聚焦']],closure:[['all','全部任务'],['suggested','待下发'],['overdue','已逾期'],['pending','待处理'],['working','处理中'],['done','已完成']],coordination:[['all','全部事项'],['block','协同卡点'],['decision','待决策项']],resource:[['all','全部建议'],['capacity','资源缺口'],['conflict','排期冲突']]};
+const gdParts=[['coordination','重点工作清单'],['resource','工作偏差预警'],['execution','日周报诊断'],['tasks','任务清单']];
+const gdTabs={coordination:[['project','项目卡点'],['high-risk','新增高危']],resource:[['omission','工作遗漏'],['blocker','协同卡点'],['solution','缺少方案'],['focus-shift','资源错配']],execution:[['quality','问题诊断'],['missing','未提交']],tasks:[]};
+// 提示只解释现有诊断口径，不新增判定阈值。
+const gdDeviationStandards={
+ omission:'• 业务存在风险或待处理事项。\n• 已收集的会议、日周月报中未见对应工作安排。\n• 仅表示现有材料未发现，不代表实际未开展。',
+ blocker:'• 上游所需的资料、确认或交付尚未完成，导致下游工作无法继续推进。\n• 从业务事项中直接识别需要跨部门共同推进或衔接的工作，明确协同部门及各方配合内容。',
+ 'focus-shift':'• 会议或计划已明确工作分工与优先要求，但同期实际工作记录与既定重点或先后顺序不一致。\n• 排除已批准的优先级调整和专项分工；仅未提及某项工作不直接判定偏移。',
+ solution:'• 需要解决的问题已明确，但尚未形成可执行方案。\n• 方案需包含关键条件、实施安排及确认结论。'
+};
 const gdDayRange={start:shiftDate(DATA_CUTOFF,-29),end:DATA_CUTOFF};
-const gdState={part:'execution',tabs:{execution:'reports',closure:'all',coordination:'all',resource:'all'},period:drawerPeriodFromRange(gdDayRange),filters:{},pages:{}};
+const gdState={part:'coordination',tabs:{execution:'quality',coordination:'project',resource:'omission',tasks:'all'},period:drawerPeriodFromRange(gdDayRange),taskDueRange:{start:'',end:''},filters:{},pages:{}};
 function gdRange(){return uiNaturalPeriodRange(gdState.period,DATA_CUTOFF)}
 // 期间只控制总诊断；日区间单独记忆，切换自然周期不覆盖其他九模块。
 function gdApplyPeriod(period){
@@ -54,16 +61,27 @@ function gdBusinessContext(sources){
  const supplier=by('suppliers').rows.find(p=>p.stats.admitted<stStandards(+DATA_CUTOFF.slice(0,4)).projectAdmitted)||by('suppliers').rows[0];
  return {by,project,product,newProduct,supplier};
 }
-// 日志、聚焦及三个业务表分别持有筛选；时间仍为模块统一范围。
-const gdFilterDefaults=(part=gdState.part,tab=gdState.tabs[part])=>({query:'',category:'all',department:'all',reportType:'all',sort:'priority',...(part==='execution'&&tab==='focus'?{issueType:'all'}:{}),...(part==='closure'?{}:{status:'all'})});
-function gdFilterKey(part=gdState.part,tab=gdState.tabs[part]){return part==='execution'?part+'/'+tab:part}
+// 各模块分别持有筛选；时间仍为总诊断统一范围。
+const gdFilterDefaults=(part=gdState.part,tab=gdState.tabs[part])=>({query:'',category:'all',priority:'all',department:'all',reportType:'all',sort:part==='coordination'&&tab==='high-risk'?'listedAt':'priority',sortDirection:part==='coordination'&&tab==='high-risk'?'desc':'asc',status:'all'});
+function gdFilterKey(part=gdState.part,tab=gdState.tabs[part]){return part+'/'+tab}
 function gdTableFilters(part=gdState.part,tab=gdState.tabs[part]){return gdState.filters[gdFilterKey(part,tab)]||=(gdFilterDefaults(part,tab))}
-const gdSearchSpecs={
- 'execution/reports':{label:'搜索日志',placeholder:'搜索提交人 / 日志内容 / 业务对象',fields:r=>[r.owner,r.progress,r.reportProblem,r.next,r.objectName,r.type]},
- 'execution/focus':{label:'搜索工作聚焦',placeholder:'搜索工作事项 / 产品 / 责任人',fields:r=>[r.title,r.objectName,r.problem,r.action,r.owner,r.focusEvidence?.expected,r.focusEvidence?.observed]},
- closure:{label:'搜索任务',placeholder:'搜索任务 / 问题描述 / 负责人 / 下发人',fields:r=>[r.title,r.objectName,r.problem,r.owner,r.task?.assignedBy,r.task?.evidence]},
- coordination:{label:'搜索协同事项',placeholder:'搜索协同事项 / 关联业务 / 参与部门',fields:r=>[r.title,r.objectName,r.problem,...(r.departments||[]),r.owner,r.task?.plan]},
- resource:{label:'搜索资源建议',placeholder:'搜索资源 / 关联业务 / 负责人',fields:r=>[r.resource,r.title,r.objectName,r.owner,r.problem,r.task?.plan]}
-};
-function gdMatch(row,part=gdState.part,tab=gdState.tabs[part]){const filter=gdTableFilters(part,tab),query=filter.query.trim().toLowerCase(),fields=gdSearchSpecs[gdFilterKey(part,tab)].fields(row);return (part==='closure'||pfIncludes(filter.status,gdStatusValue(row)))&&(part!=='execution'||tab!=='focus'||pfIncludes(filter.issueType,row.issueType))&&pfIncludes(filter.category,row.category)&&(filter.department==='all'||row.department===filter.department)&&(!query||fields.some(v=>String(v||'').toLowerCase().includes(query)))}
-function gdRowSort(rows,filter=gdTableFilters()){return [...rows].sort((a,b)=>filter.sort==='due'?String(a.due||'9999').localeCompare(String(b.due||'9999')):filter.sort==='date'?String(b.date).localeCompare(String(a.date)):({red:0,yellow:1,green:2}[a.priority]??1)-({red:0,yellow:1,green:2}[b.priority]??1)||String(a.due||'9999').localeCompare(String(b.due||'9999')))}
+// 部门取实际责任项；跨部门任务可分别出现在每个参与部门下。
+function gdRowDepartments(row){return [...new Set((row.participants||[]).map(role=>role.department||upTodoPersonDepartment(role.assignee,row.task)).filter(Boolean))]}
+function gdTaskMatches(row,filter){return pfIncludes(filter.status,row.task.status)&&row.participants.some(role=>pfIncludes(filter.department,role.department||upTodoPersonDepartment(role.assignee,row.task)))}
+// 一条任务只占一行；部门命中任一负责人即可，整单状态与详情一致。
+function gdTaskEntries(rows,filter=gdTableFilters()){
+ const tasks=new Map();
+ for(const row of rows){
+  if(!gdTaskMatches(row,filter))continue;
+  let entry=tasks.get(row.task.id);if(!entry){entry={row,rows:[],roles:[]};tasks.set(row.task.id,entry)}
+  entry.rows.push(row);
+  for(const role of row.participants)if(!entry.roles.some(r=>r.id===role.id))entry.roles.push(role);
+ }
+ return [...tasks.values()];
+}
+// 按任务排序后分页；个人进度在任务详情中独立维护。
+function gdTableEntries(rows,filter=gdTableFilters()){
+ const entries=gdTaskEntries(rows,filter);
+ const value=({row},key)=>key==='priority'?upTodoPriorityRank(row.task.priority):key==='due'?Date.parse(row.task.due||''):row.task.status==='done'?Date.parse(upTodoDate(row.task.completedAt)):NaN;
+ return rpSortRows(entries,{key:filter.sort||'priority',direction:filter.sortDirection||'asc'},value);
+}

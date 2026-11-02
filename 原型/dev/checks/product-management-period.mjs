@@ -4,7 +4,7 @@ export async function verifyManagementPeriod(page){
  const main=page.locator('#matrix'),snapshot=()=>page.evaluate(()=>window.dashboardKeyProductsSnapshot()),drawer=page.locator('.kpm-management-drawer');
  const control=page.locator('.kpm-management-period-picker'),period=async()=>JSON.parse(await drawer.getAttribute('data-kpm-period')),range=async()=>JSON.parse(await drawer.getAttribute('data-kpm-range'));
  const original=await snapshot();
- await main.locator('[data-kpm-management-tab="structure"]').click();await main.locator('[data-kpm-management-pick="grade-A"]').click();await drawer.waitFor();
+ await main.locator('[data-kpm-management-pick="grade-A"]').click();await drawer.waitFor();
  const cutoff=original.range.end,year=cutoff.slice(0,4),month=+cutoff.slice(5,7),starts={recent30:original.range.start,month:cutoff.slice(0,7)+'-01',quarter:year+'-'+String(Math.floor((month-1)/3)*3+1).padStart(2,'0')+'-01',year:year+'-01-01'},amounts={};
  for(const mode of ['recent30','month','quarter','year']){
   await control.locator('[data-drawer-time-mode="'+mode+'"]').click();assert.equal((await period()).mode,mode);assert.equal(await page.locator('#dialogbody').evaluate(e=>e.scrollTop),0,'切换期间回到明细顶部');assert.deepEqual(await range(),{start:starts[mode],end:cutoff});
@@ -28,7 +28,7 @@ export async function verifyManagementPeriod(page){
  // 与外层相同月份的结果一致，而非只切换时间文案。
  await main.locator('[data-time-mode="month"]').click();await main.locator('[data-time-value]').selectOption('9');await main.locator('[data-kpm-management-pick="grade-A"]').click();await drawer.waitFor();
  assert.deepEqual(await drawer.locator('[data-kpm-list-spu]').evaluateAll(ns=>ns.map(n=>n.dataset.kpmListSpu)),septemberRows);assert.equal(await drawer.locator('tbody').innerText(),septemberContent);
- await page.locator('#close').click();await main.locator('[data-time-mode="recent30"]').click();await main.locator('[data-kpm-management-tab="changes"]').click();await main.locator('[data-kpm-management-pick="up"]').click();await drawer.waitFor();
+ await page.locator('#close').click();await main.locator('[data-time-mode="recent30"]').click();await main.locator('[data-kpm-management-pick="up"]').click();await drawer.waitFor();
  await control.locator('[data-drawer-time-mode="month"]').click();await control.locator('[data-drawer-time-value]').selectOption('9');
  assert.equal(await page.locator('[data-kpm-period=current] time').innerText(),'26/09/01 — 26/09/30');
  await page.locator('#dialog').screenshot({path:fileURLToPath(new URL('../../outputs/product-management-changes-header.png',import.meta.url))});

@@ -46,13 +46,20 @@
     return [...groups.values()].map(rows => `<h4>${esc(kinds[rows[0].group.kind])} · ${esc(rows[0].group.cid)}</h4>${changeRows(rows, true, expanded)}`).join('');
   }
   const period=op=>op.year&&op.months?.length?`${op.year}年 ${op.months.join('、')}月`:'未识别';
-  function batchRows(operations,reasonId) {
-    const action=op=>op.status==='failed'?(op.downloadable?'<a class="text-link" href="assets/导入失败示例.xlsx" download="导入失败明细.xlsx">下载失败文件</a>':`<button class="text-link" data-history-reason="${esc(op.id)}" aria-expanded="${op.id===reasonId}">${op.id===reasonId?'收起原因':'查看原因'}</button>`):`<button class="text-link" data-history-batch="${esc(op.id)}">查看详情</button>`;
-    return `<div class="history-table-wrap"><table class="history-table history-imports"><thead><tr><th>操作时间 / 操作人</th><th>文件名称</th><th>目标类型 / 口径</th><th>导入周期</th><th>结果</th><th class="history-actions">操作</th></tr></thead><tbody>${operations.map(op=>`<tr><td>${identity(time(op.timestamp),op.actor)}</td><td class="history-filename" title="${esc(op.file)}">${esc(op.file)}</td><td>${identity(kinds[op.kind],op.cid)}</td><td>${op.year&&op.months?.length?esc(period(op)):'<span class="history-period-unrecognized">未识别</span>'}</td><td>${badge(op.status,op.status==='failed'?'失败':'成功')}</td><td class="history-actions">${action(op)}</td></tr>${op.id===reasonId&&op.status==='failed'&&!op.downloadable?`<tr class="history-reason"><td colspan="6">${esc(op.reason || '导入未完成，目标数据未变更。')}</td></tr>`:''}`).join('')}</tbody></table></div>`;
+  function counts(op){const failed=op.status==='failed',total=op.totalRows??op.total??0;return {total,success:op.successCount??(failed?0:total),failure:op.failureCount??(failed?total:0),skipped:op.skippedCount||0,failed}}
+  function batchRows(operations){
+    const headers=['导入时间','文件名','操作人','总行数','成功数','失败数','状态','备注','操作'];
+    return '<div class="history-table-wrap"><table class="history-table history-imports"><thead><tr>'+headers.map(label=>'<th>'+label+'</th>').join('')+'</tr></thead><tbody>'+operations.map(op=>{const n=counts(op);return '<tr><td>'+esc(time(op.timestamp))+'</td><td>'+esc(op.file)+'</td><td>'+esc(op.actor)+'</td><td>'+n.total+'</td><td>'+n.success+'</td><td>'+n.failure+'</td><td>'+badge(n.failed?'failed':'success',n.failed?'导入失败':'导入成功')+'</td><td>成功 '+n.success+' 条，失败 '+n.failure+' 条，跳过空行 '+n.skipped+' 条</td><td>'+(n.failed?'<button class="text-link" data-history-failure="'+esc(op.id)+'">查看失败明细</button> <button class="text-link" data-history-download="'+esc(op.id)+'">下载失败数据</button>':'—')+'</td></tr>'}).join('')+'</tbody></table></div>';
+  }
+  function failureRows(op){return op.failedRows?.length?op.failedRows:[{row:'—',values:[],reason:op.reason||'旧记录未保存原始失败行'}]}
+  function failureTable(op,rows){return '<div class="history-table-wrap"><table class="history-table history-failures"><thead><tr>'+['原始行号',...(op.headers||[]),'失败原因'].map(label=>'<th>'+esc(label.replace(/^\*/,''))+'</th>').join('')+'</tr></thead><tbody>'+rows.map(row=>'<tr><td>'+esc(row.row)+'</td>'+Array.from({length:op.headers?.length||0},(_,i)=>'<td>'+esc(String(row.values[i]??'—'))+'</td>').join('')+'<td>'+esc(row.reason)+'</td></tr>').join('')+'</tbody></table></div>'}
+  function downloadFailure(op){
+    const rows=[['原始行号',...(op.headers||[]),'失败原因'],...failureRows(op).map(row=>[row.row,...Array.from({length:op.headers?.length||0},(_,i)=>row.values[i]??''),row.reason])];
+    const csv='\uFEFF'+rows.map(row=>row.map(value=>'"'+String(value).replaceAll('"','""')+'"').join(',')).join('\r\n'),url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})),link=document.createElement('a');link.href=url;link.download=op.file.replace(/\.[^.]+$/,'')+'-失败数据.csv';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
   }
   function batchHeader(op) {
     const metadata=[['操作人',op.actor],['操作时间',time(op.timestamp)],['目标类型',kinds[op.kind]],['目标口径',op.cid],['导入周期',period(op)]];
     return `<div class="history-batch-info"><div class="history-batch-file">${badge('success','成功')}<strong>${esc(op.file)}</strong></div><dl class="history-batch-meta">${metadata.map(([label,value])=>`<div><dt>${label}：</dt><dd>${esc(value || '—')}</dd></div>`).join('')}</dl><div class="history-stats">${[['added','新增'],['updated','修改'],['removed','删除'],['unchanged','无变化'], ...(op.summary?.synced ? [['synced','关联大区及人员更新']] : [])].map(([key,label])=>`<span>${label} <strong>${op.summary?.[key] || 0}</strong></span>`).join('')}<span class="history-total">导入明细 ${op.total || 0} 条</span></div>${op.unmatched ? `<p class="edit-group-hint">其中 ${op.unmatched} 条未匹配产品档案，不参与目标消费</p>` : ''}</div>`;
   }
-  app.historyView={month,changeRows,syncRows,batchRows,batchHeader};
+  app.historyView={month,changeRows,syncRows,batchRows,batchHeader,counts,failureRows,failureTable,downloadFailure};
 })();

@@ -1,0 +1,23 @@
+/* 升降卡收窄，双指标卡按两行排列；名称、数量、环比各占一列。 */
+#matrix.kpm-main .kpm-structure-summary{grid-template-columns:repeat(2,minmax(0,.7fr)) repeat(4,minmax(0,1.3fr))}
+#matrix.kpm-main .kpm-structure-item.kpm-dual-card{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:repeat(2,1fr);gap:0;padding:0;min-height:144px;cursor:default;overflow:hidden}
+#matrix.kpm-main .kpm-structure-metric{display:grid;grid-template-columns:minmax(0,1fr) auto 54px;align-items:center;gap:12px;min-width:0;align-self:stretch;padding:12px 16px;border:0;background:transparent;font:inherit;color:inherit;text-align:left;cursor:pointer}
+#matrix.kpm-main .kpm-operating-metric{position:relative}
+#matrix.kpm-main .kpm-operating-metric::before{content:'';position:absolute;left:16px;right:16px;top:0;height:1px;background:#e7ecf3}
+#matrix.kpm-main .kpm-dual-card:hover{background:#f7f9fd}
+#matrix.kpm-main .kpm-structure-metric{transition:background .15s ease,box-shadow .15s ease}
+#matrix.kpm-main .kpm-structure-metric:hover,#matrix.kpm-main .kpm-change-card:hover{background:#eef0f4}
+#matrix.kpm-main .kpm-structure-metric.active{background:#eaf2ff;box-shadow:none}
+#matrix.kpm-main .kpm-change-card.active{background:#eaf2ff;border-color:transparent}
+#matrix.kpm-main .kpm-structure-metric:focus-visible{outline:2px solid #1677ff;outline-offset:-2px}
+#matrix.kpm-main .kpm-operating-title{font-size:var(--type-body);line-height:22px;white-space:nowrap}
+#matrix.kpm-main .kpm-metric-quantity{display:flex;align-items:baseline;gap:4px;justify-self:end;white-space:nowrap}
+#matrix.kpm-main .kpm-operating-count{font-size:var(--type-kpi);font-weight:var(--weight-heading);line-height:1.25;font-variant-numeric:tabular-nums}
+#matrix.kpm-main .kpm-metric-comparison{display:flex;flex-direction:column;align-items:flex-end;gap:0;color:#8190a4;font-size:var(--type-meta);line-height:20px;white-space:nowrap}
+#matrix.kpm-main .kpm-metric-comparison .kpm-structure-delta{font-size:var(--type-body);font-weight:500;line-height:20px;color:#8190a4}
+#matrix.kpm-main .kpm-metric-comparison .kpm-structure-delta:is([data-direction=up],[data-direction=down]){color:#2563eb}
+#matrix.kpm-main .kpm-structure-item.kpm-change-card{min-height:144px}
+@media(max-width:1699px){#matrix.kpm-main .kpm-structure-summary{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:1100px){#matrix.kpm-main .kpm-structure-summary{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){#matrix.kpm-main .kpm-structure-metric{padding:12px;gap:8px}}
+@media(max-width:600px){#matrix.kpm-main .kpm-structure-item.kpm-dual-card{grid-column:1/-1}}

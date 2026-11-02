@@ -10,7 +10,7 @@ function nspDeliveryAssessment(projects,tasks,range){
  const rows=[...new Map(projects.map(p=>[p.id,p])).values()].filter(p=>byProject.has(p.id)).map(project=>{
   const deliveries=[...byProject.get(project.id).values()].map(task=>{
    const actual=validDate(task.actual)&&task.actual<=range.cutoff?task.actual:null;
-   return {...task,actual,deadline:shiftDate(task.planned,10),onTime:!!actual&&actual<=shiftDate(task.planned,10)};
+   return {...task,actual,deadline:shiftDate(task.planned,brcNumber('new.deliveryDays')),onTime:!!actual&&actual<=shiftDate(task.planned,brcNumber('new.deliveryDays'))};
   });
   // 同一项目多条应交付任务须全部完成且均在容差内，项目只计一次。
   return {projectId:project.id,name:project.name,brand:project.brand,category:pfCategory(project),tasks:deliveries,onTime:deliveries.every(task=>task.onTime)};

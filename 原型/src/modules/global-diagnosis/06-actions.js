@@ -5,13 +5,9 @@ function gdSyncTodos(){
  gdTodoRefreshQueued=true;
  queueMicrotask(()=>{
   try{
-   if(dpState.view!=='director'||dxRendering||!$('#ai')?.classList.contains('gd-workspace'))return;
+   if((dpState.view!=='director'&&!pcIsActive())||dxRendering||!$('#ai')?.classList.contains('gd-workspace'))return;
    gdRender();
-   const evidence=$('#dialogbody>.gd-dialog');
-   if(!$('#overlay').hidden&&evidence){
-    const latest=gdFind(evidence.dataset.gdEvidence);
-    if(latest)drawerReplace(()=>gdOpenEvidence(latest));else closeModal();
-   }
+   if(!$('#overlay').hidden&&$('#dialogbody>.gd-generated-dialog')){drawerReplace(gdOpenGeneratedTasks);return}
   }finally{gdTodoRefreshQueued=false}
  });
 }
@@ -19,5 +15,5 @@ document.addEventListener('product-todos-updated',gdSyncTodos);
 // 仍只调用现有待办弹窗及状态机；执行人标记完成即完成。
 function gdOpenTask(row){
  const task=row.task||gdProposal(row);if(task.deletedAt){gdSyncTodos();return}
- upOpenTodoDialog(task,task.status==='suggested'?'assign':'detail',{},gdSyncTodos);
+ upOpenTodoDialog(task,task.status==='suggested'?'assign':'detail',{todoEvidenceTitle:'',todoBusinessObjects:row.businessObjects,todoProblemMarkup:()=>gdActionProblemCell(gdFind(row.id)||row),todoEvidenceMarkup:task=>gdTodoBasisMarkup(gdFind(row.id)||row,task)},gdSyncTodos);
 }

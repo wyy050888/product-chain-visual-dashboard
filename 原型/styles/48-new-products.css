@@ -1,21 +1,43 @@
-/* 新品专项：左侧概览、右侧明细；标题筛选同时作用于两侧。 */
+/* 新品专项：顶部季品 Tab、横向概览、下方全宽明细。 */
 #new .titlegroup{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
 #new .titlegroup>.unified-filter-field{font-weight:400;margin:0}
 #new>.module-timebar[hidden]{display:none}
-#new .nsp-layout{display:grid;grid-template-columns:360px minmax(0,1fr);gap:22px;align-items:start;margin-top:20px}
+#new .nsp-layout{display:grid;grid-template-columns:minmax(0,1fr);gap:24px;align-items:start;margin-top:20px}
 #new .nsp-details{min-width:0}
-#newtop{grid-template-columns:minmax(0,1fr);align-items:start;margin:0;gap:14px}
-#newtop .newmetric{height:112px;display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:1fr 1fr;align-items:center;gap:8px 12px;padding:16px;text-align:left;background:#e9f0ff;box-shadow:inset 0 0 0 1px #d8e4fa}
-#newtop .newmetric>span{grid-column:1;grid-row:1}
-#newtop .newmetric>strong,#newtop .nsp-success-value>strong{grid-column:2;grid-row:1;text-align:right}
-#newtop .newmetric>small{grid-column:1;grid-row:2;line-height:1.6}
-#newtop .newmetric:hover{background:#e1ebff}
-#newtop .newmetric.selected{background:#d9e7ff;box-shadow:inset 0 0 0 1px #8eb5f5}
-#newtop .newmetric .num{margin:0;font-size:26px}
-#newtop .newmetric small{color:var(--muted);font-size:12px}
+#new .nsp-details-title{margin:0 0 14px;padding-top:8px;border:0;color:#203951;font-size:18px;font-weight:700;line-height:28px}
+#new .nsp-scope-tabs{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:18px}
+#new .nsp-scope-tabs .tabs{gap:4px}
+#new :is(.nsp-category-tabs,.nsp-grade-tabs){border-left:1px solid var(--line);padding-left:16px}
+#new .nsp-scope-tabs .nsp-tab-label{font-size:11px;color:#72839a;margin-right:4px;padding:2px 6px;border-radius:4px;background:#f5f7fa}
+#new .nsp-scope-tabs button{display:inline-flex;align-items:center;min-height:32px;padding:4px 8px;border:1px solid transparent;border-radius:6px;white-space:nowrap}
+#new .nsp-scope-tabs button.active{background:#eff5ff;border-color:#dce9fb;color:#2169ce}
+#new .nsp-scope-tabs button>span{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:18px;margin-left:6px;padding:0 5px;border-radius:9px;background:#f0f3f7;font-size:11px;line-height:18px;color:#8190a4;font-variant-numeric:tabular-nums}
+#new .nsp-scope-tabs button.active>span{background:#dfeaff;color:#2169ce}
+@media(max-width:1200px){#new .nsp-scope-tabs{gap:6px}#new :is(.nsp-category-tabs,.nsp-grade-tabs){border-left:0;padding-left:0;flex-basis:100%}}
+#newtop{--nsp-overview-height:284px;--nsp-plot-gap:12px;grid-template-columns:minmax(300px,.95fr) minmax(300px,1.2fr) minmax(280px,1.1fr) minmax(300px,1.3fr);align-items:stretch;margin:0;gap:32px}
+#newtop>*{min-width:0;position:relative}
+/* 分割线置于列间留白，不改变图表内容宽度和点击范围。 */
+#newtop>:not(:first-child)::before{content:"";position:absolute;left:-16.5px;top:8px;bottom:8px;width:1px;background:#e3eaf4;pointer-events:none}
+@media(max-width:1400px){#newtop>:is(.nsp-price-distribution,.nsp-channels)::before{left:0;right:0;top:-16.5px;bottom:auto;width:auto;height:1px}}
+@media(max-width:600px){#newtop>:not(:first-child)::before{left:0;right:0;top:-16.5px;bottom:auto;width:auto;height:1px}}
+/* 图表只保留标题和内容两行，内容铺满至左侧卡片底部；缺价说明按需占行。 */
+#newtop>.nsp-kpis{display:grid;grid-template-rows:repeat(2,minmax(0,1fr));gap:12px;min-height:var(--nsp-overview-height)}
+#newtop>.nsp-distribution,#newtop>.nsp-price-distribution,#newtop>.nsp-channels{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:28px minmax(0,1fr);gap:var(--nsp-plot-gap);min-height:var(--nsp-overview-height);padding:16px 0 0;align-items:center}
+#newtop .newmetric{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:40px 20px;column-gap:12px;row-gap:12px;align-items:center;align-content:center;min-width:0;min-height:0;padding:16px;text-align:left;border-radius:8px;background:#f7f9fd;box-shadow:none}
+#newtop .nsp-success-kpi{background:#f5f8fd;box-shadow:none}
+#newtop .nsp-success-kpi .num{color:#213b59}
+#newtop .newmetric>span{grid-column:1;grid-row:1;font-size:16px;line-height:26px;font-weight:400}
+#newtop .newmetric>strong{grid-column:2;grid-row:1;text-align:right}
+#newtop .nsp-success-value>strong{grid-column:2;grid-row:1;text-align:right}
+#newtop .newmetric>small{grid-column:1/-1;grid-row:2;line-height:18px}
+#newtop .nsp-success-kpi>small{grid-column:1}
+#newtop .new-linked-metric:hover{background:#f0f5fc;box-shadow:inset 0 0 0 1px #d6e3f4}
+#newtop .newmetric.selected{background:#eaf2ff;box-shadow:inset 0 0 0 1px #8eb5f5}
+#newtop .newmetric .num{margin:0;font-size:28px;font-weight:600;line-height:1.2;font-variant-numeric:tabular-nums}
+#newtop .newmetric small{color:#8392a7;font-size:12px}
 #newtop .nsp-success-value{display:contents}
-#newtop .nsp-success-target{grid-column:2;grid-row:2;font-size:12px;color:var(--muted);text-align:right}
-#newtop .nsp-success-kpi small b{font-weight:500;color:#425b7a}
+#newtop .nsp-success-target{grid-column:2;grid-row:2;font-size:11px;color:var(--muted);text-align:right}
+#newtop .newmetric small b{font-size:inherit;font-weight:500;line-height:inherit;color:#425b7a;font-variant-numeric:tabular-nums}
 #metric-tooltip.metric-tooltip-kpi{max-width:min(440px,calc(100vw - 16px));padding:16px 18px;font-size:13px;line-height:1.8;white-space:pre-line;max-height:calc(100dvh - 24px);overflow-y:auto}
 #metric-tooltip.metric-tooltip-nsp-card{width:440px;box-sizing:border-box;padding:20px;border-radius:12px;white-space:normal;font-size:14px;line-height:1.65;color:#34425b;box-shadow:0 8px 28px #233d6326}
 /* 新品判定提示：四段规则与出池示例，独立于两张KPI卡片样式。 */
@@ -47,12 +69,13 @@
 #metric-tooltip.metric-tooltip-period{width:320px;padding:16px 18px;border-radius:8px;font-size:13px;line-height:1.7}
 #metric-tooltip.metric-tooltip-period h4{margin:0 0 8px;font-size:14px;color:#203650}
 #metric-tooltip.metric-tooltip-period p{margin:0;color:#425b7a;font-size:13px}
-#newtop h3{font-size:16px;text-align:left;margin:0 0 18px}
+#newtop h3{grid-column:1;grid-row:1;font-size:16px;font-weight:700;line-height:28px;color:#344b66;text-align:left;margin:0}
 #newtop h3 small{font-size:12px;font-weight:400;color:#718198;margin-left:6px}
-#newtop .nsp-distribution,#newtop .nsp-channels{padding:20px;border:1px solid #e8eef6;border-radius:10px}
-#newtop .dp-donut{min-height:184px;justify-content:center;gap:18px}
-#newtop .dp-legend{flex:1;min-width:0;display:grid;gap:16px}
-#newtop .dp-legend>button{display:grid;grid-template-columns:8px 22px 34px 1fr;align-items:center;gap:6px;font-size:13px;line-height:1.5;color:#425b7a;white-space:nowrap;border:0;background:transparent;padding:3px 2px;border-radius:4px;text-align:left;cursor:pointer}
+#newtop .nsp-distribution,#newtop .nsp-channels{border:0;border-radius:0;background:transparent}
+#newtop .dp-donut{grid-column:1;grid-row:2;height:100%;min-height:0;justify-content:center;gap:16px}
+/* 图例不再撑满整列，数量与占比保持紧凑对齐。 */
+#newtop .dp-legend{flex:0 1 162px;min-width:0;display:grid;gap:10px}
+#newtop .dp-legend>button{display:grid;grid-template-columns:8px 40px 34px minmax(44px,1fr);align-items:center;gap:6px;font-size:13px;line-height:1.5;color:#425b7a;white-space:nowrap;border:0;background:transparent;padding:6px 2px;border-radius:4px;text-align:left;cursor:pointer}
 #newtop .dp-legend>button:hover,#newtop .dp-legend>button[aria-pressed="true"]{background:#eeedff}
 #newtop .dp-legend>button:focus-visible{outline:2px solid #8275fa;outline-offset:2px}
 #newtop .dp-ring:after{display:none}
@@ -63,25 +86,51 @@
 #newtop .nsp-grade-chart path.is-muted{opacity:.35}
 #newtop .nsp-grade-chart path:hover,#newtop .nsp-grade-chart path:focus-visible{stroke-width:23;outline:none}
 #newtop .dp-legend i{width:8px;height:8px;margin:0}
-#newtop .dp-legend b{font-size:14px;font-weight:500}
+#newtop .dp-legend b{font-size:13px;font-weight:400}
 #newtop .dp-legend em{font-style:normal;text-align:right;color:#65768c}
-#newtop .dp-ring b{font-size:32px}
+#newtop .dp-ring b{font-size:28px;font-weight:600}
 #newtop .dp-ring small{font-size:13px;font-weight:400}
-#newtop .new-channel-chart{display:block;width:100%;height:auto}
-#newtop .new-channel-chart text{font-size:16px;fill:#65768c}
+/* 图形按自身比例显示，避免固定高SVG在顶部留下空白；横轴仍紧随柱底。 */
+#newtop>.nsp-channels{row-gap:6px;container-type:inline-size}
+#newtop .nsp-channel-scroll{grid-column:1;grid-row:2;align-self:stretch;display:flex;align-items:flex-end;min-width:0;max-width:100%;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;scrollbar-color:#c9d2e1 transparent}
+#newtop .nsp-channel-canvas{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) 20px;row-gap:6px;width:100%;height:100%;max-width:calc(var(--nsp-channel-count)*var(--nsp-channel-step));min-width:0;margin-inline:auto}
+#newtop .new-channel-chart{grid-column:1;grid-row:1;display:block;width:100%;height:100%;min-height:0}
+#newtop .new-channel-chart text{font-family:inherit;font-size:var(--nsp-svg-label-size,13px);font-weight:400;fill:#60758f;font-variant-numeric:tabular-nums}
+/* 平台名称独立排版，字号不随SVG缩放，与图形共用六列中心。 */
+#newtop .nsp-channel-labels{grid-column:1;grid-row:2;display:grid;grid-template-columns:repeat(var(--nsp-channel-count),minmax(0,1fr));width:100%;max-width:none;position:relative}
+#newtop .nsp-channel-labels button{display:inline-flex;align-items:center;justify-content:center;gap:4px;justify-self:center;width:max-content;max-width:100%;min-width:0;padding:0 2px;border:0;border-radius:3px;background:transparent;font-size:12px;font-weight:400;line-height:20px;color:#65768c;text-align:center;white-space:nowrap;cursor:pointer}
+#newtop .nsp-channel-labels button:hover{color:#1677ff;background:#f0f5ff}
+/* 覆盖旧图表的:focus紫框；鼠标选中仅按aria-pressed，键盘焦点独立提示。 */
+#newtop .new-channel-chart [data-nsp-channel]>.nsp-channel-hit{stroke:none}
+#newtop .new-channel-chart [data-nsp-channel]:hover>.nsp-channel-hit{fill:#f0f5ff}
+#newtop .new-channel-chart [data-nsp-channel]:focus-visible>.nsp-channel-hit{stroke:var(--blue);stroke-width:2;stroke-dasharray:4 3}
+#newtop .new-channel-chart [data-nsp-channel][aria-pressed=true] .nsp-channel-hit{fill:#f0f5ff}
+#newtop .new-channel-chart [data-nsp-channel][aria-pressed=true]>rect:not(.nsp-channel-hit){fill:var(--blue)}
+#newtop .new-channel-chart [data-nsp-channel][aria-pressed=true]>text{fill:var(--blue)}
+#newtop .nsp-channel-labels button[aria-pressed=true]{background:#eaf2ff;box-shadow:inset 0 0 0 1px #91beff}
+#newtop .nsp-channel-labels button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 #new .nsp-filters{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 14px}
 #new .nsp-filters>.ui-search-field{flex:1;min-width:280px;max-width:440px}
 #new .nsp-filters input[type=search]{width:100%}
 #newtable table{min-width:1900px;table-layout:auto}
 /* 指标列保留左右留白，宽表在容器内滚动，避免挤压数值与环比。 */
-#newtable th,#newtable td{white-space:nowrap;min-width:100px;padding-left:20px;padding-right:20px}
+#newtable th,#newtable td{white-space:nowrap;min-width:112px;padding-left:16px;padding-right:16px}
 #newtable td{padding-top:16px;padding-bottom:16px}
-#newtable :is(th,td):first-child{min-width:340px}
+#newtable :is(th,td):first-child{min-width:320px}
 #newtable td:first-child{max-width:400px;white-space:normal}
 /* 横向浏览指标时保留产品身份；实色底避免滚动内容透出。 */
-#newtable :is(th,td):first-child:not([colspan]){position:sticky;left:0;z-index:2;background:#fff;box-shadow:1px 0 0 #e7edf5}
+#newtable :is(th,td):first-child:not([colspan]){position:sticky;left:0;z-index:2;background:var(--nsp-row-bg,#fff);box-shadow:1px 0 0 #edf1f7}
 #newtable th:first-child:not([colspan]){background:#f5f8fc;z-index:3}
-#newtable tbody tr:hover td:first-child{background:#f8fbff}
+/* 固定身份列与普通单元格共享行底色，横向滚动和悬停时保持连贯。 */
+#newtable tbody tr{--nsp-row-bg:#fff}
+#newtable tbody tr:nth-child(even){--nsp-row-bg:#fafcff}
+#newtable tbody tr:hover{--nsp-row-bg:#f0f6ff}
+#newtable tbody tr>td{background:var(--nsp-row-bg);border-bottom-color:#edf1f7}
+#newtable tbody tr>td:is(:first-child,:last-child){background:var(--nsp-row-bg)}
+#newtable th{color:#7e8da3;font-size:12px}
+#newtable :is(th,td).nsp-num{text-align:right;font-variant-numeric:tabular-nums}
+#newtable td.nsp-num .rp-list-value{align-items:flex-end}
+#newtable .nsp-num .rp-sort-header{justify-content:flex-end}
 #newtable :is(th,td):last-child{min-width:80px}
 /* 产品身份放大；固定缩略图尺寸，名称与编码在剩余宽度内自然换行。 */
 :is(#newtable,#matrix.kpm-main #matrixtable) .prodname{gap:12px;min-height:56px}
@@ -90,7 +139,17 @@
 :is(#newtable,#matrix.kpm-main #matrixtable) .prodname>div{flex:1;min-width:0}
 :is(#newtable,#matrix.kpm-main #matrixtable) .prodname strong{display:block;font-size:14px;font-weight:500;line-height:1.5;white-space:normal;overflow-wrap:anywhere}
 :is(#newtable,#matrix.kpm-main #matrixtable) .prodname small{display:block;font-size:12px;line-height:1.5;margin-top:5px;white-space:normal;overflow-wrap:anywhere}
-#new .nsp-sales-status[data-sales-status="在售"]{background:#eaf8f3;color:#149780}
+/* 参考疏朗表格：减轻缩略图和编码的视觉重量，保留全部名称及内容。 */
+#new .nsp-details #newtable .prodname{gap:10px;min-height:40px}
+#new .nsp-details #newtable .prodname>.risk-thumb{width:40px;height:40px}
+#new .nsp-details #newtable .prodname strong{font-size:13px;font-weight:400}
+#new .nsp-details #newtable .prodname small{font-size:11px;margin-top:4px}
+/* 同一标签规格；季度、销售状态、等级保留各自既有文字与颜色语义。 */
+#newtable :is(.nsp-success-quarter,.nsp-sales-status,.nsp-grade,.nsp-success-status){display:inline-flex;align-items:center;justify-content:center;height:22px;padding:0 7px;border:1px solid transparent;border-radius:5px;font-size:11px;font-weight:500;line-height:20px;vertical-align:middle;white-space:nowrap}
+#newtable .nsp-success-quarter{min-width:38px;background:#edf5ff;border-color:#dce9fb;color:#3c75b9}
+#newtable .nsp-success-quarter-empty{background:#f3f5f8;border-color:#e9edf2;color:#8995a5;font-weight:400}
+#newtable .nsp-grade{min-width:28px}
+#new .nsp-sales-status[data-sales-status="在售"]{background:var(--green-soft);color:var(--green)}
 #new .nsp-sales-status[data-sales-status="整改"]{background:var(--orange-soft);color:var(--orange)}
 #new .nsp-sales-status[data-sales-status="滞销"]{background:#fff0f2;color:#c33d56}
 #new .nsp-sales-status[data-sales-status="缺货"]{background:var(--orange-soft);color:var(--orange)}
@@ -99,19 +158,28 @@
 /* 与等级分布图保持同色系，深色文字配浅色底以保证小标签可读。 */
 #newtable .nsp-grade[data-grade="S"]{background:#f0ecff;color:#6250c7}
 #newtable .nsp-grade[data-grade="A"]{background:#e9f6fa;color:#227b94}
-#newtable .nsp-grade[data-grade="B"]{background:#fff3df;color:var(--orange)}
+#newtable .nsp-grade[data-grade="B"]{background:var(--orange-soft);color:var(--orange)}
 #newtable .nsp-grade[data-grade="C"]{background:#fdeef2;color:#b34360}
 #newtable small{display:block;color:var(--muted);margin-top:6px;font-size:11px}
 #newtable .nsp-launch-delay{color:var(--orange)}
-#newtable .nsp-channels-list{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;width:120px;max-height:40px;line-height:20px;white-space:normal;overflow:hidden;text-overflow:ellipsis}
+#newtable .nsp-channels-list{display:flex;align-items:center;flex-wrap:wrap;gap:6px;width:120px;min-height:20px;line-height:20px;white-space:normal}
+#newtable .nsp-channels-list .rp-platform-mark,#newtop .nsp-channel-labels .rp-platform-mark{display:block;flex:none;width:20px;height:20px;object-fit:contain}
+#newtop .nsp-channel-labels .rp-platform-mark{margin:0}
+#newtop .nsp-channel-name{display:block;line-height:20px}
+/* 标签区不足六组图文宽度时，上图下文仍与柱形共用六列中心。 */
+@container(max-width:420px){
+ #newtop .nsp-channel-canvas{grid-template-rows:minmax(0,1fr) 42px}
+ #newtop .nsp-channel-labels button{flex-direction:column;gap:2px;padding:0 1px}
+}
 #newtable .rp-list-value{display:flex;flex-direction:column;gap:6px;align-items:flex-start}
-#newtable .rp-value{font-weight:400;font-size:13px}
-#newtable .rp-list-value em{font-style:normal;font-size:11px;white-space:nowrap}
+#newtable .rp-value{font-weight:400;font-size:13px;font-variant-numeric:tabular-nums}
+#newtable .rp-list-value em{font-style:normal;font-size:11px;white-space:nowrap;line-height:1.5}
 #newtable .rp-comparison-label{color:var(--muted)}
 #newtable .nsp-empty{text-align:center;height:130px;color:var(--muted)}
 #new .nsp-details>.tablefoot{display:block}#newcount{width:100%}
 #newall[hidden]{display:none!important}
-@media(max-width:1100px){#new .nsp-layout{grid-template-columns:minmax(0,1fr)}#newtop{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(min-width:1401px) and (max-width:1600px){#newtop .dp-ring{width:104px;height:104px}#newtop .dp-donut{gap:12px}}
+@media(max-width:1400px){#newtop{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){#newtop{grid-template-columns:minmax(0,1fr)}#new .nsp-filters>.ui-search-field{min-width:0}}
 
 #new .nsp-filters>.ui-search-field{margin-left:0;flex:0 1 380px;max-width:440px}
@@ -134,54 +202,156 @@
 .nsp-period-panel .nsp-launch-year button{width:30px;height:30px;font-size:18px;border-radius:4px}
 .nsp-period-panel .nsp-launch-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;padding:12px}
 .nsp-period-panel .nsp-launch-options button{min-height:36px;border-radius:4px;white-space:nowrap;font-size:13px}
-#newtable :is(strong,em).rp-quality-red{color:#c33d56}
-#newtable :is(strong,em).rp-quality-green{color:#00a486}
+#newtable :is(strong,em).rp-quality-red{color:var(--red)}
+#newtable :is(strong,em).rp-quality-green{color:var(--green)}
 #newtable :is(strong,em).rp-quality-yellow{color:var(--orange)}
 #newtable :is(strong,em).rp-quality-gray{color:#8d9ab0}
 
 #new .titlegroup>.unified-filter-field>span:empty{display:none}
-#newtop .dp-ring{width:152px;height:152px;flex-shrink:0}
-@media(max-width:400px){#newtop .nsp-distribution,#newtop .nsp-channels{padding:16px}#newtop .dp-donut{flex-direction:column;gap:20px}#newtop .dp-legend{width:100%;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}#newtop .dp-legend>button{font-size:12px;gap:4px}}
+#newtop .dp-ring{width:144px;height:144px;flex-shrink:0}
+@media(min-width:601px) and (max-width:1600px){#newtop .dp-ring{width:128px;height:128px}}
+@media(max-width:600px){#newtop .dp-ring{width:120px;height:120px}#newtop .newmetric>span{font-size:15px}}
+@media(max-width:400px){#newtop .dp-donut{gap:10px}#newtop .dp-legend{grid-template-columns:minmax(0,1fr);gap:4px}#newtop .dp-legend>button{font-size:12px;gap:4px}}
 
-/* 成功季度复用自然季度面板；保留年度切换，季度允许连续多选。 */
-#new .nsp-success-filter .nsp-launch-trigger{width:220px}
-#nsp-success-panel:popover-open{min-height:0;width:300px;grid-template-columns:minmax(0,1fr)}
-#new [data-nsp-success-value]{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#nsp-success-panel .nsp-launch-options button{display:flex;align-items:center;justify-content:center;gap:6px}
-#nsp-success-panel [role=checkbox] i{width:12px;height:12px;flex:none;border:1px solid #aab8ca;border-radius:3px;line-height:12px}
-#nsp-success-panel [aria-checked=true]{background:#eaf1ff;color:#1677ff}
-#nsp-success-panel [aria-checked=true] i{background:#1677ff;border-color:#1677ff}
-#nsp-success-panel [aria-checked=true] i:after{content:'✓';font-size:11px;color:#fff}
-#nsp-success-panel .nsp-success-footer{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-top:1px solid #eef1f6;font-size:12px;color:#8b98aa}
-#nsp-success-panel .nsp-success-footer button{color:#1677ff;padding:4px}
-
-/* 桌面两行：搜索、品牌、类目、季品、渠道；下行放状态、等级、成功及日期。 */
-#new .nsp-filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+/* 全宽筛选区：季品由顶部 Tab 控制，其他条件沿用公共组件。 */
+#new .nsp-filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px 12px;margin-bottom:14px}
 #new .nsp-filters>*,#new .nsp-filters>.ui-search-field{min-width:0;max-width:none;width:100%;margin:0}
 #new .nsp-filters>.ui-search-field{grid-column:1/-1}
-#new .nsp-filters>.nsp-launch-filter:not(.nsp-success-filter) .nsp-launch-trigger{padding-right:34px}
+#new .nsp-filters>.nsp-launch-filter .nsp-launch-trigger{padding-right:34px}
 #new .nsp-filters .unified-input-group>select{min-width:0;width:100%}
 #new .nsp-filters .nsp-launch-trigger{width:100%}
-@media(min-width:1400px){#new .nsp-filters{grid-template-columns:repeat(6,minmax(0,1fr))}#new .nsp-filters>.ui-search-field{grid-column:span 2}}
-@media(max-width:600px){#new .nsp-filters{grid-template-columns:repeat(2,minmax(0,1fr))}#new .nsp-filters>.nsp-success-filter{grid-column:1/-1}}
-/* 价格带分布沿用概览卡片边框，条形与款数共用同一筛选结果。 */
-#newtop .nsp-price-distribution{padding:20px;border:1px solid #e8eef6;border-radius:10px}
-#newtop .nsp-price-bands{display:grid;gap:5px}
-#newtop [data-nsp-price]{display:grid;grid-template-columns:94px minmax(0,1fr) 38px;align-items:center;gap:10px;min-height:32px;padding:5px 6px;border:1px solid transparent;border-radius:5px;background:transparent;font:inherit;font-size:12px;text-align:left;cursor:pointer;color:#425b7a}
-#newtop [data-nsp-price]:hover,#newtop [data-nsp-price][aria-pressed=true]{border-color:#c6d9ff;background:#f2f6ff}
-#newtop [data-nsp-price]:focus-visible{outline:2px solid #1677ff;outline-offset:2px}
-#newtop .nsp-price-track{height:7px;border-radius:4px;background:#f0effb;overflow:hidden}
-#newtop .nsp-price-track i{display:block;height:100%;border-radius:4px;background:#9791fb}
-#newtop [data-nsp-price] strong{font-size:14px;font-weight:500;text-align:right}
-#newtop [data-nsp-price] small{margin-left:3px;font-size:12px;font-weight:400;color:#8190a5}
-#newtop .nsp-price-missing{display:flex;justify-content:space-between;padding:8px 6px 0;font-size:12px;color:#8190a5}
-#new .nsp-filters>.kpm-price-filter{display:block;height:36px}
-@media(min-width:1101px){
- #new .nsp-layout{align-items:stretch}
- #newtop{grid-template-rows:112px 112px auto auto minmax(0,1fr);align-items:stretch}
- #newtop .nsp-channels{display:flex;flex-direction:column;justify-content:space-between}
- #new .nsp-details{display:flex;flex-direction:column}
- /* 表格按内容定高；缩短左侧渠道图，不用拉伸表格填补两侧高度差。 */
- #newtable{flex:0 0 auto}
- #new .nsp-details>.tablefoot{margin-top:0}
+/* 成功状态枚举外露：单层字段，轻选中底色，不加内层轨道或阴影。 */
+#new .nsp-success-enums{display:flex;align-items:center;gap:8px;min-width:0;height:36px;padding:0 8px;border:1px solid #d7e0ee;border-radius:5px;background:#fff}
+#new .nsp-success-label{flex:none;color:#425b7a;font-size:13px;white-space:nowrap}
+#new .nsp-success-values{display:flex;align-items:center;gap:2px;flex:1;min-width:0}
+#new .nsp-success-values>label{position:relative;display:flex;flex:1;min-width:0;margin:0;cursor:pointer}
+#new .nsp-success-values input{position:absolute;opacity:0;width:1px;height:1px;padding:0;margin:0;pointer-events:none}
+#new .nsp-success-values label>span{display:block;flex:1;padding:3px 4px;border-radius:3px;color:#7b8ba1;font-size:12px;font-weight:400;line-height:20px;text-align:center;white-space:nowrap}
+#new .nsp-success-values label:hover>span{background:#f7f9fc;color:#425b7a}
+#new .nsp-success-values label:has(:checked)>span{background:#edf5ff;color:#1677ff}
+#new .nsp-success-values label:has(:focus-visible)>span{outline:2px solid #91bfff;outline-offset:1px}
+/* 等级页签沿用季品/类目尺寸、选中框和数量徽标，颜色对应等级分布。 */
+#new .nsp-grade-tabs [data-nsp-grade="S"]{--nsp-grade-color:#6250c7;--nsp-grade-bg:#f0ecff;--nsp-grade-border:#d6ccfb}
+#new .nsp-grade-tabs [data-nsp-grade="A"]{--nsp-grade-color:#227b94;--nsp-grade-bg:#e9f6fa;--nsp-grade-border:#b9e2ed}
+#new .nsp-grade-tabs [data-nsp-grade="B"]{--nsp-grade-color:var(--orange);--nsp-grade-bg:var(--orange-soft);--nsp-grade-border:var(--orange-line)}
+#new .nsp-grade-tabs [data-nsp-grade="C"]{--nsp-grade-color:#b34360;--nsp-grade-bg:#fdeef2;--nsp-grade-border:#f0c1cf}
+#new .nsp-grade-tabs [data-nsp-grade]:not([data-nsp-grade="all"]){color:var(--nsp-grade-color)}
+#new .nsp-grade-tabs [data-nsp-grade]:not([data-nsp-grade="all"])>span{background:var(--nsp-grade-bg);color:var(--nsp-grade-color)}
+#new .nsp-grade-tabs [data-nsp-grade].active:not([data-nsp-grade="all"]){background:var(--nsp-grade-bg);border-color:var(--nsp-grade-border)}
+/* 桌面每排五项等宽，不再让搜索、单选和日期额外跨列。 */
+@media(min-width:1400px){
+ #new .nsp-filters{grid-template-columns:repeat(5,minmax(0,1fr))}
+ #new .nsp-filters>*,#new .nsp-filters>.ui-search-field{grid-column:auto}
 }
+@media(max-width:600px){#new .nsp-filters{grid-template-columns:repeat(2,minmax(0,1fr))}}
+/* 价格带分布与其他图形统一内容区，条形与款数共用同一筛选结果。 */
+#newtop .nsp-price-distribution{border:0;border-radius:0;background:transparent}
+#newtop .nsp-price-bands{grid-column:1;grid-row:2;display:grid;grid-template-rows:repeat(6,minmax(28px,1fr));align-self:stretch;min-height:0;gap:1px}
+#newtop [data-nsp-price]{display:grid;grid-template-columns:94px minmax(0,1fr) 38px;align-items:center;gap:10px;min-height:28px;padding:0 4px;line-height:20px;border:1px solid transparent;border-radius:5px;background:transparent;font:inherit;font-size:12px;text-align:left;color:#425b7a}
+#newtop button[data-nsp-price]{cursor:pointer}
+#newtop button[data-nsp-price]:hover{background:#f1f6ff;border-color:#dbe8ff}
+#newtop button[data-nsp-price][aria-pressed=true]{background:#eaf2ff;border-color:#91beff;color:#1677ff}
+#newtop button[data-nsp-price][aria-pressed=true] .nsp-price-track i{background:#1677ff}
+#newtop button[data-nsp-price]:focus-visible{outline:2px solid #1677ff;outline-offset:2px}
+#newtop .nsp-price-track{height:20px;border-radius:10px;background:#f0effb;overflow:hidden}
+#newtop .nsp-price-track i{display:block;height:100%;border-radius:10px;background:#9791fb}
+#newtop .nsp-price-empty{font-size:11px;color:#8a98ab;white-space:nowrap}
+#newtop [data-nsp-price] strong{font-size:13px;font-weight:400;line-height:18px;text-align:right}
+#newtop [data-nsp-price] small{margin-left:3px;font-size:12px;font-weight:400;color:#8190a5}
+#newtop .nsp-price-missing{grid-column:1;grid-row:3;display:flex;justify-content:space-between;padding:0 4px;font-size:12px;line-height:18px;color:#8190a5}
+#new .nsp-filters>.kpm-price-filter{display:block;height:36px}
+#new .nsp-details{display:flex;flex-direction:column}
+/* 表头固定，数据区显示六行半；不足七条时按内容自然收缩。 */
+#newtable{flex:0 0 auto;max-height:var(--nsp-table-max-height,none);overflow:auto;scrollbar-width:thin}
+#newtable thead{position:sticky;top:0;z-index:4;background:#f5f8fc}
+#new .nsp-details>.tablefoot{margin-top:0}
+
+
+/* 桌面默认六项，末列固定展开入口；窄屏按下方断点收起额外条件。 */
+#new .nsp-filters{grid-template-columns:repeat(5,minmax(0,1fr)) auto}
+#new .nsp-filters>.ui-search-field{grid-column:auto}
+#new .nsp-filters>.nsp-filter-toggle{grid-column:-2/-1;grid-row:1;display:inline-flex;align-items:center;justify-content:center;gap:4px;width:auto;min-width:56px;height:36px;padding:0 2px;border:0;background:transparent;color:#1677ff;font:inherit;font-size:13px;line-height:20px;white-space:nowrap;cursor:pointer}
+#new .nsp-filter-toggle svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round}
+#new .nsp-filter-toggle[aria-expanded=true] svg{transform:rotate(180deg)}
+#new .nsp-filter-toggle:hover{color:#0958d9}
+#new .nsp-filter-toggle:focus-visible{outline:2px solid #91bfff;outline-offset:2px;border-radius:4px}
+#new .nsp-filters:not([data-expanded=true])>:nth-child(n+7):not(.nsp-filter-toggle){display:none}
+/* 桌面首排展示上市日期，价格带保留在展开后的下一排。 */
+@media(min-width:1400px){
+ #new .nsp-filters{grid-template-columns:minmax(180px,1.35fr) repeat(3,minmax(140px,1fr)) minmax(220px,1.15fr) minmax(180px,1fr) auto}
+}
+
+@media(max-width:1399px){
+ #new .nsp-filters{grid-template-columns:repeat(3,minmax(0,1fr)) auto}
+ #new .nsp-filters:not([data-expanded=true])>:nth-child(n+4):not(.nsp-filter-toggle){display:none}
+}
+@media(max-width:600px){
+ #new .nsp-filters{grid-template-columns:minmax(0,1fr) auto}
+ #new .nsp-filters:not([data-expanded=true])>:nth-child(n+2):not(.nsp-filter-toggle){display:none}
+ #new .nsp-filters[data-expanded=true]>:not(:first-child):not(.nsp-filter-toggle){grid-column:1/-1}
+}
+
+/* 额外条件只占业务列，避免落入右侧展开按钮的窄列。 */
+@media(min-width:1001px) and (max-width:1399px){
+ #new .nsp-filters>:not(.nsp-filter-toggle):nth-child(3n+1){grid-column:1}
+ #new .nsp-filters>:not(.nsp-filter-toggle):nth-child(3n+2){grid-column:2}
+ #new .nsp-filters>:not(.nsp-filter-toggle):nth-child(3n){grid-column:3}
+}
+@media(min-width:601px) and (max-width:1000px){
+ #new .nsp-filters{grid-template-columns:repeat(2,minmax(0,1fr)) auto}
+ #new .nsp-filters>:not(.nsp-filter-toggle):nth-child(2n+1){grid-column:1}
+ #new .nsp-filters>:not(.nsp-filter-toggle):nth-child(2n){grid-column:2}
+ #new .nsp-filters:not([data-expanded=true])>:nth-child(n+3):not(.nsp-filter-toggle){display:none}
+}
+
+/* 三图统一文字层级：标题16/600，标签、数量和百分比13/400。 */
+#newtop>:is(.nsp-distribution,.nsp-price-distribution,.nsp-channels)>h3{font-size:16px;font-weight:600;line-height:24px;color:#304b6e}
+#newtop .nsp-channels>h3>small{font-size:13px;font-weight:400;color:#60758f}
+#newtop :is(.dp-legend>button,[data-nsp-price],.nsp-channel-labels button){font-family:inherit;font-size:13px;font-weight:400;line-height:20px;color:#60758f;font-variant-numeric:tabular-nums}
+#newtop .dp-legend :is(span,b,em){font-size:13px;font-weight:400;color:inherit}
+#newtop [data-nsp-price] small{font-size:13px;font-weight:400;color:inherit}
+
+/* 内部15渠道保留全名，横向滚动限制在图表内。 */
+
+#newtable .nsp-grade[data-grade="unrated"]{background:#f0f3f7;color:#738198}
+#new .nsp-grade-tabs [data-nsp-grade="unrated"]{--nsp-grade-color:#738198;--nsp-grade-bg:#f0f3f7;--nsp-grade-border:#d7dfe9}
+
+/* 考核入口与明细共用轻量按钮，范围及结果在同一面板内明示。 */
+#newtop .nsp-success-kpi :is(.nsp-assessment-entry,small button){padding:0;border:0;background:none;color:inherit;font:inherit;cursor:pointer}
+#newtop .nsp-success-kpi :is(.nsp-assessment-entry,small button):hover{color:#1677ff;text-decoration:underline}
+#newtop .nsp-success-kpi :is(.nsp-assessment-entry,small button):focus-visible{outline:2px solid #91bfff;outline-offset:3px;border-radius:3px}
+#newtop .nsp-success-kpi{grid-template-rows:minmax(40px,auto) 20px}
+#newtop .nsp-success-kpi>.nsp-success-heading{display:flex;align-items:center;flex-wrap:wrap;gap:0 8px;min-width:0}
+#newtop .nsp-success-kpi .nsp-assessment-entry{flex:none;color:#1677ff;font-size:12px;line-height:22px;white-space:nowrap}
+/* 考核筛选统一置于正文首行，与汇总表左侧对齐。 */
+.nsp-assessment-head-controls{display:flex;align-items:center;flex-wrap:wrap;gap:12px;min-width:0;margin-bottom:20px}
+.nsp-assessment-head-controls>select{appearance:none;min-width:104px;height:32px;padding:0 28px 0 10px;border:1px solid #d7e0ee;border-radius:5px;background:#fff var(--filter-chevron) no-repeat right 8px center;background-size:12px;color:#304b6e;font:inherit;cursor:pointer}
+.nsp-assessment-head-controls .period-segment{display:inline-flex;gap:2px;padding:3px;border-radius:6px;background:#f0f3f8}
+.nsp-assessment-head-controls .period-segment button{min-height:26px;padding:0 12px;border:0;border-radius:4px;background:transparent;color:#7b8ba1;font:inherit;font-size:13px;cursor:pointer}
+.nsp-assessment-head-controls .period-segment [aria-pressed=true]{background:#fff;color:#1677ff;box-shadow:0 1px 3px #304b6e12}
+.nsp-assessment-head-controls :is(button,select):focus-visible{outline:2px solid #91bfff;outline-offset:2px}
+.nsp-assessment-toolbar{margin-bottom:16px}
+.nsp-assessment-notice{display:grid;grid-template-columns:16px minmax(0,1fr) auto;align-items:start;min-width:0;gap:8px 10px;padding:12px 16px;border-radius:6px;background:#ecf5ff;color:#566273;box-sizing:border-box}
+.nsp-assessment-info-icon{width:16px;height:16px;margin-top:2px;color:#409eff}
+.nsp-assessment-range{align-self:center;font-size:12px;line-height:20px;color:#8392a7;white-space:nowrap;margin-left:6px}
+.nsp-assessment-note{min-width:0;font-size:13px;line-height:20px;margin:0}
+.nsp-assessment .up-table{max-width:100%;overflow:auto}.nsp-assessment table{min-width:840px}
+.nsp-assessment .nsp-launch-quarter{display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;font-size:12px;line-height:20px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.nsp-assessment .nsp-launch-quarter[data-launch-quarter="1"]{background:#eaf2ff;color:#2f66b5}
+.nsp-assessment .nsp-launch-quarter[data-launch-quarter="2"]{background:#e7f5f2;color:#24796d}
+.nsp-assessment .nsp-launch-quarter[data-launch-quarter="3"]{background:#fff3e5;color:#9b5813}
+.nsp-assessment .nsp-launch-quarter[data-launch-quarter="4"]{background:#f1ecff;color:#7050af}
+.nsp-assessment .nsp-success-status{display:inline-flex;padding:2px 7px;border-radius:5px;font-size:12px}
+.nsp-assessment .nsp-success-quarter-empty{background:#f3f5f8;color:#8995a5}
+.nsp-assessment :is(button,select):focus-visible{outline:2px solid #91bfff;outline-offset:2px}
+@media(max-width:600px){
+ .nsp-assessment-head-controls{justify-content:flex-start;gap:8px;width:100%;margin-bottom:16px}
+ .nsp-assessment-notice{grid-template-columns:16px minmax(0,1fr)}
+ .nsp-assessment-range{grid-column:2;justify-self:end;margin-left:0}
+}
+
+#newtop .nsp-success-kpi>span{min-width:0}
+#newtop .nsp-success-kpi .nsp-kpi-title{display:inline-flex;align-items:center;max-width:100%;text-align:left;white-space:normal;overflow-wrap:anywhere}
+
+/* 极窄屏缩小环图，保持图例字号与完整百分比。 */
+@media(max-width:400px){#newtop .dp-ring{width:80px;height:80px}#newtop .dp-donut{gap:8px}#newtop .dp-legend>button{grid-template-columns:8px 40px 28px minmax(40px,1fr)}}

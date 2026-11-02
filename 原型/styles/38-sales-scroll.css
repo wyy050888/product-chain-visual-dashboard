@@ -1,0 +1,70 @@
+/* 公司及四条链群随页面自然展开，每组依次为指标卡、品牌表和平台表。 */
+#sales .ms-sections-host{min-width:0}
+#sales .ms-sections{display:flex;flex-direction:column;gap:32px;min-width:0}
+#sales .ms-scope-section.salescard{display:block;min-width:0;min-height:0;margin:0;padding:0 0 28px;border:0;border-bottom:1px solid #e8edf6;border-radius:0;background:transparent;box-shadow:none;cursor:default}
+#sales .ms-scope-section:last-child{border-bottom:0;padding-bottom:0}
+#sales .ms-scope-heading{display:flex;align-items:center;gap:10px;min-height:44px;padding:4px 0 12px;background:#fff}
+#sales .ms-scope-heading h3{margin:0;color:#203b56;font-size:var(--type-section);font-weight:var(--weight-heading);line-height:1.45}
+#sales .ms-scope-metrics{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1.65fr) minmax(0,1.55fr) minmax(0,.8fr);gap:12px;margin:0 0 20px}
+#sales .ms-summary-card{min-width:0;min-height:84px;display:flex;align-items:center;padding:12px 16px;border:1px solid #e3eaf5;border-radius:8px;background:#f8faff}
+#sales .ms-summary-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+#sales .ms-summary-pair>.ms-scope-metric+ .ms-scope-metric{padding-left:16px;border-left:1px solid #e1e8f3}
+/* 名称与主值同排，辅助值跟随主值右对齐，避免卡片下部留空。 */
+#sales .ms-scope-metric{min-width:0;width:100%;display:grid;grid-template-columns:max-content minmax(0,1fr);align-items:center;column-gap:10px;row-gap:4px}
+#sales .ms-scope-label{color:#71849b;font-size:var(--type-data);line-height:1.6}
+#sales .ms-scope-number{display:flex;justify-content:flex-end;align-items:baseline;gap:4px;min-width:0;min-height:34px;line-height:34px}
+#sales .ms-scope-number .unit{color:#8390a5;font-size:var(--type-meta);font-weight:var(--weight-regular)}
+#sales .ms-scope-number>strong{font-size:var(--type-compact-kpi);font-weight:var(--weight-heading);color:var(--color-primary-data);font-variant-numeric:tabular-nums;white-space:nowrap}
+#sales .ms-scope-number>strong.green{color:var(--green)}
+#sales .ms-scope-number>strong.orange{color:var(--orange)}
+#sales .ms-scope-number>strong.red{color:var(--red)}
+#sales .ms-scope-number>strong.muted{color:var(--muted)}
+#sales .ms-scope-metric>small{grid-column:2;text-align:right;font-size:var(--type-meta);line-height:18px;color:#8a97a9;white-space:nowrap}
+/* 规模指标与其它卡片共用两行：上排数值和进度条，下排偏差和时间进度。 */
+#sales .ms-summary-scale{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:16px}
+#sales .ms-summary-progress{display:grid;grid-template-rows:34px 18px;align-items:center;row-gap:4px;min-width:0;color:#8390a5;font-size:var(--type-meta);line-height:18px}
+#sales .ms-summary-progress>span{grid-row:2;text-align:right;white-space:nowrap}
+#sales .ms-summary-progress .ms-progress{grid-row:1;height:5px;margin:0;border-radius:3px}
+#sales .ms-summary-progress .ms-progress>i{border-radius:3px}
+#sales .ms-summary-progress .ms-time-marker{height:9px;top:-2px}
+#sales .ms-scope-tables{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;align-items:start}
+#sales .ms-scope-breakdown{min-width:0}
+#sales .ms-scope-breakdown>h4{margin:0 0 12px;color:#344963;font-size:var(--type-card);font-weight:var(--weight-heading)}
+#sales .ms-scope-breakdown .ms-table-scroll{border:1px solid #e8edf5;border-radius:8px;background:#fff}
+#sales .ms-scope-breakdown .ms-data-table tbody tr{height:72px}
+#sales .ms-scope-breakdown .ms-data-table thead th{background:#f5f8fd}
+/* 桌面以左侧五品牌表的自然高度定行高，右侧六平台只在表内滚动。 */
+@media(min-width:1101px){
+ #sales .ms-scope-tables{align-items:stretch}
+ #sales [data-ms-breakdown-view="platform"]{display:flex;flex-direction:column;min-height:0}
+ #sales [data-ms-breakdown-view="platform"]>.ms-table-scroll{flex:1;height:0;min-height:0;contain:size;overflow-y:auto}
+ #sales [data-ms-breakdown-view="platform"] thead th{position:sticky;top:0;z-index:2}
+}
+@media(max-width:1400px){#sales .ms-scope-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:1100px){#sales .ms-scope-tables{grid-template-columns:minmax(0,1fr);gap:20px}#sales .ms-scope-metrics{gap:10px}}
+@media(max-width:550px){#sales .ms-scope-metrics{grid-template-columns:minmax(0,1fr)}#sales .ms-summary-card{min-height:0;padding:12px 16px}#sales .ms-summary-pair{gap:14px}#sales .ms-summary-pair>.ms-scope-metric+ .ms-scope-metric{padding-left:14px}#sales .ms-summary-pair .ms-scope-metric{display:flex;flex-direction:column;align-items:flex-start;gap:4px}#sales .ms-scope-number>strong{font-size:var(--type-secondary-kpi)}}
+
+@media(max-width:800px){#sales .ms-summary-scale>.ms-scope-metric{grid-template-columns:minmax(0,1fr);gap:2px}#sales .ms-summary-scale .ms-scope-number{justify-content:flex-start}#sales .ms-summary-scale .ms-scope-metric>small{grid-column:1;text-align:left}}
+
+/* 实际与目标采用同一对齐规则，目标降低字重和色阶；差额表达沿用原文。 */
+#sales .ms-scope-icon{display:inline-flex;align-items:center;justify-content:center;flex:none;width:28px;height:28px;border-radius:7px;background:#edf4ff;color:#427bd1}
+#sales .ms-scope-metric:is([data-ms-metric="target"],[data-ms-metric="targetMargin"]) .ms-scope-number>strong{font-size:20px;font-weight:400;color:#71839a}
+#sales .ms-summary-scale{border-color:#d8e5f8;background:#f5f9ff}
+#sales [data-ms-metric="scaleRate"] .ms-scope-number>strong{font-size:28px}
+#sales .ms-summary-progress .ms-progress{height:6px}
+#sales .ms-summary-progress .ms-time-marker{height:10px}
+#sales .ms-detail-table{min-width:640px}
+#sales .ms-detail-table th:first-child{width:184px}
+#sales .ms-detail-table th:nth-child(2){width:34%}
+#sales .ms-detail-table th:nth-child(3){width:24%}
+#sales .ms-detail-table th:last-child{width:auto}
+#sales .ms-detail-table :is(th,td){border-bottom-color:#eef2f7}
+#sales :is(.ms-gsv-pair,.ms-margin-pair){display:block;width:auto;max-width:none;text-align:right;white-space:nowrap}
+#sales .ms-detail-table :is(.ms-gsv-actual,.ms-margin-actual){font-weight:600}
+#sales .ms-detail-table :is(.ms-gsv-target,.ms-margin-target){font-weight:400;color:#6f829b}
+#sales :is(.ms-brand-label,.ms-platform-label){display:inline-flex;align-items:center;gap:8px;max-width:100%;white-space:nowrap}
+#sales .ms-platform-label>img{width:32px;height:32px;object-fit:contain;flex:none}
+#sales .ms-brand-label>img{width:32px;height:32px;object-fit:contain;flex:none;background:#fff;border-radius:4px}
+@media(max-width:550px){#sales .ms-scope-metric:is([data-ms-metric="target"],[data-ms-metric="targetMargin"]) .ms-scope-number>strong{font-size:18px}#sales [data-ms-metric="scaleRate"] .ms-scope-number>strong{font-size:26px}}
+
+@media(max-width:800px){#sales .ms-summary-pair .ms-scope-metric{display:flex;flex-direction:column;align-items:flex-start;gap:4px}#sales .ms-summary-pair .ms-scope-number>strong{font-size:20px}#sales .ms-scope-metric:is([data-ms-metric="target"],[data-ms-metric="targetMargin"]) .ms-scope-number>strong{font-size:18px}}

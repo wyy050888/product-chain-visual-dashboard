@@ -55,14 +55,17 @@
 #ai-inline-controls.unified-filter-bar { border-top:0; }
 
 /* 一体化字段：边界包住字段名和输入值，原生日期与下拉交互保持不变。 */
-:is(.page :is(.unified-filter-bar,.module-header-time),.ui-business-filters) .unified-input-group {
+:is(.page :is(.unified-filter-bar,.module-header-time),.ui-business-filters) .unified-input-group,
+.ui-search-field.unified-input-group {
   display:inline-flex; flex-direction:row; align-items:center; flex:0 1 auto;
   gap:0; min-width:0; min-height:36px; margin:0; padding:0;
   border:1px solid #e0e3e8; border-radius:6px; background:#fff;
   color:#24334b; transition:border-color .15s,box-shadow .15s;
 }
-:is(.page :is(.unified-filter-bar,.module-header-time),.ui-business-filters) .unified-input-group:hover { border-color:#a8bfdf; }
-:is(.page :is(.unified-filter-bar,.module-header-time),.ui-business-filters) .unified-input-group:focus-within {
+:is(.page :is(.unified-filter-bar,.module-header-time),.ui-business-filters) .unified-input-group:hover,
+.ui-search-field.unified-input-group:hover { border-color:#a8bfdf; }
+:is(.page :is(.unified-filter-bar,.module-header-time),.ui-business-filters) .unified-input-group:focus-within,
+.ui-search-field.unified-input-group:focus-within {
   border-color:#1677ff; box-shadow:0 0 0 3px #1677ff12;
 }
 :is(.page :is(.unified-filter-bar,.module-header-time),.ui-business-filters) .unified-field-name {
@@ -85,13 +88,9 @@
 :is(.page :is(.unified-filter-bar,.module-header-time),.ui-business-filters) .unified-input-group:has(.ui-filter-active) > .unified-field-name {
   color:#34455f; background:transparent; border:0;
 }
-:is(.page :is(.unified-filter-bar,.module-header-time),.ui-business-filters) .ui-search-field.unified-input-group > input {
-  width:210px!important; padding-right:30px!important;
-}
 :is(.page :is(.unified-filter-bar,.module-header-time),.ui-business-filters) .ai-day-range { flex-wrap:wrap; gap:8px; }
 @media(max-width:700px) {
   :is(.page :is(.unified-filter-bar,.module-header-time),.ui-business-filters) .ui-search-field.unified-input-group { max-width:100%; }
-  :is(.page :is(.unified-filter-bar,.module-header-time),.ui-business-filters) .ui-search-field.unified-input-group > input { width:160px!important; }
   :is(.page :is(.unified-filter-bar,.module-header-time),.ui-business-filters) .unified-field-name { padding:0 8px; }
 }
 
@@ -107,16 +106,20 @@
 }
 
 /* 搜索没有字段名分栏，所有业务列表使用相同图标、内边距和焦点样式。 */
-:is(.page :is(.unified-filter-bar,.module-header-time),.ui-business-filters) .ui-search-field.unified-input-group {
-  align-items:center; position:relative;
+.ui-search-field.unified-input-group {
+  align-items:center; position:relative;box-sizing:border-box;max-width:100%;
 }
-:is(.page :is(.unified-filter-bar,.module-header-time),.ui-business-filters) .ui-search-field.unified-input-group::before {
+.ui-search-field.unified-input-group::before {
   content:""; position:absolute; left:11px; top:50%; transform:translateY(-50%);
   width:16px; height:16px; pointer-events:none;
   background:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%238290a6%22%20stroke-width%3D%221.8%22%20stroke-linecap%3D%22round%22%3E%3Ccircle%20cx%3D%2210.5%22%20cy%3D%2210.5%22%20r%3D%226.5%22%2F%3E%3Cpath%20d%3D%22m15.5%2015.5%205%205%22%2F%3E%3C%2Fsvg%3E") center / contain no-repeat;
 }
-:is(.page :is(.unified-filter-bar,.module-header-time),.ui-business-filters) .ui-search-field.unified-input-group > input {
-  padding-left:35px!important; border-radius:5px;
+/* 组件内部输入不再独立绘制边框、原生轮廓或阴影；只允许容器呈现焦点。 */
+.ui-search-field.unified-input-group>.ui-search-input {
+  display:block;flex:1 1 auto;box-sizing:border-box;min-width:0;min-height:34px;height:34px;
+  width:100%!important;margin:0;padding:6px 30px 6px 35px!important;border-radius:5px;
+  border:0!important;outline:none!important;box-shadow:none!important;background:transparent!important;
+  color:#24334b;font-size:13px;
 }
 
 /* 标题行只放时间；下方只放业务条件，重置跟在最后一个条件右侧。 */
@@ -155,3 +158,8 @@
   }
   .page .module-header-time .ai-day-range { justify-content:flex-start; }
 }
+
+/* 自定义下拉只使用空图标节点，避免文字箭头受全局字号覆盖后与SVG重复。 */
+:root{--filter-chevron-up:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='m3 7.5 3-3 3 3' fill='none' stroke='%2365758a' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")}
+.ui-dropdown-icon{display:block;flex:none;width:12px;height:12px;background:var(--filter-chevron) center/12px 12px no-repeat;pointer-events:none}
+:is(.pf-attribute,.pf-multi)[open]>:is(summary,[data-pf-multi-trigger])>.ui-dropdown-icon,[aria-expanded=true]>.ui-dropdown-icon{background-image:var(--filter-chevron-up)}

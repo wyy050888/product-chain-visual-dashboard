@@ -1,6 +1,6 @@
 
 
-.qr-platform-tabs button.is-normal{color:#239c7c;border-color:#d1eee3;background:#fbfefc}.qr-platform-tabs button.is-normal.active{color:#168564;background:#eaf8f1;border-color:#68c6a4;box-shadow:0 0 0 1px #68c6a425}.qr-platform-tabs .is-normal small{color:#239c7c}.qr-platform-tabs button.has-risk{color:#d56371}.qr-platform-tabs button.has-risk.active{color:#c94d5d;background:#fff3f4;border-color:#eea0ab}.qr-charts h3 span.green{color:#29ae88}
+.qr-platform-tabs button.is-normal{color:var(--green);border-color:var(--green-line);background:#fbfefc}.qr-platform-tabs button.is-normal.active{color:var(--green);background:var(--green-soft);border-color:var(--green-line);box-shadow:0 0 0 1px #009a2925}.qr-platform-tabs .is-normal small{color:var(--green)}.qr-platform-tabs button.has-risk{color:#d56371}.qr-platform-tabs button.has-risk.active{color:#c94d5d;background:#fff3f4;border-color:#eea0ab}.qr-charts h3 span.green{color:var(--green)}
 
 #qr-list-table th:nth-child(10){width:9%}
 #qr-list-table th{white-space:normal}#qr-list-table td:nth-child(3){text-align:center}#qr-list-table td:nth-child(3) .risk-thumb{display:inline-block;vertical-align:middle}#qr-list-table td:nth-child(2) b{font-weight:500}#qr-list-table td:nth-child(n+6):nth-child(-n+8) b{font-weight:500}

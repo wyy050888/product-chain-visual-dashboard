@@ -23,7 +23,6 @@ const ppRiskColumns=[
  ['deadline','整改期限',125],['rectificationStatus','当前状态',105],['verificationStatus','闭环验证',105],['actualRectifiedAt','实际整改日期',135],['verifiedAt','闭环验证日期',135],['operation','操作',80]
 ];
 const ppRiskDateKeys=['plan','occurredAt','deadline','actualRectifiedAt','verifiedAt'];
-let ppRiskDetailState=null;
 function ppRiskSortValue(entry,key){
  if(key==='plan')return ppLatestPlan(entry.project);
  if(key==='delay')return entry.project.delay;
@@ -39,9 +38,9 @@ function ppRiskSorted(records,sort){
 
 // 筛选只作用于当前入口；同字段多选取并集，不同字段取交集。
 const ppRiskEmptyFilters=()=>({query:'',light:[],rectificationStatus:[],verificationStatus:[]});
-function ppRiskFiltered(records,filters=ppRiskEmptyFilters()){
+function ppRiskFiltered(records,filters=ppRiskEmptyFilters(),allowedLights=ppRiskLights){
  const query=filters.query.trim().toLowerCase();
- return records.filter(({project,risk})=>
-  (!query||[project.name,...(risk.taskNames||[]),risk.rootCause,risk.owner].some(value=>String(value||'').toLowerCase().includes(query)))
+ return records.filter(({project,risk})=>allowedLights.includes(risk.light)
+  &&(!query||[project.name,...(risk.taskNames||[]),risk.rootCause,risk.owner].some(value=>String(value||'').toLowerCase().includes(query)))
   &&['light','rectificationStatus','verificationStatus'].every(key=>!filters[key]?.length||filters[key].includes(risk[key])));
 }

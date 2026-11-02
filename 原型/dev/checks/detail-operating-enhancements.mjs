@@ -5,7 +5,7 @@ export async function operatingEnhancements(page){
  const rows=()=>table.locator('tbody tr').evaluateAll(rows=>rows.map(row=>[...row.cells].map(cell=>cell.textContent)));
  const baseline=await rows();assert.equal(await panel.locator('[data-up-channel-sort]').count(),9);
  const numeric=text=>text==='—'?null:parseFloat(text.replaceAll(',',''))*(text.includes('w')?10000:1);
- for(const [index,key] of ['platform','gsvCents','sales','netSales','expenseCents','feeRate','profitRate','returnRate','receivedRate'].entries()){
+ for(const [index,key] of ['channel','gsvCents','sales','netSales','expenseCents','feeRate','profitRate','returnRate','receivedRate'].entries()){
   for(let n=0;n<3;n++){
    const button=panel.locator('[data-up-channel-sort="'+key+'"]');await button.click();const direction=await button.getAttribute('data-direction');if(!direction)continue;
    const data=await rows(),values=data.map(row=>index?numeric(row[index]):row[0]);
@@ -14,7 +14,7 @@ export async function operatingEnhancements(page){
    else{const valid=values.filter(v=>v!==null);assert(values.slice(valid.length).every(v=>v===null));assert(valid.every((v,i)=>!i||(direction==='asc'?valid[i-1]<=v:valid[i-1]>=v)),'排序 '+key)}
   }
  }
- await panel.locator('[data-up-channel-sort="gsvCents"]').click();assert.deepEqual(await rows(),baseline,'恢复默认GSV排序');
+ const defaultHeader=panel.locator('[data-up-channel-sort="gsvCents"]');if(await defaultHeader.getAttribute('data-direction')!=='desc')await defaultHeader.click();assert.equal(await defaultHeader.getAttribute('data-direction'),'desc');assert.deepEqual(await rows(),baseline,'恢复默认GSV排序');
  await verifyGradeTrend(page);
  for(const width of [1920,1100,390]){
   await page.setViewportSize({width,height:1080});assert.equal(await page.locator('#dialogbody').evaluate(e=>e.scrollWidth>e.clientWidth+1),false,'正文溢出 '+width);

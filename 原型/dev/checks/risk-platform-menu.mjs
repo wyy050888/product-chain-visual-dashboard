@@ -1,45 +1,28 @@
 import assert from 'node:assert/strict';
+import {verifyProductPlatformIsolation} from './product-platform-isolation.mjs';
 export async function riskPlatformMenu(page){
- const menu=kind=>page.locator('#riskrail [data-rp-platform-menu="'+kind+'"]');
- const choose=async(kind,value)=>{if(!await menu(kind).evaluate(n=>n.open))await menu(kind).locator('summary').click();await menu(kind).locator('[data-rp-platform-option="'+value+'"]').click();await page.keyboard.press('Escape')};
- const values=()=>page.locator('#riskrail [data-rp-card-platform]').evaluateAll(ns=>ns.map(n=>n.value));
- assert.equal(await page.locator('#riskrail .rp-platform-menu').count(),4);
- assert.equal(await page.locator('.qr-card .rp-quality-entry .rp-identity .rp-platform-mark').count(),0);
- assert.ok(await page.locator('#riskrail .riskcard').nth(1).locator('.rp-identity .rp-platform-mark').count()>0);
- assert.equal(await menu(0).locator('summary img').getAttribute('alt'),'抖音');
- await menu(0).locator('summary').click();
- assert.equal(await menu(0).locator('[role="menuitemradio"] img').count(),6);
- assert.equal(await menu(0).locator('[data-rp-platform-option="all"]').count(),1);
- assert.ok(await menu(0).locator('img').evaluateAll(ns=>ns.every(n=>n.complete&&n.naturalWidth>0)));
- await menu(0).locator('[data-rp-platform-option="快手"]').click();
- assert.equal(await menu(0).locator('summary img').getAttribute('alt'),'快手');
- assert.deepEqual(await values(),['快手','all','all','all']);
- assert.equal(await menu(0).evaluate(n=>n.open),false);await page.keyboard.press('Escape');
- await page.locator('#riskrail [data-risk="0"]').click();
- assert.equal(await page.locator('#qr-list-platform').inputValue(),'快手');
- assert.equal(await page.locator('#qr-list-table tbody .rp-platform-mark').count(),0);
- assert.equal(await page.locator('#qr-list-table th').filter({hasText:/^平台$/}).count(),0);
- await page.locator('#close').click();
- const stagnant=page.locator('#riskrail [data-rp-board="4"]');
- const staleBefore=await stagnant.locator('.rp-stock-entry').allTextContents();
- assert.equal(await menu(4).count(),0);
- await choose(1,'京东');assert.deepEqual(await values(),['快手','京东','京东','京东']);
- assert.deepEqual(await stagnant.locator('.rp-stock-entry').allTextContents(),staleBefore,'其他榜平台切换不影响呆滞榜');
- await stagnant.locator('[data-risk="4"]').click();
- assert.equal(await page.locator('#dialogbody .rp-platform-tools').count(),0);
- assert.equal(await page.locator('#rf-return-platform').count(),0);
- await page.locator('#close').click();
- for(const k of [1,2,6])assert.equal(await menu(k).locator('summary img').getAttribute('alt'),'京东');
- await menu(0).locator('summary').focus();await page.keyboard.press('ArrowDown');await page.keyboard.press('Home');await page.keyboard.press('Enter');await page.keyboard.press('ArrowDown');await page.keyboard.press('ArrowDown');await page.keyboard.press('Enter');await page.keyboard.press('Escape');
- assert.equal(await menu(0).locator('summary img').getAttribute('alt'),'抖音');
- await menu(0).locator('summary').click();await page.keyboard.press('Escape');assert.equal(await menu(0).evaluate(n=>n.open),false);
- await menu(0).locator('summary').click();await menu(1).locator('summary').click();assert.equal(await menu(0).evaluate(n=>n.open),false);
- await page.locator('#risk>.sectionhead h2').click();assert.equal(await menu(1).evaluate(n=>n.open),false);
- await choose(1,'all');
- for(const width of [1920,1440,390]){
-  await page.setViewportSize({width,height:1080});await menu(0).locator('summary').click();
-  const bounds=await menu(0).locator('.rp-platform-options').boundingBox();assert.ok(bounds.x>=0&&bounds.x+bounds.width<=width);
-  await page.keyboard.press('Escape');
+ const kinds=[0,1,2,6],platforms=['抖音','快手','视频号','天猫','京东','拼多多'];
+ const board=kind=>page.locator('#riskrail [data-rp-board="'+kind+'"]'),menu=kind=>board(kind).locator('[data-rp-platform-menu]'),control=kind=>menu(kind).locator('[data-rp-card-platform]');
+ const selected=kind=>control(kind).evaluate(e=>[...e.selectedOptions].map(o=>o.value)),initial={};
+ for(const kind of kinds){
+  initial[kind]=await selected(kind);assert.deepEqual(await control(kind).locator('option').evaluateAll(es=>es.map(e=>e.value)),kind===1?platforms:['all',...platforms]);
+  assert.equal(await menu(kind).locator('.rp-platform-tags').getAttribute('role'),[0,6].includes(kind)?'group':'radiogroup');
+  const counts=await menu(kind).locator('.rp-platform-count').allTextContents();assert(counts.every(value=>/^\d+$/.test(value)));
+  assert(await menu(kind).locator('img').evaluateAll(es=>es.every(e=>e.complete&&e.naturalWidth>0)));
  }
- await page.setViewportSize({width:1920,height:1080});
+ for(const kind of kinds){
+  const before=Object.fromEntries(await Promise.all(kinds.filter(other=>other!==kind).map(async other=>[other,{selected:await selected(other),text:await board(other).innerText()}])));
+  await control(kind).selectOption('快手',{force:true});assert.deepEqual(await selected(kind),['快手']);
+  for(const [key,state]of Object.entries(before)){assert.deepEqual(await selected(Number(key)),state.selected);assert.equal(await board(Number(key)).innerText(),state.text,'平台筛选仅更新本榜');}
+  await control(kind).selectOption(initial[kind],{force:true});
+ }
+ await verifyProductPlatformIsolation(page);
+ const last=menu(0).locator('[data-rp-platform-option="拼多多"]'),first=menu(0).locator('[data-rp-platform-option="all"]');
+ for(const width of [1920,1440,390,320]){
+  await page.setViewportSize({width,height:1080});
+  for(const kind of kinds)assert(await board(kind).evaluate(e=>e.scrollWidth<=e.clientWidth+1),'平台条不撑宽榜单 '+width);
+  await first.focus();await page.keyboard.press('End');assert(await last.evaluate(e=>{const a=e.getBoundingClientRect(),b=e.closest('.rp-platform-tags').getBoundingClientRect();return a.left>=b.left-1&&a.right<=b.right+1}));
+  await page.keyboard.press('Home');assert(await first.evaluate(e=>{const a=e.getBoundingClientRect(),b=e.closest('.rp-platform-tags').getBoundingClientRect();return a.left>=b.left-1&&a.right<=b.right+1}));
+ }
+ await page.setViewportSize({width:1920,height:1080});console.log('通过：四榜平台独立、选项/图标/计数、抽屉继承与隔离、平台条键盘和宽窄屏。');
 }

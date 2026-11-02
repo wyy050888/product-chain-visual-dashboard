@@ -22,7 +22,7 @@
       const [scope, y, m] = JSON.parse(id);
       if (scope === cid && y === year && m === monthNumber) { if (row) map.set(id, row); else map.delete(id); }
     });
-    return [...map.values()].map(row => ({ ...row, regionId: row.regionId || app.regionConfig.find(row.region)?.id || '', recordKey: key(row) }));
+    return [...map.values()].map(row => ({ ...row, category: window.FilterCatalog.normalizeChain(row.category) || app.fixtures.products.find(product => product.id === row.id || product.product === row.product)?.category || null, regionId: row.regionId || app.regionConfig.find(row.region)?.id || '', recordKey: key(row) }));
   }
   function commit(next, expected, meta = {}) {
     if (expected !== state.revision) throw new Error('数据已变化，请重新打开后操作');
@@ -132,12 +132,12 @@
     summary.synced = synced.length;
     return { kind, cid, next, syncedTargets: synced, revision: state.revision, year: years[0], months, annual, quarter, total: records.length, summary, ...summary };
   }
-  function applyImport(plan, file='') {
-    commit(plan.next,plan.revision,{import:true,groupSync:true,synced:plan.syncedTargets,kind:plan.kind,cid:plan.cid,file,year:plan.year,months:plan.months,total:plan.total,unmatched:plan.summary.unmatched,unchanged:plan.summary.unchanged});
+  function applyImport(plan, file='',stats={}) {
+    commit(plan.next,plan.revision,{import:true,groupSync:true,synced:plan.syncedTargets,kind:plan.kind,cid:plan.cid,file,year:plan.year,months:plan.months,total:plan.total,unmatched:plan.summary.unmatched,unchanged:plan.summary.unchanged,...stats});
   }
   function recordImport(meta) {
     const record={id:app.targetAudit.id(),timestamp:new Date().toISOString(),actor:'系统租户管理员',source:'import',groups:[],summary:{added:0,updated:0,removed:0},...meta};
-    commit(structuredClone(state),version(),{record});
+    commit(structuredClone(state),version(),{record});return record;
   }
   app.targetStore = { key, linkKey, read, put, updateProduct, updateLink, addLinks, remove, children, changed, attributions, years, version, importPeriod, importPlan, applyImport, recordImport, operations:()=>structuredClone(state.operations || []) };
 })();

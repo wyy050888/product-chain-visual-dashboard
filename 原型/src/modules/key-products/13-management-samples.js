@@ -14,13 +14,25 @@ function kpmFollowupWork(record,end){
  return {...record,note:'',review:undefined,actual:undefined,status:record.status==='done'?'working':record.status};
 }
 function kpmCycleTaskId(record){return 'grade-cycle|'+record.id}
+function kpmCycleOrigin(record,task){
+ const date=record.reviewDate||record.reportDate||record.start,sourceName=record.source.includes('周报')?record.assignee+'的'+record.source+date.slice(2).replaceAll('-',''):task.objectName+' · '+record.source;
+ return {version:1,mode:'records',originId:record.id,analysisKind:'record',analysis:task.description,sources:[{id:record.id+'|record',sourceType:record.source,sourceName,date,capturedAt:new Date().toISOString(),content:task.description}]};
+}
+// 已保存样例仅补来源快照，保留原办理数据及问题原文。
+function kpmBindCycleOrigins(){
+ const next={...upTodos};let changed=false;
+ for(const record of kpmCycleSamples){const task=next[kpmCycleTaskId(record)];if(!task||upTodoHasOrigin(task))continue;next[task.id]={...task,originEvidence:kpmCycleOrigin(record,task)};changed=true}
+ if(changed)upPersistTodos(next);
+}
+kpmBindCycleOrigins();
 function kpmCycleTask(record,product){
  const saved=upTodos[kpmCycleTaskId(record)];if(saved)return saved;
  record=kpmFollowupWork(record,upWindow().end);
  const stamp=record.start+'T09:00:00+08:00',done=record.status==='done';
- return {id:kpmCycleTaskId(record),spuId:product.spuId,objectName:product.name,platform:'all',start:record.start,end:record.due,
+ const task={id:kpmCycleTaskId(record),spuId:product.spuId,objectName:product.name,platform:'all',start:record.start,end:record.due,
   title:record.title,description:record.source+'：'+(record.note||record.title),plan:'针对'+product.name+'，'+record.note+' 提交关联报价、成本复核或验证记录，由产品中心确认后续投入安排。',
   department:record.department,assignee:record.assignee,due:record.due,priority:done?'green':'yellow',taskType:record.kind==='bom'?'cost-reduction':'business-improvement',
   status:record.status,source:'grade-management-demo',assignedBy:'周铭',assignedAt:stamp,createdAt:stamp,completedAt:done?record.reportDate+'T17:00:00+08:00':'',
   evidence:done?record.note:'',basis:[record.source],logs:[{at:stamp,actor:'周铭',action:'assign',from:'suggested',to:record.status,note:record.source}]};
+ return {...task,originEvidence:kpmCycleOrigin(record,task)};
 }

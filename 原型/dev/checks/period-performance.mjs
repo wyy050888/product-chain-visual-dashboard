@@ -1,24 +1,31 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
+import {verifyLazyRiskFacts,verifyRiskRenderBatch} from './lazy-risk-facts.mjs';
 
 // 用原逐日生成器独立累加，核对前缀汇总、展开明细和目标配置快照。
 function verifyAggregates(){
- const products=[{spuId:'a',sourceRow:1,chain:0,actualLaunch:'2024-02-29',profit:15},{spuId:'b',sourceRow:6,chain:1,actualLaunch:'2026-08-15',profit:12}];
+ const products=[{spuId:'a',sourceRow:1,chain:0,actualLaunch:'2024-02-29',profit:15},{spuId:'b',sourceRow:6,chain:1,actualLaunch:'2026-08-15',profit:12},{spuId:'SPU-SOURCE-024',sourceRow:24,chain:0,actualLaunch:'2025-01-01',profit:18},{spuId:'SPU-SOURCE-028',sourceRow:28,chain:1,actualLaunch:'2025-01-01',profit:6}];
  const platforms=['抖音','快手','视频号','天猫','京东','拼多多'];
  const fields=['sales','returned','received','orders','contacts','qualityContacts','experienceContacts','reviews','bad','gmvCents','refundCents','gsvCents','profitCents','costCents','expenseCents','targetCents','targetProfitCents'];
  const shift=(date,n)=>{const d=new Date(date+'T00:00:00Z');d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10)};
  const ctx=vm.createContext({DATA_CUTOFF:'2026-10-10',aiFlowDayDiff:(start,end)=>(Date.parse(end)-Date.parse(start))/86400000,sampleSpus:products,sampleProductRows:()=>products,withPeriod:(_,fn)=>fn(),brLossRows:()=>[],
-  qrPlatforms:platforms,dpStore:{newTargets:[20,30],marginTarget:15},
+  qrPlatforms:platforms,qrRate:(n,total)=>total?n/total*100:0,dpStore:{newTargets:[20,30],marginTarget:15},
   qrbMonthData:(_,platform,start,end)=>({points:Array.from({length:(Date.parse(end)-Date.parse(start))/86400000+1},(_,i)=>{
    const date=shift(start,i),sales=20+(+date.slice(8))%5+platforms.indexOf(platform);
    return {date,sales,returned:3,received:2,orders:sales-1,contacts:4,qualityContacts:3,experienceContacts:1,reviews:10,bad:1};
   })}),
   riskMonthShift:(month,n)=>{const d=new Date(month+'-01T00:00:00Z');d.setUTCMonth(d.getUTCMonth()+n);return d.toISOString().slice(0,7)}
  });
- for(const file of ['performance/01-cache.js','unified-product/00-grade-samples.js','unified-product/01-ledger.js','unified-product/01-aggregates.js'])
+ for(const file of ['performance/01-cache.js','unified-product/00-grade-samples.js','unified-product/00-price-samples.js','unified-product/00-new-success-samples.js','unified-product/01-ledger.js','unified-product/01-aggregates.js'])
   vm.runInContext(fs.readFileSync(new URL('../../src/modules/'+file,import.meta.url),'utf8'),ctx);
  ctx.upProduct=p=>p;
+ for(const [spuId,cents] of [['SPU-SOURCE-039',7900],['SPU-SOURCE-038',15900],['SPU-SOURCE-029',19900],['SPU-SOURCE-036',25900]]){
+  const product={spuId,chain:3,sourceRow:Number(spuId.slice(-3)),actualLaunch:'2026-08-01',profit:15};
+  assert.equal(ctx.upSamplePriceCents(product),cents);
+  const facts=ctx.upSummary(product,'2026-09-01','2026-09-30');
+  assert(facts.sales>0);assert.equal(facts.gmvCents,facts.sales*cents);assert.equal(facts.refundCents,facts.returned*cents);assert.equal(facts.gsvCents,facts.gmvCents-facts.refundCents);
+ }
  const plain=value=>JSON.parse(JSON.stringify(value));
  function expected(p,start,end,platform){
   const series=(platform==='all'?platforms:[platform]).map(channel=>ctx.upBuildDaily(p,channel,start,end));
@@ -49,9 +56,20 @@ function verifyAggregates(){
  ctx.upSummary(products[0],'2026-09-04','2026-09-07','抖音');
  assert.equal(calls,0,'同月新区间必须复用前缀和');
  assert.throws(()=>ctx.upSummary(products[0],'2026-10-10','2026-01-01'),/无效/);
+ // 质量汇总只取总量；图表读取明细时才展开，且字段与逐日独立计算一致。
+ let expansions=0;const daily=ctx.upDaily;
+ ctx.upDaily=(...args)=>{expansions++;return daily(...args)};
+ const quality=ctx.upQualityData(products[0],'抖音','2026-09-04','2026-09-07');
+ assert.equal(expansions,0,'读取质量汇总不能提前生成逐日对象');
+ assert.equal(quality.sales,ctx.upSummary(products[0],'2026-09-04','2026-09-07','抖音').sales);
+ const qualityPoints=expected(products[0],'2026-09-04','2026-09-07','抖音').map(day=>({...day,returnRate:day.returned/day.sales*100,contactRate:day.contacts/day.sales*100}));
+ assert.deepEqual(plain(quality.points),qualityPoints);
+ assert.equal(expansions,1);assert.equal(quality.points,quality.points,'重复图表读取复用同一份明细');
+ assert.equal(expansions,1);assert(Object.keys(quality).includes('points'),'导出仍包含逐日明细');
 }
 export async function periodPerformance(page){
  verifyAggregates();
+ verifyLazyRiskFacts();verifyRiskRenderBatch();
  const samples=[];
  const change=async(selector,value)=>page.evaluate(({selector,value})=>new Promise(resolve=>{
   const control=document.querySelector(selector),start=performance.now();
@@ -61,7 +79,7 @@ export async function periodPerformance(page){
  const otherControl=await page.locator('#time-sales [data-time-year]').elementHandle();
  for(const [selector,value] of [['#risk [data-time-mode="year"]',null],['#risk [data-time-year]','2025'],['#risk [data-time-year]','2026'],['#risk [data-time-year]','2025']]){
   const ms=await change(selector,value);samples.push(ms);
-  assert.equal(await page.locator('#riskrail>.riskcard').count(),6);
+  assert.equal(await page.locator('#riskrail .riskcard').count(),6);
   if(value)assert.equal(await page.locator('#risk [data-time-year]').inputValue(),value);
  }
  assert(await otherControl.evaluate(el=>el.isConnected),'局部切换不能重建其他模块时间栏');

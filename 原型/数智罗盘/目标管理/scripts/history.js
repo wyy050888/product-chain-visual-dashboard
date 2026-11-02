@@ -2,19 +2,20 @@
 (() => {
   const app=GoalPrototype,{$,escape:esc}=app,view=app.historyView,filters=app.historyFilters,detailFilters=app.historyDetailFilters;
   let screen,back,opener,all=[];
-  const records=()=>[...app.targetStore.operations(),...app.historyExamples.operations()]
+  const records=()=>[...app.targetStore.operations(),...(app.importResultsMemory||[]),...app.historyExamples.operations()]
     .map(op=>app.historyExamples.completeImport(op))
     .map(op=>app.targetAudit.normalizeImport(op))
     .map(op=>({...op,status:op.status==='demo'?'success':op.status,reason:op.reason?.replace(/本次原型演示选择|本次演示选择/g,'')}))
     .reverse().sort((a,b)=>new Date(b.timestamp)-new Date(a.timestamp));
   function open(row) {
-    opener=document.activeElement;back=null;all=records();filters.options(all);
+    opener=document.activeElement;back=null;all=records();filters.options(all);$('#historyDialog').classList.toggle('history-import-mode',!row);
     screen={page:1,size:10,batch:null,reason:null,scroll:0,query:'',filters:filters.defaults(),detailFilters:detailFilters.defaults(),expanded:[],scope:row?{
       kind:app.state.entryTab,cid:row.cid,year:row.year,monthNumber:row.monthNumber,
       productCode:row.productCode,productMatch:row.productMatch,brand:row.brand,product:row.product,shopId:row.shopId,linkId:row.linkId || ''
     }:null};
     render();if(!$('#historyDialog').open)$('#historyDialog').showModal();
   }
+  function openFailure(op){open();if(!all.some(row=>row.id===op.id))all.unshift(op);back=structuredClone(screen);screen.failure=op.id;render()}
   function close() {app.periodPicker.close();app.historyDateRange.close();app.historyPeriod.close();$('#historyDialog').close();opener?.focus();}
   function changes(operation) {
     const s=screen.scope,aliases=new Set(s?[app.targetAudit.detailKey(s)]:[]),result=[];
@@ -38,6 +39,15 @@
     return result;
   }
   function render() {
+    if(screen.failure){
+      const operation=all.find(row=>row.id===screen.failure),rows=view.failureRows(operation),n=view.counts(operation),pages=Math.max(1,Math.ceil(rows.length/screen.size));screen.page=Math.max(1,Math.min(screen.page,pages));
+      $('#historyTitle').textContent='失败明细（批次 '+operation.id.slice(0,8)+'）';$('#historyBack').hidden=false;
+      for(const id of ['#historyContext','#historySearchBar','#historyFilters','#historyDetailFilters'])$(id).hidden=true;
+      $('#historyBatchInfo').innerHTML='<div class="history-failure-summary"><span class="history-badge failed">导入失败</span><span>成功 '+n.success+' / 失败 '+n.failure+'</span><button class="btn" data-history-download="'+esc(operation.id)+'">↓ 下载失败数据</button></div>';
+      $('#historyResults').innerHTML=view.failureTable(operation,rows.slice((screen.page-1)*screen.size,screen.page*screen.size));
+      $('#historyPager').innerHTML='<span>共 '+rows.length+' 条</span><button class="pg" data-history-page="'+(screen.page-1)+'" '+(screen.page===1?'disabled':'')+'>‹</button> '+screen.page+' / '+pages+' <button class="pg" data-history-page="'+(screen.page+1)+'" '+(screen.page===pages?'disabled':'')+'>›</button><select class="select" id="historyPageSize">'+[10,20,50].map(size=>'<option '+(size===screen.size?'selected':'')+'>'+size+'</option>').join('')+'</select>';return;
+    }
+
     const operation=screen.batch?all.find(op=>op.id===screen.batch):null,s=screen.scope;
     const imports=!operation&&!s;
     $('#historyTitle').textContent=operation?'导入详情':s?'变更记录':'导入记录';
@@ -87,6 +97,8 @@
         return;
       }
       if(event.target.closest('#historyBack')&&back) {const id=screen.batch;screen=back;back=null;render();$('#historyResults').querySelector(`[data-history-batch="${CSS.escape(id)}"]`)?.focus({preventScroll:true});return;}
+      const failure=event.target.closest('[data-history-failure]');if(failure){back=structuredClone(screen);screen.failure=failure.dataset.historyFailure;screen.page=1;render();return}
+      const download=event.target.closest('[data-history-download]');if(download){view.downloadFailure(all.find(row=>row.id===download.dataset.historyDownload));return}
       const batch=event.target.closest('[data-history-batch]');
       if(batch) {
         const op=all.find(item=>item.id===batch.dataset.historyBatch);
@@ -114,5 +126,5 @@
       if(event.target.id==='historyPageSize') {screen.size=Number(event.target.value);screen.page=1;screen.scroll=0;render();}
     });
   }
-  app.history={open,init};
+  app.history={open,openFailure,init};
 })();

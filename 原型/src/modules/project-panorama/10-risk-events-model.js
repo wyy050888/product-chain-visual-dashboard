@@ -9,7 +9,7 @@ function ppSampleRiskEvents(source,records){
  }
  return result.map((risk,i)=>ppSampleRiskFields(source,risk,i));
 }
-const ppEventState={dimension:'type',start:null,end:null,period:null,all:false};
+const ppEventState={start:null,end:null,period:null,all:false};
 function ppEventRange(){
  if(ppEventState.all){const cutoff=bounds().cutoff,dates=ppEventRows().flatMap(p=>p.ledger.flatMap(r=>[ppDate(r.recordedAt?.slice(0,10)),ppDate(r.closedAt?.slice(0,10))])).filter(date=>date&&date<=cutoff).sort();return {start:dates[0]||cutoff,end:cutoff}}
  const end=ppEventState.end||bounds().cutoff,start=ppEventState.start||ppEventDateOffset(end,-29);
@@ -35,4 +35,4 @@ function ppEventGroups(rows,range,dimension){
  const events=ppRiskEvents(rows,range),keys=dimension==='type'?Object.keys(ppStages):pfCategories;
  return keys.map(key=>({key,new:events.filter(e=>e.kind==='new'&&e.project[dimension]===key),closed:events.filter(e=>e.kind==='closed'&&e.project[dimension]===key)}));
 }
-window.projectRiskEventsAudit=()=>withPeriod('projects',()=>({state:{...ppEventState},range:ppEventRange(),rows:ppEventRows(),groups:ppEventGroups(ppEventRows(),ppEventRange(),ppEventState.dimension)}));
+window.projectRiskEventsAudit=()=>withPeriod('projects',()=>({state:{...ppEventState,dimension:ppState.distribution},range:ppEventRange(),rows:ppEventRows(),groups:ppEventGroups(ppEventRows(),ppEventRange(),ppState.distribution)}));

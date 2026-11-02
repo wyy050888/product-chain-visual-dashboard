@@ -85,7 +85,7 @@
                   <button class="tab on" data-root-tab="whole" role="tab" aria-selected="true" aria-controls="overviewTable">大区</button>
                   <button class="tab" data-root-tab="wholeBrand" role="tab" aria-selected="false" aria-controls="overviewTable">品牌</button>
                   <button class="tab" data-root-tab="wholeChannel" role="tab" aria-selected="false" aria-controls="overviewTable">渠道</button>
-                  <button class="tab" data-root-tab="wholeCategory" role="tab" aria-selected="false" aria-controls="overviewTable">类目</button>
+                  <button class="tab" data-root-tab="wholeCategory" role="tab" aria-selected="false" aria-controls="overviewTable">链群</button>
                   <button class="tab" data-root-tab="store" role="tab" aria-selected="false" aria-controls="overviewTable">店铺</button>
                   <button class="tab" data-root-tab="product" role="tab" aria-selected="false" aria-controls="overviewTable">产品</button>
                 </div>
@@ -177,26 +177,19 @@
     <dialog id="refImport" class="entry-modal" aria-labelledby="importTitle">
       <div id="importTemplateNotice" role="status" aria-live="polite" hidden></div>
       <header class="dialog-heading"><h2 id="importTitle"></h2><button class="dialog-close" data-close-dialog aria-label="关闭">×</button></header>
-      <div class="dialog-body"><div class="import-tools"><label>目标口径 <select id="importCid" class="select"><option>一类不含 CID</option><option>一类含 CID</option></select></label><button id="importTemplate" class="text-link">下载模板</button></div>
-        <p class="import-scope-note">导入将全量覆盖当前目标类型、口径及文件中完整季度或全年的全部店铺数据；未包含的旧记录将被删除。更换店铺、产品或核心链接，按删除旧记录、新增新记录处理。</p>
+      <div class="dialog-body"><div class="import-tools"><label>目标口径 <select id="importCid" class="select"><option>一类不含 CID</option><option>一类含 CID</option></select></label><span>上传前请按模板格式填写内容</span><button id="importTemplate" class="text-link">下载模板</button><button id="importHistory" class="text-link">导入记录</button></div>
+        <p class="import-scope-note">导入将覆盖当前目标口径、文件对应季度或年度的全部旧数据；未列出的记录也会移除。</p>
         <div id="importDrop">
           <div class="import-file-row">
             <span class="import-file-icon" aria-hidden="true"><svg viewBox="0 0 24 28" fill="none"><path d="M4 1h10l6 6v19H4z" stroke="currentColor" stroke-width="1.5"/><path d="M14 1v6h6M8 13h8M8 17h8M8 21h5" stroke="currentColor" stroke-width="1.5"/></svg></span>
             <div class="import-file-info"><button id="importChoose" class="text-link"><span id="importFilename">选择文件或拖拽到此处</span></button><div class="import-file-meta"><span id="importFileSize"></span><span id="importFileState" role="status" hidden>已上传</span></div></div>
-            <button id="importReplace" class="text-link" hidden>更换文件</button>
+            <button id="importReplace" class="text-link" hidden>移除</button>
           </div>
-          <small class="import-file-help">支持 CSV、XLSX、XLS，单个文件不超过100MB</small>
-          <div id="importUpload" hidden><div class="import-progress-label"><span id="importUploadLabel" role="status">上传中</span><strong id="importUploadValue">0%</strong></div><progress id="importUploadBar" max="100" value="0" aria-label="文件上传进度（原型演示）"></progress></div>
+          <small class="import-file-help">支持 CSV、XLSX、XLS，单个文件不超过5MB</small>
           <input id="importFile" type="file" accept=".csv,.xlsx,.xls" hidden>
         </div>
-        <div id="importProgress" hidden><div class="import-progress-label"><span>导入进度</span><strong id="importProgressValue" aria-live="polite">0%</strong></div><progress id="importProgressBar" max="100" value="0" aria-label="导入进度（原型演示）"></progress></div>
-        <div id="importResult" role="status" aria-live="polite"></div><button id="importErrors" class="text-link" hidden>下载失败文件</button>
-      </div><footer class="dialog-footer"><div class="actions"><button id="importConfirm" class="btn primary" disabled>确认导入</button></div></footer>
-    </dialog>
-    <dialog id="importChoice" class="entry-modal" aria-labelledby="importChoiceTitle">
-      <header class="dialog-heading"><h2 id="importChoiceTitle">选择导入结果 <small>仅原型演示</small></h2><button id="importChoiceClose" class="dialog-close" aria-label="关闭结果选择">×</button></header>
-      <div class="dialog-body">进度已达100%，请选择本次演示结果。<p>实际开发不展示此弹窗，导入完成后直接显示结果页。</p></div>
-      <footer class="dialog-footer"><div class="actions"><button id="importChoiceFailure" class="btn">导入失败</button><button id="importChoiceSuccess" class="btn primary">导入成功</button></div></footer>
+        <div id="importResult" role="status" aria-live="polite"></div><button id="importErrors" class="text-link" hidden>查看失败明细</button>
+      </div><footer class="dialog-footer"><div class="actions"><button id="importCancel" class="btn">取消</button><button id="importConfirm" class="btn primary" disabled>确认导入</button></div></footer>
     </dialog>
     <dialog id="refDelete" class="entry-modal delete-modal" aria-labelledby="deleteTitle"><header class="dialog-heading"><h2 id="deleteTitle">删除目标</h2><button class="dialog-close" data-close-dialog aria-label="关闭">×</button></header><div class="dialog-body"><div id="deleteIdentity" class="edit-identity"></div><p id="deleteError" role="alert"></p></div><footer class="dialog-footer"><div class="actions"><button id="deleteLinks" class="btn primary">查看关联链接</button><button id="confirmDelete" class="btn danger">确认删除</button></div></footer></dialog>
     <section id="goalConsumption" class="goal-consumption" aria-label="一类电商目标消费" hidden>
@@ -219,6 +212,7 @@
       </div>
       <footer class="goal-config-footer"><div id="goalConfigMessage" class="goal-config-message" role="status" aria-live="polite"></div><div><button type="button" id="goalConfigCancel">取消</button><button type="button" id="goalConfigConfirm" class="primary">确定</button></div></footer>
     </dialog>
+    <script src="../../src/data/filter-catalog.js"></script>
     <script src="scripts/core.js?v=root-dimensions-1"></script>
     <script src="scripts/calendar-grid.js?v=1"></script>
     <script src="scripts/config.js?v=scope-dimensions-1"></script>

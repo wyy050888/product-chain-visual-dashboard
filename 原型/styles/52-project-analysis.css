@@ -1,33 +1,45 @@
-/* 部门根因分析：指标、归纳结论与台账追溯各自独立。 */
-#projects.pp-main .pp-ai{background:#f8faff;padding:22px}
-#projects.pp-main .pp-ai-heading{margin-bottom:20px}
-#projects.pp-main .pp-ai-heading h3{font-size:17px;color:#203951}
-#projects.pp-main .pp-ai-grid{gap:16px;align-items:stretch}
-#projects.pp-main .pp-ai-grid>article{display:flex;flex-direction:column;padding:20px;border-radius:10px;box-shadow:0 2px 8px #29456504}
-#projects.pp-main .pp-ai-grid .pp-card-head{margin-bottom:18px;gap:8px}
-#projects.pp-main .pp-ai-grid h4{font-size:15px}
-#projects.pp-main .pp-ai-grid .pp-card-head small{white-space:nowrap;font-size:11px}
-#projects.pp-main .pp-analysis-metrics{display:grid;grid-template-columns:1fr 1fr 1.2fr;gap:8px;padding-bottom:18px;border-bottom:1px solid #edf1f7}
-#projects.pp-main .pp-analysis-metrics>button,#projects.pp-main .pp-analysis-metrics>div{min-width:0;display:flex;flex-direction:column;gap:8px;padding:6px 2px;text-align:left;background:transparent;border:0;font:inherit;border-radius:5px}
+/* 根因分析作为第三分区；只用顶部细线分段，左右内容不再层层套框。 */
+#projects.pp-main .pp-ai{margin:20px 18px 18px;padding:20px 0 0;background:#fff;border:0;border-top:1px solid #e5ebf4;border-radius:0;overflow:visible}
+#projects.pp-main .pp-analysis-header{display:flex;align-items:center;justify-content:flex-start;gap:24px;margin:0 0 16px;padding:0;background:transparent;border:0;border-bottom:0;border-radius:0}
+#projects.pp-main .pp-ai-heading{margin:0;min-width:0}
+#projects.pp-main .pp-ai-heading h3{font-size:16px;line-height:26px;color:#203951;margin:0}
+#projects.pp-main .pp-analysis-tabs{display:flex;align-items:center;gap:12px;margin:0;padding:0;border:0;border-radius:0;background:transparent;overflow:auto}
+#projects.pp-main .pp-analysis-tabs [role=tab]{min-width:60px;padding:5px 7px;white-space:nowrap;color:#7185a3;border:0;border-bottom:2px solid transparent;border-radius:0;background:transparent;font:inherit;font-size:13px;line-height:20px;cursor:pointer}
+#projects.pp-main .pp-analysis-tabs [aria-selected=true]{color:#1677ff;background:transparent;border-bottom-color:#1677ff;box-shadow:none;font-weight:600}
+#projects.pp-main .pp-analysis-tabs [role=tab]:focus-visible{outline:2px solid #8ab6f6;outline-offset:-2px}
+#projects.pp-main .pp-analysis-layout{display:grid;grid-template-columns:clamp(360px,24%,440px) minmax(0,1fr);gap:18px;align-items:stretch;min-width:0;padding:0}
+#projects.pp-main .pp-analysis-card{padding:16px;background:#f7faff;border:0;border-radius:8px;min-width:0}
+#projects.pp-main .pp-analysis-card .pp-card-head{margin-bottom:10px}
+#projects.pp-main .pp-analysis-card h4{font-size:15px;margin:0;color:#203951}
+#projects.pp-main .pp-analysis-metrics{display:grid;grid-template-columns:1fr 1fr 1.2fr;gap:8px;padding-bottom:10px;border-bottom:1px solid #e8eef7}
+#projects.pp-main .pp-analysis-metrics>button,#projects.pp-main .pp-analysis-metrics>div{min-width:0;display:flex;flex-direction:column;gap:6px;padding:4px 2px;text-align:left;background:transparent;border:0;font:inherit;border-radius:5px}
 #projects.pp-main .pp-analysis-metrics>button{cursor:pointer}
-#projects.pp-main .pp-analysis-metrics>button:hover{background:#f3f7ff}
+#projects.pp-main .pp-analysis-metrics>button:hover{background:#edf4ff}
 #projects.pp-main .pp-analysis-metrics span{font-size:11px;color:#7b8ba3;white-space:nowrap}
 #projects.pp-main .pp-analysis-metrics strong{font-size:25px;line-height:1.2;font-weight:650;color:#304b6e;font-variant-numeric:tabular-nums}
-#projects.pp-main .pp-analysis-metrics button:first-child strong{color:#e65c70}
-#projects.pp-main .pp-ai-grid h5{margin:18px 0 6px;font-size:12px;letter-spacing:.2px;color:#6b7d97;font-weight:500}
-#projects.pp-main .pp-root-list{flex:1}
-#projects.pp-main .pp-root-item{display:flex;align-items:flex-start;gap:10px;padding:13px 0;width:100%;text-align:left;border:0;border-bottom:1px solid #f0f3f8;border-radius:0;background:transparent;cursor:pointer;font:inherit}
+#projects.pp-main .pp-analysis-metrics [data-mode="high"] strong{color:var(--red-high)}
+#projects.pp-main .pp-analysis-metrics [data-mode="red"] strong{color:#f0546e}
+/* 箭头与悬停反馈提示数字可筛选；风险占比保持静态展示。 */
+#projects.pp-main .pp-analysis-value{display:inline-flex;align-items:baseline;gap:6px;white-space:nowrap}
+#projects.pp-main .pp-analysis-chevron{color:#8a9bb2;font-size:18px;font-style:normal;font-weight:400;line-height:1}
+#projects.pp-main .pp-analysis-metrics>button:focus-visible{outline:2px solid #8ab6f6;outline-offset:2px;background:#edf4ff}
+
+#projects.pp-main .pp-analysis-card h5{margin:12px 0 4px;font-size:12px;color:#6b7d97;font-weight:500}
+#projects.pp-main .pp-root-list{min-width:0}
+#projects.pp-main .pp-root-item{display:flex;align-items:flex-start;gap:10px;padding:10px 6px;width:100%;text-align:left;border:0;border-bottom:1px solid #e9eff8;border-radius:0;background:transparent;cursor:pointer;font:inherit}
 #projects.pp-main .pp-root-item:last-child{border-bottom:0}
+#projects.pp-main :is(.pp-root-item,.pp-analysis-all)[aria-pressed=true]{background:#eaf2ff;border-radius:6px}
+#projects.pp-main .pp-analysis-metrics>button[aria-pressed=true]{background:#eaf2ff}
 #projects.pp-main .pp-root-item:hover .pp-root-content>b{color:#1677ff}
 #projects.pp-main .pp-root-rank{display:grid;place-items:center;flex:0 0 22px;height:22px;border-radius:5px;background:#eef2fb;color:#6d7eab;font-size:11px;font-weight:600}
 #projects.pp-main .pp-root-item:first-child .pp-root-rank{background:#fff0f2;color:#df6577}
 #projects.pp-main .pp-root-content{display:block;min-width:0;flex:1}
 #projects.pp-main .pp-root-content>b{display:block;font-size:13px;font-weight:600;line-height:22px;color:#304b6e}
-#projects.pp-main .pp-root-summary{display:block;font-size:12px;line-height:1.75;color:#7b8ba3;margin:5px 0 8px}
+#projects.pp-main .pp-root-summary{display:block;font-size:12px;line-height:1.65;color:#7b8ba3;margin:3px 0 5px}
 #projects.pp-main .pp-root-content small{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px;font-size:11px;color:#8394ad;line-height:1.8}
 #projects.pp-main .pp-root-content em{font-style:normal;color:#377ecc;white-space:nowrap}
-#projects.pp-main .pp-analysis-all{display:flex;justify-content:space-between;align-items:center;background:#f6f8fc;border:0;border-radius:6px;padding:10px 12px;margin-top:16px;color:#4e78ac;font-size:12px;cursor:pointer}
-#projects.pp-main .pp-analysis-all:hover{background:#edf4ff;color:#1677ff}
+#projects.pp-main .pp-analysis-all{display:flex;width:100%;text-align:left;justify-content:space-between;align-items:center;background:#edf4ff;border:0;border-radius:6px;padding:9px 10px;margin-top:8px;color:#4e78ac;font-size:12px;cursor:pointer}
+#projects.pp-main .pp-analysis-all:hover{background:#e6efff;color:#1677ff}
 #projects.pp-main .pp-analysis-empty{padding:32px 0;color:#95a2b7;font-size:12px;text-align:center}
 #dialogbody .pp-analysis-detail{color:#344b6b}
 #dialogbody .pp-analysis-conclusion{padding:18px 20px;border:1px solid #e4eafa;border-radius:8px;background:#f7f9ff;margin-bottom:20px}
@@ -44,13 +56,22 @@
 #dialogbody .pp-analysis-table td b{font-weight:400}
 #dialogbody .pp-analysis-table td small{display:block;color:#8b9ab0;margin-top:6px}
 #dialogbody .pp-analysis-empty{text-align:center;padding:50px;color:#8b9ab0}
-@media(max-width:1550px){#projects.pp-main .pp-ai-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:700px){#projects.pp-main .pp-ai{padding:16px}#projects.pp-main .pp-ai-grid{grid-template-columns:minmax(0,1fr)}#projects.pp-main .pp-ai-grid>article{padding:16px}}
+
+@media(max-width:1100px){#projects.pp-main .pp-analysis-layout{grid-template-columns:320px minmax(0,1fr);gap:18px}}
+@media(max-width:850px){#projects.pp-main .pp-analysis-layout{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:700px){
+ #projects.pp-main .pp-ai{padding:16px 0 0;margin:16px 12px 12px}
+ #projects.pp-main .pp-analysis-header{flex-wrap:wrap;gap:6px;margin-bottom:10px}
+ #projects.pp-main .pp-analysis-tabs{width:100%;gap:8px;margin:0}
+ #projects.pp-main .pp-analysis-tabs [role=tab]{flex:1;min-width:0;padding:7px 8px}
+ #projects.pp-main .pp-analysis-layout{gap:14px}
+ #projects.pp-main .pp-analysis-card{padding:14px}
+}
 
 #dialog:has(.pp-analysis-detail) #drawer-tabs{display:none}
 
-#dialogbody .pp-analysis-table .pp-task-name{display:block}
-#dialogbody .pp-analysis-table .pp-task-name+.pp-task-name{margin-top:4px}
+:is(#dialogbody .pp-analysis-table,#pp-ai .pp-analysis-ledger) .pp-task-name{display:block}
+:is(#dialogbody .pp-analysis-table,#pp-ai .pp-analysis-ledger) .pp-task-name+.pp-task-name{margin-top:4px}
 
 #projects.pp-main .pp-ai-heading h3>.metric-help{vertical-align:1px;padding:0;margin-left:6px;font-size:10px;background:#fff;color:#8395ae;border-radius:50%}
 #metric-tooltip.metric-tooltip-project-analysis{box-sizing:border-box;width:440px;max-width:calc(100vw - 16px);max-height:calc(100vh - 16px);overflow:auto;padding:0;border:0;border-radius:12px;background:#fff;box-shadow:0 8px 32px #243f6826,0 1px 5px #243f6814;font-size:13px;line-height:1.65;white-space:normal;color:#52647d}
@@ -68,3 +89,45 @@
 #metric-tooltip .pp-analysis-tip-fraction>span:first-child{padding:0 6px 4px;border-bottom:1px solid #a8bbd5}
 #metric-tooltip .pp-analysis-tip-fraction>span:last-child{padding-top:4px}
 #metric-tooltip .pp-analysis-tip-note{padding:11px 20px;background:#f8fafc;color:#8492a7;font-size:12px}
+
+/* 保留右侧完整台账；筛选浅底集中承载控件，避免额外套一层卡片。 */
+#projects.pp-main .pp-analysis-ledger{contain:size;display:flex;flex-direction:column;min-height:0;min-width:0;padding:0;background:transparent;border:0;border-radius:0}
+#projects.pp-main #pp-analysis-ledger-results{display:flex;flex-direction:column;flex:1;min-height:0}
+#projects.pp-main .pp-analysis-ledger-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0 0 6px;min-height:24px}
+#projects.pp-main .pp-analysis-ledger-head>div{display:flex;align-items:center;flex-wrap:wrap;gap:6px 14px}
+#projects.pp-main .pp-analysis-ledger-head h4{font-size:15px;color:#304b6e;margin:0;line-height:22px;min-width:0;overflow-wrap:anywhere}
+#projects.pp-main .pp-analysis-ledger-head h4>span{font-size:12px;color:#8394ac;font-weight:400;margin-left:8px}
+#projects.pp-main .pp-analysis-ledger-head p{font-size:12px;color:#8394ac;margin:0;line-height:20px}
+#projects.pp-main .pp-analysis-ledger-scroll{flex:1;min-height:0;max-height:none;overflow:auto;border:0;border-radius:0;scrollbar-width:thin;min-width:0}
+#projects.pp-main .pp-analysis-ledger .pp-risk-detail-table{position:relative;border-collapse:separate;border-spacing:0}
+#projects.pp-main .pp-analysis-ledger .pp-risk-detail-table :is(th,td){padding:10px 12px;white-space:normal;overflow-wrap:anywhere}
+#projects.pp-main .pp-analysis-ledger .pp-risk-detail-table th{height:44px;font-size:12px;line-height:20px}
+#projects.pp-main .pp-analysis-ledger .pp-risk-detail-table td{height:64px;vertical-align:middle;font-size:13px;line-height:20px;color:#3d5675}
+#projects.pp-main .pp-analysis-ledger .pp-risk-detail-table tbody tr:nth-child(even)>td{background:#fafcff}
+#projects.pp-main .pp-analysis-ledger .pp-risk-detail-table tbody tr:hover>td{background:#f3f8ff}
+#projects.pp-main .pp-analysis-ledger .pp-risk-detail-table .pp-product{gap:10px}
+#projects.pp-main .pp-analysis-ledger .pp-risk-detail-table .pp-product>:is(img,.pp-placeholder){width:44px;height:44px}
+#projects.pp-main .pp-analysis-ledger .pp-risk-detail-table .pp-product b{font-size:13px;line-height:20px}
+#projects.pp-main .pp-analysis-ledger .pp-risk-detail-table .pp-product small{font-size:12px;line-height:18px;margin-top:2px}
+#projects.pp-main .pp-analysis-ledger .pp-risk-detail-table td>.link{font-size:13px;line-height:20px}
+#projects.pp-main .pp-analysis-pages{grid-column:2;min-width:0}
+#projects.pp-main .pp-analysis-pages .list-pagination{margin:0;padding:0;gap:8px;flex-wrap:wrap}
+#projects.pp-main .pp-analysis-ledger .pp-risk-filters{grid-template-columns:minmax(260px,1.6fr) repeat(3,minmax(0,1fr)) auto;gap:12px;padding:6px;margin-bottom:8px;background:#f7f9fc;border:0;border-radius:6px}
+#projects.pp-main .pp-analysis-ledger .pp-risk-filters>.pf-multi{width:100%;max-width:none;margin:0}
+#projects.pp-main .pp-analysis-ledger .pp-risk-filters .pf-multi>summary{font-size:12px}
+#projects.pp-main .pp-analysis-ledger .pp-risk-filter-actions .btn{height:36px;padding:0 8px;border:0;background:transparent;box-shadow:none;color:#1677ff;font-size:12px;font-weight:400;white-space:nowrap}
+#projects.pp-main .pp-analysis-ledger .pp-risk-filter-actions .btn:hover{color:#4096ff;background:transparent}
+#projects.pp-main .pp-analysis-ledger .pp-risk-filter-actions .btn:focus-visible{outline:2px solid #91beff;outline-offset:2px}
+@media(max-width:1350px){#projects.pp-main .pp-analysis-ledger .pp-risk-filters{grid-template-columns:repeat(3,minmax(0,1fr))}#projects.pp-main .pp-analysis-ledger .pp-risk-filters>.ui-search-field{grid-column:span 2}}
+@media(max-width:1000px){#projects.pp-main .pp-analysis-ledger .pp-risk-filters{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:500px){#projects.pp-main .pp-analysis-ledger .pp-risk-filters{grid-template-columns:minmax(0,1fr)}#projects.pp-main .pp-analysis-ledger .pp-risk-filters>.ui-search-field{grid-column:auto}}
+
+
+/* 右侧表格底部与左侧卡片对齐；分页独立放在下一行，间距沿用布局行距。
+   单列时两块恢复自然高度，台账只在自身内部滚动。 */
+@media(max-width:850px){
+ #projects.pp-main .pp-analysis-pages{grid-column:1}
+ #projects.pp-main .pp-analysis-ledger{contain:none}
+ #projects.pp-main #pp-analysis-ledger-results{flex:none}
+ #projects.pp-main .pp-analysis-ledger-scroll{flex:none;max-height:610px}
+}

@@ -1,0 +1,37 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import {createHash} from 'node:crypto';
+import {createRequire} from 'node:module';
+import {fileURLToPath,pathToFileURL} from 'node:url';
+const require=createRequire(import.meta.url),{chromium}=require(process.env.DASHBOARD_PLAYWRIGHT_PATH),root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
+const folder=path.resolve(root,'../outputs/performance'),label=process.argv[2]||'assessment-profile',runs=[];fs.mkdirSync(folder,{recursive:true});
+const manifest=JSON.parse(fs.readFileSync(path.join(root,'manifest.json'),'utf8')),sourceHashes=Object.fromEntries(manifest.scripts.map(({file})=>[file,createHash('sha256').update(fs.readFileSync(path.join(root,file))).digest('hex')]));
+const variants=process.env.DASHBOARD_ASSESSMENT_COMPARE==='1'?['before','after']:['current'];
+const bundles=Object.fromEntries(variants.map(variant=>{const read=file=>fs.readFileSync(variant==='before'&&fs.existsSync(path.join(folder,process.env.DASHBOARD_ASSESSMENT_BASELINE||'assessment-before-20261027',file))?path.join(folder,process.env.DASHBOARD_ASSESSMENT_BASELINE||'assessment-before-20261027',file):path.join(root,file),'utf8');const css=manifest.styles.map(({file})=>read(file)).join('\n');return [variant,{body:read('src/runtime/open.js')+'const drawerPreviewCss='+JSON.stringify(css)+';\nconst dashboardPages='+JSON.stringify(manifest.pages)+';\n'+manifest.scripts.map(({file})=>read(file)).join('')+read('src/runtime/close.js'),hashes:Object.fromEntries(manifest.scripts.map(({file})=>[file,createHash('sha256').update(read(file)).digest('hex')]))}]}));
+const browser=await chromium.launch({headless:true,executablePath:'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'});
+try{
+ for(let run=0;run<Number(process.env.DASHBOARD_PROFILE_RUNS||3);run++)for(const variant of (run%2?[...variants].reverse():variants)){
+  const context=await browser.newContext({viewport:{width:1920,height:1080},reducedMotion:'reduce'}),page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));await page.route('**/assets/app.js*',route=>route.fulfill({contentType:'text/javascript',body:bundles[variant].body}));
+  await page.clock.setFixedTime(new Date('2026-10-27T04:00:00Z'));await page.addInitScript(()=>window.addEventListener('dashboard:ready',()=>{window.__assessmentReady=performance.now();requestAnimationFrame(()=>requestAnimationFrame(()=>window.__assessmentSettled=performance.now()))},{once:true}));
+  const client=await context.newCDPSession(page);await client.send('Performance.enable');await page.goto(pathToFileURL(path.join(root,'index.html')).href,{waitUntil:'load'});await page.waitForFunction(()=>window.__assessmentSettled);
+  const load=await page.evaluate(()=>({ready:__assessmentReady,settled:__assessmentSettled})),samples=[];
+  await page.locator('a[href="#new"]').click();
+  const measure=async(id,fn)=>{const times=await page.evaluate(async code=>{let headingMutations=0;const observer=new MutationObserver(records=>{headingMutations+=records.filter(r=>r.target.closest?.('[data-nsp-assessment-detail-header]')).length});observer.observe(document.body,{subtree:true,childList:true,characterData:true});const fn=Function('return ('+code+')')(),start=performance.now();fn();const handlerMs=performance.now()-start;await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(()=>requestAnimationFrame(r))));observer.disconnect();return {handlerMs,frameMs:performance.now()-start,headingMutations}},fn.toString());const facts=await page.evaluate(()=>{const d=dashboardNewProductAssessmentSnapshot();return {heading:document.querySelector('[data-nsp-assessment-detail-header] h3')?.textContent,resultTabs:[...document.querySelectorAll('[data-nsp-assess-result]')].map(n=>({key:n.dataset.nspAssessResult,text:n.textContent,selected:n.getAttribute('aria-selected')})),period:d.period,assessment:d.assessment,summary:d.summary,result:d.result,sort:d.sort,page:d.page,rows:d.rows.map(p=>({spuId:p.spuId,launch:p.actualLaunch,state:p.state,grade:p.grade,season:p.season,channels:p.salesChannels,assessment:p.successAssessment})),visible:[...document.querySelectorAll('[data-nsp-assess-product]')].map(n=>n.dataset.nspAssessProduct)}});samples.push({id,...times,facts});};
+  await measure('open-quarter',()=>document.querySelector('[data-nsp-assessment-entry]').click());
+  await page.evaluate(()=>window.__assessmentKept={year:document.querySelector('[data-nsp-assess-year]'),table:document.querySelector('[data-nsp-assessment-table] table'),sort:document.querySelector('[data-nsp-assess-sort="gsv"]')});
+  if(run===0&&process.env.DASHBOARD_PROFILE_CPU==='1'){await client.send('Profiler.enable');await client.send('Profiler.start')}
+  await measure('annual-first',()=>document.querySelector('[data-nsp-assess-kind="year"]').click());
+  if(run===0&&process.env.DASHBOARD_PROFILE_CPU==='1'){const {profile}=await client.send('Profiler.stop');fs.writeFileSync(path.join(folder,label+'.cpuprofile'),JSON.stringify(profile));const nodes=new Map(profile.nodes.map(n=>[n.id,n])),times=new Map();profile.samples.forEach((id,i)=>times.set(id,(times.get(id)||0)+(profile.timeDeltas[i]||0)));const hotspots=[...times].sort((a,b)=>b[1]-a[1]).slice(0,18).map(([id,us])=>({name:nodes.get(id).callFrame.functionName,ms:Math.round(us/1000)}));console.log(JSON.stringify({hotspots}));fs.writeFileSync(path.join(folder,label+'-hotspots.json'),JSON.stringify(hotspots,null,2))}
+  await measure('quarter-again',()=>document.querySelector('[data-nsp-assess-kind="quarter"]').click());
+  await measure('q3-first',()=>{const s=document.querySelector('[data-nsp-assess-quarter]');if(s){s.value='3';s.dispatchEvent(new Event('change',{bubbles:true}))}else document.querySelector('[data-nsp-assess-matrix="3"][data-nsp-assess-chain="all"][data-nsp-assess-pool="all"]').click()});
+  await measure('q4-again',()=>{const s=document.querySelector('[data-nsp-assess-quarter]');if(s){s.value='4';s.dispatchEvent(new Event('change',{bubbles:true}))}else document.querySelector('[data-nsp-assess-matrix="4"][data-nsp-assess-chain="all"][data-nsp-assess-pool="all"]').click()});
+  await measure('annual-again',()=>document.querySelector('[data-nsp-assess-kind="year"]').click());
+  await measure('success-tab',()=>(document.querySelector('#drawer-tabs [data-drawer-tab="success"]')||document.querySelector('[data-nsp-assess-result="success"]')).click());
+  await measure('all-tab',()=>(document.querySelector('#drawer-tabs [data-drawer-tab="all"]')||document.querySelector('[data-nsp-assess-result="all"]')).click());
+  await measure('sort-profit',()=>document.querySelector('[data-nsp-assess-sort="profit"]').click());
+  await measure('page-2',()=>document.querySelector('[data-nsp-assess-page="2"]').click());
+  const reuse=await page.evaluate(()=>Object.fromEntries(Object.entries(__assessmentKept).map(([key,node])=>[key,!!node?.isConnected])));if(Object.values(reuse).some(value=>!value))throw Error('当前考核节点未复用：'+JSON.stringify(reuse));
+  runs.push({variant,load,samples,reuse,errors});console.log(JSON.stringify({run:run+1,variant,load,samples:samples.map(({id,handlerMs,frameMs})=>({id,handlerMs,frameMs})),errors}));await context.close();
+ }
+ fs.writeFileSync(path.join(folder,label+'.json'),JSON.stringify({label,sourceHashes,bundleHashes:Object.fromEntries(variants.map(variant=>[variant,bundles[variant].hashes])),runs},null,2));
+}finally{await browser.close()}

@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 export async function pddLinks(page){
  const settle=()=>page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
  const card=page.locator('#riskrail .rp-shop-card');
+ await card.locator('[data-rp-platform-option="拼多多"]').click();
  const entry=card.locator('.rp-shop-entry:has(.rp-shop-link-counts)').first();
  assert.equal(await entry.locator('[data-rp-field="score"]').count(),0);
  const cardRed=entry.locator('[data-rp-field="redLinks"]'),cardYellow=entry.locator('[data-rp-field="yellowLinks"]');
@@ -22,7 +23,7 @@ export async function pddLinks(page){
  await table.evaluate(el=>el.scrollLeft=el.scrollWidth);await settle();
  const red=table.locator('[data-rp-pdd-shop="'+id+'"][data-rp-pdd-tone="red"]'),yellow=table.locator('[data-rp-pdd-shop="'+id+'"][data-rp-pdd-tone="yellow"]');
  await red.hover();await pop.waitFor({state:'visible'});
- assert.deepEqual(await pop.locator('th').allTextContents(),['商品链接','近30天品质退款率（三级类目）','近30天品质求助平台率（三级类目）','近30天品质文本情感分（三级类目）','近30天品质退款率（主营类目）','近30天品质求助平台率（主营类目）','近30天品质文本情感分（主营类目）']);
+ assert.deepEqual(await pop.locator('th').allTextContents(),['商品链接','近30天品质退款率（三级分类）','近30天品质求助平台率（三级分类）','近30天品质文本情感分（三级分类）','近30天品质退款率（主营链群）','近30天品质求助平台率（主营链群）','近30天品质文本情感分（主营链群）']);
  assert.deepEqual(await pop.locator('[data-rp-pdd-link]').evaluateAll(ns=>ns.map(n=>n.dataset.rpPddLink)),redIds);
  assert.equal(await pop.locator('.risk-thumb').count(),redIds.length);
  const first=links.find(l=>l.id===redIds[0]);

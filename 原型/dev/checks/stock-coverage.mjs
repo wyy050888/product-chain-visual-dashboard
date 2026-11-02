@@ -1,12 +1,13 @@
+import {businessRuleContext} from './business-rules-context.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
 
 export function verifyStockCoverage(){
- const ctx=vm.createContext({fmt:String,upMoney:String,DATA_CUTOFF:'2026-10-10',
+ const ctx=businessRuleContext({fmt:String,upMoney:String,DATA_CUTOFF:'2026-10-10',
   upIdentity:p=>p,upSummary:()=>({sales:180,returned:30}),shiftDate:()=> '2026-09-26',newLaunchSamples:new Map(),window:{}});
  vm.runInContext(fs.readFileSync(new URL('../../src/data/filter-catalog.js',import.meta.url),'utf8'),ctx);
- for(const file of ['unified-product/06-stock-model.js','inventory-detail/01-coverage-samples.js','new-products/01-model.js'])
+ for(const file of ['ui-controls/00-stock-quantity.js','unified-product/06-stock-model.js','inventory-detail/00-ledger.js','inventory-detail/01-coverage-samples.js','new-products/01-model.js'])
   vm.runInContext(fs.readFileSync(new URL('../../src/modules/'+file,import.meta.url),'utf8'),ctx);
  const tags=(warehouse,total,daily=10)=>Array.from(ctx.upStockRiskTags({warehouse,...ctx.upStockCoverage(warehouse,total,daily)}));
  assert.deepEqual(tags(600,700),['stagnant'],'恰好60天触发滞销');
@@ -32,6 +33,18 @@ export function verifyStockCoverage(){
  for(const daily of [0,-1,null,NaN])assert.equal(salesState('滞销',100,200,daily),'滞销','不可计算时保留原状态');
  assert.equal(ctx.nspSalesState('缺货',null),'缺货');
  const base={spuId:'demo',num:1000,amountCents:100000,staleCents:20000,avg:800,sourceRow:2};
+ for(const spuId of ['SPU-SOURCE-026','SPU-SOURCE-019','SPU-SOURCE-027','SPU-SOURCE-017']){
+  const original={...base,spuId,staleUnits:200},sample=ctx.inventoryStaleSample(original);
+  for(const key of ['num','amountCents','staleUnits','staleCents'])assert.equal(sample[key],original[key],'补最早批次不改变原余额 '+key);
+  assert(sample.staleOldestReceivedDate<ctx.DATA_CUTOFF&&sample.staleOldestSellableUnits>0&&sample.staleOldestSellableUnits<=sample.staleUnits);
+  const known={...original,staleOldestReceivedDate:'2026-01-01',staleOldestSellableUnits:20};assert.deepEqual(ctx.inventoryStaleSample(known),known,'不覆盖已有批次');
+  const zero={...original,staleUnits:0};assert.deepEqual(ctx.inventoryStaleSample(zero),zero,'零呆滞不造批次');
+ }
+ const batch=ctx.inventoryStaleSample(base);
+ assert.notEqual((batch.staleUnits/batch.num*100).toFixed(1),(batch.staleCents/batch.amountCents*100).toFixed(1),'呆滞批次单价不等于总体均价，数量和金额占比应分别计算');
+ assert(batch.staleUnits>=0&&batch.staleUnits<=batch.num&&batch.staleCents<=batch.amountCents);
+ const scaled=ctx.inventoryCoverageSample({...batch,stockSampleScenario:'stagnant'});
+ assert.equal(scaled.staleUnits,Math.round(batch.staleUnits*scaled.num/batch.num),'库存场景缩放保留独立批次数量');
  for(const [scenario,expected] of [['shortage',['shortage']],['transfer',['transfer']],['shortage-transfer',['shortage','transfer']],['stagnant',['stagnant']]]){
   const row=ctx.inventoryCoverageSample({...base,stockSampleScenario:scenario}),total=row.num+row.sampleFactoryUnits+row.sampleUndeliveredUnits;
   assert.deepEqual(tags(row.num,total),expected);

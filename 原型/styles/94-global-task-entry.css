@@ -1,0 +1,99 @@
+/* 任务新增/导入独立样式，不改变已有待办详情与其他业务弹窗。 */
+.gd-task-management{display:flex;gap:8px;flex:none}.gd-task-management .btn{min-height:34px;white-space:nowrap}
+.gd-workspace:has([data-gd-part="tasks"][aria-pressed="true"]) .gd-filter-toolbar{flex-wrap:wrap;gap:12px}
+.gd-task-entry-dialog{width:min(820px,calc(100vw - 28px));max-height:calc(100dvh - 40px);padding:0;border:1px solid #e1e7f0;border-radius:10px;color:#344b69;box-shadow:0 16px 60px #102b5126;overflow:auto}
+.gd-task-entry-dialog::backdrop{background:#18335666}.gd-task-entry-dialog form{margin:0}.gd-task-entry-dialog header{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid #e7edf5}.gd-task-entry-dialog h3{margin:0;font-size:19px}
+.gd-task-entry-close{border:0;background:none;color:#8190a5;font-size:24px;cursor:pointer}.gd-task-entry-body{padding:18px 22px}.gd-task-entry-dialog footer{position:sticky;bottom:0;display:flex;justify-content:flex-end;gap:10px;padding:14px 22px;border-top:1px solid #e7edf5;background:#fff}
+.gd-task-entry-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 20px}.gd-task-entry-grid label{display:flex;flex-direction:column;gap:7px;min-width:0;font-size:13px}.gd-task-entry-wide{grid-column:1/-1}
+.gd-task-object-fields{display:grid;grid-template-columns:140px minmax(0,1fr) 140px;gap:16px 20px;min-width:0}
+/* 事项名称与原生优先级下拉同排，窄屏仍保留紧凑的优先级列。 */
+.gd-task-title-fields{display:grid;grid-template-columns:minmax(0,1fr) 140px;gap:20px;min-width:0}
+@media(max-width:700px){.gd-task-title-fields{grid-template-columns:minmax(0,1fr) 100px;gap:12px}}
+.gd-task-object-fields:has([data-gd-task-chain][hidden]){grid-template-columns:140px minmax(0,1fr)}
+@media(max-width:700px){.gd-task-object-fields,.gd-task-object-fields:has([data-gd-task-chain][hidden]){grid-template-columns:minmax(0,1fr)}}
+.gd-task-field-label{display:flex;align-items:center;gap:4px}.gd-task-required{color:#d92848;font-weight:600}.gd-task-required[hidden]{display:none}
+/* 新增任务右侧抽屉：头尾固定，只滚动表单内容；导入继续沿用原录入容器。 */
+.gd-task-entry-dialog.gd-task-entry-drawer{position:fixed;inset:0 0 0 auto;margin:0;width:min(820px,100vw);max-width:100vw;height:100dvh;max-height:100dvh;box-sizing:border-box;border-width:0 0 0 1px;border-radius:0;overflow:hidden;box-shadow:-8px 0 40px #102b5126}
+.gd-task-entry-drawer form{display:flex;flex-direction:column;height:100%;min-height:0}
+.gd-task-entry-drawer :is(header,footer){flex:none}
+.gd-task-entry-drawer .gd-task-entry-body{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain}
+.gd-task-entry-drawer footer{position:static}
+.gd-task-entry-dialog :is(input:not([type=file]),select,textarea){box-sizing:border-box;width:100%;min-width:0;border:1px solid #d9e2ef;border-radius:5px;padding:8px 10px;background:#fff;color:#344b69;font:inherit}.gd-task-entry-dialog input:disabled{background:#f6f8fb}.gd-task-entry-dialog textarea{resize:vertical;line-height:1.7}
+.gd-task-entry-dialog button:focus-visible{outline:2px solid #1677ff;outline-offset:2px}
+.gd-task-entry-dialog :is(input:not([type=file]),select,textarea):focus{border-color:#1677ff;outline:0;box-shadow:none}
+.gd-task-entry-note{font-size:12px;line-height:1.8;color:#7f8da1;margin:14px 0 0}.gd-task-entry-error{color:#d92848;font-size:13px;line-height:1.8;white-space:pre-line;margin:12px 0 0}.gd-task-entry-error:empty{display:none}
+.gd-task-import-intro{display:flex;align-items:center;gap:16px}.gd-task-import-intro p{flex:1;font-size:13px;line-height:1.8;margin:0}.gd-task-import-intro button{flex:none}.gd-task-upload{display:flex;flex-direction:column;gap:12px;padding:18px;margin:18px 0;background:#f6f9ff;border:1px dashed #c9d9f0;border-radius:6px;font-size:13px}.gd-task-import-table{max-width:100%;max-height:360px;overflow:auto;margin-top:12px}.gd-task-import-table table{width:100%;min-width:540px;border-collapse:collapse;font-size:12px}.gd-task-import-table :is(th,td){padding:10px;border:1px solid #e8edf5;white-space:normal;overflow-wrap:anywhere;line-height:1.6;text-align:left}.gd-task-import-table th{background:#f4f7fc}
+@media(max-width:700px){.gd-task-entry-grid{grid-template-columns:minmax(0,1fr)}.gd-task-entry-dialog :is(header,footer){padding:14px}.gd-task-entry-body{padding:14px}.gd-task-import-intro{align-items:flex-start;flex-direction:column}.gd-task-management{width:100%}.gd-task-management .btn{flex:1}}
+
+.gd-task-status-tabs{max-width:100%;min-width:0;overflow-x:auto;white-space:nowrap}.gd-workspace:has([data-gd-part="tasks"][aria-pressed="true"]) .gd-filter-search{min-width:0;flex:1 1 300px;max-width:400px}
+/* 业务对象搜索单选：使用顶层下拉，避免被任务弹窗滚动区域裁切。 */
+.gd-task-entry-grid [data-gd-task-chain][hidden]{display:none}
+.gd-task-object-picker{position:relative;min-width:0}.gd-task-object-picker input{padding-right:30px!important}.gd-task-object-picker::after{content:"";position:absolute;right:13px;top:15px;width:6px;height:6px;border-right:1.5px solid #71819a;border-bottom:1.5px solid #71819a;transform:rotate(45deg);pointer-events:none}
+.gd-task-object-options{position:fixed;inset:auto;margin:0;padding:4px;box-sizing:border-box;max-width:calc(100vw - 24px);overflow:auto;border:1px solid #d9e2ef;border-radius:6px;background:#fff;color:#344b69;box-shadow:0 8px 24px #1a36551f}
+.gd-task-object-options[hidden]{display:none}.gd-task-object-options [role=option]{display:flex;flex-direction:column;gap:3px;width:100%;padding:9px 10px;border:0;border-radius:4px;background:transparent;text-align:left;font:inherit;cursor:pointer;white-space:normal;overflow-wrap:anywhere}.gd-task-object-options [role=option]:hover,.gd-task-object-options [role=option][aria-selected=true]{background:#edf4ff;color:#1463cc}.gd-task-object-options b{font-size:13px;font-weight:400;line-height:20px}.gd-task-object-options small,.gd-task-object-empty{font-size:12px;line-height:18px;color:#8190a5}.gd-task-object-empty{padding:12px 10px}
+.gd-task-object-options [data-gd-object-type="project"]{flex-direction:row;align-items:center;gap:12px}
+.gd-task-object-options [data-gd-object-type="project"] b{flex:1;min-width:0}
+.gd-task-object-options [data-gd-object-type="project"] small{flex:none;margin-left:auto;text-align:right;white-space:nowrap}
+.gd-task-object-options [data-gd-object-type="shop"] b{display:flex;align-items:center;gap:6px;min-width:0}
+.gd-task-object-options [data-gd-object-type="shop"] b>span{min-width:0}
+.gd-task-object-options [data-gd-object-type="shop"] .rp-platform-mark{flex:none;display:block;width:16px;height:16px;object-fit:contain}
+.gd-task-entry-dialog [data-gd-task-chain] select:disabled{appearance:none;background:#f6f8fb;color:#344b69;opacity:1}
+.gd-task-assignee-control{display:flex;flex-wrap:wrap;align-items:center;gap:6px;box-sizing:border-box;min-height:38px;padding:4px 8px;border:1px solid #d9e2ef;border-radius:5px;background:#fff;cursor:text}
+.gd-task-assignee-control:focus-within{border-color:#1677ff}
+.gd-task-entry-dialog .gd-task-assignee-control [data-gd-assignee-query]{order:1;flex:1 1 120px;width:0;min-width:120px;min-height:26px;padding:3px 0;border:0;border-radius:0;background:transparent;outline:0;box-shadow:none}
+.gd-task-entry-dialog .gd-task-assignee-control.has-selection [data-gd-assignee-query]{flex-basis:72px;min-width:72px}
+.gd-task-assignee-selected{display:contents}.gd-task-assignee-selected:empty{display:none}
+.gd-task-person-chip{display:inline-flex;align-items:center;gap:5px;max-width:100%;padding:3px 7px;border-radius:4px;background:#edf4ff;color:#245d9e;font-size:12px;overflow-wrap:anywhere}
+.gd-task-person-chip button{flex:none;border:0;background:transparent;color:#71819a;padding:0 2px;font-size:16px;cursor:pointer}
+/* 手工任务关联放在内容首行，编辑复用新增的对象选择器。 */
+.gd-task-object-edit{margin:0 0 20px;padding-bottom:16px;border-bottom:1px solid #e7edf5;font-size:13px}
+.gd-task-object-current{display:flex;align-items:center;gap:12px;min-width:0}.gd-task-object-current>span{flex:none;color:#8190a5}
+.gd-task-object-current>div{display:flex;align-items:center;flex-wrap:wrap;gap:6px;min-width:0;overflow-wrap:anywhere}.gd-task-object-current>button{margin-left:auto;flex:none}
+.gd-task-object-editor{margin-top:16px}.gd-task-object-edit-fields{display:grid;grid-template-columns:160px minmax(0,1fr);gap:14px 16px}
+.gd-task-object-edit-fields>label{display:flex;flex-direction:column;gap:7px;min-width:0}.gd-task-object-edit-fields [hidden]{display:none}
+.gd-task-object-editor :is(input,select){width:100%;min-width:0;box-sizing:border-box;border:1px solid #d9e2ef;border-radius:5px;padding:8px 10px;color:#344b69;background:#fff;font:inherit}
+.gd-task-object-editor :is(input,select):focus{border-color:#1677ff;outline:0;box-shadow:none}
+.gd-task-object-editor :is(input,select):disabled{background:#f6f8fb;color:#8190a5}
+.gd-task-object-edit-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
+.up-todo-heading-task-title{min-width:0;overflow-wrap:anywhere}
+@media(max-width:700px){.gd-task-object-edit-fields{grid-template-columns:minmax(0,1fr)}}
+/* 关闭提醒沿用简洁的标题、警示正文和取消/确定，不展示备注输入。 */
+.gd-task-discard-confirm{box-sizing:border-box;width:420px;max-width:calc(100vw - 32px);margin:auto;padding:12px;border:1px solid #e1e7f0;border-radius:4px;background:#fff;color:#606266;box-shadow:0 12px 40px #102b5126}
+.gd-task-discard-confirm::backdrop{background:#18335644}
+.gd-task-discard-confirm>header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.gd-task-discard-confirm h3{margin:0;color:#303133;font-size:16px;font-weight:400;line-height:24px}
+.gd-task-discard-close{flex:none;padding:0;border:0;background:none;color:#909399;font:inherit;font-size:20px;line-height:24px;cursor:pointer}
+.gd-task-discard-confirm>p{display:flex;align-items:flex-start;gap:12px;margin:0 0 16px;font-size:14px;line-height:22px}
+.gd-task-discard-icon{display:flex;align-items:center;justify-content:center;flex:none;width:20px;height:20px;margin-top:1px;border-radius:50%;background:#e6a23c;color:#fff;font-size:16px;font-weight:600}
+.gd-task-discard-confirm>footer{display:flex;justify-content:flex-end;gap:10px}
+.gd-task-discard-confirm .btn{min-height:32px;padding:6px 14px;border-radius:3px;font-size:14px;line-height:18px}
+.gd-task-discard-confirm button:focus-visible{outline:2px solid #1677ff;outline-offset:2px}
+/* 新建与详情共用“一条执行事项、多位负责人、独立日期”的下发结构。 */
+.gd-task-entry-drawer:has([data-gd-task-executions]){width:min(1080px,100vw)}
+.gd-task-executions{min-width:0;padding-top:16px;border-top:1px solid #e7edf5}
+.gd-task-executions>header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 12px;padding:0;border:0}
+.gd-task-executions h4{margin:0;font-size:15px;font-weight:600}
+.gd-task-execution-columns,.gd-task-execution-row{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1.1fr) 155px 30px;gap:12px;min-width:0}
+.gd-task-execution-columns{padding:10px 0;color:#7d8da5;font-size:12px;background:#f6f8fb;border-bottom:1px solid #e7edf5}
+.gd-task-execution-columns .gd-task-required{margin-left:4px}
+.gd-task-execution-row{padding:12px 0;border-bottom:1px solid #edf1f7;align-items:start}
+.gd-task-execution-row>label{display:flex;flex-direction:column;gap:6px;min-width:0;font-size:13px}
+.gd-task-execution-row .gd-task-row-label{display:none}
+.gd-task-date-field{display:flex;position:relative;min-width:0}
+.gd-task-entry-dialog .gd-task-date-field input{padding-left:30px;padding-right:23px}
+.gd-task-date-field>button{position:absolute;right:1px;top:1px;bottom:1px;width:29px;display:flex;align-items:center;justify-content:center;padding:0;border:0;background:transparent;color:#8190a7;cursor:pointer}
+.gd-task-date-field svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.4}
+.gd-task-date-field>button:hover{color:#1677ff}
+.gd-task-date-field>[data-gd-date-open]{left:1px;right:auto}
+.gd-task-date-field>[data-gd-date-clear]{width:22px;font-size:16px}
+.gd-task-date-field>button[hidden]{display:none}
+.gd-task-entry-dialog .gd-task-execution-row textarea{min-height:78px;height:auto;resize:vertical}
+.gd-task-execution-row>.up-execution-icon{display:flex;align-items:center;justify-content:center;width:30px;height:36px;padding:0;border:0;border-radius:4px;background:transparent;color:#8190a5;cursor:pointer}
+.gd-task-execution-row>.up-execution-icon:not(:disabled):hover{background:#fff1f3;color:#d92848}
+.gd-task-execution-row>.up-execution-icon:disabled{opacity:.35;cursor:default}
+@media(max-width:700px){
+ .gd-task-execution-columns{display:none}
+ .gd-task-execution-row{position:relative;grid-template-columns:minmax(0,1fr);gap:12px;padding:14px 0}
+ .gd-task-execution-row .gd-task-row-label{display:flex;gap:4px;color:#7d8da5;font-size:12px}
+ .gd-task-execution-row>.up-execution-icon{position:absolute;top:7px;right:0}
+}

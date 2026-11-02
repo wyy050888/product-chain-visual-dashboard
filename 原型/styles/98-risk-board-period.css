@@ -1,0 +1,31 @@
+/* 各榜日期固定在标题右侧；库存只保留实时快照文字。 */
+#risk.rp-independent-dates>.sectionhead #time-risk,#risk.rp-independent-dates>.sectionhead #time-note-risk{display:none}
+.rp-board-period{min-width:0;max-width:100%;flex:none}
+.rp-board-period .period-picker{margin:0;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+:is(.rp-board-period,#dialogsub) .rp-return-period select{height:34px;font-size:12px}
+.rp-board-period .risk-date-trigger{display:inline-flex;flex:none;align-items:center;justify-content:space-between;gap:10px;height:34px;padding:6px 10px;border:1px solid #dbe3ef;border-radius:6px;background:#fff;color:#34455f;font-size:12px;white-space:nowrap}
+.rp-board-period .risk-date-trigger:hover{border-color:#a8bfdf}
+.rp-board-period .risk-date-trigger[aria-expanded=true]{border-color:#1677ff;box-shadow:0 0 0 3px #1677ff12}
+#riskrail .rp-compact-header>.rp-quality-actions{flex-wrap:wrap;justify-content:flex-end;max-width:100%;min-width:0;gap:8px 12px}
+#riskrail>.rp-loss-wide>.rhead{display:flex;align-items:center;flex-wrap:wrap;gap:12px}
+#riskrail>.rp-loss-wide>.rhead>.rp-group-heading{flex:1;min-width:200px}
+#riskrail>.rp-loss-wide>.rhead>.rp-board-period{margin-left:auto}
+@media(max-width:1400px){
+ #riskrail .rp-board-group-quality .riskcard>.rp-compact-header{grid-template-columns:minmax(0,1fr) max-content}
+ #riskrail .rp-compact-header>h3{grid-column:1;grid-row:1}
+ #riskrail .rp-compact-header>.rp-quality-actions{grid-column:2;grid-row:1}
+ #riskrail .rp-compact-header>.rp-platform-menu{grid-column:1/-1;grid-row:2}
+}
+@media(max-width:700px){
+ #riskrail .rp-board-group-quality .riskcard>.rp-compact-header{grid-template-columns:minmax(0,1fr)}
+ #riskrail .rp-compact-header>.rp-quality-actions{grid-column:1;grid-row:2;justify-content:space-between;width:100%}
+ #riskrail .rp-compact-header>.rp-platform-menu{grid-column:1;grid-row:3}
+ #riskrail .rp-compact-header>.rp-quality-actions>.rp-board-period{flex:1 1 100%}
+ .rp-board-period .period-picker{justify-content:flex-start}
+ #riskrail>.rp-loss-wide>.rhead>.rp-board-period{width:100%;margin:0}
+}
+
+/* 对比日期强调区间，vs使用独立的浅灰标签。 */
+#riskrail .rp-quality-date:has(.rp-date-period){display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+#riskrail .rp-quality-date .rp-date-period{color:#526881;font-weight:500;white-space:nowrap}
+#riskrail .rp-quality-date .rp-date-versus{display:inline-flex;align-items:center;padding:1px 6px;border-radius:4px;background:#e8eef5;color:#8291a5;font-size:11px;line-height:16px;font-weight:400}

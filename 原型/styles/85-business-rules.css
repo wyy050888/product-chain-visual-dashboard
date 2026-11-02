@@ -1,0 +1,170 @@
+/* 独立配置页沿用系统管理浅蓝侧栏、黑标题和白色卡片。 */
+.navigation-toolbar>.brc-entry{flex:0 0 auto;white-space:nowrap;border:0;background:transparent;color:#1677ff;font:inherit;font-size:13px;cursor:pointer;padding:7px 8px;margin-left:auto}
+.navigation-toolbar>.brc-entry:hover{color:#0958d9}.navigation-toolbar>.brc-entry:focus-visible{outline:2px solid #91bfff;outline-offset:2px}
+#business-rule-page .brc-panel{padding-top:18px;padding-bottom:0}
+#brc-tabs{display:flex;gap:24px;min-width:0;overflow-x:auto;scrollbar-width:thin;border:0;margin:0}
+#brc-tabs button{position:relative;flex:0 0 auto;height:100%;padding:0 0 2px;border:0;border-bottom:2px solid transparent;background:transparent;color:#687d98;font:inherit;cursor:pointer}
+#brc-tabs button[aria-selected=true]{color:#1677ff;border-bottom-color:#1677ff}
+#brc-tabs button:focus-visible{outline:2px solid #91bfff;outline-offset:-3px}
+.brc-dirty{display:inline-block;width:5px;height:5px;border-radius:50%;background:#1677ff;margin-left:5px;vertical-align:middle}
+#brc-cards{columns:unset}
+#business-rule-page .brc-card{display:block;width:100%;margin-bottom:18px;break-inside:avoid;border:1px solid #e3eaf5;border-radius:6px;min-width:0;overflow:hidden}
+#business-rule-page .brc-card h3{margin:0;padding:13px 18px;background:#f6f8fc;border-bottom:1px solid #e8edf5;color:#243650;font-size:14px;font-weight:500}
+#business-rule-page .brc-fields{padding:4px 18px}
+#business-rule-page .brc-field{display:flex;align-items:center;justify-content:space-between;gap:14px;min-height:62px;border-bottom:1px solid #edf1f7;color:#536987}
+#business-rule-page .brc-field:last-child{border-bottom:0}
+#business-rule-page .brc-number-field{display:flex;align-items:center;gap:10px;flex:0 0 auto}
+#business-rule-page .brc-operator{color:#8896ab;width:16px;text-align:center}
+#business-rule-page .brc-number-field input{width:110px;height:34px;border:1px solid #d7e2f2;border-radius:4px;padding:6px 10px;color:#315575;font:inherit;text-align:right;background:#fff}
+#business-rule-page .brc-number-field input:focus{outline:2px solid #d4e7ff;border-color:#1677ff}
+#business-rule-page .brc-number-field input[aria-invalid=true]{border-color:#f0526b;outline-color:#ffe0e5}
+#business-rule-page .brc-unit{width:66px;color:#7d8fa7;font-size:12px}
+#brc-error{color:#d83953;line-height:1.6;margin:12px 0 0;font-size:13px}
+#brc-error:empty{display:none}
+#business-rule-page .brc-footer{position:sticky;bottom:0;display:flex;align-items:center;justify-content:space-between;gap:14px;z-index:2;background:#fff;padding:18px 0;border-top:1px solid #e9eef7;margin-top:22px}
+#business-rule-page .brc-footer>div{display:flex;gap:12px}
+#business-rule-page .brc-footer .btn{min-height:34px;padding:6px 18px;border:1px solid #d6e2f3;border-radius:4px;background:#fff;color:#536e92;font:inherit}
+#business-rule-page .brc-footer .btn.primary{background:#1677ff;color:#fff;border-color:#1677ff}
+#business-rule-page .brc-footer button:disabled{opacity:.45;cursor:not-allowed}
+@media(max-width:1100px){#brc-cards{columns:1}#brc-tabs{gap:22px}}
+@media(max-width:700px){.navigation-toolbar>.brc-entry{font-size:12px;padding:6px 3px}#business-rule-page .brc-fields{padding-inline:10px}#business-rule-page .brc-field{flex-wrap:wrap;gap:8px;padding-block:12px}#business-rule-page .brc-number-field input{width:100px}#business-rule-page .brc-unit{width:60px}#business-rule-page .brc-panel{padding-inline:12px}#brc-tabs{gap:18px}}
+/* 条件编辑器沿用后台输入与按钮规格；区间两端均可独立包含等号。 */
+#business-rule-page .brc-condition-row{align-items:flex-start;padding:14px 0;gap:12px}
+#business-rule-page .brc-result{display:flex;align-items:center;gap:7px;min-height:34px;min-width:64px;flex:0 1 180px}
+.brc-result-dot{width:7px;height:7px;border-radius:50%;background:#98a3b3;flex:none}
+.brc-result-dot.green{background:var(--green)}.brc-result-dot.yellow{background:var(--orange)}.brc-result-dot.red{background:#f0526b}
+#business-rule-page .brc-rule-editor{min-width:0;flex:0 1 480px}
+#business-rule-page .brc-condition-controls{display:flex;align-items:center;justify-content:flex-start;flex-wrap:wrap;gap:8px}
+#business-rule-page .brc-condition-controls select,#business-rule-page .brc-condition-controls input{height:34px;border:1px solid #d7e2f2;border-radius:4px;background:#fff;color:#315575;font:inherit;padding:5px 8px}
+#business-rule-page [data-brc-op]{width:112px}
+#business-rule-page .brc-condition-bounds{display:flex;align-items:center;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+#business-rule-page .brc-condition-bounds input{width:96px;text-align:right;min-width:0}
+#business-rule-page .brc-condition-bounds.is-range input{width:84px}
+#business-rule-page .brc-condition-bounds [data-brc-inclusive]{width:48px;padding-inline:4px}
+#business-rule-page .brc-unit{width:auto;min-width:20px;white-space:nowrap}
+#business-rule-page .brc-variable{color:#8795aa;font-size:12px}
+#business-rule-page .brc-rule-summary{display:block;text-align:left;color:#7d8fa7;font-size:12px;margin-top:7px;line-height:1.5;overflow-wrap:anywhere}
+#business-rule-page .brc-condition-controls :is(input,select):focus{outline:2px solid #d4e7ff;border-color:#1677ff}
+#business-rule-page .brc-condition-controls input[aria-invalid=true]{border-color:#f0526b;outline-color:#ffe0e5}
+@media(max-width:1500px){#brc-cards{columns:1}}
+@media(max-width:700px){#business-rule-page .brc-condition-row{flex-direction:column;gap:6px}#business-rule-page .brc-result{flex:auto;min-height:26px}#business-rule-page .brc-rule-editor{width:100%;flex:auto}#business-rule-page .brc-condition-controls{justify-content:flex-start}#business-rule-page .brc-condition-bounds{justify-content:flex-start}#business-rule-page .brc-condition-bounds.is-range input{width:72px}#business-rule-page .brc-rule-summary{text-align:left}#business-rule-page .brc-condition-controls [data-brc-op]{width:108px}}
+
+/* 新品按四个业务模块编辑，条件组和指标/运算符/数值按列对齐。 */
+#brc-cards.brc-new-layout{columns:unset}
+.brc-new-tabs{display:flex;gap:8px;margin:0 0 18px;padding:5px;background:#f4f7fc;border-radius:6px;overflow-x:auto}
+.brc-new-tabs button{flex:1 0 auto;border:1px solid transparent;border-radius:4px;padding:10px 18px;background:transparent;color:#5e7390;font:inherit;white-space:nowrap;cursor:pointer}
+.brc-new-tabs button[aria-selected=true]{border-color:#d8e5ff;background:#fff;color:#1677ff;font-weight:500;box-shadow:0 1px 3px #244a8a09}
+.brc-new-tabs button:focus-visible{outline:2px solid #91bfff;outline-offset:-2px}
+/* 仅移除内容区中间容器的外框；内层业务分组保留卡片样式。 */
+.brc-new-card{min-width:0;border:0;border-radius:0;background:transparent}
+.brc-new-body{padding:0}
+.brc-clause-group{margin-bottom:18px;padding:16px;border:1px solid #dce6f5;border-radius:7px;background:#fff}
+.brc-clause-group:last-child{margin-bottom:0}
+.brc-clause-group>h4{margin:0 0 13px;color:#345374;font-size:13px;font-weight:600}
+.brc-clause-group>h4{padding-bottom:12px;border-bottom:1px dashed #e1e8f4}
+#business-rule-page .brc-new-layout .brc-clause{display:grid;grid-template-columns:74px minmax(180px,.9fr) minmax(360px,1.25fr);align-items:center;gap:12px;min-height:48px;padding:4px 0;border:0;margin-bottom:5px}
+#business-rule-page .brc-new-layout .brc-clause:last-child{margin-bottom:0}
+.brc-clause-join,.brc-clause-metric{display:flex;align-items:center;min-height:34px;padding:6px 12px;border:1px solid #dce5f2;border-radius:4px;color:#486280;font-weight:400;background:#fff}
+.brc-clause-join{justify-content:center;padding-inline:5px;background:#f5f8fc;color:#607895}
+#business-rule-page :is(.brc-new-layout,.brc-config-table) .brc-rule-editor{width:100%;min-width:0}
+#business-rule-page :is(.brc-new-layout,.brc-config-table) .brc-condition-controls{display:grid;grid-template-columns:160px minmax(0,1fr);align-items:center;gap:12px}
+#business-rule-page :is(.brc-new-layout,.brc-config-table) [data-brc-op]{width:100%}
+#business-rule-page :is(.brc-new-layout,.brc-config-table) .brc-condition-bounds{flex-wrap:nowrap;gap:0}
+#business-rule-page :is(.brc-new-layout,.brc-config-table) .brc-condition-bounds:not(.is-range) input{width:0;flex:1;text-align:left;border-radius:4px 0 0 4px}
+#business-rule-page :is(.brc-new-layout,.brc-config-table) .brc-condition-bounds .brc-unit{display:flex;align-items:center;justify-content:center;min-width:56px;height:34px;padding:0 10px;border:1px solid #d7e2f2;border-left:0;border-radius:0 4px 4px 0;background:#f5f8fc}
+#business-rule-page :is(.brc-new-layout,.brc-config-table) .brc-condition-bounds.is-range{gap:6px}
+#business-rule-page :is(.brc-new-layout,.brc-config-table) .is-range input{width:90px;flex:1;min-width:55px;text-align:left}
+#business-rule-page :is(.brc-new-layout,.brc-config-table) .is-range .brc-unit{min-width:32px;padding-inline:5px;border-left:1px solid #d7e2f2;border-radius:4px}
+#business-rule-page :is(.brc-new-layout,.brc-config-table) .brc-rule-summary{display:none}
+.brc-new-parameter{display:flex;align-items:center;flex-wrap:wrap;gap:12px;min-height:46px;padding:5px 0;color:#486280}
+.brc-new-parameter label{color:#486280}
+#business-rule-page .brc-new-parameter .brc-number-field{gap:0}
+#business-rule-page .brc-new-parameter input{width:120px;border-radius:4px 0 0 4px;text-align:left}
+#business-rule-page .brc-new-parameter .brc-unit{display:flex;align-items:center;justify-content:center;min-width:44px;height:34px;border:1px solid #d7e2f2;border-left:0;border-radius:0 4px 4px 0;background:#f5f8fc}
+/* 成功条件按考核周期和产品类型逐行配置；重复入口同步同一条件。 */
+#business-rule-page .brc-clause-group>h4{display:flex;align-items:center;gap:8px}
+:is(.brc-config-scroll,.brc-success-scroll){overflow-x:auto;max-width:100%}
+#business-rule-page :is(.brc-config-table,.brc-success-table){width:100%;min-width:1040px;border-collapse:collapse;table-layout:fixed}
+#business-rule-page :is(.brc-config-table,.brc-success-table) th,#business-rule-page :is(.brc-config-table,.brc-success-table) td{padding:12px;border-bottom:1px solid #edf1f7;text-align:left;vertical-align:middle}
+#business-rule-page :is(.brc-config-table,.brc-success-table) thead th{font-weight:400;background:#f5f8fc;color:#69809c}
+#business-rule-page :is(.brc-config-table,.brc-success-table) th:first-child{width:160px}
+#business-rule-page :is(.brc-config-table,.brc-success-table) tbody th{font-weight:400;color:#345374}
+#business-rule-page :is(.brc-config-table,.brc-success-table) tr:last-child>*{border-bottom:0}
+#business-rule-page :is(.brc-config-table,.brc-success-table) .brc-rule-cell{display:block;min-height:0;padding:0;border:0}
+#business-rule-page :is(.brc-config-table,.brc-success-table) .brc-condition-controls{grid-template-columns:112px minmax(0,1fr);gap:8px}
+#business-rule-page :is(.brc-config-table,.brc-success-table) .is-range{grid-column:1/-1}
+#business-rule-page :is(.brc-config-table,.brc-success-table) .brc-condition-bounds .brc-unit{min-width:40px;padding-inline:6px}
+#business-rule-page :is(.brc-config-table,.brc-success-table) .metric-help,.brc-new-parameter .metric-help{margin-left:6px;vertical-align:middle}
+@media(max-width:1000px){#business-rule-page .brc-new-layout .brc-clause{grid-template-columns:60px minmax(140px,.9fr) minmax(300px,1.25fr)}#business-rule-page :is(.brc-new-layout,.brc-config-table) .brc-condition-controls{grid-template-columns:120px minmax(0,1fr)}}
+@media(max-width:700px){.brc-new-tabs{gap:4px}.brc-new-tabs button{padding:9px 12px}.brc-clause-group{padding:12px}.brc-new-parameter{gap:8px}.brc-new-parameter label{flex-basis:100%}#business-rule-page .brc-new-layout .brc-clause{grid-template-columns:58px minmax(0,1fr);gap:8px;padding-block:8px}#business-rule-page :is(.brc-new-layout,.brc-config-table) .brc-rule-editor{grid-column:1/-1}#business-rule-page :is(.brc-new-layout,.brc-config-table) .brc-condition-controls{grid-template-columns:110px minmax(0,1fr);gap:8px}#business-rule-page :is(.brc-new-layout,.brc-config-table) .brc-condition-bounds.is-range{grid-column:1/-1}.brc-clause-metric{padding-inline:8px}}
+
+/* 统一表格：同类判灯按对象/周期成行，颜色条件成列；其他参数按指标对齐。 */
+#business-rule-page .brc-config-table.brc-columns-2{min-width:600px}
+#business-rule-page .brc-config-table.brc-columns-3{min-width:960px}
+#business-rule-page .brc-config-table.brc-columns-4{min-width:1280px}
+#business-rule-page .brc-config-table.brc-columns-2 th:first-child{width:260px}
+#business-rule-page .brc-config-table.brc-columns-2 .brc-rule-editor{max-width:740px}
+#business-rule-page .brc-config-table .brc-table-tone{display:inline-flex;align-items:center;gap:8px}
+#business-rule-page .brc-table-parameter{justify-content:flex-start;gap:0}
+#business-rule-page .brc-table-parameter input{width:140px;text-align:left;border-radius:4px 0 0 4px}
+#business-rule-page .brc-table-parameter .brc-unit{display:flex;align-items:center;justify-content:center;min-width:44px;height:34px;padding:0 10px;border:1px solid #d7e2f2;border-left:0;border-radius:0 4px 4px 0;background:#f5f8fc}
+
+/* 多条条件用且/或连接；与数值、单位和操作按行对齐。 */
+#business-rule-page :is(.brc-config-table,.brc-success-table) .brc-condition-controls{display:flex;flex-direction:column;align-items:stretch;gap:8px}
+#business-rule-page .brc-condition-clause{display:grid;grid-template-columns:52px 112px minmax(150px,1fr) 34px;align-items:center;gap:7px;min-width:0}
+#business-rule-page .brc-condition-clause>select{width:100%}
+#business-rule-page .brc-condition-when{display:flex;align-items:center;justify-content:center;height:34px;border:1px solid #dce5f2;border-radius:4px;background:#f5f8fc;color:#607895}
+#business-rule-page .brc-condition-value{display:flex;align-items:center;min-width:0}
+#business-rule-page .brc-condition-value :is(input,select[data-brc-bound]){width:0;flex:1;min-width:0;text-align:left;border-radius:4px 0 0 4px}
+#business-rule-page .brc-condition-value select[data-brc-bound]{border-radius:4px}
+#business-rule-page .brc-condition-value:has(select[data-brc-bound]) .brc-unit{display:none}
+#business-rule-page .brc-condition-value .brc-unit{display:flex;align-items:center;justify-content:center;flex:none;min-width:40px;height:34px;padding:0 6px;border:1px solid #d7e2f2;border-left:0;border-radius:0 4px 4px 0;background:#f5f8fc}
+#business-rule-page .brc-condition-add{align-self:flex-start;font-size:12px;padding:1px 0;color:#1677ff}
+#business-rule-page .brc-condition-remove{padding:0;font-size:12px;white-space:nowrap;color:#1677ff}
+#business-rule-page .brc-config-table.brc-columns-2{min-width:720px}
+#business-rule-page .brc-config-table.brc-columns-3{min-width:1080px}
+#business-rule-page .brc-config-table.brc-columns-4,#business-rule-page .brc-success-table{min-width:1440px}
+
+/* 条件统一按“当/且/或、指标、比较符号、数值”排列。 */
+#business-rule-page .brc-metric-table{min-width:800px}
+#business-rule-page .brc-metric-grouped{min-width:960px}
+#business-rule-page .brc-metric-table .brc-metric-group{width:160px}
+#business-rule-page .brc-metric-table .brc-metric-result{width:100px}
+#business-rule-page .brc-metric-table th:first-child{width:auto}
+#business-rule-page .brc-metric-table th[scope=rowgroup]{background:#f5f8fc;vertical-align:top;padding-top:22px}
+#business-rule-page .brc-metric-table tbody+tbody tr:first-child>*{border-top:1px solid #edf1f7}
+#business-rule-page :is(.brc-condition-clause,.brc-condition-head){display:grid;grid-template-columns:52px minmax(180px,.8fr) 80px minmax(150px,1.4fr) 34px;gap:7px;align-items:center}
+#business-rule-page .brc-condition-head{font-weight:400;color:#69809c}
+#business-rule-page .brc-metric-table :is([data-brc-op],[data-brc-term-op]){text-align:center}
+#business-rule-page .brc-metric-table [data-brc-metric]{min-width:0}
+
+
+/* 保留逻辑条件组的边界，区分混合且／或的括号层级。 */
+#business-rule-page .brc-condition-nested{padding:10px;border:1px solid #dce6f5;border-radius:4px;background:#fbfdff}
+#business-rule-page .brc-condition-nested-head{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+#business-rule-page .brc-condition-nested-head>:first-child{width:52px}
+
+/* 每个判定结果只保留一组连续条件和一个添加入口。 */
+#business-rule-page .brc-result-editor{display:flex;flex-direction:column;gap:8px}
+#business-rule-page .brc-result-editor>.brc-field{border:0;min-height:0;padding:0}
+#business-rule-page .brc-result-editor>.brc-condition-add{margin-top:2px}
+
+/* 同一规则内可直接阅读的连续条件共用行距和列宽，去掉额外的小框与缩进。 */
+#business-rule-page .brc-condition-inline,#business-rule-page .brc-condition-inline>.brc-result-editor{display:contents}
+
+
+/* 统计口径与可编辑参数分开展示，目标仍使用目标管理的单一配置入口。 */
+#business-rule-page .brc-rule-definitions{margin:0;display:grid;gap:0}
+#business-rule-page .brc-rule-definitions>div{display:grid;grid-template-columns:110px minmax(0,1fr);gap:16px;padding:12px 0;border-bottom:1px solid #edf1f7}
+#business-rule-page .brc-rule-definitions>div:last-child{border-bottom:0}
+#business-rule-page .brc-rule-definitions dt{font-weight:500;color:#345371}
+#business-rule-page .brc-rule-definitions dd{margin:0;line-height:1.8;color:#647a94}
+#business-rule-page .brc-domain-note{margin:0 0 18px;padding:12px 16px;border:1px solid #e4ecf8;border-radius:6px;background:#f7faff;line-height:1.8;color:#647a94}
+@media(max-width:600px){#business-rule-page .brc-rule-definitions>div{grid-template-columns:1fr;gap:4px}}
+
+/* 生效期间位于对应考核标题右侧，不进入条件表格。 */
+#business-rule-page .brc-success-effective{display:inline-flex;align-items:center;flex-wrap:wrap;gap:8px;margin-left:24px;font-weight:400;color:#486280}
+#business-rule-page .brc-success-effective :is(input,select){height:34px;border:1px solid #d7e2f2;border-radius:4px;background:#fff;color:#345374;padding:4px 8px;font:inherit}
+#business-rule-page .brc-success-effective input{width:92px}
+#business-rule-page .brc-success-effective select{width:70px}
+@media(max-width:700px){#business-rule-page .brc-success-effective{display:flex;margin:12px 0 0}}

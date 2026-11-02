@@ -10,8 +10,8 @@ bounds=function(p=periodFor()){
 periodLabel=function(p=periodFor()){return p.mode==='day'?(p.start===p.end?p.start:p.start+' — '+p.end):pjOriginalLabel(p)};
 periodKey=function(p=periodFor()){return p.mode==='day'?'day-'+p.start+'-'+p.end:pjOriginalKey(p)};
 word=function(p=periodFor()){return p.mode==='day'?(p.start===p.end?'当日':'期间'):pjOriginalWord(p)};
-periodControls=function(id){
- const html=pjOriginalControls(id);
+periodControls=function(id,options){
+ const html=pjOriginalControls(id,options);
  if(id!=='projects')return html;
  const p=periodFor(id);
  if(p.mode!=='day')return html.replace(/(<div class="period-segment"[^>]*>)/,'$1<button type="button" data-pj-day aria-pressed="false">日</button>');

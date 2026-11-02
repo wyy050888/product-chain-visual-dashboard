@@ -1,4 +1,4 @@
-// 期间模型只依赖显式筛选值；卡片、部门、指标明细都从同一台账聚合。
+// 期间模型按显式筛选值聚合：部门总目标与细项实际分开，分类和明细只返回实际。
 function ccGroups(period){
  const month=period.mode==='month'?period.value:period.mode==='quarter'?period.value*3:12;
  const labels={month:month+'月',quarter:'Q'+Math.ceil(month/3),year:String(period.year).slice(-2)+'年'};
@@ -16,18 +16,21 @@ function ccTimeProgress(period,mode){
  const elapsed=range.cutoff<start?0:Math.min(days,aiFlowDayDiff(start,range.cutoff)+1);
  return elapsed/days*100;
 }
-function ccTotals(metrics,period,mode){
+function ccTotals(metrics,period,mode,withTargets=true){
  const metricIds=new Set(metrics.map(metric=>metric.id)),ids=new Set(ccItems.filter(item=>metricIds.has(item.id)).map(item=>item.id)),range=ccRange(period,mode);let target=null,actual=null;
  // 未填报不能充当0；期间仅汇总已知值，整段无值时保留null。
  for(const row of ccLedger){
   if(!ids.has(row.itemId)||row.month<range.first||row.month>range.last)continue;
-  if(Number.isFinite(row.targetCents))target=(target??0)+row.targetCents;
+  if(withTargets&&typeof cecDepartmentTargetTotal!=='function'&&Number.isFinite(row.targetCents))target=(target??0)+row.targetCents;
   if(!row.actualMissing)for(const event of row.confirmations)if(event.date<=range.cutoff&&Number.isFinite(event.cents))actual=(actual??0)+event.cents;
  }
+ if(withTargets&&typeof cecDepartmentTargetTotal==='function')target=cecDepartmentTargetTotal(metrics,range);
+ if(!withTargets)return {actual};
  const comparable=Number.isFinite(target)&&Number.isFinite(actual);
  return {target,actual,gap:comparable?actual-target:null,rate:comparable&&target!==0?(actual===0?0:actual/target*100):null};
 }
 function ccRows(period,metrics=ccMetrics){return ccDepartments.filter(dept=>metrics.some(metric=>metric.department===dept.id)).map(dept=>({id:dept.id,name:dept.name,values:Object.fromEntries(ccGroups(period).map(({mode})=>[mode,ccTotals(metrics.filter(metric=>metric.department===dept.id),period,mode)]))}))}
+function ccCategoryRows(period,metrics=ccMetrics){return ccCategoryGroups(metrics).map(group=>({id:group.id,name:group.name,values:Object.fromEntries(ccGroups(period).map(({mode})=>[mode,ccTotals(group.metrics,period,mode,false)]))}))}
 // 金额按分、比率按未格式化原值排序；公共排序将缺失值固定置后。
 function ccSortedDepartmentRows(rows,sort){
  const match=/^(month|quarter|year)-(target|actual|rate|gap)$/.exec(sort.key||'');
@@ -39,4 +42,4 @@ function ccRate(rate){return Number.isFinite(rate)?fmt(rate===0?0:rate,1)+'%':'-
 function ccAmount(value){return ccMoney(value)+(Number.isFinite(value)?'<span class="cc-money-unit">w</span>':'')}
 function ccGap(value){return `<span class="${value<0?'red':value>0?'green':'muted'}">${value>0?'+':''}${ccAmount(value)}</span>`}
 function ccLegacyCosts(){return ccRows(periodFor('cost')).map(row=>{const current=row.values[periodFor('cost').mode],annual=row.values.year;const wan=value=>Number.isFinite(value)?value/1000000:null;return {name:row.name,t:wan(current.target),a:wan(current.actual),yt:wan(annual.target),ya:wan(annual.actual)}})}
-window.costControlAudit=period=>{period||=periodFor('cost');return {period,departments:ccDepartments,metrics:ccMetrics,items:ccItems,ledger:ccLedger,rows:ccRows(period),totals:Object.fromEntries(ccGroups(period).map(({mode})=>[mode,ccTotals(ccMetrics,period,mode)]))}};
+window.costControlAudit=period=>{period||=periodFor('cost');return {departmentTargets:typeof cecStore==='undefined'?{}:cecStore.departmentTargets,period,departments:ccDepartments,categories:ccCategories,metrics:ccMetrics,items:ccItems,ledger:ccLedger,rows:ccRows(period),categoryRows:ccCategoryRows(period),totals:Object.fromEntries(ccGroups(period).map(({mode})=>[mode,ccTotals(ccMetrics,period,mode)]))}};

@@ -5,11 +5,13 @@
 .scp-section-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0 0 12px;min-height:30px}
 .scp-section-heading h3{font-size:16px;font-weight:600;color:#163854;margin:0}
 .scp-section-actions{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
-.scp-machine-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr) minmax(0,2fr);gap:16px;margin-bottom:24px;min-width:0}
+.scp-machine-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-bottom:24px;min-width:0}
 .scp-card{min-width:0;border:1px solid #e2e9f3;border-radius:8px;background:#fff;overflow:hidden}
 .scp-machine-grid>.scp-card{height:440px;display:flex;flex-direction:column}
 .scp-card>header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;padding:13px 14px;min-height:56px;box-sizing:border-box;border-bottom:1px solid #e9edf5}
-.scp-card>header h4{margin:0;font-size:13px;font-weight:600;color:#254564;white-space:nowrap}
+/* 同级面板标题统一字号、字重及蓝色竖线。 */
+#suppliergrid .scp-panel-title{display:inline-flex;align-items:center;gap:6px;margin:0;color:#254564;font-size:var(--type-card,16px);font-weight:var(--weight-heading,600);line-height:1.5;white-space:nowrap}
+#suppliergrid .scp-panel-title:before{content:"";flex:none;width:3px;height:16px;border-radius:2px;background:#4a85d4}
 .scp-period{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:400}
 .scp-card-search{padding:10px 12px;border-bottom:1px solid #eef2f8}
 .scp-card-search input,.scp-drawer-tools input{height:36px;padding:6px 10px;border:1px solid #e0e3e8;border-radius:6px;color:#24334b;font:inherit;font-size:13px;background:#fff;box-sizing:border-box;width:100%;min-width:0}
@@ -22,16 +24,17 @@
 .scp-table tbody tr:last-child td{border-bottom:0}
 .scp-table tbody tr:hover>td{background:#f8fbff}
 .scp-table .empty{text-align:center!important;padding:30px 12px;color:#7a8ba4;font-size:13px}
-.scp-count{border:0;background:transparent;font:inherit;font-weight:500;font-variant-numeric:tabular-nums;color:var(--blue);padding:2px 0;cursor:pointer;border-radius:2px}
-.scp-count:hover{text-decoration:underline;text-underline-offset:3px}
-.scp-count:focus-visible,.scp-tree-toggle:focus-visible,.scp-project-link:focus-visible{outline:2px solid #1677ff;outline-offset:3px}
+.scp-count{border:0;background:transparent;font:inherit;font-weight:500;font-variant-numeric:tabular-nums;color:var(--color-primary-data,#273e5a);padding:2px 0;cursor:default;border-radius:2px}
+/* 普通数字按交互区分颜色，风险语义色沿用原规则。 */
+button.scp-count{color:var(--blue);cursor:pointer}
+button.scp-count:hover{text-decoration:underline;text-underline-offset:3px}
+button.scp-count:focus-visible,.scp-project-link:focus-visible{outline:2px solid #1677ff;outline-offset:3px}
 .scp-workspace .red,.scp-drawer .red{color:var(--red)!important}
 .scp-workspace .green,.scp-drawer .green{color:var(--green)!important}
-.scp-table .rp-sort-header{display:inline-flex;align-items:center;justify-content:flex-end;gap:4px;padding:0;background:transparent;border:0;color:inherit;font:inherit;white-space:normal;cursor:pointer}
-.scp-table .rp-sort-header[data-direction]:not([data-direction=""]){color:#1677ff}
-.scp-table .rp-sort-header:focus-visible{outline:2px solid #1677ff;outline-offset:3px}
+.scp-table .rp-sort-header{justify-content:flex-end;white-space:normal}
 .scp-table .rp-sort-arrows{flex:none}
-.scp-project-table :is(th,td):first-child{width:62%;white-space:normal}
+.scp-project-table :is(th,td):first-child{width:48%;white-space:normal}
+.scp-project-table :is(th,td):nth-child(2){width:16%;text-align:center}
 .scp-project-table td{height:66px}
 .scp-project-link{display:block;width:100%;border:0;padding:0;background:transparent;text-align:left;color:inherit;cursor:pointer}
 .scp-project-link .prodname{gap:9px;min-width:0}
@@ -39,51 +42,27 @@
 .scp-project-link :is(img,.product-thumb,.risk-thumb){width:32px;height:32px;object-fit:contain;flex:none}
 .scp-project-link :is(strong,b){font-size:13px;font-weight:500;line-height:1.5;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
 .scp-project-link small{display:block;font-size:12px;color:#8998ac;line-height:1.5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.scp-category-table :is(th,td):first-child{width:56%}
+.scp-project-link small:empty{display:none}
+.scp-category-table{min-width:440px}
+.scp-category-table :is(th,td):first-child{width:46%}
 .scp-category-table td{height:48px;padding:8px 10px}
 .scp-category-table td:first-child{white-space:normal;padding-left:calc(10px + var(--depth,0)*12px)}
-.scp-tree-toggle{display:inline-flex;align-items:center;gap:7px;color:inherit;border:0;padding:0;background:transparent;font:inherit;cursor:pointer;text-align:left;white-space:normal}
-.scp-tree-toggle i{display:inline-block;width:5px;height:5px;border-right:1px solid #8b9db5;border-bottom:1px solid #8b9db5;transform:rotate(-45deg);flex:none;margin-right:3px}
-.scp-tree-toggle[aria-expanded=true] i{transform:rotate(45deg);margin-top:-3px}
 .scp-tree-level-0 td{background:#f8faff;font-weight:500}
 .scp-tree-level-1 td{background:#fcfdff}
 .scp-tree-leaf{display:block;padding-left:15px}
-/* 年度概览：名称在左、数值在右，压缩指标高度，为季度柱图留出空间。 */
-.scp-annual{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0 0 14px;flex:none;min-width:0}
-.scp-annual-group{position:relative;display:flex;flex-direction:column;min-width:0;padding:10px 10px 12px;border:1px solid #e3eaf4;border-radius:8px;background:linear-gradient(180deg,#f7faff,#fff)}
-.scp-annual [data-scp-annual-metric]{min-width:0}
-.scp-annual span[data-up-basic]{min-width:0;font-size:12px;line-height:18px;color:#7c8da7}
-.scp-annual-primary{display:flex;align-items:center;justify-content:space-between;gap:6px;min-height:28px}
-.scp-annual strong,.scp-annual strong .scp-count,.scp-annual .scp-rate{font-size:24px;line-height:28px;font-weight:600;color:#294766;white-space:nowrap;font-variant-numeric:tabular-nums}
-.scp-annual strong .scp-count{padding:0;color:inherit;line-height:inherit}
-.scp-annual strong .scp-count:hover{color:var(--blue)}
-.scp-annual-secondary{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-top:6px;padding-top:6px;border-top:1px solid #eaf0f8}
-.scp-annual .scp-annual-secondary :is(strong,.scp-count,.scp-rate){font-size:16px;line-height:22px;font-weight:500}
-.scp-annual .scp-annual-secondary .scp-count{color:var(--blue)}
-.scp-annual-progress{position:absolute;left:10px;right:10px;bottom:5px;height:3px;border-radius:4px;background:#e5ecf6;overflow:hidden}
-.scp-annual-progress>i{display:block;height:100%;max-width:100%;border-radius:inherit;background:var(--blue)}
-.scp-annual-progress.is-empty{background:#edf1f7}
-@media(max-width:760px){.scp-annual{grid-template-columns:1fr;gap:8px}.scp-annual-group{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:10px 12px 12px}.scp-annual-primary{gap:6px}.scp-annual-secondary{margin:0;padding:0 0 0 12px;border-top:0;border-left:1px solid #eaf0f8}.scp-annual strong,.scp-annual strong .scp-count{font-size:23px}.scp-annual .scp-annual-secondary :is(strong,.scp-count,.scp-rate){font-size:16px}}
-.scp-resource-table{min-width:440px}
-.scp-resource-table :is(th,td){padding:12px 8px}
-.scp-resource-table :is(th,td):first-child{width:54px;padding-left:14px}
-.scp-resource-table td{height:54px}
-.scp-resource-table th{white-space:normal;line-height:1.4;padding:6px 5px}
 .scp-rate{font-size:12px;font-weight:500;white-space:nowrap}
-.scp-material-scroll{overflow:auto;height:328px;overscroll-behavior:contain}
+/* 双层表头、总汇总行之外，完整容纳八行品牌及类目数据。 */
+.scp-material-scroll{overflow:auto;max-height:524px;overscroll-behavior:contain}
 .scp-material-table{min-width:1020px}
 .scp-material-table :is(th,td):first-child{width:180px;position:sticky;left:0;border-right:1px solid #edf1f7;z-index:1;background:#fff}
+.scp-material-table thead{background:#f5f8fd}
 .scp-material-table thead :is(th,td):first-child{z-index:4;background:#f5f8fd}
 .scp-material-table thead tr:first-child th{top:0;height:44px}
-.scp-material-table thead tr:nth-child(2) th{top:44px;height:44px}
-.scp-material-table thead tr:nth-child(2) th:first-child{width:auto;left:auto;z-index:2;border-right:0}
-.scp-material-table .scp-grouped-heading{text-align:center;border-bottom:1px solid #e4eaf4}
+/* 第二层分组边线独立绘制，避免首尾单元格清边及吸顶背景遮挡。 */
 .scp-material-table td{height:48px;padding-top:10px;padding-bottom:10px}
 .scp-material-table th{padding-top:8px;padding-bottom:8px}
-.scp-material-brand td,.scp-material-table .scp-material-brand td:first-child{background:#f7faff;font-weight:500}
-.scp-material-brand .scp-tree-toggle{font-weight:600}
-.scp-brand-grade{font-size:12px;color:#738cad;background:#eaf0fa;padding:1px 4px;border-radius:3px;line-height:1.4}
-.scp-material-category{padding-left:22px;color:#71849d}
+/* 三级类目名称与路径同起点，名称黑色、路径灰色，与类目准入储备一致。 */
+.scp-material-category{display:block;padding-left:0;color:#1f2329}
 #dialog.business-drawer:has(>#dialogbody>.scp-drawer){width:min(1280px,88vw)}
 #dialog.business-drawer:has(>#dialogbody>.scp-drawer[data-scp-drawer=categories]){width:min(1480px,94vw)}
 @media(max-width:760px){#dialog.business-drawer:has(>#dialogbody>.scp-drawer[data-scp-drawer=categories]){width:100vw}}
@@ -93,52 +72,63 @@
 .scp-drawer-tools select{height:36px;border:1px solid #dfe7f2;border-radius:4px;background:#fff;color:#58708c;padding:5px 10px;font:inherit;font-size:12px}
 .scp-member-results,.scp-supplier-results{overflow:auto;max-width:100%;max-height:calc(100dvh - 240px);border:1px solid #e6edf7;border-radius:5px}
 .scp-drawer .scp-table{min-width:820px}
-.scp-member-table :is(th,td):first-child{width:290px;white-space:normal}
-.scp-member-table :is(th,td):last-child{width:65px;text-align:center}
-.scp-member-table :is(th,td):nth-child(2){width:100px}
-.scp-member-table td{height:64px}
 .scp-drawer .scp-table small{display:block;font-size:12px;color:#94a2b6;margin-top:4px}
 .scp-drawer .scp-table strong{font-size:13px;font-weight:500}
 .scp-member-pages{margin-top:14px}
-.scp-state-tag{font-size:12px;background:#f0f4fa;padding:4px 7px;border-radius:4px;color:#7c8da4}
-.scp-supplier-info{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px 28px;margin-bottom:22px;padding:18px;background:#f8faff;border:1px solid #e6edf6;border-radius:6px}
-.scp-supplier-info>div{min-width:0;display:flex;flex-direction:column;gap:8px}
-.scp-supplier-info small{font-size:12px;color:#899ab1}
-.scp-supplier-info strong{font-size:13px;font-weight:500;color:#294868;overflow-wrap:anywhere}
-.scp-supplier-results .scp-table th:first-child{width:150px}
 .scp-drawer[data-scp-tab=projects] .scp-table th:first-child{width:46%}
-@media(max-width:1280px){.scp-machine-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.scp-resource-card{grid-column:1/-1}.scp-machine-grid>.scp-resource-card{height:auto;min-height:370px}}
+@media(max-width:1280px){.scp-machine-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.scp-resource-card{grid-column:1/-1}.scp-machine-grid>.scp-resource-card{height:auto;min-height:0}}
 @media(max-width:760px){#suppliers #suppliergrid.scp-workspace{padding:14px 12px}.scp-machine-grid{grid-template-columns:minmax(0,1fr)}.scp-resource-card{grid-column:auto}.scp-section-heading{align-items:flex-start;flex-wrap:wrap}.scp-section-actions{gap:12px}.scp-supplier-info{grid-template-columns:repeat(2,minmax(0,1fr))}#dialog.business-drawer:has(>#dialogbody>.scp-drawer){width:100vw}.scp-drawer-tools{flex-wrap:wrap}.scp-drawer-tools input{flex:1;min-width:180px}}
 
-.scp-material-table thead tr:nth-child(2) th{text-align:right}
 
-/* 连续工作区：以层级、留白与分隔线组织内容，避免卡片套卡片。 */
+/* 寻源工作台：产品缺口队列 + 类目数字总览和准入清单，弱化标题容器。 */
 #suppliers #suppliergrid.scp-workspace{padding:12px 20px 20px}
-.scp-machine-grid{gap:0;margin-bottom:18px;padding-bottom:22px;border-bottom:1px solid #e9eef5}
-.scp-machine-grid>.scp-card{height:552px;border:0;border-radius:0;background:transparent;padding:0 18px}
-.scp-machine-grid>.scp-card:first-child{padding-left:0}
-.scp-machine-grid>.scp-card:last-child{padding-right:0}
-.scp-machine-grid>.scp-card+.scp-card{border-left:1px solid #e9eef5}
-.scp-machine-grid .scp-card>header{padding:4px 0 12px;min-height:44px;border:0}
-.scp-machine-grid .scp-card>header h4{font-size:14px}
-.scp-machine-grid .scp-card-search{padding:0 0 12px;border:0}
+.scp-machine-section{min-width:0;margin-bottom:40px;border:0;background:transparent}
+.scp-machine-section>.scp-machine-heading{margin:0 0 12px;padding:0;min-height:32px;border:0;background:transparent}
+.scp-machine-heading h3{font-size:16px}
+.scp-machine-heading h3:before{display:none}
+.scp-machine-grid{gap:28px 32px;margin:0;padding:0;border:0}
+.scp-machine-grid>.scp-card{height:596px;padding:0;border:0;border-radius:0;box-shadow:none;background:transparent}
+.scp-machine-grid>.scp-project-card,.scp-machine-grid>.scp-category-card{padding:0;background:transparent}
+.scp-machine-grid>.scp-resource-card{grid-column:1/-1;height:auto;min-height:0;padding:0;background:transparent;border:0;border-radius:0}
+.scp-machine-grid .scp-card>header{padding:12px 0;min-height:62px;border:0;background:transparent}
+.scp-machine-grid>.scp-resource-card>header{min-height:54px;padding:8px 0;border:0}
+.scp-machine-grid .scp-card-search{padding:0 0 10px;border:0}
+.scp-machine-section .scp-card-scroll{margin:0;border:1px solid #e4ebf5;border-radius:8px;background:#fff}
+.scp-machine-section .scp-project-table{min-width:440px;border-spacing:0}
+.scp-machine-section .scp-project-table :is(th,td):first-child{width:48%}
+.scp-machine-section .scp-project-table thead th{background:#f5f8fc;height:44px;padding-top:8px;padding-bottom:8px;font-size:12px}
+.scp-machine-section .scp-project-table tbody td{background:#fff;border:0;border-bottom:1px solid #edf1f6;height:66px;padding:10px 12px}
+.scp-machine-section .scp-project-table tbody td:first-child{border-left:0;border-radius:0}
+.scp-machine-section .scp-project-table tbody td:last-child{border-radius:0}
+.scp-machine-section .scp-project-table tbody tr:hover>td{background:#f7faff}
+.scp-machine-section .scp-project-link :is(img,.product-thumb,.risk-thumb){width:38px;height:38px}
+.scp-machine-section .scp-project-link :is(strong,b){font-weight:500}
+.scp-pane-total,.scp-pane-count{display:inline-flex;align-items:center;gap:4px;color:var(--orange);font-size:13px;line-height:20px;font-weight:400;font-variant-numeric:tabular-nums;white-space:nowrap}
+.scp-pane-total small{font:inherit;color:inherit}
+.scp-readiness{display:flex;flex-direction:column;align-items:flex-end;gap:4px;width:76px;max-width:100%;margin-left:auto;line-height:1}
+.scp-readiness>div{display:flex;align-items:baseline;justify-content:flex-end;gap:5px;width:100%}
+.scp-readiness .scp-count{font-size:19px;font-weight:600;line-height:22px}
+.scp-readiness.is-short .scp-count{color:var(--orange)!important}
+.scp-readiness-standard{font-size:var(--table-body-size,14px);font-weight:400;color:#a1aaba}
+.scp-readiness.is-ready .scp-count{color:var(--green)!important}
+/* 裁切由外层滚动容器负责，避免表格自身 overflow 阻断表头 sticky。 */
+.scp-machine-section .scp-category-table{min-width:480px;background:#fff;border-radius:0;overflow:visible}
+.scp-machine-section .scp-category-table :is(th,td):first-child{width:43%}
+.scp-machine-section .scp-category-table td{height:77px}
+.scp-machine-section .scp-category-table th{background:#f5f8fc;padding-block:8px}
+.scp-machine-section .scp-category-table .scp-readiness{width:62px}
+.scp-machine-section .scp-category-table .scp-readiness .scp-count{font-size:17px}
+.scp-machine-section .scp-category-table tbody tr:hover>td{background:#f7faff}
 .scp-card-search .ui-search-field{width:100%;min-width:0}
 .scp-workspace .scp-card-search.ui-business-filters .ui-search-field>input{width:100%!important}
 .scp-card-scroll{scrollbar-width:thin;scrollbar-color:#d5dfec transparent}
 .scp-machine-grid .scp-table th{height:44px;background:#f5f8fd;padding-left:8px;padding-right:8px}.scp-machine-grid .scp-project-table th .rp-sort-header,.scp-machine-grid .scp-category-table th .rp-sort-header{white-space:nowrap}
-.scp-machine-grid .scp-resource-table td{height:44px;padding-top:7px;padding-bottom:7px}
 .scp-chart-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0}
-.scp-chart-heading h5{margin:0;color:#254564;font-size:13px;font-weight:500;line-height:20px}
 .scp-chart-caption{color:#7a8ba4;font-size:12px;white-space:nowrap}
 .scp-chart-legend{display:flex;align-items:center;gap:14px;color:#8393a9;font-size:12px;white-space:nowrap}
 .scp-chart-legend span{display:inline-flex;align-items:center;gap:5px}
 .scp-chart-legend span:before{content:'';width:7px;height:7px;border-radius:2px;background:#287dff}
 .scp-chart-legend .target:before{background:#dce5f3}
-.scp-quarter-chart{padding:0 0 4px;margin-bottom:4px;border-bottom:1px solid #edf1f7}
-.scp-quarter-plot{display:grid;position:relative;grid-template-columns:repeat(4,minmax(0,1fr));padding:20px 10px 0 26px;margin-top:2px;background:repeating-linear-gradient(to top,transparent 0,transparent 35px,#f0f3f8 36px,transparent 37px);background-size:100% 116px;background-repeat:no-repeat}
-.scp-chart-scale{position:absolute;left:0;top:12px;bottom:22px;display:flex;flex-direction:column;justify-content:space-between;color:#7a8ba4;font-size:12px}
-.scp-quarter-column{text-align:center;color:#7a8ba4;font-size:12px}
-.scp-quarter-column>span{display:block;margin-top:5px;line-height:16px}
 .scp-quarter-bars{height:96px;display:flex;justify-content:center;align-items:flex-end;gap:7px;border-bottom:1px solid #e6edf7}
 .scp-quarter-actual,.scp-quarter-target{position:relative;display:block;width:20px;height:var(--bar-height);min-height:1px;padding:0;border:0;background:none}
 .scp-quarter-actual>b,.scp-quarter-target>b{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);font-size:12px;font-weight:500;line-height:17px;color:#367ee4}
@@ -148,28 +138,71 @@
 .scp-quarter-actual:hover i{background:#1265e1}
 .scp-quarter-actual:focus-visible{outline:2px solid #1677ff;outline-offset:4px}
 .scp-quarter-actual:disabled{cursor:default}
-.scp-material-layout{display:grid;grid-template-columns:minmax(280px,1fr) minmax(0,4fr);gap:24px;align-items:start}
+/* 物料分区标题上下留出层级间距，与整机分区的标题节奏一致。 */
+.scp-material-section-heading{margin-bottom:32px}
+.scp-material-layout{display:grid;grid-template-columns:minmax(0,1fr);gap:28px;align-items:start}
 .scp-material-layout>.scp-material-card{border:0;border-radius:0;background:none}
-.scp-material-layout .scp-material-table{min-width:860px}
+/* 首页五类目下展示品牌及去重数量，三级类目目标在抽屉展示。 */
+.scp-material-summary-table{min-width:760px}
+.scp-material-summary-table :is(th,td){width:auto}
+.scp-material-summary-table .scp-material-summary-brand,.scp-material-summary-table th:nth-child(2){text-align:left}
+.scp-material-summary-table :is(.scp-material-summary-category,.scp-material-summary-operation){vertical-align:middle;background:#fff}
+.scp-material-summary-table .scp-material-summary-category{text-align:left}
+.scp-material-summary-table td{height:48px}
+/* Tab和筛选增加后，表体收缩，分页始终留在抽屉可视区。 */
+.scp-drawer[data-scp-drawer=categories]{display:flex;flex-direction:column;max-height:calc(100dvh - 135px)}
+.scp-drawer[data-scp-drawer=categories]>:is(.scp-category-list-tabs,.scp-category-list-controls,.scp-member-pages){flex:none}
+.scp-drawer[data-scp-drawer=categories]>.scp-member-results{flex:1;min-height:0;max-height:none}
+.scp-category-tabs{display:flex;gap:28px;overflow-x:auto;border-bottom:1px solid #e6edf7;margin-bottom:20px}
+.scp-category-tabs button{flex:none;padding:0 4px 12px;border:0;border-bottom:2px solid transparent;background:none;color:#657994;font:inherit;cursor:pointer;white-space:nowrap}
+.scp-category-tabs button[aria-selected=true]{color:#1677ff;border-bottom-color:#1677ff}
+#dialog.business-drawer:has(>#dialogbody>.scp-drawer[data-scp-drawer=material-list]){width:min(1480px,94vw)}
+.scp-drawer .scp-material-detail-table{min-width:760px}
+.scp-material-detail-table th:first-child{width:30%;text-align:left}
+.scp-material-detail-table th:nth-child(2){width:10%;text-align:left}
+.scp-material-detail-table th:nth-child(n+3){width:10%}
+.scp-material-detail-table .scp-material-row>td{position:static;left:auto;width:auto;border-right:0}
+.scp-material-detail-table .scp-material-category-cell{width:30%;text-align:left;white-space:normal;vertical-align:middle;background:#fff;color:#1f2329}
+.scp-material-detail-table .scp-material-brand-cell{text-align:left;color:#1f2329}
+.scp-material-detail-table .scp-material-component-cell{text-align:right}
+.scp-material-filters{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:20px}
+.scp-drawer .scp-material-filters .scp-material-search{display:block;flex:0 1 320px;width:320px;max-width:100%;margin:0}
+.scp-material-filters .pf-multi{width:220px;max-width:100%}
+@media(max-width:600px){.scp-drawer .scp-material-filters .scp-material-search,.scp-material-filters .pf-multi{flex:1 1 100%;width:100%}}
+.scp-material-search input{width:100%}
+/* 物料抽屉仅由dialogbody纵向滚动，Tab和表头分层吸顶。 */
+#dialog.business-drawer #dialogbody:has(>.scp-drawer[data-scp-drawer=material-list]){padding-top:0}
+.scp-drawer[data-scp-drawer=material-list] .scp-member-results{max-height:none;overflow:visible;border-radius:0}
+.scp-drawer[data-scp-drawer=material-list]>.scp-material-tabs{position:sticky;top:0;z-index:5;background:#fff;height:60px;padding-top:16px;box-sizing:border-box;margin-bottom:20px}
+.scp-drawer[data-scp-drawer=material-list]>.scp-material-tabs .scp-category-tabs{height:44px;box-sizing:border-box;align-items:end;margin:0;background:#fff}
+.scp-drawer[data-scp-drawer=material-list] .scp-material-detail-table thead th{position:sticky;top:60px;z-index:4;background:#f5f8fc}
+.scp-drawer[data-scp-drawer=material-list]>.scp-material-pages{margin-top:16px}
+.scp-drawer[data-scp-drawer=material-list]>.scp-material-pages .list-pagination{flex-wrap:wrap}
+.scp-material-detail-table .scp-material-category{color:#1f2329}
+@media(max-width:760px){#dialog.business-drawer:has(>#dialogbody>.scp-drawer[data-scp-drawer=material-list]){width:100vw}.scp-category-tabs{gap:18px}}
+.scp-material-table-heading{margin-bottom:12px;min-height:24px}
 .scp-material-layout .scp-material-scroll{scrollbar-width:thin;scrollbar-color:#d5dfec transparent}
-.scp-coverage-chart{padding-right:22px;border-right:1px solid #e9eef5;min-width:0}
-.scp-coverage-matrix{display:grid;grid-template-columns:44px repeat(4,minmax(0,1fr));gap:6px;margin-top:12px;align-items:center}
+.scp-coverage-chart{min-width:0}
+.scp-coverage-matrix{display:grid;grid-template-columns:64px repeat(var(--scp-material-count,6),minmax(0,1fr));gap:6px;margin-top:12px;align-items:center}
 .scp-coverage-axis{text-align:center;color:#7a8ba4;font-size:12px;line-height:22px;white-space:nowrap}
 .scp-coverage-brand{font-size:13px;color:#294766;line-height:38px}
-.scp-coverage-cell{height:38px;border:0;border-radius:4px;font-size:12px;font-variant-numeric:tabular-nums;transition:filter .12s,transform .12s;white-space:nowrap;min-width:0;padding:0 4px}
+.scp-coverage-cell{position:relative;overflow:hidden;height:38px;border:1px solid #e3eaf3;border-radius:4px;background:#f2f5fa;color:#294766;font-size:12px;font-weight:500;font-variant-numeric:tabular-nums;transition:filter .12s,transform .12s;white-space:nowrap;min-width:0;padding:0 4px}
+.scp-coverage-cell:after{content:'';position:absolute;bottom:0;left:0;width:var(--scp-coverage-progress,0%);height:3px;background:#1677ff;pointer-events:none}
+.scp-coverage-cell.is-complete{border-color:#d8edde;background:#edf7f0;color:#245c3b}
+.scp-coverage-cell.is-complete:after{background:var(--green)}
+.scp-coverage-cell.is-unavailable{color:#8a99ad}
 .scp-coverage-cell:hover{filter:brightness(.96);transform:translateY(-1px)}
 .scp-coverage-cell:focus-visible{outline:2px solid #1677ff;outline-offset:2px}
-.scp-coverage-none{background:#f0f4f9;color:#9cabbf}.scp-coverage-0{background:#fff1f0;color:#a56a6a}.scp-coverage-1{background:#ffe0de;color:#a74646}.scp-coverage-2{background:#ffc4c1;color:#a63838}.scp-coverage-3{background:#ff9c96;color:#8f2626}.scp-coverage-4{background:#cf4149;color:#fff}.scp-coverage-5{background:#ad2633;color:#fff}
-.scp-coverage-legend{display:flex;align-items:center;justify-content:flex-end;gap:7px;margin-top:12px;font-size:12px;color:#7a8ba4}
-.scp-coverage-legend i{width:60px;height:5px;background:linear-gradient(90deg,#fff1f0,#ad2633);border-radius:3px}
+
+.scp-coverage-legend{display:flex;align-items:center;justify-content:flex-end;gap:7px;margin:0 0 0 auto;flex:none;white-space:nowrap;font-size:12px;color:#7a8ba4}
+.scp-coverage-legend i{width:60px;height:5px;background:linear-gradient(90deg,#edf3fc,#1677ff);border-radius:3px}
+.scp-coverage-legend .scp-coverage-complete-key{width:10px;height:10px;margin-left:3px;background:var(--green);border-radius:2px}
 .scp-drawer .scp-coverage-table{min-width:500px}
 .scp-coverage-table th:first-child{width:45%}
-@media(max-width:1400px){.scp-machine-grid>.scp-card{padding-left:12px;padding-right:12px}.scp-material-layout{grid-template-columns:300px minmax(0,1fr);gap:20px}.scp-coverage-chart{padding-right:18px}.scp-chart-legend{gap:10px}}
-@media(max-width:1280px){.scp-machine-grid{row-gap:22px}.scp-machine-grid>.scp-resource-card{height:auto;min-height:552px;padding:18px 0 0;border-left:0;border-top:1px solid #e9eef5}.scp-machine-grid>.scp-card:nth-child(2){padding-right:0}.scp-quarter-plot{padding-left:30px}.scp-material-layout{grid-template-columns:1fr;gap:18px}.scp-coverage-chart{padding-right:0;padding-bottom:18px;border-right:0;border-bottom:1px solid #e9eef5}.scp-coverage-matrix{grid-template-columns:70px repeat(4,minmax(0,1fr));gap:6px}.scp-coverage-chart .scp-chart-heading{justify-content:flex-start}.scp-coverage-legend{margin-top:8px}}
-@media(max-width:760px){#suppliers #suppliergrid.scp-workspace{padding:12px}.scp-machine-grid{gap:18px}.scp-machine-grid>.scp-card{padding:0;border:0;height:480px}.scp-machine-grid>.scp-card+.scp-card{padding-top:18px;border-left:0;border-top:1px solid #e9eef5}.scp-machine-grid>.scp-resource-card{height:auto;min-height:552px}.scp-material-layout{gap:16px}.scp-coverage-matrix{grid-template-columns:48px repeat(4,minmax(0,1fr))}.scp-chart-legend{gap:8px}.scp-period{gap:8px}.scp-section-actions{gap:12px}.scp-section-heading{gap:10px}}
+@media(max-width:1400px){.scp-chart-legend{gap:10px}}
+@media(max-width:1280px){.scp-material-layout{grid-template-columns:1fr;gap:18px}.scp-coverage-matrix{grid-template-columns:70px repeat(var(--scp-material-count,6),minmax(0,1fr));gap:6px}.scp-coverage-chart .scp-chart-heading{justify-content:flex-start}}
+@media(max-width:760px){#suppliers #suppliergrid.scp-workspace{padding:12px}.scp-machine-grid{gap:14px;padding:0}.scp-machine-grid>.scp-card{height:520px;padding:0 10px 10px;border:0}.scp-machine-section>.scp-machine-heading{padding:0}.scp-machine-grid>.scp-card+.scp-card{padding:0 10px 10px;border:0}.scp-machine-grid>.scp-resource-card{height:auto;min-height:0}.scp-material-layout{gap:16px}.scp-coverage-matrix{grid-template-columns:62px repeat(var(--scp-material-count,6),minmax(0,1fr))}.scp-chart-legend{gap:8px}.scp-period{gap:8px}.scp-section-actions{gap:12px}.scp-section-heading{gap:10px}}
 
-.scp-material-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;white-space:nowrap}
-.scp-material-heading .link{padding:0;font:inherit;color:#1677ff;flex:none;white-space:nowrap}
 
 .scp-project-card>header h4,.scp-category-card>header h4{display:inline-flex;align-items:center;gap:6px}
 .scp-project-card .scp-sourcing-help,.scp-category-card .scp-sourcing-help{margin:0;flex:none}
@@ -182,15 +215,7 @@
 .scp-sourcing-or{font-size:12px;color:#8c9cb0}
 .metric-tooltip-scp-sourcing .scp-sourcing-note{margin:12px 0 0;padding-top:10px;border-top:1px solid #edf1f7;font-size:12px;color:#7b8fa9}
 
-.scp-category-chart{flex:none;padding:2px 0 12px;margin:0 0 12px;border-bottom:1px solid #edf1f7}
-.scp-category-plot{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;padding:18px 4px 0}
-.scp-category-column{text-align:center;min-width:0;font-size:12px;color:#7a8ba4}
-.scp-category-column>span{display:block;line-height:18px;margin-top:4px;white-space:nowrap}
-.scp-category-plot .scp-quarter-bars{height:56px;gap:6px}
-.scp-category-plot .scp-quarter-actual{width:16px}
-.scp-category-new i,.scp-category-new:hover i{background:#78bcae}
-.scp-category-new>b{color:#609f92}
-.scp-chart-legend .scp-legend-new:before{background:#78bcae}
+.scp-chart-legend .scp-legend-new:before{background:var(--green)}
 .scp-category-table td:first-child small{display:block;margin-top:2px;color:#8998ac;font-size:12px;line-height:1.5}
 .scp-category-table td:first-child{padding-left:10px;white-space:normal}
 .scp-category-rules{grid-template-columns:1fr}
@@ -198,56 +223,11 @@
 .scp-member-filters{display:flex;align-items:center;flex-wrap:wrap;gap:10px 12px;margin-bottom:16px}
 .scp-drawer .scp-member-filters>.ui-search-field{width:260px;min-width:200px;max-width:100%;flex:0 1 260px}
 .scp-member-filters .unified-input-group>select{max-width:160px}
-.scp-drawer[data-scp-drawer=members] .scp-member-results{max-height:calc(100dvh - 300px)}
 @media(max-width:700px){.scp-drawer .scp-member-filters>.ui-search-field{width:100%;min-width:0;flex:1 1 100%}.scp-member-filters .unified-input-group>select{max-width:140px}.scp-member-filters .unified-input-group{max-width:100%}}
-
-/* 整机供应商：三级单选级联与信息列表，业务条件沿用全局一体化字段。 */
-.scp-category-picker{position:relative;flex:0 1 255px;min-width:190px;max-width:100%}
-.scp-category-picker[open]{z-index:110}
-.scp-category-picker summary{position:relative;display:flex!important;width:100%;height:36px;box-sizing:border-box;list-style:none;cursor:pointer}
-.scp-category-picker summary::-webkit-details-marker{display:none}
-.scp-category-value{flex:1;min-width:0;padding:0 24px 0 8px;text-align:center;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#24334b}
-.scp-category-picker:has(.scp-category-clear) .scp-category-value{padding-right:42px}
-.scp-category-picker summary>i{position:absolute;right:8px;top:12px;width:12px;height:12px;background:var(--filter-chevron) center/contain no-repeat}
-.scp-category-clear{position:absolute;right:24px;top:7px;width:20px;height:20px;padding:0;border:0;border-radius:50%;background:transparent;color:#8b98aa;cursor:pointer;font-size:16px}
-.scp-category-clear:hover{background:#edf2f9;color:#1677ff}
-.scp-category-menu{position:absolute;top:calc(100% + 6px);left:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:540px;max-width:calc(100vw - 50px);border:1px solid #dce5f0;border-radius:6px;background:#fff;box-shadow:0 6px 24px #213b5b24;overflow:hidden}
-.scp-cascade-column{height:245px;overflow:auto;padding:5px 0;scrollbar-width:thin;scrollbar-color:#d5dfec transparent}
-.scp-cascade-column+.scp-cascade-column{border-left:1px solid #e9eef5}
-.scp-category-option{display:flex;align-items:center;min-height:34px;padding-left:12px;gap:8px;font-size:13px;color:#66788e}
-.scp-category-option.active,.scp-category-option:hover{background:#f5f8fd}
-.scp-category-option input{width:14px;height:14px;margin:0;padding:0;flex:none;accent-color:#1677ff;cursor:pointer}
-.scp-category-option button{display:flex;align-items:center;justify-content:space-between;gap:6px;align-self:stretch;min-width:0;flex:1;padding:7px 9px 7px 0;border:0;background:none;font:inherit;text-align:left;color:inherit;cursor:pointer}
-.scp-category-option button span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.scp-category-option button i{font-size:18px;font-style:normal;color:#8998ac}
-.scp-category-all{width:100%;height:30px;padding:0 12px;border:0;background:none;color:#1677ff;font-size:12px;text-align:left;cursor:pointer}
-.scp-category-picker :is(button,summary):focus-visible{outline:2px solid #1677ff;outline-offset:-2px}
-.scp-drawer .scp-supplier-member-table{min-width:1740px}
-.scp-drawer .scp-material-member-table{min-width:1980px}
-.scp-supplier-member-table :is(th,td):first-child{position:sticky;left:0;z-index:2;width:230px;border-right:1px solid #edf1f7;background:#fff}
-.scp-supplier-member-table :is(th,td):last-child{position:sticky;right:0;z-index:2;width:65px;border-left:1px solid #edf1f7;background:#fff}
-.scp-supplier-member-table thead :is(th:first-child,th:last-child){z-index:4;background:#f5f8fd}
-.scp-supplier-member-table :is(th,td){text-align:left}
-.scp-supplier-member-table .scp-col-brands{width:220px;text-align:left}
-.scp-supplier-member-table .scp-col-categories{width:420px;text-align:left}
-.scp-supplier-member-table .scp-col-materials{width:240px;text-align:left}
-.scp-supplier-member-table :is(.scp-col-status,.scp-col-stars){width:100px;text-align:center}
-.scp-supplier-member-table :is(.scp-col-registered,.scp-col-reserved,.scp-col-admitted,.scp-col-cooperation){width:110px;text-align:center}
-.scp-supplier-member-table .scp-col-owner{width:90px;text-align:left}
-.scp-supplier-member-table .scp-col-action{text-align:center}
-.scp-supplier-member-table .rp-sort-header{justify-content:center}
-.scp-cooperation-text{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;white-space:normal;overflow-wrap:anywhere;line-height:1.6;max-width:100%}
-.scp-member-filters .pf-multi-menu{left:auto;right:0}
-.scp-supplier-stars{color:#f5a623;letter-spacing:2px;white-space:nowrap;font-size:15px}
-@media(max-width:700px){.scp-category-picker{flex:1 1 190px}.scp-category-menu{position:fixed;top:auto;left:24px;right:24px;width:auto;max-width:none;margin-top:6px}.scp-category-option{padding-left:7px;gap:4px}.scp-category-option button{font-size:12px}.scp-supplier-member-table :is(th,td):first-child{width:185px}}
-
-@media(max-width:700px){.scp-member-filters>label.unified-input-group:not(.ui-search-field){flex:1 1 145px}.scp-member-filters .unified-input-group>select{min-width:60px;max-width:110px}}
-
-.scp-state-tag.green{background:#e9f8f4}
 
 /* 完整三级类目入口和列表沿用全局筛选、表格及抽屉布局。 */
 .scp-category-title{display:flex;align-items:center;flex-wrap:wrap;gap:12px}
-.scp-category-title>.link{font:inherit;font-size:13px;white-space:nowrap}
+.scp-category-title>.link{font:inherit;font-size:13px;line-height:20px;font-weight:400;white-space:nowrap}
 #dialog.business-drawer:has(>#dialogbody>.scp-drawer[data-scp-drawer=categories]) .dialoghead>div{flex:1;justify-content:space-between;flex-wrap:nowrap;gap:12px}
 #dialog.business-drawer:has(>#dialogbody>.scp-drawer[data-scp-drawer=categories]) #dialogsub{margin-left:auto;flex:none;flex-basis:auto}
 .scp-category-period-host{display:block}
@@ -260,42 +240,132 @@
 @media(max-width:700px){.scp-drawer[data-scp-drawer=categories] .scp-member-results{max-height:calc(100dvh - 350px)}}
 
 .scp-section-heading .scp-material-title{display:inline-flex;align-items:center;gap:6px}
-.scp-material-title>.metric-help{margin:0;flex:none}
+.scp-coverage-chart .scp-panel-title>.metric-help{margin:0;flex:none}
 .metric-tooltip.metric-tooltip-scp-material{width:380px}
-.scp-material-help-rule{padding:10px 12px;border:1px solid #ffe1e2;border-radius:6px;background:#fff6f6;display:grid;grid-template-columns:1fr auto;align-items:center;gap:4px 12px}
+.scp-material-help-rule{padding:10px 12px;border:1px solid #e0e9f7;border-radius:6px;background:#f5f8ff;display:grid;grid-template-columns:1fr auto;align-items:center;gap:4px 12px}
 .scp-material-help-rule>span{font-size:12px;color:#657b95}
-.scp-material-help-rule>strong{grid-column:2;grid-row:1/3;font-size:22px;color:var(--red);font-weight:600}
+.scp-material-help-rule>strong{grid-column:2;grid-row:1/3;font-size:22px;color:#397bd7;font-weight:600}
 .scp-material-help-rule>small{font-size:12px;color:#8191a6}
-.scp-material-help-definitions{margin:14px 0 0;display:grid;grid-template-columns:60px minmax(0,1fr);gap:10px 12px;font-size:12px;line-height:1.65}
-.scp-material-help-definitions dt{font-weight:600;color:#294766}
-.scp-material-help-definitions dd{margin:0;color:#627891}
-
-/* 两行字段共用列网格：搜索与条件等高，日期沿用全局范围触发器和日历。 */
-.scp-drawer[data-scp-drawer=members] .scp-member-filters{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));align-items:center;gap:12px}
-.scp-drawer[data-scp-drawer=members] .scp-member-filters[data-kind=material]{grid-template-columns:repeat(6,minmax(0,1fr))}
-.scp-drawer[data-scp-drawer=members] .scp-member-filters>:is(.unified-input-group,.ui-search-field,.scp-category-picker,.pf-multi){width:100%;min-width:0;max-width:none;box-sizing:border-box;margin:0}
-.scp-drawer[data-scp-drawer=members] .scp-member-filters .unified-input-group{height:36px;min-height:36px}
-.scp-drawer[data-scp-drawer=members] .scp-member-filters .unified-input-group>select{width:100%;min-width:0;max-width:none}
-.scp-drawer[data-scp-drawer=members] .scp-member-filters .unified-field-name{padding-inline:9px}
-.scp-drawer[data-scp-drawer=members] .scp-member-filters>[data-scp-member-reset]{grid-column:auto;justify-self:start;margin:0;min-height:36px}
-.scp-date-field{position:relative;min-width:0}
-.scp-member-filters .scp-date-field>.scp-date-trigger{display:flex;flex:1;align-items:center;justify-content:space-between;gap:3px;min-width:0;height:34px;margin:0;padding:0 7px 0 0;border:0;border-radius:0 5px 5px 0;background:none;color:#34455f;font:inherit;font-size:11px;white-space:nowrap;cursor:pointer}
-.scp-date-trigger>span{overflow:hidden;text-overflow:ellipsis;min-width:0}
-.scp-date-trigger>svg{width:14px;height:14px}
-.scp-date-field:has(.scp-date-clear) .scp-date-trigger>svg{visibility:hidden}
-.scp-date-field:has([aria-expanded=true]){border-color:#1677ff;box-shadow:0 0 0 3px #1677ff12}
-.scp-date-clear{position:absolute;right:5px;top:7px;width:20px;height:20px;padding:0;border:0;border-radius:50%;background:#fff;color:#8b98aa;font-size:16px;cursor:pointer}
-.scp-date-clear:hover{background:#edf2f9;color:#1677ff}
-.scp-date-trigger:focus-visible{outline:2px solid #1677ff;outline-offset:-2px}
-@media(max-width:1100px){.scp-drawer[data-scp-drawer=members] .scp-member-filters,.scp-drawer[data-scp-drawer=members] .scp-member-filters[data-kind=material]{grid-template-columns:repeat(3,minmax(0,1fr))}}
-@media(max-width:700px){.scp-drawer[data-scp-drawer=members] .scp-member-filters,.scp-drawer[data-scp-drawer=members] .scp-member-filters[data-kind=material]{grid-template-columns:1fr}.scp-drawer[data-scp-drawer=members] .scp-member-filters>[data-scp-member-reset]{grid-column:auto}}
 
 /* 季/年复用全局分段组件；只约束供应商期间控件，不影响其他模块。 */
 .scp-period .period-segment{display:flex;flex:none}
 .scp-period>select[data-scp-quarter]{min-width:58px}
 @media(max-width:520px){#dialog.business-drawer:has(>#dialogbody>.scp-drawer[data-scp-drawer=categories]) .dialoghead>div{flex-wrap:wrap;gap:6px}#dialog.business-drawer:has(>#dialogbody>.scp-drawer[data-scp-drawer=categories]) #dialogsub{flex-basis:100%;display:flex;justify-content:flex-end}.scp-category-period-host .scp-period{gap:6px}}
 
-/* 资源池问号沿用预警条件卡片样式，只说明现有判色条件。 */
+/* 战略供应商认定说明：条件、阈值与来源分层列示。 */
 .scp-resource-card>header h4{display:inline-flex;align-items:center;gap:6px}
 .scp-resource-card>header h4>.metric-help{margin:0;flex:none}
-.metric-tooltip.metric-tooltip-scp-resource{width:280px}
+.metric-tooltip.metric-tooltip-scp-resource{box-sizing:border-box;width:470px;max-width:calc(100vw - 16px);max-height:min(620px,calc(50dvh - 24px));overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;padding:18px;border:1px solid #e3eaf5;border-radius:10px;background:#fff;box-shadow:0 8px 30px #27456622;white-space:normal}
+.metric-tooltip-scp-resource .scp-strategic-help-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.metric-tooltip-scp-resource .scp-strategic-help-heading h4{margin:0;color:#294561;font-size:15px;font-weight:600;line-height:22px}
+.scp-strategic-help-badge{flex:none;padding:3px 8px;border-radius:4px;background:#edf4ff;color:#3778cb;font-size:10px}
+.metric-tooltip-scp-resource .scp-strategic-help-intro{margin:8px 0 14px;color:#8392a8;font-size:12px;line-height:1.7}
+.scp-strategic-help-rules{display:grid;gap:0;list-style:none;padding:0;margin:0}
+.scp-strategic-help-rules li{display:flex;gap:10px;padding:10px 0;border-top:1px solid #edf1f7}
+.scp-strategic-help-index{display:grid;place-items:center;width:24px;height:24px;flex:none;border-radius:5px;background:#f0f4fb;color:#748cb1;font-size:10px}
+.scp-strategic-help-rules li>div{min-width:0;flex:1}
+.scp-strategic-help-rule{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap;line-height:22px}
+.scp-strategic-help-rule b{font-size:12px;font-weight:500;color:#526b85}
+.scp-strategic-help-rule strong{font-size:13px;font-weight:600;color:#294f82}
+.scp-strategic-help-rules small{display:block;margin-top:2px;color:#8b98ab;font-size:11px;line-height:1.7}
+
+.scp-strategic-help-scope{margin-top:12px;padding:12px 16px;background:#f5f8fc;border-radius:7px;color:#72839b;font-size:12px}
+.scp-strategic-help-scope>b{color:#405b7c}
+.scp-strategic-help-scope p{margin:5px 0;line-height:1.6}
+
+/* 两栏表格共用起点；中屏日期控件换行时同步标题区高度。 */
+@media(min-width:761px) and (max-width:1200px){.scp-machine-grid>:is(.scp-project-card,.scp-category-card)>header{min-height:98px;align-content:flex-start}}
+@media(max-width:760px){.scp-machine-section .scp-category-table td{height:69px}}
+
+/* 新增/目标合作合并为一列，保留两个独立排序入口。 */
+.scp-material-table .scp-admission-pair{display:inline-flex;align-items:baseline;justify-content:flex-end;gap:5px;white-space:nowrap}
+.scp-material-table .scp-admission-divider{color:#a1aaba;font-weight:400}
+.scp-material-table .scp-admission-target{color:#a1aaba;font-weight:400;font-variant-numeric:tabular-nums}
+.scp-admission-pair .scp-count{font-weight:400}
+.scp-admission-pair .scp-count.red{color:var(--orange)!important}
+.scp-admission-pair .scp-count.green{color:var(--green)!important}
+
+
+
+
+
+/* 长标题完整展示，窄栏时把覆盖说明换至下一行。 */
+.scp-coverage-chart .scp-chart-heading{flex-wrap:wrap;row-gap:4px}
+#suppliergrid .scp-coverage-chart .scp-panel-title{max-width:100%;white-space:normal;overflow-wrap:anywhere}
+.scp-coverage-scroll{max-width:100%;min-width:0;overflow-x:auto;scrollbar-width:thin}
+.scp-coverage-matrix{min-width:490px}
+
+/* 类目保留28%，五个指标列均分余宽；覆盖旧三指标表留下的43%类目宽度。 */
+#suppliergrid .scp-category-table{min-width:800px}
+#suppliergrid .scp-category-table :is(th,td):first-child{width:28%}
+#suppliergrid .scp-category-table :is(th,td):nth-child(n+2){width:14.4%}
+#suppliergrid .scp-project-table .project-type{margin-right:6px}
+
+
+
+
+/* 年度与四季卡片共用紧凑高度；年度辅助指标移至右侧。 */
+.scp-cooperation-cards{display:grid;grid-template-columns:minmax(280px,1.6fr) repeat(4,minmax(0,1fr));gap:12px;min-width:0}
+.scp-resource-summary,.scp-quarter-card{min-width:0;min-height:120px;border:1px solid #e2e9f3;border-radius:8px;padding:12px 16px;box-sizing:border-box}
+.scp-resource-summary{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:center;background:#f6f5ff}
+.scp-resource-summary-main>span,.scp-resource-summary-footer>div>span,.scp-quarter-card h5,.scp-quarter-caption{color:#75879e;font-size:13px;line-height:20px;font-weight:400}
+.scp-resource-summary-main>span{font-size:16px;font-weight:600;color:#294766}
+.scp-resource-summary-value{margin:4px 0 2px}
+.scp-resource-summary-main .scp-readiness{width:auto;min-height:0;text-align:left}
+.scp-resource-summary-main .scp-readiness>div{justify-content:flex-start}
+.scp-resource-summary-main .scp-rate{font-size:28px;font-weight:600;line-height:34px}
+.scp-resource-summary-main .scp-readiness-standard{font-size:18px}
+.scp-resource-summary-main>small{font-size:12px;color:#95a1b2;line-height:18px;white-space:nowrap}
+.scp-resource-summary-footer{display:flex;flex-direction:column;gap:12px;padding-left:16px;border-left:1px solid #e6e6f3}
+.scp-resource-summary-footer>div{min-width:0;display:flex;align-items:baseline;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.scp-resource-summary-footer>div>span{font-size:12px;white-space:nowrap}
+.scp-resource-summary-footer strong,.scp-resource-summary-footer .scp-count,.scp-resource-summary-footer .scp-rate{font-size:18px;font-weight:500;line-height:24px}
+.scp-resource-summary-footer .scp-resource-summary-new{display:grid;grid-template-columns:minmax(0,1fr) max-content;column-gap:8px;row-gap:0;align-items:center}
+.scp-resource-summary-footer .scp-resource-summary-new>span{grid-column:1;grid-row:1/3;white-space:normal}
+.scp-resource-summary-new .scp-readiness{grid-column:2;grid-row:1;justify-self:end;width:auto;min-height:0;text-align:right}
+.scp-resource-summary-new .scp-readiness>div{justify-content:flex-start;gap:4px}
+.scp-resource-summary-new .scp-readiness-standard{font-size:14px}
+.scp-resource-summary-new>small{grid-column:2;grid-row:2;justify-self:end;font-size:12px;line-height:18px;color:#95a1b2;white-space:nowrap}
+.scp-quarter-card{display:grid;grid-template-columns:minmax(0,1fr) max-content;align-content:center;align-items:center;column-gap:12px;row-gap:2px;background:#fff}
+/* 季度名称作为卡片指标标题，覆盖全局h5的辅助文字样式。 */
+#suppliergrid .scp-quarter-card h5{grid-column:1;grid-row:1/3;margin:0;color:#294766;font-size:16px!important;font-weight:600!important;line-height:24px;white-space:normal}
+.scp-quarter-value{grid-column:2;grid-row:1;max-width:100%;justify-self:end}
+.scp-quarter-value .scp-readiness{width:auto;min-height:0;text-align:left}
+.scp-quarter-value .scp-readiness>div{justify-content:flex-start;gap:8px}
+.scp-quarter-value .scp-count{font-size:30px;font-weight:600;line-height:36px}
+.scp-quarter-value .scp-readiness-standard{font-size:20px;line-height:28px}
+.scp-quarter-caption{grid-column:2;grid-row:2;justify-self:end;font-size:12px;color:#94a1b2;line-height:18px;white-space:nowrap}
+@media(max-width:1199px){.scp-cooperation-cards{grid-template-columns:repeat(4,minmax(0,1fr))}.scp-resource-summary{grid-column:1/-1;min-height:108px}.scp-resource-summary-footer{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.scp-resource-summary-footer>div{flex-direction:column;gap:2px}}
+@media(max-width:700px){.scp-cooperation-cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.scp-resource-summary{padding:12px;gap:12px}.scp-resource-summary-footer{display:flex;padding-left:12px;gap:8px}.scp-resource-summary-footer>div{flex-direction:row}.scp-quarter-card{padding:12px;min-height:112px;column-gap:8px}.scp-quarter-value .scp-count{font-size:26px;line-height:32px}.scp-quarter-value .scp-readiness-standard{font-size:18px}.scp-quarter-value .scp-readiness>div{gap:4px}}
+
+/* 分类、三级类目、品牌独立展示；物料六列均为期间实际/目标。 */
+.scp-material-detail-table .scp-material-category-cell{overflow-wrap:anywhere}
+
+/* 寻源项目类型在前，搜索在后；窄屏可换行。 */
+.scp-project-card .scp-project-tools{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.scp-project-tools .scp-project-types{flex:none;white-space:nowrap}
+#suppliergrid .scp-project-tools>.ui-search-field.unified-input-group{flex:1 1 160px;width:auto;max-width:none;min-width:0}
+
+.scp-material-summary-table .scp-summary-count-unit{margin-left:3px;color:#8292aa;font-size:12px;font-weight:400}
+
+.scp-coverage-progress-key{color:#1677ff}
+
+/* 小屏压缩物料列，仍由抽屉统一滚动，保留同一吸顶表头。 */
+@media(max-width:760px){
+ .scp-drawer[data-scp-drawer=material-list] .scp-material-detail-table{min-width:0;width:100%}
+ .scp-drawer[data-scp-drawer=material-list] .scp-material-detail-table :is(th,td){padding:10px 2px;font-size:11px;white-space:normal;overflow-wrap:anywhere}
+ .scp-drawer[data-scp-drawer=material-list] .scp-material-detail-table th:first-child{width:28%}
+ .scp-drawer[data-scp-drawer=material-list] .scp-material-detail-table th:nth-child(2){width:12%}
+ .scp-drawer[data-scp-drawer=material-list] .scp-material-detail-table th:nth-child(n+3){width:10%}
+ .scp-drawer[data-scp-drawer=material-list] .scp-material-detail-table .rp-sort-header{white-space:normal;font-size:11px;padding:0;gap:1px}
+ .scp-drawer[data-scp-drawer=material-list] .scp-material-detail-table .scp-admission-pair{gap:2px}
+ .scp-drawer[data-scp-drawer=material-list] .scp-material-detail-table small{font-size:10px}
+}
+
+/* 选中部分核心件时仍使用同一张表，剩余宽度按可见物料列分配。 */
+.scp-drawer[data-scp-drawer=material-list] .scp-material-detail-table.has-material-filter th:first-child{width:30%}
+.scp-drawer[data-scp-drawer=material-list] .scp-material-detail-table.has-material-filter th:nth-child(2){width:15%}
+.scp-drawer[data-scp-drawer=material-list] .scp-material-detail-table.has-material-filter th:nth-child(n+3){width:calc(55% / var(--scp-detail-material-count,1))}
+
+/* 供应商数量统一带家；实际/目标只在目标后显示一次单位。 */
+.scp-count-unit{margin-left:2px;font-size:12px;font-weight:400;color:#8292aa}

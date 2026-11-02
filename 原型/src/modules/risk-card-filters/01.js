@@ -1,9 +1,22 @@
+// 三个整行品质榜共用紧凑头部；只移动原控件，二次调用不重复创建。
+function alignQualityBoardHeader(card,head,filter){
+ head.classList.add('rp-compact-header');
+ const menu=card.querySelector(':scope > .rp-platform-menu')||head.querySelector(':scope > .rp-platform-menu');
+ let actions=head.querySelector(':scope > .rp-quality-actions');
+ if(!actions){actions=document.createElement('div');actions.className='rp-quality-actions';head.append(actions)}
+ if(menu)head.insertBefore(menu,actions);
+ if(filter){if(menu&&filter.querySelector('[data-rp-season-menu]'))menu.append(filter);else actions.append(filter)}
+ const more=head.querySelector('[data-risk]');if(more)actions.append(more);
+ const date=card.querySelector(':scope > .qr-card-date');
+ if(date){date.classList.add('rp-quality-date');head.after(date)}
+}
 // 移动现有筛选和周期节点，保留原 ID、值、事件及各榜单时间口径。
 function alignRiskCardFilters(){
   for(const card of $$('#riskrail .riskcard')){
     const head=card.querySelector('.rhead'),filter=card.querySelector(':scope > .qr-card-filter');
     if(!head)continue;
-    // 品质榜试版：平台、风险筛选与查看全部同组，保留原控件事件。
+    if(card.matches('.rp-platform-board,.rp-shop-board')){alignQualityBoardHeader(card,head,filter);continue}
+    // 六榜标题只保留季品筛选与查看全部；平台和公司范围栏独立位于标题下方。
     if(card.querySelector('.rp-quality-columns,.rp-shop-columns')){
       if(filter){
         const actions=document.createElement('div');actions.className='rp-quality-actions';

@@ -1,0 +1,39 @@
+/* 只调整新品成功考核抽屉；四季并排、明细在下，窄屏在各自表格内横滚。 */
+#dialog.drawer.business-drawer:has(>#dialogbody>.nsp-assessment){width:min(1400px,96vw)}
+.nsp-assessment-matrix-scroll{max-width:100%;overflow:auto;border:1px solid #e2e9f3;border-radius:8px;margin-bottom:24px}
+.nsp-assessment .nsp-assessment-matrix{width:100%;min-width:880px;table-layout:fixed;border-collapse:separate;border-spacing:0;font-size:13px;font-variant-numeric:tabular-nums}
+.nsp-assessment .nsp-assessment-matrix.is-annual{min-width:540px}
+.nsp-assessment-matrix :is(th,td){padding:8px 6px;height:37px;box-sizing:border-box;text-align:center;white-space:nowrap;border-bottom:1px solid #edf1f7;background:#fff;color:#344e70}
+.nsp-assessment-matrix thead th{background:#f5f8fc;color:#71839d;font-size:12px;font-weight:400}
+.nsp-assessment-matrix thead tr:first-child th{height:40px;font-size:14px;font-weight:600;color:#294565}
+.nsp-assessment-matrix thead tr:first-child>th:first-child{width:132px;text-align:left;padding-left:16px;position:sticky;left:0;z-index:2;border-right:1px solid #e2e9f3}
+.nsp-assessment-matrix tbody th{position:sticky;left:0;z-index:1;text-align:left;padding-left:16px;font-weight:400;border-right:1px solid #e2e9f3}
+.nsp-assessment-matrix tbody tr:last-child>:is(th,td){border-bottom:0}
+.nsp-assessment-matrix .nsp-quarter-group{border-left:1px solid #e2e9f3}
+.nsp-assessment-matrix thead tr:nth-child(2)>th:nth-child(3n+1),.nsp-assessment-matrix tbody td:nth-child(3n+2){border-left:1px solid #e2e9f3}
+.nsp-assessment-matrix thead tr:first-child>th:nth-child(2),.nsp-assessment-matrix thead tr:nth-child(2)>th:first-child,.nsp-assessment-matrix tbody td:first-of-type{border-left:0}
+.nsp-assessment-matrix .nsp-matrix-company>:is(th,td){background:#f8faff;font-weight:600}
+.nsp-assessment-matrix td.nsp-matrix-selected{background:#edf5ff}
+.nsp-assessment-matrix button{border:0;padding:2px 5px;border-radius:4px;background:transparent;color:#1677ff;font:inherit;cursor:pointer}
+.nsp-assessment-matrix button:hover{background:#e4efff}
+.nsp-assessment-matrix button[aria-pressed=true]{background:#dceaff;color:#0758c7;font-weight:600}
+.nsp-assessment-matrix .nsp-matrix-rate{font-weight:500}
+.nsp-assessment-matrix .nsp-matrix-future{color:#97a4b6;background:#fafbfd}
+.nsp-assessment-matrix [data-ui-column-handle]{display:none}
+.nsp-assessment-detail-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.nsp-assessment-detail-heading{display:flex;align-items:baseline;gap:14px;min-width:0}
+.nsp-assessment-detail-heading h3{margin:0;font-size:16px;line-height:28px;color:#253e5c}
+.nsp-assessment-detail-controls{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:8px 12px;min-width:0}
+.nsp-assessment-detail-controls .nsp-assessment-search{flex:0 1 300px;width:300px;max-width:100%;min-width:0;margin:0}
+.nsp-assessment-results{display:flex;gap:4px;flex:none;background:#f3f6fa;padding:3px;border-radius:6px}
+.nsp-assessment-results button{border:0;padding:6px 10px;border-radius:4px;background:transparent;color:#7d8da4;font:inherit;font-size:12px;white-space:nowrap;cursor:pointer}
+.nsp-assessment-results [aria-selected=true]{background:#fff;color:#1677ff;box-shadow:0 1px 3px #26486e0d}
+@media(max-width:700px){
+ #dialog.drawer.business-drawer:has(>#dialogbody>.nsp-assessment){width:100vw}
+ .nsp-assessment-detail-toolbar{align-items:flex-start;flex-direction:column;gap:8px}
+ .nsp-assessment-detail-heading{flex-wrap:wrap;gap:2px 8px}
+ .nsp-assessment-detail-controls{width:100%;justify-content:flex-start}
+ .nsp-assessment-detail-controls .nsp-assessment-search{flex:1 1 100%;width:100%}
+ .nsp-assessment-results{max-width:100%;box-sizing:border-box}
+ .nsp-assessment-results button{padding:6px 8px}
+}

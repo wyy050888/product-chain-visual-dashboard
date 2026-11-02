@@ -5,18 +5,20 @@ export async function verifyChannelContribution(page){
  const context=vm.createContext({});vm.runInContext(readFileSync(new URL('../../src/modules/unified-product/05-channel-contribution.js',import.meta.url),'utf8'),context);
  const model=context.upChannelContributionModel;
  for(const [values,shares] of [[[20,80],[20,80]],[[-20,-80],[20,80]],[[120,-20],[120,-20]],[[20,-120],[-20,120]],[[0,0],[null,null]],[[20,-20],[null,null]]]){
-  const result=model(values.map((n,i)=>({platform:String(i),gsvCents:n,profitCents:n})));
+  const result=model(values.map((n,i)=>({channel:String(i),gsvCents:n,profitCents:n})));
   assert.deepEqual(Array.from(result.rows,r=>r.gsvShare),shares);assert.deepEqual(Array.from(result.rows,r=>r.profitShare),shares);
   assert(result.rows.every(r=>r.gsvShare===null||Math.abs(r.gsvShare)/result.scale<=1),'负值/超过100%的条长仍有界');
  }
- const missing=model([{platform:'missing'},{platform:'zero',gsvCents:0,profitCents:0}]);assert.equal(missing.rows[0].gsvShare,null);assert.equal(model([]).totals.profitCents,null);
+ const missing=model([{channel:'missing'},{channel:'zero',gsvCents:0,profitCents:0}]);assert.equal(missing.rows[0].gsvShare,null);assert.equal(model([]).totals.profitCents,null);
  const section=page.locator('.up-channel-section'),chart=section.locator('.up-channel-contribution');
- assert.deepEqual(await section.locator('h3').allTextContents(),['各渠道业绩数据']);assert.equal(await page.locator('.up-channel-gsv').count(),0,'移除旧GSV条形图');
- assert.deepEqual(await chart.locator('.up-contribution-heading>span').allTextContents(),['渠道','GSV贡献占比','利润值贡献占比']);
+ assert.deepEqual(await section.locator('h3').allTextContents(),['产品分平台业绩']);assert.equal(await page.locator('.up-channel-gsv').count(),0,'移除旧GSV条形图');
+ assert.deepEqual(await chart.locator('.up-contribution-heading>span').allTextContents(),['平台','GSV贡献占比','利润值贡献占比']);
  const data=await chart.locator('li').evaluateAll(es=>es.map(e=>({name:e.dataset.upContributionChannel,gsv:e.dataset.gsvCents===''?null:+e.dataset.gsvCents,profit:e.dataset.profitCents===''?null:+e.dataset.profitCents,shares:[...e.querySelectorAll('[data-up-share]')].map(n=>n.dataset.shareValue===''?null:+n.dataset.shareValue)})));
  const table=await section.locator('tbody tr').evaluateAll(es=>es.map(e=>[e.cells[0].textContent,e.cells[1].textContent]));
- assert.equal(data.length,9);assert.deepEqual(data.map(r=>r.name),table.map(r=>r[0]),'图表与表格顺序相同');
- const expected=model(data.map(r=>({platform:r.name,gsvCents:r.gsv,profitCents:r.profit})));
+ assert.equal(data.length,6);assert.deepEqual(data.map(r=>r.name),table.map(r=>r[0]),'图表与表格顺序相同');
+ const company={gsvCents:Number(await chart.getAttribute('data-total-gsv')),profitCents:Number(await chart.getAttribute('data-total-profit'))};
+ const expected=model(data.map(r=>({channel:r.name,gsvCents:r.gsv,profitCents:r.profit})),company);
+ const partial=model([{channel:'快手',gsvCents:20,profitCents:10}],{gsvCents:100,profitCents:50});assert.equal(partial.rows[0].gsvShare,20);assert.equal(partial.rows[0].profitShare,20);
  assert.equal(Number(await chart.getAttribute('data-total-gsv')),expected.totals.gsvCents);assert.equal(Number(await chart.getAttribute('data-total-profit')),expected.totals.profitCents);
  for(const [i,row] of data.entries()){
   assert.deepEqual(row.shares,[expected.rows[i].gsvShare,expected.rows[i].profitShare]);
@@ -24,7 +26,7 @@ export async function verifyChannelContribution(page){
   else {const text=table[i][1],parsed=parseFloat(text.replaceAll(',',''))*(text.includes('w')?1000000:100);assert(Math.abs(parsed-row.gsv)<=50000,'图表GSV与表格金额同源')}
  }
  if(expected.totals.profitCents<0)assert.match(await section.locator('.up-channel-heading .up-contribution-note').innerText(),/利润合计为负/);
- const totalGsv=data.filter(r=>r.gsv!==null).reduce((sum,r)=>sum+r.gsv,0);if(totalGsv)assert(Math.abs(data.reduce((sum,r)=>sum+(r.shares[0]||0),0)-100)<1e-8);
+ const totalGsv=data.filter(r=>r.gsv!==null).reduce((sum,r)=>sum+r.gsv,0);if(totalGsv)assert(Math.abs(data.reduce((sum,r)=>sum+(r.shares[0]||0),0)-totalGsv/company.gsvCents*100)<1e-8);
  for(const width of [1920,1440,1100,390]){
   await page.setViewportSize({width,height:1080});
   const bounds=await section.evaluate(e=>{const table=e.querySelector('.up-platform-performance').getBoundingClientRect(),chart=e.querySelector('.up-channel-contribution').getBoundingClientRect();return {table:table.toJSON(),chart:chart.toJSON()}});

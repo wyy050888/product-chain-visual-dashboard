@@ -1,0 +1,8 @@
+/* 仅总看板十个一级模块；保留各原标题带背景，整行贴合模块导航下沿。 */
+main.page>:is(#risk,#ai,#sales,#new,#projects,#lifecycle,#matrix,#inventory,#suppliers,#cost)[data-module-sticky]:not([hidden]):not([data-module-sticky-ended="true"])>.sectionhead{
+ position:sticky;
+ top:var(--module-sticky-top,112px);
+ z-index:30;
+ background-color:#fff;
+ box-shadow:none;
+}

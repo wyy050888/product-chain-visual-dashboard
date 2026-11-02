@@ -4,9 +4,35 @@ smHost.id='lt-system';smHost.hidden=true;smHost.setAttribute('aria-label','系�
 smHost.innerHTML='<aside class="lt-sidebar" aria-label="系统管理菜单"></aside><section class="lt-content" id="sm-content"></section>';
 $('main.page').after(smHost);
 let smActiveRoute='',smNavigationBypass=false;
+// 后台数据操作共用图标按钮，业务通过原有属性绑定事件。
+function smDataAction(kind,label,attributes=''){
+ const path=kind==='import'?'M8 11V2m-3 3 3-3 3 3':'M8 2v9m-3-3 3 3 3-3';
+ return `<button type="button" class="sm-data-action sm-data-${kind}" ${attributes}><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="${path}M2 10v4h12v-4"/></svg><span>${esc(label)}</span></button>`;
+}
+// 固定菜单结构与页面注册分离；无本地页面的原有菜单仅置灰展示。
+const smMenuGroups=[
+ ['业务配置',[
+  ['规则配置','business-rule-page'],['供应商导入','ssi-page'],['核心链接导入','klc-page'],['产品分类']
+ ]],
+ ['目标管理',[
+  ['生命周期目标','lt-target-page'],['降本增效目标','cec-page'],['供应商目标','st-target-page']
+ ]],
+ ['权限管理',[['用户管理'],['角色管理'],['人员配置'],['白名单']]],
+ ['系统配置',[['菜单管理'],['字典管理']]],
+ ['系统运维',[['用户操作日志'],['登录日志'],['定时任务']]]
+];
 function smRenderMenu(){
- const groups=[...new Set([...smPages.values()].map(page=>page.group))];
- smHost.querySelector('.lt-sidebar').innerHTML=groups.map(group=>{const pages=[...smPages.values()].filter(page=>page.group===group).sort((a,b)=>(a.menuOrder??100)-(b.menuOrder??100));if(pages.length===1&&pages[0].menuRoot){const page=pages[0];return `<a class="lt-menu-root" href="${page.route}" data-system-route="${page.route}" ${smActiveRoute===page.route?'aria-current="page"':''}>${esc(page.title)}</a>`}return `<details class="lt-menu-group" open><summary>${esc(group)}<span aria-hidden="true">⌃</span></summary>${pages.map(page=>`<a href="${page.external||page.route}" ${page.external?'target="_blank" rel="noopener"':`data-system-route="${page.route}"`} ${smActiveRoute===page.route?'aria-current="page"':''}>${esc(page.title)}</a>`).join('')}</details>`}).join('');
+ const pagesById=new Map([...smPages.values()].map(page=>[page.id,page]));
+ const itemMarkup=([label,id])=>{
+  const page=pagesById.get(id);
+  if(!page)return `<span class="lt-menu-disabled" role="link" aria-disabled="true">${esc(label)}</span>`;
+  const action=page.external?'target="_blank" rel="noopener"':`data-system-route="${page.route}"`;
+  const current=smActiveRoute===page.route?'aria-current="page"':'';
+  return `<a href="${page.external||page.route}" ${action} ${current}>${esc(label)}</a>`;
+ };
+ smHost.querySelector('.lt-sidebar').innerHTML=smMenuGroups.map(([group,items])=>
+  `<details class="lt-menu-group" ${['业务配置','目标管理'].includes(group)?'open':''}><summary>${esc(group)}<span aria-hidden="true">⌃</span></summary>${items.map(itemMarkup).join('')}</details>`
+ ).join('');
 }
 function smRegisterPage(page){
  const pane=document.createElement('section');pane.id=page.id;pane.hidden=true;pane.innerHTML=page.markup;
@@ -17,11 +43,13 @@ function smShowPage(route){
  while(!$('#overlay').hidden)closeModal();closeChainMenu();
  smActiveRoute=route;document.body.classList.add('lt-system-active');smHost.hidden=false;
  for(const entry of smPages.values())entry.pane.hidden=entry.route!==route;
- $('#lt-system-nav').setAttribute('aria-current','page');smRenderMenu();page.onShow();window.scrollTo({top:0,behavior:'instant'});
+ $('#lt-system-nav').setAttribute('aria-current','page');smRenderMenu();page.onShow();$('#sm-content').scrollTo({top:0,left:0,behavior:'instant'});window.scrollTo({top:0,behavior:'instant'});
 }
 function smHidePage(){smActiveRoute='';smHost.hidden=true;document.body.classList.remove('lt-system-active');$('#lt-system-nav').removeAttribute('aria-current')}
 function smRestoreView(destination){
- if(destination==='#procurement'||destination.startsWith('#pb-'))pbSwitchView(false);
+ if(qualityEntryView)qualityEntryView.hidden=true;
+ if(destination==='#quality-department')showQualityEntry();
+ else if(destination==='#procurement'||destination.startsWith('#pb-'))pbSwitchView(false);
  else if(destination==='#department'||destination.startsWith('#dp-'))dpSwitchView('department',false);
  else{
   const key=['project','research'].find(k=>destination==='#'+dwProfiles[k].route||destination.startsWith('#'+dwProfiles[k].route+'-'));
@@ -33,10 +61,10 @@ function smRestoreView(destination){
 function smSyncRoute(){
  if(smPages.has(location.hash)){if(smActiveRoute!==location.hash)smShowPage(location.hash);return}
  if(!smActiveRoute)return;
- const destination=location.hash||'#dashboard';smHidePage();smRestoreView(destination);
+ const destination=location.hash||dashboardEntryRoutes[dashboardEntryView];smHidePage();smRestoreView(destination);
 }
 function smNavigate(route){history.pushState(null,'',route);smSyncRoute()}
-$('#lt-system-nav').onclick=()=>{if(!smActiveRoute)smNavigate(smPages.keys().next().value)};
+$('#lt-system-nav').onclick=()=>{if(smActiveRoute!=='#system-business-rules')smNavigate('#system-business-rules')};
 window.addEventListener('hashchange',smSyncRoute);window.addEventListener('popstate',smSyncRoute);
 document.addEventListener('click',e=>{
  const link=e.target.closest('#lt-system [data-system-route]');if(link){e.preventDefault();smNavigate(link.dataset.systemRoute);return}

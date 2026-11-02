@@ -1,0 +1,118 @@
+{
+  "verified": "2026-10-27",
+  "note": "Original horizontal wordmarks retained. Sales identity cells use squareLogos below: downloaded square brand images, original bytes retained without cropping, stretching, recoloring or redrawing. Sources include brand social/shop profiles and published brand partners.",
+  "logos": [
+    {
+      "key": "supor",
+      "page": "https://www.supor.com.cn/",
+      "asset": "https://www.supor.com.cn/bocstatic/web/img/logo.png?v=v6",
+      "file": "assets/brand-logos/supor.png",
+      "size": [
+        150,
+        70
+      ],
+      "sha256": "718ad5b0e09b204fb24f6470c411d149704dfac3592ab1a72976197226e6ce79"
+    },
+    {
+      "key": "midea",
+      "page": "https://www.midea.com.cn/en",
+      "asset": "https://cn-res.midea.com/content/dam/mideacn-aem/test/logo-1x.png",
+      "file": "assets/brand-logos/midea.png",
+      "size": [
+        144,
+        50
+      ],
+      "sha256": "18226c897f1469094cbb784cf475463a880e26a6bf62606a123637122e1cea29"
+    },
+    {
+      "key": "skyworth",
+      "page": "https://www.skyworth.com/",
+      "asset": "https://www.skyworth.com/images/index/SkyworthLogo_Blue.png",
+      "file": "assets/brand-logos/skyworth.png",
+      "size": [
+        380,
+        36
+      ],
+      "sha256": "3d4b67d21dd249647ac88c7431b941fa85a5a7562eabdbac1f7ccce31a4d517e"
+    },
+    {
+      "key": "haier",
+      "page": "https://www.haier.com/support/",
+      "asset": "https://image.haier.com/cn/images/newlogo_haier_left_b.png",
+      "file": "assets/brand-logos/haier.png",
+      "size": [
+        400,
+        180
+      ],
+      "sha256": "5e247b4a0fb3bfd6a5ea15c4a0ec634c0825eb709ee32e609bc503506bc85879"
+    },
+    {
+      "key": "konka",
+      "page": "https://www.konka.com/",
+      "asset": "https://www.konka.com/themes/pc/konka/images/konka_logo.png?va1db",
+      "file": "assets/brand-logos/konka.png",
+      "size": [
+        274,
+        34
+      ],
+      "sha256": "6bfe5affd1a3aa5a1f079f20ade813e10ec5e36cedd8ce41a58a56a332df8929"
+    }
+  ],
+  "squareLogos": [
+    {
+      "key": "supor",
+      "page": "https://www.ssgkol.com/zh",
+      "asset": "https://www.ssgkol.com/_next/static/media/supor.e2a6e5d7.png",
+      "file": "assets/brand-logos/supor-square.png",
+      "size": [
+        500,
+        500
+      ],
+      "sha256": "4427132c30f46f84e5268d10b636121d6d66ccea1168105ee555ff9f0688b740"
+    },
+    {
+      "key": "midea",
+      "page": "https://glints.com/id/opportunities/jobs/staff-ppic/15bccced-2a4e-47ed-a851-ff1216591b20",
+      "asset": "https://images.glints.com/unsafe/1920x0/glints-dashboard.oss-ap-southeast-1.aliyuncs.com/company-logo/b47e3c4efed455b8f7bad005cd1bd2df.jpg",
+      "file": "assets/brand-logos/midea-square.jpg",
+      "size": [
+        1920,
+        1920
+      ],
+      "sha256": "e296c304e1ff825906380142f2b10cbfa620dccdfb897a3b32921ae163aa8c76"
+    },
+    {
+      "key": "skyworth",
+      "page": "https://www.cqszzs.com/hy-55/4865.html",
+      "asset": "https://www.cqszzs.com/uploads/upother/image/20250526/1748242671707991.png",
+      "file": "assets/brand-logos/skyworth-square.png",
+      "size": [
+        592,
+        592
+      ],
+      "sha256": "eb87906dd7fd0d57ca2a6dd09f024ba088697504f3535a1cdfa2da28e962099b"
+    },
+    {
+      "key": "haier",
+      "page": "https://x.com/HaierAppliances",
+      "asset": "https://pbs.twimg.com/profile_images/1126514495550042114/FH8MYeOK.png",
+      "file": "assets/brand-logos/haier-square.png",
+      "size": [
+        512,
+        512
+      ],
+      "sha256": "1837fad658f0da7d14c51cc0168cdde802a10e6189ed64dc1db1f815a8f30d18"
+    },
+    {
+      "key": "konka",
+      "page": "https://detail.youzan.com/show/goods?alias=3nqekstep33c3c3&from_source=gbox_seo",
+      "asset": "https://img.yzcdn.cn/upload_files/2025/08/21/FoOU1rzJwPtFn2h0EAiPm4jV0gYV.png",
+      "file": "assets/brand-logos/konka-square.png",
+      "size": [
+        801,
+        801
+      ],
+      "sha256": "2fa147946ed10695bc0c93d995bc0672f61353475d4c40bc8c7381cd6d1f2b52"
+    }
+  ]
+}

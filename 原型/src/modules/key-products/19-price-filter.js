@@ -1,7 +1,8 @@
 // 关键产品及新品共用区间、校验和即时输入交互；金额以分比较。
 const kpmPriceBands=[
  {key:'all',label:'全部'}, {key:'under100',label:'100元以下',max:10000},
- {key:'100-300',label:'100–300元',min:10000,max:30000}, {key:'300-500',label:'300–500元',min:30000,max:50000},
+ {key:'100-200',label:'100–200元',min:10000,max:20000}, {key:'200-300',label:'200–300元',min:20000,max:30000},
+ {key:'300-500',label:'300–500元',min:30000,max:50000},
  {key:'500-1000',label:'500–1000元',min:50000,max:100000}, {key:'over1000',label:'1000元及以上',min:100000}, {key:'custom',label:'自定义'}
 ];
 function kpmPriceRange(filters){

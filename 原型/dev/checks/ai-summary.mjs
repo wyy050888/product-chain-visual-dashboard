@@ -1,3 +1,4 @@
+import {businessRuleContext} from './business-rules-context.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
@@ -5,7 +6,7 @@ import vm from 'node:vm';
 function verifyFullContext(){
  const calls=[],product={spuId:'FULL',actualLaunch:'2026-08-15'};
  const shiftDate=(s,n)=>{const d=new Date(s+'T00:00:00Z');d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10)};
- const context=vm.createContext({boundedCache:()=>new Map(),upProduct:p=>p,upIdentity:p=>p,DATA_CUTOFF:'2026-10-10',riskDateMin:'2026-01-01',shiftDate,
+ const context=businessRuleContext({boundedCache:()=>new Map(),upProduct:p=>p,upIdentity:p=>p,DATA_CUTOFF:'2026-10-10',riskDateMin:'2026-01-01',shiftDate,
   riskMonthShift:(month,n)=>{const d=new Date(month+'-01T00:00:00Z');d.setUTCMonth(d.getUTCMonth()+n);return d.toISOString().slice(0,7)},
   qrPlatforms:['天猫','抖音'],upSummary:(p,start,end,platform)=>{calls.push({start,end,platform});return {start,end,platform}},
   upWithRange:(state,fn)=>fn(),pfCompanyStockModel:()=>({stock:{warehouse:10},stockEnd:'2026-10-10'})});
@@ -20,7 +21,7 @@ function verifyFullContext(){
 }
 
 function verifyDecisions(){
- const context=vm.createContext({
+ const context=businessRuleContext({
   fmt:(n,d=0)=>Number(n).toFixed(d),upPercent:n=>Number.isFinite(n)?n.toFixed(1)+'%':'—',upMoney:n=>(n/1000000).toFixed(1)+'w',
   aiToday:()=> '2026-10-15',shiftDate:(s,n)=>{const d=new Date(s+'T00:00:00Z');d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10)},
   upStockModel:()=>({rows:[{code:'DEMO-SKU01'}]}),upIdentity:()=>({sourceRow:2}),
@@ -31,14 +32,14 @@ function verifyDecisions(){
  const costModel=fs.readFileSync(new URL('../../src/modules/cost-control/04-opportunity-model.js',import.meta.url),'utf8');
  vm.runInContext(costModel.split('\n').find(line=>line.startsWith('function ccAppendCostProposal(')),context);
  const todoModel=fs.readFileSync(new URL('../../src/modules/unified-product/07-todo-model.js',import.meta.url),'utf8');
- vm.runInContext(todoModel.slice(todoModel.indexOf('const upTodoTypes='),todoModel.indexOf('const upTodoPriorities=')),context);
+ vm.runInContext(todoModel.slice(todoModel.indexOf('const upTodoTypes='),todoModel.indexOf('function upTodoAssignable(')),context);
  for(const name of ['04-ai-demo','04-ai-policy','04-ai-analysis','07-todo-diagnosis'])vm.runInContext(fs.readFileSync(new URL('../../src/modules/unified-product/'+name+'.js',import.meta.url),'utf8'),context);
- const classify=(wan,margin)=>context.upAiClassify(wan*1000000,margin);
+ const classify=(wan,margin)=>context.upAiClassify(wan*1000000/3,margin);
  assert.equal(classify(700,13).grade,'S');assert.equal(classify(420,9).grade,'A');assert.equal(classify(200,16).grade,'B');assert.equal(classify(50,9).grade,'C');
  for(const [wan,margin]of [[600,13],[300,16],[60,16],[420,16],[50,20],[700,12],[200,15]])assert.equal(classify(wan,margin).grade,null,'不可补评级边界');
  const state={start:'2026-01-01',end:'2026-10-10',platform:'all',spuId:'DEMO'};
  const assess=(wan,margin,returnRate=10,staleUnits=0)=>{
-  const company={gsvCents:wan*1000000,sales:wan?3000:0,returned:wan?300:0,profitRate:wan?margin:null,feeRate:5};
+  const company={gsvCents:Math.round(wan*1000000/3),sales:wan?3000:0,returned:wan?300:0,profitRate:wan?margin:null,feeRate:5};
   company.profitCents=Math.round(company.gsvCents*margin/100);company.costCents=company.gsvCents-company.profitCents;
   context.upSummary=()=>company;
   const rows=['天猫','抖音'].map(platform=>({...company,platform,gsvCents:company.gsvCents/2,profitCents:company.profitCents/2,returned:wan?returnRate*15:0,returnRate}));
@@ -93,7 +94,7 @@ export async function aiSummary(page){
  const scope=await summary.locator('.up-ai-scope').innerText();assert.match(scope,/^截至\d{2}\/\d{2}\/\d{2}$/);
  await summary.locator('[data-up-ai-prompt]').click();
  const prompt=await page.locator('#up-ai-prompt pre').innerText();
- for(const word of ['产品链副总','不受页面时间或平台筛选影响','600万元','300万元','15%','5%—8%','渠道成本＝渠道供价','日周报','会议纪要','没有批次信息','运营决定','经营结论、问题分析、部门行动'])assert(prompt.includes(word),word);
+ for(const word of ['产品链副总','不受页面时间或平台筛选影响','200万元','100万元','15%','5%—8%','渠道成本＝渠道供价','日周报','会议纪要','没有批次信息','运营决定','经营结论、问题分析、部门行动'])assert(prompt.includes(word),word);
  await page.keyboard.press('Escape');assert(await summary.isVisible());
  const text=await summary.locator('.up-ai-section p').allTextContents();
  await page.locator('#up-platform').evaluate(e=>{e.value='天猫';e.dispatchEvent(new Event('change',{bubbles:true}))});
@@ -111,19 +112,10 @@ export async function aiSummary(page){
  assert.notEqual(periods[0],periods[1],'页面期间仍须正常切换');
  await summary.locator('[data-up-ai-toggle]').click();assert(await page.locator('#up-ai-details').isHidden());
  await summary.locator('[data-up-ai-toggle]').click();assert(await page.locator('#up-ai-details').isVisible());
- await page.locator('[data-drawer-tab="handling"]').click();await page.locator('[data-todo-tab="suggestions"]').click();
- const table=page.locator('#up-todo-table');assert(await table.locator('[data-todo-open="detail"]').count()>0);
- const ids=await table.locator('[data-todo-open="detail"]').evaluateAll(es=>es.map(e=>e.dataset.todoId));
+ assert.equal(await page.locator('[data-drawer-tab="handling"],[data-up-panel="handling"]').count(),0);
  await page.locator('[data-drawer-tab="operating"]').click();
  await page.locator('.up-detail-period [data-drawer-time-value]').selectOption('9');
- await page.locator('[data-drawer-tab="handling"]').click();await page.locator('[data-todo-tab="suggestions"]').click();
- assert.deepEqual(await table.locator('[data-todo-open="detail"]').evaluateAll(es=>es.map(e=>e.dataset.todoId)),ids,'建议不随页面日期重建');
- await visibleActions();
- await table.locator('[data-todo-open="detail"]').first().click();
- const dialog=page.locator('.up-todo-dialog'),body=await dialog.innerText();
- assert(!body.includes('方案演示'));assert(body.includes('判断理由：'));assert(body.includes('统计期间：'));
- assert(!/问题批次|按批次|PR1015|甲厂/.test(body));
- await page.keyboard.press('Escape');
+ assert.deepEqual(await summary.locator('.up-ai-section p').allTextContents(),text);
  for(const tab of ['quality','stock','operating']){await page.locator('[data-drawer-tab="'+tab+'"]').click();await visibleActions();}
  await page.setViewportSize({width:390,height:844});assert.equal(await page.locator('#dialogbody').evaluate(e=>e.scrollWidth>e.clientWidth+1),false);await visibleActions();
  await page.setViewportSize({width:1920,height:1080});await page.locator('#close').click();

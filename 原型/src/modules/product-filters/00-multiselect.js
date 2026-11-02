@@ -1,6 +1,6 @@
 // 多选只管理控件与取值；同字段 OR，跨字段仍由业务模型按 AND 组合。
-function pfSelected(value){return (Array.isArray(value)?value:[value]).filter(v=>v!=null&&!['all','全部',''].includes(String(v))).map(String)}
-function pfIncludes(value,actual){const selected=pfSelected(value);return !selected.length||selected.includes(String(actual))}
+function pfSelected(value){return [...new Set((Array.isArray(value)?value:[value]).filter(v=>v!=null&&!['all','全部',''].includes(String(v))).map(v=>filterCatalog.normalizeChain(v)||String(v)))]}
+function pfIncludes(value,actual){const selected=pfSelected(value);return !selected.length||selected.includes(filterCatalog.normalizeChain(actual)||String(actual))}
 function pfOptionSelected(value,option){const selected=pfSelected(value);return selected.length?selected.includes(String(option)):['all','全部'].includes(String(option))}
 // 普通多选和分组筛选共用切换规则，保留调用方现有单/多选定义。
 function pfToggleChoice(value,option,multiple=true){
@@ -11,6 +11,7 @@ function pfControlValue(control){if(!control.multiple)return control.value;const
 function pfControlSet(control,value){
  if(control.multiple)for(const option of control.options)option.selected=pfOptionSelected(value,option.value);else control.value=value;
  pfMultiSync(control);
+ control.uiPlatformControl?.sync();
 }
 function pfMultiSync(select){
  const menu=select.closest('.pf-multi');if(!menu)return;
@@ -21,6 +22,7 @@ function pfMultiSync(select){
  if(value.textContent!==text)value.textContent=text;
  value.title=text;menu.classList.toggle('pf-multi-active',!!selected.length);
  for(const box of menu.querySelectorAll('[data-pf-multi-option]'))box.checked=selected.length?selected.includes(box.value):['all','全部'].includes(box.value);
+ if(select.uiPlatformMulti)uiPlatformSyncMulti(select);
 }
 let pfMultiControlledId=0;
 function pfMultiMount(root,{controlled=false}={}){
@@ -28,12 +30,12 @@ function pfMultiMount(root,{controlled=false}={}){
  for(const select of root.querySelectorAll('select')){
   if(select.closest('.pf-multi,.pf-attribute')||select.disabled)continue;
   const field=select.parentElement,label=field.querySelector(':scope > .unified-field-name')?.textContent||select.getAttribute('aria-label')||[...field.childNodes].filter(n=>n!==select).map(n=>n.textContent).join('').trim();
-  if(!select.hasAttribute('data-pf-multiple')&&!['品牌','类目','所属品类','全部新品所属品类','AI类目筛选'].includes(label))continue;
+  if(!select.hasAttribute('data-pf-multiple')&&!['品牌','链群','所属链群','全部新品所属链群','AI链群筛选'].includes(label))continue;
   const selected=[...select.selectedOptions].map(o=>o.value);
   select.multiple=true;select.hidden=true;select.tabIndex=-1;
   const menu=document.createElement(controlled?'div':'details');menu.className='pf-multi';
-  const title=select.dataset.pfLabel||(/品牌/.test(label)?'品牌':'类目');menu.dataset.pfMultiLabel=title;
-  menu.innerHTML='<summary class="unified-input-group" aria-label="'+esc(title)+'多选"><span class="unified-field-name">'+esc(title)+'</span><span class="pf-multi-value"></span><i aria-hidden="true"></i></summary><div class="pf-multi-menu" role="group" aria-label="'+esc(title)+'选项">'+[...select.options].map(o=>'<label class="pf-multi-option"><input type="checkbox" data-pf-multi-option value="'+esc(o.value)+'" '+(o.disabled?'disabled':'')+'><span>'+esc(o.textContent)+'</span></label>').join('')+'</div>';
+  const title=select.dataset.pfLabel||(/品牌/.test(label)?'品牌':'链群');menu.dataset.pfMultiLabel=title;
+  menu.innerHTML='<summary class="unified-input-group" aria-label="'+esc(title)+'多选"><span class="unified-field-name">'+esc(title)+'</span><span class="pf-multi-value"></span><i class="ui-dropdown-icon" aria-hidden="true"></i></summary><div class="pf-multi-menu" role="group" aria-label="'+esc(title)+'选项">'+[...select.options].map(o=>'<label class="pf-multi-option"><input type="checkbox" data-pf-multi-option value="'+esc(o.value)+'" '+(o.disabled?'disabled':'')+'><span>'+esc(o.textContent)+'</span></label>').join('')+'</div>';
   // 原生模态框中使用普通按钮和受控面板，避免嵌套details的浏览器原生开合/焦点处理。
   if(controlled){
    menu.dataset.pfControlled='';const summary=menu.querySelector('summary'),button=document.createElement('button'),panel=menu.querySelector('.pf-multi-menu');

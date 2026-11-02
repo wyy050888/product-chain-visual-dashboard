@@ -1,0 +1,126 @@
+{
+  "verified": "2026-10-22",
+  "authorization": "用户允许同品牌同品类高清示意图，不保证同型号。",
+  "sources": [
+    {
+      "id": "konka-nose",
+      "brand": "康佳",
+      "category": "鼻毛修剪器",
+      "page": "https://item.jd.com/100224540801.html",
+      "url": "https://img11.360buyimg.com/n1/s720x720_jfs/t1/400835/7/13035/87112/69ae20bcF0449e51b/0083320320936a71.jpg",
+      "file": "dev/media/originals/konka-nose.image",
+      "kind": "same-brand-category-illustration",
+      "crop": [
+        395,
+        30,
+        310,
+        565
+      ]
+    },
+    {
+      "id": "konka-mite",
+      "brand": "康佳",
+      "category": "无线除螨仪",
+      "page": "https://tao.hooos.com/goods_qnRbv4nc2t4eOdJKNVUg3YCWt0-PNzeejCKRNmk2kjIO.html",
+      "url": "https://img.alicdn.com/bao/uploaded/i1/2217295082545/O1CN01WNqibY1Uff5weaNV0_%21%214611686018427384881-0-item_pic.jpg",
+      "file": "dev/media/originals/konka-mite.image",
+      "kind": "same-brand-category-illustration",
+      "crop": [
+        135,
+        165,
+        665,
+        495
+      ]
+    },
+    {
+      "id": "skyworth-wallfan",
+      "brand": "创维",
+      "category": "壁挂风扇",
+      "page": "https://noithathayho.com/san-pham/quat-treo-tuong-skyworth-quat-dien-treo-tuong-gia-dinh-khong-duc-lo-quat-luu-thong-khong-khi-gio-cao-treo-tuong-quat-turbo-quat-treo-tuong-senko-co-remote-673260465417.html",
+      "url": "https://img.alicdn.com/imgextra/i3/2212794570077/O1CN01s3vFNg1CRJKAr3vxz_%21%212212794570077.jpg",
+      "file": "dev/media/originals/skyworth-wallfan.image",
+      "kind": "same-brand-category-illustration",
+      "crop": [
+        245,
+        50,
+        555,
+        590
+      ]
+    },
+    {
+      "id": "skyworth-toothbrush",
+      "brand": "创维",
+      "category": "电动牙刷",
+      "page": "https://www.skyworthmall.com/front/productDetail?skuNo=FK0003",
+      "url": "https://www.skyworthmall.com/fileserver/image/group1/M00/51/4D/rBAAcWSAGayAUDdsAABL6nZL4Hc387.jpg",
+      "file": "dev/media/originals/skyworth-toothbrush.image",
+      "kind": "same-brand-category-illustration",
+      "crop": [
+        200,
+        195,
+        360,
+        365
+      ]
+    },
+    {
+      "id": "skyworth-shaver",
+      "brand": "创维",
+      "category": "剃须刀",
+      "page": "https://www.runningls.com/product/10104426837668",
+      "url": "https://img14.360buyimg.com/pop/jfs/t1/254489/31/9082/199307/6778eb59F19c94a0f/0ed28d9e9bf7ba1f.jpg",
+      "file": "dev/media/originals/skyworth-shaver.image",
+      "kind": "same-brand-category-illustration",
+      "crop": [
+        245,
+        55,
+        545,
+        710
+      ]
+    },
+    {
+      "id": "konka-blender",
+      "brand": "康佳",
+      "category": "破壁豆浆机",
+      "page": "https://www.runningls.com/product/10118710506759",
+      "url": "https://img14.360buyimg.com/pop/jfs/t1/94648/4/51480/36619/66e6a025F9cc56222/8075577bca3eb645.jpg",
+      "file": "dev/media/originals/konka-blender.image",
+      "kind": "same-brand-category-illustration",
+      "crop": [
+        270,
+        65,
+        310,
+        510
+      ]
+    },
+    {
+      "id": "konka-handfan",
+      "brand": "康佳",
+      "category": "手持风扇",
+      "page": "https://shandiancang.waimai.meituan.com/Product/Detail/91180",
+      "url": "https://himall-storage-1259069382.cos.ap-nanjing.myqcloud.com/web/Storage/Shop/1363/Products/91180/1.png",
+      "file": "dev/media/originals/konka-handfan.image",
+      "kind": "same-brand-category-illustration",
+      "crop": [
+        85,
+        20,
+        650,
+        745
+      ]
+    },
+    {
+      "id": "konka-deskfan",
+      "brand": "康佳",
+      "category": "台扇",
+      "page": "https://shop.11665.com/list0/50012100/50008557/n_673271664470.html",
+      "url": "https://img.alicdn.com/bao/uploaded/i2/2206440091482/O1CN01OSNSa31Monirh5iqC_%21%212206440091482.jpg",
+      "file": "dev/media/originals/konka-deskfan.image",
+      "kind": "same-brand-category-illustration",
+      "crop": [
+        310,
+        65,
+        470,
+        625
+      ]
+    }
+  ]
+}

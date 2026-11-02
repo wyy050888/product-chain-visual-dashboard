@@ -22,6 +22,7 @@ function upProduct(p) {
   const actualLaunch = newLaunchSamples.get(p.spuId)?.actualLaunch || shiftDate(DATA_CUTOFF, 1 - base.days);
   const product={...base, ...sampleSpuFields(p), id: 10000 + p.sourceRow, actualLaunch,
     state:newLaunchSamples.get(p.spuId)?.salesState||base.state,
+    platformStarts:newLaunchSamples.get(p.spuId)?.platformStarts,
     guidePriceCents:p.guidePriceCents??productGuidePriceSamples[p.spuId]??null,
     attribute: srAttribute(p.name), owner: aiOwners[p.chain], channel:qrPlatforms[(p.sourceRow-1)%6]};
   upIdentityCache.set(p.spuId,product);return product;
@@ -36,16 +37,21 @@ function upWithRange(range, run) {
   try { return withPeriod('risk', run); }
   finally { if (old) localPeriods.risk = old; else delete localPeriods.risk; }
 }
+// 低动销样例沿用原始件数比例；按固定日期分摊取整误差，避免逐日取整全部归零。
+function upScaleSampleCount(count,total,units,phase){
+  return total>0?Math.min(units,Math.floor(count/total*units+phase)):0;
+}
 function upBuildDaily(p, platform, start, end, version=upFactsVersion(p)) {
   const product=upProduct(p);
   const loss = upLossSeeds.get(p.spuId);
   const margin = loss ? -Math.max(6, loss.lossRate) : product.profit;
-  const priceCents = ([899,369,459,299][p.chain] + p.sourceRow%5*30)*100;
+  const priceCents = upSamplePriceCents(p);
   const channelIndex = qrPlatforms.indexOf(platform);
-  const targetWeight = [32,13,8,20,15,12][channelIndex]/100;
+  const targetWeights=[32,13,8,20,15,12];
   const rows = upRawQuality(product, platform, start, end).points.map(d => {
-    const onSale = d.date >= product.actualLaunch;
-    const sample=onSale?upGradeSampleDay(p,d,priceCents,channelIndex):null;
+    const platformStart=product.platformStarts?.[platform];
+    const onSale = d.date >= product.actualLaunch&&(!product.platformStarts||!!platformStart&&d.date>=platformStart);
+    const sample=onSale?(upNewSuccessSampleDay(p,d,priceCents,channelIndex)||upGradeSampleDay(p,d,priceCents,channelIndex)):null;
     if(sample)d=sample.point;
     // 保留少量可核对的低动销样例场景；所有模块使用同一批逐日件数。
     const lowMovement = !sample&&p.sourceRow%6===0;
@@ -53,8 +59,11 @@ function upBuildDaily(p, platform, start, end, version=upFactsVersion(p)) {
     const monthIndex=Number(d.date.slice(0,4))*12+Number(d.date.slice(5,7));
     const slowUnits=Math.round((2+p.sourceRow/3)*[.75,1,1.25,.9][(monthIndex+p.sourceRow/6)%4]);
     const sales = !onSale ? 0 : lowMovement ? (Number(d.date.slice(8))%6===channelIndex ? slowUnits : 0) : d.sales;
-    const returned = !sales ? 0 : lowMovement ? 0 : Math.min(sales, d.returned);
-    const received = Math.min(returned, lowMovement ? 0 : d.received);
+    const dayIndex=Math.floor(Date.parse(d.date)/86400000);
+    const returnPhase=((dayIndex+p.sourceRow+channelIndex)%7)/7;
+    const receivedPhase=((dayIndex*2+p.sourceRow+channelIndex)%7)/7;
+    const returned = !sales ? 0 : lowMovement ? upScaleSampleCount(d.returned,d.sales,sales,returnPhase) : Math.min(sales, d.returned);
+    const received = lowMovement ? upScaleSampleCount(d.received,d.returned,returned,receivedPhase) : Math.min(returned, d.received);
     const orders = !sales ? 0 : Math.min(sales, lowMovement ? sales : d.orders);
     const contacts = Math.min(sales, lowMovement ? 0 : d.contacts);
     const qualityContacts=Math.min(contacts,d.qualityContacts??contacts),experienceContacts=contacts-qualityContacts;
@@ -62,7 +71,6 @@ function upBuildDaily(p, platform, start, end, version=upFactsVersion(p)) {
     const bad = Math.min(reviews, lowMovement ? 0 : d.bad);
     const gmvCents = sales*priceCents, refundCents = returned*priceCents;
     // 仅少量SPU保留固定利润率说明持平，其余按日期呈现温和涨跌。
-    const dayIndex=Math.floor(Date.parse(d.date)/86400000);
     const dailyMargin=sample?sample.profitRate:margin+(p.sourceRow%29===0?0:(1.6+p.sourceRow%3*.6)*Math.sin(dayIndex/37+p.sourceRow*.8));
     const gsvCents = gmvCents-refundCents, profitCents = Math.round(gsvCents*dailyMargin/100);
     // 推广消耗为固定样例，按SPU、平台、日期生成；不重复扣减既有利润。
@@ -70,7 +78,8 @@ function upBuildDaily(p, platform, start, end, version=upFactsVersion(p)) {
     const expenseCents=Math.round(gsvCents*expenseRate/100);
     // 明确配置的月目标按当月自然日分摊，跨平台/期间累计使用同一台账。
     const targetDays=p.sampleTargets?new Date(Date.UTC(+d.date.slice(0,4),+d.date.slice(5,7),0)).getUTCDate():30;
-    const targetCents = onSale ? Math.round(version.target*1000000/targetDays*targetWeight) : 0;
+    const activeWeight=product.platformStarts?qrPlatforms.reduce((sum,name,i)=>sum+(product.platformStarts[name]&&product.platformStarts[name]<=d.date?targetWeights[i]:0),0):100;
+    const targetCents = onSale&&activeWeight ? Math.round(version.target*1000000/targetDays*targetWeights[channelIndex]/activeWeight) : 0;
     return {date:d.date, sales, returned, received, orders, contacts, qualityContacts, experienceContacts, reviews, bad,
       gmvCents, refundCents, gsvCents, profitCents, expenseCents, costCents:gsvCents-profitCents,
       targetCents, targetProfitCents:Math.round(targetCents*version.margin/100)};
@@ -79,7 +88,10 @@ function upBuildDaily(p, platform, start, end, version=upFactsVersion(p)) {
 }
 function upQualityData(p, platform, start, end) {
   const data = upSummary(upIdentity(p),start,end,platform);
-  return {...data, returnRate:data.returnRate??0, receivedRate:data.receivedRate??0,
-    contactRate:data.contactRate, badRate:data.badRate??0,
-    points:data.points.map(d=>({...d, returnRate:qrRate(d.returned,d.sales), contactRate:qrRate(d.contacts,d.sales)}))};
+  // 汇总卡片不展开每日明细；保留原字段及可枚举points，仅图表读取时生成。
+  const {points:dailyProperty,...properties}=Object.getOwnPropertyDescriptors(data);
+  const result=Object.assign(Object.defineProperties({},properties),{returnRate:data.returnRate??0,receivedRate:data.receivedRate??0,badRate:data.badRate??0});
+  let points;
+  Object.defineProperty(result,'points',{enumerable:true,get:()=>points??=(dailyProperty.get()).map(d=>({...d,returnRate:qrRate(d.returned,d.sales),contactRate:qrRate(d.contacts,d.sales)}))});
+  return result;
 }

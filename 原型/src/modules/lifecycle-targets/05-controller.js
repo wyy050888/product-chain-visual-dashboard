@@ -2,11 +2,11 @@
 function ltApplyInput(input){
  if(!input.isConnected)return;
  const year=Number(input.dataset.ltYear),category=Number(input.dataset.ltCategoryIndex);
- const [plan,quarter]=input.dataset.ltNumber.split(':').map(Number),value=input.value===''?0:Number(input.value);
- const valid=!input.validity.badInput&&ltNumeric(value);
- input.classList.toggle('lt-input-empty',valid&&value===0);
- input.setCustomValidity(valid?'':'请输入0至99,999的整数');input.setAttribute('aria-invalid',String(!valid));
- const result=valid?ltSetTarget(year,category,plan,quarter,value):{ok:false,error:'目标须为0至99,999的整数'};
+ const [plan,quarter]=input.dataset.ltNumber.split(':').map(Number),value=input.value===''?null:Number(input.value);
+ const valid=!input.validity.badInput&&(value===null||ltValidCell(value,category)),message='请输入0至'+(category===3?'199,998':'99,999')+'的整数';
+ input.classList.toggle('lt-input-empty',valid&&value===null);
+ input.setCustomValidity(valid?'':message);input.setAttribute('aria-invalid',String(!valid));
+ const result=valid?ltSetTarget(year,category,plan,quarter,value):{ok:false,error:message};
  if(year!==ltEditor.year||category!==ltEditor.category)return;
  ltEditor.error=result.ok?'':result.error;
  $(`[data-lt-row-total="${plan}"]`).innerHTML=ltSummaryCell(ltYearValues(year)[category][plan]);
@@ -20,9 +20,6 @@ document.addEventListener('change',e=>{
 });
 document.addEventListener('input',e=>{
  if(e.target.matches('#lt-system [data-lt-number]'))ltApplyInput(e.target);
-});
-document.addEventListener('focusout',e=>{
- const input=e.target;if(input.matches('#lt-system [data-lt-number]')&&input.value===''&&!input.validity.badInput)input.value='0';
 });
 document.addEventListener('click',e=>{
  const button=e.target.closest('#lt-system button');if(!button)return;

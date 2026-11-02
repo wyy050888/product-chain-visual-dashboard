@@ -11,6 +11,6 @@ function hasProductSummary(body,name){
 const openModalWithProductImage=openModal;
 openModal=function(title,body,drawer=false,sub=''){
  const name=Object.keys(productImages).find(n=>title.includes(n));
- if(name&&!String(body).includes('data-scp-drawer=')&&!hasProductSummary(body,name))body=`<div class="product-detail-image">${riskThumbnail(name)}<div><strong>${esc(name)}</strong></div></div>`+body;
+ if(name&&!String(body).includes('data-skip-product-summary')&&!String(body).includes('data-scp-drawer=')&&!hasProductSummary(body,name))body=`<div class="product-detail-image">${riskThumbnail(name)}<div><strong>${esc(name)}</strong></div></div>`+body;
  return openModalWithProductImage(title,body,drawer,sub);
 };

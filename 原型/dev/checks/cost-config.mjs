@@ -1,48 +1,51 @@
-import {verifyTargetHeader} from './target-header.mjs';
-import {verifyCostMissingImport} from './cost-config-missing.mjs';
-import {verifyDynamicCostMetrics} from './cost-config-metrics.mjs';
+import {verifyCombinedCostImport} from './cost-config-combined.mjs';
+import {inspectImportWorkbook,cleanTemplateHeader} from './import-template-workbook.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import {fileURLToPath} from 'node:url';
-import {verifyCostDepartmentAliases} from './cost-config-aliases.mjs';
 export async function costConfig(page){
- verifyCostDepartmentAliases();
- const key='cost-efficiency-config-v1',route='#system-cost-efficiency',editor=page.locator('#cec-editor'),time=page.locator('#cec-time');
- const audit=()=>page.evaluate(()=>window.costConfigAudit());
- await page.evaluate(key=>localStorage.removeItem(key),key);await page.reload();await page.locator('#lt-system-nav').click();await page.locator(`[data-system-route="${route}"]`).click();
- assert.equal(await page.locator(`[data-system-route="${route}"]`).evaluate(e=>e.parentElement.className),'lt-menu-group');await verifyTargetHeader(page,'#cec-page','降本增效配置',[]);assert.equal(await page.locator('#cec-add').count(),0);assert.equal(await page.locator('#cec-page .cec-actions button').count(),3);
- const baseline=await page.evaluate(()=>window.costControlAudit({year:2026,mode:'month',value:10})),count=baseline.items.length;
- assert.equal(count,29);assert.deepEqual(await page.locator('#cec-head th').allTextContents(),['责任部门','降本指标','月度目标金额（元）','月度实际降本金额（元）','备注','更新时间','操作']);
- assert(!(await page.locator('#cec-page').innerText()).includes('降本项目'));assert.equal(await page.locator('#cec-count,#cec-body small').count(),0);assert.equal(await page.locator('#cec-page .unified-input-group').count(),2);
- await page.locator('#cec-department').selectOption('warehouse');await page.locator('#cec-query').fill('包材');assert.equal(await page.locator('#cec-body tr').count(),1);
- const item=baseline.items.find(p=>p.department==='warehouse'&&p.metric==='包材降本'),record=item.id+'|2026-10';
- const downloadPromise=page.waitForEvent('download');await page.locator('#cec-template').click();const download=await downloadPromise,template=fs.readFileSync(await download.path(),'utf8');assert(!template.includes('责任人'));assert(!template.includes('项目编号'));assert(!template.includes('项目名称'));assert(!template.includes('CB-'));assert.match(template,/12月/);
- await page.locator(`[data-cec-edit="${item.id}"]`).click();assert.equal(await editor.locator('[name="name"],[name="owner"]').count(),0);assert.match(await page.locator('#cec-editor-title').innerText(),/编辑降本数据/);
- await editor.locator('[aria-label="10月目标金额"]').fill('-50000.01');await editor.locator('[aria-label="10月实际降本金额"]').fill('-1');await page.locator('#cec-save').click();assert.match(await page.locator('#cec-editor-error').innerText(),/实际金额/);assert.equal(Object.keys((await audit()).store.months).length,0);
- await editor.locator('[aria-label="10月实际降本金额"]').fill('0');await editor.locator('[aria-label="10月备注"]').fill('价格已执行');await page.locator('#cec-editor-year').selectOption('2027');await editor.locator('[aria-label="1月目标金额"]').fill('1000.01');await page.locator('#cec-editor-year').selectOption('2026');assert.equal(await editor.locator('[aria-label="10月目标金额"]').inputValue(),'-50000.01');await page.locator('#cec-save').click();
- let snapshot=await audit();assert.equal(snapshot.metrics.length,count);assert.equal(snapshot.store.months[record].targetCents,-5000001);assert.equal(snapshot.store.months[record].actualCents,0);assert.equal(snapshot.store.months[item.id+'|2027-01'].targetCents,100001);
- const current=await page.evaluate(()=>window.costControlAudit({year:2026,mode:'month',value:10})),old=baseline.ledger.find(r=>r.itemId===item.id&&r.month==='2026-10');assert.equal(current.totals.month.target,baseline.totals.month.target-old.targetCents-5000001);
- await page.reload();await page.locator('#cec-department').selectOption('warehouse');await page.locator('#cec-query').fill('包材');assert.match(await page.locator('#cec-body').innerText(),/-50,000.01/);
- await page.locator('[data-cec-view]').click();assert(await editor.locator('[name="metric"]').isDisabled());await page.locator('#cec-start-edit').click();assert(await editor.locator('[name="department"]').isDisabled());await editor.locator('[aria-label="10月目标金额"]').fill('123');await page.keyboard.press('Escape');assert(await page.locator('.cec-discard').isVisible());await page.locator('[data-cec-continue]').click();assert.equal(await editor.locator('[aria-label="10月目标金额"]').inputValue(),'123');await page.keyboard.press('Escape');await page.locator('[data-cec-discard]').click();assert.equal((await audit()).store.months[record].targetCents,-5000001);
- // 一个新增入口同时维护指标与月度数据，取消时不写入。
- await page.locator('#cec-new').click();await editor.locator('[name="metric"]').fill('未保存降本指标');await editor.locator('[aria-label="10月目标金额"]').fill('777');await editor.locator('[name="department"]').selectOption('purchase');assert.equal(await editor.locator('[aria-label="10月目标金额"]').inputValue(),'777');await page.keyboard.press('Escape');assert(await page.locator('.cec-discard').isVisible());await page.locator('[data-cec-continue]').click();assert.equal(await editor.locator('[name="metric"]').inputValue(),'未保存降本指标');await page.keyboard.press('Escape');await page.locator('[data-cec-discard]').click();assert.equal((await audit()).metrics.length,count);
- await page.locator('[data-cec-edit]').click();await editor.locator('[aria-label="10月实际降本金额"]').fill('');await page.evaluate(()=>{window.cecNativeSet=Storage.prototype.setItem;Storage.prototype.setItem=function(k,v){if(k==='cost-efficiency-config-v1')throw Error('blocked');return window.cecNativeSet.call(this,k,v)}});await page.locator('#cec-save').click();assert.match(await page.locator('#cec-editor-error').innerText(),/保存失败/);assert.equal((await audit()).store.months[record].actualCents,0);await page.evaluate(()=>{Storage.prototype.setItem=window.cecNativeSet;delete window.cecNativeSet});await page.locator('#cec-save').click();assert.equal((await audit()).store.months[record].actualCents,null);
- // 真实xlsx年度模板，按部门＋指标更新，不产生新的指标行。
- await page.locator('#cec-import').click();await page.locator('#cec-file').setInputFiles(fileURLToPath(new URL('../fixtures/cost-config-import.xlsx',import.meta.url)));await page.locator('#cec-overwrite').waitFor();assert.match(await page.locator('#cec-import-result').innerText(),/更新 2 条/);assert(await page.locator('#cec-confirm-import').isDisabled());await page.locator('#cec-overwrite').check();await page.locator('#cec-confirm-import').click();assert.equal((await audit()).metrics.length,count);assert.equal((await audit()).store.months[record].actualCents,900012);
- const headers=['责任部门','降本指标','年度','数据类型',...Array.from({length:12},(_,i)=>(i+1)+'月'),'备注'];
- const row=(kind,values,metric='包材降本')=>['仓储部',metric,'2026',kind,...Array.from({length:12},(_,i)=>values[i]??''),''];
- const csv=rows=>[headers,...rows].map(r=>r.join(',')).join('\r\n');
- const upload=async text=>{await page.locator('#cec-file').setInputFiles({name:'降本指标.csv',mimeType:'text/csv',buffer:Buffer.from('\uFEFF'+text)});await page.locator('#cec-import-result .cec-import-summary').waitFor()};
- await page.locator('#cec-import').click();await upload(csv([row('目标值',Array(9).fill('').concat('-12.34'))]));await page.locator('#cec-overwrite').check();await page.locator('#cec-confirm-import').click();assert.equal((await audit()).store.months[record].targetCents,-1234);assert.equal((await audit()).store.months[record].actualCents,900012,'空白实际保留原值');
- const before=JSON.stringify((await audit()).store);await page.locator('#cec-import').click();await upload(csv([row('目标值',['1']),row('目标值',['2'])]));assert.match(await page.locator('#cec-import-result').innerText(),/重复/);assert(await page.locator('#cec-confirm-import').isDisabled());assert.equal(JSON.stringify((await audit()).store),before);const errorDownload=page.waitForEvent('download');await page.locator('#cec-errors-download').click();const errorFile=fs.readFileSync(await(await errorDownload).path(),'utf8');assert(!errorFile.includes('项目名称'));assert(!errorFile.includes('项目编号'));
- await upload(csv([row('目标值',['1'],'')]));assert.match(await page.locator('#cec-import-result').innerText(),/请输入降本指标/);await page.locator('[data-cec-import-close]').first().click();
- await page.locator('#cec-reset').click();await page.locator('#cec-department').selectOption('purchase');await time.locator('[data-cec-time-value]').selectOption('1');assert.match(await page.locator('#cec-body').innerText(),/270,000.00/);await time.locator('[data-cec-time-mode="quarter"]').click();assert.match(await page.locator('#cec-body').innerText(),/3,703,000.00/);await time.locator('[data-cec-time-mode="year"]').click();assert.match(await page.locator('#cec-body').innerText(),/30,809,000.00/);await time.locator('[data-cec-time-mode="month"]').click();await time.locator('[data-cec-time-value]').selectOption('10');assert.match(await page.locator('#cec-body').innerText(),/--/);await page.locator('#cec-reset').click();
- await page.locator('#cec-pagination [aria-label="下一页"]').click();assert.equal(await page.locator('#cec-pagination .list-pagination').getAttribute('data-list-current'),'2');await page.locator('#cec-query').fill('不存在的指标');assert.match(await page.locator('#cec-body').innerText(),/暂无/);await page.locator('#cec-reset').click();
- for(const width of [1920,1366,1024,600,390]){await page.setViewportSize({width,height:1000});assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2))}
- await page.setViewportSize({width:1920,height:1080});await page.screenshot({path:fileURLToPath(new URL('../../outputs/cost-config-desktop.png',import.meta.url))});await page.locator('[data-cec-edit]').first().click();assert.equal(await editor.locator('[name="name"],[name="owner"]').count(),0);await page.screenshot({path:fileURLToPath(new URL('../../outputs/cost-config-editor.png',import.meta.url))});await page.keyboard.press('Escape');
- // 旧缓存中同指标的额外项目只归并一次，并保留已填金额。
- const legacy={version:1,projects:{'research-0':{id:'research-0',department:'research',metricIndex:0,name:'原名称',owner:'甲'},'CB-old':{id:'CB-old',department:'research',metricIndex:0,name:'原分项',owner:'乙'}},months:{'research-0|2026-10':{targetCents:10000,actualCents:5000,note:'原记录'},'CB-old|2026-10':{targetCents:2000,actualCents:1000,note:'原分项'}}};
- await page.evaluate(({key,legacy})=>localStorage.setItem(key,JSON.stringify(legacy)),{key,legacy});await page.reload();snapshot=await audit();assert.equal(snapshot.metrics.length,count);assert.equal(snapshot.store.months['research-0|2026-10'].targetCents,12000);assert.equal(snapshot.store.months['research-0|2026-10'].actualCents,6000);assert.equal(snapshot.store.version,3);
- await page.evaluate(key=>localStorage.removeItem(key),key);await page.reload();
- await verifyDynamicCostMetrics(page);await verifyCostMissingImport(page);
+ const key='cost-efficiency-config-v1',route='#system-cost-efficiency',audit=()=>page.evaluate(()=>costConfigAudit()),cost=()=>page.evaluate(()=>costControlAudit({year:2026,mode:'month',value:10}));
+ const reload=async()=>{await page.reload({waitUntil:'domcontentloaded'});await page.waitForFunction(()=>document.documentElement.dataset.dashboardBoot==='ready');await page.locator('#lt-system-nav').click();await page.locator('[data-system-route="'+route+'"]').click()};
+ await page.evaluate(key=>localStorage.removeItem(key),key);await reload();
+ const baseline=await cost(),initial=await audit(),item=baseline.items.find(row=>row.department==='warehouse'&&row.category==='packaging');
+ assert.equal(initial.store.version,4);assert.equal(Object.values(initial.store.departmentTargets).filter(cell=>Number.isFinite(cell.targetCents)).length>12,true);
+ // 已存细项目标迁移一次，按部门月份汇总；实际零值和备注保留。
+ await page.evaluate(({key,id,ids})=>localStorage.setItem(key,JSON.stringify({version:3,metrics:{},months:Object.fromEntries(ids.map(itemId=>[itemId+'|2026-10',itemId===id?{targetCents:12345,actualCents:0,note:'保留旧记录',updatedAt:'2026-10-20 10:00:00'}:{targetCents:0}]))})),{key,id:item.id,ids:baseline.items.filter(row=>row.department==='warehouse').map(row=>row.id)});await reload();
+ let data=await audit();assert.equal(data.store.version,4);assert.equal(data.store.departmentTargets['warehouse|2026-10'].targetCents,12345);assert.equal(data.store.months[item.id+'|2026-10'].actualCents,0);assert.equal(data.store.months[item.id+'|2026-10'].note,'保留旧记录');assert(!Object.hasOwn(data.store.months[item.id+'|2026-10'],'targetCents'));
+ assert.deepEqual(await page.locator('#cec-head th').allTextContents(),['责任部门','一级类目','二级类目','年度目标（元）','月度目标金额（元）','月度实际降本金额（元）','更新人','更新时间','操作']);
+ assert.equal(await page.locator('#cec-body>tr[data-cec-target-department]').count(),9);
+ const manual='#cec-new,[data-cec-target-edit],[data-cec-add-actual],[data-cec-edit],#cec-start-edit,#cec-save,#cec-department-editor';
+ assert.equal(await page.locator(manual).count(),0,'无手动新增、编辑与保存入口');
+ assert.equal(await page.locator('[data-cec-config-view],#cec-category').count(),0);
+ const download=async()=>{const pending=page.waitForEvent('download');await page.locator('#cec-template').click();const file=await pending;assert.match(file.suggestedFilename(),/\.xlsx$/);return inspectImportWorkbook(fs.readFileSync(await file.path())).rows.map(row=>row.values.map(cleanTemplateHeader).join(',')).join('\n')};
+ const targetTemplate=await download();assert.match(targetTemplate,/责任部门,一级类目,二级类目,数据类型,年度,年度目标（元）,1月/);assert.match(targetTemplate,/部门目标/);assert.match(targetTemplate,/实际降本/);
+ const upload=async(rows)=>{await page.locator('#cec-import').click();await page.locator('#cec-file').setInputFiles({name:'降本.csv',mimeType:'text/csv',buffer:Buffer.from('\uFEFF'+rows.map(row=>row.join(',')).join('\r\n'))});await page.locator('#cec-import-result .cec-import-summary').waitFor()};
+ const confirm=async()=>{if(await page.locator('#cec-overwrite').count())await page.locator('#cec-overwrite').check();await page.locator('#cec-confirm-import').click()};
+ const months=Array.from({length:12},(_,i)=>(i+1)+'月'),targetHeaders=['责任部门','年度',...months],targetRow=['仓储部','2026',...Array(9).fill(''),'500.01','',''];
+ const untouched=(await audit()).store.departmentTargets['warehouse|2026-11'].targetCents;await upload([targetHeaders,targetRow]);assert.match(await page.locator('#cec-import-result').innerText(),/部门目标/);await confirm();assert.equal((await audit()).store.departmentTargets['warehouse|2026-10'].targetCents,50001);assert.equal((await audit()).store.departmentTargets['warehouse|2026-11'].targetCents,untouched);
+ await upload([targetHeaders,targetRow,targetRow]);assert.match(await page.locator('#cec-import-result').innerText(),/重复/);assert(await page.locator('#cec-confirm-import').isDisabled());await page.locator('[data-cec-import-close]').first().click();
+ // 展开及月度明细只读；查看、切换年份不改变目标或实际。
+ await page.locator('#cec-department').selectOption('warehouse');await page.locator('#cec-query').fill(item.metric);
+ assert.equal(await page.locator('#cec-body>tr[data-cec-target-department]').count(),1);
+ if(await page.locator('[data-cec-expand="warehouse"]').getAttribute('aria-expanded')==='false')await page.locator('[data-cec-expand="warehouse"]').click();
+ assert.equal(await page.locator('.cec-no-target').filter({hasText:/目标|达成|差额|\d/}).count(),0,'细项不显示目标数据');
+ assert.equal(await page.locator(manual).count(),0,'展开后无手动入口');
+ const beforeTargets=JSON.stringify((await audit()).store.departmentTargets),beforeView=JSON.stringify((await audit()).store),editor=page.locator('#cec-editor');
+ await page.locator('[data-cec-view="'+item.id+'"]').click();
+ assert.equal(await editor.locator('input:not(:disabled),select:not(:disabled):not(#cec-editor-year),#cec-start-edit,#cec-save').count(),0,'明细不能转入编辑');
+ await editor.locator('#cec-editor-year').selectOption('2027');await editor.locator('#cec-editor-year').selectOption('2026');
+ await page.keyboard.press('Escape');assert.equal(JSON.stringify((await audit()).store),beforeView,'只读查看没有写入');
+ const actualTemplate=await download();assert.match(actualTemplate,/责任部门,一级类目,二级类目,数据类型,年度,年度目标（元）,1月/);assert.match(actualTemplate,/部门目标/);assert.match(actualTemplate,/实际降本/);
+ const actualHeaders=['责任部门','降本分类','降本指标','年度',...months,'备注'],actualRow=['仓储部','包装降本',item.metric,'2026',...Array(9).fill(''),'9000.12','','','价格执行'];
+ await upload([actualHeaders,actualRow]);assert.match(await page.locator('#cec-import-result').innerText(),/实际降本/);await confirm();assert.equal((await audit()).store.months[item.id+'|2026-10'].actualCents,900012);assert.equal(JSON.stringify((await audit()).store.departmentTargets),beforeTargets);
+
+ const addedRow=['仓储部','包装降本','导入新增实际降本样例','2026',...Array(9).fill(''),'100.25','','',''];
+ await upload([actualHeaders,addedRow]);assert.match(await page.locator('#cec-import-result').innerText(),/校验通过/);await confirm();data=await audit();
+ const added=data.metrics.find(row=>row.metric==='导入新增实际降本样例');assert(added,'导入可以新增降本指标');assert.equal(data.store.months[added.id+'|2026-10'].actualCents,10025);assert.equal(JSON.stringify(data.store.departmentTargets),beforeTargets);
+ assert(data.store.months&&Object.values(data.store.months).every(cell=>!Object.hasOwn(cell,'targetCents')));assert((await cost()).ledger.every(row=>!Object.hasOwn(row,'targetCents')));
+ // 新目标台账刷新后保持稳定；分类与细项不再派生目标或差额。
+ await reload();assert.equal(JSON.stringify((await audit()).store.departmentTargets),beforeTargets);const totals=await cost();for(const mode of ['month','quarter','year']){assert.equal(totals.rows.reduce((n,row)=>n+(row.values[mode].target??0),0),totals.totals[mode].target);assert.equal(totals.categoryRows.reduce((n,row)=>n+(row.values[mode].actual??0),0),totals.totals[mode].actual);assert(totals.categoryRows.every(row=>Object.keys(row.values[mode]).join()==='actual'))}
+ await verifyCombinedCostImport(page,item);
+ for(const width of [1920,390]){await page.setViewportSize({width,height:1080});await page.locator('#cec-department').selectOption('warehouse');await page.locator('#cec-query').fill('');const toggle=page.locator('[data-cec-expand="warehouse"]');if(await toggle.getAttribute('aria-expanded')==='false')await toggle.click();assert(await page.locator('#cec-page').evaluate(e=>e.scrollWidth<=e.clientWidth+1));assert(await page.locator('#cec-page .cec-table-scroll').evaluate(e=>e.scrollWidth>0));}
+ await page.setViewportSize({width:1920,height:1080});await page.evaluate(key=>localStorage.removeItem(key),key);await page.reload({waitUntil:'domcontentloaded'});await page.waitForFunction(()=>document.documentElement.dataset.dashboardBoot==='ready');
+ console.log('通过：降本目标与实际仅导入维护，无新增/编辑/保存入口；只读明细、导入新增、原子更新与失败回滚、历史迁移、刷新及宽窄屏。');
 }

@@ -6,7 +6,7 @@ document.body.append(rpImageViewer);
 const rpImageSelector='img.risk-thumb,.product-detail-image img,.dp-detail-head img,.pc-hero img,.md-hero img,.nt-product img';
 let rpImageOrigin=null,rpImageScale=1;
 function rpImageClose(){if(!rpImageViewer.open)return;rpImageViewer.close();rpImageOrigin?.isConnected&&rpImageOrigin.focus({preventScroll:true})}
-function rpImageOpen(img){if(!img.src)return;rpImageOrigin=img;rpImageScale=1;const target=rpImageViewer.querySelector('img');target.src=img.currentSrc||img.src;target.alt=img.alt||'产品图片';target.style.transform='';rpImageViewer.querySelector('.rp-image-error').hidden=true;hideMetricTooltip();rpImageViewer.showModal();rpImageViewer.querySelector('button').focus()}
+function rpImageOpen(img){if(!img.src)return;rpImageOrigin=img;rpImageScale=1;const target=rpImageViewer.querySelector('img');target.src=img.dataset.productFull||productMediaInfo(img.src)?.full||img.currentSrc||img.src;target.alt=img.alt||'产品图片';target.style.transform='';rpImageViewer.querySelector('.rp-image-error').hidden=true;hideMetricTooltip();rpImageViewer.showModal();rpImageViewer.querySelector('button').focus()}
 rpImageViewer.querySelector('button').onclick=rpImageClose;
 rpImageViewer.addEventListener('click',e=>{if(e.target===rpImageViewer||e.target.classList.contains('rp-image-canvas'))rpImageClose()});
 rpImageViewer.querySelector('img').onerror=()=>{rpImageViewer.querySelector('.rp-image-error').hidden=false};
@@ -15,6 +15,15 @@ rpImageViewer.querySelector('img').ondblclick=()=>{rpImageScale=1;rpImageViewer.
 window.addEventListener('keydown',e=>{if(rpImageViewer.open&&e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();rpImageClose()}},true);
 document.addEventListener('click',e=>{const img=e.target.closest(rpImageSelector);if(!img||img.closest('.drawer-parent-layer,#product-image-viewer'))return;e.preventDefault();e.stopImmediatePropagation();rpImageOpen(img)},true);
 document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches(rpImageSelector)){e.preventDefault();e.stopImmediatePropagation();rpImageOpen(e.target)}},true);
-function rpImageDecorate(root){for(const img of root.querySelectorAll(rpImageSelector)){if(img.closest('#product-image-viewer'))continue;img.tabIndex=0;img.setAttribute('role','button');img.setAttribute('aria-label','放大图片：'+(img.alt||'产品'));img.removeAttribute('title');img.classList.add('rp-preview-image')}}
-let rpMediaQueued=false;new MutationObserver(()=>{if(rpMediaQueued)return;rpMediaQueued=true;queueMicrotask(()=>{rpMediaQueued=false;rpImageDecorate(document.body)})}).observe(document.body,{childList:true,subtree:true});
+function rpImageDecorate(root){
+ productMediaDecorate(root);
+ const images=[...(root.matches?.(rpImageSelector)?[root]:[]),...(root.querySelectorAll?.(rpImageSelector)||[])];
+ for(const img of images){if(img.closest('#product-image-viewer'))continue;img.tabIndex=0;img.setAttribute('role','button');img.setAttribute('aria-label','放大图片：'+(img.alt||'产品'));img.removeAttribute('title');img.classList.add('rp-preview-image')}
+}
+const rpMediaPending=new Set();let rpMediaQueued=false;
+new MutationObserver(records=>{
+ for(const record of records)for(const node of record.addedNodes)if(node.nodeType===1)rpMediaPending.add(node);
+ if(rpMediaQueued||!rpMediaPending.size)return;rpMediaQueued=true;
+ queueMicrotask(()=>{rpMediaQueued=false;const nodes=[...rpMediaPending],rpMediaRoots=new Set(nodes);rpMediaPending.clear();for(const node of nodes){let parent=node.parentElement;while(parent&&!rpMediaRoots.has(parent))parent=parent.parentElement;if(node.isConnected&&!parent)rpImageDecorate(node)}});
+}).observe(document.body,{childList:true,subtree:true});
 rpImageDecorate(document.body);

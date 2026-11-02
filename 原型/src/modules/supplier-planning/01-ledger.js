@@ -20,15 +20,18 @@ const scpCapabilities=(()=>{
   const count=['剃须刀','可视挖耳勺','水杯'].includes(category.name)?0:3+ci%6;
   for(let j=0;j<count;j++){const s=machine[(ci*7+j*11)%machine.length];rows.push(scpCapability(s,{kind:'machine',categoryId:category.id,category:category.category,group:category.group,name:category.name},ci+j))}
  }
- scpBrands.forEach(([brand],bi)=>pfCategories.forEach((category,ci)=>scpMaterials.forEach((materialName,mi)=>{
+ // 保留五类能力事实及生成索引，汇总继续由scpMembers按供应商ID去重。
+ scpSourceBrands.forEach((brand,bi)=>Object.keys(scpCategoryReference).forEach((sourceCategory,ci)=>scpMaterials.forEach((materialName,mi)=>{
+  const category=sourceCategory;
   const count=2+(bi*3+ci*2+mi)%7;
-  for(let j=0;j<count;j++){const s=material[(bi*7+ci*3+mi*5+j*11)%material.length],leaves=scpCategories.filter(c=>c.category===category),leaf=leaves[(bi+mi+j)%leaves.length];rows.push(scpCapability(s,{kind:'material',brand,category,categoryId:leaf.id,group:leaf.group,name:leaf.name,material:materialName},bi+ci+mi+j))}
+  for(let j=0;j<count;j++){const s=material[(bi*7+ci*3+mi*5+j*11)%material.length],leaves=scpCategories.filter(c=>c.id.startsWith('C'+ci+'-')),leaf=leaves[(bi+mi+j)%leaves.length];rows.push(scpCapability(s,{kind:'material',brand,category,categoryId:leaf.id,group:leaf.group,name:leaf.name,material:materialName},bi+ci+mi+j))}
  })));
- // 新增非核心合作物料为固定演示关系，复用已有品牌、类目与阶段日期，不改变原核心覆盖口径。
- const materialBase=rows.filter(row=>row.kind==='material');
- material.forEach((supplier,i)=>{const base=materialBase.find(row=>row.supplierId===supplier.id);if(base)rows.push({...base,material:scpCooperationMaterials[4+i%4]})});
+ // 保留既有补充合作关系的归属，不因核心枚举扩展而重分配旧样例。
+ const legacyMaterials=['电机','电池','电源线','线路板'],supplementalMaterials=['塑料件','硅胶件','五金件','其他'];
+ const materialBase=rows.filter(row=>row.kind==='material'&&legacyMaterials.includes(row.material));
+ material.forEach((supplier,i)=>{const base=materialBase.find(row=>row.supplierId===supplier.id);if(base)rows.push({...base,material:supplementalMaterials[i%supplementalMaterials.length]})});
  // 项目名称已标明的供方纳入同一类目能力关系，避免寻源明细遗漏该供方
- for(const project of projects().filter(p=>p.type.startsWith('自研'))){
+ for(const project of projects().filter(p=>/^(自研|自选)/.test(p.type))){
   const alias=scpProjectSupplierAliases.find(name=>project.name.includes(name)),supplier=alias&&machine.find(s=>s.name.includes(alias)),category=scpProjectCategory(project);
   if(supplier&&!rows.some(row=>row.kind==='machine'&&row.categoryId===category.id&&row.supplierId===supplier.id))rows.push(scpCapability(supplier,{kind:'machine',categoryId:category.id,category:category.category,group:category.group,name:category.name},1));
  }
@@ -41,7 +44,7 @@ function scpProjectCategory(p){
 let scpProjectCache=null;
 function scpProjectFacts(){
  if(scpProjectCache)return scpProjectCache;
- scpProjectCache=projects().filter(p=>p.type.startsWith('自研')).map((project,i)=>{
+ scpProjectCache=projects().filter(p=>/^(自研|自选)/.test(p.type)).map((project,i)=>{
   const category=scpProjectCategory(project),alias=scpProjectSupplierAliases.find(name=>project.name.includes(name)),pool=scpCapabilities.filter(row=>row.kind==='machine'&&row.categoryId===category.id).sort((a,b)=>Number(!!alias&&scpCompanyMap.get(b.supplierId).name.includes(alias))-Number(!!alias&&scpCompanyMap.get(a.supplierId).name.includes(alias))),links=pool.filter((_,j)=>j<3+i%5).map(row=>({...row,projectId:project.id}));
   // 沿用采购工作台的品类采购映射，不以项目经理或产品链主代替。
   return {project,category,links,procurementLead:pbOwner(project.chain)||null};

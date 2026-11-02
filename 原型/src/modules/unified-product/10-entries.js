@@ -1,7 +1,8 @@
 // 所有SPU入口统一打开同一详情；店铺和项目继续使用独立业务抽屉。
 function upEntry(record,module,tab='operating',platform='all',extra={}) {
   const p=upIdentity(record); if(!p){toast('该记录缺少有效SPU关联');return}
-  const period=module==='risk'&&$('#dialogbody').dataset.rankingPeriod?JSON.parse($('#dialogbody').dataset.rankingPeriod):periodFor(activeModule||module);
+  const ranking=module==='risk'&&!$('#overlay').hidden&&$('#dialogbody').hasAttribute('data-risk-ranking-kind')?$('#dialogbody').dataset.rankingPeriod:null;
+  const period=ranking?JSON.parse(ranking):periodFor(activeModule||module);
   const range=upWindow(period);
   return upOpenDetail({spuId:p.spuId,...range,period:{...period},tab,platform,module,...extra});
 }
@@ -12,15 +13,15 @@ nsOpenDetail=function(id){return upProductRun('new',()=>upEntry(productRows(true
 openMatrixDiagnosis=function(id){return productDetail(false,id)};
 dpProductDetail=function(key){const [module]=key.split(':');const p=dpProductCache.get(key);if(p)return dpWith(module,()=>upEntry(p,module))};
 openNewProductTrends=function(id,fromAll=false,module='new'){return upProductRun(module,()=>upEntry(productRows(module==='new').find(p=>p.id===+id),module))};
-qrOpenDetail=function(key){return withPeriod('risk',()=>{
+qrOpenDetail=function(key){return rpWithBoardPeriod(0,()=>{
   const [id,ci]=key.split(':').map(Number),product=qrCatalog().find(p=>p.id===id);
   return upEntry(product,'risk','quality',qrPlatforms[ci]||'all');
-})};
+},rpDetailPeriod(0))};
 const upPreviousRiskDetail=riskDetail;
 riskDetail=function(k,id) {
   if(k===1)return sdOpenDetail(id);
   if(![0,2,3,4,6].includes(k))return upPreviousRiskDetail(k,id);
-  const period=$('#dialogbody').dataset.rankingPeriod?JSON.parse($('#dialogbody').dataset.rankingPeriod):periodFor('risk');
+  const period=rpDetailPeriod(k);
   return drawerWithPeriod(period,()=>{
     const row=(k===0?qrCatalog():k===6?rrAll():riskRows(k)).find(r=>r.id===+id);if(!row)return;
     return upEntry(row,'risk',k===0||k===6?'quality':k===3||k===4?'stock':'operating',k===6?row.channel:k===0?qrState.platform:'all');
@@ -36,7 +37,7 @@ pbDetails=function(record){
 const upPreviousDpRisk=dpOpenRisk;
 dpOpenRisk=function(source) {
   if(source.kind==='project'||!upIdentity(source))return upPreviousDpRisk(source);
-  return upEntry(source,'risk',source.kind==='quality'?'quality':'handling',qrPlatforms.includes(source.channel)?source.channel:'all',source.period?upWindow(source.period):{});
+  return upEntry(source,'risk',source.kind==='quality'?'quality':'operating',qrPlatforms.includes(source.channel)?source.channel:'all',source.period?upWindow(source.period):{});
 };
 document.addEventListener('click',e=>{
   const button=e.target.closest('[data-up-product]');if(!button)return;

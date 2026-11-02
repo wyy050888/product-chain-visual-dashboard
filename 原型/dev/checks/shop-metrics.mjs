@@ -4,12 +4,20 @@ import vm from 'node:vm';
 
 export async function verifyShopMetrics(page){
  const diagnosisContext=vm.createContext({fmt:(n,d=0)=>Number(n).toFixed(d),upPercent:n=>n+'%',pfMoneyYuan:n=>n+'元',rpQualityChange:(a,b)=>b?((a-b)/b*100)+'%':'—',sdRoles:()=>[],rpShopScoreTone:(_,s)=>s>=4.8?'rp-quality-green':'rp-quality-yellow'});
+ const scoreTone=diagnosisContext.rpShopScoreTone;
+ vm.runInContext(fs.readFileSync(new URL('../../src/modules/risk-presentation/01-shop.js',import.meta.url),'utf8'),diagnosisContext);
+ diagnosisContext.rpShopScoreTone=scoreTone;
  vm.runInContext(fs.readFileSync(new URL('../../src/modules/shop-detail/01-diagnosis.js',import.meta.url),'utf8'),diagnosisContext);
  const shop={channel:'抖音',score:4.9,productScore:4.9,logisticsScore:4.8,serviceScore:4.9};
  const facts={gsv:100,netSales:80,violations:0,fine:0,frozen:0,frozenCount:0,offShelf:0,drop:0,limited:0};
  const model={shop,current:facts,previous:facts,returnRate:10,previousReturnRate:10,events:[]};
  const stable=diagnosisContext.sdDiagnosis(model,{});
  assert(stable.summary.includes('维持现有经营节奏'));assert(!stable.actions.includes('品质中心'),'无依据时不机械派单');
+ const video=diagnosisContext.sdDiagnosis({...model,shop:{...shop,channel:'视频号',score:0,productScore:0,logisticsScore:0,serviceScore:0}},{});
+ assert.doesNotMatch(video.summary+video.actions,/评分|店铺分/,'视频号不因评分生成风险与行动');
+ assert.deepEqual(Array.from(video.dimensions,row=>row[0]),['评分','业绩','违规']);
+ assert(video.dimensions[0][1].includes('店铺分0.00'));
+ assert(!video.dimensions[0][1].includes('绿色区间'),'视频号无红黄绿标准');
  const low=diagnosisContext.sdDiagnosis({...model,shop:{...shop,score:4.6}},{});
  assert(!low.dimensions.flat().join('').includes('持续下降'),'单次评分不冒充趋势');
  assert(low.actions.includes('已有违规原因'),'评分低不能直接分配责任');
@@ -43,6 +51,14 @@ export async function verifyShopMetrics(page){
  assert.equal(await root.locator('[data-up-trend-point]').count(),24);
  await page.locator('.up-detail-period [data-drawer-time-mode="year"]').click();assert.equal(await root.locator('[data-up-trend-point]').count(),24);
  await root.locator('[data-drawer-tab="violations"]').click();
- for(const key of ['fine','frozen']){const item=root.locator(`[data-up-quality-metric="${key}"] strong`),red=await item.evaluate(e=>e.classList.contains('rp-quality-red'));assert.equal(await item.evaluate(e=>getComputedStyle(e).color),red?'rgb(255, 49, 87)':'rgb(134, 147, 164)')}
+ // 当前对象为抖音，只核对其适用的冻结指标；罚款由跨平台专项覆盖。
+ for(const key of ['frozen']){
+  const item=root.locator(`[data-up-quality-metric="${key}"] strong`);
+  const colors=await item.evaluate(el=>{
+   const probe=document.createElement('span');probe.style.color=el.classList.contains('rp-quality-red')?'var(--red)':'#8693a4';el.parentElement.append(probe);
+   const result={actual:getComputedStyle(el).color,expected:getComputedStyle(probe).color};probe.remove();return result;
+  });
+  assert.equal(colors.actual,colors.expected,'风险字色沿用当前主题');
+ }
  await page.locator('#close').click();
 }

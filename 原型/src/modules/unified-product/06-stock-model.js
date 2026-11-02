@@ -9,7 +9,11 @@ function upStockCoverage(warehouse,totalUnits,dailyNet15){
  const days=units=>Number.isFinite(units)&&units>=0&&Number.isFinite(dailyNet15)&&dailyNet15>0?units/dailyNet15:null;
  return {coverage15:days(warehouse),totalCoverage15:days(totalUnits)};
 }
-function upStockModel(m,state){
+// 库存与翻新台账共用SKU身份；颜色为演示属性，编码与库存拆分保持一一对应。
+function upStockSkus(product){
+ return ['白色','黑色','灰色','蓝色'].map((color,index)=>{const suffix=String(index+1).padStart(2,'0'),code=product.spuCode+'-SKU'+suffix;return {skuId:code,code,name:product.name+' '+color}});
+}
+function upStockModel(m,state,metrics=null){
  const stock=m.stock;if(!stock)return null;
  const end=m.stockEnd||state.end,recent=upSummary(m.product,shiftDate(end,-14),end,'all');
  const weights=[48,29,16,7],salesWeights=[50,30,20,0];
@@ -18,37 +22,46 @@ function upStockModel(m,state){
  const transitTotal=Number.isFinite(stock.transit)?stock.transit:Math.max(0,stock.sellableUnits-stock.warehouse-stock.factoryAvailable);
  const transit=splitTarget(transitTotal,undelivered);
  const sellableUnits=weights.map((_,i)=>warehouse[i]+factoryAvailable[i]+transit[i]);
- const sellableValues=splitTarget(stock.sellableValueCents,sellableUnits);
  const goodsValues=splitTarget(stock.goodsValueCents,weights.map((_,i)=>warehouse[i]+factory[i]+undelivered[i]));
- const net15=splitTarget(recent.sales-recent.returned,salesWeights),cost=splitTarget(Math.round((stock.cost||0)*100),salesWeights),average=splitTarget(Math.round((stock.avg||0)*100),weights);
- const rows=weights.map((_,i)=>{
+ const net15=splitTarget(recent.sales-recent.returned,salesWeights),periodCost=metrics?metrics.cost:stock.cost,periodAverage=metrics?metrics.avg:stock.avg;
+ const cost=Number.isFinite(periodCost)?splitTarget(Math.round(periodCost*100),salesWeights):weights.map(()=>null),average=Number.isFinite(periodAverage)?splitTarget(Math.round(periodAverage*100),weights):weights.map(()=>null);
+ const splitKnown=(value,basis)=>Number.isFinite(value)?splitTarget(value,basis):weights.map(()=>null);
+ const factoryAvailableValues=splitKnown(stock.factoryAvailableValueCents,factoryAvailable),transitValues=splitKnown(stock.transitValueCents,transit);
+ // 组成金额齐全且与可售总货值一致时逐SKU汇总；独立提供的总货值仍保留原值。
+ const hasComponentValues=Number.isFinite(stock.warehouseValueCents)&&Number.isFinite(stock.factoryAvailableValueCents)&&Number.isFinite(stock.transitValueCents);
+ const sellableValues=hasComponentValues&&stock.sellableValueCents===stock.warehouseValueCents+stock.factoryAvailableValueCents+stock.transitValueCents?
+  weights.map((_,i)=>warehouseValue[i]+factoryAvailableValues[i]+transitValues[i]):splitKnown(stock.sellableValueCents,sellableUnits);
+ const staleUnits=splitKnown(stock.staleUnits,warehouse),staleValues=splitKnown(stock.staleValueCents,warehouseValue);
+ const oldestUnits=splitKnown(stock.staleOldestSellableUnits,staleUnits.map(value=>value??0));
+ const rows=upStockSkus(m.product).map((sku,i)=>{
   // 分类样例拆分我司库存，不引入一类、二类的业务判定规则。
   const warehouseClass1=Math.round(warehouse[i]*([.72,.65,.81,.58][i]));
   const warehouseClass2=warehouse[i]-warehouseClass1;
-  const totalUnits=warehouse[i]+factory[i]+undelivered[i],dailyNet15=net15[i]/15,code=m.product.spuCode+'-SKU'+String(i+1).padStart(2,'0');
-  return {name:m.product.name+' · 规格'+String(i+1).padStart(2,'0'),code,totalUnits,goodsValueCents:goodsValues[i],
-   sellableUnits:sellableUnits[i],sellableValueCents:sellableValues[i],transit:transit[i],
+  const totalUnits=warehouse[i]+factory[i]+undelivered[i],dailyNet15=net15[i]/15;
+  return {...sku,totalUnits,goodsValueCents:goodsValues[i],
+   staleUnits:staleUnits[i],staleValueCents:staleValues[i],staleOldestSellableUnits:oldestUnits[i],staleMaxAgeDays:oldestUnits[i]>0?stock.staleMaxAgeDays:null,
+   sellableUnits:sellableUnits[i],sellableCoverage15:dailyNet15>0?sellableUnits[i]/dailyNet15:null,sellableValueCents:sellableValues[i],transit:transit[i],transitValueCents:transitValues[i],factoryAvailableValueCents:factoryAvailableValues[i],
    warehouse:warehouse[i],warehouseClass1,warehouseClass2,warehouseValueCents:warehouseValue[i],...upStockCoverage(warehouse[i],totalUnits,dailyNet15),
-   factory:factory[i],factoryAvailable:factoryAvailable[i],dailyNet15,turn:average[i]>0?cost[i]/average[i]:null};
+   factory:factory[i],factoryAvailable:factoryAvailable[i],dailyNet15,turn:Number.isFinite(cost[i])&&average[i]>0?cost[i]/average[i]:null};
  });
  const sum=key=>rows.reduce((n,row)=>n+row[key],0),sellable=upSellableStock(m.product,stock.warehouse,end,sum('totalUnits'));
  const season=pfIdentity(m.product).attribute,seasons=filterCatalog.seasons.map(label=>({label,units:label===season?stock.sellableUnits:0,valueCents:label===season?stock.sellableValueCents:0}));
  return {...stock,end,seasons,rows,totalUnits:sum('totalUnits'),goodsValueCents:sum('goodsValueCents'),warehouse:sum('warehouse'),warehouseClass1:sum('warehouseClass1'),warehouseClass2:sum('warehouseClass2'),warehouseValueCents:sum('warehouseValueCents'),
-  sellableUnits:sum('sellableUnits'),sellableValueCents:sum('sellableValueCents'),transit:sum('transit'),factory:sum('factory'),factoryAvailable:sum('factoryAvailable'),...sellable,turn:Number.isFinite(stock.turn)?stock.turn:null};
+  sellableUnits:sum('sellableUnits'),sellableValueCents:sum('sellableValueCents'),transit:sum('transit'),factory:sum('factory'),factoryAvailable:sum('factoryAvailable'),...sellable,turn:metrics?metrics.turn:Number.isFinite(stock.turn)?stock.turn:null,delivery:metrics?.delivery??null,name:m.product.name,refurb:metrics?.refurb??null,refurbRate:metrics?.refurbRate??null};
 }
 const upStockColumns=[
- ['totalUnits','总库存',v=>fmt(v)],['goodsValueCents','货值（总库存）',upMoney],
- ['sellableUnits','可售库存',v=>fmt(v)],['sellableValueCents','货值（可售库存）',upMoney],
- ['warehouse','我司可售库存',v=>fmt(v)],['warehouseValueCents','货值（我司可售）',upMoney],['coverage15','我司可售天数',v=>Number.isFinite(v)?fmt(v,1)+'天':'—'],
- ['warehouseClass1','一类我司库存',v=>fmt(v)],['warehouseClass2','二类我司库存',v=>fmt(v)],
- ['factory','工厂总库存',v=>fmt(v)],['factoryAvailable','工厂可售库存',v=>fmt(v)],
- ['transit','在途库存',v=>fmt(v)],['dailyNet15','近15日均净销量',v=>fmt(Math.round(v))],['turn','近30日库存周转率',v=>Number.isFinite(v)?fmt(v,1)+'次':'—']
+ ['totalUnits','总库存',stockQuantity],['goodsValueCents','货值（总库存）',upMoney],
+ ['totalCoverage15','总可售天数',v=>Number.isFinite(v)?fmt(v,1)+'天':'—'],
+ ['warehouse','我司可售库存',stockQuantity],['warehouseValueCents','货值（我司可售）',upMoney],['coverage15','我司可售天数',v=>Number.isFinite(v)?fmt(v,1)+'天':'—'],
+ ['warehouseClass1','一类我司库存',stockQuantity],['warehouseClass2','二类我司库存',stockQuantity],
+ ['factory','工厂总库存',stockQuantity],['factoryAvailable','工厂可售库存',stockQuantity],
+ ['transit','在途库存',stockQuantity],['dailyNet15','近15日均净销量',v=>stockQuantity(Number.isFinite(v)?Math.round(v):null)],['turn','库存周转率',v=>Number.isFinite(v)?fmt(v,1)+'次':'—']
 ];
 
 // 风险直接读取库存指标，避免静态标签与样例余额矛盾；无净销量时不计算有限天数。
 function upStockRiskTags(model){
  if(!model)return [];
- return [Number.isFinite(model.totalCoverage15)&&model.totalCoverage15<30?'shortage':null,
-  Number.isFinite(model.coverage15)&&model.coverage15<=7?'transfer':null,
-  model.warehouse>0&&Number.isFinite(model.coverage15)&&model.coverage15>=60?'stagnant':null].filter(Boolean);
+ return [brcStockRuleMatch('stock.shortDays',model)?'shortage':null,
+  brcStockRuleMatch('stock.transferDays',model)?'transfer':null,
+  brcStockStagnant(model)?'stagnant':null].filter(Boolean);
 }

@@ -1,0 +1,40 @@
+/* 成功规则查看和弹窗使用独立区域，条件编辑复用已有规则组件。 */
+#business-rule-page .brc-footer[hidden]{display:none}
+.brcs-target{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:16px 0 22px;margin-bottom:22px;border-bottom:1px solid #e8eef7}
+.brcs-target label{display:inline-flex;align-items:center;gap:8px;color:#345371}
+.brcs-target input{width:100px;height:34px;padding:6px 10px;border:1px solid #d7e2f2;border-radius:4px;color:#345371;font:inherit}
+.brcs-target small{color:#8292aa}
+.brcs-toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px}
+.brcs-toolbar .period-segment{padding:3px}
+.brcs-toolbar .period-segment button{padding:7px 18px}
+.brcs-selector{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:0 0 16px}
+.brcs-selector label{display:flex;align-items:center;gap:12px;white-space:nowrap}
+.brcs-choice{position:relative;display:inline-flex;width:190px;height:36px}
+.brcs-selector select{width:100%;height:36px;border:1px solid #d7e2f2;border-radius:4px;padding:6px 30px 6px 10px;color:transparent;background:#fff;appearance:none;font:inherit}
+.brcs-selector select :is(option,optgroup){color:#345371;background:#fff}
+.brcs-choice-display{position:absolute;left:11px;right:27px;top:0;height:36px;display:flex;align-items:center;gap:5px;color:#345371;pointer-events:none;white-space:nowrap}
+.brcs-choice-display .brcs-status{padding:0;background:none}
+.brcs-choice-arrow{position:absolute;right:11px;top:8px;color:#8292aa;pointer-events:none}
+.brcs-status{border-radius:4px;padding:4px 9px;background:#eef2f6;color:#738397}
+.brcs-status.current{background:#eaf7ef;color:#16854a}.brcs-status.pending{background:#fff5e7;color:#b26a12}
+.brcs-readonly-table{table-layout:fixed;border:1px solid #e3eaf5}
+.brcs-readonly-table th:first-child{width:180px}.brcs-readonly-table td{line-height:1.9;overflow-wrap:anywhere}
+.brcs-page-error,#brcs-error{color:#ce4057;font-size:13px;margin:14px 0 0;white-space:pre-line}
+#brcs-editor{width:min(1200px,calc(100vw - 32px));max-height:90dvh;border-radius:8px}
+#brcs-editor>form{display:flex;flex-direction:column;min-height:0;max-height:90dvh;margin:0}
+#brcs-editor form>header,#brcs-editor form>footer{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 24px;flex:none;background:#fff}
+#brcs-editor form>header{border-bottom:1px solid #e5ebf5}
+#brcs-editor form>footer{border-top:1px solid #e5ebf5}
+#brcs-editor form>footer>div{display:flex;gap:12px}
+.brcs-editor-body{min-height:0;overflow:auto;padding:20px 24px}
+.brcs-effective{display:flex;align-items:center;flex-wrap:wrap;gap:12px;color:#345371}
+.brcs-effective label{display:inline-flex;align-items:center;gap:8px}
+.brcs-effective :is(input,select){height:34px;border:1px solid #d7e2f2;border-radius:4px;padding:5px 8px;font:inherit;color:#345371;background:#fff}
+.brcs-effective input{width:90px}.brcs-effective select{width:70px}
+.brcs-warning{color:#ad6800;margin:14px 0}.brcs-impact{font-size:12px;line-height:1.8;color:#8292aa;margin:16px 0 0}
+#brcs-editor .brc-clause-group{margin:18px 0 0}
+#brcs-editor .brc-clause-group h4>.metric-help{display:none}
+.brcs-confirm{width:min(440px,calc(100vw - 32px));border-radius:8px}
+.brcs-confirm>div,.brcs-confirm>p{padding:12px 24px;line-height:1.8;margin:0}.brcs-confirm>p{color:#ce4057}
+.brcs-confirm footer{display:flex;justify-content:flex-end;gap:12px;padding:14px 24px}
+@media(max-width:600px){.brcs-selector label{width:100%;min-width:0}.brcs-choice{min-width:0;flex:1;width:auto}.brcs-readonly-table th:first-child{width:100px}.brcs-target small{width:100%}.brcs-editor-body{padding:16px 12px}#brcs-editor form>header,#brcs-editor form>footer{padding:14px 12px}}

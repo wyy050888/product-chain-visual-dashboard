@@ -7,7 +7,8 @@ function uiColumnCells(table){
  return rows.map(entry=>{const css=getComputedStyle(entry.cell);return {...entry,left:css.position==='sticky'&&css.left!=='auto',right:css.position==='sticky'&&css.right!=='auto'}});
 }
 function uiColumnApply(state,widths){
- const {table}=state;state.widths=[...widths];
+ const {table}=state,minimums=uiColumnMinimums(table,widths.length);
+ widths=widths.map((width,i)=>Math.max(minimums[i],width));state.widths=[...widths];
  let group=table.querySelector(':scope > colgroup');
  if(!group){group=document.createElement('colgroup');table.prepend(group)}
  if(group.children.length!==widths.length)group.replaceChildren(...widths.map(()=>document.createElement('col')));
@@ -23,27 +24,38 @@ function uiColumnApply(state,widths){
  for(const key of ['width','min-width'])table.style.setProperty(key,offsets.at(-1)+'px','important');
  table.style.setProperty('max-width','none','important');table.classList.add('ui-table-widths');
  // 保留原表格节点和选择器；缺少滚动容器时只在其承载层开启横向滚动。
- const host=table.parentElement;if(host&&getComputedStyle(host).overflowX==='visible')host.style.overflowX='auto';
+ const host=table.parentElement;if(host&&state.hostOverflowVisible)host.style.overflowX='auto';
  for(const handle of table.querySelectorAll('[data-ui-column-handle]'))handle.setAttribute('aria-valuenow',widths[+handle.dataset.uiColumnHandle]);
 }
-function uiColumnInit(table){
- if(!table.tHead)return;
- const grid=uiColumnGrid(table.tHead.rows);if(!grid.count)return;
+// 批次先读布局、后写DOM；普通表格不提前扫描全部数据单元格。
+function uiColumnPrepare(table){
+ if(!table.tHead)return null;
+ const grid=uiColumnGrid(table.tHead.rows);if(!grid.count)return null;
  const key=uiColumnKey(table,grid),prior=uiColumnStates.get(table);
- if(prior&&prior.key===key&&prior.grid.cells.length===grid.cells.length&&prior.grid.cells.every((entry,i)=>entry.cell===grid.cells[i].cell)){
-  if(prior.widths){prior.cells=uiColumnCells(table);uiColumnApply(prior,prior.widths)}return;
- }
- const state={table,key,grid,cells:uiColumnCells(table),widths:null};uiColumnStates.set(table,state);
- for(const {cell,start,span} of grid.cells){
-  if(getComputedStyle(cell).position==='static')cell.style.position='relative';
-  let handle=cell.querySelector(':scope > [data-ui-column-handle]');
-  if(!handle){handle=document.createElement('span');handle.className='ui-column-handle';cell.append(handle)}
-  handle.dataset.uiColumnHandle=start+span-1;handle.tabIndex=0;handle.setAttribute('role','separator');
-  handle.setAttribute('aria-orientation','vertical');handle.setAttribute('aria-label','调整'+uiColumnLabel(cell)+'列宽');
-  handle.setAttribute('aria-valuemin',uiColumnMin);handle.setAttribute('aria-valuemax',uiColumnMax);if(!table.closest('#lifecycle,#cost,.cc-drawer'))handle.title='拖动调整列宽，方向键微调';
- }
- const saved=uiColumnSaved(key,grid.count);if(saved)uiColumnApply(state,saved);
+ const unchanged=prior&&prior.key===key&&prior.grid.cells.length===grid.cells.length&&prior.grid.cells.every((entry,i)=>entry.cell===grid.cells[i].cell);
+ if(unchanged&&!prior.widths)return null;
+ const widths=unchanged?prior.widths:uiColumnSaved(key,grid.count)||uiColumnDefaults(table,grid);
+ return {table,key,grid,unchanged,widths,cells:widths?uiColumnCells(table):[],
+  hostOverflowVisible:!!widths&&!!table.parentElement&&getComputedStyle(table.parentElement).overflowX==='visible'};
 }
+function uiColumnInit(table,prepared=uiColumnPrepare(table)){
+ if(!prepared)return;
+ const {key,grid,unchanged,widths,cells,hostOverflowVisible}=prepared;
+ const state=unchanged?uiColumnStates.get(table):{table,key,grid,widths:null};
+ state.cells=cells;state.hostOverflowVisible=hostOverflowVisible;uiColumnStates.set(table,state);
+ if(!unchanged){
+  const minimums=uiColumnMinimums(table,grid.count);
+  for(const {cell,start,span} of grid.cells){
+   let handle=cell.querySelector(':scope > [data-ui-column-handle]');
+   if(!handle){handle=document.createElement('span');handle.className='ui-column-handle';cell.append(handle)}
+   handle.dataset.uiColumnHandle=start+span-1;handle.tabIndex=0;handle.setAttribute('role','separator');
+   handle.setAttribute('aria-orientation','vertical');handle.setAttribute('aria-label','调整'+uiColumnLabel(cell)+'列宽');
+   handle.setAttribute('aria-valuemin',minimums[start+span-1]);handle.setAttribute('aria-valuemax',uiColumnMax);if(!table.closest('#lifecycle,#cost,.cc-drawer'))handle.title='拖动调整列宽，方向键微调';
+  }
+ }
+ if(widths)uiColumnApply(state,widths);
+}
+
 function uiColumnFlush(){
  uiColumnFrame=0;if(!uiColumnDrag)return;
  const d=uiColumnDrag;if(!d.state.table.isConnected)return;
@@ -61,7 +73,7 @@ document.addEventListener('pointerdown',e=>{
  const handle=e.target.closest('[data-ui-column-handle]');if(!handle||e.button!==0)return;
  e.preventDefault();e.stopImmediatePropagation();uiHideCellTooltip();
  const table=handle.closest('table');uiColumnInit(table);const state=uiColumnStates.get(table);
- const widths=state.widths||uiColumnWidths(table,state.grid);state.cells=uiColumnCells(table);
+ const widths=state.widths||uiColumnWidths(table,state.grid);state.cells=uiColumnCells(table);state.hostOverflowVisible=getComputedStyle(table.parentElement).overflowX==='visible';
  uiColumnDrag={state,handle,pointerId:e.pointerId,index:+handle.dataset.uiColumnHandle,original:[...widths],startX:e.clientX,x:e.clientX};
  handle.setPointerCapture(e.pointerId);handle.classList.add('active');document.body.classList.add('ui-column-resizing');
 },true);
@@ -79,12 +91,17 @@ document.addEventListener('keydown',e=>{
  e.preventDefault();e.stopImmediatePropagation();const table=handle.closest('table');uiColumnInit(table);const state=uiColumnStates.get(table);
  const widths=state.widths||uiColumnWidths(table,state.grid),index=+handle.dataset.uiColumnHandle;
  widths[index]=Math.max(uiColumnMin,Math.min(uiColumnMax,widths[index]+(e.key==='ArrowRight'?1:-1)*(e.shiftKey?24:8)));
- state.cells=uiColumnCells(table);uiColumnApply(state,widths);uiColumnRemember(state.key,widths);
+ state.cells=uiColumnCells(table);state.hostOverflowVisible=getComputedStyle(table.parentElement).overflowX==='visible';uiColumnApply(state,widths);uiColumnRemember(state.key,widths);
 },true);
 const uiColumnPending=new Set();let uiColumnScan=0;
 function uiColumnQueue(table){
  uiColumnPending.add(table);if(uiColumnScan)return;
- uiColumnScan=requestAnimationFrame(()=>{uiColumnScan=0;for(const target of uiColumnPending)if(target.isConnected)uiColumnInit(target);uiColumnPending.clear()});
+ uiColumnScan=requestAnimationFrame(()=>{
+  uiColumnScan=0;
+  const batch=[...uiColumnPending].filter(table=>table.isConnected);uiColumnPending.clear();
+  const prepared=batch.map(uiColumnPrepare).filter(Boolean);
+  for(const state of prepared)uiColumnInit(state.table,state);
+ });
 }
 new MutationObserver(records=>{
  if(uiColumnDrag&&!uiColumnDrag.state.table.isConnected)uiColumnFinish(true);

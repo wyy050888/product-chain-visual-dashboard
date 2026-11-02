@@ -9,17 +9,17 @@ function upStockBadges(model){
  return `<div class="up-stock-risk" aria-label="库存风险">${tags.map(key=>{const badge=upStockRiskBadges[key];return `<span class="up-stock-risk-tag ${key}" data-stock-risk="${key}"><span class="up-stock-risk-icon"><svg viewBox="0 0 26 26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${badge.path}</svg></span><span>${badge.label}</span></span>`}).join('')}</div>`;
 }
 function upStockView(m,state){
- const model=upStockModel(m,state);if(!model)return '<div class="up-empty">暂无库存台账</div>';
- return `<div class="up-stock-heading"><h3>库存指标</h3>${upStockBadges(model)}<button type="button" class="link up-stock-more" data-stock-more data-metric-rule="跳转spu库存详情页">查看更多</button></div>
+ const model=upStockModel(m,state,upStockPeriodMetrics(m,state));if(!model)return '<div class="up-empty">暂无库存台账</div>';
+ return `<div class="up-stock-heading"><h3>库存指标</h3>${upStockBadges(model)}<button type="button" class="link up-stock-more" data-stock-more data-jump-toast="跳转spu库存详情页">查看更多</button></div>
  ${upStockBalanceCards(model,true)}
  <section class="up-stock-sku-section"><h3>SKU库存明细</h3><div id="up-stock-skus" class="up-table"></div></section>`;
 }
 function upMountStock(root,m,state){
- const host=root.querySelector('#up-stock-skus'),model=upStockModel(m,state);if(!host||!model)return;
- const sort=state.stockSort||(state.stockSort={key:'',direction:''});
+ const host=root.querySelector('#up-stock-skus'),model=upStockModel(m,state,upStockPeriodMetrics(m,state));if(!host||!model)return;
+ const defaultSort={key:'totalUnits',direction:'desc'},sort=state.stockSort||(state.stockSort={...defaultSort});
  function render(){
   const rows=rpSortRows(model.rows,sort,(r,key)=>r[key]);
-  const headers=['SKU名称','SKU码',...upStockColumns.map(([key,label])=>rpSortHeader(key,label,sort).replaceAll('榜单排序','默认顺序'))];
+  const headers=['SKU名称','SKU码',...upStockColumns.map(([key,label])=>rpSortHeader(key,label,sort,undefined,defaultSort).replaceAll('榜单排序','默认顺序'))];
   host.innerHTML=table(headers,rows.map(row=>[esc(row.name),esc(row.code),...upStockColumns.map(([key,,format])=>format(row[key]))]),'up-stock-sku-table');
   for(const [index,row] of rows.entries()){
    const tr=host.querySelectorAll('tbody tr')[index];tr.dataset.skuCode=row.code;
@@ -27,5 +27,5 @@ function upMountStock(root,m,state){
   }
   rpApplySortAria(host,sort);
  }
- host.onclick=e=>{const button=e.target.closest('[data-rp-sort]');if(!button)return;const key=button.dataset.rpSort;rpSortCycle(sort,key);render();host.querySelector(`[data-rp-sort="${key}"]`)?.focus({preventScroll:true})};render();
+ host.onclick=e=>{const button=e.target.closest('[data-rp-sort]');if(!button)return;const key=button.dataset.rpSort;rpSortCycle(sort,key,defaultSort);render();host.querySelector(`[data-rp-sort="${key}"]`)?.focus({preventScroll:true})};render();
 }

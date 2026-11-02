@@ -1,3 +1,5 @@
+// 库存渲染由 inventory-period/03-view.js 安装，保留共享闭包入口。
+let renderInventory;
 
 // Monthly fixtures are additive; snapshots are deliberately never summed.
 function allocate(total,weights){const sum=weights.reduce((a,b)=>a+b,0),values=weights.map(w=>Math.floor(total*w/sum));values[values.length-1]+=total-values.reduce((a,b)=>a+b,0);return values}
@@ -20,7 +22,6 @@ function inventoryRows(){
  if(invView==='chain')return canonical;
  return inventorySpuGroups(canonical);
 }
-function renderInventory(){const oldView=invView;invView='chain';const all=inventoryRows();invView=oldView;const sum=k=>all.reduce((n,p)=>n+p[k],0),amount=sum('amount'),stale=sum('stale'),turn=sum('cost')/sum('avg'),delivery=sum('on')/sum('due')*100,ref=sum('refOn')/sum('refDue')*100;$('#inventorymetrics').innerHTML=[['总库存数',fmt(sum('num')),'件','截止日实物余额'],['库存总金额',fmt(amount),'万元','截止日账面成本'],['库存周转率',fmt(turn,2),'次/'+{month:'月',quarter:'季',year:'年'}[periodFor().mode],'周期成本 ÷ 平均库存'],['呆滞库存金额',fmt(stale),'万元','余额占比 '+fmt(stale/amount*100,1)+'%'],['交付率',fmt(delivery,1),'%','按期 '+sum('on')+' / 到期 '+sum('due')],['翻新及时率',fmt(ref,1),'%','按期 '+sum('refOn')+' / 到期 '+sum('refDue')]].map(([l,v,u,n],i)=>`<div class="inventorymetric"><span class="muted">${l}</span><strong class="num ${i===3?'orange':''}">${v}<span class="unit">${u}</span></strong><small>${n}</small></div>`).join('');$('#inventorytable').innerHTML=table([invView==='chain'?'业务链群':'合作品牌','期末库存数','期末库存金额','周期库存周转率','期末呆滞库存金额','周期交付率','周期翻新及时率','操作'],inventoryRows().map((p,i)=>[p.name,fmt(p.num),fmt(p.amount)+' 万',fmt(p.turn,2)+' 次/'+{month:'月',quarter:'季',year:'年'}[periodFor().mode],fmt(p.stale)+' 万',fmt(p.delivery,1)+'%',fmt(p.refurb,1)+'%',`<button class="link" data-stock="${i}">查看明细</button>`]));}
 function costs(){return ccLegacyCosts()}
 function renderCost(){return ccRender()}
 function newMetrics(){const p=periodFor(),b=bounds(p),c=$('#newchain').value,cs=c==='全部'?[0,1,2,3]:[+c];let planned=0,ontime=0,sold=0;for(const chain of cs){for(let m=b.first;m<=b.last;m++)planned+=3+(m+chain)%2;for(const m of months(p)){const target=3+(m+chain)%2,timely=Math.max(0,target-((m+chain)%3===0?1:0)-(p.year===2026&&m===9?1:0));ontime+=timely;sold+=Math.max(0,timely-((m+chain)%4===0?1:0))}}return{planned,ontime,sold}}
@@ -30,13 +31,13 @@ function renderAI(){const a=prepareAI(),items=[['全链路高风险卡点',a.red
 function renderAll(){moduleIds.forEach(renderModule);renderTimeControls()}
 
 function bindRender(id,fn){return (...args)=>withPeriod(id,()=>{const result=fn(...args);decorateModule(id);return result})}
-renderRisks=bindRender('risk',renderRisks);renderAI=bindRender('ai',renderAI);renderSales=bindRender('sales',renderSales);renderProjects=bindRender('projects',renderProjects);renderLife=bindRender('lifecycle',renderLife);renderNew=bindRender('new',renderNew);renderMatrix=bindRender('matrix',renderMatrix);renderInventory=bindRender('inventory',renderInventory);renderSuppliers=bindRender('suppliers',renderSuppliers);renderCost=bindRender('cost',renderCost);
+renderRisks=bindRender('risk',renderRisks);renderAI=bindRender('ai',renderAI);renderSales=bindRender('sales',renderSales);renderProjects=bindRender('projects',renderProjects);renderLife=bindRender('lifecycle',renderLife);renderNew=bindRender('new',renderNew);renderMatrix=bindRender('matrix',renderMatrix);renderSuppliers=bindRender('suppliers',renderSuppliers);renderCost=bindRender('cost',renderCost);
 function bindDetail(id,fn){return (...args)=>withPeriod(typeof id==='function'?id(...args):id,()=>fn(...args))}
 openRisk=bindDetail('risk',openRisk);riskDetail=bindDetail('risk',riskDetail);salesDetail=bindDetail('sales',salesDetail);
 const rawOpenAI=openAI;openAI=bindDetail('ai',(...args)=>{prepareAI();return rawOpenAI(...args)});
-projectDetail=bindDetail(()=>activeModule||(!$('#overlay').hidden?modalModule:null)||'projects',projectDetail);
+
 productDetail=bindDetail(isNew=>isNew?'new':(!$('#overlay').hidden&&modalModule==='cost'?'cost':'matrix'),productDetail);
-stockDetail=bindDetail('inventory',stockDetail);suppliersDetail=bindDetail('suppliers',suppliersDetail);costDetail=bindDetail('cost',costDetail);
+suppliersDetail=bindDetail('suppliers',suppliersDetail);costDetail=bindDetail('cost',costDetail);
 filteredProjects=bindDetail('projects',filteredProjects);newList=bindDetail('new',newList);
 const rawOpenModal=openModal;
 openModal=function(title,body,drawer=false,sub=''){
@@ -59,6 +60,6 @@ function showTimeRules(){openModal('时间筛选与统计口径',`<div class="no
  ['生命周期','统计完成时间范围','目标、实际、完成率及差额随周期联动；月／季视图另保留年度累计。'],
  ['新品专项','周期经营＋截止日新品池','上线计划按周期统计；新品资格按截止日≤120天判断，商品销售额仅累计本周期且不早于上架。'],
  ['关键产品','选择经营回看截止日','沿用截止日前30天销售额与利润率，不改变ABCD分层阈值；非所选年度销售总额。'],
- ['库存','最新库存快照，无时间筛选','库存和呆滞取最新余额；周转率与交付及时率固定统计本月累计；翻新按提报与退货日期计算。'],
+ ['库存','最新库存及期间指标','库存和呆滞取最新有效记录；周转率、交付及时率按所选期间统计；翻新按请购单交付完成日期筛选，周期从报价完结至交付完成。'],
  ['供应链采购','期末供应商池＋周期新增','数量取截止日存量；新增按审核通过时间累计；储备转合作不重复新增。'],
  ['降本增效','财务确认时间范围','周期目标、财务已确认金额、完成率、差额；年度视图合并重复年度卡片。']])}</div><p class="note" style="margin-top:14px">未结束周期的实际值截至最新数据日，目标保留完整周期目标。抽屉继承来源模块时间，展示统计开始和数据截止。</p>`)}

@@ -24,3 +24,25 @@
 .ns-attainment{display:inline-flex;align-items:center;gap:4px;white-space:nowrap;font-variant-numeric:tabular-nums}.ns-attainment i{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0}.ns-attainment.none i{display:none}
 .ns-detail-hero{display:flex;align-items:center;gap:14px;padding:18px;background:#f7f8ff;border-radius:10px}.ns-detail-hero img{width:64px;height:64px;object-fit:cover;border-radius:8px}.ns-detail-hero h2{font-size:17px;margin:0 0 7px}.ns-detail-hero p{font-size:12px;color:#929bb2;margin:0}.ns-detail-hero>.tag{margin-left:auto}
 .ns-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:18px 0}.ns-meta dt{font-size:11px;color:#919ab1}.ns-meta dd{margin:6px 0 0;font-size:13px}
+/* AI明细移除类目后，正文与操作列按语义定位。 */
+.ai-detail-table.ai-no-category th:nth-child(2){width:76px}
+.ai-detail-table.ai-no-category th:nth-child(3){width:78px}
+.ai-detail-table.ai-no-category th:nth-child(4){width:29%}
+.ai-detail-table.ai-no-category th:nth-child(5){width:25%}
+.ai-detail-table.ai-no-category th:nth-child(6){width:102px}
+.ai-detail-table.ai-no-category th:nth-child(7){width:140px}
+@media(max-width:800px){
+ .ai-no-category td[data-label="诊断明细与业务影响"],.ai-no-category td[data-label="建议行动"],.ai-no-category td[data-label="行动要求 / 计划完成"],.ai-no-category td[data-label="操作"]{grid-column:1/-1}
+ .ai-no-category td[data-label="记录时间"]{grid-column:auto}
+}
+
+#pb-ai .ai-no-category th:nth-child(2){width:8%!important}
+#pb-ai .ai-no-category th:nth-child(3){width:9%!important}
+#pb-ai .ai-no-category th:nth-child(4){width:27%!important}
+#pb-ai .ai-no-category th:nth-child(5){width:25%!important}
+#pb-ai .ai-no-category th:nth-child(6){width:10%!important}
+#pb-ai .ai-no-category th:nth-child(7){width:11%!important}
+@media(max-width:800px){
+ .ai-detail-table.ai-no-category td:nth-child(4),.ai-detail-table.ai-no-category td:nth-child(5),.ai-detail-table.ai-no-category td:nth-child(7){grid-column:1/-1}
+ .ai-detail-table.ai-no-category td:nth-child(6){grid-column:auto}
+}

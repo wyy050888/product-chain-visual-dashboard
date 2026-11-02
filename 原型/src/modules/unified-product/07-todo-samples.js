@@ -13,7 +13,7 @@ function upEnsureTodoSamples(m,state){
   const logs=[{at:stamp(-3),actor:assignedBy,action:'assign',from:'suggested',to:'pending',note:''}];
   if(['working','done'].includes(statuses[i]))logs.push({at:stamp(-2),actor:assignee,action:'start',from:'pending',to:'working',note:''});
   if(statuses[i]==='done')logs.push({at:stamp(0),actor:assignee,action:'complete',from:'working',to:'done',note:evidence});
-  changes[id]={...source,id,start:sampleState.start,end:sampleState.end,source:'demo-history',status:statuses[i],assignee,assignedBy,assignedAt:stamp(-3),priority:['red','yellow','red','green','yellow'][i],due:shiftDate(today,[2,-1,1,-1,3][i]),evidence:statuses[i]==='done'?evidence:'',completedAt:statuses[i]==='done'?stamp(0):'',createdAt:stamp(-3),updatedAt:logs.at(-1).at,logs};
+  changes[id]={...source,id,start:sampleState.start,end:sampleState.end,source:'demo-history',status:statuses[i],assignee,assignedBy,assignedAt:stamp(-3),priority:['P1','P2','P1','P3','P2'][i],due:shiftDate(today,[2,-1,1,-1,3][i]),evidence:statuses[i]==='done'?evidence:'',completedAt:statuses[i]==='done'?stamp(0):'',createdAt:stamp(-3),updatedAt:logs.at(-1).at,logs};
  });
- try{const next={...upTodos,...changes};localStorage.setItem(upTodoStorageKey,JSON.stringify(next));upTodos=next}catch(_){/* 不影响已有任务及AI建议查看。 */}
+ try{upPersistTodos({...upTodos,...changes})}catch(_){/* 不影响已有任务及AI建议查看。 */}
 }

@@ -10,11 +10,11 @@
 .kpm-management-row{display:flex;align-items:center;gap:10px;width:100%;min-height:59px;padding:10px 0;border:0;border-bottom:1px solid #e7ecf5;background:transparent;text-align:left;color:inherit;cursor:pointer}
 .kpm-management-row>span{flex:1;min-width:0}.kpm-management-row b{font-size:12px;font-weight:500}.kpm-management-row>span>small{display:block;font-size:10px;line-height:1.5;color:#8c9ab1;margin-top:4px}
 .kpm-management-row>strong{font-size:22px;font-weight:600;color:#526f96;white-space:nowrap}.kpm-management-row>strong>small{font-size:10px;font-weight:400;color:#8b9ab2;margin-left:3px}.kpm-management-row>i{font-style:normal;color:#91a2bc}
-.kpm-management-row.red>strong{color:#e65c6d}.kpm-management-row.yellow>strong{color:#a58013}.kpm-management-row.green>strong{color:#24a58c}
+.kpm-management-row.red>strong{color:var(--red)}.kpm-management-row.yellow>strong{color:var(--orange)}.kpm-management-row.green>strong{color:var(--green)}
 .kpm-management-row:not(:disabled):hover{background:#edf4ff}.kpm-management-row:disabled{cursor:default}.kpm-management-row:disabled>strong{color:#9caabd}
 .kpm-structure-table{width:100%;border-collapse:collapse;font-size:11px;table-layout:auto}.kpm-structure-table th{color:#8191a8;font-weight:400;text-align:right;padding:10px 3px;white-space:nowrap}.kpm-structure-table th:first-child,.kpm-structure-table td:first-child{text-align:left}.kpm-structure-table td{text-align:right;padding:12px 3px;border-bottom:1px solid #e7ecf5;white-space:nowrap}.kpm-structure-table td>small{display:block;font-size:10px;color:#8e9eb5;margin-top:3px}.kpm-structure-table .negative{color:#d05d6b}.kpm-structure-table .link{font-size:11px}
 #dialogbody .rp-product-grade{display:inline-flex;justify-content:center;min-width:24px;padding:4px 7px;border-radius:4px;font-size:12px;background:#edf2fa;color:#5c7391;box-sizing:border-box}
-#dialogbody .rp-product-grade.S{background:#eaf7f2;color:#259c7d}#dialogbody .rp-product-grade.A{background:#fff5e4;color:#cb8d25}#dialogbody .rp-product-grade.B{background:#eef1ff;color:#6c7ecf}#dialogbody .rp-product-grade.C{background:#fff0f2;color:#da6b7b}#dialogbody .rp-product-grade.unrated{background:#f0f2f6;color:#8997aa;font-size:11px;white-space:nowrap}
+#dialogbody .rp-product-grade.S{background:var(--green-soft);color:var(--green)}#dialogbody .rp-product-grade.A{background:var(--orange-soft);color:var(--orange)}#dialogbody .rp-product-grade.B{background:#eef1ff;color:#6c7ecf}#dialogbody .rp-product-grade.C{background:#fff0f2;color:#da6b7b}#dialogbody .rp-product-grade.unrated{background:#f0f2f6;color:#8997aa;font-size:11px;white-space:nowrap}
 #dialogbody .rp-grade-column{min-width:86px;white-space:nowrap}
 .kpm-management :is(button,.link):focus-visible{outline:2px solid #91beff;outline-offset:2px}
 @media(max-width:600px){.kpm-management{padding:12px}.kpm-management-tabs{gap:10px}.kpm-management-row{min-height:56px}.kpm-management>header{flex-wrap:wrap}.kpm-structure-table th,.kpm-structure-table td{padding-left:2px;padding-right:2px}}
@@ -22,18 +22,18 @@
 /* 信号同时使用灯点和文字，不依赖数字颜色区分。 */
 .kpm-management-lamp{display:inline-flex;align-items:center;gap:5px;padding:3px 6px;border-radius:4px;background:#eef1f6;color:#7888a0;font-size:10px;line-height:16px;white-space:nowrap;font-weight:500}
 .kpm-management-lamp i{width:7px;height:7px;flex:none;border-radius:50%;background:currentColor;box-shadow:0 0 0 2px #ffffff80}
-.kpm-management-lamp.red{background:#fff0f2;color:#d9425d}.kpm-management-lamp.yellow{background:#faf2da;color:#947018}.kpm-management-lamp.green{background:#e8f6f0;color:#178469}
+.kpm-management-lamp.red{background:#fff0f2;color:var(--red)}.kpm-management-lamp.yellow{background:var(--orange-soft);color:var(--orange)}.kpm-management-lamp.green{background:var(--green-soft);color:var(--green)}
 .kpm-management-row:disabled .kpm-management-lamp{opacity:.65}
 .kpm-management-row>.kpm-management-lamp{flex:none}.kpm-management-row{min-height:54px}
 .kpm-management-purpose{display:flex;align-items:center;flex-wrap:wrap;gap:5px 6px;padding:9px 10px;margin:12px 0 3px;border:1px solid #dee8fb;border-radius:5px;background:#f0f5ff;font-size:11px;line-height:1.7;color:#5477a7}
 .kpm-management-purpose>span{display:inline-flex;align-items:center;justify-content:center;width:13px;height:13px;border:1px solid #98b4d9;border-radius:50%;font:10px Georgia;color:#668cb7}
 .kpm-management-purpose b{font-weight:500}.kpm-management-purpose small{font-size:11px;color:#7286a4}
 .kpm-management-list-tools{display:flex;align-items:center;gap:14px;margin-bottom:18px;flex-wrap:wrap;font-size:12px;color:#7385a2}
-.kpm-management-list-tools input{min-width:240px;max-width:100%;box-sizing:border-box;height:36px;padding:0 12px;border:1px solid #d8e2f3;border-radius:4px;color:#365575;font:inherit}
+.kpm-management-list-tools>.ui-search-field{min-width:240px;max-width:100%}
 .kpm-management-list-tools label{display:flex;gap:12px;align-items:center}.kpm-management-list-tools select{min-width:100px;height:36px;border:1px solid #d8e2f3;background:white;border-radius:4px;color:#365575;padding:0 10px;font:inherit}
 .kpm-management-list-table{width:100%;overflow:auto}.kpm-management-products{min-width:1000px;width:100%;border-collapse:collapse;font-size:12px;color:#45658a}
 .kpm-management-products th{padding:16px 14px;background:#f5f8fd;color:#7185a6;text-align:left;font-weight:400;white-space:nowrap}.kpm-management-products td{padding:18px 14px;border-bottom:1px solid #e6edf7;line-height:1.8;white-space:nowrap}.kpm-management-products td:first-child{min-width:240px;white-space:normal}.kpm-management-products td:last-child{min-width:140px}
-.kpm-management-products .negative{color:#d9425d}.kpm-management-products .link{font-size:12px}.kpm-management-products .kpm-grade{display:inline-flex;padding:3px 8px;border-radius:4px;background:#eef2fa;color:#587393}.kpm-management-products .kpm-grade.S{background:#e8f6f0;color:#178469}.kpm-management-products .kpm-grade.A{background:#fff5e4;color:#ab7524}.kpm-management-products .kpm-grade.B{background:#eef1ff;color:#6c7ecf}.kpm-management-products .kpm-grade.C{background:#fff0f2;color:#d9425d}
+.kpm-management-products .negative{color:#d9425d}.kpm-management-products .link{font-size:12px}.kpm-management-products .kpm-grade{display:inline-flex;padding:3px 8px;border-radius:4px;background:#eef2fa;color:#587393}.kpm-management-products .kpm-grade.S{background:var(--green-soft);color:var(--green)}.kpm-management-products .kpm-grade.A{background:var(--orange-soft);color:var(--orange)}.kpm-management-products .kpm-grade.B{background:#eef1ff;color:#6c7ecf}.kpm-management-products .kpm-grade.C{background:#fff0f2;color:#d9425d}
 .kpm-management-drawer button:focus-visible{outline:2px solid #91beff;outline-offset:2px}
 
 /* 标题、状态和期间合并；日期用灰字，期间控件沿用外层样式。 */
@@ -47,3 +47,18 @@
 .kpm-management-period-picker .period-picker{gap:6px;flex-wrap:wrap}
 .kpm-management-period-picker .period-segment button{white-space:nowrap}
 @media(max-width:760px){#dialog:has(.kpm-management-drawer) #dialogsub{flex-basis:100%}.kpm-management-period-picker{margin-left:0}.kpm-management-dates>span{white-space:normal}}
+
+/* 产品名称、渠道标识、分级标签按顺序排列；标签不参与名称截断。 */
+.product-name-line{display:flex;align-items:center;gap:6px;min-width:0}
+.product-name-line>:first-child{min-width:0;flex:0 1 auto}
+.product-name-line>:is(.kpm-grade,.nsp-grade,.product-grade-label){flex:none;white-space:nowrap}
+:is(#newtable,#matrix.kpm-main #matrixtable) .product-name-line>strong{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#dialogbody .rp-platform-name>.rp-product-grade{flex:none;line-height:20px;padding:1px 6px;white-space:nowrap;overflow:visible}
+.product-grade-label{display:inline-flex;align-items:center;justify-content:center;min-width:24px;padding:2px 6px;border-radius:4px;font-size:12px;line-height:20px;background:#f0f2f6;color:#8997aa;white-space:nowrap}
+.product-grade-label[data-product-grade=S]{background:var(--green-soft);color:var(--green)}
+.product-grade-label[data-product-grade=A]{background:var(--orange-soft);color:var(--orange)}
+.product-grade-label[data-product-grade=B]{background:#eef1ff;color:#6c7ecf}
+.product-grade-label[data-product-grade=C],.product-grade-label[data-product-grade=D]{background:#fff0f2;color:#da6b7b}
+
+/* 分级收进身份后，给名称留出原图标与标签所需空间。 */
+#dialogbody :is(#qr-list-table,#rf-list-table).rp-list-table:not(.rp-shop-table) :is(th,td):nth-child(2){width:320px;min-width:320px!important}

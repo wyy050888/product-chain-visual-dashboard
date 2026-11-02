@@ -7,7 +7,7 @@ function lifeChannelRows(stage,p=periodFor()){
  return channels.map((name,c)=>({name,target:targetSum(Array.from({length:b.last-b.first+1},(_,i)=>lifeChannelMonth(stage,c,b.first+i,p).target)),actual:targetSum(actualMonths.map(m=>lifeChannelMonth(stage,c,m,p).actual)),yearTarget:targetSum(Array.from({length:12},(_,i)=>lifeChannelMonth(stage,c,i+1,p).target)),yearActual:targetSum(yearMonths.map(m=>lifeChannelMonth(stage,c,m,p).actual))}));
 }
 function lifeSumRows(rows,name='公司整体'){return{name,...Object.fromEntries(['target','actual','yearTarget','yearActual'].map(k=>[k,targetSum(rows.map(r=>r[k]))]))}}
-lifeData=function(stage){return ltDashboardActive()?ltDashboardTotals(stage):lifeSumRows(lifeChannelRows(stage))};
+lifeData=function(stage){return ltDashboardActive()?ltSelectedTotals(stage):lifeSumRows(lifeChannelRows(stage))};
 function lifeChainRows(stage,p=periodFor()){return ltDashboardActive()?ltDashboardRows(stage,p):lifeBaseChainRows(stage,p)}
 function lifeBaseChainRows(stage,p=periodFor()){
  const b=bounds(p),actualMonths=new Set(months(p)),yearMonths=new Set(months(p,true)),rows=chains.map(name=>({name,target:0,actual:0,yearTarget:0,yearActual:0}));
@@ -26,9 +26,10 @@ function lifeAchievement(actual,target,annual=false){
 }
 function lifeAchievementCell(actual,target,annual=false){
  const f=lifeAchievement(actual,target,annual);
- return `<span class="tag ${f.tone}">${msPercent(f.rate)}</span>`;
+ return `<span class="tag ${f.tone} ${f.tone==='green'?'number-signal-plain':numberSignalClass(f.tone)}">${msPercent(f.rate)}</span>`;
 }
 function lifeAchievementCards(){
+ if(ltDashboardActive())return ltMainCards();
  $$('#lifecards .lifecard').forEach((card,index)=>{
   const d=lifeData(index),f=lifeAchievement(d.actual,d.target),value=card.querySelector('strong'),track=card.querySelector('.track');
   value.className='num '+f.tone;value.innerHTML=f.rate===null?'--':`${fmt(f.rate,1)}<span class="unit">%</span>`;
@@ -39,20 +40,19 @@ function lifeAchievementCards(){
   counts.innerHTML=`<span>${word()} ${fmt(d.actual)} / ${fmt(d.target)}</span><span class="life-count-gap">差额 ${delta>0?'+':''}${fmt(delta)}</span>`;
   if(periodFor().mode==='year')card.querySelector('p:last-child').textContent=`年度累计 ${fmt(d.yearActual)} / ${fmt(d.yearTarget)}`;
  });
- if(ltDashboardActive())ltMainCards();
 }
 const renderLifeBeforeDemo=renderLife;
-renderLife=function(){const combined=!$('#lifecycle').hidden;$('#lifetabs').style.display=combined?'none':'';if(combined)lifeView='chain';renderLifeBeforeDemo();withPeriod('lifecycle',()=>{
- const annual=periodFor().mode==='year',channelRows=lifeChannelRows(lifeIndex),summary=combined?lifeData(lifeIndex):lifeSumRows(channelRows),rows=lifeView==='summary'?[summary]:lifeView==='chain'?lifeChainRows(lifeIndex):channelRows;
+renderLife=function(){ltRenderChainTabs();const combined=!$('#lifecycle').hidden;$('#lifetabs').style.display=combined?'none':'';if(combined)lifeView='chain';renderLifeBeforeDemo();withPeriod('lifecycle',()=>{
+ const annual=periodFor().mode==='year',channelRows=lifeChannelRows(lifeIndex),summary=combined?lifeData(lifeIndex):lifeSumRows(channelRows),rows=lifeView==='summary'?[summary]:lifeView==='chain'?lifeChainRows(lifeIndex).filter((_,index)=>!combined||ltChainMatches(index)):channelRows;
  lifeAchievementCards();
- const headers=[combined?'链群':'业务维度',word()+'目标（项）',word()+'实际完成（项）',word()+'完成率',word()+'数据差额（项）',...(annual?[]:['年度目标（项）','年度累计完成（项）','年度完成率'])];
+ const headers=[combined?'链群':'业务维度',word()+'目标（项）',word()+'实际完成（项）',word()+'完成率',...(combined?[]:[word()+'数据差额（项）']),...(annual?[]:['年度目标（项）','年度累计完成（项）','年度完成率'])];
  function cells(r){if(combined)return ltMainCells(r,annual);const delta=r.actual-r.target;return[esc(r.name),fmt(r.target),fmt(r.actual),lifeAchievementCell(r.actual,r.target),`<span class="num ${delta>0?'green':delta<0?'orange':'muted'}">${delta>0?'+':''}${delta}</span>`,...(annual?[]:[fmt(r.yearTarget),fmt(r.yearActual),lifeAchievementCell(r.yearActual,r.yearTarget,true)])]}
  // 汇总固定在分类明细之前，与明细共用统计数据和下钻入口。
  let content=table(headers,rows.map(cells));
- if(combined){
+ if(combined&&ltChainScope()==='all'){
   const summaryRow=`<tr class="life-summary-row" data-life-summary>${cells({...summary,name:'汇总'}).map(v=>`<td>${v}</td>`).join('')}</tr>`;
   content=content.replace('<tbody>','<tbody>'+summaryRow);
- }else if(lifeView!=='summary')content=content.replace('</table>',`<tfoot><tr>${cells({...summary,name:'合计'}).map(v=>`<td>${v}</td>`).join('')}</tr></tfoot></table>`);
+ }else if(!combined&&lifeView!=='summary')content=content.replace('</table>',`<tfoot><tr>${cells({...summary,name:'合计'}).map(v=>`<td>${v}</td>`).join('')}</tr></tfoot></table>`);
  $('#lifetable').innerHTML=content;
  });};
-window.dashboardLifecycleSnapshot=()=>withPeriod('lifecycle',()=>({period:{...periodFor()},stage:lifeIndex,view:lifeView,summary:lifeData(lifeIndex),channels:lifeChannelRows(lifeIndex),chains:lifeChainRows(lifeIndex)}));
+window.dashboardLifecycleSnapshot=()=>withPeriod('lifecycle',()=>({period:{...periodFor()},stage:lifeIndex,view:lifeView,chainFilter:ltChainScope(),filteredChains:lifeChainRows(lifeIndex).filter((_,index)=>ltChainMatches(index)),summary:lifeData(lifeIndex),channels:lifeChannelRows(lifeIndex),chains:lifeChainRows(lifeIndex)}));

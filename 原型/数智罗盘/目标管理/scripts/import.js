@@ -1,6 +1,7 @@
 (() => {
   const app = GoalPrototype, { $ } = app;
   let kind, selectedFile, prepared, opener, generation = 0;
+  app.importResultsMemory=[];
   function reset() {
     generation++; app.importFlow.cancel(); selectedFile = null; prepared = null;
     clearTimeout(downloadTemplate.timer);
@@ -23,21 +24,21 @@
   }
   function close() { reset(); $('#refImport').close(); opener?.focus(); }
   function choose(files) {
-    if (app.importFlow.isBusy() || !files.length) return;
+    if (app.importFlow.isBusy() || selectedFile || !files.length) return;
     reset();
     if (files.length !== 1) { $('#importResult').textContent = '一次请选择一个文件'; return; }
     const file = files[0];
     if (!/\.(csv|xlsx|xls)$/i.test(file.name)) { $('#importResult').textContent = '请选择 CSV、XLSX 或 XLS 文件'; return; }
-    if (file.size > 100 * 1024 * 1024) { $('#importResult').textContent = '文件不能超过100MB'; return; }
+    if (file.size > 5 * 1024 * 1024) { $('#importResult').textContent = '文件不能超过5MB'; return; }
     selectedFile = file; $('#importFilename').textContent = file.name;
     $('#importChoose').title = file.name;
     $('#importDrop').classList.add('has-file');
     $('#importFileSize').textContent = file.size < 1024 ? `${file.size} B` : file.size < 1024 * 1024 ? `${(file.size / 1024).toFixed(1)} KB` : `${(file.size / (1024 * 1024)).toFixed(1)} MB`;
     $('#importReplace').hidden = false;
-    app.importFlow.upload();
+    $('#importConfirm').disabled=false;$('#importFileState').hidden=true;
   }
   function pickFile() {
-    if (app.importFlow.isBusy()) return;
+    if (app.importFlow.isBusy() || selectedFile) return;
     $('#importFile').value = ''; // 同名文件修改后也可以重新选择；取消不清除已选文件。
     $('#importFile').click();
   }
@@ -53,9 +54,11 @@
         type = 'string';
       }
       const book = XLSX.read(source, { type, raw: true, cellNF: true });
+      output.raw=app.entryImportData.matrix(book.Sheets[book.SheetNames[0]]);
       stage = 'validate';
       output.source = app.importSource.read(book, targetKind);
       if (output.source.headerError) throw new Error('表头与当前目标类型不一致，请使用对应模板');
+      if(output.source.rows.length>5000)throw new Error('单次最多导入5000条');
       if (!output.source.rows.length) throw new Error('文件中没有目标数据，请填写后重新上传');
       output.result = app.entryImportData.validate(targetKind, output.source.matrix, cid, output.source);
       // 日期单元格本身有误时走逐行提示，避免用周期提示掩盖具体行错误。
@@ -72,66 +75,31 @@
     return output;
   }
   async function start() {
-    if (!selectedFile || app.importFlow.isBusy() || app.importFlow.isUploading()) return;
+    if (!selectedFile || app.importFlow.isBusy()) return;
     const current = ++generation;
     prepared = null; $('#importErrors').hidden = true; $('#importResult').textContent = '';
     const result = await app.importFlow.run(() => prepare(selectedFile, $('#importCid').value, kind));
     if (current === generation && result) {
       prepared = result;
+      if(prepared.error || !prepared.plan)failure();else success();
     }
   }
-  function failure(demo = false) {
-    if(demo && prepared) {
-      prepared.blocking=false;
-      prepared.error='导入失败，目标数据未变更，请下载失败文件查看原因。';
-    }
-    $('#importResult').textContent = prepared?.blocking ? prepared.error : '导入失败，请下载失败文件查看原因。';
-    $('#importErrors').hidden = Boolean(prepared?.blocking);
-    recordResult('failed');
+  function sourceStats(){
+    const source=prepared.source,raw=prepared.raw||[],start=source?.headerLine||1,headers=source?.headers||raw[start-1]||[],rows=source?.rows||raw.slice(start).map((cells,index)=>({line:start+index+1,cells})).filter(row=>row.cells.some(value=>String(value??'').trim()));
+    const issues=new Map((prepared.result?.rows||[]).map(row=>[row.line,row.issues]));
+    const failedRows=rows.map(row=>({row:row.line,values:raw[row.line-1]||row.cells,reason:issues.get(row.line)?.map(issue=>issue.field+'：'+issue.reason).join('；')||prepared.error||'同批文件含错误，本行未导入'}));
+    return {totalRows:rows.length,skippedCount:raw.slice(start).filter(row=>!row.some(value=>String(value??'').trim())).length,headers,failedRows};
   }
-  function recordResult(status) {
-    if (!prepared || prepared.logged) return true;
-    try {
-      let period=prepared.plan;
-      if(!period && prepared.result?.rows.length) {
-        try { const scope=app.targetStore.importPeriod(prepared.result.rows.map(row=>row.record));period={year:scope.years[0],months:scope.months}; } catch (_) { /* 失败记录可保留未识别周期。 */ }
-      }
-      if(status==='demo' && !period)period=app.historyExamples.period(app.entry.context());
-      app.targetStore.recordImport({kind,cid:$('#importCid').value,file:prepared.file,status,
-        year:period?.year,months:period?.months || [],
-        reason:status==='demo'?'':prepared.error || '导入失败，目标数据未变更。',
-        downloadable:status==='failed' && !prepared.blocking});
-      prepared.logged=true;
-      return true;
-    } catch (_) { $('#importResult').textContent += ' 操作记录未能保存，请检查浏览器存储后重试。'; return false; }
+  function failure(){
+    const stats=sourceStats(),record={id:app.targetAudit.id(),timestamp:new Date().toISOString(),actor:'系统租户管理员',source:'import',groups:[],summary:{},kind,cid:$('#importCid').value,file:prepared.file,status:'failed',...stats,successCount:0,failureCount:stats.totalRows,reason:prepared.error||'导入失败，数据未保存'};
+    if(!record.failedRows.length)record.failedRows=[{row:'—',values:[],reason:record.reason}];
+    try{app.targetStore.recordImport(record)}catch(_){app.importResultsMemory.push(record)}
+    prepared.failureRecord=record;$('#importResult').textContent='导入失败，未保存数据。移除文件后可重新上传。';$('#importErrors').hidden=false;
   }
-  function success() {
-    if (!prepared) return;
-    const real = Boolean(prepared.plan);
-    try {
-      // 合法文件仅在选择成功后原子写入；不合法文件允许演示成功，不写入目标。
-      if (real) app.targetStore.applyImport(prepared.plan, prepared.file);
-    } catch (error) {
-      prepared.blocking = true;
-      prepared.error = /变化|修改/.test(error.message) ? '目标数据已更新，请重新发起导入。' : '导入未完成，本次数据未生效，请稍后重试。';
-      failure(); return;
-    }
-    const label = kind === 'product' ? '产品目标' : '产品链接目标';
-    const count = prepared.plan?.total ?? prepared.result?.rows.length ?? prepared.source?.rows.length;
-    const unmatched = prepared.plan?.summary.unmatched || 0;
-    const message = `${label}导入成功${count > 0 ? `，共导入 ${count} 条` : ''}${unmatched ? `，其中 ${unmatched} 条未匹配产品档案，不参与目标消费` : ''}`;
-    if (!real && !recordResult('demo')) return;
-    close(); if (real) app.entry.refresh();
-    app.entry.notify(real ? message : `${label}导入成功`, { type: 'success' });
-  }
-  function downloadFailure() {
-    // 原型固定下载场景合集，与上传文件及目标类型无关。
-    const link = document.createElement('a');
-    link.href = 'assets/导入失败示例.xlsx';
-    link.download = '导入失败示例.xlsx';
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
+  function success(){
+    try{const stats=sourceStats();app.targetStore.applyImport(prepared.plan,prepared.file,{totalRows:stats.totalRows,successCount:stats.totalRows,failureCount:0,skippedCount:stats.skippedCount})}
+    catch(error){prepared.error=error.message;failure();return}
+    const count=prepared.plan.total;close();app.entry.refresh();app.entry.notify('导入成功，共 '+count+' 条',{type:'success'});
   }
   function downloadTemplate() {
     const notice = $('#importTemplateNotice');
@@ -145,19 +113,20 @@
     downloadTemplate.timer = setTimeout(() => { notice.hidden = true; }, 3000);
   }
   function init() {
-    app.importFlow.init(success, () => failure(true));
     $('#refImport [data-close-dialog]').addEventListener('click', close);
     $('#refImport').addEventListener('cancel', event => { event.preventDefault(); close(); });
     $('#importCid').addEventListener('change', reset);
     $('#importChoose').addEventListener('click', pickFile);
-    $('#importReplace').addEventListener('click', pickFile);
+    $('#importReplace').addEventListener('click', reset);
     $('#importDrop').addEventListener('click', event => { if (!event.target.closest('button, input')) pickFile(); });
     $('#importFile').addEventListener('change', event => { const files = [...event.target.files]; choose(files); });
     $('#importDrop').addEventListener('dragover', event => { event.preventDefault(); if (!app.importFlow.isBusy()) event.currentTarget.classList.add('dragging'); });
     $('#importDrop').addEventListener('dragleave', event => event.currentTarget.classList.remove('dragging'));
     $('#importDrop').addEventListener('drop', event => { event.preventDefault(); event.currentTarget.classList.remove('dragging'); choose([...event.dataTransfer.files]); });
     $('#importTemplate').addEventListener('click', downloadTemplate);
-    $('#importErrors').addEventListener('click', downloadFailure);
+    $('#importErrors').addEventListener('click',()=>{if(prepared?.failureRecord)app.history.openFailure(prepared.failureRecord)});
+    $('#importHistory').addEventListener('click',()=>app.history.open());
+    $('#importCancel').addEventListener('click',close);
     $('#importConfirm').addEventListener('click', start);
   }
   app.entryImport = { open, init };

@@ -1,5 +1,5 @@
 // 与现有自然期间控件共用样式、标签及期间算法；调用方负责持久化筛选值。
-function uiBindNaturalPeriod({trigger,panel,getSelection,getMaxDate,onApply}){
+function uiBindNaturalPeriod({trigger,panel,getSelection,getMaxDate,onApply,modes=['year','quarter','month','day']}){
  const events=new AbortController();let floating=null,state=null;
  const position=()=>{
   if(!panel.isConnected||!panel.matches(':popover-open'))return;
@@ -9,23 +9,23 @@ function uiBindNaturalPeriod({trigger,panel,getSelection,getMaxDate,onApply}){
  };
  const close=()=>{floating?.abort();floating=null;if(panel.isConnected&&panel.matches(':popover-open'))panel.hidePopover()};
  const render=focus=>{
-  panel.dataset.periodMode=state.mode;panel.innerHTML=uiNaturalPeriodMarkup(state,getSelection(),getMaxDate());position();
+  panel.dataset.periodMode=state.mode;panel.innerHTML=uiNaturalPeriodMarkup(state,getSelection(),getMaxDate(),modes);position();
   if(focus)panel.querySelector(focus)?.focus({preventScroll:true});
  };
  const apply=selection=>{
-  const range=uiNaturalPeriodRange(selection,getMaxDate());if(!range)return;
+  const range=uiNaturalPeriodRange(selection,getMaxDate());if(!range||!modes.includes(selection.mode))return;
   close();onApply(selection.mode==='day'?{...selection,...range}:selection,range);trigger.isConnected&&trigger.focus({preventScroll:true});
  };
  trigger.addEventListener('click',()=>{
   if(panel.matches(':popover-open')){close();return}
   const selected=getSelection(),fallback=getMaxDate()||dashboardToday(),anchor=selected?.mode==='day'?selected.start:fallback;
-  state={mode:selected?.mode||'day',year:selected?.year||Number(anchor.slice(0,4)),month:selected?.mode==='month'?selected.value:Number(anchor.slice(5,7)),draft:selected?.mode==='day'?{start:selected.start,end:selected.end}:{start:null,end:null},awaitingEnd:false};
+  state={mode:modes.includes(selected?.mode)?selected.mode:modes.includes('day')?'day':modes[0],year:selected?.year||Number(anchor.slice(0,4)),month:selected?.mode==='month'?selected.value:Number(anchor.slice(5,7)),draft:selected?.mode==='day'?{start:selected.start,end:selected.end}:{start:null,end:null},awaitingEnd:false};
   render();panel.showPopover();position();panel.querySelector(`[data-natural-mode="${state.mode}"]`)?.focus({preventScroll:true});
  },{signal:events.signal});
  panel.addEventListener('click',e=>{
   const button=e.target.closest('button');if(!button||button.disabled)return;const d=button.dataset;
-  if(d.naturalMode){state.mode=d.naturalMode;state.awaitingEnd=false;const selected=getSelection();state.draft=selected?.mode==='day'?{start:selected.start,end:selected.end}:{start:null,end:null};render(`[data-natural-mode="${state.mode}"]`)}
-  else if(d.naturalYearStep){state.year=Math.max(1,Math.min(9998,state.year+Number(d.naturalYearStep)*(state.mode==='year'?9:1)));render(`[data-natural-year-step="${d.naturalYearStep}"]`)}
+  if(d.naturalMode&&modes.includes(d.naturalMode)){state.mode=d.naturalMode;state.awaitingEnd=false;const selected=getSelection();state.draft=selected?.mode==='day'?{start:selected.start,end:selected.end}:{start:null,end:null};render(`[data-natural-mode="${state.mode}"]`)}
+  else if(d.naturalYearStep){state.year=Math.max(1,Math.min(9998,state.year+Number(d.naturalYearStep)*(state.mode==='year'?10:1)));render(`[data-natural-year-step="${d.naturalYearStep}"]`)}
   else if(d.naturalMonthStep){
    const date=uiPeriodDate(state.year,state.month+Number(d.naturalMonthStep),1);state.year=Math.max(1,Math.min(9998,Number(date.slice(0,4))));state.month=Number(date.slice(5,7));render(`[data-natural-month-step="${d.naturalMonthStep}"]`);
   }else if(d.naturalValue){const value=Number(d.naturalValue);apply({mode:state.mode,year:state.mode==='year'?value:state.year,value:state.mode==='year'?1:value})}

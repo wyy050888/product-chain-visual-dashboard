@@ -3,7 +3,11 @@ export async function verifyCostMissingImport(page){
  const key='cost-efficiency-config-v1',editor=page.locator('#cec-editor'),audit=()=>page.evaluate(()=>window.costControlAudit({year:2026,mode:'month',value:10})),config=()=>page.evaluate(()=>window.costConfigAudit());
  const route=async hash=>{await page.evaluate(hash=>{location.hash=hash},hash);await page.locator(hash==='#cost'?'#cost':'#cec-page').waitFor({state:'visible'})};
  const row=id=>page.locator(`#costtable [data-cc-row="${id}"]`),amount=(id,mode='month')=>row(id).locator(`[data-cc-value="${mode}-amount"]`);
- await route('#cost');let a=await audit();assert.equal(a.rows.find(r=>r.id==='purchase').values.month.actual,null);assert.match(await amount('purchase').innerText(),/297[.]00w.*--/);assert.equal(await row('purchase').locator('[data-cc-value="month-rate"]').innerText(),'--');assert.equal(await row('purchase').locator('[data-cc-value="month-gap"]').innerText(),'--');assert.equal(await row('shipping').locator('[data-cc-value="month-rate"]').innerText(),'--');
+ // 已补齐的演示数据不再天然缺失；显式清空两部门实绩后验证空值与0的区别。
+ const source=await audit(),saved=(await config()).store,monthsBefore={...saved.months};
+ for(const item of source.items.filter(item=>['purchase','shipping'].includes(item.department)))monthsBefore[item.id+'|2026-10']={...monthsBefore[item.id+'|2026-10'],actualCents:null};
+ await page.evaluate(({key,saved,months})=>localStorage.setItem(key,JSON.stringify({...saved,months})),{key,saved,months:monthsBefore});await page.reload();
+ await route('#cost');let a=await audit();assert.equal(a.rows.find(r=>r.id==='purchase').values.month.actual,null);assert.match(await amount('purchase').innerText(),/--.*297[.]00w/);assert.equal(await row('purchase').locator('[data-cc-value="month-rate"]').innerText(),'--');assert.equal(await row('purchase').locator('[data-cc-value="month-gap"]').innerText(),'--');assert.equal(await row('shipping').locator('[data-cc-value="month-rate"]').innerText(),'--');
  await page.locator('[data-cc-department="purchase"]').click();assert.equal(await page.locator('.cc-department-table tbody [data-cc-value="month-rate"]').innerText(),'--');assert.match(await page.locator('.cc-department-table tbody [data-cc-value="month-amount"]').innerText(),/--/);await page.locator('#close').click();
  // 所有部门当前月均未导入时，卡片也保持缺失，不能显示0%或负差额。
  const months=Object.fromEntries(a.items.map(item=>[item.id+'|2026-10',{actualCents:null}]));await page.evaluate(({key,months})=>localStorage.setItem(key,JSON.stringify({version:3,metrics:{},months})),{key,months});await page.reload();

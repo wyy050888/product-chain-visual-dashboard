@@ -1,0 +1,39 @@
+/* 生命周期目标的数据操作、导入预览和历史记录；不覆盖其他目标页面。 */
+#lt-target-page .lt-data-actions{display:flex;align-items:center;justify-content:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:16px}
+#lt-target-page .lt-data-actions .btn,.lt-data-dialog .btn{min-height:34px;padding:6px 16px;border:1px solid #d8e3f3;border-radius:5px;background:#fff;color:#46607f;font:inherit;cursor:pointer}
+#lt-target-page .lt-data-primary,.lt-data-dialog .lt-data-primary{background:#1677ff;border-color:#1677ff;color:#fff}
+.lt-data-dialog{width:1000px;max-width:calc(100vw - 32px);max-height:calc(100dvh - 40px);padding:0;border:1px solid #e0e8f5;border-radius:10px;color:#304c70;background:#fff;box-shadow:0 20px 60px #20375d33;font-size:13px}
+.lt-data-dialog::backdrop{background:#1d304a66}
+.lt-data-dialog>header,.lt-data-dialog>footer{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 24px}
+.lt-data-dialog>header{border-bottom:1px solid #e9eef6}
+.lt-data-dialog h2{margin:0;font-size:18px;line-height:26px;color:#243c5a;font-weight:600}
+.lt-data-dialog header p{margin:4px 0 0;color:#8594aa;font-size:12px}
+.lt-data-dialog .lt-data-close{padding:0;background:none;border:0;color:#8294af;font-size:24px;cursor:pointer}
+.lt-data-dialog .lt-data-body{padding:20px 24px;max-height:calc(100dvh - 230px);overflow:auto}
+.lt-data-dialog>footer{border-top:1px solid #e9eef6;color:#8b99ad;font-size:12px}
+.lt-data-dialog footer>div{display:flex;gap:10px}
+.lt-data-dialog .lt-import-intro{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px;color:#8292a9;line-height:1.7}
+.lt-data-dialog .lt-import-intro p{margin:0}
+.lt-data-dialog .lt-data-upload{display:flex;flex-direction:column;align-items:center;gap:10px;padding:24px;border:1px dashed #b3ccef;border-radius:7px;background:#f7faff}
+.lt-data-dialog .lt-data-upload strong{color:#1677ff;font-weight:500}
+.lt-data-dialog .lt-data-upload>span{color:#8b99ad;font-size:12px}
+.lt-data-dialog .lt-data-upload input{max-width:100%;font:inherit}
+.lt-data-dialog .lt-data-summary{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:20px 0 12px;padding:12px 14px;border-radius:5px;background:#eef7ff;color:#416a9d}
+.lt-data-dialog .is-error,#lt-import-error{color:#cb3a56}
+.lt-data-dialog .lt-data-summary.is-error{background:#fff3f5}
+.lt-data-dialog #lt-import-error:empty{display:none}
+.lt-data-dialog .lt-data-scroll{overflow:auto;border:1px solid #e1e9f5;border-radius:6px;max-height:420px;scrollbar-width:thin}
+.lt-data-dialog table{width:100%;min-width:650px;border-spacing:0;border-collapse:separate;line-height:20px}
+.lt-data-dialog th,.lt-data-dialog td{padding:12px 14px;text-align:left;border-bottom:1px solid #e9eef6;white-space:nowrap;vertical-align:middle}
+.lt-data-dialog th{position:sticky;top:0;background:#f4f7fc;color:#7b8fa9;font-size:12px;font-weight:400;z-index:1}
+.lt-data-dialog tr:last-child td{border-bottom:0}
+.lt-data-dialog tbody tr:hover{background:#fafcff}
+.lt-data-dialog .lt-data-new{font-weight:500;color:#1677ff}
+.lt-data-dialog .lt-data-filename{display:block;max-width:240px;white-space:normal;overflow-wrap:anywhere}
+.lt-data-dialog .lt-data-status{display:inline-flex;padding:2px 8px;border-radius:4px;background:#edf5ff;color:#517eaf}
+.lt-data-dialog .lt-data-status.is-error{background:#fff0f3;color:#cb3a56}
+.lt-data-dialog .lt-data-empty{padding:24px;text-align:center;color:#93a1b4}
+.lt-data-dialog .lt-data-overwrite{display:flex;align-items:center;gap:8px;margin-top:16px;cursor:pointer}
+.lt-data-dialog button:disabled{opacity:.45;cursor:not-allowed}
+.lt-data-dialog button:focus-visible,.lt-data-dialog input:focus-visible{outline:2px solid #91bcff;outline-offset:2px}
+@media(max-width:700px){.lt-data-dialog{max-width:calc(100vw - 16px)}.lt-data-dialog>header,.lt-data-dialog>footer{padding:14px 16px}.lt-data-dialog .lt-data-body{padding:16px}.lt-data-dialog>footer{flex-wrap:wrap}#lt-target-page .lt-data-actions{gap:10px}}

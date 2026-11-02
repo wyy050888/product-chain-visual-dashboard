@@ -3,7 +3,6 @@
 #riskrail .rp-shop-columns {padding:8px 0;background:#f6f8fb;border-radius:5px;color:#7e8b9e;font-size:11px;line-height:16px}
 #riskrail .rp-shop-entry {padding:10px 0}
 #riskrail .rp-shop-entry .rp-entry-main>header {margin-bottom:8px;min-height:42px;gap:8px}
-#riskrail .rp-shop-entry .rp-shop-identity b {font-size:15px;font-weight:400;line-height:22px}
 #riskrail .rp-shop-entry .rp-shop-identity small {display:block;font-size:10px;line-height:17px;margin-top:3px}
 .rp-shop-identity .rp-platform-name {display:flex;align-items:center;gap:6px;min-width:0}
 .rp-shop-identity .rp-platform-name>span {overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -11,7 +10,7 @@
 .rp-shop-identity .rp-identity-title>b {flex:0 1 auto;min-width:0}
 .rp-shop-identity .rp-platform-mark {flex:none;width:16px;height:16px}
 .rp-shop-assessed {display:inline-flex;align-items:center;justify-content:center;flex:none;width:22px;height:24px;vertical-align:middle;filter:drop-shadow(0 1px 1px #43658b20)}
-.rp-shop-assessed {cursor:help}
+.rp-shop-assessed {cursor:default}
 .rp-shop-assessed:focus-visible {outline:2px solid #b6cbe5;outline-offset:2px;border-radius:3px}
 .rp-shop-assessed>svg {display:block;width:22px;height:24px}
 #riskrail .rp-shop-scores {display:grid;grid-template-columns:repeat(4,36px);gap:5px;flex:none;text-align:center}
@@ -21,58 +20,49 @@
 #riskrail .rp-shop-metric strong {display:block;font-size:16px;font-weight:600;line-height:26px;white-space:nowrap;color:#52657d}
 #riskrail .rp-shop-metric small {display:block;color:#8693a4;font-size:11px;line-height:17px;white-space:nowrap}
 #riskrail .rp-shop-mobile-label {display:none}
-#dialogbody #rf-list-table.rp-shop-table table {table-layout:fixed!important;min-width:2450px!important}
-#dialogbody #rf-list-table.rp-shop-table :is(th,td) {min-width:0!important;width:128px;padding:12px 14px}
-#dialogbody #rf-list-table.rp-shop-table :is(th,td):first-child {width:48px;min-width:48px!important;padding-inline:8px}
-#dialogbody #rf-list-table.rp-shop-table :is(th,td):nth-child(2) {width:310px;min-width:310px!important;left:48px}
-#dialogbody #rf-list-table.rp-shop-table :is(th,td):nth-child(3) {width:300px;min-width:300px!important}
-#dialogbody #rf-list-table.rp-shop-table :is(th,td):nth-child(6) {width:160px}
-#dialogbody #rf-list-table.rp-shop-table :is(th,td):last-child {width:96px;min-width:96px!important}
+#dialogbody #rf-list-table.rp-shop-table table {table-layout:fixed!important;min-width:100%!important}
+#dialogbody #rf-list-table.rp-shop-table :is(th,td) {min-width:0!important;width:120px;padding:12px 10px}
+#dialogbody #rf-list-table.rp-shop-table :is(th,td):first-child {width:64px;min-width:64px!important;padding-inline:8px;white-space:nowrap;text-overflow:clip}
+#dialogbody #rf-list-table.rp-shop-table :is(th,td):nth-child(2) {width:280px;min-width:280px!important;left:64px}
+#dialogbody #rf-list-table.rp-shop-table :is(th,td):nth-child(3) {width:240px;min-width:240px!important}
+#dialogbody #rf-list-table.rp-shop-table :is(th,td):nth-child(6) {width:152px}
+#dialogbody #rf-list-table.rp-shop-table :is(th,td):last-child {width:88px;min-width:88px!important}
+/* 评分列使用紧凑宽度，动态平台列按各自内容自然组成总宽。 */
+#dialogbody #rf-list-table.rp-shop-table th:has([data-rp-sort="score"],[data-rp-sort="productScore"],[data-rp-sort="logisticsScore"],[data-rp-sort="serviceScore"]) {width:88px}
 #dialogbody .rp-shop-table .rp-list-value strong {font-size:13px;line-height:22px}
 #dialogbody .rp-shop-table .rp-list-value em {font-size:11px;white-space:nowrap;margin-top:2px}
 #dialogbody .rp-shop-table .rp-identity b {font-size:13px;font-weight:400;line-height:20px}
 #dialogbody .rp-shop-table .rp-identity small {font-size:10px;line-height:17px;margin-top:3px}
 #dialogbody .rp-shop-table .rp-identity>.risk-thumb {width:48px;height:48px}
-@media(max-width:1799px) and (min-width:1201px),(max-width:600px){
- #riskrail .rp-shop-entry .rp-entry-main>header {flex-wrap:wrap}
- #riskrail .rp-shop-entry .rp-shop-identity {flex-basis:calc(100% - 40px)}
- #riskrail .rp-shop-scores {margin-left:32px;flex-basis:calc(100% - 32px);grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;text-align:left}
- #riskrail .rp-shop-scores>div {min-width:0}
-}
-
-@media(max-width:600px){
- #riskrail .rp-shop-columns {display:none}
- #riskrail .rp-shop-values {grid-template-columns:repeat(2,minmax(0,1fr));row-gap:12px}
- #riskrail .rp-shop-mobile-label {display:block;color:#8693a4;font-size:11px;line-height:18px}
-}
 
 /* 拼多多以异常链接数量替代四项店铺评分。 */
 #riskrail .rp-shop-scores.rp-shop-link-counts {grid-template-columns:repeat(2,minmax(0,1fr));width:159px;gap:8px}
 .rp-pdd-count {display:inline-flex;align-items:center;justify-content:center;gap:4px;padding:3px 8px;min-width:32px;border:1px solid transparent;border-radius:5px;background:transparent;cursor:pointer;font-variant-numeric:tabular-nums;white-space:nowrap}
 .rp-pdd-count strong {font-size:13px;font-weight:500}
-.rp-pdd-count--red {color:#d2445b;background:#fff2f3}
-.rp-pdd-count--yellow {color:#d99812;background:#fff9e9}
-.rp-pdd-count:not(.rp-pdd-count--card):hover,.rp-pdd-count:not(.rp-pdd-count--card):focus-visible {border-color:currentColor;outline:none}
+.rp-pdd-count--red {color:#b4233f;background:#ffe0e6}
+.rp-pdd-count--yellow {color:var(--orange);background:var(--orange-soft)}
+.rp-pdd-count:not(.rp-pdd-count--card):hover {filter:brightness(.97)}
+.rp-pdd-count:not(.rp-pdd-count--card):focus-visible {outline:2px solid currentColor;outline-offset:2px}
 #riskrail .rp-shop-link-counts .rp-pdd-count--card {display:flex;flex-direction:row;gap:2px;padding:5px 0;cursor:default}
 #riskrail .rp-shop-link-counts .rp-pdd-count strong {color:inherit;font-size:14px;line-height:20px}
-#riskrail .rp-shop-link-counts .rp-pdd-count span {color:#7e8b9e;font-size:10px;line-height:16px}
+#riskrail .rp-shop-link-counts .rp-pdd-count span {color:inherit;font-size:10px;line-height:16px}
 #rp-pdd-links-popover {position:fixed;inset:auto;margin:0;box-sizing:border-box;width:min(1200px,calc(100vw - 24px));max-height:calc(100dvh - 24px);padding:16px;border:1px solid #dce5f3;border-radius:9px;background:#fff;color:#354c70;box-shadow:0 10px 35px #1b36552b;overflow:hidden}
-:is(#rp-pdd-links-popover,.sd-pdd-links) .rp-pdd-popover-heading {display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
-:is(#rp-pdd-links-popover,.sd-pdd-links) h4 {margin:0;font-size:13px;font-weight:500;line-height:1.6}
-:is(#rp-pdd-links-popover,.sd-pdd-links) h4 span {color:#7e8b9e;font-size:12px;margin-left:6px}
-:is(#rp-pdd-links-popover,.sd-pdd-links) .rp-pdd-popover-heading>span {font-size:11px;color:#8693a4;white-space:nowrap}
+:is(#rp-pdd-links-popover,.sd-pdd-links,.up-pdd-links) .rp-pdd-popover-heading {display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+:is(#rp-pdd-links-popover,.sd-pdd-links,.up-pdd-links) h4 {margin:0;font-size:13px;font-weight:500;line-height:1.6}
+:is(#rp-pdd-links-popover,.sd-pdd-links,.up-pdd-links) h4 span {color:#7e8b9e;font-size:12px;margin-left:6px}
+:is(#rp-pdd-links-popover,.sd-pdd-links,.up-pdd-links) .rp-pdd-popover-heading>span {font-size:11px;color:#8693a4;white-space:nowrap}
 #rp-pdd-links-popover .rp-pdd-link-scroll {max-height:min(440px,calc(100dvh - 110px));overflow:auto;border:1px solid #e5ebf6;border-radius:5px}
-:is(#rp-pdd-links-popover,.sd-pdd-links) table {width:100%;min-width:1120px;table-layout:fixed;border-collapse:separate;border-spacing:0}
-:is(#rp-pdd-links-popover,.sd-pdd-links) :is(th,td) {padding:11px 10px;text-align:left;font-size:12px;line-height:1.6;border-bottom:1px solid #e5ebf6;white-space:normal;overflow-wrap:anywhere}
-:is(#rp-pdd-links-popover,.sd-pdd-links) th {position:sticky;top:0;z-index:1;background:#f5f7fb;color:#7286a6;font-weight:400}
-:is(#rp-pdd-links-popover,.sd-pdd-links) th:first-child {width:260px}
-:is(#rp-pdd-links-popover,.sd-pdd-links) tbody tr:last-child td {border-bottom:0}
-:is(#rp-pdd-links-popover,.sd-pdd-links) .rp-pdd-value-alert {color:#d2445b}
-:is(#rp-pdd-links-popover,.sd-pdd-links) .rp-pdd-link-product {display:flex;align-items:center;gap:10px;min-width:0}
-:is(#rp-pdd-links-popover,.sd-pdd-links) .risk-thumb {width:42px;height:42px;flex:none}
-:is(#rp-pdd-links-popover,.sd-pdd-links) .rp-pdd-link-product b {display:block;color:#354c70;font-weight:400}
-:is(#rp-pdd-links-popover,.sd-pdd-links) .rp-pdd-link-product small {display:block;margin-top:4px;color:#8693a4;font-size:11px}
-:is(#rp-pdd-links-popover,.sd-pdd-links) .rp-pdd-links-empty {text-align:center;padding:28px;color:#8693a4}
+:is(#rp-pdd-links-popover,.sd-pdd-links,.up-pdd-links) table {width:100%;min-width:1120px;table-layout:fixed;border-collapse:separate;border-spacing:0}
+:is(#rp-pdd-links-popover,.sd-pdd-links,.up-pdd-links) :is(th,td) {padding:11px 10px;text-align:left;font-size:12px;line-height:1.6;border-bottom:1px solid #e5ebf6;white-space:normal;overflow-wrap:anywhere}
+:is(#rp-pdd-links-popover,.sd-pdd-links,.up-pdd-links) th {position:sticky;top:0;z-index:1;background:#f5f7fb;color:#7286a6;font-weight:400}
+:is(#rp-pdd-links-popover,.sd-pdd-links,.up-pdd-links) th:first-child {width:260px}
+:is(#rp-pdd-links-popover,.sd-pdd-links,.up-pdd-links) tbody tr:last-child td {border-bottom:0}
+:is(#rp-pdd-links-popover,.sd-pdd-links,.up-pdd-links) .rp-pdd-value-alert {color:#d2445b}
+:is(#rp-pdd-links-popover,.sd-pdd-links,.up-pdd-links) .rp-pdd-link-product {display:flex;align-items:center;gap:10px;min-width:0}
+:is(#rp-pdd-links-popover,.sd-pdd-links,.up-pdd-links) .risk-thumb {width:42px;height:42px;flex:none}
+:is(#rp-pdd-links-popover,.sd-pdd-links,.up-pdd-links) .rp-pdd-link-product b {display:block;color:#354c70;font-weight:400}
+:is(#rp-pdd-links-popover,.sd-pdd-links,.up-pdd-links) .rp-pdd-link-product small {display:block;margin-top:4px;color:#8693a4;font-size:11px}
+:is(#rp-pdd-links-popover,.sd-pdd-links,.up-pdd-links) .rp-pdd-links-empty {text-align:center;padding:28px;color:#8693a4}
 @media(max-width:600px){#rp-pdd-links-popover .rp-pdd-popover-heading {align-items:flex-start;flex-direction:column;gap:4px}}
 
 /* 多主营仅显示两行名称，超出两个时悬浮查看全部。 */
@@ -83,3 +73,25 @@
 #dialogbody .rp-shop-core[data-rp-core-names]{cursor:help}
 .metric-tooltip.metric-tooltip-shop-core-names{white-space:pre-line;max-height:calc(100dvh - 32px);overflow-y:auto;box-sizing:border-box}
 #dialogbody .rp-shop-core-empty{font-size:12px;line-height:20px;white-space:normal}
+
+/* 店铺榜问号内的阈值对照表，复用实际判灯边界。 */
+#metric-tooltip .rp-shop-score-rules{width:100%;min-width:0;table-layout:auto;border-collapse:collapse;margin:0 0 10px;font-size:12px}
+#metric-tooltip .rp-shop-score-rules :is(th,td){padding:7px 5px;border-bottom:1px solid #e8eef6;text-align:left;white-space:nowrap;font-weight:400}
+#metric-tooltip .rp-shop-score-rules thead th{background:#f5f8fc;color:#677a93}
+#metric-tooltip .rp-shop-score-rules tbody th{color:#34425b}
+#metric-tooltip .rp-shop-score-rules [data-tone="red"]{color:#c13750}
+#metric-tooltip .rp-shop-score-rules [data-tone="yellow"]{color:var(--orange)}
+#metric-tooltip .rp-shop-score-rules [data-tone="green"]{color:var(--green)}
+@media(max-width:380px){#metric-tooltip .rp-shop-score-rules :is(th,td){padding:7px 2px}}
+
+/* 产品详情按SPU汇总异常链接，横滚限制在明细内。 */
+#dialogbody .up-pdd-violations{min-width:0}
+#dialogbody .up-pdd-links{min-width:0;margin-top:20px}
+#dialogbody .up-pdd-links .rp-pdd-link-scroll{overflow:auto;border:1px solid #e5ebf6;border-radius:5px}
+#dialogbody .up-pdd-links table{width:100%!important;min-width:1340px!important;max-width:none!important;table-layout:fixed!important}
+#dialogbody .up-detail .up-pdd-links :is(th,td){width:auto;white-space:normal!important;overflow-wrap:anywhere}
+#dialogbody .up-pdd-links th:first-child{width:220px}
+#dialogbody .up-pdd-links .up-pdd-shop-id{display:block;margin-top:4px;font-size:11px;color:#8693a4}
+#dialogbody .up-pdd-links[data-up-pdd-tone="red"] h4{color:#d2445b}
+#dialogbody .up-pdd-links[data-up-pdd-tone="yellow"] h4{color:var(--orange)}
+@media(max-width:600px){#dialogbody .up-pdd-links .rp-pdd-popover-heading{align-items:flex-start;flex-direction:column;gap:4px}}

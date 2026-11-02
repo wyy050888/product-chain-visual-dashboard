@@ -1,0 +1,35 @@
+/* 原select保留尺寸、表单值和业务事件；年份由十年四列网格选择。 */
+.ui-year-field{position:relative;display:inline-flex;align-items:stretch;vertical-align:middle;min-width:0;max-width:100%;box-sizing:border-box}
+.ui-year-field>select[data-ui-year-source]{width:100%!important;min-width:0!important;max-width:none!important;margin:0!important;opacity:0;pointer-events:none}
+.unified-input-group>.ui-year-field{flex:1!important;width:auto!important;align-self:stretch}
+.ui-year-field>.ui-year-trigger{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:100%;min-width:0;margin:0;padding:0 26px 0 10px;box-sizing:border-box;font:inherit;cursor:pointer;white-space:nowrap}
+.ui-year-trigger>.ui-year-value{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.ui-year-trigger>i{position:absolute;right:9px;width:6px;height:6px;border-right:1px solid currentColor;border-bottom:1px solid currentColor;transform:translateY(-2px) rotate(45deg);opacity:.65;pointer-events:none}
+.ui-year-trigger[aria-expanded=true]>i{transform:translateY(1px) rotate(225deg)}
+.ui-year-trigger:focus-visible{outline:2px solid #91bfff;outline-offset:1px}
+.ui-year-trigger:disabled{cursor:default;opacity:.5}
+.ui-year-panel{position:fixed;inset:auto;margin:0;padding:0;box-sizing:border-box;width:312px;max-width:calc(100vw - 16px);overflow:auto;border:1px solid #e5eaf2;border-radius:6px;background:#fff;color:#606266;box-shadow:0 6px 20px #243c6026;font-family:var(--ui-font-family,system-ui,sans-serif);font-size:12px}
+.ui-year-panel::backdrop{background:transparent}
+.ui-year-heading{display:flex;align-items:center;justify-content:space-between;height:54px;padding:0 9px;border-bottom:1px solid #edf0f5;font-size:16px}
+.ui-year-panel .ui-year-heading button{display:flex;align-items:center;justify-content:center;width:28px;height:32px;padding:0;border:0;background:transparent;color:#606266;font:inherit;cursor:pointer}
+.ui-year-heading button:disabled{color:#c0c4cc;cursor:default}
+.ui-year-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));padding:0 10px 8px}
+.ui-year-panel .ui-year-grid button{display:flex;align-items:center;justify-content:center;min-width:0;height:64px;padding:0;border:0;background:transparent;color:#606266;font:inherit;cursor:pointer}
+.ui-year-grid button>span{display:inline-flex;align-items:center;justify-content:center;min-width:58px;height:36px;padding:0 7px;border-radius:20px;box-sizing:border-box}
+.ui-year-grid button:hover:not(:disabled)>span{background:#ecf5ff;color:#1677ff}
+.ui-year-grid button[aria-pressed=true]>span,.ui-year-grid button[aria-pressed=true]:hover>span{background:#1677ff;color:#fff;font-weight:600}
+.ui-year-grid button:disabled{cursor:default}
+.ui-year-grid button:disabled>span{background:#f5f7fa;color:#a8b3c2}
+.ui-year-panel button:focus-visible{outline:2px solid #91bfff;outline-offset:-3px;border-radius:4px}
+.ui-year-panel .ui-year-clear{display:block;width:100%;padding:10px;border:0;border-top:1px solid #edf0f5;background:#fff;color:#1677ff;font:inherit;cursor:pointer}
+
+/* 自然期间中的年份页共用十年网格；月、季、日的布局沿用原规则。 */
+.nsp-period-panel[data-period-mode=year] .nsp-launch-year{height:54px;font-size:16px;color:#606266}
+.nsp-period-panel[data-period-mode=year] .nsp-launch-options{grid-template-columns:repeat(4,minmax(0,1fr));grid-auto-rows:64px;align-items:center;gap:0;padding:0 10px 8px}
+.nsp-period-panel[data-period-mode=year] .nsp-launch-options button{justify-self:center;min-width:0;width:58px;max-width:100%;height:36px;min-height:36px;padding:0;border:0;border-radius:20px;background:transparent;color:#606266;font-size:12px}
+.nsp-period-panel[data-period-mode=year] .nsp-launch-options button:hover:not(:disabled){background:#ecf5ff;color:#1677ff}
+.nsp-period-panel[data-period-mode=year] .nsp-launch-options button[aria-pressed=true]{background:#1677ff;color:#fff;font-weight:600}
+.nsp-period-panel[data-period-mode=year] .nsp-launch-options button:disabled{background:#f5f7fa;color:#a8b3c2}
+
+.ui-year-field[hidden]{display:none}
+.ui-year-panel button:disabled,.nsp-period-panel[data-period-mode=year] .nsp-launch-options button:disabled{opacity:1}

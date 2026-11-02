@@ -1,7 +1,6 @@
 // 原型的AI输出适配层：制度、经营事实、工作承诺与待办分开；真实模型接入可替换建议生成器。
-const kpmFollowupPolicy={S:'年度BOM降本5%—8%，持续迭代并保障供应',A:'半年内升级S级，重点改善成本、品质与产品溢价',B:'降本、降低退货并提升产品力，半年月销争取突破300万元',C:'仅一次挽救，3个月无改善下市'};
-const kpmFollowupStages={urgent:['优先处理','red'],proposed:['待采纳建议','yellow'],working:['执行中','yellow'],verify:['待验证效果','yellow'],effective:['已见效','green']};
-const kpmImprovementStages={stalled:['改善未达预期','red'],exit:['挽救待决策','red'],progressing:['改善推进中','yellow'],verify:['效果待验证','yellow'],effective:['改善已见效','green']};
+const kpmFollowupPolicy={S:'年度BOM降本5%—8%，持续迭代并保障供应',A:'半年内升级S级，重点改善成本、品质与产品溢价',B:'降本、降低退货并提升产品力，半年争取达到A级月度GSV门槛',C:'仅一次挽救，3个月无改善下市'};
+const kpmFollowupStages={urgent:['优先处理','red'],proposed:['待下发','yellow'],working:['执行中','yellow'],verify:['待验证效果','yellow'],effective:['已见效','green']};
 function kpmFollowupAdvice(p,record){
  const margin=p.facts.profitRate,returns=p.facts.returnRate>p.returnTarget,failed=record?.review==='未通过',shortage=p.stockRisks.includes('shortage');
  let decision,reason,actions,alternatives,department='产品中心',type='business-improvement';
@@ -25,12 +24,12 @@ function kpmAiFollowups(rows){
  const end=upWindow().end,work=new Map(kpmManagementCycles(rows).map(c=>[c.product.spuId,c]));
  return rows.map(product=>{
   const item=work.get(product.spuId),record=item?kpmFollowupWork(item.record,end):null,advice=kpmFollowupAdvice(product,record),id='ai-business|'+product.spuId+'|'+advice.issue;
-  const task=kpmFindRelatedTask(product,advice,record,id);
+  const related=kpmFindRelatedTask(product,advice,record,id),task=related?kpmCollaborativeTask(related,advice):null;
   const reported=record?.reportDate&&record.reportDate<=end,reviewed=record?.reviewDate&&record.reviewDate<=end;
   const verified=record?.kind==='bom'?reported&&record.actual>=5:record?.kind==='upgrade'?item.company.level==='S':record?.kind==='rescue'?reviewed&&record.review==='通过':false;
   const failed=reviewed&&record.review==='未通过',overdue=record&&record.due<end&&task?.status!=='done'&&!verified;
   const stage=product.facts.profitRate<0||failed||overdue?'urgent':verified?'effective':task?.status==='done'?'verify':task&&!task.deletedAt?'working':'proposed';
-  const progress=task?.deletedAt?'关联待办已删除':verified?(record.kind==='bom'?'已验证降本'+record.actual+'%':record.kind==='upgrade'?'经营结果已达到S级':'挽救评审通过'):task?.status==='done'?'任务已完成，经营效果待验证':failed?'挽救评审未通过':task?(upTodoStatuses[task.status]||'处理中')+(record?.due?' · 承诺'+record.due.slice(5):''):'建议待采纳';
+  const progress=task?.deletedAt?'关联待办已删除':verified?(record.kind==='bom'?'已验证降本'+record.actual+'%':record.kind==='upgrade'?'经营结果已达到S级':'挽救评审通过'):task?.status==='done'?'任务已完成，经营效果待验证':failed?'挽救评审未通过':task?(upTodoStatuses[task.status]||'处理中')+(record?.due?' · 承诺'+record.due.slice(5):''):'待下发';
   return {product,record,task,advice,id,stage,progress,policy:kpmFollowupPolicy[product.level]||'',cutoff:end};
  });
 }
@@ -45,8 +44,10 @@ function kpmFindRelatedTask(product,advice,record,id){
  return tasks.find(t=>advice.issue==='cost'&&t.suggestionKey==='cost-reduction')||null;
 }
 function kpmFollowupTask(item){
- const existing=kpmFindRelatedTask(item.product,item.advice,item.record,item.id);if(existing)return existing;
- if(item.task)return item.task;
+ if(item.strategyCategory)return kpmBuildStrategyTask(item);
+ const existing=kpmFindRelatedTask(item.product,item.advice,item.record,item.id);if(existing)return kpmCollaborativeTask(existing,item.advice);
+ if(item.task)return kpmCollaborativeTask(item.task,item.advice);
  const a=item.advice,p=item.product,person=aiAssignees.find(([name])=>upTodoPersonDepartment(name)===a.department)?.[0]||upTodoCurrentUser,now=new Date().toISOString();
- return {id:item.id,spuId:p.spuId,objectName:p.name,platform:'all',start:upWindow().start,end:item.cutoff,title:a.decision+'：'+p.name,description:a.reason,descriptionVersion:3,plan:a.actions.map(([dept,text])=>dept+'：'+text).join('；'),department:a.department,assignee:person,due:'',priority:item.stage==='urgent'?'red':'yellow',taskType:a.type,status:'pending',managementIssue:a.issue,managementObjective:({profit:'upgrade',growth:'upgrade',rescue:'rescue',cost:'bom',quality:'quality'}[a.issue]||''),managementBaseline:{cutoff:item.cutoff,profitRate:p.facts.profitRate,returnRate:p.facts.returnRate},source:'ai-business-followup',assignedBy:upTodoCurrentUser,assignedAt:now,createdAt:now,completedAt:'',evidence:'',basis:[a.reason,...(item.policy?['制度：'+item.policy]:[])],logs:[{at:now,actor:upTodoCurrentUser,action:'assign',to:'pending',note:'采纳AI经营建议'}]};
+ const task={id:item.id,spuId:p.spuId,objectName:p.name,platform:'all',start:upWindow().start,end:item.cutoff,title:a.decision+'：'+p.name,description:a.reason,descriptionVersion:3,plan:a.actions.map(([dept,text])=>dept+'：'+text).join('；'),department:a.department,assignee:person,due:'',priority:item.stage==='urgent'?'red':'yellow',taskType:a.type,status:'pending',managementIssue:a.issue,managementObjective:({profit:'upgrade',growth:'upgrade',rescue:'rescue',cost:'bom',quality:'quality'}[a.issue]||''),managementBaseline:{cutoff:item.cutoff,profitRate:p.facts.profitRate,returnRate:p.facts.returnRate},source:'ai-business-followup',assignedBy:upTodoCurrentUser,assignedAt:now,createdAt:now,completedAt:'',evidence:'',basis:[a.reason,...(item.policy?['制度：'+item.policy]:[])],logs:[{at:now,actor:upTodoCurrentUser,action:'assign',to:'pending',note:'下发AI经营建议'}]};
+ return kpmCollaborativeTask(task,a);
 }

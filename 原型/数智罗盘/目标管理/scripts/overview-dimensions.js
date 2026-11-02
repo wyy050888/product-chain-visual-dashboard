@@ -2,9 +2,9 @@
   const app = GoalPrototype;
   const fields = { wholeBrand: 'brand', wholeCategory: 'category', wholeChannel: 'channel', regionCategory: 'category', regionChannel: 'channel', brandCategory: 'category' };
   const tabs = {
-    whole: [['whole', '大区'], ['wholeBrand', '品牌'], ['wholeChannel', '渠道'], ['wholeCategory', '类目'], ['store', '店铺'], ['product', '产品']],
-    region: [['region', '品牌'], ['regionChannel', '渠道'], ['regionCategory', '类目'], ['store', '店铺'], ['product', '产品']],
-    brand: [['brand', '渠道'], ['brandCategory', '类目'], ['store', '店铺'], ['product', '产品']],
+    whole: [['whole', '大区'], ['wholeBrand', '品牌'], ['wholeChannel', '渠道'], ['wholeCategory', '链群'], ['store', '店铺'], ['product', '产品']],
+    region: [['region', '品牌'], ['regionChannel', '渠道'], ['regionCategory', '链群'], ['store', '店铺'], ['product', '产品']],
+    brand: [['brand', '渠道'], ['brandCategory', '链群'], ['store', '店铺'], ['product', '产品']],
   };
 
   // 按月度记录分组，避免跨月归属变化被期末属性覆盖；不叠加链接或达播目标。

@@ -24,7 +24,7 @@
 #riskrail .rp-key-metrics .rp-item {display:flex;align-items:baseline;flex-wrap:wrap;gap:0 6px}
 #riskrail .rp-key-metrics em {display:inline;line-height:22px}
 .rp-value {display:block;font-size:14px;line-height:22px;font-weight:500;font-variant-numeric:tabular-nums;color:#273e5a;overflow-wrap:anywhere}
-.rp-value.red {color:#e9516b}.rp-value.green {color:#00a486}.rp-value.orange {color:var(--orange)}
+.rp-value.red {color:var(--red)}.rp-value.green {color:var(--green)}.rp-value.orange {color:var(--orange)}
 .rp-item em,.rp-list-value em {display:block;font-size:12px;color:#8290a4;font-style:normal;line-height:18px;margin:0}
 #riskrail .rp-visually-hidden {position:absolute;width:1px;height:1px;clip-path:inset(50%);overflow:hidden;white-space:nowrap}
 #riskrail .rp-support-metrics {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px 12px;margin-top:4px}
@@ -111,7 +111,7 @@
 #dialogbody .rp-list-tools :is(.unified-input-group,.pf-multi):has([data-rp-filter="chain"][aria-label="核心主营产品类目"]) {min-width:230px}
 
 /* 核心主营表头提示：复用问号交互，仅展示判定门槛。 */
-.metric-tooltip.metric-tooltip-shop-core{width:370px;max-width:calc(100vw - 24px);padding:16px;border:1px solid #dce6f4;border-radius:8px;background:#fff;color:#627891;box-shadow:0 8px 28px #173f6a1a;white-space:normal}
-.metric-tooltip-shop-core h4{margin:0 0 12px;color:#244564;font-size:14px;font-weight:600}
-.rp-core-help-threshold{display:flex;flex-direction:column;gap:6px;padding:10px 12px;border:1px solid #e1eaf7;border-radius:6px;background:#f5f8fd}
-.rp-core-help-threshold strong{color:#1677ff;font-size:16px;font-weight:600}
+.metric-tooltip.metric-tooltip-shop-core{width:320px;max-width:calc(100vw - 24px);padding:11px 13px;border:1px solid #dce6f4;border-radius:6px;background:#fff;color:#627891;box-shadow:0 8px 28px #173f6a1a;white-space:normal}
+.metric-tooltip-shop-core h4{margin:0 0 8px;color:#244564;font-size:14px;font-weight:600}
+.rp-core-help-threshold{display:flex;flex-direction:column;gap:6px;padding:7px 10px;border:1px solid #e1eaf7;border-radius:6px;background:#f5f8fd}
+.rp-core-help-threshold strong{color:#1677ff;font-size:12px;font-weight:400;line-height:1.65}

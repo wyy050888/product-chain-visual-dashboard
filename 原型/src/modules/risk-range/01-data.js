@@ -1,7 +1,8 @@
 // 风险榜共享区间；期间流量累加，余额和评分取结束日快照。
 function riskRange(start=bounds(periodFor('risk')).start,end=bounds(periodFor('risk')).cutoff){
  const days=Math.max(1,Math.round((Date.parse(end)-Date.parse(start))/86400000)+1),previousEnd=shiftDate(start,-1);
- return {start,end,days,previousStart:shiftDate(start,-days),previousEnd};
+ const period=periodFor('risk'),explicit=period.comparisonMode&&period.start===start&&period.end===end;
+ return {start,end,days,previousStart:explicit?period.previousStart:shiftDate(start,-days),previousEnd:explicit?period.previousEnd:previousEnd};
 }
 function riskRangeText(){const w=riskRange();return w.start+' — '+w.end}
 function riskDailyRows(start,end,make){const rows=[];for(let date=start;date<=end;date=shiftDate(date,1))rows.push({date,...make(date)});return rows}

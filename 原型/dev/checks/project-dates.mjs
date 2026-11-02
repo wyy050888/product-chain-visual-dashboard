@@ -1,3 +1,4 @@
+import {businessRuleContext} from './business-rules-context.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
@@ -5,12 +6,13 @@ import vm from 'node:vm';
 export async function projectDates(page){
  // 原始值排序的边界：缺失置后、跨年日期、相同值稳定；格式化不影响计算。
  const source=fs.readFileSync(new URL('../../src/modules/project-panorama/01-model.js',import.meta.url),'utf8');
- const ctx=vm.createContext({});vm.runInContext(source,ctx);
+ const ctx=businessRuleContext({});ctx.window||={};vm.runInContext(fs.readFileSync(new URL('../../src/data/filter-catalog.js',import.meta.url),'utf8'),ctx);vm.runInContext(source,ctx);
  for(const [light,actual,delay,expected,high] of [
-  ['绿灯',null,1,'红灯',false],['绿灯',null,15,'红灯',false],['绿灯',null,16,'红灯',true],['黄灯',null,51,'红灯',true],
+  ['绿灯',null,1,'绿灯',false],['绿灯',null,15,'绿灯',false],['绿灯',null,16,'绿灯',false],['黄灯',null,51,'黄灯',false],['红灯',null,51,'红灯',true],
   ['黄灯',null,0,'黄灯',false],['绿灯',null,0,'绿灯',false],['绿灯',null,null,'绿灯',false],['绿灯','2026-10-01',20,'绿灯',false]
  ]){const status=ctx.ppProjectLight({status:light},actual,delay);assert.equal(status,expected);assert.equal(vm.runInContext(`ppHighRisk(${JSON.stringify({status,delay})})`,ctx),high);}
 
+ assert.equal(ctx.ppProjectLight({},null,50),null,'项目有效灯色缺失时不能仅凭延期推断红灯');
  const records=[{id:3,plan:null},{id:2,plan:'2027-01-01'},{id:1,plan:'2026-12-31'},{id:4,plan:'2026-12-31'}];
  for(const [direction,expected] of [['asc',[1,4,2,3]],['desc',[2,1,4,3]]])assert.deepEqual(records.slice().sort((a,b)=>ctx.ppCompareProjects(a,b,{key:'plan',direction})).map(r=>r.id),expected);
  const mixed=[
@@ -30,7 +32,7 @@ export async function projectDates(page){
  assert(audit.scope.some(p=>p.revisedPlan));assert(audit.scope.some(p=>!p.revisedPlan));
  const verify=async()=>{
   const data=await snapshot(),{key,direction}=data.state.sort;
-  const expected=data.scope.slice().sort((a,b)=>{
+  const expected=data.detailScope.slice().sort((a,b)=>{
    const value=p=>key==='plan'?([p.plan,p.revisedPlan].filter(v=>/^\d{4}-\d{2}-\d{2}$/.test(v||'')).sort().at(-1)||null):p[key]??null;
    const av=value(a),bv=value(b);
    if(av===null||bv===null)return av===bv?a.id-b.id:av===null?1:-1;
@@ -42,13 +44,13 @@ export async function projectDates(page){
   assert.equal(await page.locator(`[data-pp-sort="${key}"]`).getAttribute('data-direction'),direction);
  };
  await verify();
- assert.equal(await page.locator('.pp-table th').nth(3).innerText(),'计划上线日期');
- assert.equal(await page.locator('.pp-table th').nth(3).locator('[data-pp-sort]').count(),1);
+ assert.equal(await page.locator('.pp-table th').nth(2).innerText(),'计划上市日期');
+ assert.equal(await page.locator('.pp-table th').nth(2).locator('[data-pp-sort]').count(),1);
  assert.equal(await page.locator('[data-pp-sort="revisedPlan"]').count(),0);
- const first=audit.filtered[0],cell=page.locator('[data-pp-row]').first().locator('td').nth(3);
+ const first=audit.filtered[0],cell=page.locator('[data-pp-row]').first().locator('td[data-label="计划上市日期"]');
  const date=s=>s?s.slice(2).replaceAll('-','/'):'—';
- assert.deepEqual(await cell.locator('.pp-plan-dates>span,.pp-plan-dates>small').allTextContents(),[date(first.plan),...(first.revisedPlan?['延期 '+date(first.revisedPlan)]:[])]);
- for(const key of ['plan','actual','delay','started']){
+ assert.deepEqual(await cell.locator('.pp-plan-dates>span,.pp-plan-dates>small').allTextContents(),[date(first.plan),...(first.revisedPlan?['延期至 '+date(first.revisedPlan)]:[])]);
+ for(const key of ['plan','delay','started']){
   for(let i=0;i<2;i++){await page.locator(`[data-pp-sort="${key}"]`).click();await verify();}
  }
  await page.locator('[data-pp-page="2"]').first().click();

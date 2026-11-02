@@ -3,7 +3,7 @@
   const { escape, components, config } = app;
   const { linkMetrics, summaryMetrics } = config;
   const basic = Object.fromEntries(['whole', 'wholeBrand', 'wholeCategory', 'wholeChannel', 'region', 'regionCategory', 'regionChannel', 'brand', 'brandCategory', 'store', 'product', 'link', 'dabo'].map(key => [key, config.columns[key].filter(field => !linkMetrics.includes(field))]));
-  const title = (key, field) => field === 'name' ? ({ whole: '大区', wholeBrand: '品牌', wholeCategory: '类目', wholeChannel: '渠道', region: '品牌', regionCategory: '类目', regionChannel: '渠道', brand: '渠道', brandCategory: '类目', dabo: '大区' }[key]) : field === 'gsv' ? '目标GSV' : field === 'profit' ? '目标利润率' : field === 'linkId' ? '核心链接' : config.labels[field];
+  const title = (key, field) => field === 'name' ? ({ whole: '大区', wholeBrand: '品牌', wholeCategory: '链群', wholeChannel: '渠道', region: '品牌', regionCategory: '链群', regionChannel: '渠道', brand: '渠道', brandCategory: '链群', dabo: '大区' }[key]) : field === 'gsv' ? '目标GSV' : field === 'profit' ? '目标利润率' : field === 'linkId' ? '核心链接' : config.labels[field];
   const pin = (field, key) => field === basic[key][0] ? ' pinned first-col' : field === 'shop' && ['product', 'link'].includes(key) ? ' pinned second-col' : '';
   const missing = '<span class="missing info" tabindex="0" data-action="toggle-tip" data-tip="该期间未设置目标" aria-label="该期间未设置目标">—</span>';
   function status(row, label) {

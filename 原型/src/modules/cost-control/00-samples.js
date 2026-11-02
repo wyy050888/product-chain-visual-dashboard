@@ -1,4 +1,4 @@
-// 默认部门及指标引用用户截图；金额和日期为固定交互样例，后续由后台指标目录维护。
+// 旧版样例基线，仅用于保留历史金额；当前目录在00-department-directory中统一维护。
 const ccDepartments=[
  {id:'research',name:'研发中心',annual:750,ratio:.96,metrics:[
   '工艺降本','产品迭代降本','设计方案降本（含物料降本）','关键器件替代料降本（含塑胶原料降本）']},
@@ -17,7 +17,7 @@ const ccAllocate=(total,weights)=>{const sum=weights.reduce((a,b)=>a+b,0),values
 const ccMetrics=ccDepartments.flatMap(dept=>{
  // 研发原有两项沿用身份和金额；新增两项待后台填报，不重新分摊历史金额。
  const indices=dept.id==='research'?[0,2,1,3]:dept.metrics.map((_,i)=>i),weights=dept.id==='research'?[4,0,5,0]:dept.metrics.map((_,i)=>4+i%3),goals=ccAllocate(dept.annual*1000000,weights);
- return dept.metrics.map((name,index)=>({id:dept.id+'-'+indices[index],department:dept.id,metricIndex:indices[index],name,annualCents:goals[index],ratio:dept.ratio}));
+ return dept.metrics.map((name,index)=>({id:dept.id+'-'+indices[index],department:dept.id,category:ccSampleCategory(dept.id,name),metricIndex:indices[index],name,annualCents:goals[index],ratio:dept.ratio}));
 });
 // 指标ID与名称分开，后台改名或扩展指标不改变已保存金额的归属。
 const ccItems=ccMetrics.map(metric=>({...metric,metric:metric.name,owner:''}));

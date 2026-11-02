@@ -1,0 +1,29 @@
+/* 全宽Top10接在两张分组表后；宽屏直接展示，窄屏仅表内横向滚动。 */
+#inventory .ip-stagnant-panel{margin-top:28px;border:0;border-radius:0;min-width:0;overflow:visible;background:transparent}
+#inventory .ip-stagnant-heading{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 20px;padding:0 0 14px;border:0}
+#inventory .ip-stagnant-heading>[data-ip-stagnant-all]{margin-left:auto;white-space:nowrap}
+#inventory .ip-stagnant-heading h3{display:inline-flex;align-items:center;gap:7px;margin:0;font-size:var(--type-section);font-weight:var(--weight-heading);color:#163854}
+#inventory .ip-stagnant-heading .metric-help{flex:none;margin:0}
+#inventory .ip-stagnant-scroll{overflow-x:auto}
+#inventory .ip-stagnant-table{width:100%;min-width:1160px;table-layout:fixed;border-collapse:separate;border-spacing:0}
+#inventory .ip-stagnant-table :is(th,td){padding:12px;box-sizing:border-box;vertical-align:middle;white-space:nowrap;font-size:var(--type-data);border-bottom:1px solid #edf1f8}
+#inventory .ip-stagnant-table th{height:48px;background:#f5f8fd;color:#7d8da5;font-weight:var(--weight-medium);text-align:left}
+#inventory .ip-stagnant-table td{height:80px;background:#fff}
+#inventory .ip-stagnant-table tbody tr:nth-child(even) td{background:#fafbfd}
+#inventory .ip-stagnant-table tbody tr:hover td{background:#f3f7ff}
+#inventory .ip-stagnant-table :is(th,td):first-child{width:56px;text-align:center}
+#inventory .ip-stagnant-table :is(th,td):nth-child(2){width:320px;border-right:1px solid #edf1f8}
+#inventory .ip-stagnant-table :is(th,td):last-child{width:76px;text-align:center;position:sticky;right:0;z-index:1;border-left:1px solid #edf1f8}
+#inventory .ip-stagnant-table .rp-identity>.risk-thumb{width:54px;height:54px}
+#inventory .ip-stagnant-table .rp-identity>div{flex:1;overflow:hidden}
+#inventory .ip-stagnant-table .rp-identity :is(b,small){overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#inventory .ip-stagnant-table .rp-identity b{font-size:var(--type-data)}
+#inventory .ip-stagnant-table .rp-identity small{font-size:var(--type-meta);margin-top:3px}
+#inventory .ip-stagnant-table .rp-list-value{display:flex;flex-direction:column;align-items:flex-start;gap:4px}
+#inventory .ip-stagnant-table .rp-sort-header{font-size:var(--type-data);white-space:nowrap}
+#inventory .ip-stagnant-table tbody tr:last-child td{border-bottom:0}
+
+/* 预警色仅由产品Top10的我司可售天数字段使用，不影响类目、品牌或预警榜。 */
+#inventory .ip-stagnant-table :is(strong,em).rp-quality-yellow{color:var(--orange)}
+#inventory .ip-stagnant-table :is(strong,em).rp-quality-red{color:var(--red)}
+#inventory .ip-stagnant-table :is(strong,em).rp-quality-gray{color:var(--color-text-secondary,#8693a4)}

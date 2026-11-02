@@ -1,0 +1,3 @@
+/* 字段名与必填标记作为一个标题项，避免被表单grid/flex拆成两行。 */
+label>.ui-field-caption{display:inline-flex;align-items:baseline;gap:4px;white-space:nowrap;max-width:100%;min-width:0}
+label>.ui-field-caption>:is(em,span,b){flex:none;white-space:nowrap}

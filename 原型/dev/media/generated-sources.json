@@ -1,0 +1,54 @@
+{
+  "created": "2026-10-22",
+  "authorization": "用户确认以无品牌同品类示意图补齐六款未找到品牌高清图的商品。",
+  "sources": [
+    {
+      "id": "massager",
+      "prompt": "Use case: product-mockup. Asset type: small product thumbnail for a business dashboard. Primary request: create a crisp photorealistic catalog product illustration of a single compact handheld electric body massager, white ergonomic body, two soft rounded gray massage nodes, small dark unlabelled control panel. White seamless studio background, centered complete product occupying about 85% of the square image, soft neutral lighting, subtle soft shadow, sharp product edges and fine material detail. This is a generic illustrative product, not a replica of a named commercial model. Absolutely no branding, no logos, no text, no marketing graphics, no people, no watermark, no extra accessories beyond those described.",
+      "tool": "built-in image_gen",
+      "sourceFile": "C:\\Users\\嗡嗡\\.codex\\generated_images\\01a1525f-e6e4-7ae1-8448-ea49d984184c\\exec-4fa2b27d-0d35-45b5-97f0-bbd69d68ea38.png",
+      "file": "dev/media/originals/generic-massager.png",
+      "kind": "unbranded-category-illustration"
+    },
+    {
+      "id": "cupping",
+      "prompt": "Use case: product-mockup. Asset type: small product thumbnail for a business dashboard. Primary request: create a crisp photorealistic catalog product illustration of a single electric vacuum cupping massager, compact dark navy cylinder, small digital display without readable text, transparent round suction chamber with subtle red LEDs, shown in three-quarter view. White seamless studio background, centered complete product occupying about 85% of the square image, soft neutral lighting, subtle soft shadow, sharp product edges and fine material detail. This is a generic illustrative product, not a replica of a named commercial model. Absolutely no branding, no logos, no text, no marketing graphics, no people, no watermark, no extra accessories beyond those described.",
+      "tool": "built-in image_gen",
+      "sourceFile": "C:\\Users\\嗡嗡\\.codex\\generated_images\\01a1525f-e6e4-7ae1-8448-ea49d984184c\\exec-89c624c1-2e39-45b6-9d6f-1684ef961adc.png",
+      "file": "dev/media/originals/generic-cupping.png",
+      "kind": "unbranded-category-illustration"
+    },
+    {
+      "id": "glasses",
+      "prompt": "Use case: product-mockup. Asset type: small product thumbnail for a business dashboard. Primary request: create a crisp photorealistic catalog product illustration of a single pair of children's prescription eyeglasses, round black lightweight frame with short black temples, clear lenses, temples open, three-quarter front view. White seamless studio background, centered complete product occupying about 85% of the square image, soft neutral lighting, subtle soft shadow, sharp product edges and fine material detail. This is a generic illustrative product, not a replica of a named commercial model. Absolutely no branding, no logos, no text, no marketing graphics, no people, no watermark, no extra accessories beyond those described.",
+      "tool": "built-in image_gen",
+      "sourceFile": "C:\\Users\\嗡嗡\\.codex\\generated_images\\01a1525f-e6e4-7ae1-8448-ea49d984184c\\exec-99fd382d-bb81-4352-b791-c86ee9a39d2e.png",
+      "file": "dev/media/originals/generic-glasses.png",
+      "kind": "unbranded-category-illustration"
+    },
+    {
+      "id": "baby-food",
+      "prompt": "Use case: product-mockup. Asset type: small product thumbnail for a business dashboard. Primary request: create a crisp photorealistic catalog product illustration of a single compact baby food blender, cream base, transparent glass bowl with small stainless steel blending blades, muted blue lid and top motor, no food, three-quarter view. White seamless studio background, centered complete product occupying about 85% of the square image, soft neutral lighting, subtle soft shadow, sharp product edges and fine material detail. This is a generic illustrative product, not a replica of a named commercial model. Absolutely no branding, no logos, no text, no marketing graphics, no people, no watermark, no extra accessories beyond those described.",
+      "tool": "built-in image_gen",
+      "sourceFile": "C:\\Users\\嗡嗡\\.codex\\generated_images\\01a1525f-e6e4-7ae1-8448-ea49d984184c\\exec-6491000e-78f6-413f-96c9-8379d9d385b3.png",
+      "file": "dev/media/originals/generic-baby-food.png",
+      "kind": "unbranded-category-illustration"
+    },
+    {
+      "id": "water-blanket",
+      "prompt": "Use case: product-mockup. Asset type: small product thumbnail for a business dashboard. Primary request: create a crisp photorealistic catalog product illustration of a folded gray quilted water-circulation heating blanket with one small white rectangular temperature-control water reservoir connected by two thin flexible white hoses, neatly arranged together. White seamless studio background, centered complete product occupying about 85% of the square image, soft neutral lighting, subtle soft shadow, sharp product edges and fine material detail. This is a generic illustrative product, not a replica of a named commercial model. Absolutely no branding, no logos, no text, no marketing graphics, no people, no watermark, no extra accessories beyond those described.",
+      "tool": "built-in image_gen",
+      "sourceFile": "C:\\Users\\嗡嗡\\.codex\\generated_images\\01a1525f-e6e4-7ae1-8448-ea49d984184c\\exec-b4b200eb-b1d3-40cc-99fa-13982cf7db82.png",
+      "file": "dev/media/originals/generic-water-blanket.png",
+      "kind": "unbranded-category-illustration"
+    },
+    {
+      "id": "beauty-mask",
+      "prompt": "Use case: product-mockup. Asset type: small product thumbnail for a business dashboard. Primary request: create a crisp photorealistic catalog product illustration of a single compact eye-area skincare massage mask, purple and pearl white curved rigid visor, inner silicone eye pads faintly visible, no straps blocking the form, no face, three-quarter view. White seamless studio background, centered complete product occupying about 85% of the square image, soft neutral lighting, subtle soft shadow, sharp product edges and fine material detail. This is a generic illustrative product, not a replica of a named commercial model. Absolutely no branding, no logos, no text, no marketing graphics, no people, no watermark, no extra accessories beyond those described.",
+      "tool": "built-in image_gen",
+      "sourceFile": "C:\\Users\\嗡嗡\\.codex\\generated_images\\01a1525f-e6e4-7ae1-8448-ea49d984184c\\exec-a750ac4b-45cb-402c-afba-f1f70ebfb4c9.png",
+      "file": "dev/media/originals/generic-beauty-mask.png",
+      "kind": "unbranded-category-illustration"
+    }
+  ]
+}

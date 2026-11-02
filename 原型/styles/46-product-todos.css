@@ -7,42 +7,50 @@
 /* AI 建议入口：星芒徽标与文字组合，数量纳入标签内部。 */
 #dialogbody .up-todo-ai-brand{display:inline-flex;align-items:center;gap:5px;padding:0 6px 0 3px;border-radius:7px;background:linear-gradient(110deg,#edf5ff,#f3eeff);color:#6650d8;line-height:inherit}
 #dialogbody .up-todo-ai-brand b{font-size:inherit;font-weight:inherit;line-height:inherit;letter-spacing:0}
-#dialogbody .up-todo-ai-icon{display:grid;place-items:center;flex:none;width:20px;height:20px;border-radius:6px;color:#fff;background:linear-gradient(140deg,#39a4ff 0%,#6164ef 52%,#a25be6 100%);box-shadow:0 2px 6px #7165e52b}
-#dialogbody .up-todo-ai-icon svg{width:16px;height:16px;pointer-events:none}
 #dialogbody .up-todo-tabs [data-todo-tab="suggestions"]{padding:12px 0}
 #dialogbody .up-todo-tabs [data-todo-tab="suggestions"][aria-selected="true"]{border-bottom-color:#7861e8}
 #dialogbody .up-todo-tabs [data-todo-tab="suggestions"][aria-selected="true"] .up-todo-ai-brand{background:linear-gradient(110deg,#e6f0ff,#ede5ff);color:#5942c4}
 #dialogbody .up-todo-tabs [data-todo-tab="suggestions"] .up-todo-tab-count{background:#ffffff9c;color:#7a63b6;padding:0 7px;line-height:20px;font-size:11px}
 #dialogbody .up-todo-tabs button:focus-visible{outline:2px solid #8d79ed;outline-offset:3px;border-radius:4px}
 #dialogbody .up-todo-filters{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin:0 0 20px}
-#dialogbody .up-todo-filters>label{display:flex;align-items:center;gap:12px;min-height:36px;border:1px solid #dce4f1;border-radius:5px;padding:0 10px;color:#425b7a;font-size:12px;background:#fff}
+#dialogbody .up-todo-filters>label:not(.ui-search-field){display:flex;align-items:center;gap:12px;min-height:36px;border:1px solid #dce4f1;border-radius:5px;padding:0 10px;color:#425b7a;font-size:12px;background:#fff}
 #dialogbody .up-todo-filters select{border:0;background:transparent;min-width:95px;min-height:34px;padding:0 18px 0 2px;color:#34455e;font:inherit;outline-offset:-2px}
 #dialogbody .up-todo-filters .up-todo-search{padding:0;flex:0 1 420px}
-#dialogbody .up-todo-search input{border:0;border-radius:5px;width:100%;height:34px;font-size:12px;padding:0 12px 0 34px;background:transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 20 20' fill='none' stroke='%238699b3' stroke-width='1.5'%3E%3Ccircle cx='8' cy='8' r='5'/%3E%3Cpath d='m12 12 5 5'/%3E%3C/svg%3E") 11px center no-repeat}
 #dialogbody .up-todo-filters>[data-todo-reset]{margin-left:auto;font-size:12px}
 #dialogbody #up-todo-message:empty{display:none}
 #dialogbody #up-todo-message{margin-bottom:10px;font-size:12px}
 #dialogbody .up-todo-table{border:1px solid #e7edf6;border-radius:6px}
-#dialogbody .up-todo-table table{min-width:1520px;table-layout:fixed}
+#dialogbody .up-todo-table table{min-width:1340px;table-layout:fixed}
 #dialogbody .up-todo-table :is(th,td){font-size:12px;padding:15px 10px;vertical-align:middle;white-space:nowrap}
 #dialogbody .up-todo-table tbody tr:nth-child(even){background:#fafcff}
 #dialogbody .up-todo-subject{display:flex;flex-direction:column;gap:4px;min-width:0;white-space:normal}
-#dialogbody .up-todo-subject b{display:block;font-size:13px;font-weight:400;color:#28496b}
+#dialogbody .up-todo-subject b{display:block;white-space:pre-line;font-size:13px;font-weight:400;color:#28496b}
 #dialogbody .up-todo-subject span{overflow:hidden;white-space:nowrap;text-overflow:ellipsis;color:#8a98ad;font-size:11px}
 #dialogbody .up-todo-evidence-preview{white-space:normal;line-height:1.7;color:#65768c}
 #dialogbody .up-todo-row-actions{display:flex;gap:14px;align-items:center}
 #dialogbody .up-todo-row-actions button{font-size:12px;white-space:nowrap}
 .up-todo-status{display:inline-block;padding:2px 8px;border-radius:4px;font-size:12px;background:#f1f4fa;color:#718198;white-space:nowrap}
-.up-todo-status.working{background:#edf5ff;color:#1677ff}.up-todo-status.done{background:#eaf8f3;color:#149780}.up-todo-status.suggested{background:#f2f3f5;color:#86909c}
+.up-todo-status.working{background:#edf5ff;color:#1677ff}.up-todo-status.done{background:var(--green-soft);color:var(--green)}.up-todo-status.suggested{background:#f2f3f5;color:#86909c}
 .up-todo-overdue{display:block;color:#e05b62;font-size:11px;margin-top:3px}
 .up-todo-dialog{width:min(1000px,calc(100vw - 32px));max-width:none;max-height:86vh;padding:0;border:1px solid #e0e7f2;border-radius:10px;color:#34455e;background:white;box-shadow:0 16px 60px #192c4533;overflow:hidden;box-sizing:border-box}
 .up-todo-dialog::backdrop{background:rgba(25,40,63,.3)}
+.up-todo-dialog{overscroll-behavior:contain}
 .up-todo-dialog>form{display:flex;flex-direction:column;max-height:86vh;margin:0}
 .up-todo-dialog-detail{height:calc(100dvh - 80px);max-height:calc(100dvh - 32px)}
 .up-todo-dialog-detail>form{height:100%;max-height:100%}
 .up-todo-dialog-detail .up-todo-dialog-body{flex:1}
+/* 共用待办从右侧展开；表单头尾固定，正文独立滚动。 */
+.up-todo-dialog.up-todo-drawer{position:fixed;inset:0 0 0 auto;margin:0;width:min(1440px,94vw);max-width:100vw;height:100dvh;max-height:100dvh;border:0;border-left:1px solid #e0e7f2;border-radius:0;box-shadow:-8px 0 36px #192c4526}
+.up-todo-drawer>form{height:100%;max-height:100%}.up-todo-drawer .up-todo-dialog-body{flex:1}
+@media(max-width:700px){.up-todo-dialog.up-todo-drawer{width:100vw;border-left:0}}
 .up-todo-dialog header{display:flex;align-items:center;justify-content:space-between;padding:16px 22px;border-bottom:1px solid #e8edf5;flex:none}
 .up-todo-dialog header h3{margin:0;font-size:16px;font-weight:600}
+.up-todo-dialog>form>header{gap:12px}
+.up-todo-dialog .up-todo-detail-heading{display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px;min-width:0;line-height:1.6}
+.up-todo-heading-prefix{flex:none}.up-todo-heading-object{display:inline-flex;align-items:center;flex-wrap:wrap;gap:8px;min-width:0;max-width:100%}
+.up-todo-heading-object>[data-todo-business-object]{min-width:0;overflow-wrap:anywhere}
+.up-todo-dialog .up-todo-object-type{flex:none;padding:0 5px;border-radius:3px;background:#edf3ff;color:#2676de;font-size:12px;font-weight:400;line-height:22px}
+.up-todo-dialog-header-actions{flex:none;align-self:flex-start}
 .up-todo-dialog-close{background:none;border:0;font-size:23px;color:#8996a8;cursor:pointer}
 .up-todo-dialog-body{overflow:auto;padding:20px 24px;min-height:0;overscroll-behavior:contain;font-size:13px}
 .up-todo-dialog h4{margin:0 0 10px;font-size:15px;color:#28496b}
@@ -65,26 +73,34 @@
 
 #dialogbody .up-detail[data-up-tab="handling"]>.up-toolbar{display:none}
 #dialogbody .up-todo-description{white-space:pre-line;line-height:1.7;color:#65768c;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.up-todo-priority{display:inline-block;width:27px;height:16px;border-radius:8px;vertical-align:middle}
-.up-todo-priority.red{background:#ff9f9f}.up-todo-priority.yellow{background:var(--orange-fill)}.up-todo-priority.green{background:#76df8d}
+.up-todo-priority{display:inline-flex;align-items:center;justify-content:center;min-width:34px;width:auto;height:24px;padding:0 7px;border-radius:4px;vertical-align:middle;font-size:12px;font-weight:600;line-height:22px;white-space:nowrap}
+.up-todo-priority.P0{background:#fff1f0;color:#cf1322}.up-todo-priority.P1{background:var(--orange-soft);color:var(--orange)}.up-todo-priority.P2{background:#edf4ff;color:#1677ff}.up-todo-priority.P3{background:#f1f3f6;color:#718096}
+.up-todo-priority:focus-visible{outline:2px solid #91beff;outline-offset:2px}
+.up-todo-priority-trigger{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;min-height:34px;padding:4px 8px;border:1px solid #dce4f1;border-radius:5px;background:#fff;color:#425b7a;font:inherit;cursor:pointer;text-align:left}
+.up-todo-priority-trigger [data-priority-value]{display:flex;align-items:center;gap:10px}.up-todo-priority-trigger svg{width:14px;height:14px;stroke:#8595ad;stroke-width:1.5;fill:none;flex:none}
+.up-todo-priority-trigger[aria-expanded=true]{border-color:#91beff}.up-todo-priority-trigger:hover{border-color:#91beff}
+.up-todo-priority-options{position:fixed;inset:auto;margin:0;padding:4px;border:1px solid #dce4f1;border-radius:6px;background:#fff;box-shadow:0 6px 20px #243e6426;color:#425b7a;box-sizing:border-box;max-height:240px;overflow:auto}
+.up-todo-priority-options [role=option]{display:flex;align-items:center;gap:10px;width:100%;min-height:36px;padding:5px 8px;border:0;border-radius:4px;background:transparent;color:inherit;font:inherit;font-size:12px;cursor:pointer;text-align:left}
+.up-todo-priority-options [role=option]:hover,.up-todo-priority-options [data-active=true]{background:#f2f6fc}.up-priority-check{margin-left:auto;min-width:16px;color:#1677ff}
 /* 产品和店铺共用默认列宽；拖拽保存后的内联列宽优先。 */
-#dialogbody .up-todo-table th:nth-child(1){width:240px}
-#dialogbody .up-todo-table th:nth-child(2){width:360px}
-#dialogbody .up-todo-table th:nth-child(3){width:160px}
-#dialogbody .up-todo-table th:nth-child(4){width:120px}
+#dialogbody .up-todo-table th:nth-child(1){width:72px}
+#dialogbody .up-todo-table th:nth-child(2){width:320px}
+#dialogbody .up-todo-table th:nth-child(3){width:320px}
+#dialogbody .up-todo-table th:nth-child(4){width:160px}
 #dialogbody .up-todo-table th:nth-child(5){width:130px}
-#dialogbody .up-todo-table th:nth-child(6){width:80px}
-#dialogbody .up-todo-table th:nth-child(7){width:100px}
-#dialogbody .up-todo-table th:nth-child(8){width:100px}
-#dialogbody .up-todo-table th:nth-child(9){width:120px}
-#dialogbody .up-todo-table th:nth-child(10){width:110px}
+#dialogbody .up-todo-table th:nth-child(6){width:130px}
+#dialogbody .up-todo-table th:nth-child(7){width:96px}
+#dialogbody .up-todo-table th:nth-child(8){width:112px}
 #dialogbody .up-todo-table :is(th,td):last-child{position:sticky;right:0;border-left:1px solid #edf1f7}
 #dialogbody .up-todo-table th:last-child{z-index:2;background:#f5f8fc}
 #dialogbody .up-todo-table td:last-child{background:#fff}
 #dialogbody .up-todo-table tbody tr:nth-child(even) td:last-child{background:#fafcff}
 #dialogbody .up-todo-toolbar-actions{display:flex;align-items:center;gap:18px;flex-wrap:wrap;padding-bottom:8px}
-.up-todo-delete-question{padding:12px 16px;background:#fff3f3;border-radius:6px;color:#d64d58;margin:0 0 20px}
+.up-todo-dialog.up-todo-dialog-delete{width:min(420px,calc(100vw - 32px))}
+.up-todo-delete-question{margin:0;line-height:1.7;color:#415570}
 .up-todo-dialog .up-todo-delete-confirm{background:#e34d59;border-color:#e34d59;color:white}
+.up-todo-dialog .up-todo-delete-trigger{color:#d65360;border-color:#efc6cb;background:#fff;white-space:nowrap}
+.up-todo-dialog .up-todo-delete-trigger:hover{color:#c74653;border-color:#e7a7b0;background:#fff5f6}
 @media(max-width:700px){.up-todo-persons{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
 .up-todo-title{font-size:13px;font-weight:400;color:#28496b;margin:0 0 10px}
@@ -105,18 +121,31 @@
 .up-todo-inline{min-width:0}
 .up-todo-inline-read{display:flex;align-items:flex-start;gap:10px;border:1px solid transparent;border-radius:5px;padding:5px 7px;margin:-5px -7px;text-align:left;background:transparent;color:inherit;font:inherit;line-height:inherit;max-width:calc(100% + 14px);cursor:pointer}
 .up-todo-inline-read>span{min-width:0;overflow-wrap:anywhere}
-.up-todo-inline-read svg{width:14px;height:14px;flex:none;margin-top:3px;stroke:#8b9ab0;stroke-width:1.3;fill:none;opacity:0}
 .up-todo-inline-read:hover,.up-todo-inline-read:focus-visible{background:#fff;border-color:#dce6f5}
-.up-todo-inline-read:hover svg,.up-todo-inline-read:focus-visible svg{opacity:1}
+.up-todo-inline-read:disabled{cursor:default;opacity:.55}.up-todo-inline-read:disabled:hover{background:transparent;border-color:transparent}
+.up-todo-inline-placeholder{color:#93a1b5}
+.gd-todo-basis-table-wrap{border:1px solid #e0e8f3;border-radius:6px;overflow:hidden}
+.gd-source-location{display:flex;flex-direction:column;align-items:flex-start;gap:5px;white-space:normal}
+.gd-source-location .gd-source-type{display:inline-flex;padding:1px 7px;border-radius:4px;background:#edf3ff;color:#2676de;font-size:12px;line-height:20px;font-weight:400;white-space:normal}
+.gd-source-name{color:inherit;font:inherit;line-height:1.8;white-space:pre-line;overflow-wrap:anywhere}
+.gd-source-captured{color:#8796aa;font-size:12px;line-height:1.8}
+.up-todo-evidence .gd-todo-basis-table{width:100%;min-width:0;table-layout:fixed;border-collapse:collapse;background:#fff}
+.up-todo-evidence .gd-todo-basis-table :is(th,td){padding:10px 12px;text-align:left;vertical-align:top;border:0;border-right:1px solid #e5ebf4;border-bottom:1px solid #e5ebf4;font-size:12px;line-height:1.8;white-space:pre-line;overflow-wrap:anywhere}
+.up-todo-evidence .gd-todo-basis-table th{background:#eff4fb;color:#71849e;font-weight:500}
+.up-todo-evidence .gd-todo-basis-table td{color:#465d7c}
+.up-todo-evidence .gd-todo-basis-table tr>:last-child{border-right:0}
+.up-todo-evidence .gd-todo-basis-table tbody tr:last-child>td{border-bottom:0}
+.gd-todo-basis>[data-todo-basis-sources]{margin-top:18px;padding-top:2px;border-top:1px solid #e8edf5}
+@media(max-width:600px){.up-todo-evidence .gd-todo-basis-table :is(th,td){padding:8px}}
 .up-todo-inline.editing{padding:0;background:transparent;border:0;border-radius:0;white-space:normal;font-size:13px;font-weight:400}
 .up-todo-inline.editing :is(input:not([type="checkbox"]),select,textarea){width:100%}
-.up-todo-common{display:grid;grid-template-columns:.85fr 1.3fr 1fr 1fr .6fr 1.05fr .8fr 1fr;gap:16px;margin:0;padding:18px 24px;background:#f7f9fc;flex:none}
-.up-todo-common>div{min-width:0}.up-todo-common dt{font-size:12px;color:#8390a5;margin-bottom:9px;white-space:nowrap}
-.up-todo-common dd{margin:0;font-size:12px;color:#425b7a}.up-todo-common :is(input,select){width:100%;font-size:12px;padding:7px 5px}
-.up-todo-common .up-todo-inline.editing{padding:0}.up-todo-common .up-todo-inline-read{white-space:nowrap;font-size:12px}
+.up-todo-common{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px 24px;margin:0;padding:16px;border-radius:6px;background:#f7f9fc;flex:none}
+.up-todo-common>div{min-width:0}.up-todo-common dt{font-size:12px;color:#8390a5;margin-bottom:7px;white-space:nowrap}
+.up-todo-common dd{margin:0;font-size:13px;color:#425b7a}.up-todo-common :is(input,select){width:100%;font-size:12px;padding:7px 5px}
+.up-todo-common .up-todo-inline.editing{padding:0}.up-todo-common .up-todo-inline-read{white-space:normal;font-size:13px}
 /* 两个标签共用标题排版；复选框使用原生尺寸，不继承输入框高度。 */
 #dialogbody .up-todo-table .up-todo-select-all{display:flex;align-items:center;gap:8px;min-height:0;font:inherit;line-height:inherit}
-#dialogbody .up-todo-table :is(th,td):first-child input[type="checkbox"]{width:13px;height:13px;min-height:0;padding:0;margin:0;flex:none;accent-color:#1677ff;vertical-align:middle}
+#dialogbody .up-todo-table :is(.up-todo-select-all,.up-todo-subject-cell) input[type="checkbox"]{width:13px;height:13px;min-height:0;padding:0;margin:0;flex:none;accent-color:#1677ff;vertical-align:middle}
 #dialogbody .up-todo-subject-cell{display:flex;align-items:center;gap:8px;min-width:0}
 #dialogbody .up-todo-subject-cell .up-todo-subject{flex:1;min-width:0}
 #dialogbody .up-todo-table .up-todo-row-actions{gap:9px;flex-wrap:wrap}
@@ -126,13 +155,28 @@
 .up-todo-batch-table th{text-align:left;background:#f7f9fc;color:#8390a5;font-size:12px;font-weight:400}
 .up-todo-batch-table :is(th,td){padding:14px 10px;border-bottom:1px solid #e8edf5}.up-todo-batch-table td:first-child{width:35%;line-height:1.7}
 .up-todo-batch-table select{width:100%}
-@media(max-width:700px){.up-todo-common{display:flex;overflow-x:auto;padding:14px 16px;gap:20px}.up-todo-common>div{flex:0 0 120px}}
+@media(max-width:700px){.up-todo-common{grid-template-columns:repeat(2,minmax(0,1fr));padding:14px;gap:16px}}
 
 .up-todo-dialog-body>div>section:first-child h5{margin-top:0}
+.up-todo-dialog-detail #up-todo-panel-detail{display:flex;flex-direction:column;min-height:100%;box-sizing:border-box}
+.up-todo-title-section .up-todo-title{font-size:16px;font-weight:600;line-height:1.6;margin-bottom:0}
+.up-todo-heading{padding:18px 24px;border-bottom:1px solid #e8edf5;flex:none}
+.up-todo-heading>.up-todo-dialog-field{margin:14px 0 0}
+.up-todo-workspace{display:flex;flex-direction:column;flex:1;min-height:0;min-width:0}
+.up-todo-workspace>.up-todo-dialog-body{min-width:0}
+.up-todo-basic-section{order:-1;flex:none;min-width:0;min-height:0;max-height:40dvh;overflow:auto;overscroll-behavior:contain;margin:0;padding:18px 24px;border-bottom:1px solid #e8edf5;background:#f7f9fc}
+.up-todo-basic-section>h5{margin:0 0 18px}
+.up-todo-basic-section .up-todo-common{padding:0;background:transparent}
+@media(min-width:1101px){
+ .up-todo-drawer .up-todo-workspace{display:grid;grid-template-columns:minmax(0,1fr) 280px;grid-template-rows:minmax(0,1fr)}
+ .up-todo-drawer .up-todo-basic-section{order:0;max-height:none;border-bottom:0;border-left:1px solid #e8edf5;padding:22px 20px}
+ .up-todo-drawer .up-todo-basic-section .up-todo-common{grid-template-columns:minmax(0,1fr);gap:24px}
+}
+@media(max-width:700px){.up-todo-heading,.up-todo-basic-section{padding:16px}}
 .up-todo-common .up-todo-overdue{display:inline-block;margin:0}
 
 /* 同一表单复用检索式负责人；详情没有关闭横条，仅新增/下发/删除保留提交区。 */
-.up-todo-common-assign{grid-template-columns:1.4fr 1fr 1fr .7fr}
+.up-todo-common-assign{grid-template-columns:repeat(2,minmax(0,1fr))}
 .up-todo-dialog-header-actions{display:flex;align-items:center;gap:14px}
 .up-todo-due{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
 .up-todo-due .up-todo-overdue{display:inline-block;margin:0;font-size:10px}
@@ -141,7 +185,7 @@
 .up-todo-common .up-todo-due .up-todo-inline{flex:0 1 auto}
 .up-todo-dialog .up-todo-status-select{width:auto;max-width:100%;cursor:pointer;border:0;padding:3px 17px 3px 7px;background-color:#f1f4fa;color:#718198}
 .up-todo-dialog .up-todo-status-select.working{background-color:#edf5ff;color:#1677ff}
-.up-todo-dialog .up-todo-status-select.done{background-color:#eaf8f3;color:#149780}
+.up-todo-dialog .up-todo-status-select.done{background-color:var(--green-soft);color:var(--green)}
 .up-todo-dialog .up-todo-inline.editing :is(input,textarea,select):focus{outline:none;border-color:#91beff;box-shadow:none}
 .up-todo-people{position:relative;min-width:0;width:100%}
 .up-todo-people input[type=search]{width:100%;font-weight:400}
@@ -149,3 +193,67 @@
 .up-todo-people-options [role=option]{display:block;width:100%;padding:8px;border:0;border-radius:3px;background:transparent;color:inherit;text-align:left;font-size:12px;cursor:pointer}
 .up-todo-people-options [role=option]:hover,.up-todo-people-options [aria-selected=true]{background:#edf5ff;color:#1677ff}
 .up-todo-people-empty{padding:8px;font-size:12px;color:#8996a8}
+
+.up-collaboration{margin-top:22px}.up-collaboration header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;padding:0;border:0}.up-collaboration h5{margin:0!important}.up-collaboration h5 small{margin-left:6px;font-weight:400;color:#8b9ab1}
+.up-collaboration-scroll{max-width:100%;overflow:auto;border-block:1px solid #e6edf6}
+.up-collaboration table{min-width:960px;width:100%;table-layout:fixed;border-collapse:collapse;font-size:13px}
+.up-collaboration th{padding:10px 8px;background:#f5f8fc;text-align:left;font-weight:500;color:#74839a;white-space:nowrap}
+.up-collaboration td{padding:9px 8px;vertical-align:top;border-bottom:1px solid #edf1f7;line-height:1.7;white-space:normal;overflow-wrap:anywhere}
+.up-collaboration tbody tr:hover td{background:#f8fbff}
+.up-collaboration tbody tr:last-child td{border-bottom:0}
+.up-collaboration :is(input,select,textarea){box-sizing:border-box;min-width:0;max-width:100%;font:inherit;color:#476486}
+.up-collaboration select,.up-collaboration input[type=date]{width:100%;padding:5px;border:1px solid #dde5f2;border-radius:4px;background:#fff}
+.up-collaboration textarea{min-height:58px;width:100%;padding:6px;border:1px solid #dde5f2;border-radius:4px;resize:vertical}
+.up-collaboration .up-todo-inline-read{box-sizing:border-box;width:100%;margin:0;padding:2px 0;white-space:pre-wrap;overflow-wrap:anywhere}
+.up-collaboration .up-todo-dialog-error:empty{display:none}
+.up-execution-draft-tools{display:flex;justify-content:flex-end;gap:5px;margin-top:5px}
+.up-execution-icon{display:inline-grid;place-items:center;flex:none;width:28px;height:28px;padding:0;border:1px solid #e3eaf4;border-radius:4px;background:#fff;color:#1677ff;cursor:pointer}
+.up-execution-icon:hover{background:#edf4ff;border-color:#bcd5ff}
+.up-execution-icon[data-responsibility-cancel]{color:#8995a7}
+.up-execution-icon[data-responsibility-cancel]:hover{color:#d65b64;border-color:#f0c5cb;background:#fff4f5}
+/* 已保存行仍保留删除入口，不增加第七列；气泡确认不改变行高。 */
+.up-execution-feedback{display:flex;align-items:flex-start;gap:6px;min-width:0}
+.up-execution-feedback>.up-todo-inline{flex:1;min-width:0}
+.up-execution-icon[data-execution-delete]{color:#8995a7;border-color:transparent;background:transparent}
+.up-execution-icon[data-execution-delete]:hover:not(:disabled){color:#d65b64;border-color:#f0c5cb;background:#fff4f5}
+.up-execution-icon:disabled{opacity:.35;cursor:not-allowed}
+.up-execution-confirm-popover{position:fixed;inset:auto;margin:0;padding:14px 16px;border:1px solid #e1e8f2;border-radius:6px;background:#fff;box-shadow:0 6px 22px #243e6426;box-sizing:border-box;overflow:visible;color:#415570;font-size:13px}
+.up-execution-confirm-popover::before{content:"";position:absolute;left:var(--confirm-arrow);width:8px;height:8px;background:#fff;border-left:1px solid #e1e8f2;border-top:1px solid #e1e8f2}
+.up-execution-confirm-popover[data-placement=below]::before{top:-5px;transform:translateX(-50%) rotate(45deg)}
+.up-execution-confirm-popover[data-placement=above]::before{bottom:-5px;transform:translateX(-50%) rotate(225deg)}
+.up-execution-confirm-popover>p{margin:0;line-height:1.7}
+.up-execution-confirm-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
+.up-execution-confirm-actions>.btn{font-size:12px;padding:5px 12px}
+.up-execution-confirm-popover>.up-todo-dialog-error:not([hidden]){margin-top:8px}
+[data-up-collab-owners]{white-space:normal;overflow-wrap:anywhere}
+.up-todo-owner-select{position:relative;min-width:0;max-width:100%}
+.up-todo-owner-read{display:flex;align-items:flex-start;justify-content:space-between;gap:5px;width:100%;padding:2px 0;border:1px solid transparent;background:transparent;text-align:left;color:#415570;line-height:22px;cursor:pointer}
+.up-todo-owner-read:hover{background:#edf4ff;border-color:#d5e5fb;border-radius:4px}
+.up-todo-owner-read[hidden],.up-todo-owner-editor[hidden]{display:none}
+.up-todo-owner-person{display:inline-block;white-space:nowrap}
+.up-todo-owner-read .up-todo-owner-person small{display:inline;color:#8a96a8;white-space:nowrap;font-size:inherit;margin:0}
+.up-todo-owner-caret{flex:none;color:#9ba9bc;opacity:0}
+.up-todo-owner-read:is(:hover,:focus-visible) .up-todo-owner-caret{opacity:1}
+.up-todo-owner-editor{display:flex;flex-wrap:wrap;gap:4px;padding:4px;border:1px solid #91beff;border-radius:4px;background:#fff}
+.up-todo-people-selected{display:contents}
+.up-todo-person-chip{display:inline-flex;align-items:center;gap:4px;max-width:100%;padding:1px 4px;border-radius:3px;background:#edf4ff;color:#45648b;font-size:12px;overflow-wrap:anywhere}
+.up-todo-person-chip button{flex:none;border:0;background:none;color:#7b90ac;padding:0 2px;cursor:pointer;font:inherit}
+.up-todo-owner-editor .up-todo-people{flex:1 1 100px;min-width:0;width:auto}
+.up-todo-owner-editor [data-people-query]{width:100%;min-height:24px;border:0;border-radius:0;padding:2px 0;background:transparent;outline:0;box-shadow:none}
+.up-todo-owner-check{display:inline-block;width:16px;height:16px;margin-right:6px;color:#1677ff;vertical-align:middle}
+.up-todo-people-options [data-people-highlight]{background:#edf5ff;color:#1677ff}
+@media(max-width:700px){.up-collaboration :is(th,td){padding:8px}.up-collaboration header{gap:12px}.up-collaboration header small{white-space:nowrap}}
+
+/* 共用责任人单元格，产品/店铺待办与全局协同保持同一展示。 */
+.up-todo-owner{display:flex;flex-flow:row nowrap;align-items:baseline;gap:4px;line-height:1.6;white-space:nowrap;overflow-wrap:normal;color:#8393ad}
+.up-todo-owner+.up-todo-owner{margin-top:8px}
+.up-todo-owner>small{font-size:13px;color:#8393ad}
+.up-todo-owner>span{font-size:13px;color:#354f72}
+
+/* 完整证据仅在任务弹窗内按需展开，不占主表正文。 */
+.up-todo-evidence-section{margin-top:auto;padding-top:22px}
+.up-todo-evidence-section>[data-todo-evidence]{font-size:12px;padding:0}
+.up-todo-evidence{padding:16px;border:1px solid #dfe8f6;border-radius:6px;background:#f7faff;margin-top:12px}
+.up-todo-evidence[hidden]{display:none}
+.up-todo-evidence:focus{outline:none;box-shadow:none}
+.up-todo-evidence .gd-reason-basis{margin:6px 0 14px}

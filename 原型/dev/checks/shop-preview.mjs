@@ -1,3 +1,4 @@
+import {businessRuleContext} from './business-rules-context.mjs';
 import {verifyShopCoreProducts} from './shop-core-products.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -6,14 +7,14 @@ import {fileURLToPath} from 'node:url';
 import {pddLinks} from './pdd-links.mjs';
 function rules(){
  const shiftDate=(date,days)=>new Date(Date.parse(date)+days*86400000).toISOString().slice(0,10);
- const ctx=vm.createContext({DATA_CUTOFF:'2026-10-10',shiftDate,riskMonthShift:(month,n)=>{const [y,m]=month.split('-').map(Number);return new Date(Date.UTC(y,m-1+n,1)).toISOString().slice(0,7)}});
+ const ctx=businessRuleContext({DATA_CUTOFF:'2026-10-10',shiftDate,riskMonthShift:(month,n)=>{const [y,m]=month.split('-').map(Number);return new Date(Date.UTC(y,m-1+n,1)).toISOString().slice(0,7)}});
  const rangeSource=fs.readFileSync(new URL('../../src/modules/risk-range/01-data.js',import.meta.url),'utf8');
  vm.runInContext(rangeSource.slice(0,rangeSource.indexOf('function riskLossPeriod')),ctx);
  vm.runInContext(fs.readFileSync(new URL('../../src/modules/sample-reference/03-shop-sales.js',import.meta.url),'utf8'),ctx);
  vm.runInContext(fs.readFileSync(new URL('../../src/modules/sample-reference/04-shop-events.js',import.meta.url),'utf8'),ctx);
  vm.runInContext(fs.readFileSync(new URL('../../src/modules/risk-presentation/01-quality.js',import.meta.url),'utf8'),ctx);
  vm.runInContext(fs.readFileSync(new URL('../../src/modules/risk-presentation/01-shop.js',import.meta.url),'utf8'),ctx);
- for(const [platform,red,normal] of [['抖音',4.6,4.8],['快手',4.4,4.7],['视频号',4,4.5],['天猫',4.6,4.8],['京东',4.6,4.8],['拼多多',4.7,4.8]]){
+ for(const [platform,red,normal] of [['抖音',4.6,4.8],['快手',4.4,4.7],['视频号',4,4.5],['天猫',4.6,4.8],['京东',4.6,4.8]]){
   assert.equal(ctx.rpShopScoreTone(platform,red),platform==='天猫'?'rp-quality-yellow':'rp-quality-red');
   assert.equal(ctx.rpShopScoreTone(platform,(red+normal)/2),'rp-quality-yellow');
   assert.equal(ctx.rpShopScoreTone(platform,normal),'rp-quality-green');
@@ -21,8 +22,10 @@ function rules(){
   assert.equal(ctx.rpShopScoreTone(platform,red-0.01),'rp-quality-red');
   assert.equal(ctx.rpShopScoreTone(platform,null),'rp-quality-gray');
  }
+ for(const score of [null,4,4.7,4.8,5])assert.equal(ctx.rpShopScoreTone('拼多多',score),'rp-quality-gray','拼多多不套用店铺分判灯');
+ assert.equal(ctx.rpShopScoreBands('拼多多'),null);
  assert.equal(ctx.rpShopProblemHit({target:10,previous:10.5,current:11}),false);
- assert.equal(ctx.rpShopProblemHit({target:10,previous:10.6,current:10.7}),true);
+ assert.equal(ctx.rpShopProblemHit({target:10,previous:13.1,current:13.2}),true);
  assert.equal(ctx.rpShopProblemHit({target:10,previous:11,current:10.8}),false);
  assert.equal(ctx.rpShopProblemHit({currentTarget:11,previousTarget:10,previous:10.6,current:11}),false);
  vm.runInContext(fs.readFileSync(new URL('../../src/data/sample-spus.js',import.meta.url),'utf8'),ctx);
@@ -93,7 +96,8 @@ export async function shopPreview(page){
  await verifyShopCoreProducts(page);
  assert.equal(await table.locator('th').filter({hasText:/^核心店铺$/}).count(),0);
  const widths=await table.locator('th:has([data-rp-sort])').evaluateAll(ns=>ns.map(n=>n.getBoundingClientRect().width));
- assert(widths.every(w=>w>=127));
+ assert(widths.every(w=>w>=119&&w<=241),'常规指标120px、主营240px');
+ assert((await table.locator('table').boundingBox()).width<1900,'不再强制撑到2450px');
  await page.screenshot({path:fileURLToPath(new URL('../../outputs/shop-drawer-v2.png',import.meta.url))});
  await table.evaluate(el=>el.scrollLeft=el.scrollWidth);
  await page.screenshot({path:fileURLToPath(new URL('../../outputs/shop-drawer-right.png',import.meta.url))});

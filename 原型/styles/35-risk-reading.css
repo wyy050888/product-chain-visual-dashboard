@@ -1,7 +1,7 @@
 /* 看板视觉层：统一页面层级；风险条目中的名称和值始终保持相邻。 */
-body:has(main.page > #risk) {background:radial-gradient(ellipse at 0 0,#e9f1fb 0,transparent 45%),linear-gradient(120deg,#f2f5fa,#f6f8fb 60%,#eef5f7)}
-.page {padding-top:12px;--module-header-background:linear-gradient(105deg,#f7faff,#fff 80%)}
-.head.portal-header {background:#fff;border-bottom-color:#e3e9f1;box-shadow:0 1px 8px #20355005}
+body:has(.page > #risk) {background:radial-gradient(ellipse at 0 0,#e9f1fb 0,transparent 45%),linear-gradient(120deg,#f2f5fa,#f6f8fb 60%,#eef5f7)}
+.page {padding-top:0;--module-header-background:linear-gradient(105deg,#f7faff,#fff 80%)}
+.head.portal-header {background:#f0f5ff;border-bottom-color:#d5e1f4;box-shadow:0 1px 8px #20355005}
 .page>.jumpnav {background:#ffffffde;border:1px solid #e2e8f1;border-radius:8px;padding:8px 10px;box-shadow:0 2px 6px #26436604}
 .page>.jumpnav a {font-size:13px;color:#63748a;border-radius:5px}
 .page>.jumpnav a.active {background:#eaf2ff;color:#1767de}
@@ -17,7 +17,7 @@ body:has(main.page > #risk) {background:radial-gradient(ellipse at 0 0,#e9f1fb 0
 #risk>.sectionhead .risk-title-alert {display:block;width:18px;height:18px;flex:none;color:#df465c;pointer-events:none}
 /* 六榜共用自然高度；身份、核心异常、辅助数据依次阅读。 */
 #riskrail {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:start;gap:16px}
-#riskrail .riskcard {display:flex;flex-direction:column;padding:12px 14px 4px;min-width:0;min-height:0;background:#fff;border:1px solid #dfe7f1;border-radius:9px;box-shadow:none}
+#riskrail .riskcard {container:risk-card / inline-size;display:flex;flex-direction:column;padding:12px 14px 4px;min-width:0;min-height:0;background:#fff;border:1px solid #dfe7f1;border-radius:9px;box-shadow:none}
 #riskrail .rhead {display:flex;min-height:26px;align-items:center;gap:10px;margin:0}
 #riskrail .rhead h3 {font-size:16px;color:#203652;line-height:24px;font-weight:600}
 #riskrail .riskbadge {background:#4d82d9;width:3px;height:15px;border-radius:3px}
@@ -53,7 +53,7 @@ body:has(main.page > #risk) {background:radial-gradient(ellipse at 0 0,#e9f1fb 0
 #riskrail .rp-item small {font-size:12px;line-height:14px;color:#75859a;white-space:nowrap}
 #riskrail .rp-item-value {display:flex;flex-wrap:wrap;align-items:baseline;gap:0 4px;min-width:0}
 #riskrail .rp-value {display:inline;font-size:14px;line-height:19px;font-weight:500;white-space:nowrap;font-variant-numeric:tabular-nums;color:#28415f}
-#riskrail .rp-value.red {color:#c8475e!important}
+#riskrail .rp-value.red {color:var(--red)!important}
 #riskrail .rp-value.orange {color:var(--orange)!important}
 #riskrail .rp-item.rp-normal .rp-value {color:#7b8898!important;font-weight:400}
 #riskrail .rp-item em,#riskrail .rp-key-metrics em {display:inline;font-size:11px;line-height:17px;font-style:normal;color:#8591a2;white-space:nowrap}
@@ -84,7 +84,7 @@ body:has(main.page > #risk) {background:radial-gradient(ellipse at 0 0,#e9f1fb 0
 @media(max-width:900px) {#riskrail {grid-template-columns:minmax(0,1fr)}}
 @media(max-width:600px) {
  .page>.section,.page>#risk {padding:14px}
- .page>.section>.sectionhead,.page>.section:has(>.module-timebar[hidden])>.sectionhead,#risk>.sectionhead {margin:-14px -14px 12px;padding:10px 14px}
+ .page>.section>.sectionhead,.page>.section:has(>.module-timebar[hidden])>.sectionhead,.page>#risk>.sectionhead {margin:-14px -14px 12px;padding:10px 14px}
  #risk>.sectionhead {align-items:flex-start;flex-wrap:wrap}
  #riskrail .riskcard {padding:10px 10px 4px}
  #riskrail .rhead h3 {font-size:15px}

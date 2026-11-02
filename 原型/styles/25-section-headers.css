@@ -16,12 +16,6 @@
 .page > .section > .sectionhead h2 {
   color:#203652; font-size:19px; font-weight:600; line-height:1.45;
 }
-.page > .section > .sectionhead .ai-logo {
-  display:inline-flex; align-items:center; justify-content:center;
-  height:26px; padding:0 7px; border:1px solid #d5e6ff;
-  border-radius:6px; background:#e8f2ff; color:#1677ff;
-  font-size:12px; box-shadow:none;
-}
 .page > .section > .sectionhead .module-header-time { gap:10px; }
 .page > .section > .sectionhead > .link { font-size:12px; }
 @media(max-width:700px) {
@@ -32,9 +26,18 @@
   .page > .section > .sectionhead h2 { font-size:18px; }
 }
 
-/* 总诊断沿用轻量紫色 AI 标签。 */
-#ai > .sectionhead .ai-title-label {
-  flex:none; height:26px; padding:3px 8px; border:0; border-radius:7px;
-  background:linear-gradient(130deg,#5979ff,#9977f6); color:#fff;
-  font-size:12px; font-weight:650; line-height:20px; box-shadow:none;
+
+/* 全局AI标识：复用产品建议的蓝紫星芒。图形集中在此，模板仅引用ai-logo。 */
+.ai-logo{
+ display:inline-flex;align-items:center;justify-content:center;flex:none;
+ gap:3px;width:auto;height:var(--ai-mark-size,24px);padding:0 6px;border:0;
+ border-radius:6px;background:linear-gradient(140deg,#39a4ff 0%,#6164ef 52%,#a25be6 100%);
+ color:#fff;vertical-align:middle;font-size:0;line-height:1;box-shadow:0 2px 6px #7165e52b;
 }
+.ai-logo::before{
+ content:"";flex:none;width:calc(var(--ai-mark-size,24px) * .75);height:calc(var(--ai-mark-size,24px) * .75);background:#fff;
+ mask:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M10.5%203.5%2013%209l5.5%202.5L13%2014l-2.5%205.5L8%2014l-5.5-2.5L8%209Z%22%20fill%3D%22white%22%2F%3E%3Cpath%20d%3D%22m18.5%202%20.9%202.6L22%205.5l-2.6.9-.9%202.6-.9-2.6-2.6-.9%202.6-.9Z%22%20fill%3D%22white%22%2F%3E%3Ccircle%20cx%3D%2219.5%22%20cy%3D%2218.5%22%20r%3D%221.5%22%20fill%3D%22white%22%20opacity%3D%22.7%22%2F%3E%3C%2Fsvg%3E") center/contain no-repeat;
+}
+.ai-logo>b{font-family:"Segoe UI",Arial,sans-serif;font-size:12px;font-weight:650;line-height:1;color:#fff}
+.ai-logo--icon{width:var(--ai-mark-size,24px);padding:0;gap:0}
+.link>.ai-logo{--ai-mark-size:18px;margin-right:4px;vertical-align:-4px}

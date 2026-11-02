@@ -1,59 +1,89 @@
 // 最终六榜直接生成一次；旧版渲染链仍供原模块引用，不再逐层覆盖首页。
 const rpRenderedCardRules=new WeakMap();
-renderRisks=function(){
- return withPeriod('risk',()=>{
-  const kinds=[0,1,2,3,4,6],rules=new Map();
-  const classes={0:'qr-card',1:'br-shop-card rp-shop-card rf-card',2:'pr-shared-card rp-loss-card rf-card',3:'rp-stock-card rf-card',4:'rp-stock-card rf-card',6:'rp-return-card rf-card'};
-  $('#riskrail').innerHTML=kinds.map(k=>{
+// 分区共用铭牌结构；装饰不进入标题文本或无障碍名称。
+function rpGroupHeading(title,id=''){
+ return `<div class="rp-group-heading"><span class="rp-group-wing" aria-hidden="true"></span><h3 class="rp-group-title"${id?' id="'+id+'"':''}><span class="rp-group-title-text">${esc(title)}</span></h3><span class="rp-group-wing rp-group-wing-right" aria-hidden="true"></span></div>`;
+}
+function rpMountLossHeading(){
+ const head=$('#riskrail>.rp-loss-wide .rhead'),title=head.querySelector('h3'),template=document.createElement('template');
+ template.innerHTML=rpGroupHeading(rpTitles[2]);
+ const heading=template.content.firstElementChild,label=document.createElement('span');label.className='rp-group-title-text';
+ label.append(...title.childNodes);title.append(label);title.classList.add('rp-group-title');
+ heading.querySelector('h3').replaceWith(title);head.prepend(heading);
+ rpMountLossTable(head.closest('.rp-loss-wide'));
+}
+renderRisks=function(changedKinds=null){
+ return rpWithCardRows(()=>withPeriod('risk',()=>{
+  rpObserveWarningBoards();
+  const rail=$('#riskrail'),partial=Array.isArray(changedKinds)&&rail.querySelector('.rp-board-group');
+  const kinds=partial?[...new Set(changedKinds)]:[0,6,1,4,3,2],rules=new Map(),cards=new Map();
+  const classes={0:'qr-card rp-platform-board',1:'br-shop-card rp-shop-card rp-shop-board rf-card',2:'pr-shared-card rp-loss-card rf-card',3:'rp-stock-card rf-card',4:'rp-stock-card rf-card',6:'rp-return-card rp-platform-board rf-card'};
+  for(const k of kinds)rpWithBoardPeriod(k,()=>{
    const rows=rpCardRows(k),filter=rpCardPlatformControl(k);
    rules.set(k,rpCardRuleSummary(k));
-   return `<article data-rp-board="${k}" class="riskcard ${classes[k]||'rf-card'}">${rpCard(k,rows,filter)}</article>`;
-  }).join('');
-  for(const card of $$('#riskrail .riskcard'))rpRenderedCardRules.set(card,rules.get(Number(card.querySelector('[data-risk]').dataset.risk)));
+   cards.set(k,`<article data-rp-board="${k}" class="riskcard ${classes[k]||'rf-card'}${k===2?' rp-loss-wide':''}">${rpCard(k,rows,filter)}</article>`);
+  });
+  const group=(key,title,kinds)=>`<section class="rp-board-group rp-board-group-${key}" aria-labelledby="rp-group-${key}">${rpGroupHeading(title,'rp-group-'+key)}<div class="rp-group-grid">${kinds.map(k=>cards.get(k)).join('')}</div></section>`;
+  if(partial){
+   // 季品只更新本榜；品质平台只更新联动三榜，其他榜保留数据、节点和滚动位置。
+   for(const k of kinds){const current=rail.querySelector('[data-rp-board="'+k+'"]');if(current)current.outerHTML=cards.get(k)}
+  }else rail.innerHTML=group('quality','品质风险榜',[0,6,1])+group('inventory','库存风险榜',[4,3])+cards.get(2);
+  for(const card of $$('#riskrail .riskcard')){const k=Number(card.querySelector('[data-risk]').dataset.risk);if(rules.has(k))rpRenderedCardRules.set(card,rules.get(k))}
   const sub=$('#risk .sectionhead .sub');if(sub)sub.textContent='6 大风险榜单 · TOP 6';
-  decorateModule('risk');
-  alignRiskCardFilters();pfMultiMount($('#riskrail'));
- });
+  rpClearSharedDateControls();decorateModule('risk');
+  rpMountGroupNavigation();alignRiskCardFilters();if(kinds.includes(2))rpMountLossHeading();rpMountBoardDateControls(rail);pfMultiMount(rail);
+ }));
 };
 
-// 标题规则使用逐条文本；浮层按标题、说明与列表渲染，不混入指标公式。
+// 两种退货偏差共用公式，表格条件直接读取全局业务规则。
+function rpCardReturnRuleData(kind='return'){
+ const band=brcBands.find(row=>row.id==='return.'+kind);
+ return {formula:'偏差＝实际－目标（%）',rows:brcBandRows(band.id).map((row,index)=>({...row,text:brcDescribe(band.keys[index],'').replace('数值','偏差')}))};
+}
+function rpCardReturnColorRule(){
+ const total=rpCardReturnRuleData(),received=rpCardReturnRuleData('received'),names={red:'红灯',yellow:'黄灯',green:'绿灯'};
+ return [total.formula,...['red','yellow','green'].map(tone=>names[tone]+'：总退 '+total.rows.find(row=>row.tone===tone).text+'；已收退 '+received.rows.find(row=>row.tone===tone).text)].join('\n');
+}
+function rpRenderReturnColorRules(host){
+ const total=rpCardReturnRuleData(),received=rpCardReturnRuleData('received'),names={red:'红灯',yellow:'黄灯',green:'绿灯'};
+ const append=(parent,tag,text,className='')=>{const node=document.createElement(tag);node.textContent=text;if(className)node.className=className;parent.append(node);return node};
+ append(host,'div',total.formula,'rp-return-rule-formula');
+ const table=append(host,'table','','rp-return-rule-table'),head=append(append(table,'thead',''),'tr',''),body=append(table,'tbody','');
+ table.setAttribute('aria-label','总退与已收退红黄绿判定条件');
+ for(const text of ['灯色','总退偏差','已收退偏差'])append(head,'th',text).scope='col';
+ for(const tone of ['red','yellow','green']){
+  const row=append(body,'tr',''),label=append(row,'th',names[tone]);label.scope='row';label.dataset.tone=tone;
+  for(const rule of [total,received])append(row,'td',rule.rows.find(condition=>condition.tone===tone)?.text||'—');
+ }
+}
+// 标题规则使用逐条文本；浮层按标题、说明与列表渲染。
 function rpCardRuleSummary(kind){
+ if(kind===3)return rpShortageRule();
+ if(kind===4)return rpStagnantRule();
  const rules={
   0:{
-   note:'按SPU、平台统计，以下条件满足任意一项即可入榜',
-   pool:['发生品质相关的平台罚款、资金冻结、链接下架或掉权','销量≥100，且总退环比增长值＞3个百分点','总进线率环比增长值＞20个百分点；上期无有效销量时不以此项入榜'],
-   sort:['风险优先级：资金冻结 → 平台罚款 → 产品退货率超标；其他风险沿用原有次序，命中多项取最高优先级','同优先级，风险命中数量从多到少','再按对应风险数值从高到低：冻结金额、罚款金额、相关链接近30天GSV、总退环比增长值、差评率']
+   note:'按单一SPU全平台汇总统计，同一SPU仅排名一次',
+   pool:['发生品质/质量相关处罚，含资金冻结、平台罚款、链接下架、链接掉权'],
+   sort:['按该SPU全平台上述四类违规总次数从高到低排序','违规总次数相同，按该SPU近30天GSV从高到低排序']
   },
   1:{
    note:'按店铺统计，以下条件满足任意一项即可入榜',
-   pool:['店铺评分异常，且品质违规处罚≥2次','品质违规罚款金额≥5000元','同一SPU最近两周实际总退率均高于各自目标总退率超过5个百分点，且连续恶化：本周总退率＞上周总退率＞上上周总退率','存在资金冻结','拼多多任一核心链接的六项品质指标中，至少三项＞30%'],
-   detail:'六项品质指标：三级类目、主营类目下的品质退款率、品质求助平台率、品质文本情感分\n拼多多核心链接为一类目标配置中拼多多平台的核心链接',
-   sort:['风险优先级：资金冻结 → 平台罚款 → 产品退货率超标 → 评分红灯 → 评分黄灯 → 销量下降，命中多项取最高优先级','同优先级，风险命中数量从多到少','评分风险店铺中，核心店铺优先，再按旗舰店／POP旗舰店 → 专卖店／POP专卖店 → 自营 → 无分类排序','再按对应风险数值排序：冻结及罚款金额从高到低、评分从低到高、销量降幅从高到低']
+   pool:['店铺评分红灯，且品质违规处罚'+brcDescribe('shops.penalties')+'\n  • 抖音、快手、天猫、京东：按本平台店铺分红灯规则判定\n  • 拼多多：任一核心链接的六项监控指标中，异常项数'+brcDescribe('shops.pddCount')+'，等同于店铺评分红灯\n    六项监控指标：三级分类、主营链群下的品质退款率、品质求助平台率、品质文本情感分；单项异常条件：指标原值'+brcDescribe('shops.pddValue'),'品质违规罚款金额'+brcDescribe('shops.fine')+'',rpShopReturnRule(),'存在资金冻结'],
+   sort:['风险优先级：资金冻结 → 平台罚款 → 产品退货率超标 → 评分红灯 → 评分黄灯，命中多项取最高优先级','同优先级，风险命中数量从多到少','评分风险店铺中，核心店铺优先，再按旗舰店／POP旗舰店 → 专卖店／POP专卖店 → 自营 → 无分类排序','再按对应风险数值排序：冻结及罚款金额从高到低、评分从低到高']
   },
   2:{
    note:'按所选期间、平台统计，选择全平台时按公司整体口径计算',
    pool:['净利润率＜0'],
-   detail:'利润率取数智罗盘产品业绩，净利润率＝利润率－10个百分点',
+   detail:'利润率取数智罗盘产品业绩，净利润率＝利润率－'+brcNumber('finance.deduction')+'%',
    sort:['亏损金额从低到高，亏损越大越靠前，例如－10万排在－5万前','亏损金额相同，净利润率从高到低']
   },
-  3:{
-   note:'按公司SPU统计，取最新库存快照；公司总库存＞0，且满足以下任意一项即可入榜，库存数量及金额不重复累计',
-   pool:['总退＞55%','已收退＞30%','存在呆滞库存','利润率＜10%','当月下架、冻结合计≥3次'],
-   sort:['风险命中数量从多到少','命中数量相同，按违规红灯 → 利润率＜10% → 总退＞55% → 已收退＞30% → 呆滞库存排序，命中多项取最高优先级','仍相同时，保持原顺序']
-  },
-  4:{
-   note:'按SKU统计，展示SKU名称及编码；夏季品、冬季品、四季品分别入榜、独立排序',
-   pool:['我司可售库存＞0、近15日净销量＞0，且我司可售天数≥60天'],
-   sort:['呆滞库存金额从高到低','金额相同，呆滞最高库龄从高到低']
-  },
   6:{
-   note:'按SPU、平台统计，以下条件满足任意一项即可入榜',
-   pool:['总退环比增长值＞3个百分点','已收退环比增长值＞2个百分点'],
-   detail:'环比增长值＝本期退货率－上期退货率；等于上述阈值不触发',
-   sort:['总退偏离幅度从大到小','总退偏离幅度相同，已收退偏离幅度从大到小','前两项均相同，销量从高到低'],
-   sortDetail:'总退偏离幅度＝实际总退率－目标总退率；已收退偏离幅度＝实际已收退率－目标已收退率。销量取未扣退货的销售件数'
+   note:'按SPU、平台统计，按以下条件组入榜',
+   pool:[brcResultText('quality-worsening')],
+   detail:'① 周对比：以基准日为T，T−22～T−16对比T−29～T−23。\n② 月对比：当月21日起，1日至T−16对比上月完整自然月；历史月份按完整自然月对比。',
+   sort:['按SPU环比涨幅最大值从高到低排序，涨幅越高，排名越靠前','涨幅相同，按该SPU近30天销售额从高到低排序']
   }
  };
  const {note,pool,detail,sort,sortDetail}=rules[kind];
- return '入榜条件\n'+note+'\n'+pool.map(s=>'• '+s).join('\n')+(detail?'\n'+detail:'')+'\n\n排序规则\n'+sort.map((s,i)=>(i+1)+'. '+s).join('\n')+(sortDetail?'\n'+sortDetail:'');
+ return '入榜条件\n'+note+'\n'+pool.map(s=>'• '+s).join('\n')+(detail?'\n'+detail:'')+(kind===1?'\n\n店铺分红黄绿规则\n'+filterCatalog.platforms.map(platform=>'• '+rpShopScoreHint(platform)).join('\n'):'')+'\n\n排序规则\n'+sort.map((s,i)=>(i+1)+'. '+s).join('\n')+(sortDetail?'\n'+sortDetail:'');
 }

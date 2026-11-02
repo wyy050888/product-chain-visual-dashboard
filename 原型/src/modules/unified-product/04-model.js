@@ -1,6 +1,6 @@
 // 查询模型不依赖页面当前榜单筛选；跨入口只传 SPU、范围、平台和默认标签。
 const upTabs=[{key:'operating',label:'业绩表现'},{key:'quality',label:'品质退货'},
-  {key:'stock',label:'产品库存'},{key:'handling',label:'风险待办'}];
+  {key:'stock',label:'产品库存'}];
 // 日筛选的达成锚定结束日所在月：实际累计至结束日，目标取完整月份。
 // 左侧经营指标和趋势仍使用原筛选范围；月/季/年延续各自口径。
 function upAttainmentModel(p,state,current) {
@@ -14,7 +14,8 @@ function upAttainmentModel(p,state,current) {
 function upDetailModel(state) {
   const p=upSpus.get(state.spuId),product=upProduct(p);
   const current=upSummary(p,state.start,state.end,state.platform),days=aiFlowDayDiff(state.start,state.end)+1;
-  const previousEnd=shiftDate(state.start,-1),previousStart=shiftDate(state.start,-days);
+  const explicit=state.period?.comparisonMode&&state.period.start===state.start&&state.period.end===state.end;
+  const previousEnd=explicit?state.period.previousEnd:shiftDate(state.start,-1),previousStart=explicit?state.period.previousStart:shiftDate(state.start,-days);
   const previous=upSummary(p,previousStart,previousEnd,state.platform);
   const selected=upChannels(state.platform);
   const quality=selected.map(platform=>qrObservation(product,platform,state.start,state.end));
@@ -27,12 +28,12 @@ function upDetailModel(state) {
     for(const row of selected.map(platform=>upSummary(p,state.start,state.end,platform))) {
       const prev=upSummary(p,previousStart,previousEnd,row.platform);
       const causes=pfReturnCauses(row,prev);
-      if(causes.length)signals.push({kind:'退货恶化',platform:row.platform,name:causes.join('、'),value:upPercent(row.returnRate),rule:'本期与紧邻等长上期相比，总退增长值＞3个百分点或已收退增长值＞2个百分点入榜；等于阈值不触发，缺失比率不判定。'});
+      if(causes.length)signals.push({kind:'退货恶化',platform:row.platform,name:causes.join('、'),value:upPercent(row.returnRate),rule:brcResultText('quality-worsening')+'；销量为所选期间去退后销量。本期与所选对照区间相比，等于阈值不触发，缺失数值不判定。'});
     }
-    const net=upNetEstimate(current);if(net.profitCents<0) signals.push({kind:'亏损',platform:state.platform==='all'?'全公司':state.platform,name:'亏损金额',value:pfMoneyYuan((-net.profitCents/1000000)*10000),rule:'毛利率减10个百分点后测算净利为负，按亏损绝对金额排序；原型以GSV为同一收入基数，正式分母待映射。'});
+    const net=upNetEstimate(current);if(net.profitCents<0) signals.push({kind:'亏损',platform:state.platform==='all'?'全公司':state.platform,name:'亏损金额',value:pfMoneyYuan((-net.profitCents/1000000)*10000),rule:'利润率减'+brcNumber('finance.deduction')+'%后测算净利为负，按亏损绝对金额排序；原型以GSV为同一收入基数，正式分母待映射。'});
     if(highStock?.reasons.length) for(const reason of highStock.reasons) signals.push({kind:'库存',platform:reason.platforms?.join('、')||'全公司',
       name:reason.label,value:fmt(highStock.totalUnits)+'件',rule:irReasonText(reason)});
-    if(stock?.slow) signals.push({kind:'滞销',platform:state.platform==='all'?'全公司':state.platform,name:'可售天数≥60天',value:fmt(stock.slowCoverage,1)+'天',
+    if(stock?.slow) signals.push({kind:'滞销',platform:state.platform==='all'?'全公司':state.platform,name:'可售天数'+brcDescribe('stock.slowDays')+'',value:fmt(stock.slowCoverage,1)+'天',
       rule:'只判断有动销产品：我司可售库存＞0且近15日净销量＞0，可售天数按我司可售库存÷近15日均净销量判断；滞销金额只计算超库龄部分。'});
     return {product,current,attainment:upAttainmentModel(p,state,current),previous,company,quality,stock,highStock,stockSummary,stockEnd,platformRows,signals,days,previousStart,previousEnd};
   });

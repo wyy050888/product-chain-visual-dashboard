@@ -15,3 +15,8 @@ function boundedCache(maxEntries, maxWeight=Infinity) {
     get weight(){return totalWeight;}
   };
 }
+
+// 汇总记录含按需生成的趋势字段；合并时保留 getter，列表不能因对象展开提前取出明细。
+function copyFactRecord(...sources) {
+  return Object.defineProperties({},Object.assign({},...sources.map(source=>Object.getOwnPropertyDescriptors(source))));
+}

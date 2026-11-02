@@ -40,6 +40,21 @@ function uiColumnSaved(key,count){
  const values=uiColumnPreferences[key];
  return Array.isArray(values)&&values.length===count&&values.every(n=>Number.isFinite(n)&&n>=uiColumnMin&&n<=uiColumnMax)?[...values]:null;
 }
+// 业务表格可保护表头所需的最小宽度，兼容旧的列宽偏好。
+function uiColumnMinimums(table,count){
+ let values;try{values=JSON.parse(table.dataset.columnMinimums||'{}')}catch(_){values={}}
+ return Array.from({length:count},(_,i)=>Number.isFinite(values?.[i])?Math.max(uiColumnMin,Math.min(uiColumnMax,values[i])):uiColumnMin);
+}
+// 表格可声明少量默认列宽；未声明列保留自然布局，用户已保存的调整优先。
+function uiColumnDefaults(table,grid){
+ if(!table.dataset.columnDefaults)return null;
+ let defaults;try{defaults=JSON.parse(table.dataset.columnDefaults)}catch(_){return null}
+ if(!defaults||typeof defaults!=='object'||Array.isArray(defaults))return null;
+ const entries=Object.entries(defaults).filter(([index,width])=>/^\d+$/.test(index)&&Number(index)<grid.count&&Number.isFinite(width)&&width>=uiColumnMin&&width<=uiColumnMax);
+ if(!entries.length)return null;
+ const widths=uiColumnWidths(table,grid);for(const [index,width] of entries)widths[Number(index)]=width;
+ return widths;
+}
 function uiColumnRemember(key,widths){
  uiColumnPreferences[key]=[...widths];
  // 有界存储，不影响业务任务及其他浏览器数据。

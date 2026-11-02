@@ -16,7 +16,7 @@ export async function filters(page){
  await choose(page,'brand',[brands[0]]);const a=await total(page);
  await choose(page,'brand',[brands[1]]);const b=await total(page);
  await choose(page,'brand',brands);assert.equal(await total(page),a+b);
- await choose(page,'chain',['环境类','健康类']);
+ await choose(page,'chain',['环境','个护&健康']);
  assert.ok(await total(page)<=a+b);
  const saved=await total(page);
  await page.locator('[data-drawer-tab="ranking-1"]').click();

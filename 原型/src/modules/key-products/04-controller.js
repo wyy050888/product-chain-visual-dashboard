@@ -11,16 +11,13 @@ document.addEventListener('change',e=>{
  kpmFilters[e.target.dataset.kpmFilter]=pfControlValue(e.target);kpmPage.value=1;kpmRender();
 });
 document.addEventListener('click',e=>{
- const button=e.target.closest('#matrix.kpm-main [data-kpm-grade],#matrix.kpm-main [data-kpm-sort],#matrix.kpm-main [data-kpm-reset],#matrix.kpm-main [data-kpm-detail]');if(!button)return;
+ const button=e.target.closest('#matrix.kpm-main [data-kpm-operating],#matrix.kpm-main [data-kpm-grade],#matrix.kpm-main [data-kpm-sort],#matrix.kpm-main [data-kpm-detail]');if(!button)return;
  if(button.dataset.kpmDetail)return kpmOpenDetail(button.dataset.kpmDetail,button.hasAttribute('data-kpm-point')?kpmChartContext:null);
- if(button.hasAttribute('data-kpm-reset')){
-  Object.assign(kpmFilters,{query:'',brand:'all',category:'all',season:'all',price:'all',min:'',max:''});
-  kpmSelectedGrade='all';kpmSelectedChange='all';kpmSelectedTransition='all';kpmSort.key='sales';kpmSort.direction='desc';
-  $('#matrix [data-kpm-search]').value='';
-  for(const select of $$('#matrix [data-kpm-filter]'))pfControlSet(select,'all');
- }else if(button.dataset.kpmGrade)kpmSelectedGrade=kpmSelectedGrade===button.dataset.kpmGrade?'all':button.dataset.kpmGrade;
- else{const key=button.dataset.kpmSort;kpmSort.direction=kpmSort.key===key&&kpmSort.direction==='desc'?'asc':'desc';kpmSort.key=key}
+ if(button.dataset.kpmOperating){const level=button.dataset.kpmOperating;kpmSelectedOperating=kpmSelectedOperating===level?null:level;kpmSelectedGrade=kpmSelectedOperating?level:'all';kpmSelectedChange='all';}
+ else if(button.dataset.kpmGrade){const level=button.dataset.kpmGrade;kpmSelectedGrade=kpmSelectedGrade===level&&!kpmSelectedOperating?'all':level;kpmSelectedOperating=null;kpmSelectedChange='all';}
+ else rpSortCycle(kpmSort,button.dataset.kpmSort,kpmDefaultSort);
  kpmPage.value=1;kpmRender();
+ if(button.dataset.kpmGrade)$('#matrix.kpm-main [data-kpm-grade="'+button.dataset.kpmGrade+'"]')?.focus({preventScroll:true});
 });
 document.addEventListener('keydown',e=>{
  if(!e.target.matches('#matrix.kpm-main circle[data-kpm-detail]')||!['Enter',' '].includes(e.key))return;

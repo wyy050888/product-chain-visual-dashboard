@@ -1,5 +1,7 @@
-// 销售达成：同周期实际/完整周期目标，偏差按百分点差计算，页面统一使用%符号，不借用新品目标。
-const msPlatforms=['抖音','快手','视频号','百度&CID','商务达播','天猫','京东','拼多多','一类达播'];
+// 销售达成：同周期实际/完整周期目标，偏差按实际比率减目标比率计算，页面统一使用%符号，不借用新品目标。
+const msChannels=filterCatalog.platforms;
+const msVisibleBrands=filterCatalog.dashboardBrands;
+let msScope=-1;
 function msPeriodText(p=periodFor('sales')){return periodShortText(p)}
 function msProgress(p=periodFor('sales')){
  const b=bounds(p),days=aiFlowDayDiff(b.start,b.end)+1,elapsed=b.cutoff<b.start?0:Math.min(days,aiFlowDayDiff(b.start,b.cutoff)+1);
@@ -23,22 +25,13 @@ function msFacts(r,p=periodFor('sales')){
  return {...r,feeRate:msRatio(r.expense,r.sale),actualMargin,targetMargin,progress,gsvRate,gsvDeviation:gsvRate===null?null:gsvRate-progress,marginGap:actualMargin===null||targetMargin===null?null:actualMargin-targetMargin,scaleRate,scaleDeviation:scaleRate===null?null:scaleRate-progress,gap:Number.isFinite(r.target)&&Number.isFinite(r.sale)?r.target-r.sale:null};
 }
 function msSort(rows){return rows.map(r=>msFacts(r)).sort((a,b)=>Number.isFinite(b.scaleRate)-Number.isFinite(a.scaleRate)||(Number.isFinite(a.scaleRate)&&Number.isFinite(b.scaleRate)?b.scaleRate-a.scaleRate:0))}
-function msBreakdown(index,view){
- const cells=msSampleCells();
+function msBreakdown(index,view,cells=msSampleCells()){
  if(view==='brand')return brands.map((name,b)=>index<0?msSum(cells.map(row=>row[b]),name):{...cells[index][b],name});
- return msSamplePlatforms(index<0?cells.flat():cells[index]);
+ return msSampleChannels(index<0?cells.flat():cells[index]);
 }
-function msRulesText(){return 'GSV达成＝实际GSV÷完整周期目标GSV；GSV偏差＝GSV达成－时间进度。利润率差额＝实际利润率－目标利润率。规模达成＝（实际GSV×实际利润率）÷（目标GSV×目标利润率）；规模偏差＝规模达成－时间进度。GSV与规模达成率最高100%，偏差使用封顶后的达成率减时间进度。偏差/差额按百分比直接相减，不计算相对增长率；＜−10%红，−10%≤值＜0%黄，≥0%绿。时间进度按所选周期已过自然日÷周期总自然日；截止日按样例数据日期封顶，正式截止口径待接入。经营数据、利润率目标、费率、消耗、去退后销量均为固定原型样例；九个平台与全部品牌共用同一份公司数据分配，利润率按汇总利润÷GSV重算。已配置的利润率目标优先于默认样例。'}
-window.dashboardSalesReviewSnapshot=()=>withPeriod('sales',()=>({period:copyPeriod(periodFor()),progress:msProgress(),company:msFacts(msSum(msSampleCells().flat(),'公司整体')),chains:msSampleCells().map((row,i)=>msFacts(msSum(row,chains[i]))),brands:msSort(msBreakdown(-1,'brand')),platforms:msSort(msBreakdown(-1,'platform'))}));
-
-
-// 明细按原始值排序，缺失值在升降序中均置后；同值保持源记录顺序。
-function msDrawerSortRows(rows,sort){
- const key=sort.key,valid=value=>key==='name'?typeof value==='string'&&value!=='':Number.isFinite(value);
- return rows.map((row,index)=>({row,index})).sort((a,b)=>{
-  const av=a.row[key],bv=b.row[key],aValid=valid(av),bValid=valid(bv);
-  if(!aValid||!bValid)return aValid?-1:bValid?1:a.index-b.index;
-  const compared=key==='name'?av.localeCompare(bv,'zh-CN'):av-bv;
-  return compared*(sort.direction==='asc'?1:-1)||a.index-b.index;
- }).map(item=>item.row);
+function msSalesSections(){
+ const cells=msSampleCells(),summaries=[msSum(cells.flat(),'公司整体'),...cells.map((row,index)=>msSum(row,chains[index]))];
+ return summaries.map((row,ordinal)=>{const index=ordinal-1;return {index,summary:msFacts(row),brand:msBreakdown(index,'brand',cells).map(row=>msFacts(row)),platform:msBreakdown(index,'platform',cells).map(row=>msFacts(row))}});
 }
+function msRulesText(){return 'GSV达成＝实际GSV÷完整周期目标GSV；GSV偏差＝GSV达成－时间进度。利润率差额＝实际利润率－目标利润率。规模达成＝（实际GSV×实际利润率）÷（目标GSV×目标利润率）；规模偏差＝规模达成－时间进度。GSV与规模达成率最高100%，偏差使用封顶后的达成率减时间进度。偏差/差额按百分比直接相减，不计算相对增长率；＜−10%红，−10%≤值＜0%黄，≥0%绿。时间进度按所选周期已过自然日÷周期总自然日；截止日按样例数据日期封顶，正式截止口径待接入。经营数据、利润率目标、费率、消耗、去退后销量均为固定原型样例；六平台按独立样例权重分配，同范围合计与公司/链群一致；固定展示5个品牌，其他品牌仍计入汇总，利润率按汇总利润÷GSV重算。已配置的利润率目标优先于默认样例。'}
+window.dashboardSalesReviewSnapshot=()=>withPeriod('sales',()=>({period:copyPeriod(periodFor()),progress:msProgress(),sections:msSalesSections(),company:msFacts(msSum(msSampleCells().flat(),'公司整体')),chains:msSampleCells().map((row,i)=>msFacts(msSum(row,chains[i]))),brands:msSort(msBreakdown(-1,'brand')),channels:msBreakdown(-1,'platform').map(row=>msFacts(row)),breakdown:{index:msScope,view:siView,rows:msBreakdown(msScope,siView).map(row=>msFacts(row))}}));

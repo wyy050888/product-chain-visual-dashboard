@@ -5,7 +5,7 @@ import {fileURLToPath} from 'node:url';
 import {verifyDetailContact} from './detail-contact.mjs';
 import {verifyStockCoverage} from './stock-coverage.mjs';
 import {verifyProductStockCards} from './detail-stock-cards.mjs';
-import {verifyProductTodos} from './detail-todos.mjs';
+import {verifyProductTabs} from './detail-tabs.mjs';
 import {verifyTodoDescription} from './todo-description.mjs';
 
 export async function detailQualityTodos(page){
@@ -23,7 +23,7 @@ export async function detailQualityTodos(page){
  await page.locator('[data-drawer-tab="quality"]').click();
  await verifyDetailContact(page);
  assert.equal(await page.locator('[data-up-return-series]').count(),3);
- assert.equal(await page.locator('.up-return-metrics [data-up-quality-metric]').count(),3);
+ assert.equal(await page.locator('.up-return-metrics [data-up-quality-metric]').count(),4);
  assert.deepEqual(await page.locator('.up-return-trend .up-trend-legend>span').allTextContents(),['总退','已收退','销量','总退目标','已收退目标']);
  assert.equal(await page.locator('.up-return-trend .metric-help').count(),0);
  assert.equal(await page.locator('[data-up-return-target][stroke-dasharray]').count(),2);
@@ -48,28 +48,27 @@ export async function detailQualityTodos(page){
  assert.equal(await page.locator('[data-up-violation-type="资金冻结"]').getAttribute('aria-pressed'),'true');
  assert.doesNotMatch(await page.locator('#up-violation-table').innerText(),/红绿灯/);
  // The existing toolbar may render platform buttons over its source select.
- await page.locator('#up-platform').evaluate(e=>{e.value='京东';e.dispatchEvent(new Event('change',{bubbles:true}))});
+ await page.locator('[data-up-quality-platform="京东"]').click();
  assert.equal(await page.locator('[data-up-violation-type="all"]').getAttribute('aria-pressed'),'true');
  assert.equal(await page.locator('[data-up-violation-type="资金冻结"]').count(),0);
  await page.locator('[data-up-violation-type="罚款"]').click();
  assert.equal(await page.locator('[data-up-violation-platform]').getAttribute('data-up-violation-platform'),'京东');
  const actions=await page.locator('#up-violation-table tbody tr td:nth-child(7)').allTextContents();assert(actions.every(t=>t.includes('罚款')));if(!actions.length)assert.match(await page.locator('#up-violation-table').innerText(),/暂无违规条目/);
  const search=page.locator('[data-up-violation-search]');await search.fill('不存在的违规编号');assert.equal(await page.locator('#up-violation-table tbody tr').count(),0);await search.fill('');
- await page.locator('#up-platform').evaluate(e=>{e.value='all';e.dispatchEvent(new Event('change',{bubbles:true}))});
- assert.equal(await page.locator('.up-violation-tags').isVisible(),false);
- assert.equal(await page.locator('#up-violation-table').isVisible(),false);
- assert.equal(await page.locator('[data-up-violation-platform]').count(),0);
- assert.equal(await page.locator('.up-violation-stats [data-up-quality-metric]').count(),7);
+ assert.equal(await page.locator('.up-quality-channels [data-up-quality-platform]').count(),6);
+ assert.equal(await page.locator('.up-quality-channels [data-up-quality-platform="all"]').count(),0);
+ assert.equal(await page.locator('.up-toolbar').isVisible(),false);
+ assert.equal(await page.locator('[data-up-quality-metric="unreceived"] .up-quality-comparison').count(),0);
  await page.locator('#dialog').screenshot({path:fileURLToPath(new URL('../../outputs/detail-quality.png',import.meta.url))});
  await page.locator('[data-drawer-tab="stock"]').click();
- assert.equal(await page.locator('[data-up-panel="stock"] .up-stock-card').count(),7);
+ assert.equal(await page.locator('[data-up-panel="stock"] .up-stock-card').count(),8);
  assert.equal(await page.locator('#up-stock-skus tbody tr').count(),4);
  assert.match(await page.locator('.up-detail .up-stock-card').first().innerText(),/总可售天数/);
  const tags=await page.locator('.up-stock-risk-tag').allTextContents();
  assert(tags.length<=2&&tags.every(t=>['缺货','调货','滞销'].includes(t)));
  assert(!tags.includes('滞销')||tags.length===1);
  await verifyProductStockCards(page);
- assert.equal(await page.locator('[data-up-panel=stock] [data-stock-rule]').count(),5,'仅保留指定指标的问号口径');
- assert.equal(await page.locator('.up-detail .metric-help:not([data-stock-rule])').count(),0);
- await verifyProductTodos(page,detailRef);
+ assert.equal(await page.locator('[data-up-panel=stock] [data-stock-rule]').count(),4,'仅保留指定指标的问号口径');
+ assert.equal(await page.locator('[data-up-panel=stock] .metric-help:not([data-stock-rule])').count(),0);
+ await verifyProductTabs(page,detailRef);
 }

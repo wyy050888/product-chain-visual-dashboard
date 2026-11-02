@@ -1,66 +1,27 @@
+import {resetDiagnosisFilters} from './diagnosis-filter-helpers.mjs';
 import assert from 'node:assert/strict';
-
-// 验证关联待办的期间、最新截止日和历史结果，办理仍全部使用现有待办弹窗。
 export async function globalDiagnosisConsistency(page){
- await page.emulateMedia({reducedMotion:'reduce'});
- const saved=await page.evaluate(()=>Object.fromEntries(Object.entries(localStorage)));
- const root=page.locator('#ai'),audit=()=>page.evaluate(()=>globalDiagnosisAudit());
- const part=key=>root.locator('[data-gd-part="'+key+'"]').click();
- const action=(id,kind)=>root.locator('[data-gd-id="'+id+'"][data-gd-action="'+kind+'"]').click();
- const dialog=page.locator('.up-todo-dialog');
- try{
-  // 临时记录验证现有业务关联单元格与依据头部；检查结束恢复原存储。
-  const before=await page.evaluate(()=>localStorage.getItem('product-risk-todos-v1'));
-  const initial=await audit(),base=initial.tasks.find(r=>!r.task.spuId.startsWith('GLOBAL|')).task;
-  const fixtures=[{...base,id:'association-check-product',title:'关联展示产品检查',gdSource:'',gdIssue:'',objectName:initial.tasks.find(r=>r.id===base.id).objectName,source:'manual'},
-   {...base,id:'association-check-empty',title:'关联展示空对象检查',spuId:'GLOBAL|association-check',gdSource:'invalid',gdIssue:'',objectName:'',source:'manual'}];
-  await page.evaluate(items=>{const tasks=JSON.parse(localStorage.getItem('product-risk-todos-v1'));for(const task of items)tasks[task.id]=task;localStorage.setItem('product-risk-todos-v1',JSON.stringify(tasks))},fixtures);
-  await page.reload();await part('closure');
-  for(const task of fixtures){
-   await root.locator('[data-gd-search]').fill(task.title);
-   const cell=root.locator('td[data-label="业务关联"]'),expected=task.objectName||'未关联';
-   assert.equal(await cell.locator('b').innerText(),expected);assert((await cell.locator('small').innerText()).startsWith('待确认 · '));
-   await action(task.id,'evidence');assert((await page.locator('.gd-detail-head').innerText()).includes('待确认 · '+expected));await page.locator('#close').click();
-  }
-  await page.evaluate(value=>{if(value===null)localStorage.removeItem('product-risk-todos-v1');else localStorage.setItem('product-risk-todos-v1',value)},before);await page.reload();
-  let data=await audit();const date=data.coordination[0].date;
-  await root.locator('#gd-date-trigger').click();
-  const day=page.locator('#up-date-popover [data-range-date="'+date+'"]:not(.outside)');
-  await day.click();await day.click();
-  data=await audit();assert.deepEqual(data.range,{start:date,end:date});
-  const linked=[...data.focus,...data.coordination,...data.resource];
-  assert(linked.some(r=>r.task.status!=='suggested'&&r.task.end>date),'覆盖统计截止日晚于所选日期的现有待办');
-  for(const row of linked)assert(data.tasks.some(t=>t.id===row.task.id),'关联待办不能因统计日期被闭环列表遗漏：'+row.id);
-  await part('closure');assert((await audit()).visible.some(r=>r.id===data.coordination[0].task.id));
-  await page.locator('#refreshai').click();data=await audit();
-  for(const row of [...data.coordination,...data.resource])assert.equal(data.tasks.filter(t=>t.id===row.task.id).length,1,'刷新后仍只保留一个关联待办');
-  await root.locator('#gd-date-trigger').click();await page.locator('#up-date-popover [data-range-preset="30"]').click();
-  await part('execution');await root.locator('[data-gd-tab="focus"]').click();
-  const today=(await audit()).range.end,dates=[2,4,14].map(n=>{const d=new Date(today+'T00:00:00Z');d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10)});
-  const owners=Object.fromEntries((await audit()).focus.map(r=>[r.id,r.owner]));
-  for(const [id,due] of [['focus-direction-project',dates[0]],['focus-risk-product',dates[1]]]){
-   await action(id,'task');await dialog.locator('[data-people-query]').fill('林悦');
-   await page.getByRole('option',{name:'林悦 · 产品中心',exact:true}).click();
-   await dialog.locator('[name="due"]').fill(due);await dialog.locator('[data-todo-action="assign"]').click();
-   await dialog.waitFor({state:'detached'});
-  }
-  await root.locator('[data-gd-sort]').selectOption('due');
-  const order=async()=>{const d=await audit();return d.visible.map(r=>r.id)};
-  let ids=await order();assert(ids.indexOf('focus-direction-project')<ids.indexOf('focus-risk-product'));
-  await action('focus-direction-project','task');await dialog.locator('[data-todo-field-edit="due"]').click();
-  await dialog.locator('[data-inline-value]').fill(dates[2]);await dialog.locator('header h3').click();
-  await dialog.locator('[data-todo-close]').click();
-  ids=await order();assert(ids.indexOf('focus-risk-product')<ids.indexOf('focus-direction-project'),'修改截止日后立即按最新日期重排');
-  data=await audit();
-  for(const id of ['focus-direction-project','focus-risk-product']){const row=data.focus.find(r=>r.id===id);assert.equal(row.due,row.task.due);assert.equal(row.owner,owners[id],'聚焦仍观察原责任人的工作');}
-  await part('closure');await root.locator('[data-gd-tab="all"]').click();
-  const openEvidence=async row=>{await root.locator('[data-gd-search]').fill(row.title);await action(row.id,'evidence');};
-  const empty=data.tasks.find(r=>r.task.status!=='suggested'&&!r.task.evidence?.trim());assert(empty);
-  await openEvidence(empty);
-  assert(!(await page.locator('.gd-text-section h4').allTextContents()).includes('处理结果'));
-  assert(!(await page.locator('#dialogbody').innerText()).includes('暂无处理结果'));await page.locator('#close').click();
-  const history=data.tasks.find(r=>r.task.evidence?.trim());assert(history);
-  await openEvidence(history);assert((await page.locator('.gd-text-section h4').allTextContents()).includes('处理结果'));
-  assert((await page.locator('#dialogbody').innerText()).includes(history.task.evidence.trim()));await page.locator('#close').click();
- }finally{await page.evaluate(storage=>{localStorage.clear();for(const [key,value] of Object.entries(storage))localStorage.setItem(key,value)},saved)}
+ const root=page.locator('#ai'),audit=()=>page.evaluate(()=>globalDiagnosisAudit()),initial=await audit();
+ const project=initial.coordination.find(r=>r.id==='coordinate-project'),base=project.task;
+ const fixtures=[
+  {...base,id:'association-product',gdIssue:'',gdSource:'',gdProjectId:undefined,spuId:initial.coordination.find(r=>r.spuId).spuId,objectName:'',businessObjects:undefined},
+  {...base,id:'association-empty',gdIssue:'',gdSource:'invalid',gdProjectId:undefined,objectName:'',businessObjects:undefined},
+  {...base,id:'association-history',gdIssue:'coordinate-project',gdProjectId:999999,objectName:'历史项目A',businessObjects:undefined},
+  {...base,id:'association-shop',gdIssue:'',gdSource:'risk',gdProjectId:undefined,spuId:'shop:306131028',shopId:'306131028',scope:'shop',objectName:'康佳清洁电器旗舰店',businessObjects:undefined},
+  {...base,id:'association-legacy-owner',gdIssue:'coordinate-project',responsibilities:undefined,assignee:'周铭',plan:'保留原任务执行安排',due:'2026-11-20'}
+ ].map(t=>({...t,title:t.id,status:'pending',logs:[]}));
+ await page.evaluate(items=>{const s=JSON.parse(localStorage.getItem('product-risk-todos-v1'));for(const t of items)s[t.id]=t;localStorage.setItem('product-risk-todos-v1',JSON.stringify(s))},fixtures);
+ await page.reload();await root.locator('[data-gd-part="closure"]').click();let d=await audit();const by=id=>d.tasks.find(r=>r.id===id);
+ assert.equal(by('association-product').businessObjects[0].type,'product');assert.equal(by('association-empty').businessObjects[0].name,'未关联');assert.equal(by('association-history').businessObjects[0].name,'历史项目A');assert.equal(by('association-shop').businessObjects[0].type,'shop');assert.equal(by('association-shop').businessObjects[0].id,'306131028');
+ assert.equal(by('association-legacy-owner').participants.length,1);assert.equal(by('association-legacy-owner').participants[0].assignee,'周铭');assert.equal(by('association-legacy-owner').participants[0].action,'保留原任务执行安排');assert.equal(by('association-legacy-owner').due,'2026-11-20');
+ for(const t of fixtures){await root.locator('[data-gd-search]').fill(t.id);assert.equal(await root.locator('.gd-task-start').count(),1);assert((await root.locator('[data-label="业务对象"]').allTextContents()).every(text=>text.includes(by(t.id).businessObjects[0].name)))}
+ await resetDiagnosisFilters(root);await root.locator('[data-gd-search]').fill('康佳清洁电器旗舰店');assert((await audit()).visible.some(r=>r.id==='association-shop'));await resetDiagnosisFilters(root);
+
+ // 自动节点与已有计划分开保留，人工改期不被下一轮诊断覆盖。
+ await root.locator('[data-gd-part="resource"]').click();const auto=(await audit()).resource.find(r=>r.task.gdAutomatic);assert(auto);assert.equal(auto.task.assignedBy,'AI');
+ const original={due:auto.task.due,suggested:auto.task.gdSuggestedDue};await root.locator('[data-gd-action="task-detail"][data-gd-id="'+auto.id+'"]').first().click();const dialog=page.locator('.up-todo-dialog[open]');await dialog.locator('[data-todo-field-edit="due"]').click();await dialog.locator('[data-todo-field="due"] input').fill('2027-01-03');await dialog.locator('[data-todo-field="due"] input').press('Enter');await dialog.locator('[data-todo-close]').click();let assigned=(await audit()).resource.find(r=>r.id===auto.id);assert.equal(assigned.task.due,'2027-01-03');assert.equal(assigned.task.gdSuggestedDue,original.suggested);
+ await page.locator('#refreshai').click();assert.equal((await audit()).resource.find(r=>r.id===auto.id).task.due,'2027-01-03');
+ const date=project.date;await root.locator('#gd-date-trigger').click();const day=page.locator('#up-date-popover [data-range-date="'+date+'"]:not(.outside)');await day.click();await day.click();d=await audit();assert.deepEqual(d.range,{start:date,end:date});
+ for(const row of [...d.coordination,...d.resource])assert(d.tasks.some(t=>t.id===row.task.id),'统计期间不切断已关联任务');
+ await page.locator('#refreshai').click();d=await audit();assert.equal(new Set(d.tasks.map(r=>r.id)).size,d.tasks.length);
 }

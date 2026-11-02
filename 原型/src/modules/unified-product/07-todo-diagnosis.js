@@ -10,13 +10,13 @@ function upDiagnoseTodos(m,state){
   const facts=focus.filter(Boolean).map(i=>i.evidence);
   facts.push('分析口径：全量分析截至'+state.end+'；演示考核月'+(g.month||'待确认')+'；'+(g.grade?'按门槛匹配'+g.grade+'级'+(g.facts?.profitRate<0?'，处于亏损状态':''):'评级待确认')+'。');
   items.push({id:upTodoId(state,department),spuId:state.spuId,objectName:m.product.name,platform:'all',start:state.start,end:state.end,
-   department,taskType:department==='品质中心'&&!returns?'compliance-remediation':upTodoType({department}),title,plan:'对象：'+object+'；SKU：'+d.sku+'。\n'+plan,status:'suggested',assignee:'',due:'',completedAt:'',assignedBy:'',assignedAt:'',priority,
-   evidence:'',logs:[],descriptionVersion:3,description:upTodoProblem(state,facts,reason),basis:facts,source:'rule-suggestion'});
+   department,taskType:department==='品质中心'&&!returns?'compliance-remediation':upTodoType({department}),title,plan:'对象：'+object+'；SKU：'+d.sku+'。\n'+plan,status:'suggested',assignee:'',due:'',completedAt:'',assignedBy:'',assignedAt:'',priority:upTodoPriorityKey(priority),
+   evidence:'',logs:[],problemSummary:focus.filter(Boolean).map(i=>i.title).join('；'),descriptionVersion:3,description:upTodoProblem(state,facts,reason),basis:facts,source:'rule-suggestion'});
  };
  add('产品中心',g.grade==='C'?'核定淘汰及一次挽救安排':'比较产品保留、改善与退出方案',[profit||stock||returns||a.issues[0]],
   '按页面利润率及渠道供价判断经营价值；单据证明数量和状态，降本条件来自采购日报，不能将试算当作已实现收益。',
   '依据'+id.cost+'成本档案、'+id.report+'采购日报和'+id.meeting+'会议记录，比较维持经营、降本、指引改进与退出的投入及利润；列明新增采购、库存处理和售后责任。'+
-  (g.grade==='C'?'核对一次挽救记录及3个月改善条件，提出下市或一次挽救安排；计时起点不明标记待确认。':g.grade==='A'?'提交升级S所需的月GSV和页面利润率差距，按已确认期限跟踪半年预警。':g.grade==='S'?'核对年度BOM降本5%—8%进展及下一代产品储备，区分年度目标和本次报价。':g.grade==='B'?'提交需求验证及退货改善计划；突破300万元后的升级规则标记待确认。':'记录未匹配条件，评级待确认但不影响方案比较。'),profit?'red':'yellow');
+  (g.grade==='C'?'核对一次挽救记录及3个月改善条件，提出下市或一次挽救安排；计时起点不明标记待确认。':g.grade==='A'?'提交升级S所需的月GSV和页面利润率差距，按已确认期限跟踪半年预警。':g.grade==='S'?'核对年度BOM降本5%—8%进展及下一代产品储备，区分年度目标和本次报价。':g.grade==='B'?'提交需求验证及退货改善计划；达到A级月度GSV门槛后的升级规则标记待确认。':'记录未匹配条件，评级待确认但不影响方案比较。'),profit?'red':'yellow');
  const active=[profit,returns,violations,stock].filter(Boolean);
  if(active.length>=2)add('项目部','关联现有任务并跟进交付风险',active,
   '成本、供需和用户体验事项具有前置依赖，应复用已有任务，不能因汇报方案重复立项。',

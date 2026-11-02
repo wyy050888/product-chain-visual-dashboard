@@ -1,18 +1,58 @@
-/* 模块导航紧接主菜单；主菜单的背景和管理员区域保持原样。 */
+/* 保留原浅蓝灰背景；短下划线标记当前位置，顶部轻渐变衔接主导航。 */
 .page { padding-top: 0; }
 .navigation-toolbar {
   flex-wrap: nowrap;
-  min-height: 48px;
-  gap: 16px;
-  padding: 6px 0;
-  margin: 0 0 16px;
-  box-shadow: none;
+  width: auto;
+  min-height: 52px;
+  gap: 20px;
+  padding: 0 clamp(16px,1.5vw,36px);
+  margin: 0 calc(-1 * clamp(16px,1.5vw,36px)) 18px;
+  background: linear-gradient(180deg,#eaf0fa 0,#f2f5fb 8px,#f5f7fc 24px,#f5f7fc 100%);
+  border-bottom: 1px solid #e8edf4;
+  box-shadow: 0 3px 10px #263e6805;
 }
 .navigation-toolbar .jumpnav {
   flex: 1 1 auto;
-  gap: 4px;
+  align-items: stretch;
+  gap: 12px;
+  height: 52px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  background: transparent;
 }
-.navigation-toolbar .jumpnav a { padding: 5px 10px; }
+.navigation-toolbar .jumpnav::-webkit-scrollbar { display: none; }
+.navigation-toolbar .jumpnav a {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 52px;
+  padding: 0 10px;
+  border-radius: 0;
+  background: transparent;
+  color: #667085;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 22px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.navigation-toolbar .jumpnav a::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 24px;
+  height: 3px;
+  border-radius: 2px;
+  background: #1677ff;
+  transform: translateX(-50%);
+  opacity: 0;
+}
+.navigation-toolbar .jumpnav a:hover { color: #1677ff; background: transparent; }
+.navigation-toolbar .jumpnav a.is-current { color: #1677ff; background: transparent; font-weight: 600; }
+.navigation-toolbar .jumpnav a.is-current::after { opacity: 1; }
+.navigation-toolbar .jumpnav a:focus-visible { outline: 2px solid #91bfff; outline-offset: -5px; }
 .navigation-actions {
   flex-wrap: nowrap;
   gap: 4px;
@@ -57,7 +97,9 @@
   stroke-linejoin: round;
 }
 @media (max-width: 700px) {
-  .navigation-toolbar { gap: 6px; }
+  .navigation-toolbar { gap: 8px; margin-inline: -10px; padding-inline: 10px; }
+  .navigation-toolbar .jumpnav { gap: 4px; }
+  .navigation-toolbar .jumpnav a { padding-inline: 9px; font-size: 13px; }
   .navigation-actions { gap: 2px; padding-left: 6px; }
   .navigation-actions .btn.navigation-action { width: 32px; padding: 5px; }
   .navigation-action-label { display: none; }

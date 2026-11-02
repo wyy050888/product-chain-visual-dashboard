@@ -1,0 +1,18 @@
+/* 主看板内容留白统一参照项目进度；不作用于抽屉、卡片内部和部门工作台。 */
+.page{--dashboard-content-inset:18px}
+@media(max-width:700px){.page{--dashboard-content-inset:12px}}
+
+/* 六榜沿用模块原有侧距，不叠加内容缩进；其他模块保留已有上下节奏。 */
+.page>#ai>:is(#aigrid,#ai-inline-details),
+.page>#sales>#salescards,
+.page>#new>:is(.nsp-scope-tabs,.nsp-layout),
+.page>#lifecycle>:is(#lifecards,.lifehead,#lifetable),
+.page>#inventory>:is(#inventorymetrics,#inventory-brand-shares,#inventorytable,#inventory-stagnant-top),
+.page>#cost>:is(#costcards,.callout,#costtable){margin-inline:var(--dashboard-content-inset)}
+
+/* 已有嵌套容器仅统一原留白值，避免重复叠加。 */
+.page>#projects.pp-main .pp-layout,
+.page>#matrix.kpm-main .matrixlayout,
+.page>#suppliers #suppliergrid.scp-workspace{padding-inline:var(--dashboard-content-inset)}
+.page>#projects.pp-main .pp-ai,
+.page>#matrix.kpm-main>.kpm-scope-tabs{margin-inline:var(--dashboard-content-inset)}

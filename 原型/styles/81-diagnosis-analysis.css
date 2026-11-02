@@ -1,0 +1,165 @@
+/* 四类内容保留运营罗盘的蓝灰底色，以表格层次区分事实、诊断与实际任务。 */
+.gd-workspace .gd-card-head h3{font-size:16px}.gd-workspace .gd-card-stats{gap:8px 13px;flex-wrap:wrap;align-content:end}.gd-workspace .gd-card-stats b{margin-left:5px}.gd-workspace .gd-card-number{font-size:27px}.gd-workspace .gd-card{min-height:98px}
+.gd-redesigned-filters .gd-filter-search{flex-basis:400px}.gd-redesigned-filters .gd-filter-groups{display:flex;flex-wrap:nowrap;overflow:auto;gap:0;background:#f8fafd;border:0;border-radius:0;padding:9px 0}.gd-redesigned-filters .gd-tag-filter{display:flex;flex:0 0 auto;max-width:none;gap:10px;min-height:32px;padding:0 14px;border:0;border-radius:0;background:transparent;width:auto}.gd-redesigned-filters .gd-tag-filter+.gd-tag-filter{border-left:1px solid #dfe6f1}.gd-redesigned-filters .gd-tag-filter>span{flex-basis:auto;white-space:nowrap}.gd-redesigned-filters .gd-filter-options{flex-wrap:nowrap;width:auto}.gd-redesigned-filters .gd-filter-option{gap:5px;padding:3px 6px}
+.gd-workspace .gd-analysis-table table{min-width:1020px;table-layout:fixed}.gd-workspace .gd-analysis-table td{vertical-align:middle;line-height:1.6;padding:8px 12px}.gd-workspace .gd-analysis-table strong{font-weight:500}.gd-workspace .gd-analysis-table th{width:auto}.gd-workspace .gd-analysis-table td strong.gd-action-summary{font-weight:600;color:#2e496c}.gd-analysis-problem{white-space:normal;line-height:1.8}.gd-analysis-muted{color:#8796aa;font-size:12px;line-height:1.7;margin:6px 0 0}.gd-core-hit{display:inline-block;margin-top:6px;color:var(--orange);background:var(--orange-soft);border-radius:4px;padding:1px 6px;font-size:11px}.gd-dependency-mini{font-size:12px;line-height:1.9;margin-top:5px;color:#72859e}.gd-dependency-mini span{color:#a5b5c9;margin:0 2px}
+.gd-workspace .gd-analysis-table.work th:nth-child(1){width:17%}.gd-workspace .gd-analysis-table.work th:nth-child(2){width:5%}.gd-workspace .gd-analysis-table.work th:nth-child(3){width:33%}.gd-workspace .gd-analysis-table.work th:nth-child(4){width:29%}.gd-workspace .gd-analysis-table.work th:nth-child(5){width:9%}.gd-workspace .gd-analysis-table.work th:nth-child(6){width:7%}
+.gd-workspace .gd-analysis-table.focus th:nth-child(1){width:22%}.gd-workspace .gd-analysis-table.focus th:nth-child(2){width:22%}.gd-workspace .gd-analysis-table.focus th:nth-child(3){width:9%}.gd-workspace .gd-analysis-table.focus th:nth-child(4){width:37%}.gd-workspace .gd-analysis-table.focus th:nth-child(5){width:10%}.gd-workspace .gd-analysis-table.focus td[rowspan]{vertical-align:top}.gd-focus-total{display:flex;align-items:baseline;gap:4px;color:#7e91ac;font-size:12px;margin-top:6px}.gd-workspace .gd-focus-total b{display:inline;font-size:24px;color:#3a5e93;font-weight:600}
+.gd-person-list{display:flex;flex-wrap:wrap;gap:7px 12px}.gd-person-list>span{display:inline-flex;align-items:baseline;gap:5px;color:#466488;font-size:13px}.gd-workspace .gd-person-list small,.gd-dialog .gd-person-list small{display:inline;font-size:11px;white-space:normal;color:#93a0b1;margin:0}.gd-detail-people{gap:6px 20px}
+.gd-workspace .gd-analysis-table.mismatch th:nth-child(1){width:18%}.gd-workspace .gd-analysis-table.mismatch th:nth-child(2){width:32%}.gd-workspace .gd-analysis-table.mismatch th:nth-child(3){width:29%}.gd-workspace .gd-analysis-table.mismatch th:nth-child(4){width:14%}.gd-workspace .gd-analysis-table.mismatch th:nth-child(5){width:7%}
+.gd-report-finding{margin-bottom:3px;line-height:22px}
+.gd-workspace .gd-analysis-table.quality th:nth-child(1){width:14%}.gd-workspace .gd-analysis-table.quality th:nth-child(2){width:8%}.gd-workspace .gd-analysis-table.quality th:nth-child(3){width:12%}.gd-workspace .gd-analysis-table.quality th:nth-child(4){width:58%}.gd-workspace .gd-analysis-table.quality th:nth-child(5){width:8%}
+.gd-analysis-table.quality .gd-task-preview .gd-report-finding{margin-bottom:0;line-height:22px}
+.gd-analysis-sources{overflow:auto;border:1px solid #e1e8f2;border-radius:6px}.gd-analysis-sources table{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed}.gd-analysis-sources th{background:#f3f7fc;padding:10px 12px;text-align:left;color:#7f91aa;font-weight:400}.gd-analysis-sources th:first-child{width:29%}.gd-analysis-sources td{padding:12px;vertical-align:top;white-space:pre-line;overflow-wrap:anywhere;line-height:1.85;border-top:1px solid #e7edf6;color:#4f6685}.gd-analysis-sources td+td{border-left:1px solid #e7edf6}.gd-analysis-sources blockquote{margin:8px 0 0;padding:5px 9px;background:#f8fafd;border-left:2px solid #d4e1f3;color:#8694a6}.gd-score-pass{color:var(--green)!important}.gd-score-loss{color:var(--orange)!important}.gd-rubric-method{margin:16px 0;color:#7b8da6;font-size:12px;line-height:1.8}.gd-rubric-tabs{display:flex;gap:8px;flex-wrap:wrap}.gd-rubric-tabs button{border:1px solid #e3eaf4;padding:7px 13px;border-radius:5px;background:#fff;color:#68819f;font-size:13px;cursor:pointer}.gd-rubric-tabs button.active{background:#edf4ff;border-color:#bbd4ff;color:#1677ff}
+/* 分析字段沿用任务详情的辅助字号；短标题、对象和人员不强制分行。 */
+.gd-analysis-dialog .gd-detail-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;margin-bottom:4px;padding-bottom:8px}
+.gd-analysis-dialog .gd-detail-head>h3{flex:0 1 auto;min-width:0;max-width:100%}
+.gd-analysis-dialog .gd-detail-head>div{max-width:100%;margin:0}
+#dialog.business-drawer:has(>#dialogbody>.gd-focus-dialog) #dialogsub{flex-basis:auto;flex:none}
+.gd-analysis-dialog .gd-focus-topic strong{font-size:13px;font-weight:600;color:#2e496c}
+.gd-analysis-dialog :is(.gd-text-section,.gd-detail-roster){display:grid;grid-template-columns:104px minmax(0,1fr);align-items:baseline;gap:12px;margin:0;padding:8px 0;border-bottom:1px solid #edf1f6}
+.gd-analysis-dialog :is(.gd-text-section,.gd-detail-roster)>h5{margin:0}
+.gd-analysis-dialog .gd-detail-roster>h5{white-space:nowrap}
+.gd-analysis-dialog .gd-detail-roster .gd-detail-people{min-width:0;line-height:22px}
+.gd-analysis-dialog .gd-analysis-sources td{padding-block:10px;line-height:1.7}
+/* 评分表将主要宽度留给可核对的标准与原文，分值列不再平均分配。 */
+.gd-rubric-selectors{display:grid;gap:12px}
+.gd-rubric-selector{display:grid;grid-template-columns:64px minmax(0,1fr);gap:10px;align-items:start}
+.gd-rubric-selector>span{padding-top:8px;color:#8190a7;font-size:12px}
+.gd-rubric-selector .gd-rubric-tabs{display:flex;flex-wrap:wrap;gap:5px;margin:0;min-width:0}
+.gd-rubric-selector .gd-rubric-tabs button{white-space:normal;line-height:1.6;text-align:left}
+.gd-rubric-caption{margin:0 0 10px;color:#415570;font-weight:500}
+#dialog:has(>#dialogbody>.gd-report-dialog) #drawer-tabs{align-items:center;flex-wrap:wrap;gap:0 26px}
+/* 仅报告诊断加宽；资源等其他抽屉继续使用原宽度。 */
+#dialog.drawer.business-drawer:has(>#dialogbody>.gd-report-dialog){width:min(1280px,100vw)}
+@media(max-width:600px){.gd-analysis-dialog :is(.gd-text-section,.gd-detail-roster){grid-template-columns:96px minmax(0,1fr);gap:8px}.gd-analysis-dialog .gd-detail-people{gap:4px 12px}}
+.gd-analysis-departments{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;font-size:12px;color:#7488a3}
+@media(max-width:1400px){.gd-workspace .gd-card{grid-template-columns:1fr auto;padding:12px}.gd-workspace .gd-card-head h3{font-size:14px}.gd-workspace .gd-card-stats{grid-column:1/-1;grid-row:2;gap:5px 11px}.gd-workspace .gd-card-number{grid-row:1}.gd-workspace .gd-card-number span{font-size:10px}.gd-workspace .gd-card-number{font-size:24px}.gd-redesigned-filters .gd-filter-search{flex-basis:330px}}
+@media(max-width:800px){.gd-workspace .gd-card{grid-template-columns:1fr;min-height:118px}.gd-workspace .gd-card-head h3{font-size:14px}.gd-workspace .gd-card-number{grid-column:1;grid-row:2;justify-self:start;flex-direction:row}.gd-workspace .gd-card-stats{grid-column:1;grid-row:3}.gd-redesigned-filters .gd-filter-search{flex-basis:100%;max-width:none}.gd-redesigned-filters .gd-tag-filter{align-items:center;flex-direction:row}.gd-redesigned-filters .gd-filter-options{flex-wrap:nowrap}.gd-analysis-sources table{min-width:520px}.gd-analysis-table.focus .gd-person-list{gap:5px 10px}}
+
+/* 各页签共用姓名-部门；部门仅降低颜色层级，不额外占一行。 */
+.gd-person{display:inline-flex;align-items:baseline;max-width:100%;color:#415570;line-height:22px;white-space:nowrap}
+.gd-person-list>.gd-person{gap:0}
+.gd-person>.gd-person-name,.gd-person>.gd-person-department{flex:none}
+.gd-person>.gd-person-department{color:#8a96a8}
+.gd-workspace .gd-table-scroll .link{min-height:24px;line-height:24px;padding-block:0}
+
+/* 核心标准收进页签后的问号，内容由共用浮层承载。 */
+.gd-panel .gd-scope-tabs .gd-core-tab{display:inline-flex;align-items:center;gap:0}
+.gd-panel .gd-scope-tabs .gd-core-help{flex:none;margin:0 9px 2px 0;width:14px;height:14px;box-sizing:border-box;font-size:10px;line-height:12px;cursor:help}
+#metric-tooltip.metric-tooltip-gd-core{box-sizing:border-box;width:380px;max-width:calc(100vw - 16px);max-height:calc(100dvh - 16px);overflow:auto;white-space:normal;padding:16px;border:1px solid #dce7f6;border-radius:9px;background:#fff;color:#4e6584;font-size:13px;line-height:1.7;box-shadow:0 8px 28px #29496d21}
+.gd-core-tip-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:12px;border-bottom:1px solid #edf1f7}
+.gd-core-tip-heading h4{margin:0;color:#2e496c;font-size:14px;font-weight:600}
+.gd-core-tip-heading>span{flex:none;border-radius:4px;padding:2px 7px;background:#edf4ff;color:#4284dc;font-size:11px}
+.gd-core-tip-rules{list-style:none;margin:0;padding:0}
+.gd-core-tip-rules>li{display:grid;grid-template-columns:24px minmax(0,1fr);align-items:start;gap:10px;margin:0;padding:12px 0 0}
+.gd-core-tip-index{display:grid;place-items:center;width:22px;height:22px;margin-top:1px;border-radius:50%;background:#edf3ff;color:#5386d0;font-size:11px;font-weight:500}
+.gd-core-tip-rules strong{display:block;font-size:13px;font-weight:500;color:#3e5c80}
+.gd-core-tip-rules p{margin:3px 0 0;color:#8595ab;font-size:12px;line-height:1.7}
+
+/* 聚焦事项用紧凑行高；人数为普通文本，查看记录统一从操作列进入。 */
+
+.gd-workspace .gd-analysis-table.focus td{padding-top:8px;padding-bottom:8px;vertical-align:middle;line-height:1.65}
+.gd-workspace .gd-analysis-table.focus td[rowspan]{vertical-align:top}
+.gd-focus-count{display:inline-block;color:#526b89;font-size:13px;line-height:22px;white-space:nowrap;font-variant-numeric:tabular-nums;cursor:default}
+.gd-workspace .gd-analysis-table.focus .link{padding:0;min-height:24px;line-height:24px}
+
+.gd-focus-object-heading{display:flex;align-items:baseline;justify-content:space-between;gap:10px}.gd-focus-object-heading>.gd-business-object{flex:1;min-width:0}.gd-focus-object-heading .gd-focus-total{flex:none;display:inline-flex;margin:0;line-height:22px}.gd-workspace .gd-focus-object-heading .gd-focus-total b{font-size:13px;line-height:22px;font-weight:500}
+
+/* 表头与正文沿同一列起点排版，任务表和分析表保持一致。 */
+.gd-workspace .gd-table-scroll :is(th,td){padding-inline:12px}
+
+/* 各分类主表的操作列固定在本表右侧；空结果的跨列单元格不参与固定。 */
+.gd-workspace .gd-table-scroll table:is([data-gd-table],[data-gd-analysis-table]):not([data-gd-analysis-table="missing"])>thead>tr>th:last-child,
+.gd-workspace .gd-table-scroll table:is([data-gd-table],[data-gd-analysis-table]):not([data-gd-analysis-table="missing"])>tbody>tr>td:last-child:not([colspan]){
+ position:sticky;right:0;z-index:2;background:#fff;white-space:nowrap;
+ box-shadow:-1px 0 0 #e6edf6,-5px 0 8px -7px #60799766;
+}
+.gd-workspace .gd-table-scroll table:is([data-gd-table],[data-gd-analysis-table]):not([data-gd-analysis-table="missing"])>thead>tr>th:last-child{width:104px;z-index:3;background:#f5f8fc}
+/* 固定列保持不透明，并与普通单元格采用同一行悬浮色。 */
+.gd-workspace .gd-table-scroll table:is([data-gd-table],[data-gd-analysis-table]):not([data-gd-analysis-table="missing"])>tbody>tr:hover>td:last-child:not([colspan]){background:#f8fbff}
+/* 操作链接仅以文字变色反馈悬浮，不另加小块底色；保留整行悬浮和键盘焦点。 */
+.gd-workspace .gd-table-scroll table:is([data-gd-table],[data-gd-analysis-table]):not([data-gd-analysis-table="missing"])>tbody>tr>td:last-child .link:hover{background:transparent}
+
+/* 待确认清单和管理建议沿用分析表，长文字复用三行原位展开。 */
+.gd-workspace .gd-analysis-table.key-work table{min-width:1240px}
+.gd-workspace .gd-analysis-table.key-work th:nth-child(1){width:17%}
+.gd-workspace .gd-analysis-table.key-work th:nth-child(2){width:6%}
+.gd-workspace .gd-analysis-table.key-work th:nth-child(3){width:27%}
+.gd-workspace .gd-analysis-table.key-work th:nth-child(4){width:24%}
+.gd-workspace .gd-analysis-table.key-work th:nth-child(5){width:12%}
+.gd-workspace .gd-analysis-table.key-work th:nth-child(6){width:9%}
+.gd-workspace .gd-analysis-table.key-work th:last-child{width:104px}
+.gd-workspace .gd-analysis-table:is(.key-work,.improvements) tbody tr{height:92px}
+.gd-workspace .gd-analysis-table.improvements th:nth-child(1){width:16%}
+.gd-workspace .gd-analysis-table.improvements th:nth-child(2){width:25%}
+.gd-workspace .gd-analysis-table.improvements th:nth-child(3){width:25%}
+.gd-workspace .gd-analysis-table.improvements th:nth-child(4){width:18%}
+.gd-workspace .gd-analysis-table.improvements th:nth-child(5){width:12%}
+.gd-workspace .gd-analysis-table.improvements td:first-child>strong{font-weight:600;color:#304868}
+.gd-panel .gd-tab-navigation{display:flex;align-items:center;flex-wrap:wrap;gap:8px 16px;min-width:0}
+.gd-workspace .gd-analysis-table:is(.key-work,.improvements) td{vertical-align:top;padding-block:13px}
+.gd-workspace .gd-analysis-table:is(.key-work,.improvements) td:last-child{vertical-align:middle}
+
+.gd-business-object .gd-project-light{display:inline-flex;margin-left:6px;vertical-align:baseline;font-size:11px;font-weight:400;white-space:nowrap}
+
+.gd-panel .gd-tab-navigation>.link{font-weight:400;font-size:13px;padding:0;white-space:nowrap}
+#dialog.business-drawer:has(>#dialogbody>.gd-generated-dialog){width:min(1520px,100vw)}
+.gd-generated-dialog .gd-action-table{max-width:100%;overflow:auto}
+.up-todo-assignment-preview .tablewrap{overflow:auto;max-width:100%}
+.up-todo-assignment-preview table{min-width:650px;width:100%;border-collapse:collapse;font-size:13px}
+.up-todo-assignment-preview :is(th,td){padding:10px;text-align:left;border-bottom:1px solid #e7edf6;line-height:1.7;vertical-align:top}
+.up-todo-assignment-preview th{background:#f5f8fc;color:#8192a9;font-weight:400;white-space:nowrap}
+.up-todo-assignment-preview th:first-child{width:40%}
+
+/* 未提交只展示人员、类型与应交日期，不套用固定操作列。 */
+.gd-workspace .gd-analysis-table.missing table{min-width:680px}
+.gd-workspace .gd-analysis-table.missing th:nth-child(1){width:28%}
+.gd-workspace .gd-analysis-table.missing th:nth-child(2){width:14%}
+.gd-workspace .gd-analysis-table.missing th:nth-child(3){width:18%}
+.gd-workspace .gd-analysis-table.missing th:nth-child(4){width:26%}
+.gd-workspace .gd-analysis-table.missing th:nth-child(5){width:14%}
+
+/* 工作偏差是只读诊断，六列表不包含任务日期与办理状态。 */
+.gd-workspace .gd-analysis-table.deviation table{min-width:1120px}
+.gd-workspace .gd-analysis-table.deviation th:nth-child(1){width:18%}
+.gd-workspace .gd-analysis-table.deviation th:nth-child(2){width:6%}
+.gd-workspace .gd-analysis-table.deviation th:nth-child(3){width:29%}
+.gd-workspace .gd-analysis-table.deviation th:nth-child(4){width:29%}
+.gd-workspace .gd-analysis-table.deviation th:nth-child(5){width:12%}
+.gd-workspace .gd-analysis-table.deviation tbody tr{height:80px}
+.gd-workspace .gd-analysis-table.deviation td{vertical-align:top;padding-block:12px}
+.gd-workspace .gd-analysis-table.deviation td:last-child{vertical-align:middle}
+.gd-evidence-dialog .gd-text-section p{white-space:pre-line}
+
+/* 建议项与三行预览共用22px行栅格，不再因项间距露出半行。 */
+.gd-workspace .gd-analysis-table.deviation .gd-task-preview .gd-action-content{line-height:22px;margin-block:0}
+.gd-workspace .gd-analysis-table.deviation .gd-action-detail{color:#60718b}
+
+/* 依据抽屉以浅色字段名、深色正文区分信息层级，优先级沿用原标签色。 */
+:is(.gd-evidence-dialog,.gd-improvement-dialog) .gd-detail-section>h5{color:#7b8ca4;font-size:12px;font-weight:500}
+:is(.gd-evidence-dialog,.gd-improvement-dialog) :is(.gd-text-section>p,.gd-person-name,.gd-analysis-sources td){color:#304868}
+:is(.gd-evidence-dialog,.gd-improvement-dialog) .gd-person-department{color:#73849c}
+
+/* 诊断长文按原段落、编号和独立事实换行，列表与依据共用；日期和操作保持原样。 */
+.gd-workspace .gd-readable-text,.gd-dialog .gd-readable-text{white-space:pre-line;overflow-wrap:anywhere}
+.gd-workspace .gd-task-preview .gd-readable-text{line-height:22px}
+.gd-dialog .gd-report-evidence blockquote{white-space:pre-line;overflow-wrap:anywhere}
+
+/* 摘要按分类整项换行；正文保留分项，金额、数量、比例与单位不拆开。 */
+.gd-workspace .gd-card-stats>span{display:inline-flex;align-items:baseline;white-space:nowrap}
+.gd-workspace .gd-card-head{min-width:0}
+.gd-workspace .gd-card-head h3{line-height:1.5;overflow-wrap:break-word}
+.gd-workspace .gd-inline-value,.gd-dialog .gd-inline-value{white-space:nowrap;overflow-wrap:normal}
+.gd-workspace .gd-report-finding>.gd-readable-text{min-width:0}
+
+/* 改善建议的信息正文与依据采用相同层级，长文在字段内容列内完整换行。 */
+.gd-improvement-dialog .gd-text-section>p{min-width:0;max-width:100%;font-size:13px;line-height:22px}
+
+/* 报告仅展示问题诊断与原文，移除分数后重新分配列宽。 */
+.gd-report-dialog .gd-report-evidence table{width:100%;table-layout:fixed;min-width:720px}
+.gd-report-dialog .gd-report-evidence th:nth-child(1){width:16%}
+.gd-report-dialog .gd-report-evidence th:nth-child(2){width:42%}
+.gd-report-dialog .gd-report-evidence th:nth-child(3){width:42%}
+.gd-report-evidence :is(td,blockquote){white-space:pre-line;overflow-wrap:anywhere;line-height:1.7}
+.gd-report-evidence blockquote{margin:0;padding:0;border:0;background:transparent;color:#7185a0}
+.gd-report-issue+.gd-report-issue,.gd-report-evidence blockquote+blockquote{margin-top:8px}

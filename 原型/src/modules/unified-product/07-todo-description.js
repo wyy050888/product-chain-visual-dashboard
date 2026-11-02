@@ -1,6 +1,7 @@
 // 描述只在展示层整理；不重算历史事实、不改写已下发或手工编辑的原始内容。
-function upTodoDescriptionParts(task){
- const text=String(task.description||'').replace(/\r\n?/g,'\n').trim();
+function upTodoDescriptionParts(task,evidence=false){
+ const current=!evidence&&task.gdAutomatic&&task.gdProblem?String(task.gdProblem).replace(/[。；;]$/,'')+(task.gdImpact?'；'+task.gdImpact:''):task.description;
+ const text=String(current||'').replace(/\r\n?/g,'\n').trim();
  if(!text)return [];
  const automatic=task.source!=='manual'&&(task.basis?.length||/事实依据|判断理由|统计期间/.test(text));
  if(!automatic)return [{kind:'text',label:'',items:text.split(/\n\s*\n/).filter(Boolean)}];
@@ -31,11 +32,23 @@ function upTodoDescriptionParts(task){
  }
  return ['facts','reason','scope','period'].map(key=>groups.get(key)).filter(g=>g?.items.length);
 }
-function upTodoDescriptionMarkup(task){
- const parts=upTodoDescriptionParts(task);
+function upTodoDescriptionMarkup(task,evidence=false){
+ const parts=upTodoDescriptionParts(task,evidence);
  if(!parts.length)return '—';
  return `<span class="up-todo-problem">${parts.map(g=>`<span class="up-todo-problem-group ${g.kind}">${g.label?`<span class="up-todo-problem-label">${esc(g.label)}：</span>`:''}${g.items.map(line=>`<span class="up-todo-problem-line">${esc(line)}</span>`).join('')}</span>`).join('')}</span>`;
 }
 function upTodoDescriptionText(task){
  return upTodoDescriptionParts(task).map(g=>(g.label?g.label+'：\n':'')+g.items.join('\n')).join('\n\n')||'—';
 }
+
+// 主表仅保留问题摘要；完整事实、判断及统计口径由任务弹窗“查看依据”承载。
+function upTodoProblemSummary(task){
+ if(task.gdProblem)return task.gdProblem;
+ if(task.problemSummary)return task.problemSummary;
+ const parts=upTodoDescriptionParts(task),structured=parts.some(p=>p.kind!=='text');
+ if(!structured)return upTodoDescriptionText(task);
+ const text=parts.find(p=>p.kind==='facts')?.items[0]||parts[0]?.items[0]||'';
+ return text.split(/(?<=[。！？])/)[0].trim()||'待核实';
+}
+function upTodoHasEvidence(task){return upTodoHasOrigin(task)||upTodoDescriptionParts(task,true).some(p=>p.kind!=='text')||!!task.gdIssue||!!task.basis?.length}
+function upTodoEvidenceMarkup(task){return upTodoHasOrigin(task)?gdTodoBasisMarkup({kind:'task',task},task):upTodoDescriptionMarkup(task,true)}

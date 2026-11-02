@@ -50,8 +50,8 @@ function svSelect(label,key,items,value=svState.filters[key]||'all'){return `<la
 function svLevel(r){return `<span class="tag ${r.closed?'green':r.level==='高危'?'red':r.level==='中风险'?'orange':'blue'}">${r.closed?'已闭环':r.level==='高危'?'● 红灯':r.level==='中风险'?'● 黄灯':'一般提醒'}</span>${r.overdue?'<small class="red">整改逾期 · 已升级</small>':''}`;}
 function svOperation(r){return svButton('查看详情','detail',r.key)+svButton(r.taskId?'跟进整改':'一键下发','task',r.key);}
 function svColumns(tab){return [
- ['预警等级','预警类型','供应商类型','产品类目 / 品牌','对应项目','当前数量','目标数量','缺口数量','责任采购','触发条件项','操作'],
- ['预警等级','延期阶段','供应商名称','供应商类型','产品类目','对应项目','目标完成','实际完成','延期天数','责任采购','操作'],
+ ['预警等级','预警类型','供应商类型','产品链群 / 品牌','对应项目','当前数量','目标数量','缺口数量','责任采购','触发条件项','操作'],
+ ['预警等级','延期阶段','供应商名称','供应商类型','产品链群','对应项目','目标完成','实际完成','延期天数','责任采购','操作'],
  ['预警等级','缺失类型','供应商名称','供应商类型','供应商状态','缺失项明细','缺失数量','责任采购','操作'],
  ['预警等级','供应商名称','供应商类型','供应商状态','当前星级','所属品类','责任采购','风险影响','操作'],
  ['预警等级','供应商名称','能力维度','当前值 / 阈值','供应商类型 / 状态','所属品类 / 品牌','责任采购','风险说明','操作']][tab];}
@@ -62,4 +62,4 @@ function svCells(r){const base=[
  [svLevel(r),esc(r.name),r.supplierType,r.supplierState||r.originalState||'—',`<b class="red">${r.value} 星</b>`,chains[r.chain],r.owner,'交付风险 / 品质风险'],
  [svLevel(r),esc(r.name),r.dimension,r.metric+'<small>预警：'+r.rule+'</small>',r.supplierType+'<small>'+r.originalState+'</small>',chains[r.chain]+'<small>'+r.brand+'</small>',r.owner,esc(r.issue)]
  ][r.categoryId];return [...base,`<div class="sr-row-actions">${svOperation(r)}</div>`];}
-function svRiskList(rows,modal=false){const tab=svState.tab,view=rows.filter(r=>r.categoryId===tab),size=modal?DRAWER_PAGE_SIZE:5,max=Math.max(1,Math.ceil(view.length/size));svState.page=Math.min(Math.max(1,svState.page),max);return `<div class="sr-list-heading"><b>${svTabs[tab]}</b><span>共 ${view.length} 项 · ${svState.status==='closed'?'已闭环历史':'按红灯、逾期优先展示'}</span></div><div class="sr-table">${dpTable(svColumns(tab),view.slice((svState.page-1)*size,svState.page*size).map(svCells))}</div>${!view.length?'<div class="dp-empty">当前筛选范围暂无预警</div>':''}${listPager(view.length,svState.page,size,{attr:'data-sr-key',extra:{'data-sr-action':'page'}})}`;}
+function svRiskList(rows,modal=false){const tab=svState.tab,view=rows.filter(r=>r.categoryId===tab),size=listPageSize('sv-risks',modal?20:10),max=Math.max(1,Math.ceil(view.length/size));svState.page=Math.min(Math.max(1,svState.page),max);return `<div class="sr-list-heading"><b>${svTabs[tab]}</b><span>共 ${view.length} 项 · ${svState.status==='closed'?'已闭环历史':'按红灯、逾期优先展示'}</span></div><div class="sr-table">${dpTable(svColumns(tab),view.slice((svState.page-1)*size,svState.page*size).map(svCells))}</div>${!view.length?'<div class="dp-empty">当前筛选范围暂无预警</div>':''}${listPager(view.length,svState.page,size,{sizeKey:'sv-risks',attr:'data-sr-key',extra:{'data-sr-action':'page'}})}`;}

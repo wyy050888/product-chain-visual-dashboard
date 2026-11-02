@@ -7,18 +7,22 @@ const ppStages={
  '研发创新':['第一阶段：创新需求收集与技术研判','第二阶段：技术可行性评审','第三阶段：创新难点预研','第四阶段：功能手板评审&测试','第五阶段：创新模块评审','第六阶段：专利申请']
 };
 const ppProjectStates=['进行中','已完成','已暂停/取消','未开始'];
-const ppDepartments=['产品部','研发部','采购部','品质部'];
-const ppState={category:[],type:[],projectState:['进行中'],brand:[],light:[],riskLight:[],stage:[],department:[],query:'',plan:null,actual:null,started:null,page:1,distribution:'type',departmentDistribution:'type',riskDepartment:'全部',link:null,sort:{key:'plan',direction:'asc'}};
+const ppDepartments=filterCatalog.primaryDepartments;
+const ppRiskLights=['红灯','黄灯'];
+const ppState={category:[],type:[],projectState:['进行中'],brand:[],light:[],riskLight:[],stage:[],department:[],query:'',plan:null,actual:null,started:null,page:1,distribution:'type',riskDepartment:'全部',link:null,sort:{key:'plan',direction:'asc'}};
 const ppValues=value=>[...new Set((Array.isArray(value)?value:[value]).filter(v=>v!=null&&v!==''&&v!=='—'))];
-// 未上线且延期时校正为红灯；高危是红灯子集，统计不重复计数。
-const ppHighRisk=p=>p.status==='红灯'&&p.delay>15;
+// 只归一明确的部门别名，不从项目经理或任务内容推断责任部门。
+const ppDepartmentValues=value=>ppValues(ppValues(value).map(filterCatalog.normalizeDepartment));
+// 项目与阶段采用当前有效灯色；延期仍单独计算，高危是红灯子集。
+const ppHighRisk=p=>p.status==='红灯'&&brcMatch('lights.projectDelay',p.delay);
 const ppMatchesLight=(p,values)=>!values.length||values.some(value=>value==='高危红灯'?ppHighRisk(p):p.status===value);
 const ppDate=value=>/^\d{4}-\d{2}-\d{2}$/.test(value||'')?value:null;
-function ppProjectLight(source,actual,delay){return !actual&&delay>0?'红灯':source.status}
+function ppProjectType(type){return ({'自研':'自研开发','自选':'自选开发','创新研发':'研发创新','创新项目':'研发创新'})[type]||type}
+function ppProjectLight(source,actual,delay){return source.status||null}
 function ppAdapt(source,cutoff){
  source=ppSampleQuotes(ppSampleSchedule(source));
- const type=({'自研':'自研开发','自选':'自选开发','创新研发':'研发创新','创新项目':'研发创新'})[source.type]||source.type;
- const ledger=(Array.isArray(source.riskLedger)?source.riskLedger:ppSampleLedger(source)).filter(r=>!r.recordedAt||r.recordedAt.slice(0,10)<=cutoff).map(r=>ppRiskFields({...r,...(ppDate(r.closedAt)&&r.closedAt>cutoff?{status:'待整改'}:{}),taskNames:ppValues(r.taskNames).filter(name=>typeof name==='string')},cutoff));
+ const type=ppProjectType(source.type);
+ const ledger=(Array.isArray(source.riskLedger)?source.riskLedger:ppSampleLedger(source)).filter(r=>!r.recordedAt||r.recordedAt.slice(0,10)<=cutoff).map(r=>ppRiskFields({...r,department:Array.isArray(r.department)?ppDepartmentValues(r.department):r.department==null?r.department:filterCatalog.normalizeDepartment(r.department),...(ppDate(r.closedAt)&&r.closedAt>cutoff?{status:'待整改'}:{}),taskNames:ppValues(r.taskNames).filter(name=>typeof name==='string')},cutoff));
  const stages=ppValues(String(source.stage||'').split(/[,，、]/)).filter(s=>(ppStages[type]||[]).includes(s));
  const actual=ppDate(source.actual)&&source.actual<=cutoff?source.actual:null,plan=ppDate(source.plan);
  const revised=ppDate(source.revisedPlan),revisedPlan=revised&&(!plan||revised>plan)?revised:null;
@@ -27,40 +31,54 @@ function ppAdapt(source,cutoff){
   departments:ppValues(ledger.filter(r=>r.status!=='已闭环').flatMap(r=>ppValues(r.department))).filter(d=>ppDepartments.includes(d)),
   responsible:ppValues(ledger.map(r=>r.owner))};
 }
-function ppRows(){const cutoff=bounds().cutoff;return [...new Map(projects().filter(p=>!ppDate(p.started)||p.started<=cutoff).map(p=>[p.id,ppAdapt(p,cutoff)])).values()]}
-function ppScope(rows){return rows.filter(p=>pfIncludes(ppState.category,p.category)&&pfIncludes(ppState.type,p.type)&&pfIncludes(ppState.projectState,p.projectState))}
+// 原始项目范围共用截止日与ID去重；数量汇总无需重复构建风险台账。
+function ppSourceRows(p=periodFor()){const cutoff=bounds(p).cutoff;return [...new Map(projects().filter(project=>!ppDate(project.started)||project.started<=cutoff).map(project=>[project.id,project])).values()]}
+function ppRows(p=periodFor()){const cutoff=bounds(p).cutoff;return ppSourceRows(p).map(source=>ppAdapt(source,cutoff))}
+// 日期限定当前项目范围，顶部概览和下方列表共同遵守；灯色联动仍不改变分母。
+function ppScope(rows,state=ppState){return rows.filter(p=>pfIncludes(state.category,p.category)&&pfIncludes(state.type,p.type)&&pfIncludes(state.projectState,p.projectState)&&ppMatchesDates(p,state))}
+function ppMatchesDates(project,state){return ['plan','actual','started'].every(key=>{const range=ppDateRange(state[key]);return !range||(ppDate(project[key])&&project[key]>=range.start&&project[key]<=range.end)})}
 function ppDateRange(selection){
  if(!selection)return null;
  return selection.mode==='range'?{start:selection.start,end:selection.end}:nspLaunchRange(selection.mode,selection.year,selection.value);
 }
 function ppDateSelectionLabel(selection){return selection?.mode==='range'?selection.start+' — '+selection.end:nspLaunchLabel(selection)}
-// 列表命中、根因条数和展开台账共用同一风险子集；无风险条件时保留完整台账。
+// 项目明细默认只展示红黄灯；部门分析显式传入自己的风险灯色范围。
+function ppVisibleRisks(project,allowedLights=ppRiskLights){return (project.ledger||[]).filter(risk=>allowedLights.includes(risk.light))}
 function ppSelectedRisks(project,state=ppState){
- const ledger=project.ledger||[],lights=state.riskLight||[],departments=state.department||[];
+ const ledger=ppVisibleRisks(project,state.allowedRiskLights||ppRiskLights),lights=state.riskLight||[],departments=ppDepartmentValues(state.department||[]);
  if(!lights.length&&!departments.length)return ledger;
- return ledger.filter(risk=>risk.status!=='已闭环'&&(!lights.length||lights.includes(risk.light))
-  &&(!departments.length||ppValues(risk.department).some(department=>departments.includes(department))));
+ return ledger.filter(risk=>(state.includeClosedRisks||risk.status!=='已闭环')&&(!lights.length||lights.includes(risk.light))
+  &&(!departments.length||ppDepartmentValues(risk.department).some(department=>departments.includes(department))));
 }
 function ppMatchesRisk(project,state){
  return !(state.riskLight?.length||state.department?.length)||ppSelectedRisks(project,state).length>0;
 }
 function ppFiltered(rows,s=ppState){
- const q=s.query.trim().toLowerCase(),range=ppDateRange(s.plan),actualRange=ppDateRange(s.actual);
- const startedRange=ppDateRange(s.started);
+ const q=s.query.trim().toLowerCase();
  return rows.filter(p=>pfIncludes(s.brand,p.brand)&&ppMatchesLight(p,s.light)&&(!s.stage.length||s.stage.some(path=>path.type===p.type&&p.stages.includes(path.stage)))&&ppMatchesRisk(p,s)
-  &&(!q||[p.name,...p.ledger.map(r=>r.rootCause),...p.responsible].some(value=>String(value||'').toLowerCase().includes(q)))
-  &&(!range||(p.plan>=range.start&&p.plan<=range.end))&&(!actualRange||(ppDate(p.actual)&&p.actual>=actualRange.start&&p.actual<=actualRange.end))&&(!startedRange||(ppDate(p.started)&&p.started>=startedRange.start&&p.started<=startedRange.end))&&ppLinked(p,s.link))
+  &&(!q||[p.name,...ppSelectedRisks(p,s).flatMap(r=>[r.rootCause||r.description,r.owner])].some(value=>String(value||'').toLowerCase().includes(q)))
+  &&ppMatchesDates(p,s)&&ppLinked(p,s.link))
   .sort((a,b)=>ppCompareProjects(a,b,s.sort));
 }
+// 风险明细仅展示红黄灯；概览、风险台账和原始项目事实继续保留全部项目。
+function ppDetailScope(rows){return rows.filter(project=>['红灯','黄灯'].includes(project.status))}
+function ppDetailRows(rows,state=ppState){return ppFiltered(ppDetailScope(rows),state)}
 function ppLinked(p,link){if(!link)return true;if(link.kind==='light')return link.value==='红黄灯'?['红灯','黄灯'].includes(p.status):ppMatchesLight(p,[link.value]);if(link.kind==='departmentRisk')return p[link.type]===link.value&&ppDepartmentRiskRecords(p,link.department).length>0;if(link.kind==='department')return p.departments.includes(link.value);return p[link.kind]===link.value&&['红灯','黄灯','绿灯'].includes(p.status)}
 function ppCounts(rows){const red=rows.filter(p=>p.status==='红灯').length,yellow=rows.filter(p=>p.status==='黄灯').length,green=rows.filter(p=>p.status==='绿灯').length,total=rows.length;return {total,red,high:rows.filter(ppHighRisk).length,yellow,green,rate:n=>total?(n/total*100).toFixed(1)+'%':'—'}}
-function ppDepartmentFacts(rows,department){
- const records=rows.flatMap(p=>p.ledger.filter(r=>r.status!=='已闭环'&&ppValues(r.department).includes(department)).map(r=>({project:p,risk:r})));
+function ppDepartmentFacts(rows,department,allowedLights=ppRiskLights){
+ const records=rows.flatMap(p=>ppVisibleRisks(p,allowedLights).filter(r=>r.status!=='已闭环'&&ppDepartmentValues(r.department).includes(filterCatalog.normalizeDepartment(department))).map(r=>({project:p,risk:r})));
  const red=records.filter(x=>x.risk.light==='红灯'),yellow=records.filter(x=>x.risk.light==='黄灯');
  const redProjects=[...new Map(records.filter(x=>x.project.status==='红灯').map(x=>[x.project.id,x.project])).values()];
  return {records,red,yellow,redProjects};
 }
+// 报价适用范围按项目类型区分；不适用与适用但缺数据分别展示。
+function ppQuoteApplicable(project,key){
+ const fields={'自研开发':['targetCosts','targetPrices','finalQuotes'],'自选开发':['targetCosts','targetPrices','finalQuotes'],
+  '品质整改':[],'产品迭代':['targetPrices'],'研发创新':['finalQuotes']}[ppProjectType(project.type)];
+ return !fields||fields.includes(key);
+}
 function ppQuoteLines(p,key){
+ if(!ppQuoteApplicable(p,key))return [];
  const rows=p[key];
  if(Array.isArray(rows))return rows.flatMap(r=>{
   const version=r.version&&r.version!=='无'?r.version+'－':'';

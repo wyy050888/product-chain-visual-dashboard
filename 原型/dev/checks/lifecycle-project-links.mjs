@@ -1,48 +1,53 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
-import {fileURLToPath} from 'node:url';
+
+// 完成数只说明拟跳转条件，不改项目查询、不跳模块、不打开下市产品抽屉。
 export async function lifecycleProjectLinks(page){
- const ctx=vm.createContext({pfIncludes:(values,value)=>!values.length||values.includes(value)});vm.runInContext(fs.readFileSync(new URL('../../src/modules/project-panorama/01-model.js',import.meta.url),'utf8'),ctx);
- const state={brand:[],light:[],stage:[],department:[],owner:'',query:'',plan:null,started:null,actual:{mode:'range',start:'2026-10-01',end:'2026-10-10'},link:null,sort:{key:'actual',direction:'asc'}};
- const rows=[{id:1,actual:'2026-10-01',plan:'2026-09-01'},{id:2,actual:null,plan:'2026-10-02'},{id:3,actual:'2026-09-30',plan:'2026-10-03'},{id:4,actual:'2026-10-11',plan:'2026-10-04'}];
- assert.deepEqual(ctx.ppFiltered(rows,state).map(p=>p.id),[1],'实际上线筛选不采用计划上线日期，也不包含区间外日期');
  await page.locator('a[href="#lifecycle"]').click();
- assert.deepEqual(await page.locator('#lifecards .lifecard h3').allTextContents(),['自研上品计划','自选商品计划','自研立项规划','自选立项规划','产品迭代规划','品质整改规划','研发创新规划','产品下市规划']);
- const plans=[['自研开发','actual'],['自选开发','actual'],['自研开发','started'],['自选开发','started'],['产品迭代','started'],['品质整改','started'],['研发创新','started']];
- const audit=()=>page.evaluate(()=>projectPanoramaAudit());
- const verify=async(stage,scope,categories=[])=>{
-  const [type,key]=plans[stage],period=await page.evaluate(()=>dashboardPeriodSnapshot().modules.lifecycle),data=await audit();
-  assert.deepEqual(data.state.type,[type]);assert.deepEqual(data.state.category,categories);assert.deepEqual(data.state.projectState,[]);
-  assert.deepEqual(data.state[key],{mode:'range',year:period.year,start:scope==='year'?period.year+'-01-01':period.start,end:period.cutoff});
-  assert.equal(data.state.plan,null);assert.equal(data.state[key==='actual'?'started':'actual'],null);
-  assert.deepEqual(data.state.light,[]);assert.deepEqual(data.state.riskLight,[]);assert.equal(data.state.query,'');assert.equal(data.state.page,1);
-  const range=data.state[key],expected=data.scope.filter(p=>p[key]&&p[key]>=range.start&&p[key]<=range.end).map(p=>p.id).sort((a,b)=>a-b);
-  assert.deepEqual(data.filtered.map(p=>p.id).sort((a,b)=>a-b),expected);
-  assert.deepEqual(await page.locator('#pp-filter-type').evaluate(e=>Array.from(e.selectedOptions,o=>o.value)),[type]);
-  const text=await page.locator(`[aria-controls="pp-${key}-panel"]`).innerText();assert(text.includes(range.start.slice(2).replaceAll('-','/')));assert(text.includes(range.end.slice(2).replaceAll('-','/')));
-  assert(await page.locator('#overlay').isHidden());
- };
- for(let stage=0;stage<7;stage++){
-  await page.locator('#lifecards .lifecard').nth(stage).click();
-  for(const scope of ['period','year']){await page.locator(`#lifetable [data-life-summary] [data-life-completed="${scope}"]`).click();await verify(stage,scope);}
+ const types=['自研','自选','自研','自选','产品迭代','品质整改','研发创新'];
+ const notice=(stage,period)=>stage===7?'点击跳转产品中心-预下市，筛选条件为：\n下市时间 = '+period:
+  '点击跳转项目列表，筛选条件为：\n项目类型 = '+types[stage]+'\n'+(stage<2?'计划量产/完成日期':'立项日期')+' = '+period+'\n项目状态 ≠ 已取消、已暂停';
+ // 同一天的完成记录中，取消/暂停不计入七类项目规划。
+ const ctx=vm.createContext({window:{},filterCatalog:{chainByIndex:[]},periodFor:()=>({year:2026,mode:'month',value:10}),bounds:()=>({start:'2026-10-01',cutoff:'2026-10-31'}),ppProjectType:type=>type,pfCategory:row=>row.category,ppDate:value=>value,lifeChainMonthFacts:()=>[],renderLife:()=>{}});
+ vm.runInContext(fs.readFileSync(new URL('../../src/modules/project-panorama/14-lifecycle-links.js',import.meta.url),'utf8'),ctx);
+ for(const [stage,type] of ['自研开发','自选开发','自研开发','自选开发','产品迭代','品质整改','研发创新'].entries()){
+  ctx.ppSourceRows=()=>['未开始','进行中','已完成','已暂停','已取消','已暂停/取消'].map((projectState,id)=>({id,type,category:'环境',projectState,actual:'2026-10-01',started:'2026-10-01'}));
+  assert.deepEqual(Array.from(ctx.ppLifecycleCompletedProjects(stage,'period'),row=>row.projectState),['未开始','进行中','已完成']);
  }
- // 清除上一次查询，分类行自动带入对应类目；个护与健康按两个类目并集。
- await page.locator('[data-pp-search]').fill('不存在的项目');
- await page.locator('#lifecards .lifecard').nth(2).click();
- const categories=[['清洁类'],['厨电类'],['环境类'],['个护类','健康类']];
- for(let i=0;i<4;i++){await page.locator(`#lifetable tbody tr:not([data-life-summary]) [data-life-completed="period"]`).nth(i).click();await verify(2,'period',categories[i]);}
- await page.locator('#time-lifecycle [data-time-mode="quarter"]').click();await page.locator('#time-lifecycle [data-time-value]').selectOption('3');
- await page.locator('#lifetable [data-life-summary] [data-life-completed="period"]').click();await verify(2,'period');assert.equal((await audit()).state.started.start,'2026-07-01');
- await page.locator('#lifetable [data-life-summary] [data-life-completed="year"]').click();await verify(2,'year');assert.equal((await audit()).state.started.end,'2026-09-30');
- await page.locator('#lifecards .lifecard').first().click();await page.locator('#lifetable [data-life-summary] [data-life-completed="period"]').click();await verify(0,'period');
- await page.evaluate(()=>window.scrollTo({top:document.querySelector('#projects').offsetTop-80,behavior:'instant'}));
- await page.locator('[aria-controls="pp-actual-panel"]').click();await page.locator('#pp-actual-panel [data-pp-plan-mode="month"]').click();await page.locator('#pp-actual-panel [data-pp-plan-value="9"]').click();assert.deepEqual((await audit()).state.actual,{mode:'month',year:2026,value:9});
- await page.locator('[data-pp-plan-clear="actual"]').click();assert.equal((await audit()).state.actual,null);
- await page.locator('[data-pp-reset]').click();assert.equal((await audit()).state.actual,null);assert.deepEqual((await audit()).state.projectState,['进行中']);
- await page.locator('#lifecards .lifecard').nth(7).click();
- for(const scope of ['period','year']){await page.locator(`#lifetable [data-life-summary] [data-life-completed="${scope}"]`).click();assert(await page.locator('.life-products-detail').isVisible());await page.locator('#close').click();}
- assert.equal(await page.locator('#lifecycle .metric-help,#lifecycle [title]').count(),0);
- await page.locator('#lifecards .lifecard').nth(3).click();await page.locator('#lifetable [data-life-summary] [data-life-completed="year"]').click();await verify(3,'year');
- await page.locator('#projects').screenshot({path:fileURLToPath(new URL('../../outputs/lifecycle-project-link.png',import.meta.url))});
+ const before=await page.evaluate(()=>({state:projectPanoramaAudit().state,period:dashboardPeriodSnapshot().modules.projects}));
+ const hash=new URL(page.url()).hash;
+ await page.locator('#time-lifecycle [data-time-year]').selectOption('2025');
+ for(const mode of ['month','quarter','year']){
+  await page.locator(`#time-lifecycle [data-time-mode="${mode}"]`).click();
+  if(mode!=='year')await page.locator('#time-lifecycle [data-time-value]').selectOption(mode==='month'?'2':'3');
+  for(let stage=0;stage<8;stage++){
+   const selected=await page.evaluate(()=>dashboardLifecycleSnapshot().stage);
+   await page.locator('#lifecards .lifecard').nth(stage).locator('[data-lt-card-actual]').click();
+   assert.equal(await page.locator('#toast').innerText(),notice(stage,mode==='year'?'2025年':mode==='month'?'2025年2月':'2025年第3季度'));
+   assert.equal((await page.evaluate(()=>dashboardLifecycleSnapshot())).stage,selected,'卡片完成数字不切换规划');
+   await page.locator('#lifecards .lifecard').nth(stage).click();
+   const facts=await page.evaluate(()=>dashboardLifecycleSnapshot());
+   assert.equal(facts.summary.actual,facts.chains.reduce((sum,row)=>sum+row.actual,0));
+   for(const scope of mode==='year'?['period']:['period','year']){
+    const period=scope==='year'||mode==='year'?'2025年':mode==='month'?'2025年2月':'2025年第3季度';
+    const expected=notice(stage,period);
+    const buttons=page.locator(`#lifetable [data-life-completed="${scope}"]`);
+    assert.equal(await buttons.count(),5,'汇总及四个品链都保留完成数字入口');
+    for(let row=0;row<5;row++){
+     await buttons.nth(row).click();
+     assert(await page.locator('#toast').isVisible());
+     assert.equal(await page.locator('#toast').innerText(),expected+(row?'\n链群 = '+facts.chains[row-1].name:''));
+     assert(await page.locator('#overlay').isHidden());
+     assert.equal(new URL(page.url()).hash,hash);
+    }
+   }
+   assert.deepEqual(await page.evaluate(()=>({state:projectPanoramaAudit().state,period:dashboardPeriodSnapshot().modules.projects})),before);
+   assert.equal((await page.evaluate(()=>dashboardLifecycleSnapshot())).stage,stage);
+  }
+ }
+ await page.locator('#time-lifecycle [data-time-mode="month"]').click();
+ await page.locator('#time-lifecycle [data-time-year]').selectOption('2026');
+ await page.locator('#lifecards .lifecard').first().click();
+ console.log('通过：八类规划完成数Toast、月/季/年及年度列、汇总/品链、零值可点、无跳转/抽屉及项目条件保持');
 }
