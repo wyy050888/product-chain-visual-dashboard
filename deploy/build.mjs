@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildPrototype } from '../原型/build.mjs';
 import { optimizeAssets } from './lib/optimize-assets.mjs';
+import { copyFiles } from './lib/copy-files.mjs';
 
 const projectRoot = fileURLToPath(new URL('../', import.meta.url));
 const from = process.argv.find(arg => arg.startsWith('--from='))?.slice(7);
@@ -16,16 +17,18 @@ if (path.relative(projectRoot, outputRoot) !== 'dist') {
 }
 fs.rmSync(outputRoot, { recursive: true, force: true });
 fs.mkdirSync(outputRoot, { recursive: true });
-for (const entry of ['index.html', 'assets', 'styles']) {
-  fs.cpSync(path.join(prototypeRoot, entry), path.join(outputRoot, entry), {
+const manifest=JSON.parse(fs.readFileSync(path.join(prototypeRoot,'manifest.json'),'utf8'));
+const pages=manifest.pages?.map(entry=>entry.file)||['index.html'];
+for (const entry of [...pages, 'assets', 'styles']) {
+  copyFiles(path.join(prototypeRoot, entry), path.join(outputRoot, entry), {
     recursive: true,
   });
 }
 // 店铺配置及目标来源页是独立运行入口，保留相对路径，排除源码和测试。
-for (const entry of ['数智罗盘/店铺配置.html', '数智罗盘/目标管理']) {
+for (const entry of ['数智罗盘/店铺配置.html', '数智罗盘/目标管理', 'src/data/filter-catalog.js']) {
   const destination = path.join(outputRoot, entry);
   fs.mkdirSync(path.dirname(destination), { recursive: true });
-  fs.cpSync(path.join(prototypeRoot, entry), destination, {
+  copyFiles(path.join(prototypeRoot, entry), destination, {
     recursive: true,
     filter: file => !file.endsWith('.md'),
   });

@@ -11,7 +11,7 @@ const sizes = text => ({ raw: Buffer.byteLength(text), gzip: gzipSync(text).leng
 // 仅优化发布产物；业务闭包、模块顺序和开发入口保持原构建规则。
 export async function optimizeAssets(root) {
   const entry = path.join(root, 'index.html');
-  let html = fs.readFileSync(entry, 'utf8');
+  const html = fs.readFileSync(entry, 'utf8');
   const links = [...html.matchAll(/<link\s+rel="stylesheet"\s+href="(styles\/[^"?]+)(?:\?[^\"]*)?"\s*\/?\s*>/g)];
   if (!links.length) throw new Error('未找到待合并样式，停止发布');
   const css = links.map(([, file]) => {
@@ -22,14 +22,12 @@ export async function optimizeAssets(root) {
   if (cssResult.warnings.length) throw new Error(cssResult.warnings.map(item => item.text).join('\n'));
   const cssPath = 'styles/dashboard.' + hash(cssResult.code) + '.css';
   fs.writeFileSync(path.join(root, cssPath), cssResult.code);
-  html = html.replace(links[0][0], '<link id="dashboard-styles" rel="stylesheet" href="' + cssPath + '">');
-  for (const link of links.slice(1)) html = html.replace(link[0], '');
 
   const original = fs.readFileSync(path.join(root, 'assets/app.js'), 'utf8');
   const declaration = /const drawerPreviewCss = [^\r\n]*;\r?\n/;
   if (!declaration.test(original)) throw new Error('抽屉样式声明已变化，停止发布');
-  // 同源样式在 defer 脚本前就绪；复用 CSSOM，避免脚本重复携带整份 CSS。
-  const source = original.replace(declaration, 'const drawerPreviewCss = Array.from(document.getElementById("dashboard-styles").sheet.cssRules, rule => rule.cssText).join("\\n");');
+  // file:// 无法可靠读取外部样式表的 CSSOM；快照使用构建时压缩的文本，兼容直接打开。
+  const source = original.replace(declaration, () => 'const drawerPreviewCss = ' + JSON.stringify(cssResult.code) + ';\n');
   const result = await transform(source, { loader: 'js', minify: true, keepNames: true, treeShaking: false, charset: 'utf8', target: 'es2020', legalComments: 'none' });
   if (result.warnings.length) throw new Error(result.warnings.map(item => item.text).join('\n'));
   new vm.Script(result.code, { filename: 'release-app.js' });
@@ -38,8 +36,16 @@ export async function optimizeAssets(root) {
   fs.writeFileSync(path.join(root, jsPath), result.code);
   const script = /src="assets\/app\.js(?:\?[^\"]*)?"/;
   if (!script.test(html)) throw new Error('主脚本入口已变化，停止发布');
-  html = html.replace(script, 'src="' + jsPath + '"');
-  fs.writeFileSync(entry, html);
+  // 每个部门入口复用同一份压缩CSS与JS，保持与总看板一致的资源路径。
+  for(const file of fs.readdirSync(root).filter(file=>file.endsWith('.html'))){
+    const target=path.join(root,file);
+    let page=fs.readFileSync(target,'utf8');
+    if(!script.test(page))continue;
+    page=page.replace(links[0][0],'<link id="dashboard-styles" rel="stylesheet" href="'+cssPath+'">');
+    for(const link of links.slice(1))page=page.replace(link[0],'');
+    page=page.replace(script,'src="'+jsPath+'"');
+    fs.writeFileSync(target,page);
+  }
   fs.writeFileSync(path.join(root, '_headers'), [jsPath, cssPath].map(file => '/' + file + '\n  Cache-Control: public, max-age=31536000, immutable').join('\n\n') + '\n');
   return { stylesBefore: links.length, stylesAfter: 1, jsPath, cssPath, scriptBefore: sizes(original), scriptAfter: sizes(result.code), cssBefore: sizes(css), cssAfter: sizes(cssResult.code) };
 }
