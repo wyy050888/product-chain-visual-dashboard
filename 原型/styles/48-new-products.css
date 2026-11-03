@@ -151,6 +151,7 @@
 #newtable .nsp-grade{min-width:28px}
 #new .nsp-sales-status[data-sales-status="在售"]{background:var(--green-soft);color:var(--green)}
 #new .nsp-sales-status[data-sales-status="整改"]{background:var(--orange-soft);color:var(--orange)}
+#new .nsp-sales-status[data-sales-status="迭代"]{background:#edf5ff;color:#1677ff}
 #new .nsp-sales-status[data-sales-status="滞销"]{background:#fff0f2;color:#c33d56}
 #new .nsp-sales-status[data-sales-status="缺货"]{background:var(--orange-soft);color:var(--orange)}
 #new .nsp-sales-status[data-sales-status="清仓"]{background:#edf5ff;color:#1677ff}

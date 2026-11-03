@@ -57,8 +57,8 @@ export async function verifyInventoryRefurb(page){
  await help.hover();await tip.waitFor({state:'visible'});
  assert.match(await tip.getAttribute('class'),/metric-tooltip-stock-refurb/);
  const limit=40;
- for(const text of ['≤ '+limit+'天','包含第40天完成的请购单','请购单交付完成日期','报价完结时间','按翻新交付完成日期筛选'])assert((await tip.innerText()).includes(text),text);
- assert((await tip.innerText()).includes('÷ 已完成翻新请购单数'));
+for(const text of ['≤ '+limit+'天','包含第40天完成的请购单','按先进先出分配良品','累计达到该请购单请购数量','质检日期','免检良品取审核日期','翻新完成日期 − 报价完结时间','按翻新完成日期筛选已完成请购单'])assert((await tip.innerText()).includes(text),text);
+ assert((await tip.innerText()).includes('÷ 已完成请购单数'));
  assert(!(await tip.innerText()).includes('数据截止'));assert(!(await tip.innerText()).includes('汇总方式'));
  assert(await tip.evaluate(e=>{const box=e.getBoundingClientRect();return box.left>=0&&box.right<=innerWidth&&box.top>=0&&box.bottom<=innerHeight}));
  await page.keyboard.press('Escape');

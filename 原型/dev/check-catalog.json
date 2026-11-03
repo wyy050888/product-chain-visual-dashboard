@@ -1,4 +1,7 @@
 {
+  "productGradeOptions": {"file":"./checks/product-grade-options.mjs","export":"productGradeOptions"},
+  "shopAssignmentSnapshots": {"file":"./checks/shop-assignment-snapshots.mjs","export":"shopAssignmentSnapshots"},
+  "newProductIteration": {"file":"./checks/new-products.mjs","export":"newProductIteration"},
   "detailTrendAxes": {"file":"./checks/detail-trend-axes.mjs","export":"detailTrendAxes"},
   "lifecycleTargetZeroImport": {"file":"./checks/lifecycle-target-zero-import.mjs","export":"lifecycleTargetZeroImport"},
   "diagnosisProjectDeadline": {"file":"./checks/diagnosis-listed-date.mjs","export":"diagnosisProjectDeadline"},

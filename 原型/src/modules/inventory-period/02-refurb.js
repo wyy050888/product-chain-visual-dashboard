@@ -48,16 +48,17 @@ function ipUnrefurbishedSummary(records){
 }
 function ipRefurbCard(model,unrefurbished){
  const pendingShare=unrefurbished.share;
- return `<article class="up-stock-card stock-balance-card stock-summary-card stock-refurb-card" data-stock-card="refurb"><div class="stock-card-head"><h4>翻新闭环率${ipOverviewHelp('refurb','翻新闭环率','40天内完成的翻新请购单数÷已完成翻新请购单数×100%')}</h4><span class="stock-summary-label" data-up-basic>未翻新数</span></div><div class="stock-refurb-main"><strong data-stock-refurb-rate="${model.rate??''}">${ipRefurbRateCell({name:'当前筛选合计',refurb:model,refurbRate:model.rate})}</strong><span class="stock-refurb-pending" aria-label="未翻新SKU数量及占比"><span><b data-stock-refurb-pending>${Number.isFinite(unrefurbished.pending)?fmt(unrefurbished.pending):'—'}</b><small class="stock-card-share">（${pendingShare===null?'—':fmt(pendingShare,1)+'%'}）</small></span></span></div></article>`;
+ return `<article class="up-stock-card stock-balance-card stock-summary-card stock-refurb-card" data-stock-card="refurb"><div class="stock-card-head"><h4>翻新闭环率${ipOverviewHelp('refurb','翻新闭环率','周期≤40天的已完成请购单数÷已完成请购单数×100%')}</h4><span class="stock-summary-label" data-up-basic>未翻新数</span></div><div class="stock-refurb-main"><strong data-stock-refurb-rate="${model.rate??''}">${ipRefurbRateCell({name:'当前筛选合计',refurb:model,refurbRate:model.rate})}</strong><span class="stock-refurb-pending" aria-label="未翻新SKU数量及占比"><span><b data-stock-refurb-pending>${Number.isFinite(unrefurbished.pending)?fmt(unrefurbished.pending):'—'}</b><small class="stock-card-share">（${pendingShare===null?'—':fmt(pendingShare,1)+'%'}）</small></span></span></div></article>`;
 }
 function ipRenderOverviewHelp(host){
  const append=(parent,tag,text,cls='')=>{const node=document.createElement(tag);node.textContent=text;if(cls)node.className=cls;parent.append(node);return node};
  append(host,'h4','翻新闭环率');
- append(host,'p','40天内完成的翻新请购单数 ÷ 已完成翻新请购单数 × 100%','stock-refurb-formula');
+ append(host,'p','周期≤40天的已完成请购单数 ÷ 已完成请购单数 × 100%','stock-refurb-formula');
  const list=append(host,'dl','');
  for(const [label,text] of [
-  ['翻新周期','请购单交付完成日期 − 报价完结时间'],
+  ['翻新完成日期','按先进先出分配良品，累计达到该请购单请购数量时，取对应的质检日期；免检良品取审核日期'],
+  ['翻新周期','翻新完成日期 − 报价完结时间'],
   ['达标条件','翻新周期 ≤ 40天，包含第40天完成的请购单'],
-  ['统计范围','按翻新交付完成日期筛选，同一请购单只计一次；未完成单不参与比率计算']
+  ['统计范围','按翻新完成日期筛选已完成请购单，同一请购单只计一次']
  ]){append(list,'dt',label);append(list,'dd',text)}
 }

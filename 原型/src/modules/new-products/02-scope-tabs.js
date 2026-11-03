@@ -2,7 +2,7 @@
 function nspScopeTabMarkup(options,selected,rows,key){
  return options.map(([value,label])=>{
   const active=value==='all'?!selected.length:selected.includes(value);
-  const count=value==='all'?rows.length:rows.filter(p=>key==='grade'&&value==='unrated'?!p.grade:p[key]===value).length;
+  const count=value==='all'?rows.length:rows.filter(p=>p[key]===value).length;
   return `<button type="button" class="${active?'active':''}" data-nsp-${key}="${esc(value)}" aria-pressed="${active}">${esc(label)}<span>${count}</span></button>`;
  }).join('');
 }
@@ -14,7 +14,7 @@ function nspScopeRows(){
  $('#nsp-category-tabs').innerHTML='<span class="nsp-tab-label">链群</span>'+nspScopeTabMarkup([['all','全部'],...pfCategories.map(value=>[value,value])],categories,nspVisibleRows(seasonRows),'category');
  const scopedRows=categoryRows.filter(p=>pfIncludes(nspFilters.season,p.season));
  const gradeRows=nspFilterRows(scopedRows,{...nspFilters,grade:'all'}).filter(p=>p.inNewPool);
- $('#nsp-grade-tabs').innerHTML='<span class="nsp-tab-label">产品等级</span>'+nspScopeTabMarkup([['all','全部'],...nspGrades.map(value=>[value,value]),['unrated','未分级']],pfSelected(nspFilters.grade),gradeRows,'grade');
+ $('#nsp-grade-tabs').innerHTML='<span class="nsp-tab-label">产品等级</span>'+nspScopeTabMarkup([['all','全部'],...nspGrades.map(value=>[value,value])],pfSelected(nspFilters.grade),gradeRows,'grade');
  return scopedRows;
 }
 function nspSwitchScopeTab(tab,key){

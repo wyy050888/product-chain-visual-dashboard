@@ -45,8 +45,7 @@ export async function verifySupplierMaterialTables(page,root){
      const cell=row.locator('.scp-material-component-cell').nth(i),target=item.stats.targets[material];
      if(!Number.isFinite(target)){assert.equal(await cell.innerText(),'无目标');assert.equal(await cell.locator('button').count(),0);continue}
      assert.equal((await cell.innerText()).replace(/\s/g,''),expectedCount(a,brand,id,material,range)+'/'+target,'当前组合去重新增与计划目标');
-     const jump=JSON.parse(await cell.locator('[data-scp-jump]').getAttribute('data-scp-jump'));
-     for(const pair of [['聚量合作品牌',brand],['三级类目',item.category.path],['物料分类',material],['供应商状态','全部'],['准入日期',range.start+' — '+range.cutoff]])assert(jump.filters.some(value=>value[0]===pair[0]&&value[1]===pair[1]));
+     assert.equal(await cell.locator('button,[data-scp-jump],[data-jump-toast]').count(),0,'导入供应商数量只读，无跳转提示');
     }
    }
    if(!expected.length)assert.match(await table.innerText(),/暂无核心物料供应商/);
@@ -64,7 +63,7 @@ export async function verifySupplierMaterialTables(page,root){
  };
  await check('清洁类');
  const period=root.locator('[data-scp-period="material"]');assert.equal(await period.locator('[data-scp-mode],[data-scp-quarter]').count(),0);await period.locator('[data-scp-year]').selectOption('2025');await checkSummary();await check('个护类');await period.locator('[data-scp-year]').selectOption('2026');
- console.log('通过：首页类目/品牌/六物料去重数量且无目标、查看定位Tab、三级类目合并/搜索、六核心件统计/年度目标、排序/跳转及宽窄屏。');
+ console.log('通过：首页类目/品牌/六物料去重数量且无目标、查看定位Tab、三级类目合并/搜索、六核心件统计/年度目标、排序/只读数量及宽窄屏。');
 }
 export async function supplierMaterialRows(page){await page.evaluate(()=>location.hash='#suppliers');await verifySupplierMaterialTables(page,page.locator('#suppliers'))}
 

@@ -17,7 +17,8 @@ export async function supplierMaterialDrawer(page){
   const id=await row.getAttribute('data-scp-category-row'),category=coverage.categories.find(c=>c.categoryId===id);
   assert.equal(await row.locator('.scp-material-brand-cell').innerText(),'美海');assert.equal((await row.locator('[data-scp-detail-material="电池"]').innerText()).replace(/\s/g,''),category.count+'/'+category.minimum);
  }
- const jump=JSON.parse(await table.locator('[data-scp-jump]').first().getAttribute('data-scp-jump'));assert(jump.filters.some(([k,v])=>k==='聚量合作品牌'&&v==='美海'));assert(jump.filters.some(([k,v])=>k==='物料分类'&&v==='电池'));assert(jump.filters.some(([k,v])=>k==='准入日期'&&v===coverage.range.start+' — '+coverage.range.cutoff));
+ assert.equal(await drawer.locator('[data-scp-jump],[data-jump-toast]').count(),0,'导入供应商数量只读，不提供跳转');
+ assert.equal(await table.locator('.scp-material-component-cell button').count(),0,'实际/目标使用普通文本');
  await pager.getByRole('button',{name:'第2页',exact:true}).click();assert.equal(await pager.getAttribute('data-list-current'),'2');
  await choice('品牌','康创');assert.equal(await total(),coverage.categories.length*2);assert.equal(await pager.getAttribute('data-list-current'),'1');
  await choice('核心部件','all');await closeMenus();assert.equal(await table.locator('thead th').count(),8);
@@ -30,5 +31,5 @@ export async function supplierMaterialDrawer(page){
  await page.locator('#close').click();await page.setViewportSize({width:1920,height:1080});await page.locator('[data-scp-material-view="清洁类"]').click();
  assert.equal(await page.locator('#dialogtitle').innerText(),'核心物料供应商准入储备');assert.equal(await drawer.locator('[role=tab][aria-selected=true]').innerText(),'清洁类');assert.deepEqual(await selected(brand),['all']);assert.deepEqual(await selected(component),['all']);assert.equal(await table.locator('thead th').count(),8);
  await drawer.locator('[data-scp-category-tab="all"]').click();assert.equal(await total(),facts.categories.length*3);assert.equal(await page.evaluate(()=>JSON.stringify(supplierPlanningAudit().materialPeriod)),original);
- console.log('通过：双入口同抽屉与标题、入口筛选、部件动态列、数量/跳转一致、组合筛选/分页/排序及宽窄屏。');
+ console.log('通过：双入口同抽屉与标题、入口筛选、部件动态列、只读数量无跳转、组合筛选/分页/排序及宽窄屏。');
 }

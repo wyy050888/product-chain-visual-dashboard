@@ -9,7 +9,7 @@ function kpmManagementInsight(product,tab,context){
  }else{
   decision=({core:'评估支柱修复',tail:'核实挽救价值','new-core':'巩固利润支柱'}[context?.group?.key]||decision);
   const total=context?.totalGsv||context?.all?.reduce((n,p)=>n+p.facts.gsvCents,0)||0;
-  contextText=(product.level?product.level+'级':'未分级')+' · GSV '+upMoney(product.facts.gsvCents)+'（'+upPercent(total?product.facts.gsvCents/total*100:null)+'） · 利润率'+upPercent(product.facts.profitRate);
+  contextText=(product.level?product.level+'级':'—')+' · GSV '+upMoney(product.facts.gsvCents)+'（'+upPercent(total?product.facts.gsvCents/total*100:null)+'） · 利润率'+upPercent(product.facts.profitRate);
  }
  if(product.facts.profitRate<0)decision='控制新增投入';
  return {...item,view:tab,contextText,advice:{...item.advice,decision}};

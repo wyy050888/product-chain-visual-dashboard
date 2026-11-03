@@ -4,4 +4,4 @@ function upGradeTrendPeriod(state){
  const year=Number(state.end.slice(0,4)),month=Number(state.end.slice(5,7));
  return normalizePeriod({mode,year,value:mode==='month'?month:mode==='quarter'?Math.ceil(month/3):1});
 }
-function upProductGradeBadge(level){return `<span class="up-product-grade ${level||'unrated'}" data-up-product-grade aria-label="产品分级 ${level||'未分级'}">${level||'未分级'}</span>`}
+function upProductGradeBadge(level){return `<span class="up-product-grade ${level||'unrated'}" data-up-product-grade aria-label="产品分级 ${level||'—'}">${level||'—'}</span>`}

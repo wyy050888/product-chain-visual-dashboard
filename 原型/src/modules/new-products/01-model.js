@@ -9,7 +9,7 @@ const nspSortValues={launch:p=>Date.parse(p.actualLaunch),days:p=>p.days,gsv:p=>
 function nspGrade(facts,mode='quarter'){
  return facts.sales>0&&Number.isFinite(facts.gsvCents)?brcProductGrade(facts.gsvCents/1000000,facts.profitRate,mode):null;
 }
-// 自动销售状态复用详情库存风险；整改、清仓、下架保留人工业务状态。
+// 自动销售状态复用详情库存风险；整改、迭代、清仓、下架保留人工业务状态。
 function nspSalesState(state,stock){
  if(!['在售','滞销','缺货'].includes(state))return state;
  const tags=upStockRiskTags(stock);

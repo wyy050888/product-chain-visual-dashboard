@@ -2,9 +2,9 @@ const kpmChartPoints=new Map();
 let kpmChartContext={};
 const kpmChartColors={S:'#009a29',A:'var(--orange)',B:'#7c8eec',C:'#e98191',unrated:'#98a5b6'};
 function kpmChartLegend(){
- return Object.entries(kpmGrades).map(([g,name])=>'<span class="'+g+'"><i></i><i style="opacity:.28"></i>'+g+'级'+'</span>').join('')+'<span class="unrated"><i></i>未分级</span>';
+ return Object.entries(kpmGrades).map(([g,name])=>'<span class="'+g+'"><i></i><i style="opacity:.28"></i>'+g+'级'+'</span>').join('');
 }
-// 图点和分区使用同周期、同规则；可定位的未分级产品保留灰点。
+// 图点和分区使用同周期、同规则；缺失等级数据的可定位产品保留灰点。
 function kpmChartRow(p){
  const facts=p.assessment.current;
  return {...p,facts,sales:facts.gsvCents/1000000,profit:facts.profitRate};
@@ -39,7 +39,7 @@ function kpmChart(rows,scaleRows){
   return [grade,a,b,x(Math.min(maxX,sales.hi))-a,y(Math.max(minY,profit.lo))-b];
  }).filter(([,a,b,w,h])=>w>0&&h>0);
  const xTicks=[...new Set([minX,0,...salesTicks,maxX])].sort((a,b)=>a-b),yTicks=[...new Set([minY,0,...profitTicks,maxY])].sort((a,b)=>a-b);
- return `<svg viewBox="0 0 760 490" role="group" aria-label="SABC产品经营矩阵，灰色为未分级" data-x-min="${minX}" data-x-max="${maxX}" data-y-min="${minY}" data-y-max="${maxY}">
+ return `<svg viewBox="0 0 760 490" role="group" aria-label="SABC产品经营矩阵" data-x-min="${minX}" data-x-max="${maxX}" data-y-min="${minY}" data-y-max="${maxY}">
   <text x="${left}" y="20" class="kpm-axis-title kpm-axis-profit">利润率（%）</text>
   <rect data-kpm-unmatched-area x="${left}" y="${top}" width="${right-left}" height="${bottom-top}" rx="6" fill="#f1f4f8" stroke="#e3e9f1"/>
   ${zones.map(([g,a,b,w,h])=>`<rect data-quadrant="${g}" aria-label="${g}级产品" x="${a}" y="${b}" width="${w}" height="${h}" fill="${fills[g]}" stroke="${kpmChartColors[g]}" stroke-opacity=".2"/>`).join('')}
@@ -51,7 +51,7 @@ function kpmChart(rows,scaleRows){
   ${zones.map(([g,a,b,w,h])=>h>=20?`<text data-kpm-zone-label="${g}" aria-label="${g}级" x="${w<32?a+w/2:a+8}" y="${b+22}" text-anchor="${w<32?'middle':'start'}" class="kpm-zone-label" style="fill:${kpmChartColors[g]}">${w<32?`<tspan>${g}</tspan><tspan x="${a+w/2}" dy="17">级</tspan>`:g+'级'}</text>`:'').join('')}
   ${xTicks.map(v=>`<text${v===0?' data-kpm-zero-tick="gsv"':''} x="${x(v)}" y="${bottom+22}" text-anchor="middle">${fmt(v)}</text>`).join('')}
   ${yTicks.map(v=>`<text${v===0?' data-kpm-zero-tick="profit"':''}${profitTicks.includes(v)&&v!==0?' data-kpm-profit-tick="'+v+'" style="fill:#526985;font-weight:600"':''} x="${left-10}" y="${y(v)+4}" text-anchor="end">${fmt(v,1)}%</text>`).join('')}
-  ${[...points].sort((a,b)=>b.sales-a.sales).map(p=>{const tier=kpmBubbleTier(p.facts.gsvCents),operating=!!p.level&&brcProductOperatingMatch(p.level,p.profit),tone=!p.level?'unrated':operating?'matched':'unmatched';return `<circle data-kpm-point="${p.spuId}" data-kpm-bubble-tier="${tier}" data-kpm-point-tone="${tone}" data-kpm-grade-point="${p.level||'unrated'}" data-kpm-detail="${p.spuId}" tabindex="0" role="button" aria-label="查看${esc(p.name)}，${p.level?p.level+'级，'+(operating?'命中经营标签':'未命中经营标签'):'未分级'}，GSV ${fmt(p.sales,1)}w" cx="${x(p.sales)}" cy="${y(p.profit)}" r="${kpmBubbleRadius(tier)}" fill="${kpmChartColors[p.level||'unrated']}" fill-opacity="${tone==='unmatched'?'.28':'.95'}" stroke="${tone==='unmatched'?kpmChartColors[p.level]:'#fff'}" stroke-width="1.5"></circle>`}).join('')}
+  ${[...points].sort((a,b)=>b.sales-a.sales).map(p=>{const tier=kpmBubbleTier(p.facts.gsvCents),operating=!!p.level&&brcProductOperatingMatch(p.level,p.profit),tone=!p.level?'unrated':operating?'matched':'unmatched';return `<circle data-kpm-point="${p.spuId}" data-kpm-bubble-tier="${tier}" data-kpm-point-tone="${tone}" data-kpm-grade-point="${p.level||'unrated'}" data-kpm-detail="${p.spuId}" tabindex="0" role="button" aria-label="查看${esc(p.name)}，${p.level?p.level+'级，'+(operating?'命中经营标签':'未命中经营标签'):'—'}，GSV ${fmt(p.sales,1)}w" cx="${x(p.sales)}" cy="${y(p.profit)}" r="${kpmBubbleRadius(tier)}" fill="${kpmChartColors[p.level||'unrated']}" fill-opacity="${tone==='unmatched'?'.28':'.95'}" stroke="${tone==='unmatched'?kpmChartColors[p.level]:'#fff'}" stroke-width="1.5"></circle>`}).join('')}
   <text x="${right}" y="482" text-anchor="end" class="kpm-axis-title kpm-axis-gsv">GSV（w）</text>
  </svg>${points.length?'':'<div class="kpm-chart-empty">当前筛选下暂无可绘制产品</div>'}`;
 }

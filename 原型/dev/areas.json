@@ -1,4 +1,7 @@
 {
+  "productGradeOptions": {"label":"产品等级仅保留SABC","sources":["src/modules/new-products/02-scope-tabs.js","src/modules/new-products/02-view.js","src/modules/key-products/02-chart.js","src/modules/key-products/03-view.js","src/modules/key-products/05-tooltip.js","src/modules/key-products/07-grade-model.js","src/modules/key-products/08-grade-view.js","src/modules/key-products/23-improvement-model.js","src/modules/unified-product/05-grade-trend-period.js"],"checks":["productGradeOptions"]},
+  "shopAssignmentSnapshots": {"label":"一类店铺最新分配与分配记录","sources":["数智罗盘/shop-config-src/goal-snapshots.js","数智罗盘/shop-config-src/goal-attribution.js","数智罗盘/shop-config-src/goal-records.js","数智罗盘/shop-config-src/records.js","数智罗盘/shop-config-src/build.py"],"styles":["数智罗盘/shop-config-src/shop-settings.css"],"checks":["shopAssignmentSnapshots","shopConfig"]},
+  "newProductIteration": {"label":"新品迭代销售状态样例","sources":["src/modules/new-products/00-samples.js","src/modules/new-products/01-model.js"],"styles":["styles/48-new-products.css"],"checks":["newProductIteration"]},
   "profitRateComparisons": {"label":"利润率百分点环比与详情达成配色","sources":["src/modules/risk-presentation/01-quality.js","src/modules/risk-presentation/01-loss.js","src/modules/risk-presentation/01-return.js","src/modules/risk-presentation/01-stock.js","src/modules/new-products/01-model.js","src/modules/unified-product/05-operating-view.js"],"styles":["styles/33-unified-product.css"],"checks":["profitRateComparisons","lossPreview","productReturnComparisons"]},
   "refurbDelayRemoval": {
     "label": "删除翻新延期判灯",

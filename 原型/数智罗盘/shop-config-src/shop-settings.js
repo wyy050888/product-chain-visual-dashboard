@@ -30,7 +30,7 @@ const ShopSettings=(()=>{
   }
   const query=$('#shop-search').value.trim().toLowerCase(),brand=$('#brand-filter').value,region=$('#region-filter').value,strategy=$('#owner-filter').value.trim(),promotion=$('#promotion-filter').value.trim();
   const rows=all.filter(shop=>matches(shop,root)&&(!query||[shop.name,shop.id].some(s=>s.toLowerCase().includes(query)))&&(!brand||shop.attribution.brand.includes(brand))&&(!region||shop.attribution.region.includes(region))&&(!strategy||shop.attribution.strategy.some(s=>s.includes(strategy)))&&(!promotion||shop.attribution.promotion.some(s=>s.includes(promotion))));
-  const field=(shop,key)=>`<td class="ss-readonly" title="${esc(source.period+'目标：'+(shop.attribution[key].join('、')||'未配置'))}">${shop.attribution[key].map(esc).join('<br>')||'<span class="ss-empty">未配置</span>'}</td>`;
+  const field=(shop,key)=>`<td class="ss-readonly" title="${esc(source.period+'：'+(shop.attribution[key].join('、')||'未配置'))}">${shop.attribution[key].map(esc).join('<br>')||'<span class="ss-empty">未配置</span>'}</td>`;
   $('.shop-table thead').innerHTML='<tr><th>店铺名称</th><th>品牌</th><th>运营大区</th><th>店铺策略</th><th>店铺推广</th><th>店铺分类</th><th>是否考核店铺</th></tr>';
   $('#shop-rows').innerHTML=pagination.slice(rows).map(shop=>`<tr data-shop="${esc(shop.id)}"><td><div class="shop-name">${esc(shop.name)}</div><div class="shop-id">ID：${esc(shop.id)}</div></td>${['brand','region','strategy','promotion'].map(key=>field(shop,key)).join('')}${cells(shop)}</tr>`).join('')||'<tr><td colspan="7" class="empty">没有匹配的店铺</td></tr>';
   if(source.error)notice(source.error,'error');

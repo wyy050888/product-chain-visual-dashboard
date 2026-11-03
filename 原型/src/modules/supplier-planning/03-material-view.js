@@ -2,10 +2,11 @@
 function scpMaterialFlatRows(range){
  return scpCategories.flatMap(category=>scpBrands.map(([brand])=>({brand,category,stats:scpMaterialStats(brand,category.id,range)})));
 }
-function scpMaterialCells(scope,stats,range,materials=scpMaterials){
+function scpMaterialCells(stats,range,materials=scpMaterials){
  return materials.map(material=>{
   const target=stats.targets[material];if(!Number.isFinite(target))return '<td class="scp-material-component-cell"><span class="muted">无目标</span></td>';
-  const actual=scpCount({...scope,material},'newAdmitted',stats[material],range,{threshold:target,tag:false,unit:false});
+  const color=range.future?'':stats[material]<target?'red':'green';
+  const actual=`<span class="scp-count ${color}">${range.future?'—':scpValue(stats[material])}</span>`;
   return `<td class="scp-material-component-cell" data-scp-detail-material="${esc(material)}"><span class="scp-admission-pair">${actual}<span class="scp-admission-divider">/</span><span class="scp-admission-target">${scpValue(target)}</span></span></td>`;
  }).join('');
 }

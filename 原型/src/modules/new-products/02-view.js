@@ -115,17 +115,17 @@ function nspSuccessKpi(summary){
  return '<div class="newmetric nsp-success-kpi" data-nsp-metric="sold"><span class="nsp-success-heading"><span class="nsp-kpi-title">'+summary.label+'新品销售成功率'+nspKpiHelp('新品销售成功率',rule,summary.annual)+'</span><button type="button" class="nsp-assessment-entry" data-nsp-assessment-entry>查看'+(summary.annual?'年度':'季度')+'考核</button></span><div class="nsp-success-value"><strong class="num">'+(summary.rate===null?'—':fmt(summary.rate,1)+'<span class="unit">%</span>')+'</strong><span class="nsp-success-target">目标 ≥'+summary.target+'%</span></div><small><button type="button" data-nsp-assessment="success">成功 <b>'+summary.success+'个</b></button> / <button type="button" data-nsp-assessment="all">纳入统计 <b>'+summary.total+'个</b></button></small></div>';
 }
 function nspDonut(rows){
- const colors=['#8275fa','#5fb6d4','#fa803b','#ed8499','#98a3b3'];let start=0;
- const grades=[...nspGrades,'unrated'],counts=grades.map(g=>rows.filter(p=>g==='unrated'?!p.grade:p.grade===g).length);
+ const colors=['#8275fa','#5fb6d4','#fa803b','#ed8499'];let start=0;
+ const grades=nspGrades,counts=grades.map(g=>rows.filter(p=>p.grade===g).length);
  const point=angle=>{const rad=(angle-90)*Math.PI/180;return `${76+66.5*Math.cos(rad)},${76+66.5*Math.sin(rad)}`};
  const arcs=counts.map((n,i)=>{
   if(!n)return '';
   const end=start+n/rows.length*360,mid=(start+end)/2;
   // 两段圆弧同时覆盖单等级占100%的情况，实际弧线就是点击区域。
   const path=`M ${point(start)} A 66.5 66.5 0 0 1 ${point(mid)} A 66.5 66.5 0 0 1 ${point(end)}`;start=end;
-  return `<path d="${path}" stroke="${colors[i]}" data-nsp-grade="${grades[i]}" tabindex="0" role="button" aria-label="筛选${grades[i]==='unrated'?'未分级':grades[i]+'级'}，共${n}个" aria-pressed="false"/>`;
+  return `<path d="${path}" stroke="${colors[i]}" data-nsp-grade="${grades[i]}" tabindex="0" role="button" aria-label="筛选${grades[i]+'级'}，共${n}个" aria-pressed="false"/>`;
  }).join('');
- return `<div class="nsp-distribution"><h3>新品等级分布</h3><div class="dp-donut"><div class="dp-ring" role="group" aria-label="共${rows.length}个新品"><svg viewBox="0 0 152 152" class="nsp-grade-chart"><circle cx="76" cy="76" r="66.5" stroke="#edf0f6"/>${arcs}</svg><b>${rows.length}<small> 个</small></b></div><div class="dp-legend">${grades.map((g,i)=>`<button type="button" data-nsp-grade="${g}" aria-pressed="false" aria-label="筛选${g==='unrated'?'未分级':g+'级'}，共${counts[i]}个"><i style="background:${colors[i]}"></i><span>${g==='unrated'?'未分级':g+'级'}</span><b>${counts[i]}个</b><em>${rows.length?fmt(counts[i]/rows.length*100,1):'0.0'}%</em></button>`).join('')}</div></div></div>`;
+ return `<div class="nsp-distribution"><h3>新品等级分布</h3><div class="dp-donut"><div class="dp-ring" role="group" aria-label="共${rows.length}个新品"><svg viewBox="0 0 152 152" class="nsp-grade-chart"><circle cx="76" cy="76" r="66.5" stroke="#edf0f6"/>${arcs}</svg><b>${rows.length}<small> 个</small></b></div><div class="dp-legend">${grades.map((g,i)=>`<button type="button" data-nsp-grade="${g}" aria-pressed="false" aria-label="筛选${g+'级'}，共${counts[i]}个"><i style="background:${colors[i]}"></i><span>${g+'级'}</span><b>${counts[i]}个</b><em>${rows.length?fmt(counts[i]/rows.length*100,1):'0.0'}%</em></button>`).join('')}</div></div></div>`;
 }
 function nspSyncGradeSelection(){
  for(const item of $$('#newtop [data-nsp-grade]')){
@@ -155,7 +155,7 @@ function nspTable(rows){
   const metrics=nspMetrics(p);
   const successful=nspDisplaySuccess(p);
   return [
-  titleProduct(p,{showBrand:false,gradeMarkup:`<span class="tag nsp-grade" data-grade="${p.grade||'unrated'}">${p.grade||'未分级'}</span>`}),
+  titleProduct(p,{showBrand:false,gradeMarkup:`<span class="tag nsp-grade" data-grade="${p.grade||'unrated'}">${p.grade||'—'}</span>`}),
   rpListCell({value:Number.isFinite(p.guidePriceCents)?fmt(p.guidePriceCents/100,2)+'元':'—',tone:''}),...metrics.slice(0,3),
   nspAssessmentBadge(successful,true,nspFirstQuarterSuccess(p,bounds().cutoff)?.approval),...(periodFor('new').mode==='year'?[nspAssessmentBadge(p.salesSuccess,p.successAssessment.included,p.successAssessment.approval)]:[]),...metrics.slice(3),
   rpListCell({value:stockQuantity(p.sellableStock.warehouse),tone:'',target:'货值 '+(Number.isFinite(p.sellableStock.warehouseValueCents)?upMoney(p.sellableStock.warehouseValueCents):'—')}),

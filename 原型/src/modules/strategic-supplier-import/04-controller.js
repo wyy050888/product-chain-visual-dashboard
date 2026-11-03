@@ -9,7 +9,6 @@ $('#ssi-page').addEventListener('click',event=>{
  if(button.id==='ssi-export')ssiExport();
  if(button.id==='ssi-history')uiImportHistory(ssiTierLabels[ssiState.tier]);
  if(button.id==='ssi-reset'){Object.assign(ssiViewState(),{year:ssiCurrentYear(),query:'',status:'all',category:'all',material:'all',brand:'all',page:1});ssiRenderPage()}
- if(button.id==='ssi-back')smNavigate('#suppliers');
 });
 $('#suppliergrid').addEventListener('click',event=>{const button=event.target.closest('[data-scp-import-strategic]');if(button){ssiState.tier=button.dataset.scpImportStrategic||'primary';smNavigate(ssiRoute)}});
 window.addEventListener('storage',event=>{if(event.key!==SSI_STORAGE&&event.key!==null)return;ssiStore=ssiLoad();ssiApply();scpRepaint();if(smActiveRoute===ssiRoute)ssiRenderPage()});

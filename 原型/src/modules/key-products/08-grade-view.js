@@ -1,11 +1,11 @@
 function kpmFormatGradeRange(fact){return fact.start.replaceAll('-','/')+' — '+fact.end.replaceAll('-','/')}
 function kpmChangeText(assessment){
  const {current,previous}=assessment;
- return (previous.level||'未分级')+' → '+(current.level||'未分级');
+ return (previous.level||'—')+' → '+(current.level||'—');
 }
 function kpmChangeMarkup(p){
  const {current,previous}=p.assessment;
- const badge=level=>`<span class="kpm-change-grade ${level||'unrated'}">${level||'未分级'}</span>`;
+ const badge=level=>`<span class="kpm-change-grade ${level||'unrated'}">${level||'—'}</span>`;
  return `<span class="kpm-change ${p.assessment.change}" data-kpm-grade-change="${p.spuId}">${badge(previous.level)}<span class="kpm-change-arrow" aria-hidden="true">→</span>${badge(current.level)}</span>`;
 }
 // 升降由上方卡片切换；仅为其他经营异动显示可清除的条件。

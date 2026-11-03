@@ -880,7 +880,12 @@ to {
 #shop-assignment .platform-tabs{gap:24px;flex-wrap:wrap}#shop-assignment .platform-tabs button{white-space:nowrap}
 #shop-assignment .filters{grid-template-columns:repeat(3,minmax(0,1fr))}#shop-assignment .ss-promotion-filter{display:none}
 #shop-assignment.ss-readonly-platform .ss-promotion-filter{display:flex}
-#shop-assignment.ss-readonly-platform #records-open{display:none}#shop-assignment .toolbar #shop-filter-reset{margin-left:auto}
+#shop-assignment .toolbar #shop-filter-reset{margin-left:auto}
+#shop-assignment .goal-record-snapshot{padding:4px 0;line-height:1.8}
+#shop-assignment .goal-record-snapshot+.goal-record-snapshot{border-top:1px solid #edf0f5;margin-top:6px;padding-top:8px}
+#shop-assignment .goal-record-snapshot>div{display:flex;gap:10px}
+#shop-assignment .goal-record-snapshot span{flex:0 0 56px;color:#8795aa}
+#shop-assignment .goal-record-snapshot strong{font-weight:400;overflow-wrap:anywhere}
 #shop-assignment .shop-table{min-width:1120px}#shop-assignment .shop-table th,#shop-assignment .shop-table td{white-space:normal;line-height:1.8}
 #shop-assignment .shop-table td:first-child{min-width:230px}#shop-assignment .shop-table td select[data-shop-category]{width:132px;min-height:32px;padding:4px 8px;font-size:12px}
 #shop-assignment .ss-switch{width:34px;height:19px;padding:2px;border:0;border-radius:12px;background:#bfc9d9;vertical-align:middle;position:relative}
@@ -922,13 +927,29 @@ to {
 const filterCatalog=(()=>{
  const platformNames=Object.freeze({douyin:'抖音',kuaishou:'快手',wechat:'视频号',tmall:'天猫',jd:'京东',pdd:'拼多多'});
  const platforms=Object.freeze(Object.values(platformNames));
+ const chainAliases=Object.freeze({环境:'环境',环境类:'环境',环境链:'环境',清洁:'清洁',清洁类:'清洁',清洁链:'清洁',厨电:'厨电',厨电类:'厨电',厨房类:'厨电',厨房链:'厨电','个护&健康':'个护&健康','个护 & 健康链':'个护&健康',个护类:'个护&健康',健康类:'个护&健康'});
+ const departmentAliases=Object.freeze({产品部:'产品中心',品质部:'品质中心',研发部:'研发中心'});
  return Object.freeze({
   platformNames,platforms,
+  // 项目风险与共用待办共享范围；降本等模块保留各自业务范围。
+  primaryDepartments:Object.freeze(['产品中心','项目部','品质中心','研发中心','采购部']),
+  normalizeDepartment(value){
+   const name=String(value??'').trim();
+   return Object.hasOwn(departmentAliases,name)?departmentAliases[name]:name;
+  },
+  // 展示枚举按业务顺序；数字索引保留历史身份，避免重排后串到其他链群。
+  chains:Object.freeze(['环境','清洁','厨电','个护&健康']),
+  chainByIndex:Object.freeze(['清洁','厨电','环境','个护&健康']),
+  normalizeChain(value){
+   const text=String(value??'').trim();
+   return Object.hasOwn(chainAliases,text)?chainAliases[text]:null;
+  },
   dashboardBrands:Object.freeze(['苏泊尔','美的','创维','海尔','康佳']),
   // 保留旧调用名，销售渠道字段和其他平台筛选共用六项枚举。
   salesChannels:platforms,
   platformColors:Object.freeze({抖音:'#fa803b',快手:'#009a29',视频号:'#cf73ad',天猫:'#7167ed',京东:'#35a9d4',拼多多:'#e77369'}),
   seasons:Object.freeze(['夏季品','冬季品','四季品']),
+  developmentTypes:Object.freeze(['自研','自选']),
   productTypes:Object.freeze([{value:'new',label:'新品'},{value:'old',label:'老品'},{value:'clearance',label:'清仓品'}].map(Object.freeze)),
   supplierCoreBrands:Object.freeze([['美海'],['康创'],['苏泊尔']].map(Object.freeze)),
   supplierBrandMembers:Object.freeze({美海:Object.freeze(['美的','海尔']),康创:Object.freeze(['康佳','创维']),苏泊尔:Object.freeze(['苏泊尔'])}),
@@ -1053,36 +1074,119 @@ const shopGoalSeed={"shops":[{"region":"品牌一区","brand":"苏泊尔","chann
 // 复用看板明确提供的十家店铺身份与分类，不按名称合并店铺。
 const dashboardShopSeed=[{"id":9,"shopId":"168078662","channel":"抖音","name":"康佳环境电器旗舰店","brand":"康佳","shopCategory":"旗舰店","assessed":true},{"id":4,"shopId":"306131028","channel":"抖音","name":"康佳清洁电器旗舰店","brand":"康佳","shopCategory":"旗舰店","assessed":false},{"id":0,"shopId":"446362993","channel":"抖音","name":"苏泊尔洗地机旗舰店","brand":"苏泊尔","shopCategory":"旗舰店","assessed":true},{"id":7,"shopId":"458406255","channel":"抖音","name":"海尔岑甫专卖店","brand":"海尔","shopCategory":"专卖店","assessed":false},{"id":3,"shopId":"13416477","channel":"快手","name":"康佳生活电器旗舰店","brand":"康佳","shopCategory":"旗舰店","assessed":true},{"id":5,"shopId":"343637711","channel":"视频号","name":"苏泊尔生活电器旗舰店","brand":"苏泊尔","shopCategory":"旗舰店","assessed":true},{"id":2,"shopId":"16454322","channel":"天猫","name":"苏泊尔全屋清洁旗舰店","brand":"苏泊尔","shopCategory":"旗舰店","assessed":true},{"id":8,"shopId":"539676117","channel":"天猫","name":"KONKA康佳墨磊专卖店","brand":"康佳","shopCategory":"专卖店","assessed":true},{"id":1,"shopId":"1000508586","channel":"京东","name":"苏泊尔（SUPOR）京东自营旗舰店","brand":"苏泊尔","shopCategory":"自营店","assessed":false},{"id":6,"shopId":"154894317","channel":"拼多多","name":"KONKA康佳健康电器旗舰店","brand":"康佳","shopCategory":"旗舰店","assessed":true}];
 
-// 与随附目标管理共用目标存储；产品和链接全部历史归属分别去重汇总，保留多人多品牌。
-const ShopAttribution=(()=>{
- const key='goal-prototype-targets-v1',fields=['brand','region','strategy','promotion'];
- const channel=new BroadcastChannel('compass-shop-targets');let listeners=new Set();
- const unique=values=>[...new Set(values.filter(Boolean).map(String))];
- function read(date){
-  let saved={};try{saved=JSON.parse(localStorage.getItem(key)||'null')||{}}catch(_){return {error:'目标数据读取失败，请刷新后重试',rows:new Map()}}
-  const rows=new Map();
-  for(const kind of ['product','link']){
-   const records={...shopGoalSeed[kind],...(saved[kind]||{})};
-   for(const value of Object.values(records)){
-    if(!value)continue;
-    const master=shopGoalSeed.shops.find(shop=>shop.shopId===value.shopId);if(!master)continue;
-    const identity=master.channel+'|'+master.shopId;
-    const row=rows.get(identity)||Object.fromEntries(fields.map(field=>[field,[]]));
-    for(const field of fields){const id=value[field+'Id'],person=['strategy','promotion'].includes(field)?shopGoalSeed.people.find(p=>p.id===id||p.id===value[field]):null;row[field].push(person?.name||value[field]||'')}
-    rows.set(identity,row);
-   }
+// 从目标管理的已保存操作快照投影分配记录；不另写一份历史，避免漏记和重复同步。
+const GoalAssignmentSnapshots = (() => {
+  const fields = ['brand', 'region', 'strategy', 'promotion'];
+  const channels = new Set(['天猫', '京东', '拼多多']);
+  const masters = new Map(shopGoalSeed.shops.map(shop => [shop.shopId, shop]));
+  const identity = row => {
+    const channel = masters.get(row.shopId)?.channel || row.channel;
+    return channels.has(channel) ? `${channel}|${row.shopId}` : null;
+  };
+  const period = row => Number(row.year) * 12 + Number(row.monthNumber);
+  const name = (row, field) => ['strategy', 'promotion'].includes(field)
+    ? shopGoalSeed.people.find(person => person.id === (row[field + 'Id'] || row[field]))?.name || row[field] || ''
+    : row[field] || '';
+  function snapshot(rows) {
+    const unique = new Map();
+    rows.forEach(row => {
+      const value = Object.fromEntries(fields.map(field => [field, name(row, field)]));
+      if (fields.some(field => value[field])) unique.set(JSON.stringify(value), value);
+    });
+    return [...unique.values()].sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)));
   }
-  for(const row of rows.values())for(const field of fields)row[field]=unique(row[field]);
-  return {rows,period:'全部历史',revision:saved.revision||0};
- }
- function notify(){for(const fn of listeners)fn()}
- channel.onmessage=event=>{
-  if(event.data?.type!=='targets'||!event.data.state?.product||!event.data.state?.link)return;
-  try{const current=JSON.parse(localStorage.getItem(key)||'null');if((event.data.state?.revision||0)>=(current?.revision||0)){localStorage.setItem(key,JSON.stringify(event.data.state));notify()}}catch(_){notify()}
- };
- channel.postMessage({type:'request'});
- window.addEventListener('storage',e=>{if(e.key===key)notify()});window.addEventListener('focus',notify);
- return {read,subscribe(fn){listeners.add(fn)}};
+  function latest(rows) {
+    const newest = Math.max(...rows.map(period));
+    return snapshot(rows.filter(row => period(row) === newest));
+  }
+  function groupShops(rows) {
+    const groups = new Map();
+    rows.filter(Boolean).forEach(row => {
+      const id = identity(row);
+      if (id) { if (!groups.has(id)) groups.set(id, []); groups.get(id).push(row); }
+    });
+    return groups;
+  }
+  // 删除销售目标不等于重新分配负责人；只有新增/修改负责关系才产生分配快照。
+  const changed = detail => !!detail.after && (detail.type === 'added' ||
+    (detail.fields || []).some(field => ['shopId', 'channel', ...fields].includes(field)));
+  function project(state) {
+    const seedRows = ['product', 'link'].flatMap(kind => Object.values(shopGoalSeed[kind]));
+    const current = new Map(), records = [];
+    for (const [id, rows] of groupShops(seedRows)) current.set(id, latest(rows));
+    // 操作数组是提交顺序；不按目标月份或客户端时间重排“最新”分配。
+    const operationShops = new Set();
+    for (const [order, operation] of (state.operations || []).entries()) {
+      if (operation.status && operation.status !== 'success') continue;
+      const allDetails = (operation.groups || []).flatMap(group => group.details || []);
+      groupShops(allDetails.flatMap(detail => [detail.before, detail.after])).forEach((_, id) => operationShops.add(id));
+      const details = allDetails.filter(changed);
+      const affected = groupShops(details.map(detail => detail.after));
+      for (const [id, rows] of affected) {
+        const newest = Math.max(...rows.map(period));
+        const after = details.flatMap(detail => detail.after && identity(detail.after) === id && period(detail.after) === newest ? [detail.after] : []);
+        const next = snapshot(after), before = current.get(id) || [];
+        if (JSON.stringify(before) === JSON.stringify(next)) continue;
+        records.push({ id: `${operation.id || order}|${id}`, identity: id, before, after: next,
+          changedAt: operation.timestamp || null, changedBy: operation.actor || '', order,
+          action: before.length ? 'update' : 'create', source: '目标管理' });
+        current.set(id, next);
+      }
+    }
+    // 兼容没有操作历史的旧本地目标：只展示最近更新批次，不捏造调整前数据。
+    const legacyRows = ['product', 'link'].flatMap(kind => Object.values(state[kind] || {}));
+    for (const [id, rows] of groupShops(legacyRows)) {
+      if (operationShops.has(id)) continue;
+      const stamp = row => row.updated?.time || row.created?.time || '';
+      const newest = rows.map(stamp).sort().at(-1);
+      const batch = newest ? rows.filter(row => stamp(row) === newest) : rows;
+      const next = latest(batch);
+      current.set(id, next);
+      if (JSON.stringify(next) !== JSON.stringify(latest(groupShops(seedRows).get(id) || []))) {
+        records.push({ id: `legacy|${id}`, identity: id, before: [], after: next,
+          changedAt: newest ? new Date(newest.replaceAll('/', '-').replace(' ', 'T') + '+08:00').toISOString() : null,
+          changedBy: batch[0].updated?.name || batch[0].created?.name || '', order: -0.5,
+          action: 'legacy', source: '目标管理已有快照' });
+      }
+    }
+    for (const [id, rows] of groupShops(seedRows)) records.push({ id: `initial|${id}`, identity: id,
+      before: [], after: latest(rows), changedAt: null, changedBy: '', order: -1,
+      action: 'initial', source: '目标管理初始快照' });
+    const values = new Map([...current].map(([id, rows]) => [id,
+      Object.fromEntries(fields.map(field => [field, [...new Set(rows.map(row => row[field]).filter(Boolean))]]))]));
+    return { rows: values, records, period: '最新分配快照', revision: state.revision || 0 };
+  }
+  return { project };
+})();
+
+const ShopAttribution = (() => {
+  const key = 'goal-prototype-targets-v1', channel = new BroadcastChannel('compass-shop-targets');
+  const listeners = new Set();
+  let cachedRaw, cached;
+  function read() {
+    try {
+      const raw = localStorage.getItem(key);
+      if (!cached || raw !== cachedRaw) {
+        cached = GoalAssignmentSnapshots.project(JSON.parse(raw || 'null') || {});
+        cachedRaw = raw;
+      }
+      return cached;
+    } catch { return { error: '目标数据读取失败，请刷新后重试', rows: new Map(), records: [] }; }
+  }
+  function notify() { for (const fn of listeners) fn(); }
+  channel.onmessage = event => {
+    if (event.data?.type !== 'targets' || !event.data.state?.product || !event.data.state?.link) return;
+    try {
+      const current = JSON.parse(localStorage.getItem(key) || 'null');
+      if ((event.data.state.revision || 0) >= (current?.revision || 0)) {
+        localStorage.setItem(key, JSON.stringify(event.data.state)); notify();
+      }
+    } catch { notify(); }
+  };
+  channel.postMessage({ type: 'request' });
+  window.addEventListener('storage', event => { if (event.key === key) notify(); });
+  window.addEventListener('focus', notify);
+  return { read, subscribe(fn) { listeners.add(fn); } };
 })();
 
 // 分类/考核独立于负责计划和目标归属，跨平台使用平台＋店铺ID隔离。
@@ -1117,7 +1221,7 @@ const ShopSettings=(()=>{
   }
   const query=$('#shop-search').value.trim().toLowerCase(),brand=$('#brand-filter').value,region=$('#region-filter').value,strategy=$('#owner-filter').value.trim(),promotion=$('#promotion-filter').value.trim();
   const rows=all.filter(shop=>matches(shop,root)&&(!query||[shop.name,shop.id].some(s=>s.toLowerCase().includes(query)))&&(!brand||shop.attribution.brand.includes(brand))&&(!region||shop.attribution.region.includes(region))&&(!strategy||shop.attribution.strategy.some(s=>s.includes(strategy)))&&(!promotion||shop.attribution.promotion.some(s=>s.includes(promotion))));
-  const field=(shop,key)=>`<td class="ss-readonly" title="${esc(source.period+'目标：'+(shop.attribution[key].join('、')||'未配置'))}">${shop.attribution[key].map(esc).join('<br>')||'<span class="ss-empty">未配置</span>'}</td>`;
+  const field=(shop,key)=>`<td class="ss-readonly" title="${esc(source.period+'：'+(shop.attribution[key].join('、')||'未配置'))}">${shop.attribution[key].map(esc).join('<br>')||'<span class="ss-empty">未配置</span>'}</td>`;
   $('.shop-table thead').innerHTML='<tr><th>店铺名称</th><th>品牌</th><th>运营大区</th><th>店铺策略</th><th>店铺推广</th><th>店铺分类</th><th>是否考核店铺</th></tr>';
   $('#shop-rows').innerHTML=pagination.slice(rows).map(shop=>`<tr data-shop="${esc(shop.id)}"><td><div class="shop-name">${esc(shop.name)}</div><div class="shop-id">ID：${esc(shop.id)}</div></td>${['brand','region','strategy','promotion'].map(key=>field(shop,key)).join('')}${cells(shop)}</tr>`).join('')||'<tr><td colspan="7" class="empty">没有匹配的店铺</td></tr>';
   if(source.error)notice(source.error,'error');
@@ -1685,7 +1789,67 @@ function renderConfigurationList(root, shop, today) {
   root.querySelector('#configuration-history-rows').innerHTML = historyRows.reverse().join('');
 }
 
+// 一类电商的分配历史只读；与兴趣电商手工负责计划共用抽屉和分页控件。
+function createGoalRecordsView(root, { getShops }) {
+  const $ = selector => root.querySelector(selector), V = View;
+  const platformName = { tmall: '天猫', jd: '京东', pdd: '拼多多' }[platformId];
+  const fields = { brand: '品牌', region: '运营大区', strategy: '店铺策略', promotion: '店铺推广' };
+  const ownerLabel = $('#record-owner').closest('label');
+  ownerLabel.firstChild.textContent = '店铺策略';
+  $('#record-owner').placeholder = '请输入策略姓名';
+  ownerLabel.insertAdjacentHTML('afterend', '<label>店铺推广<input id="record-promotion" type="search" placeholder="请输入推广姓名" autocomplete="off"></label>');
+  $('.record-table thead').innerHTML = '<tr><th>店铺</th><th>操作</th><th>分配前</th><th>分配后</th><th>操作人</th><th>分配时间</th></tr>';
+  const pagination = createPagination($('#record-pagination'), () => {
+    render(); $('#records-overlay .dialog-content').scrollTop = 0;
+  }, { prefix: 'record-', countId: 'record-count' });
+  function allRecords() {
+    const shops = new Map(getShops().map(shop => [`${platformName}|${shop.id}`, shop]));
+    return ShopAttribution.read().records.filter(record => shops.has(record.identity))
+      .map(record => ({ ...record, shop: shops.get(record.identity) }));
+  }
+  function configuration(rows, empty) {
+    return rows.length ? rows.map(row => `<div class="goal-record-snapshot">${Object.entries(fields)
+      .map(([key, label]) => `<div><span>${label}</span><strong>${V.escape(row[key] || '未配置')}</strong></div>`).join('')}</div>`).join('') : `<span class="secondary">${empty}</span>`;
+  }
+  function render() {
+    const query = $('#record-shop').value.trim().toLowerCase(), region = $('#record-region').value;
+    const strategy = $('#record-owner').value.trim(), promotion = $('#record-promotion').value.trim();
+    const actor = $('#record-changer').value.trim();
+    const from = $('#record-time-start').value, to = $('#record-time-end').value;
+    const invalid = !!(from && to && from > to);
+    $('#record-time-error').hidden = !invalid;
+    $('#record-time-end').setAttribute('aria-invalid', String(invalid));
+    $('#record-shop-clear').hidden = !query;
+    const start = from ? Date.parse(`${from}T00:00:00+08:00`) : -Infinity;
+    const end = to ? Date.parse(`${to}T00:00:00+08:00`) + 86400000 : Infinity;
+    const rows = allRecords().filter(record => {
+      const time = Date.parse(record.changedAt);
+      const matches = row => (!region || row.region === region) && (!strategy || row.strategy.includes(strategy)) && (!promotion || row.promotion.includes(promotion));
+      return !invalid && (!query || `${record.shop.name} ${record.shop.id}`.toLowerCase().includes(query)) &&
+        (!actor || record.changedBy.includes(actor)) && (!(from || to) || Number.isFinite(time) && time >= start && time < end) &&
+        (!(region || strategy || promotion) || [...record.before, ...record.after].some(matches));
+    }).sort((a, b) => b.order - a.order || a.shop.id.localeCompare(b.shop.id));
+    const labels = { initial: '新增', create: '新增', update: '变更', legacy: '变更' };
+    $('#record-rows').innerHTML = pagination.slice(rows).map(record => `<tr data-goal-record="${V.escape(record.id)}"><td><div>${V.escape(record.shop.name)}</div><div class="shop-id">ID：${V.escape(record.shop.id)}</div></td><td class="record-operation"><span class="record-action" data-action="${['initial', 'create'].includes(record.action) ? 'create' : 'update'}">${labels[record.action] || '--'}</span></td><td>${configuration(record.before, '--')}</td><td>${configuration(record.after, '未配置')}</td><td>${V.escape(record.changedBy || '--')}</td><td class="record-change-time">${record.changedAt ? V.dateTime(record.changedAt) : '--'}</td></tr>`).join('') || '<tr><td colspan="6" class="empty">暂无匹配的分配记录</td></tr>';
+  }
+  function reset() {
+    for (const selector of ['#record-shop', '#record-region', '#record-owner', '#record-promotion', '#record-changer', '#record-time-start', '#record-time-end']) $(selector).value = '';
+    pagination.reset(); render();
+  }
+  function open() {
+    const regions = [...new Set(allRecords().flatMap(record => [...record.before, ...record.after].map(row => row.region)).filter(Boolean))];
+    $('#record-region').innerHTML = V.options(regions, '', '全部大区');
+    reset();
+  }
+  for (const selector of ['#record-shop', '#record-region', '#record-owner', '#record-promotion', '#record-changer', '#record-time-start', '#record-time-end']) $(selector).addEventListener('input', () => { pagination.reset(); render(); });
+  $('#record-reset').addEventListener('click', reset);
+  $('#record-shop-clear').addEventListener('click', () => { $('#record-shop').value = ''; pagination.reset(); render(); $('#record-shop').focus(); });
+  ShopAttribution.subscribe(() => { if (!$('#records-overlay').hidden) render(); });
+  return { open, render };
+}
+
 function createRecordsView(root, {getShops,directory}) {
+  if (directory.readOnly) return createGoalRecordsView(root, {getShops});
   const $ = s => root.querySelector(s), V = View;
   const changeTime = V.dateTime;
   const pagination = createPagination($('#record-pagination'),() => {

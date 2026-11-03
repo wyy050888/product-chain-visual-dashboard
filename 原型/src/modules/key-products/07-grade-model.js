@@ -1,7 +1,7 @@
-// 图表区域和产品等级共用图片规则；未分级保留并在矩阵中显示灰色。
+// 图表区域和产品等级共用图片规则；缺失等级数据的产品保留并在矩阵中显示灰色。
 const kpmGradeOrder=['S','A','B','C'];
 const kpmGradeRules=brcGradeRules('recent30');
-const kpmChanges={up:'等级上升',down:'等级下降',same:'等级保持',new:'首次分级',pending:'未分级',uncompared:'上期未分级'};
+const kpmChanges={up:'等级上升',down:'等级下降',same:'等级保持',new:'首次分级',pending:'无等级数据',uncompared:'上期无等级数据'};
 let kpmSelectedChange='up';
 function kpmMatchesChange(assessment,change='all'){
  return change==='all'||(change==='changed'?['up','down'].includes(assessment.change):assessment.change===change);

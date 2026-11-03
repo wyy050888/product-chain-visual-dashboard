@@ -1,4 +1,5 @@
 function createRecordsView(root, {getShops,directory}) {
+  if (directory.readOnly) return createGoalRecordsView(root, {getShops});
   const $ = s => root.querySelector(s), V = View;
   const changeTime = V.dateTime;
   const pagination = createPagination($('#record-pagination'),() => {

@@ -1,4 +1,4 @@
-function kpmGradeBadge(p){return p.level?`<span class="kpm-grade ${p.level}"><b>${p.level}</b></span>`:'<span class="kpm-grade unrated">未分级</span>'}
+function kpmGradeBadge(p){return p.level?`<span class="kpm-grade ${p.level}"><b>${p.level}</b></span>`:'<span class="kpm-grade unrated">—</span>'}
 function kpmFilterField(key,label,choices){return `<label>${label}<select multiple data-pf-multiple data-pf-label="${label}" data-kpm-filter="${key}" aria-label="关键产品${label}">${pfOptions(choices,kpmFilters[key])}</select></label>`}
 function kpmTools(){return `<div class="kpm-tools" role="group" aria-label="关键产品搜索筛选">
  <label class="kpm-search"><input type="search" data-kpm-search aria-label="关键产品搜索" placeholder="搜索产品名称 / SPU码 / 型号" value="${esc(kpmFilters.query)}"></label>

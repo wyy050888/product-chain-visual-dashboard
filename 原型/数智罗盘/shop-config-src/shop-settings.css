@@ -3,7 +3,12 @@
 #shop-assignment .platform-tabs{gap:24px;flex-wrap:wrap}#shop-assignment .platform-tabs button{white-space:nowrap}
 #shop-assignment .filters{grid-template-columns:repeat(3,minmax(0,1fr))}#shop-assignment .ss-promotion-filter{display:none}
 #shop-assignment.ss-readonly-platform .ss-promotion-filter{display:flex}
-#shop-assignment.ss-readonly-platform #records-open{display:none}#shop-assignment .toolbar #shop-filter-reset{margin-left:auto}
+#shop-assignment .toolbar #shop-filter-reset{margin-left:auto}
+#shop-assignment .goal-record-snapshot{padding:4px 0;line-height:1.8}
+#shop-assignment .goal-record-snapshot+.goal-record-snapshot{border-top:1px solid #edf0f5;margin-top:6px;padding-top:8px}
+#shop-assignment .goal-record-snapshot>div{display:flex;gap:10px}
+#shop-assignment .goal-record-snapshot span{flex:0 0 56px;color:#8795aa}
+#shop-assignment .goal-record-snapshot strong{font-weight:400;overflow-wrap:anywhere}
 #shop-assignment .shop-table{min-width:1120px}#shop-assignment .shop-table th,#shop-assignment .shop-table td{white-space:normal;line-height:1.8}
 #shop-assignment .shop-table td:first-child{min-width:230px}#shop-assignment .shop-table td select[data-shop-category]{width:132px;min-height:32px;padding:4px 8px;font-size:12px}
 #shop-assignment .ss-switch{width:34px;height:19px;padding:2px;border:0;border-radius:12px;background:#bfc9d9;vertical-align:middle;position:relative}

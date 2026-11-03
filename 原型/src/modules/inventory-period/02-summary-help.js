@@ -22,6 +22,7 @@ function ipRenderSummaryHelp(host,help){
  group('库存周转率',['month','quarter','year'].map(key=>[{month:'月度',quarter:'季度',year:'年度'}[key],brcBandRows('turn.'+key).map(r=>r.text),key===mode]));
  group('交付及时率',[['全部周期',brcBandRows('delivery').map(r=>r.text)]]);
  const closure=append(body,'section','','ip-summary-section');append(closure,'h5','翻新闭环率');
- append(closure,'p','40天内完成的翻新请购单数 ÷ 已完成翻新请购单数 × 100%；第40天完成计入达标','ip-summary-note');
- append(closure,'p','按翻新交付完成日期归属期间；周期＝交付完成日期－报价完结时间，未完成单不参与比率计算','ip-summary-note');
+ append(closure,'p','周期≤40天的已完成请购单数 ÷ 已完成请购单数 × 100%；包含第40天','ip-summary-note');
+ append(closure,'p','翻新完成日期：按先进先出分配良品，累计达到该请购单请购数量时，取对应的质检日期；免检良品取审核日期','ip-summary-note');
+ append(closure,'p','按翻新完成日期筛选已完成请购单；翻新周期＝翻新完成日期－报价完结时间，同一请购单只计一次','ip-summary-note');
 }

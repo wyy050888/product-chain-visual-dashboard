@@ -4,7 +4,7 @@ from pathlib import Path
 source = Path(__file__).resolve().parent
 read = lambda name: (source / name).read_text(encoding='utf-8')
 shared = '\n'.join((source.parents[1] / ('src/data/' + name)).read_text(encoding='utf-8') for name in ['filter-catalog.js', 'shop-classification.js'])
-scripts = shared + '\n' + '\n'.join(read(name) for name in ['data.js', 'goal-seed.js', 'dashboard-shops.js', 'goal-attribution.js', 'shop-settings.js', 'platforms.js', 'engine.js', 'storage.js', 'configuration-history.js', 'date-cascader.js', 'person-picker.js', 'form.js', 'configuration-list.js', 'records.js', 'pagination.js', 'clearable-select.js', 'brand-editor.js', 'app.js'])
+scripts = shared + '\n' + '\n'.join(read(name) for name in ['data.js', 'goal-seed.js', 'dashboard-shops.js', 'goal-snapshots.js', 'goal-attribution.js', 'shop-settings.js', 'platforms.js', 'engine.js', 'storage.js', 'configuration-history.js', 'date-cascader.js', 'person-picker.js', 'form.js', 'configuration-list.js', 'goal-records.js', 'records.js', 'pagination.js', 'clearable-select.js', 'brand-editor.js', 'app.js'])
 document = f'''<!doctype html>
 <html lang="zh-CN">
 <head>

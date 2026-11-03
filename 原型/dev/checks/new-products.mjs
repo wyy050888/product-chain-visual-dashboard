@@ -5,7 +5,26 @@ import {verifyNewProductPrices} from './new-products-price.mjs';
 import {verifyNewProductOverview} from './new-products-overview.mjs';
 import {verifyNewProductChannelLinkage} from './new-products-channel-linkage.mjs';
 import assert from 'node:assert/strict';
+async function verifyNewProductIteration(page,snapshot){
+ await page.locator('[data-nsp-filter="status"]').selectOption('迭代');
+ const iteration=await snapshot();
+ assert.equal(iteration.visible.length,3,'三个固定迭代样例不被自动缺货/呆滞状态覆盖');
+ assert(iteration.visible.every(p=>p.state==='迭代'));
+ assert.deepEqual(await page.locator('#newtable [data-sales-status]').allTextContents(),['迭代','迭代','迭代'],'筛选后表格只显示迭代新品');
+ await page.locator('[data-nsp-filter="status"]').selectOption('all');
+}
+export async function newProductIteration(page){
+ await page.waitForFunction(()=>document.documentElement.dataset.dashboardBoot==='ready');
+ await page.locator('a[href="#new"]').click();
+ const snapshot=()=>page.evaluate(()=>dashboardNewProductsSnapshot()),before=await snapshot();
+ assert.equal(await page.locator('[data-nsp-filter="status"] option[value="迭代"]').count(),1);
+ await verifyNewProductIteration(page,snapshot);
+ assert.deepEqual((await snapshot()).visible.map(p=>p.spuId),before.visible.map(p=>p.spuId),'清除销售状态恢复原列表');
+ console.log('通过：迭代状态选项、3条样例、状态筛选及恢复列表。');
+}
 export async function newProducts(page){
+ // 本专项核对固定24款样例；跨月后的历史出池由独立考核/日期专项覆盖。
+ await page.clock.setFixedTime(new Date('2026-10-26T04:00:00Z'));await page.reload({waitUntil:'domcontentloaded'});
  newDeliveryModel();
  await page.locator('a[href="#new"]').click();
  await verifyNewProductPeriods(page);
@@ -55,7 +74,7 @@ export async function newProducts(page){
  assert((await snapshot()).visible.some(p=>p.spuId===carVacuum.spuId),'保留销售状态筛选');
  await page.locator('[data-nsp-filter="status"]').selectOption('缺货');
  assert((await snapshot()).visible.every(p=>p.state==='缺货'));
- await page.locator('[data-nsp-filter="status"]').selectOption('all');
+ await verifyNewProductIteration(page,snapshot);
  await verifyNewProductPrices(page);
  assert.equal(await page.locator('[data-success-quarter]').count(),0,'季度面板按需打开');
  const launchPicker=page.getByRole('button',{name:'上市日期筛选',exact:true});
