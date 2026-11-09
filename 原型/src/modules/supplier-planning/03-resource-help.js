@@ -8,16 +8,14 @@ const scpStrategicRules=[
  {label:'综合协同能力',condition:'具备研发协同与产能弹性',source:''}
 ];
 function scpStrategicRuleText(){return '以下条件必须同时满足：\n'+scpStrategicRules.map((rule,index)=>(index+1)+'、'+rule.label+'：'+rule.condition+(rule.source?'（'+rule.source+'）':'')).join('\n')+'\n已合作按截止日累计；年度及季度新增按首次合作日期统计；达成按同年度有效目标计算。'}
+// 三处简短规则只展示适用范围和条件，避免重复所在区块的标题。
+function scpRenderCompactRules(host,intro,rules){
+ const append=(parent,tag,text='',className='')=>{const node=document.createElement(tag);node.textContent=text;if(className)node.className=className;parent.append(node);return node};
+ const body=append(host,'div','','scp-compact-help');
+ append(body,'p',intro,'scp-compact-help-intro');
+ const list=append(body,'ul');
+ for(const rule of rules){const row=append(list,'li');append(row,'b',rule.label);append(row,'span',rule.condition)}
+}
 function scpRenderResourceHelp(host,year){
- const append=(parent,tag,text,cls='')=>{const node=document.createElement(tag);node.textContent=text;if(cls)node.className=cls;parent.append(node);return node};
- const heading=append(host,'header','','scp-strategic-help-heading');
- append(heading,'h4','核心战略合作供应商认定规则');append(heading,'span','全部满足','scp-strategic-help-badge');
- append(host,'p',year+'年度认定：以下 6 项条件为“且”关系，须同时满足。','scp-strategic-help-intro');
- const list=append(host,'ol','','scp-strategic-help-rules');
- for(const [index,rule] of scpStrategicRules.entries()){
-  const item=append(list,'li',''),number=append(item,'span',String(index+1).padStart(2,'0'),'scp-strategic-help-index');
-  number.setAttribute('aria-hidden','true');const body=append(item,'div','');
-  const title=append(body,'div','','scp-strategic-help-rule');append(title,'b',rule.label);append(title,'strong',rule.condition);
-  if(rule.source)append(body,'small',rule.source);
- }
+ scpRenderCompactRules(host,'须同时满足以下条件',scpStrategicRules);
 }

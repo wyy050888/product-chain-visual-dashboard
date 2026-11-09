@@ -28,14 +28,8 @@ function scpProjectCard(){
 }
 function scpRenderSourcingHelp(host,category=false,year=+DATA_CUTOFF.slice(0,4)){
  const minimum=stStandards(year);
- const append=(parent,tag,text,cls='')=>{const node=document.createElement(tag);node.textContent=text;if(cls)node.className=cls;parent.append(node);return node};
- append(host,'h4',category?'类目准入预警':'产品寻源预警');
- const rules=append(host,'div','',category?'scp-sourcing-rules scp-category-rules':'scp-sourcing-rules');
- for(const [index,label,limit] of (category?[[0,'年度新增准入','＜'+minimum.categoryAdmitted],[1,'年度新增合作','＜'+minimum.categoryCooperation]]:[[0,'意向储备数量','＜'+minimum.projectReserved],[1,'准入储备数量','＜'+minimum.projectAdmitted]])){
-  if(index)append(rules,'span','或','scp-sourcing-or');
-  const row=append(rules,'div','','scp-sourcing-rule');append(row,'span',label);append(row,'strong',limit);
- }
- append(host,'p',category?'按所选年度统计，新增准入目标'+minimum.categoryAdmitted+'，新增合作目标'+minimum.categoryCooperation+'；任一未达标即预警':'包含自研、自选项目，仅展示满足任一储备不足条件的项目','scp-sourcing-note');
+ const rules=category?[['年度新增准入','＜'+minimum.categoryAdmitted],['年度新增合作','＜'+minimum.categoryCooperation]]:[['意向储备数量','＜'+minimum.projectReserved],['准入储备数量','＜'+minimum.projectAdmitted]];
+ scpRenderCompactRules(host,category?'按所选年度统计，任一项不足即预警':'自研、自选项目满足任一条件即预警',rules.map(([label,condition])=>({label,condition})));
 }
 function scpCategoryCard(){
  const range=scpRange(scpState.categoryPeriod),q=scpState.categoryQuery.trim(),sort=scpState.sorts.categories,targets=stStandards(scpState.categoryPeriod.year);
@@ -43,7 +37,7 @@ function scpCategoryCard(){
  rows=scpSort(rows,sort,(row,key)=>row.stats[key]);
  const body=rows.map(({category,stats})=>{const scope={kind:'machine',categoryId:category.id};return `<tr data-scp-leaf="${category.id}"><td><span>${esc(category.name)}</span><small>${esc(category.category+' / '+category.group)}</small></td>${['reserved','admitted','cooperated'].map(key=>`<td>${scpCount(scope,key,stats[key],range)}</td>`).join('')}<td>${scpReadiness(scope,'newAdmitted',stats.newAdmitted,range,targets.categoryAdmitted)}</td><td>${scpReadiness(scope,'newCooperation',stats.newCooperation,range,targets.categoryCooperation)}</td></tr>`}).join('');
  const year=String(range.start).slice(2,4),headers=[['reserved','意向储备（总）'],['admitted','准入储备（总）'],['cooperated','已合作（总）'],['newAdmitted',year+'年新增准入'],['newCooperation',year+'年新增合作']];
- return `<article class="scp-card scp-category-card"><header><div class="scp-category-title"><h4 class="scp-panel-title">类目准入储备<button type="button" class="metric-help scp-sourcing-help" data-scp-category-help="true" data-scp-rule-year="${scpState.categoryPeriod.year}" aria-label="查看类目准入储备规则"></button></h4><span class="scp-pane-count">${rows.length}项</span><button type="button" class="link" data-scp-all-categories>查看全部 ${scpCategories.length}</button></div>${scpPeriodControl('category',scpState.categoryPeriod)}</header><div class="scp-card-search ui-business-filters"><label class="ui-search-field unified-input-group"><input type="search" data-scp-query="category" placeholder="搜索三级类目" aria-label="搜索三级类目" value="${esc(scpState.categoryQuery)}"></label></div><div class="scp-card-scroll">${scpTable('<tr><th data-up-basic>三级类目</th>'+headers.map(([key,label])=>scpSortHead(key,label,sort,scpDefaultSort('categories'))).join('')+'</tr>',body,'scp-category-table')}</div></article>`;
+ return `<article class="scp-card scp-category-card"><header><div class="scp-category-title"><h4 class="scp-panel-title">类目准入储备<button type="button" class="metric-help scp-sourcing-help" data-scp-category-help="true" data-metric-rule="类目准入储备规则" data-scp-rule-year="${scpState.categoryPeriod.year}" aria-label="查看类目准入储备规则"></button></h4><span class="scp-pane-count">${rows.length}项</span><button type="button" class="link" data-scp-all-categories>查看全部 ${scpCategories.length}</button></div>${scpPeriodControl('category',scpState.categoryPeriod)}</header><div class="scp-card-search ui-business-filters"><label class="ui-search-field unified-input-group"><input type="search" data-scp-query="category" placeholder="搜索三级类目" aria-label="搜索三级类目" value="${esc(scpState.categoryQuery)}"></label></div><div class="scp-card-scroll">${scpTable('<tr><th data-up-basic>三级类目</th>'+headers.map(([key,label])=>scpSortHead(key,label,sort,scpDefaultSort('categories'))).join('')+'</tr>',body,'scp-category-table')}</div></article>`;
 }
 
 // 固定四季卡片，不提供排序；实际数保留原业务跳转，目标保持只读。
