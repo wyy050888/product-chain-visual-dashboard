@@ -371,7 +371,7 @@ button.scp-count:focus-visible,.scp-project-link:focus-visible{outline:2px solid
 .scp-count-unit{margin-left:2px;font-size:12px;font-weight:400;color:#8292aa}
 
 /* 仅压缩三处一级供应商规则，其他指标提示保留原尺寸。 */
-#metric-tooltip.metric-tooltip:has(>.scp-compact-help){box-sizing:border-box;width:340px;max-width:calc(100vw - 16px);padding:12px 14px;white-space:normal}
+#metric-tooltip.metric-tooltip:is(.metric-tooltip-scp-resource,.metric-tooltip-scp-sourcing):not(.metric-tooltip-scp-material){box-sizing:border-box;width:340px;max-width:calc(100vw - 16px);padding:12px 14px;white-space:normal}
 #metric-tooltip .scp-compact-help{font-size:var(--rule-body-size,12px);line-height:1.75;color:var(--rule-text-color,#516883)}
 #metric-tooltip .scp-compact-help-intro{margin:0 0 8px;padding:0;border:0;background:transparent;color:var(--rule-muted-color,#7b8fa9)}
 #metric-tooltip .scp-compact-help ul{list-style:none;margin:0;padding:0}
