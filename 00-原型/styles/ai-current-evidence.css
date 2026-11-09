@@ -1,0 +1,30 @@
+/* 产品与店铺共用依据抽屉；标题固定，正文只有一个纵向滚动区。 */
+#dialogbody .up-ai-evidence-dialog{position:fixed;inset:0 0 0 auto;margin:0;width:min(960px,100vw);height:100dvh;max-height:100dvh;border:0;border-radius:0;box-shadow:-12px 0 40px #172c4b26}
+#dialogbody .up-ai-evidence-dialog>header{padding:20px 24px}
+.up-ai-evidence-body{position:relative;padding:0 24px 24px;overflow:auto;overscroll-behavior:contain;min-height:0;font-size:13px;line-height:1.8}
+.up-ai-evidence-context{position:sticky;top:0;z-index:2;margin:0 -24px;padding:16px 24px 0;background:#fff;border-bottom:1px solid #e8edf5}
+.up-ai-evidence-scope{margin:0 0 12px;overflow-wrap:anywhere;color:#708198;font-size:12px}
+.up-ai-evidence-scope b{display:block;margin-bottom:4px;color:#243e5c;font-size:14px}
+.up-ai-evidence-scope span{display:block}
+.up-ai-evidence-nav{display:flex;gap:24px}
+.up-ai-evidence-nav button{padding:8px 0 10px;border:0;border-bottom:2px solid transparent;background:transparent;color:#708198;font:inherit;cursor:pointer}
+.up-ai-evidence-nav button[aria-current]{border-color:#1677ff;color:#1677ff;font-weight:600}
+.up-ai-evidence-section{margin:24px 0}.up-ai-evidence-section>h5{margin:0 0 12px;padding-left:10px;border-left:3px solid #1677ff;color:#243e5c;font-size:15px;line-height:1.4}
+.up-ai-evidence-item{padding:0 0 20px;margin:16px 0 20px;border-bottom:1px solid #e8edf5;min-width:0}
+.up-ai-evidence-item:last-child{border-bottom:0;margin-bottom:0}
+.up-ai-evidence-nature{color:#708198;font-size:12px}
+.up-ai-evidence-statement{margin:4px 0 12px;color:#2c405c;white-space:pre-line;overflow-wrap:anywhere}
+.up-ai-evidence-item h6{font-size:12px;color:#708198;margin:12px 0 6px}
+/* 来源表直接沿用总诊断的两列样式；业务期间保留在来源信息中。 */
+.up-ai-evidence-body .up-ai-sources>table{min-width:0}
+.up-ai-evidence-body .up-ai-sources>table>tbody>tr>td{padding-block:10px;line-height:1.7;color:#304868}
+.up-ai-source p{margin:0;white-space:pre-line}
+.up-ai-evidence-note,.up-ai-evidence-empty{font-size:12px;color:#7d6b42;line-height:1.8}
+.up-ai-source details{margin-top:8px}.up-ai-source summary{cursor:pointer;color:#1677ff}
+.up-ai-source-scroll{overflow-x:auto}.up-ai-source-scroll table{border-collapse:collapse;width:100%;min-width:440px}.up-ai-source-scroll th,.up-ai-source-scroll td{padding:7px;border-bottom:1px solid #e4eaf4;white-space:nowrap;text-align:left}
+@media(max-width:600px){
+ #dialogbody .up-ai-evidence-dialog>header{padding:16px}
+ .up-ai-evidence-body{padding:0 16px 16px}.up-ai-evidence-context{margin:0 -16px;padding:12px 16px 0}
+ .up-ai-evidence-nav{gap:20px}
+ #dialogbody .up-ai-controls{gap:12px}
+}

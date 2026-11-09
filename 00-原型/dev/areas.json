@@ -1,0 +1,3588 @@
+{
+  "diagnosisColumnLayout": {
+    "label": "重点工作及工作偏差的字段列宽和偏好隔离",
+    "sources": [
+      "src/modules/global-diagnosis/04-column-layout.js",
+      "src/modules/global-diagnosis/04-analysis-tables.js",
+      "src/modules/global-diagnosis/04-analysis-view.js"
+    ],
+    "styles": [
+      "styles/81-diagnosis-analysis.css",
+      "styles/102-ai-result-history.css"
+    ],
+    "checks": [
+      "diagnosisColumnLayout"
+    ]
+  },
+  "metricRuleCards": {
+    "label": "模块规则悬浮组件、触发及简明口径",
+    "sources": [
+      "src/modules/metric-tooltip/01.js",
+      "src/modules/metric-tooltip/02-rule-card.js",
+      "src/modules/key-products/12-grade-help.js",
+      "src/modules/new-products/02-view.js",
+      "src/modules/inventory-period/02-summary-help.js",
+      "src/modules/supplier-planning/03-view.js",
+      "src/modules/supplier-planning/03-material-help.js",
+      "src/modules/supplier-planning/03-resource-help.js",
+      "styles/metric-rule-card.css"
+    ],
+    "checks": [
+      "metricRuleCards"
+    ]
+  },
+  "diagnosisEvidencePresentation": {
+    "label": "总诊断行动总分格式与依据跟进情况",
+    "sources": [
+      "src/modules/global-diagnosis/04-action-table.js",
+      "src/modules/global-diagnosis/04-analysis-tables.js",
+      "src/modules/global-diagnosis/04-key-work-table.js",
+      "src/modules/global-diagnosis/05-analysis-details.js",
+      "src/modules/ai-result-history/02-global.js"
+    ],
+    "checks": [
+      "diagnosisEvidencePresentation",
+      "diagnosisWorkspace",
+      "aiResultHistory"
+    ]
+  },
+  "productGradeOptions": {
+    "label": "产品等级仅保留SABC",
+    "sources": [
+      "src/modules/new-products/02-scope-tabs.js",
+      "src/modules/new-products/02-view.js",
+      "src/modules/key-products/02-chart.js",
+      "src/modules/key-products/03-view.js",
+      "src/modules/key-products/05-tooltip.js",
+      "src/modules/key-products/07-grade-model.js",
+      "src/modules/key-products/08-grade-view.js",
+      "src/modules/key-products/23-improvement-model.js",
+      "src/modules/unified-product/05-grade-trend-period.js"
+    ],
+    "checks": [
+      "productGradeOptions"
+    ]
+  },
+  "shopAssignmentSnapshots": {
+    "label": "一类店铺最新分配与分配记录",
+    "sources": [
+      "数智罗盘/shop-config-src/goal-snapshots.js",
+      "数智罗盘/shop-config-src/goal-attribution.js",
+      "数智罗盘/shop-config-src/goal-records.js",
+      "数智罗盘/shop-config-src/records.js",
+      "数智罗盘/shop-config-src/build.py"
+    ],
+    "styles": [
+      "数智罗盘/shop-config-src/shop-settings.css"
+    ],
+    "checks": [
+      "shopAssignmentSnapshots",
+      "shopConfig"
+    ]
+  },
+  "newProductIteration": {
+    "label": "新品迭代销售状态样例",
+    "sources": [
+      "src/modules/new-products/00-samples.js",
+      "src/modules/new-products/01-model.js"
+    ],
+    "styles": [
+      "styles/48-new-products.css"
+    ],
+    "checks": [
+      "newProductIteration"
+    ]
+  },
+  "profitRateComparisons": {
+    "label": "利润率百分点环比与详情达成配色",
+    "sources": [
+      "src/modules/risk-presentation/01-quality.js",
+      "src/modules/risk-presentation/01-loss.js",
+      "src/modules/risk-presentation/01-return.js",
+      "src/modules/risk-presentation/01-stock.js",
+      "src/modules/new-products/01-model.js",
+      "src/modules/unified-product/05-operating-view.js"
+    ],
+    "styles": [
+      "styles/33-unified-product.css"
+    ],
+    "checks": [
+      "profitRateComparisons",
+      "lossPreview",
+      "productReturnComparisons"
+    ]
+  },
+  "refurbDelayRemoval": {
+    "label": "删除翻新延期判灯",
+    "sources": [
+      "src/modules/business-rules/00-definitions.js",
+      "src/modules/business-rules/00-condition-catalog.js",
+      "src/modules/business-rules/02-apply.js",
+      "src/modules/inventory-period/01.js",
+      "src/modules/inventory-period/02-rules.js",
+      "src/modules/inventory-period/02-metric-facts.js",
+      "src/modules/inventory-period/02-group-model.js",
+      "src/modules/inventory-period/03-view.js"
+    ],
+    "styles": [
+      "styles/58-inventory-control.css"
+    ],
+    "checks": [
+      "refurbDelayRemoval"
+    ]
+  },
+  "rankingsWithoutTrends": {
+    "label": "完整榜单移除趋势列",
+    "sources": [
+      "src/modules/risk-presentation/04-lists.js",
+      "src/modules/risk-presentation/03-columns.js"
+    ],
+    "styles": [
+      "styles/36-list-trends.css",
+      "styles/40-quality-preview.css"
+    ],
+    "checks": [
+      "rankingsWithoutTrends",
+      "lossPreview"
+    ]
+  },
+  "productReturnComparisons": {
+    "label": "产品退货偏差与未收退环比",
+    "keywords": [
+      "新品未收退环比",
+      "关键产品退货偏差"
+    ],
+    "sources": [
+      "src/modules/new-products/01-model.js",
+      "src/modules/key-products/01-model.js",
+      "src/modules/key-products/09-detail-table.js",
+      "src/modules/unified-product/05-quality-view.js"
+    ],
+    "checks": [
+      "productReturnComparisons"
+    ]
+  },
+  "comparisonSigns": {
+    "label": "环比正负号与次数差",
+    "sources": [
+      "src/modules/risk-presentation/01-quality.js",
+      "src/modules/risk-presentation/01-loss.js",
+      "src/modules/risk-presentation/01-shop.js",
+      "src/modules/risk-presentation/01-return.js",
+      "src/modules/risk-presentation/01-stock.js",
+      "src/modules/new-products/01-model.js",
+      "src/modules/key-products/09-detail-table.js",
+      "src/modules/unified-product/05-operating-view.js",
+      "src/modules/unified-product/05-quality-view.js",
+      "src/modules/shop-detail/02-violations.js",
+      "src/modules/quality-monthly/00-contact.js"
+    ],
+    "styles": [],
+    "checks": [
+      "comparisonSigns"
+    ]
+  },
+  "detailContact": {
+    "label": "产品详情进线构成Tooltip",
+    "sources": [
+      "src/modules/unified-product/05-contact-view.js",
+      "src/modules/unified-product/05-contact-tooltip.js"
+    ],
+    "styles": [
+      "styles/33-unified-product.css"
+    ],
+    "checks": [
+      "detailContact"
+    ]
+  },
+  "riskGroupNavigation": {
+    "label": "风险三分区定位Tab",
+    "sources": [
+      "src/modules/risk-presentation/02-group-navigation.js",
+      "src/modules/risk-presentation/02-render.js",
+      "src/modules/section-sticky/01.js"
+    ],
+    "styles": [
+      "styles/89-risk-board-groups.css"
+    ],
+    "checks": [
+      "riskGroupNavigation",
+      "riskGroups"
+    ]
+  },
+  "detailStockPeriod": {
+    "label": "产品库存独立期间与三项SPU卡片",
+    "keywords": [
+      "产品库存日期",
+      "SKU库存周转率"
+    ],
+    "sources": [
+      "src/modules/unified-product/06-stock-period.js",
+      "src/modules/unified-product/06-stock-model.js",
+      "src/modules/unified-product/06-stock-cards.js",
+      "src/modules/unified-product/06-stock-view.js",
+      "src/modules/unified-product/07-controller.js",
+      "src/modules/inventory-period/02-metric-period.js",
+      "src/modules/inventory-period/02-refurb-distribution.js"
+    ],
+    "styles": [
+      "styles/61-stock-balance-cards.css"
+    ],
+    "checks": [
+      "detailStockPeriod",
+      "detailPeriod"
+    ]
+  },
+  "shopCoreProducts": {
+    "label": "店铺核心主营SPU与表头提示",
+    "keywords": [
+      "核心主营",
+      "近30日GSV",
+      "店铺序号"
+    ],
+    "sources": [
+      "src/modules/risk-presentation/01-shop.js",
+      "src/modules/risk-presentation/02-shop-card.js",
+      "src/modules/risk-presentation/04-lists.js"
+    ],
+    "styles": [
+      "styles/34-risk-presentation.css",
+      "styles/42-shop-preview.css"
+    ],
+    "checks": [
+      "shopCoreProducts"
+    ]
+  },
+  "violationProductType": {
+    "label": "产品违规榜新老品筛选",
+    "keywords": [
+      "违规新老品",
+      "产品违规榜新老品"
+    ],
+    "sources": [
+      "src/modules/risk-presentation/02-product-type-filter.js"
+    ],
+    "styles": [
+      "styles/93-risk-platform-cards.css"
+    ],
+    "checks": [
+      "violationProductType",
+      "returnProductType"
+    ]
+  },
+  "shopPlatformMetrics": {
+    "label": "店铺平台违规类型与卡片指标",
+    "keywords": [
+      "店铺卡片字段",
+      "问题SPU环比",
+      "店铺违规类型"
+    ],
+    "sources": [
+      "src/modules/risk-presentation/01-shop.js",
+      "src/modules/risk-presentation/02-shop-card.js",
+      "src/modules/shop-scoring/01.js",
+      "src/modules/shop-detail/02-violations.js"
+    ],
+    "styles": [
+      "styles/93-risk-platform-cards.css",
+      "styles/47-shop-detail.css"
+    ],
+    "checks": [
+      "shopPlatformMetrics",
+      "shopReturnPeriods",
+      "shopScoreRed"
+    ]
+  },
+  "shopReturnPeriods": {
+    "label": "店铺单品退货稳定周对比",
+    "keywords": [
+      "店铺单品退货",
+      "店铺连续2周期",
+      "shops.returnExcess"
+    ],
+    "sources": [
+      "src/modules/risk-presentation/01-shop.js",
+      "src/modules/risk-presentation/02-render.js",
+      "src/modules/shop-scoring/01.js",
+      "src/modules/product-filters/03-confirmed-risk.js",
+      "src/modules/business-rules/00-definitions.js",
+      "src/modules/business-rules/01-store.js"
+    ],
+    "checks": [
+      "shopReturnPeriods",
+      "shopScoreRed"
+    ]
+  },
+  "systemDataActions": {
+    "label": "后台导入下载图标按钮",
+    "keywords": [
+      "后台按钮",
+      "导入按钮",
+      "下载按钮",
+      "icon文字"
+    ],
+    "sources": [
+      "src/modules/system-management/01-shell.js",
+      "src/modules/lifecycle-targets/04-navigation.js",
+      "src/modules/cost-config/03-view.js",
+      "src/modules/core-link-config/03-view.js",
+      "src/modules/strategic-supplier-import/03-view.js"
+    ],
+    "styles": [
+      "styles/55-lifecycle-targets.css"
+    ],
+    "checks": [
+      "systemDataActions"
+    ]
+  },
+  "shopScoreRed": {
+    "label": "店铺评分红灯与拼多多核心链接等价判定",
+    "keywords": [
+      "店铺评分红灯",
+      "拼多多红灯"
+    ],
+    "sources": [
+      "src/modules/shop-scoring/01.js",
+      "src/modules/product-filters/03-confirmed-risk.js",
+      "src/modules/risk-presentation/02-render.js"
+    ],
+    "checks": [
+      "shopScoreRed"
+    ]
+  },
+  "returnComparisonColumns": {
+    "label": "退货恶化完整榜单环比列",
+    "keywords": [
+      "总退环比",
+      "已收退环比",
+      "环比列"
+    ],
+    "sources": [
+      "src/modules/risk-presentation/01-return.js",
+      "src/modules/risk-presentation/03-columns.js",
+      "src/modules/risk-presentation/04-lists.js"
+    ],
+    "styles": [
+      "styles/43-loss-preview.css"
+    ],
+    "checks": [
+      "returnComparisonColumns"
+    ]
+  },
+  "riskBoardDates": {
+    "label": "风险四榜独立日期与退货成熟对比",
+    "keywords": [
+      "风险日期",
+      "退货周对比",
+      "稳定区间",
+      "T-15"
+    ],
+    "sources": [
+      "src/modules/risk-board-period/01-model.js",
+      "src/modules/risk-board-period/02-controls.js",
+      "src/modules/risk-board-period/03-return-controls.js",
+      "src/modules/risk-presentation/02-render.js",
+      "src/modules/return-comparison/01.js",
+      "src/modules/risk-presentation/04-lists.js"
+    ],
+    "styles": [
+      "styles/98-risk-board-period.css"
+    ],
+    "checks": [
+      "riskBoardDates"
+    ]
+  },
+  "productDates": {
+    "label": "新品与关键产品日范围日期选择",
+    "keywords": [
+      "关键产品日期",
+      "新品日期",
+      "日月季年"
+    ],
+    "sources": [
+      "src/modules/period/01.js",
+      "src/modules/period/02-product-dates.js",
+      "src/modules/key-products/07-grade-model.js",
+      "src/modules/date-range/02-picker.js"
+    ],
+    "styles": [
+      "styles/26-risk-controls.css"
+    ],
+    "checks": [
+      "productDates"
+    ]
+  },
+  "productPddLinks": {
+    "label": "产品拼多多核心链接违规",
+    "keywords": [
+      "产品核心链接",
+      "拼多多核心链接违规"
+    ],
+    "sources": [
+      "src/modules/unified-product/05-pdd-links.js",
+      "src/modules/unified-product/05-quality-view.js",
+      "src/modules/risk-presentation/02-pdd-links.js"
+    ],
+    "styles": [
+      "styles/42-shop-preview.css"
+    ],
+    "checks": [
+      "productPddLinks"
+    ]
+  },
+  "yearPicker": {
+    "label": "全局年份十年网格选择器",
+    "keywords": [
+      "年份",
+      "年度选择",
+      "十年",
+      "年份网格"
+    ],
+    "sources": [
+      "src/modules/year-picker/01-view.js",
+      "src/modules/year-picker/02-control.js",
+      "src/modules/year-picker/03-mount.js",
+      "src/modules/ui-controls/06-natural-period-model.js",
+      "src/modules/ui-controls/07-natural-period-picker.js",
+      "src/modules/new-products/02-launch-picker.js"
+    ],
+    "styles": [
+      "styles/92-year-picker.css"
+    ],
+    "checks": [
+      "yearPicker"
+    ]
+  },
+  "pagination": {
+    "label": "全局分页器与每页条数切换",
+    "keywords": [
+      "分页",
+      "10条",
+      "20条",
+      "50条",
+      "页长"
+    ],
+    "sources": [
+      "src/modules/list-pagination/00-size.js",
+      "src/modules/list-pagination/01.js",
+      "src/modules/list-pagination/02-drawer-tables.js",
+      "src/modules/list-pagination/03-department-reuse.js",
+      "数智罗盘/shop-config-src/layout.html"
+    ],
+    "styles": [
+      "styles/30-list-pagination.css"
+    ],
+    "checks": [
+      "pagination",
+      "paginationDepartments",
+      "paginationShops"
+    ]
+  },
+  "platformSelect": {
+    "label": "全局销售渠道与平台图标下拉",
+    "keywords": [
+      "平台图标",
+      "销售渠道",
+      "图文下拉"
+    ],
+    "sources": [
+      "src/modules/platform-select/01-view.js",
+      "src/modules/platform-select/02-control.js",
+      "src/modules/platform-select/03-mount.js",
+      "src/modules/product-filters/00-multiselect.js",
+      "src/modules/drawers/04-platforms.js"
+    ],
+    "styles": [
+      "styles/91-platform-select.css"
+    ],
+    "checks": [
+      "platformSelect"
+    ]
+  },
+  "productCenter": {
+    "label": "产品中心共用UI与演示人员",
+    "keywords": [
+      "产品中心",
+      "演示人员",
+      "产品经理",
+      "复刻"
+    ],
+    "sources": [
+      "src/modules/product-center/01-scope.js",
+      "src/modules/product-center/02-workspace.js",
+      "src/modules/product-center/03-role.js",
+      "src/modules/product-center/04-risk.js",
+      "src/modules/product-center/05-fixed-filters.js"
+    ],
+    "styles": [
+      "styles/88-product-center.css",
+      "styles/35-risk-reading.css",
+      "styles/40-quality-preview.css",
+      "styles/44-risk-card-alignment.css"
+    ],
+    "checks": [
+      "productCenter"
+    ]
+  },
+  "reportTabs": {
+    "label": "报告与来源依据两标签",
+    "keywords": [
+      "报告标签",
+      "来源依据",
+      "长报告"
+    ],
+    "sources": [
+      "src/modules/global-diagnosis/05-analysis-details.js",
+      "src/modules/global-diagnosis/05-evidence.js"
+    ],
+    "checks": [
+      "reportTabs",
+      "reportRoleRubrics"
+    ]
+  },
+  "reportScoring": {
+    "label": "报告问题诊断及对应原文",
+    "keywords": [
+      "报告诊断细项",
+      "报告评分",
+      "问题原文",
+      "取消报告评分"
+    ],
+    "sources": [
+      "src/modules/global-diagnosis/03-report-deduction-rules.js",
+      "src/modules/global-diagnosis/03-report-scoring.js",
+      "src/modules/global-diagnosis/03-report-diagnosis.js",
+      "src/modules/global-diagnosis/03-report-content.js",
+      "src/modules/global-diagnosis/03-report-low-score-samples.js",
+      "src/modules/global-diagnosis/05-report-score-view.js",
+      "src/modules/global-diagnosis/05-analysis-details.js"
+    ],
+    "styles": [
+      "styles/81-diagnosis-analysis.css"
+    ],
+    "checks": [
+      "reportScoring",
+      "reportTabs",
+      "reportRoleRubrics"
+    ]
+  },
+  "reportProblemPreview": {
+    "label": "报告问题说明三行展开收起",
+    "keywords": [
+      "问题说明",
+      "报告三行",
+      "报告展开收起"
+    ],
+    "sources": [
+      "src/modules/global-diagnosis/04-analysis-tables.js",
+      "src/modules/global-diagnosis/04-task-preview.js",
+      "src/modules/global-diagnosis/04-action-table.js"
+    ],
+    "styles": [
+      "styles/78-global-action-table.css",
+      "styles/81-diagnosis-analysis.css"
+    ],
+    "checks": [
+      "reportProblemPreview",
+      "todoRowHeight",
+      "reportScoring"
+    ]
+  },
+  "pageEntries": {
+    "label": "部门独立页面入口",
+    "keywords": [
+      "独立入口",
+      "产品中心入口",
+      "部门菜单",
+      "HTML入口"
+    ],
+    "sources": [
+      "src/modules/page-entries/01.js",
+      "src/modules/startup/02-render.js",
+      "src/modules/system-management/01-shell.js",
+      "build.mjs"
+    ],
+    "checks": [
+      "pageEntries"
+    ]
+  },
+  "todoRowHeight": {
+    "label": "两张任务表行高及原位展开收起",
+    "keywords": [
+      "行高",
+      "三行",
+      "任务表截断",
+      "展开收起",
+      "展开动画"
+    ],
+    "sources": [
+      "src/modules/global-diagnosis/04-action-table.js",
+      "src/modules/global-diagnosis/04-task-preview.js",
+      "src/modules/ui-controls/03-cell-tooltip.js"
+    ],
+    "styles": [
+      "styles/78-global-action-table.css"
+    ],
+    "checks": [
+      "todoRowHeight"
+    ]
+  },
+  "todoPageLifetime": {
+    "label": "任务刷新恢复样例",
+    "keywords": [
+      "刷新恢复",
+      "任务缓存",
+      "页面内存"
+    ],
+    "sources": [
+      "src/modules/unified-product/07-todo-model.js",
+      "src/modules/task-feedback/01.js",
+      "src/modules/global-diagnosis/03-tasks.js"
+    ],
+    "checks": [
+      "todoPageLifetime"
+    ]
+  },
+  "diagnosisStickyOperations": {
+    "label": "总诊断操作列固定右侧",
+    "keywords": [
+      "操作列",
+      "固定右侧",
+      "横向滚动"
+    ],
+    "sources": [
+      "src/modules/global-diagnosis/04-action-table.js",
+      "src/modules/global-diagnosis/04-analysis-tables.js"
+    ],
+    "styles": [
+      "styles/78-global-action-table.css",
+      "styles/81-diagnosis-analysis.css"
+    ],
+    "checks": [
+      "diagnosisStickyOperations"
+    ]
+  },
+  "globalLoad": {
+    "label": "全局加载与布局性能",
+    "keywords": [
+      "加载",
+      "首次加载",
+      "性能",
+      "布局批处理"
+    ],
+    "sources": [
+      "src/modules/performance/02-layout.js",
+      "src/modules/page-presentation/01.js",
+      "src/modules/ui-controls/01.js",
+      "src/modules/department-tabs/01.js",
+      "src/modules/product-filters/03-confirmed-risk.js",
+      "src/modules/cost-control/04-opportunity-model.js",
+      "src/modules/ui-controls/05-column-resize.js",
+      "src/modules/sample-reference/01.js",
+      "src/modules/unified-product/01-ledger.js",
+      "src/modules/new-products/02-chart-typography.js",
+      "src/modules/new-products/02-table-viewport.js",
+      "src/modules/key-products/09-detail-table.js",
+      "src/modules/key-products/33-chart-layout.js",
+      "src/modules/project-panorama/03-table.js",
+      "src/modules/cost-control/02-view.js"
+    ],
+    "styles": [
+      "styles/51-column-resize.css"
+    ],
+    "checks": [
+      "globalLoad",
+      "globalLoadViews",
+      "newProductDetail",
+      "smoke",
+      "periodPerformance",
+      "projectPanorama"
+    ]
+  },
+  "defaultSorts": {
+    "label": "全局表格默认排序",
+    "keywords": [
+      "默认排序",
+      "默认列",
+      "恢复排序"
+    ],
+    "sources": [
+      "src/modules/risk-presentation/03-sort.js",
+      "src/modules/risk-presentation/04-lists.js",
+      "src/modules/supplier-planning/02-model.js",
+      "src/modules/shop-detail/02-views.js",
+      "src/modules/unified-product/06-stock-view.js",
+      "src/modules/navigation/01.js",
+      "src/modules/core/01.js"
+    ],
+    "styles": [
+      "styles/36-list-trends.css"
+    ],
+    "checks": [
+      "defaultSorts"
+    ]
+  },
+  "columns": {
+    "label": "全局表格拖拽调整列宽",
+    "keywords": [
+      "列宽",
+      "调整列宽",
+      "表格拖拽"
+    ],
+    "sources": [
+      "src/modules/ui-controls/04-column-model.js",
+      "src/modules/ui-controls/05-column-resize.js"
+    ],
+    "styles": [
+      "styles/51-column-resize.css"
+    ],
+    "checks": [
+      "columnResize"
+    ]
+  },
+  "multiFilters": {
+    "label": "六榜及新品多选筛选",
+    "keywords": [
+      "多选"
+    ],
+    "sources": [
+      "src/data/filter-catalog.js",
+      "src/modules/product-filters/00-multiselect.js",
+      "src/modules/product-filters/00-categories.js",
+      "src/modules/risk-presentation/02-platforms.js",
+      "src/modules/risk-presentation/03-filters.js"
+    ],
+    "styles": [
+      "styles/39-multiselect.css",
+      "styles/41-platform-menu.css"
+    ],
+    "checks": [
+      "smoke",
+      "multiFilters"
+    ]
+  },
+  "filters": {
+    "label": "品牌、类目、产品类型、搜索及筛选外观",
+    "keywords": [
+      "筛选",
+      "品牌",
+      "类目",
+      "多选",
+      "搜索"
+    ],
+    "sources": [
+      "src/modules/ui-controls/00-search-field.js",
+      "src/data/filter-catalog.js",
+      "src/modules/product-filters/00-multiselect.js",
+      "src/modules/product-filters/01-model.js",
+      "src/modules/product-filters/00-categories.js",
+      "src/modules/ui-controls/02-search-layout.js",
+      "src/modules/filter-layout/01.js"
+    ],
+    "styles": [
+      "styles/24-filters.css",
+      "styles/39-multiselect.css"
+    ],
+    "checks": [
+      "smoke",
+      "filters"
+    ]
+  },
+  "riskSticky": {
+    "label": "预警标题栏吸顶与AI标题入屏边界",
+    "sources": [
+      "src/modules/section-sticky/01.js"
+    ],
+    "styles": [
+      "styles/90-section-sticky.css"
+    ],
+    "checks": [
+      "riskSticky",
+      "smoke"
+    ]
+  },
+  "sectionSticky": {
+    "label": "全局十模块标题与控件吸顶",
+    "sources": [
+      "src/modules/section-sticky/01.js",
+      "src/modules/navigation/01.js"
+    ],
+    "styles": [
+      "styles/90-section-sticky.css"
+    ],
+    "checks": [
+      "sectionSticky",
+      "riskSticky",
+      "smoke"
+    ]
+  },
+  "riskGroups": {
+    "label": "品质、库存与亏损三分区榜单",
+    "sources": [
+      "src/modules/risk-presentation/02-render.js",
+      "src/modules/risk-presentation/01-shortage.js"
+    ],
+    "styles": [
+      "styles/89-risk-board-groups.css"
+    ],
+    "checks": [
+      "riskGroups",
+      "risk",
+      "riskCardClick",
+      "productCenter"
+    ]
+  },
+  "risk": {
+    "label": "六榜卡片、完整榜单、指标与趋势",
+    "keywords": [
+      "榜单",
+      "卡片",
+      "趋势",
+      "表头",
+      "店铺"
+    ],
+    "sources": [
+      "src/data/filter-catalog.js",
+      "src/modules/risk-presentation/02-cards.js",
+      "src/modules/risk-card-filters/01.js",
+      "src/modules/risk-presentation/01-fields.js",
+      "src/modules/risk-presentation/01-quality.js",
+      "src/modules/quality-metrics/02-violation-spus.js",
+      "src/modules/quality-monthly/00-contact.js",
+      "src/modules/risk-presentation/01-shop.js",
+      "src/modules/risk-presentation/02-pdd-links.js",
+      "src/modules/shop-scoring/00-rank-samples.js",
+      "src/modules/risk-presentation/03-filters.js",
+      "src/modules/risk-presentation/03-columns.js",
+      "src/modules/risk-presentation/03-sort.js",
+      "src/modules/risk-presentation/04-lists.js",
+      "src/modules/risk-presentation/04-sticky-header.js",
+      "src/modules/inventory-detail/01-coverage-samples.js",
+      "src/modules/unified-product/06-stock-model.js",
+      "src/modules/unified-product/06-stock-view.js",
+      "src/modules/risk-presentation/03-product-grade.js",
+      "src/modules/date-range/01-model.js",
+      "src/modules/date-range/02-picker.js",
+      "src/modules/risk-presentation/02-platforms.js",
+      "src/modules/risk-presentation/02-platform-menu.js",
+      "src/modules/navigation/01.js",
+      "src/modules/core/01.js"
+    ],
+    "styles": [
+      "styles/34-risk-presentation.css",
+      "styles/35-risk-reading.css",
+      "styles/36-list-trends.css",
+      "styles/42-shop-preview.css",
+      "styles/41-platform-menu.css"
+    ],
+    "checks": [
+      "smoke",
+      "risk"
+    ]
+  },
+  "media": {
+    "label": "图片直接放大及关闭",
+    "keywords": [
+      "图片",
+      "预览",
+      "放大"
+    ],
+    "sources": [
+      "src/modules/risk-presentation/05-media.js"
+    ],
+    "styles": [
+      "styles/34-risk-presentation.css"
+    ],
+    "checks": [
+      "smoke"
+    ],
+    "manual": [
+      "图片遮罩、关闭与抽屉状态；涉及此功能时仍需专项检查"
+    ]
+  },
+  "format": {
+    "label": "金额、百分比、精度和编号文案",
+    "keywords": [
+      "金额",
+      "百分比",
+      "精度",
+      "编号"
+    ],
+    "sources": [
+      "src/modules/product-filters/04-display.js",
+      "src/modules/core/01.js",
+      "src/modules/risk-presentation/02-cards.js"
+    ],
+    "styles": [],
+    "checks": [
+      "smoke"
+    ],
+    "manual": [
+      "金额边界、比例与计算口径；涉及此功能时仍需专项检查"
+    ]
+  },
+  "riskCardClick": {
+    "label": "首页六榜整条记录点击详情",
+    "keywords": [
+      "榜单整行点击",
+      "记录点击抽屉"
+    ],
+    "sources": [
+      "src/modules/risk-presentation/02-cards.js",
+      "src/modules/risk-presentation/02-platforms.js"
+    ],
+    "styles": [
+      "styles/35-risk-reading.css"
+    ],
+    "checks": [
+      "riskCardClick"
+    ]
+  },
+  "detailPeriod": {
+    "label": "产品与店铺详情标签栏时间控件",
+    "keywords": [
+      "详情时间控件",
+      "drawerMountDetailPeriod"
+    ],
+    "sources": [
+      "src/modules/drawers/02-controller.js",
+      "src/modules/drawers/05-period.js",
+      "src/modules/unified-product/05-grade-trend-period.js",
+      "src/modules/unified-product/07-controller.js",
+      "src/modules/shop-detail/03-controller.js",
+      "src/modules/date-range/01-model.js",
+      "src/modules/date-range/02-picker.js"
+    ],
+    "styles": [
+      "styles/26-risk-controls.css",
+      "styles/33-unified-product.css"
+    ],
+    "checks": [
+      "detailPeriod"
+    ]
+  },
+  "detail": {
+    "label": "统一SPU详情、表单和多层抽屉",
+    "keywords": [
+      "详情",
+      "抽屉",
+      "表单"
+    ],
+    "sources": [
+      "src/modules/unified-product/03-stock-balances.js",
+      "src/modules/unified-product/06-stock-cards.js",
+      "src/modules/unified-product/00-grade-samples.js",
+      "src/modules/unified-product/00-new-success-samples.js",
+      "src/modules/unified-product/07-controller.js",
+      "src/modules/unified-product/04-ai-analysis.js",
+      "src/modules/unified-product/04-ai-summary.js",
+      "src/modules/unified-product/10-entries.js",
+      "src/modules/risk-presentation/06-details.js",
+      "src/modules/drawers/03-stack.js",
+      "src/modules/drawers/05-period.js",
+      "src/modules/unified-product/05-sales-trend.js",
+      "src/modules/unified-product/05-operating-view.js",
+      "src/modules/unified-product/05-operating-channels.js",
+      "src/modules/unified-product/05-channel-contribution.js",
+      "src/modules/unified-product/05-grade-trend-model.js",
+      "src/modules/unified-product/05-grade-trend-view.js",
+      "src/modules/unified-product/05-grade-trend-period.js",
+      "src/modules/unified-product/05-quality-trend.js",
+      "src/modules/quality-monthly/00-return-targets.js",
+      "src/modules/unified-product/05-quality-view.js",
+      "src/modules/unified-product/05-violation-details.js",
+      "src/modules/unified-product/06-stock-view.js",
+      "src/modules/unified-product/06-stock-model.js",
+      "src/modules/unified-product/07-todo-diagnosis.js",
+      "src/modules/unified-product/07-todo-model.js",
+      "src/modules/unified-product/07-todo-view.js",
+      "src/modules/unified-product/07-todo-samples.js",
+      "src/modules/unified-product/07-todo-batch.js",
+      "src/modules/unified-product/07-todo-inline.js",
+      "src/modules/unified-product/07-todo-description.js",
+      "src/modules/unified-product/07-todo-dialog.js",
+      "src/modules/unified-product/07-todo-people.js",
+      "src/modules/unified-product/04-ai-policy.js",
+      "src/modules/unified-product/04-ai-demo.js",
+      "src/modules/unified-product/04-ai-context.js",
+      "src/modules/page-presentation/01.js",
+      "src/modules/inventory-detail/01-coverage-samples.js",
+      "src/modules/unified-product/05-contact-view.js",
+      "src/modules/unified-product/05-contact-tooltip.js",
+      "src/modules/navigation/01.js",
+      "src/modules/core/01.js",
+      "src/modules/unified-product/08-targets.js"
+    ],
+    "styles": [
+      "styles/61-stock-balance-cards.css",
+      "styles/31-drawer-layers.css",
+      "styles/33-unified-product.css",
+      "styles/60-product-operating.css",
+      "styles/46-product-todos.css"
+    ],
+    "checks": [
+      "smoke",
+      "detailOperating",
+      "detailQualityTodos"
+    ],
+    "manual": [
+      "真实AI服务、组织权限、跨端协作和通知发送尚未接入"
+    ]
+  },
+  "sales": {
+    "label": "销售达成与经营明细",
+    "keywords": [
+      "销售",
+      "达成",
+      "利润率"
+    ],
+    "sources": [
+      "src/modules/sales-review/00-samples.js",
+      "src/modules/sales-review/01-model.js",
+      "src/modules/sales-review/02-trend.js",
+      "src/modules/sales-review/02-view.js",
+      "src/modules/sales-review/03-controller.js",
+      "src/data/lifecycle-facts.js",
+      "src/modules/lifecycle-task/00-facts.js",
+      "src/modules/lifecycle-task/01.js",
+      "src/modules/lifecycle-products/01.js",
+      "src/modules/channel-allocation/01.js",
+      "src/modules/product-workspace/01.js",
+      "src/modules/sales-review/02-scope-view.js"
+    ],
+    "styles": [
+      "styles/38-document-review.css",
+      "styles/38-sales-scroll.css"
+    ],
+    "checks": [
+      "smoke",
+      "salesCards"
+    ],
+    "manual": [
+      "经营比率、目标缺失与销售抽屉；涉及此功能时仍需专项检查"
+    ]
+  },
+  "styles": {
+    "label": "全局控件与表格外观",
+    "keywords": [
+      "样式",
+      "布局",
+      "边框"
+    ],
+    "sources": [
+      "src/modules/ui-controls/02-search-layout.js",
+      "src/modules/ui-controls/03-cell-tooltip.js"
+    ],
+    "styles": [
+      "styles/23-panels.css",
+      "styles/24-filters.css",
+      "styles/38-document-review.css",
+      "styles/39-multiselect.css",
+      "styles/49-cell-tooltip.css"
+    ],
+    "checks": [
+      "smoke"
+    ]
+  },
+  "period": {
+    "label": "时间控件、年度聚合与切换性能",
+    "keywords": [
+      "时间",
+      "年份",
+      "季度",
+      "卡顿",
+      "缓存"
+    ],
+    "sources": [
+      "src/modules/performance/01-cache.js",
+      "src/modules/performance/02-layout.js",
+      "src/modules/period/01.js",
+      "src/modules/risk-date/01.js",
+      "src/modules/quality-monthly/01.js",
+      "src/modules/quality-metrics/01.js",
+      "src/modules/return-comparison/01.js",
+      "src/modules/product-filters/03-confirmed-risk.js",
+      "src/modules/unified-product/02-operating-adapters.js",
+      "src/modules/risk-presentation/01-return.js",
+      "src/modules/risk-presentation/02-platforms.js",
+      "src/modules/product-center/04-risk.js",
+      "src/modules/new-products/02-view.js",
+      "src/modules/key-products/03-view.js",
+      "src/modules/key-products/33-chart-layout.js",
+      "src/modules/supplier-planning/03-view.js",
+      "src/modules/supplier-planning/05-controller.js",
+      "src/modules/unified-product/00-grade-samples.js",
+      "src/modules/unified-product/01-ledger.js",
+      "src/modules/unified-product/01-aggregates.js",
+      "src/modules/risk-presentation/02-render.js"
+    ],
+    "styles": [],
+    "checks": [
+      "smoke",
+      "periodPerformance",
+      "interactionPerformance"
+    ]
+  },
+  "shopDetail": {
+    "label": "店铺详情、渠道岗位与店铺诊断",
+    "keywords": [
+      "店铺详情",
+      "店铺负责人",
+      "店铺违规"
+    ],
+    "sources": [
+      "src/modules/shop-detail/01-model.js",
+      "src/modules/shop-detail/02-views.js",
+      "src/modules/shop-detail/03-controller.js",
+      "src/modules/shop-detail/01-operating.js",
+      "src/modules/shop-detail/01-ai-context.js",
+      "src/modules/shop-detail/01-pdd-diagnosis.js",
+      "src/modules/shop-detail/01-diagnosis.js",
+      "src/modules/shop-detail/02-violations.js",
+      "src/modules/sample-reference/03-shop-sales.js"
+    ],
+    "styles": [
+      "styles/47-shop-detail.css"
+    ],
+    "checks": [
+      "smoke",
+      "shopDetail"
+    ],
+    "manual": [
+      "组织岗位为原型样例，真实登录权限和外部业务接口尚未接入"
+    ]
+  },
+  "newProducts": {
+    "label": "新品专项管控、计划样例与明细筛选",
+    "keywords": [
+      "新品",
+      "上线",
+      "销售成功率"
+    ],
+    "sources": [
+      "src/modules/unified-product/03-stock-balances.js",
+      "src/modules/unified-product/06-stock-cards.js",
+      "src/modules/new-products/00-samples.js",
+      "src/modules/new-products/01-model.js",
+      "src/modules/new-products/02-launch-picker.js",
+      "src/modules/new-products/02-price-distribution.js",
+      "src/modules/new-products/02-scope-tabs.js",
+      "src/modules/key-products/19-price-filter.js",
+      "src/modules/new-products/02-table-viewport.js",
+      "src/modules/new-products/02-chart-typography.js",
+      "src/modules/new-products/02-view.js",
+      "src/modules/new-product-facts/01.js",
+      "src/modules/unified-product/00-grade-samples.js",
+      "src/modules/unified-product/00-new-success-samples.js",
+      "src/modules/unified-product/01-ledger.js",
+      "src/modules/filter-layout/01.js",
+      "src/modules/new-products/00-delivery-samples.js",
+      "src/modules/new-products/01-delivery-model.js",
+      "src/modules/new-products/02-delivery-view.js",
+      "src/modules/new-products/01-success.js",
+      "src/modules/new-products/03-assessment-view.js",
+      "src/modules/new-products/03-assessment-query.js",
+      "src/modules/new-products/03-assessment-sort.js",
+      "src/modules/new-products/04-success-help.js"
+    ],
+    "styles": [
+      "styles/48-new-products.css",
+      "styles/74-kpm-price-filter.css"
+    ],
+    "checks": [
+      "smoke",
+      "newProducts"
+    ]
+  },
+  "diagnosisDailyReview": {
+    "label": "诊断日期、更新日期、四状态及跟进表",
+    "sources": [
+      "src/modules/ai-result-history/01-store.js",
+      "src/modules/ai-result-history/03-followup.js",
+      "src/modules/ai-result-history/02-global.js",
+      "src/modules/global-diagnosis/04-analysis-tables.js",
+      "src/modules/global-diagnosis/04-key-work-table.js",
+      "src/modules/global-diagnosis/04-analysis-view.js"
+    ],
+    "checks": [
+      "diagnosisDailyReview",
+      "productAiEvidence",
+      "shopDetail"
+    ]
+  },
+  "productAiEvidence": {
+    "label": "产品本次诊断依据与部门根因去版本展示",
+    "sources": [
+      "src/modules/unified-product/04-ai-summary.js",
+      "src/modules/unified-product/04-ai-evidence-data.js",
+      "src/modules/unified-product/04-ai-evidence-sources.js",
+      "src/modules/unified-product/04-ai-evidence-view.js",
+      "src/modules/project-panorama/09-analysis-view.js"
+    ],
+    "styles": [
+      "styles/ai-current-evidence.css"
+    ],
+    "checks": [
+      "productAiEvidence",
+      "aiSummary",
+      "projectAnalysis"
+    ]
+  },
+  "aiSummary": {
+    "label": "产品链副总单品AI总结",
+    "keywords": [
+      "AI总结",
+      "产品决策",
+      "提示词"
+    ],
+    "sources": [
+      "src/modules/unified-product/04-ai-analysis.js",
+      "src/modules/unified-product/04-ai-summary.js",
+      "src/modules/unified-product/04-ai-policy.js",
+      "src/modules/unified-product/07-todo-diagnosis.js",
+      "src/modules/unified-product/04-ai-demo.js",
+      "src/modules/unified-product/04-ai-context.js",
+      "src/modules/page-presentation/01.js"
+    ],
+    "styles": [
+      "styles/33-unified-product.css"
+    ],
+    "checks": [
+      "aiSummary"
+    ],
+    "manual": [
+      "当前为完整的汇报模拟资料及本地规则推演；真实AI和企业系统未连接"
+    ]
+  },
+  "projects": {
+    "label": "项目红绿灯全景管控",
+    "keywords": [
+      "项目",
+      "红黄灯率",
+      "风险台账",
+      "卡点阶段",
+      "根因分析"
+    ],
+    "sources": [
+      "src/modules/project-panorama/00-samples.js",
+      "src/modules/project-panorama/01-model.js",
+      "src/modules/project-panorama/02-overview.js",
+      "src/modules/project-panorama/03-table.js",
+      "src/modules/project-panorama/03-scope-tabs.js",
+      "src/modules/project-panorama/04-controller.js",
+      "src/modules/project-panorama/05-ledger-popover.js",
+      "src/modules/project-panorama/06-stage-cascader.js",
+      "src/modules/project-panorama/07-department-risks.js",
+      "src/modules/project-panorama/08-analysis-model.js",
+      "src/modules/project-panorama/09-analysis-view.js",
+      "src/modules/project-panorama/09-analysis-ledger.js",
+      "src/modules/project-panorama/07-filter-menus.js",
+      "src/modules/navigation/01.js",
+      "src/modules/core/01.js"
+    ],
+    "styles": [
+      "styles/50-project-panorama.css",
+      "styles/52-project-analysis.css",
+      "styles/53-project-risk-events.css"
+    ],
+    "checks": [
+      "projectPanorama"
+    ],
+    "manual": [
+      "项目台账、归纳结果为本地样例，真实数据及在线 AI 服务尚未接入。"
+    ]
+  },
+  "project-analysis": {
+    "label": "部门风险根因分析",
+    "keywords": [
+      "部门风险根因",
+      "AI归因"
+    ],
+    "sources": [
+      "src/modules/project-panorama/08-analysis-model.js",
+      "src/modules/project-panorama/09-analysis-view.js",
+      "src/modules/project-panorama/09-analysis-ledger.js"
+    ],
+    "styles": [
+      "styles/52-project-analysis.css"
+    ],
+    "checks": [
+      "projectAnalysis"
+    ],
+    "manual": [
+      "当前为本地归纳样例；在线 AI 服务和真实台账未接入。"
+    ]
+  },
+  "dates": {
+    "label": "日期显示与项目排序",
+    "keywords": [
+      "日期格式",
+      "日期排序",
+      "延期上线日期"
+    ],
+    "sources": [
+      "src/modules/page-presentation/02-dates.js",
+      "src/modules/project-panorama/01-model.js",
+      "src/modules/project-panorama/03-table.js",
+      "src/modules/project-panorama/03-scope-tabs.js",
+      "src/modules/project-panorama/04-controller.js",
+      "src/modules/project-panorama/07-filter-menus.js",
+      "src/modules/navigation/01.js",
+      "src/modules/core/01.js"
+    ],
+    "styles": [
+      "styles/50-project-panorama.css"
+    ],
+    "checks": [
+      "projectDates"
+    ]
+  },
+  "risk-events": {
+    "label": "风险事件数据（概览图已移除）",
+    "keywords": [
+      "风险新增",
+      "闭环风险",
+      "风险统计时间"
+    ],
+    "sources": [
+      "src/modules/project-panorama/10-risk-events-model.js",
+      "src/modules/ui-controls/06-natural-period-model.js",
+      "src/modules/ui-controls/07-natural-period-picker.js",
+      "src/modules/project-panorama/04-controller.js",
+      "src/modules/project-panorama/07-filter-menus.js",
+      "src/modules/navigation/01.js",
+      "src/modules/core/01.js"
+    ],
+    "styles": [
+      "styles/53-project-risk-events.css",
+      "styles/56-natural-period.css"
+    ],
+    "checks": [
+      "projectRiskEvents"
+    ],
+    "manual": [
+      "历史日期为固定样例；真实数据需提供风险单创建日期、闭环日期及风险灯色。"
+    ]
+  },
+  "risk-detail": {
+    "label": "部门内嵌风险台账",
+    "keywords": [
+      "风险明细",
+      "整改期限排序",
+      "预防措施",
+      "闭环验证"
+    ],
+    "sources": [
+      "src/modules/project-panorama/12-risk-detail-model.js",
+      "src/modules/project-panorama/13-risk-detail-view.js",
+      "src/modules/project-panorama/09-analysis-view.js",
+      "src/modules/project-panorama/09-analysis-ledger.js"
+    ],
+    "styles": [
+      "styles/54-project-risk-detail.css"
+    ],
+    "checks": [
+      "projectRiskDetail"
+    ]
+  },
+  "lifecycle-links": {
+    "label": "生命周期计划完成数联动",
+    "keywords": [
+      "自选上品计划",
+      "生命周期联动",
+      "年度累计完成"
+    ],
+    "sources": [
+      "src/modules/lifecycle-products/01.js",
+      "src/modules/project-panorama/14-lifecycle-links.js",
+      "src/modules/project-panorama/01-model.js",
+      "src/modules/project-panorama/03-table.js",
+      "src/modules/project-panorama/03-scope-tabs.js",
+      "src/modules/project-panorama/04-controller.js",
+      "src/data/lifecycle-facts.js",
+      "src/modules/lifecycle-task/00-facts.js",
+      "src/modules/lifecycle-task/01.js",
+      "src/modules/channel-allocation/01.js",
+      "src/modules/product-workspace/01.js",
+      "src/modules/project-panorama/07-filter-menus.js",
+      "src/modules/navigation/01.js",
+      "src/modules/core/01.js"
+    ],
+    "styles": [
+      "styles/50-project-panorama.css"
+    ],
+    "checks": [
+      "lifecycleProjectLinks"
+    ],
+    "manual": [
+      "源项目实际上线日期缺失时按空值处理，不能用计划日期替代。"
+    ]
+  },
+  "lifecycleChainFilter": {
+    "label": "生命周期链群筛选与合并目标",
+    "keywords": [
+      "生命周期链群",
+      "个护健康合并",
+      "ltChainFilter"
+    ],
+    "sources": [
+      "src/modules/lifecycle-targets/02-chain-filter.js",
+      "src/modules/lifecycle-targets/02-dashboard.js",
+      "src/modules/lifecycle-task/01.js",
+      "src/modules/lifecycle-products/01.js",
+      "src/modules/project-panorama/14-lifecycle-links.js"
+    ],
+    "styles": [
+      "styles/55-lifecycle-targets.css"
+    ],
+    "checks": [
+      "lifecycleChainFilter"
+    ]
+  },
+  "lifecycle-targets": {
+    "label": "系统管理生命周期目标配置",
+    "keywords": [
+      "配置目标",
+      "季度目标",
+      "月度拆分",
+      "生命周期目标"
+    ],
+    "sources": [
+      "src/modules/lifecycle-targets/00-samples.js",
+      "src/modules/lifecycle-targets/01-model.js",
+      "src/modules/lifecycle-targets/01-transactions.js",
+      "src/modules/lifecycle-targets/02-dashboard.js",
+      "src/modules/lifecycle-targets/02-chain-filter.js",
+      "src/modules/lifecycle-targets/03-view.js",
+      "src/modules/lifecycle-targets/04-navigation.js",
+      "src/modules/lifecycle-targets/05-controller.js",
+      "src/modules/lifecycle-targets/06-import-view.js",
+      "src/modules/lifecycle-targets/07-history-view.js",
+      "src/modules/lifecycle-targets/08-data-controller.js",
+      "src/modules/cost-import/01.js",
+      "src/modules/lifecycle-task/01.js",
+      "src/modules/system-management/01-shell.js",
+      "src/data/lifecycle-facts.js",
+      "src/modules/lifecycle-task/00-facts.js",
+      "src/modules/lifecycle-products/01.js",
+      "src/modules/channel-allocation/01.js",
+      "src/modules/product-workspace/01.js"
+    ],
+    "styles": [
+      "styles/55-lifecycle-targets.css",
+      "styles/55-lifecycle-target-data.css"
+    ],
+    "checks": [
+      "lifecycleTargets",
+      "lifecycleTargetData"
+    ],
+    "manual": [
+      "配置保存在当前浏览器；跨用户权限、服务端保存和多人冲突控制未接入。"
+    ]
+  },
+  "shop-config": {
+    "label": "数智罗盘六平台店铺配置",
+    "keywords": [
+      "配置店铺类型",
+      "店铺配置",
+      "是否考核店铺",
+      "店铺分类"
+    ],
+    "sources": [
+      "src/data/shop-classification.js",
+      "src/modules/shop-config/01-model.js",
+      "src/modules/shop-config/02-view.js",
+      "src/modules/risk-presentation/03-filters.js",
+      "数智罗盘/shop-config-src/platforms.js",
+      "数智罗盘/shop-config-src/shop-settings.js",
+      "数智罗盘/shop-config-src/goal-attribution.js",
+      "数智罗盘/shop-config-src/app.js",
+      "数智罗盘/目标管理/scripts/shop-link.js",
+      "src/modules/shop-config/03-controller.js",
+      "src/modules/system-management/01-shell.js"
+    ],
+    "styles": [
+      "数智罗盘/shop-config-src/shop-settings.css"
+    ],
+    "checks": [
+      "shopConfig"
+    ],
+    "manual": [
+      "数智罗盘页面为关联原型的本地副本；目标、负责计划及分类保存在当前浏览器，尚未连接真实系统接口。"
+    ]
+  },
+  "shop-filters": {
+    "label": "店铺榜搜索分类与考核筛选",
+    "keywords": [
+      "店铺筛选",
+      "考核店铺筛选"
+    ],
+    "sources": [
+      "src/modules/risk-presentation/03-filters.js",
+      "src/modules/risk-presentation/04-lists.js"
+    ],
+    "styles": [
+      "styles/39-multiselect.css"
+    ],
+    "checks": [
+      "shopFilters"
+    ]
+  },
+  "inventory": {
+    "label": "全品类库存管控",
+    "keywords": [
+      "库存",
+      "品牌库存",
+      "类目库存",
+      "翻新延期",
+      "ipIndicator"
+    ],
+    "sources": [
+      "src/modules/unified-product/03-stock-balances.js",
+      "src/modules/unified-product/06-stock-cards.js",
+      "src/modules/inventory-period/01.js",
+      "src/modules/inventory-period/02-rules.js",
+      "src/modules/inventory-period/02-summary-help.js",
+      "src/modules/inventory-period/02-season-filter.js",
+      "src/modules/inventory-period/03-view.js",
+      "src/modules/inventory-period/02-overview.js",
+      "src/modules/inventory-period/02-refurb.js",
+      "src/modules/inventory-period/02-refurb-distribution.js",
+      "src/modules/inventory-detail/01.js",
+      "src/modules/period/01.js",
+      "src/modules/inventory-period/02-group-model.js",
+      "src/modules/inventory-period/02-group-table.js",
+      "src/modules/unified-product/06-stock-view.js",
+      "src/modules/metric-tooltip/01.js",
+      "src/modules/inventory-period/02-metric-period.js",
+      "src/modules/inventory-period/02-metric-facts.js",
+      "src/modules/navigation/01.js",
+      "src/modules/core/01.js",
+      "src/modules/inventory-period/02-brand-share-model.js",
+      "src/modules/inventory-period/02-brand-share-view.js",
+      "src/modules/inventory-period/02-stagnant-top-model.js",
+      "src/modules/inventory-period/02-stagnant-top-view.js",
+      "src/modules/inventory-period/02-stale-snapshots.js",
+      "src/modules/inventory-period/02-stale-analysis-model.js",
+      "src/modules/inventory-period/02-stale-trend-view.js",
+      "src/modules/inventory-period/02-stale-analysis-view.js",
+      "src/modules/inventory-period/02-stale-samples.js"
+    ],
+    "styles": [
+      "styles/61-stock-balance-cards.css",
+      "styles/58-inventory-control.css",
+      "styles/62-inventory-groups.css",
+      "styles/62-inventory-brand-shares.css",
+      "styles/62-inventory-stagnant-top.css",
+      "styles/62-inventory-stale-analysis.css"
+    ],
+    "checks": [
+      "inventoryStaleAnalysis",
+      "inventoryStagnantTop",
+      "inventoryBrandShares",
+      "inventoryControl"
+    ],
+    "manual": [
+      "当前库存与交付、翻新数据来自本地样例台账，未连接实时库存接口。"
+    ]
+  },
+  "stockRankingRules": {
+    "label": "缺货双类型、呆滞预警与共用库存规则的Top10",
+    "sources": [
+      "src/modules/risk-presentation/01-shortage.js",
+      "src/modules/risk-presentation/01-stagnant.js",
+      "src/modules/risk-presentation/01-stock-skus.js",
+      "src/modules/risk-presentation/01-stock.js",
+      "src/modules/risk-presentation/02-render.js",
+      "src/modules/risk-presentation/04-lists.js",
+      "src/modules/inventory-period/02-stagnant-top-model.js",
+      "src/modules/inventory-period/02-stagnant-top-view.js",
+      "src/modules/business-rules/00-definitions.js",
+      "src/modules/business-rules/00-condition-catalog.js",
+      "src/modules/business-rules/00-condition-runtime.js",
+      "src/modules/unified-product/03-stock-adapters.js",
+      "src/modules/unified-product/06-stock-model.js",
+      "src/modules/business-rules/01-validation.js"
+    ],
+    "styles": [
+      "styles/40-quality-preview.css"
+    ],
+    "checks": [
+      "shortagePreview",
+      "stagnantPreview",
+      "inventoryStagnantTop",
+      "inventoryStockRules",
+      "inventoryWarningRules",
+      "businessRulesToday",
+      "defaultSorts"
+    ]
+  },
+  "keyProducts": {
+    "label": "关键产品矩阵和分级明细",
+    "keywords": [
+      "关键产品",
+      "波士顿矩阵",
+      "产品分级",
+      "kpmRender",
+      "kpmRows",
+      "等级变动",
+      "SABC"
+    ],
+    "sources": [
+      "src/modules/unified-product/03-stock-balances.js",
+      "src/modules/unified-product/06-stock-cards.js",
+      "src/modules/unified-product/00-grade-samples.js",
+      "src/modules/key-products/01-model.js",
+      "src/modules/key-products/02-chart.js",
+      "src/modules/key-products/03-view.js",
+      "src/modules/key-products/04-controller.js",
+      "src/modules/key-products/05-tooltip.js",
+      "src/modules/key-products/06-chart-zoom.js",
+      "src/modules/key-products/18-zoom-filters.js",
+      "src/modules/key-products/07-grade-model.js",
+      "src/modules/key-products/08-grade-view.js",
+      "src/modules/key-products/09-detail-table.js",
+      "src/modules/key-products/10-dropdowns.js",
+      "src/modules/key-products/11-channel-scope.js",
+      "src/modules/key-products/12-grade-help.js",
+      "src/modules/metric-rules/01.js",
+      "src/modules/metric-tooltip/01.js",
+      "src/modules/director-quadrants/01.js",
+      "src/modules/director-risk/01.js",
+      "src/modules/key-products/13-management-samples.js",
+      "src/modules/key-products/14-management-model.js",
+      "src/modules/key-products/15-management-view.js",
+      "src/modules/key-products/34-scope-tabs.js",
+      "src/modules/key-products/20-sidebar.js",
+      "src/modules/key-products/33-chart-layout.js",
+      "src/modules/business-rules/00-condition-runtime.js",
+      "src/modules/business-rules/00-condition-catalog.js",
+      "src/modules/business-rules/01-store.js",
+      "src/modules/business-rules/00-grade-scale.js"
+    ],
+    "styles": [
+      "styles/59-key-products.css",
+      "styles/68-product-management.css",
+      "styles/75-key-product-sidebar.css",
+      "styles/88-key-product-dual-cards.css"
+    ],
+    "checks": [
+      "keyProductMonthlyPolicy",
+      "keyProducts",
+      "keyProductDualCards"
+    ],
+    "manual": [
+      "SABC只使用GSV；利润独立判定经营标签，利润缺失保留规模评级。"
+    ]
+  },
+  "suppliers": {
+    "label": "供应链采购资源管控",
+    "keywords": [
+      "供应链采购",
+      "产品寻源",
+      "整机资源池",
+      "物料供应商",
+      "scpRender",
+      "合作目标"
+    ],
+    "sources": [
+      "src/data/filter-catalog.js",
+      "src/modules/supplier-planning/00-reference.js",
+      "src/modules/supplier-planning/00-resource-metrics.js",
+      "src/modules/supplier-planning/01-ledger.js",
+      "src/modules/supplier-planning/02-model.js",
+      "src/modules/supplier-planning/03-view.js",
+      "src/modules/supplier-planning/03-material-view.js",
+      "src/modules/supplier-planning/04-drawers.js",
+      "src/modules/supplier-planning/05-controller.js",
+      "src/modules/page-presentation/01.js",
+      "src/modules/period/01.js",
+      "src/modules/supplier-pool/02.js",
+      "src/modules/product-media/01.js",
+      "src/modules/supplier-planning/03-charts.js",
+      "src/modules/supplier-planning/03-material-help.js",
+      "src/modules/supplier-planning/03-resource-help.js",
+      "src/modules/supplier-planning/04-category-list.js",
+      "src/modules/supplier-planning/04-material-list.js",
+      "src/modules/supplier-targets/01-model.js",
+      "src/modules/supplier-targets/02-view.js",
+      "src/modules/supplier-targets/03-controller.js",
+      "src/modules/date-range/01-model.js",
+      "src/modules/date-range/02-picker.js",
+      "src/modules/supplier-planning/03-navigation.js",
+      "src/modules/metric-tooltip/01.js",
+      "src/modules/navigation/01.js",
+      "src/modules/core/01.js"
+    ],
+    "styles": [
+      "styles/63-supplier-planning.css",
+      "styles/66-supplier-targets.css"
+    ],
+    "checks": [
+      "supplierMaterialPlan",
+      "supplierMaterialRows",
+      "supplierMaterialDrawer",
+      "supplierMaterialSummarySort",
+      "supplierMaterialBrand",
+      "supplierCategoryTabs",
+      "supplierQuarterNavigation"
+    ],
+    "manual": [
+      "供应商名称与三级类目来自用户截图；供应关系、准入合作日期及季度目标为固定交互样例，未连接供应商后台。"
+    ]
+  },
+  "cost": {
+    "label": "降本增效卡片、部门指标明细及AI任务联动",
+    "keywords": [
+      "降本",
+      "降本增效",
+      "优先降本清单",
+      "降本分类"
+    ],
+    "sources": [
+      "src/modules/cost-control/00-categories.js",
+      "src/modules/cost-control/00-samples.js",
+      "src/modules/cost-control/00-monthly-reference.js",
+      "src/modules/cost-control/00-monthly-samples.js",
+      "src/modules/cost-control/00-department-directory.js",
+      "src/modules/cost-control/01-model.js",
+      "src/modules/cost-control/02-view.js",
+      "src/modules/cost-control/03-department.js",
+      "src/modules/cost-control/04-opportunity-model.js",
+      "src/modules/cost-control/06-controller.js",
+      "src/modules/unified-product/07-todo-dialog.js",
+      "src/modules/unified-product/07-todo-batch.js",
+      "src/modules/unified-product/07-todo-diagnosis.js",
+      "src/modules/unified-product/07-todo-model.js"
+    ],
+    "styles": [
+      "styles/64-cost-control.css"
+    ],
+    "checks": [
+      "costControl",
+      "costDepartmentDirectory"
+    ],
+    "manual": [
+      "金额及成本报价为交互样例，预计单台降本空间按关联报价测算，真实财务台账及线上任务服务尚未连接"
+    ]
+  },
+  "costConfig": {
+    "label": "降本实际值与目标值分Tab展示及独立导入、实际整月覆盖",
+    "keywords": [
+      "降本增效配置",
+      "月度降本",
+      "项目导入",
+      "降本分类导入",
+      "降本年度目标模板"
+    ],
+    "sources": [
+      "src/modules/cost-control/00-categories.js",
+      "src/modules/cost-control/00-monthly-reference.js",
+      "src/modules/cost-control/00-monthly-samples.js",
+      "src/modules/cost-control/00-department-directory.js",
+      "src/modules/cost-config/00-metric-catalog.js",
+      "src/modules/cost-config/00-directory-migration.js",
+      "src/modules/cost-config/01-model.js",
+      "src/modules/cost-config/01-department-targets.js",
+      "src/modules/cost-config/01-year-periods.js",
+      "src/modules/cost-config/02-import.js",
+      "src/modules/cost-config/02-annual-import.js",
+      "src/modules/cost-config/02-department-import.js",
+      "src/modules/cost-config/02-combined-import.js",
+      "src/modules/cost-config/02-workbook-import.js",
+      "src/modules/cost-config/02-import-preview.js",
+      "src/modules/cost-config/02-detail-schema.js",
+      "src/modules/cost-config/02-detail-validation.js",
+      "src/modules/cost-config/02-detail-store.js",
+      "src/modules/cost-config/02-split-import.js",
+      "src/modules/cost-config/06-split-view.js",
+      "src/modules/cost-config/06-target-view.js",
+      "src/modules/cost-config/03-view.js",
+      "src/modules/cost-config/04-controller.js",
+      "src/modules/cost-config/06-combined-view.js"
+    ],
+    "styles": [
+      "styles/65-cost-config.css"
+    ],
+    "checks": [
+      "costConfig",
+      "costDepartmentDirectory",
+      "costStructuredTemplate",
+      "costDetailRules",
+      "costTargetGrid",
+      "costActualGrid",
+      "costImportHeaders",
+      "costImportColors",
+      "costSharedUpload",
+      "costUpdater"
+    ],
+    "manual": [
+      "浏览器本地持久化，未接入正式后台服务"
+    ]
+  },
+  "supplierTargets": {
+    "label": "供应商季度合作目标、储备准入标准及品牌等级",
+    "keywords": [
+      "供应商目标",
+      "品牌等级",
+      "配置目标",
+      "stSetValue"
+    ],
+    "sources": [
+      "src/data/filter-catalog.js",
+      "src/modules/supplier-targets/01-model.js",
+      "src/modules/supplier-targets/02-view.js",
+      "src/modules/supplier-targets/03-controller.js",
+      "src/modules/supplier-planning/00-resource-metrics.js",
+      "src/modules/supplier-planning/02-model.js",
+      "src/modules/supplier-planning/03-view.js",
+      "src/modules/supplier-planning/03-material-view.js",
+      "src/modules/supplier-planning/03-charts.js",
+      "src/modules/supplier-planning/03-navigation.js",
+      "src/modules/metric-tooltip/01.js",
+      "src/modules/navigation/01.js",
+      "src/modules/core/01.js"
+    ],
+    "styles": [
+      "styles/66-supplier-targets.css"
+    ],
+    "checks": [
+      "supplierMaterialPlan"
+    ],
+    "manual": [
+      "配置保存在当前浏览器本地，未连接正式权限及配置服务。"
+    ]
+  },
+  "globalDiagnosis": {
+    "label": "全局AI诊断：重点清单、偏差预警、日周报",
+    "keywords": [
+      "全局AI",
+      "总诊断",
+      "执行诊断",
+      "日志诊断",
+      "任务闭环",
+      "紧急协同",
+      "资源建议",
+      "钉钉日志",
+      "钉钉会议",
+      "重点工作清单",
+      "工作偏差预警"
+    ],
+    "sources": [
+      "src/modules/shared-classification/02-diagnosis-catalog.js",
+      "src/modules/global-diagnosis/00-issue-types.js",
+      "src/modules/global-diagnosis/01-model.js",
+      "src/modules/global-diagnosis/02-decision-samples.js",
+      "src/modules/global-diagnosis/02-records.js",
+      "src/modules/global-diagnosis/02-meeting-sources.js",
+      "src/modules/global-diagnosis/02-focus-sources.js",
+      "src/modules/global-diagnosis/02-focus-model.js",
+      "src/modules/global-diagnosis/03-tasks.js",
+      "src/modules/global-diagnosis/04-view.js",
+      "src/modules/global-diagnosis/05-evidence.js",
+      "src/modules/global-diagnosis/06-actions.js",
+      "src/modules/global-diagnosis/07-controller.js",
+      "src/modules/global-diagnosis/02-action-model.js",
+      "src/modules/global-diagnosis/04-action-table.js",
+      "src/modules/global-diagnosis/06-inline-actions.js",
+      "src/modules/global-diagnosis/02-completion-rules.js",
+      "src/modules/global-diagnosis/03-auto-tasks.js",
+      "src/modules/global-diagnosis/03-resource-diagnosis.js",
+      "src/modules/global-diagnosis/03-analysis-samples.js",
+      "src/modules/global-diagnosis/03-priority-samples.js",
+      "src/modules/global-diagnosis/03-report-diagnosis.js",
+      "src/modules/global-diagnosis/03-report-low-score-samples.js",
+      "src/modules/global-diagnosis/03-report-deduction-rules.js",
+      "src/modules/global-diagnosis/03-report-scoring.js",
+      "src/modules/global-diagnosis/05-report-score-view.js",
+      "src/modules/global-diagnosis/03-report-rubrics.js",
+      "src/modules/global-diagnosis/03-report-employee-rubrics.js",
+      "src/modules/global-diagnosis/02-category-filter.js",
+      "src/modules/global-diagnosis/04-status-dropdown.js",
+      "src/modules/global-diagnosis/03-analysis-model.js",
+      "src/modules/global-diagnosis/04-analysis-tables.js",
+      "src/modules/global-diagnosis/04-analysis-view.js",
+      "src/modules/global-diagnosis/05-analysis-details.js",
+      "src/modules/global-diagnosis/03-work-tasks.js",
+      "src/modules/global-diagnosis/03-project-key-work.js",
+      "src/modules/global-diagnosis/03-key-work.js",
+      "src/modules/global-diagnosis/03-risk-alerts.js",
+      "src/modules/global-diagnosis/03-improvements.js",
+      "src/modules/global-diagnosis/03-strategy-improvements.js",
+      "src/modules/global-diagnosis/04-key-work-table.js",
+      "src/modules/global-diagnosis/05-generated-tasks.js",
+      "src/modules/global-diagnosis/04-readable-text.js"
+    ],
+    "styles": [
+      "styles/67-global-diagnosis.css",
+      "styles/78-global-action-table.css",
+      "styles/81-diagnosis-analysis.css"
+    ],
+    "checks": [
+      "diagnosisWorkspace",
+      "reportRoleRubrics",
+      "reportScoring",
+      "reportTabs",
+      "reportProblemPreview",
+      "diagnosisReadableText"
+    ],
+    "manual": []
+  },
+  "productManagement": {
+    "label": "产品分级经营预警及五榜分级筛选",
+    "keywords": [
+      "等级异动",
+      "分级经营跟进",
+      "大盘结构",
+      "榜单产品分级"
+    ],
+    "sources": [
+      "src/modules/key-products/13-management-samples.js",
+      "src/modules/key-products/14-management-model.js",
+      "src/modules/key-products/15-management-view.js",
+      "src/modules/key-products/21-ai-followup-model.js",
+      "src/modules/key-products/22-ai-followup-view.js",
+      "src/modules/risk-presentation/03-product-grade.js",
+      "src/modules/key-products/23-improvement-model.js",
+      "src/modules/key-products/24-inline-insight.js",
+      "src/modules/key-products/27-strategy-samples.js",
+      "src/modules/key-products/28-strategy-model.js",
+      "src/modules/key-products/29-strategy-evidence.js",
+      "src/modules/key-products/32-strategy-tasks.js"
+    ],
+    "styles": [
+      "styles/68-product-management.css"
+    ],
+    "checks": [
+      "productManagement"
+    ]
+  },
+  "coreLinks": {
+    "label": "核心链接配置",
+    "keywords": [
+      "核心链接",
+      "拼多多链接配置"
+    ],
+    "sources": [
+      "src/modules/core-link-config/00-samples.js",
+      "src/modules/core-link-config/01-model.js",
+      "src/modules/core-link-config/02-import.js",
+      "src/modules/core-link-config/03-view.js",
+      "src/modules/core-link-config/04-controller.js"
+    ],
+    "styles": [
+      "styles/73-core-link-config.css"
+    ],
+    "checks": [
+      "coreLinks",
+      "coreLinkTemplate"
+    ]
+  },
+  "matrixZoom": {
+    "label": "矩阵放大筛选",
+    "sources": [
+      "src/modules/key-products/06-chart-zoom.js",
+      "src/modules/key-products/18-zoom-filters.js"
+    ],
+    "styles": [
+      "styles/59-key-products.css"
+    ],
+    "checks": [
+      "matrixZoomFilters"
+    ]
+  },
+  "productPrice": {
+    "label": "关键产品三处价格带",
+    "sources": [
+      "src/modules/key-products/19-price-filter.js",
+      "src/modules/key-products/01-model.js",
+      "src/modules/key-products/18-zoom-filters.js"
+    ],
+    "styles": [
+      "styles/74-kpm-price-filter.css"
+    ],
+    "checks": [
+      "keyProductPrice"
+    ]
+  },
+  "newProductPrices": {
+    "label": "新品价格带筛选与分布",
+    "sources": [
+      "src/modules/new-products/02-price-distribution.js"
+    ],
+    "checks": [
+      "newProductPrices"
+    ]
+  },
+  "keyProductSidebar": {
+    "label": "关键产品价格带、预警卡片及指导价",
+    "sources": [
+      "src/modules/key-products/20-sidebar.js",
+      "src/data/product-guide-prices.js"
+    ],
+    "styles": [
+      "styles/75-key-product-sidebar.css"
+    ],
+    "checks": [
+      "keyProductSidebar"
+    ]
+  },
+  "drawerSummary": {
+    "label": "抽屉表格合计置首",
+    "keywords": [
+      "合计第一行",
+      "合计置首",
+      "抽屉合计"
+    ],
+    "sources": [
+      "src/modules/drawers/02-controller.js"
+    ],
+    "styles": [
+      "styles/27-drawers.css"
+    ],
+    "checks": [
+      "smoke",
+      "drawerSummary"
+    ]
+  },
+  "aiBusinessFollowup": {
+    "label": "等级异动与大盘结构AI判断",
+    "sources": [
+      "src/modules/key-products/21-ai-followup-model.js",
+      "src/modules/key-products/22-ai-followup-view.js",
+      "src/modules/key-products/23-improvement-model.js",
+      "src/modules/key-products/24-inline-insight.js",
+      "src/modules/key-products/14-management-model.js",
+      "src/modules/key-products/15-management-view.js",
+      "src/modules/key-products/27-strategy-samples.js",
+      "src/modules/key-products/28-strategy-model.js",
+      "src/modules/key-products/29-strategy-evidence.js",
+      "src/modules/key-products/32-strategy-tasks.js"
+    ],
+    "styles": [
+      "styles/75-key-product-sidebar.css"
+    ],
+    "checks": [
+      "aiBusinessFollowup",
+      "keyProductSidebar"
+    ],
+    "keywords": [
+      "分级经营跟进",
+      "AI判断",
+      "关联待办",
+      "任务去重"
+    ]
+  },
+  "dateRange": {
+    "label": "公共日期区间组件",
+    "keywords": [
+      "共用日历",
+      "日期区间",
+      "公共日期组件"
+    ],
+    "sources": [
+      "src/modules/date-range/01-model.js",
+      "src/modules/date-range/02-picker.js",
+      "src/modules/risk-calendar/01.js",
+      "src/modules/unified-product/09-calendar.js"
+    ],
+    "styles": [
+      "styles/26-risk-controls.css"
+    ],
+    "checks": [
+      "detailPeriod",
+      "supplierMaterialPlan",
+      "supplierMaterialRows",
+      "supplierMaterialDrawer",
+      "supplierMaterialSummarySort",
+      "supplierMaterialBrand",
+      "supplierCategoryTabs",
+      "diagnosisRebuild"
+    ]
+  },
+  "filterCatalog": {
+    "label": "公共筛选字典与单多选交互",
+    "keywords": [
+      "公共筛选",
+      "筛选字典",
+      "共用组件"
+    ],
+    "sources": [
+      "src/data/filter-catalog.js",
+      "src/modules/product-filters/00-multiselect.js",
+      "src/modules/product-filters/00-categories.js"
+    ],
+    "styles": [
+      "styles/39-multiselect.css"
+    ],
+    "checks": [
+      "filters",
+      "multiFilters",
+      "shopConfig",
+      "supplierMaterialPlan"
+    ]
+  },
+  "globalDiagnosisTodos": {
+    "label": "总诊断共用待办同步与对象关联",
+    "sources": [
+      "src/modules/global-diagnosis/03-tasks.js",
+      "src/modules/global-diagnosis/05-evidence.js",
+      "src/modules/global-diagnosis/05-todo-basis.js",
+      "src/modules/global-diagnosis/06-actions.js",
+      "src/modules/unified-product/07-todo-priority-picker.js",
+      "src/modules/global-diagnosis/02-action-model.js",
+      "src/modules/global-diagnosis/04-action-table.js",
+      "src/modules/global-diagnosis/06-inline-actions.js",
+      "src/modules/global-diagnosis/02-completion-rules.js",
+      "src/modules/global-diagnosis/03-auto-tasks.js"
+    ],
+    "styles": [
+      "styles/78-global-action-table.css",
+      "styles/46-product-todos.css"
+    ],
+    "checks": [
+      "diagnosisRebuildTasks"
+    ],
+    "manual": []
+  },
+  "legacyChannelCleanup": {
+    "label": "旧渠道字典清理与汇总守恒",
+    "keywords": [
+      "旧渠道",
+      "渠道字典清理"
+    ],
+    "sources": [
+      "src/data/filter-catalog.js",
+      "src/modules/core/01.js",
+      "src/data/lifecycle-facts.js",
+      "src/modules/lifecycle-task/00-facts.js",
+      "src/modules/lifecycle-task/01.js",
+      "src/modules/lifecycle-products/01.js",
+      "src/modules/channel-allocation/01.js",
+      "src/modules/product-workspace/01.js"
+    ],
+    "styles": [],
+    "checks": [
+      "lifecycleTargets",
+      "lifecycleProjectLinks",
+      "salesCards",
+      "newProducts"
+    ]
+  },
+  "dynamicDates": {
+    "label": "全局日期默认值与当天近30天",
+    "keywords": [
+      "动态日期",
+      "默认日期",
+      "近30天"
+    ],
+    "sources": [
+      "src/modules/period/01.js",
+      "src/modules/date-range/01-model.js",
+      "src/modules/date-range/02-picker.js",
+      "src/modules/risk-date/01.js",
+      "src/modules/global-diagnosis/01-model.js",
+      "数智罗盘/目标管理/scripts/core.js",
+      "数智罗盘/目标管理/scripts/calendar-grid.js",
+      "数智罗盘/目标管理/scripts/overview-period.js",
+      "数智罗盘/目标管理/scripts/entry.js",
+      "src/modules/global-diagnosis/02-action-model.js",
+      "src/modules/global-diagnosis/04-action-table.js",
+      "src/modules/global-diagnosis/06-inline-actions.js",
+      "src/modules/global-diagnosis/02-completion-rules.js",
+      "src/modules/global-diagnosis/03-auto-tasks.js"
+    ],
+    "styles": [
+      "styles/78-global-action-table.css"
+    ],
+    "checks": [
+      "dynamicDates",
+      "smoke",
+      "detailPeriod"
+    ]
+  },
+  "globalDiagnosisConsistency": {
+    "label": "总诊断关联待办期间、截止日排序及结果展示",
+    "sources": [
+      "src/modules/global-diagnosis/03-tasks.js",
+      "src/modules/global-diagnosis/02-action-model.js",
+      "src/modules/global-diagnosis/04-action-table.js",
+      "src/modules/global-diagnosis/06-inline-actions.js",
+      "src/modules/global-diagnosis/02-completion-rules.js",
+      "src/modules/global-diagnosis/03-auto-tasks.js"
+    ],
+    "styles": [
+      "styles/78-global-action-table.css"
+    ],
+    "checks": [
+      "diagnosisRebuild"
+    ],
+    "manual": []
+  },
+  "searchFields": {
+    "label": "全局公共搜索组件与单层边框",
+    "keywords": [
+      "搜索框",
+      "双重边框",
+      "框套框"
+    ],
+    "sources": [
+      "src/modules/ui-controls/00-search-field.js",
+      "src/modules/ui-controls/02-search-layout.js",
+      "src/modules/filter-layout/01.js"
+    ],
+    "styles": [
+      "styles/24-filters.css"
+    ],
+    "checks": [
+      "searchFields",
+      "smoke",
+      "filters"
+    ]
+  },
+  "collaborativeTodos": {
+    "label": "多负责人协同待办与精简决策依据",
+    "keywords": [
+      "多负责人",
+      "协同待办",
+      "个人反馈",
+      "关键依据"
+    ],
+    "sources": [
+      "src/modules/unified-product/07-todo-collaboration-model.js",
+      "src/modules/unified-product/07-todo-collaboration-view.js",
+      "src/modules/unified-product/07-todo-model.js",
+      "src/modules/unified-product/07-todo-dialog.js",
+      "src/modules/key-products/25-collaborative-task.js",
+      "src/modules/key-products/26-decision-evidence.js",
+      "src/modules/unified-product/07-todo-people.js",
+      "src/modules/unified-product/07-todo-view.js",
+      "src/modules/key-products/21-ai-followup-model.js",
+      "src/modules/key-products/22-ai-followup-view.js",
+      "src/modules/key-products/24-inline-insight.js"
+    ],
+    "styles": [
+      "styles/46-product-todos.css",
+      "styles/75-key-product-sidebar.css"
+    ],
+    "checks": [
+      "collaborativeTodos"
+    ]
+  },
+  "gradeStrategy": {
+    "label": "等级异动联动关键产品明细",
+    "keywords": [
+      "分级经营跟进",
+      "品质整改",
+      "迭代储备",
+      "清仓下市",
+      "等级异动",
+      "大盘结构",
+      "同卡展示"
+    ],
+    "sources": [
+      "src/modules/key-products/14-management-model.js",
+      "src/modules/key-products/15-management-view.js",
+      "src/modules/key-products/22-ai-followup-view.js",
+      "src/modules/key-products/27-strategy-samples.js",
+      "src/modules/key-products/28-strategy-model.js",
+      "src/modules/key-products/29-strategy-evidence.js",
+      "src/modules/key-products/32-strategy-tasks.js",
+      "src/modules/global-diagnosis/01-model.js",
+      "src/modules/global-diagnosis/02-decision-samples.js",
+      "src/modules/global-diagnosis/02-records.js",
+      "src/modules/global-diagnosis/02-action-model.js",
+      "src/modules/global-diagnosis/04-action-table.js",
+      "src/modules/global-diagnosis/06-inline-actions.js",
+      "src/modules/global-diagnosis/02-completion-rules.js",
+      "src/modules/global-diagnosis/03-auto-tasks.js"
+    ],
+    "styles": [
+      "styles/78-global-action-table.css",
+      "styles/75-key-product-sidebar.css"
+    ],
+    "checks": [
+      "gradeStrategy"
+    ]
+  },
+  "strategicSuppliers": {
+    "label": "战略合作供应商名单导入",
+    "keywords": [
+      "战略供应商",
+      "名单导入"
+    ],
+    "sources": [
+      "src/modules/strategic-supplier-import/00-year-scope.js",
+      "src/modules/strategic-supplier-import/00-table-sort.js",
+      "src/modules/strategic-supplier-import/01-model.js",
+      "src/modules/strategic-supplier-import/01-apply.js",
+      "src/modules/strategic-supplier-import/02-import.js",
+      "src/modules/strategic-supplier-import/03-view.js",
+      "src/modules/strategic-supplier-import/04-controller.js",
+      "src/modules/strategic-supplier-import/05-row-actions.js",
+      "src/modules/strategic-supplier-import/06-catalog-filters.js",
+      "src/modules/strategic-supplier-import/07-category-cascader.js",
+      "src/modules/strategic-supplier-import/08-export.js",
+      "src/modules/strategic-supplier-import/09-import-year-preview.js"
+    ],
+    "styles": [
+      "styles/79-strategic-supplier-import.css"
+    ],
+    "checks": [
+      "supplierAnnualImport",
+      "supplierImportTabs",
+      "supplierExport",
+      "supplierDateSort"
+    ]
+  },
+  "tableContent": {
+    "label": "全局表格单元格字号与图片规格",
+    "keywords": [
+      "表格字体",
+      "单元格",
+      "字号统一",
+      "图片大小",
+      "标签字号"
+    ],
+    "sources": [
+      "src/modules/core/01.js",
+      "src/modules/images/01.js"
+    ],
+    "styles": [
+      "styles/80-table-content.css"
+    ],
+    "checks": [
+      "smoke",
+      "columnResize",
+      "defaultSorts"
+    ]
+  },
+  "typography": {
+    "label": "全局字体阅读层级",
+    "keywords": [
+      "全局字号",
+      "字重",
+      "字体规范",
+      "文字层级"
+    ],
+    "sources": [],
+    "styles": [
+      "styles/80-table-content.css",
+      "styles/81-typography.css"
+    ],
+    "checks": [
+      "typography",
+      "smoke",
+      "columnResize",
+      "defaultSorts"
+    ]
+  },
+  "productImages": {
+    "label": "全局商品图片、清晰资源与按需大图",
+    "keywords": [
+      "商品图片",
+      "缩略图",
+      "图片尺寸"
+    ],
+    "sources": [
+      "src/data/product-media.js",
+      "src/modules/images/00-media.js",
+      "src/modules/images/01.js",
+      "src/modules/risk-presentation/05-media.js",
+      "dev/media/build-images.mjs",
+      "dev/media/replacements.json",
+      "dev/media/remote-sources.json",
+      "dev/media/generated-sources.json"
+    ],
+    "styles": [
+      "styles/82-product-media.css",
+      "styles/80-table-content.css",
+      "styles/83-product-image-crops.css"
+    ],
+    "checks": [
+      "smoke"
+    ],
+    "manual": [
+      "高清资源与懒加载性能专项：node dev/media/check-images.mjs（修改前基线需位于 outputs/image-quality-before）。"
+    ]
+  },
+  "salesChannels": {
+    "label": "六平台统一口径与销售渠道字段",
+    "keywords": [
+      "渠道",
+      "销售大区",
+      "抖音一区",
+      "渠道顺序"
+    ],
+    "sources": [
+      "src/data/filter-catalog.js",
+      "src/modules/page-presentation/03-terminology.js",
+      "src/modules/metric-tooltip/01.js",
+      "src/modules/channel-allocation/01.js",
+      "src/modules/product-workspace/01.js",
+      "src/modules/product-workspace/02.js",
+      "src/modules/sales-channels/01-model.js",
+      "src/modules/sales-review/00-samples.js",
+      "src/modules/sales-review/01-model.js",
+      "src/modules/sales-review/02-view.js",
+      "src/modules/sales-review/03-controller.js",
+      "src/modules/unified-product/05-operating-view.js",
+      "src/modules/unified-product/05-operating-channels.js",
+      "src/modules/unified-product/05-channel-contribution.js",
+      "src/modules/new-products/01-model.js",
+      "src/modules/new-products/02-view.js"
+    ],
+    "styles": [
+      "styles/48-new-products.css"
+    ],
+    "checks": [
+      "platformTerminology",
+      "salesCards",
+      "detailOperating",
+      "newProducts"
+    ],
+    "manual": [
+      "正式业务目标、真实历史组织归属与外部台账需接入验证"
+    ]
+  },
+  "risk-platform-menu": {
+    "label": "预警榜单平台Logo筛选条",
+    "keywords": [
+      "平台Logo",
+      "平台标签",
+      "单行平台"
+    ],
+    "sources": [
+      "src/modules/risk-presentation/02-platform-menu.js"
+    ],
+    "styles": [
+      "styles/41-platform-menu.css"
+    ],
+    "checks": [
+      "riskPlatformMenu"
+    ]
+  },
+  "businessRules": {
+    "label": "全局业务规则配置",
+    "keywords": [
+      "业务规则",
+      "全局规则",
+      "红黄灯",
+      "规则配置"
+    ],
+    "sources": [
+      "src/modules/business-rules/00-definitions.js",
+      "src/modules/business-rules/01-store.js",
+      "src/modules/business-rules/02-apply.js",
+      "src/modules/business-rules/03-view.js",
+      "src/modules/business-rules/04-controller.js",
+      "src/modules/business-rules/04-condition-controller.js",
+      "styles/85-business-rules.css",
+      "styles/95-success-rules.css",
+      "src/modules/business-rules/00-condition-catalog.js",
+      "src/modules/business-rules/00-refurb-cycle.js",
+      "src/modules/business-rules/00-condition-math.js",
+      "src/modules/business-rules/00-condition-runtime.js",
+      "src/modules/business-rules/01-validation.js",
+      "src/modules/business-rules/03-condition-view.js",
+      "src/modules/business-rules/03-table-view.js",
+      "src/modules/business-rules/03-new-view.js",
+      "src/modules/business-rules/03-section-tabs.js",
+      "src/modules/business-rules/00-result-groups.js",
+      "src/modules/business-rules/03-result-view.js",
+      "src/modules/business-rules/01-success-periods.js"
+    ],
+    "checks": [
+      "smoke",
+      "businessRules",
+      "businessRuleObjectMetrics",
+      "businessRuleRefurbCycle",
+      "businessRuleResultGroups",
+      "businessRuleRisk",
+      "businessRuleAi",
+      "businessRuleConditions",
+      "businessRuleGrades",
+      "businessRuleNewSections",
+      "businessRuleCompound",
+      "inventoryStockRules",
+      "inventoryWarningRules",
+      "newSuccessEffectivePeriods"
+    ]
+  },
+  "returnPresentation": {
+    "label": "总退与已收退数值呈现",
+    "keywords": [
+      "退货率标签",
+      "总退",
+      "已收退",
+      "偏差样式"
+    ],
+    "sources": [
+      "src/modules/numeric-signals/01.js",
+      "src/modules/key-products/09-detail-table.js",
+      "src/modules/risk-presentation/01-quality.js",
+      "src/modules/risk-presentation/03-columns.js",
+      "src/modules/business-rules/00-definitions.js",
+      "src/modules/business-rules/00-condition-catalog.js",
+      "src/modules/business-rules/00-condition-math.js",
+      "src/modules/business-rules/00-condition-runtime.js",
+      "src/modules/business-rules/01-validation.js",
+      "src/modules/business-rules/01-store.js",
+      "src/modules/risk-presentation/01-return.js",
+      "src/modules/risk-presentation/02-render.js"
+    ],
+    "checks": [
+      "returnPresentation"
+    ],
+    "manual": []
+  },
+  "tooltips": {
+    "label": "全局提示框悬停",
+    "keywords": [
+      "tooltip",
+      "悬浮提示",
+      "鼠标移入",
+      "提示不消失"
+    ],
+    "sources": [
+      "src/modules/metric-tooltip/00-hover.js",
+      "src/modules/metric-tooltip/01.js",
+      "src/modules/ui-controls/03-cell-tooltip.js",
+      "src/modules/unified-product/05-sales-trend.js",
+      "src/modules/unified-product/05-contact-tooltip.js",
+      "src/modules/sales-review/02-trend.js",
+      "src/modules/key-products/05-tooltip.js"
+    ],
+    "styles": [
+      "styles/20-presentation.css",
+      "styles/33-unified-product.css",
+      "styles/36-list-trends.css",
+      "styles/38-document-review.css",
+      "styles/49-cell-tooltip.css",
+      "styles/59-key-products.css"
+    ],
+    "checks": [
+      "tooltipHover"
+    ],
+    "manual": []
+  },
+  "formFields": {
+    "label": "全局字段标题与必填标记同排",
+    "keywords": [
+      "必填标记",
+      "星号换行",
+      "字段名换行"
+    ],
+    "sources": [
+      "src/modules/core-link-config/03-view.js",
+      "src/modules/cost-config/03-view.js",
+      "src/modules/procurement-assignment/02.js",
+      "src/modules/project-detail/01.js",
+      "src/modules/quality-risk/02.js",
+      "src/modules/risk-workflow/01.js"
+    ],
+    "styles": [
+      "styles/86-form-fields.css"
+    ],
+    "checks": [
+      "formFields"
+    ],
+    "manual": []
+  },
+  "dashboardSpacing": {
+    "label": "主看板全局侧边留白",
+    "keywords": [
+      "留白",
+      "边距",
+      "侧边",
+      "全局间距",
+      "内容对齐"
+    ],
+    "sources": [
+      "src/page.html"
+    ],
+    "styles": [
+      "styles/87-dashboard-spacing.css"
+    ],
+    "checks": [
+      "smoke"
+    ]
+  },
+  "todoExecutionGroups": {
+    "label": "任务下发六列表格（兼容入口）",
+    "keywords": [
+      "任务详情",
+      "执行事项",
+      "多人反馈",
+      "新增执行事项"
+    ],
+    "sources": [
+      "src/modules/unified-product/07-todo-execution-confirm.js",
+      "src/modules/unified-product/07-todo-execution-view.js",
+      "src/modules/unified-product/07-todo-collaboration-view.js",
+      "src/modules/unified-product/07-todo-collaboration-model.js",
+      "src/modules/unified-product/07-todo-dialog.js",
+      "src/modules/unified-product/07-todo-people.js"
+    ],
+    "styles": [
+      "styles/46-product-todos.css"
+    ],
+    "checks": [
+      "todoExecutionTable",
+      "diagnosisRebuildTasks"
+    ]
+  },
+  "drawerScroll": {
+    "label": "抽屉滚动隔离与关闭恢复",
+    "keywords": [
+      "滚动穿透",
+      "背景滚动",
+      "抽屉滚动"
+    ],
+    "sources": [
+      "src/modules/unified-product/07-todo-dialog.js",
+      "src/modules/drawers/03-stack.js"
+    ],
+    "styles": [
+      "styles/23-panels.css",
+      "styles/27-drawers.css",
+      "styles/46-product-todos.css"
+    ],
+    "checks": [
+      "drawerScroll"
+    ]
+  },
+  "todoOrigins": {
+    "label": "待办样例来源快照与历史补齐",
+    "keywords": [
+      "待办出处",
+      "来源未记录",
+      "AI分析快照"
+    ],
+    "sources": [
+      "src/modules/shared-classification/02-diagnosis-catalog.js",
+      "src/modules/unified-product/07-todo-origin.js",
+      "src/modules/global-diagnosis/05-todo-basis.js",
+      "src/modules/key-products/13-management-samples.js"
+    ],
+    "styles": [],
+    "checks": [
+      "todoOrigins",
+      "diagnosisRebuildTasks"
+    ]
+  },
+  "todoExecutionTable": {
+    "label": "任务下发六列表格与搜索多选",
+    "keywords": [
+      "任务下发",
+      "执行事项",
+      "负责人多选",
+      "新增空行",
+      "确认图标",
+      "反馈备注"
+    ],
+    "sources": [
+      "src/modules/unified-product/07-todo-execution-confirm.js",
+      "src/modules/unified-product/07-todo-execution-view.js",
+      "src/modules/unified-product/07-todo-execution-model.js",
+      "src/modules/unified-product/07-todo-collaboration-model.js",
+      "src/modules/unified-product/07-todo-collaboration-view.js",
+      "src/modules/unified-product/07-todo-people.js",
+      "src/modules/unified-product/07-todo-people-multiple.js",
+      "src/modules/unified-product/07-todo-inline.js",
+      "src/modules/unified-product/07-todo-dialog.js",
+      "src/modules/unified-product/07-todo-heading.js"
+    ],
+    "styles": [
+      "styles/46-product-todos.css"
+    ],
+    "checks": [
+      "todoExecutionTable",
+      "diagnosisRebuildTasks"
+    ]
+  },
+  "newSuccessRolling": {
+    "label": "新品季度滚动考核与历史查询",
+    "keywords": [
+      "首次成功",
+      "季度考核",
+      "跨年滚动"
+    ],
+    "sources": [
+      "src/modules/new-products/01-success.js",
+      "src/modules/new-products/01-model.js",
+      "src/modules/new-products/03-assessment-view.js",
+      "src/modules/new-products/03-assessment-query.js",
+      "src/modules/new-products/03-assessment-sort.js",
+      "src/modules/new-products/04-success-help.js"
+    ],
+    "styles": [
+      "styles/48-new-products.css"
+    ],
+    "checks": [
+      "newSuccessRolling"
+    ]
+  },
+  "newSuccessHistoryUI": {
+    "label": "新品历史考核查询与提示布局",
+    "keywords": [
+      "已出池",
+      "跨年",
+      "提示样式"
+    ],
+    "sources": [
+      "src/modules/new-products/01-model.js",
+      "src/modules/new-products/02-view.js",
+      "src/modules/new-products/03-assessment-view.js",
+      "src/modules/new-products/03-assessment-query.js",
+      "src/modules/new-products/03-assessment-sort.js",
+      "src/modules/new-products/04-success-help.js"
+    ],
+    "styles": [
+      "styles/48-new-products.css"
+    ],
+    "checks": [
+      "newSuccessHistoryUI"
+    ]
+  },
+  "keyProductMonthlyPolicy": {
+    "checks": [
+      "keyProductMonthlyPolicy"
+    ],
+    "styles": [
+      "styles/75-key-product-sidebar.css"
+    ],
+    "sources": [
+      "src/modules/key-products/02-chart.js",
+      "src/modules/key-products/15-management-view.js",
+      "src/modules/business-rules/00-condition-runtime.js",
+      "src/modules/business-rules/01-store.js"
+    ],
+    "label": "关键产品六卡、月销SABC边界与灰色矩阵"
+  },
+  "businessRulesToday": {
+    "label": "2026-10-24业务规则与目标联动",
+    "keywords": [
+      "今日规则",
+      "目标矩阵"
+    ],
+    "sources": [
+      "src/modules/business-rules/03-domain-sections.js",
+      "src/modules/supplier-targets/01-material-model.js",
+      "src/modules/supplier-targets/02-material-view.js"
+    ],
+    "styles": [
+      "styles/66-supplier-targets.css",
+      "styles/85-business-rules.css"
+    ],
+    "checks": [
+      "businessRulesToday",
+      "supplierMaterialPlan"
+    ]
+  },
+  "chainTaxonomy": {
+    "label": "全局四链群与旧配置迁移",
+    "keywords": [
+      "链群",
+      "类目",
+      "个护&健康",
+      "枚举"
+    ],
+    "sources": [
+      "src/data/filter-catalog.js",
+      "src/modules/product-filters/00-categories.js",
+      "src/modules/lifecycle-targets/01-model.js",
+      "src/modules/supplier-targets/01-material-model.js"
+    ],
+    "checks": [
+      "chainTaxonomy"
+    ]
+  },
+  "keyProductBubbles": {
+    "label": "产品矩阵GSV分档气泡",
+    "keywords": [
+      "气泡",
+      "GSV大小",
+      "气泡大小"
+    ],
+    "sources": [
+      "src/modules/key-products/01-bubble-size.js",
+      "src/modules/key-products/02-chart.js",
+      "src/modules/key-products/33-chart-layout.js"
+    ],
+    "styles": [
+      "styles/75-key-product-sidebar.css"
+    ],
+    "checks": [
+      "keyProductBubbles"
+    ]
+  },
+  "supplierCategoryIsolation": {
+    "label": "采购五类与其他模块四链群隔离",
+    "keywords": [
+      "采购五类",
+      "五个类目"
+    ],
+    "sources": [
+      "src/modules/supplier-planning/00-reference.js",
+      "src/modules/supplier-planning/01-ledger.js",
+      "src/modules/supplier-targets/01-material-model.js"
+    ],
+    "checks": [
+      "supplierMaterialPlan"
+    ]
+  },
+  "returnPlatformSamples": {
+    "label": "退货榜六平台经营样例补齐",
+    "sources": [
+      "src/modules/unified-product/00-new-success-samples.js"
+    ],
+    "checks": [
+      "returnPlatformSamples",
+      "riskPlatformCards",
+      "newSuccessHistoryUI"
+    ]
+  },
+  "riskPlatformCards": {
+    "label": "品质三榜整行六平台卡片",
+    "keywords": [
+      "六平台",
+      "上下对齐",
+      "三榜整行"
+    ],
+    "sources": [
+      "src/modules/risk-presentation/02-platform-cards.js",
+      "styles/93-risk-platform-cards.css"
+    ],
+    "checks": [
+      "riskPlatformCards"
+    ]
+  },
+  "returnProductType": {
+    "label": "退货恶化榜新老品切换",
+    "keywords": [
+      "退货恶化",
+      "新品老品"
+    ],
+    "sources": [
+      "src/modules/risk-presentation/02-product-type-filter.js",
+      "src/modules/risk-presentation/02-platforms.js",
+      "src/modules/risk-presentation/02-platform-menu.js",
+      "src/modules/risk-presentation/03-filters.js",
+      "styles/93-risk-platform-cards.css"
+    ],
+    "checks": [
+      "returnProductType"
+    ]
+  },
+  "taskDatePicker": {
+    "label": "任务单日日期复用全局日历",
+    "sources": [
+      "src/modules/global-task-entry/02-date-picker.js",
+      "src/modules/global-task-entry/02-execution-editor.js",
+      "src/modules/date-range/02-picker.js",
+      "src/modules/global-task-entry/03-view.js",
+      "src/modules/global-task-entry/03-ledger-controls.js",
+      "src/modules/global-task-entry/03-ledger-display.js",
+      "src/modules/global-diagnosis/04-view.js"
+    ],
+    "styles": [
+      "styles/26-risk-controls.css",
+      "styles/94-global-task-entry.css",
+      "styles/67-global-diagnosis.css"
+    ],
+    "checks": [
+      "taskDatePicker",
+      "taskLedgerAutosave",
+      "taskDateFilters"
+    ]
+  },
+  "singleManualTasks": {
+    "label": "单任务新增编辑与旧记录归档",
+    "sources": [
+      "src/modules/global-task-entry/01-ledger.js",
+      "src/modules/global-task-entry/01-model.js",
+      "src/modules/global-task-entry/02-assignee-picker.js",
+      "src/modules/global-task-entry/03-ledger-controls.js",
+      "src/modules/global-task-entry/03-view.js",
+      "src/modules/global-task-entry/04-ledger-detail.js",
+      "styles/94-global-task-entry.css"
+    ],
+    "checks": [
+      "singleManualTasks",
+      "taskLedgerForm",
+      "taskLedger"
+    ]
+  },
+  "manualTaskCollaboration": {
+    "label": "手工任务多人下发与详情修改业务对象",
+    "sources": [
+      "src/modules/global-task-entry/01-assignees.js",
+      "src/modules/global-task-entry/04-object-edit.js",
+      "src/modules/unified-product/07-todo-heading.js",
+      "src/modules/unified-product/07-todo-dialog.js",
+      "styles/94-global-task-entry.css"
+    ],
+    "checks": [
+      "manualTaskCollaboration"
+    ]
+  },
+  "taskEntryClose": {
+    "label": "新增任务未保存关闭确认",
+    "sources": [
+      "src/modules/global-task-entry/02-close-guard.js",
+      "src/modules/global-task-entry/03-view.js",
+      "styles/94-global-task-entry.css"
+    ],
+    "checks": [
+      "taskEntryClose"
+    ]
+  },
+  "globalTasks": {
+    "label": "总诊断任务清单新增与导入",
+    "keywords": [
+      "任务清单",
+      "新增任务",
+      "导入任务"
+    ],
+    "sources": [
+      "src/modules/global-diagnosis/03-task-dates.js",
+      "src/modules/global-diagnosis/03-analysis-model.js",
+      "src/modules/global-diagnosis/04-view.js",
+      "src/modules/global-task-entry/01-assignees.js",
+      "src/modules/global-task-entry/01-model.js",
+      "src/modules/global-task-entry/04-object-edit.js",
+      "src/modules/global-task-entry/02-import-model.js",
+      "dev/templates/task-import/build.mjs",
+      "assets/templates/任务导入模板.xlsx",
+      "src/modules/cost-import/01.js",
+      "src/modules/global-task-entry/03-view.js",
+      "src/modules/global-diagnosis/04-analysis-view.js",
+      "styles/94-global-task-entry.css",
+      "src/modules/global-task-entry/02-object-picker.js",
+      "src/modules/global-task-entry/02-assignee-picker.js"
+    ],
+    "checks": [
+      "globalTasks",
+      "taskDateFilters"
+    ]
+  },
+  "riskSeasonTabs": {
+    "label": "违规及退货榜季品外露标签与原筛选联动",
+    "sources": [
+      "src/modules/risk-presentation/02-platforms.js",
+      "src/modules/risk-card-filters/01.js"
+    ],
+    "styles": [
+      "styles/93-risk-platform-cards.css"
+    ],
+    "checks": [
+      "riskSeasonTabs"
+    ],
+    "manual": []
+  },
+  "newAssessmentApproval": {
+    "label": "新品季度与年度特批成功",
+    "keywords": [
+      "特批成功",
+      "撤销特批",
+      "新品豁免"
+    ],
+    "sources": [
+      "src/modules/new-products/00-success-approvals.js",
+      "src/modules/new-products/01-success.js",
+      "src/modules/new-products/03-approval-dialog.js",
+      "src/modules/new-products/03-assessment-query.js",
+      "src/modules/new-products/02-view.js"
+    ],
+    "styles": [
+      "styles/48-assessment-approval.css"
+    ],
+    "checks": [
+      "newAssessmentApproval",
+      "newSuccessRolling",
+      "newAssessmentMatrix",
+      "newAssessmentSort"
+    ]
+  },
+  "newAssessmentMatrix": {
+    "label": "新品考核四季矩阵与年度独立复核",
+    "keywords": [
+      "季度总览",
+      "考核矩阵"
+    ],
+    "sources": [
+      "src/modules/new-products/03-assessment-matrix-model.js",
+      "src/modules/new-products/03-assessment-matrix-view.js",
+      "src/modules/new-products/03-assessment-query.js",
+      "src/modules/new-products/03-assessment-view.js"
+    ],
+    "styles": [
+      "styles/48-assessment-matrix.css"
+    ],
+    "checks": [
+      "newAssessmentMatrix",
+      "newAssessmentSort",
+      "newSuccessHistoryUI",
+      "newSuccessRolling"
+    ]
+  },
+  "newAssessmentSort": {
+    "label": "新品销售成功考核排序",
+    "keywords": [
+      "考核排序",
+      "默认GSV"
+    ],
+    "sources": [
+      "src/modules/new-products/03-assessment-sort.js",
+      "src/modules/new-products/03-assessment-query.js"
+    ],
+    "checks": [
+      "newAssessmentSort",
+      "newSuccessHistoryUI"
+    ]
+  },
+  "newHighRiskSamples": {
+    "label": "新增高危演示样例及15天窗口",
+    "keywords": [
+      "新增高危样例",
+      "风险出现历史"
+    ],
+    "sources": [
+      "src/modules/risk-presentation/02-appearance-history.js",
+      "src/modules/risk-presentation/02-appearance-samples.js",
+      "src/modules/global-diagnosis/03-risk-alerts.js"
+    ],
+    "checks": [
+      "newHighRiskSamples",
+      "diagnosisWorkspace"
+    ]
+  },
+  "stockSeasonDefaults": {
+    "label": "实时库存榜当季品默认",
+    "keywords": [
+      "默认季品",
+      "冬季品",
+      "夏季品",
+      "Q2",
+      "Q4"
+    ],
+    "sources": [
+      "src/modules/risk-presentation/02-platforms.js"
+    ],
+    "checks": [
+      "stockSeasonDefaults",
+      "stagnantPreview",
+      "shortagePreview"
+    ],
+    "manual": []
+  },
+  "stockBatchSamples": {
+    "label": "冬季呆滞批次样例",
+    "keywords": [
+      "最高库龄",
+      "批次演示",
+      "A879",
+      "A800"
+    ],
+    "sources": [
+      "src/modules/inventory-detail/00-ledger.js"
+    ],
+    "checks": [
+      "stockBatchSamples",
+      "stagnantPreview",
+      "inventoryStagnantTop"
+    ],
+    "manual": []
+  },
+  "uploads": {
+    "label": "统一上传与导入历史",
+    "keywords": [
+      "上传",
+      "导入模板",
+      "SPU码",
+      "店铺ID",
+      "日期格式",
+      "导入弹窗",
+      "附件",
+      "导入记录"
+    ],
+    "sources": [
+      "src/modules/file-upload/00-template-workbook.js",
+      "src/modules/global-task-entry/01-model.js",
+      "src/modules/global-task-entry/02-import-model.js",
+      "src/modules/core-link-config/02-import.js",
+      "src/modules/strategic-supplier-import/02-import.js",
+      "src/modules/cost-evaluation/01.js",
+      "src/modules/cost-import/01.js",
+      "src/modules/file-upload/01-control.js",
+      "src/modules/file-upload/02-history.js",
+      "src/modules/core-link-config/03-view.js",
+      "src/modules/core-link-config/04-controller.js",
+      "src/modules/lifecycle-targets/06-import-view.js",
+      "src/modules/lifecycle-targets/07-history-view.js",
+      "src/modules/cost-config/04-controller.js",
+      "src/modules/strategic-supplier-import/03-view.js",
+      "src/modules/strategic-supplier-import/04-controller.js",
+      "src/modules/strategic-supplier-import/05-row-actions.js",
+      "src/modules/strategic-supplier-import/06-catalog-filters.js",
+      "src/modules/strategic-supplier-import/07-category-cascader.js",
+      "src/modules/global-task-entry/03-view.js",
+      "src/modules/cost-import/02.js",
+      "src/modules/file-upload/03-import-flow.js",
+      "src/modules/file-upload/04-history-view.js",
+      "数智罗盘/目标管理/scripts/import-flow.js",
+      "数智罗盘/目标管理/scripts/import.js",
+      "数智罗盘/目标管理/scripts/history.js",
+      "数智罗盘/目标管理/scripts/history-view.js"
+    ],
+    "styles": [
+      "styles/97-file-upload.css"
+    ],
+    "checks": [
+      "uploadExperience",
+      "importTemplateHeaders",
+      "importTemplateColors",
+      "importIdentityRules",
+      "supplierAnnualImport",
+      "supplierImportTabs",
+      "taskImportTemplate",
+      "goalImportExperience"
+    ]
+  },
+  "shopScoreRules": {
+    "label": "店铺四项评分指标规则",
+    "keywords": [
+      "店铺评分判灯",
+      "店铺分",
+      "商品分",
+      "物流分",
+      "服务分"
+    ],
+    "sources": [
+      "src/modules/business-rules/00-condition-catalog.js",
+      "src/modules/business-rules/00-score-rules.js",
+      "src/modules/business-rules/00-condition-runtime.js",
+      "src/modules/business-rules/01-validation.js",
+      "src/modules/risk-presentation/01-shop.js",
+      "src/modules/shop-scoring/01.js",
+      "src/modules/shop-detail/01-pdd-diagnosis.js",
+      "src/modules/shop-detail/01-diagnosis.js"
+    ],
+    "styles": [],
+    "checks": [
+      "shopScoreRules",
+      "businessRuleObjectMetrics"
+    ]
+  },
+  "systemMenuStructure": {
+    "label": "系统管理菜单结构",
+    "keywords": [
+      "业务配置",
+      "权限管理",
+      "系统运维",
+      "菜单置灰",
+      "规则配置更名"
+    ],
+    "sources": [
+      "src/modules/system-management/01-shell.js",
+      "src/modules/business-rules/03-view.js",
+      "src/modules/core-link-config/03-view.js",
+      "src/modules/strategic-supplier-import/03-view.js"
+    ],
+    "styles": [
+      "styles/55-lifecycle-targets.css"
+    ],
+    "checks": [
+      "systemContentScroll",
+      "systemMenuStructure",
+      "systemDataActions",
+      "pageEntries"
+    ]
+  },
+  "supplierRevision": {
+    "label": "供应商分层与年度准入目标",
+    "keywords": [
+      "供应商分层",
+      "年度核心物料目标"
+    ],
+    "sources": [
+      "src/modules/supplier-planning/00-reference.js",
+      "src/modules/supplier-planning/00-resource-metrics.js",
+      "src/modules/supplier-planning/01-ledger.js",
+      "src/modules/supplier-planning/02-model.js",
+      "src/modules/supplier-planning/03-charts.js",
+      "src/modules/supplier-planning/03-material-help.js",
+      "src/modules/supplier-planning/03-material-view.js",
+      "src/modules/supplier-planning/03-navigation.js",
+      "src/modules/supplier-planning/03-resource-help.js",
+      "src/modules/supplier-planning/03-view.js",
+      "src/modules/supplier-planning/04-category-list.js",
+      "src/modules/supplier-planning/04-material-list.js",
+      "src/modules/supplier-planning/04-drawers.js",
+      "src/modules/supplier-planning/05-controller.js",
+      "src/modules/supplier-targets/01-material-model.js",
+      "src/modules/supplier-targets/01-model.js",
+      "src/modules/supplier-targets/02-material-view.js",
+      "src/modules/supplier-targets/02-view.js",
+      "src/modules/supplier-targets/03-controller.js",
+      "src/modules/strategic-supplier-import/01-apply.js",
+      "src/modules/strategic-supplier-import/00-year-scope.js",
+      "src/modules/strategic-supplier-import/00-table-sort.js",
+      "src/modules/strategic-supplier-import/01-model.js",
+      "src/modules/strategic-supplier-import/02-import.js",
+      "src/modules/strategic-supplier-import/03-view.js",
+      "src/modules/strategic-supplier-import/04-controller.js",
+      "src/modules/strategic-supplier-import/05-row-actions.js",
+      "src/modules/strategic-supplier-import/06-catalog-filters.js",
+      "src/modules/strategic-supplier-import/07-category-cascader.js",
+      "src/modules/file-upload/00-template-workbook.js",
+      "src/modules/file-upload/02-history.js",
+      "src/modules/page-presentation/03-terminology.js"
+    ],
+    "styles": [
+      "styles/63-supplier-planning.css",
+      "styles/66-supplier-targets.css",
+      "styles/79-strategic-supplier-import.css"
+    ],
+    "checks": [
+      "supplierMaterialPlan",
+      "supplierMaterialRows",
+      "supplierMaterialDrawer",
+      "supplierMaterialSummarySort",
+      "supplierMaterialBrand",
+      "supplierCategoryTabs",
+      "supplierAnnualImport",
+      "supplierImportTabs",
+      "systemMenuStructure",
+      "pageEntries"
+    ]
+  },
+  "sharedSabc": {
+    "label": "SABC复用数智罗盘配置",
+    "keywords": [
+      "SABC同步",
+      "SABC复用"
+    ],
+    "sources": [
+      "src/modules/business-rules/00-definitions.js",
+      "src/modules/business-rules/01-store.js",
+      "src/modules/business-rules/03-new-view.js",
+      "src/modules/business-rules/03-table-view.js"
+    ],
+    "styles": [
+      "styles/85-business-rules.css"
+    ],
+    "checks": [
+      "businessRuleNewSections",
+      "keyProductDualCards",
+      "systemMenuStructure"
+    ]
+  },
+  "reportMakeup": {
+    "label": "日报未提交台账、补交状态与截止时间",
+    "styles": [
+      "styles/81-diagnosis-analysis.css"
+    ],
+    "keywords": [
+      "是否已补交",
+      "日报截止",
+      "补交"
+    ],
+    "sources": [
+      "src/modules/global-diagnosis/01-model.js",
+      "src/modules/global-diagnosis/02-records.js",
+      "src/modules/global-diagnosis/03-report-diagnosis.js",
+      "src/modules/global-diagnosis/03-analysis-model.js",
+      "src/modules/global-diagnosis/04-analysis-view.js",
+      "src/modules/global-diagnosis/04-analysis-tables.js"
+    ],
+    "checks": [
+      "reportMakeup",
+      "diagnosisRebuild"
+    ]
+  },
+  "costUpdater": {
+    "label": "降本目标更新人",
+    "keywords": [
+      "降本更新人"
+    ],
+    "sources": [
+      "src/modules/cost-config/01-model.js",
+      "src/modules/cost-config/01-department-targets.js",
+      "src/modules/cost-config/06-combined-view.js"
+    ],
+    "styles": [
+      "styles/65-cost-config.css"
+    ],
+    "checks": [
+      "costUpdater"
+    ]
+  },
+  "supplierCatalogFilters": {
+    "label": "供应商类目品牌筛选",
+    "keywords": [
+      "供应商三级级联",
+      "供应商品牌筛选"
+    ],
+    "sources": [
+      "src/modules/strategic-supplier-import/00-year-scope.js",
+      "src/modules/strategic-supplier-import/00-table-sort.js",
+      "src/modules/strategic-supplier-import/01-model.js",
+      "src/modules/strategic-supplier-import/03-view.js",
+      "src/modules/strategic-supplier-import/04-controller.js",
+      "src/modules/strategic-supplier-import/06-catalog-filters.js",
+      "src/modules/strategic-supplier-import/07-category-cascader.js"
+    ],
+    "styles": [
+      "styles/79-strategic-supplier-import.css"
+    ],
+    "checks": [
+      "supplierCatalogFilters"
+    ]
+  },
+  "supplierExport": {
+    "label": "供应商列表导出",
+    "keywords": [
+      "供应商导出",
+      "一级供应商导出",
+      "二级供应商导出"
+    ],
+    "sources": [
+      "src/modules/strategic-supplier-import/00-year-scope.js",
+      "src/modules/strategic-supplier-import/00-table-sort.js",
+      "src/modules/strategic-supplier-import/01-model.js",
+      "src/modules/strategic-supplier-import/03-view.js",
+      "src/modules/strategic-supplier-import/04-controller.js",
+      "src/modules/strategic-supplier-import/08-export.js",
+      "src/modules/strategic-supplier-import/09-import-year-preview.js"
+    ],
+    "styles": [
+      "styles/79-strategic-supplier-import.css"
+    ],
+    "checks": [
+      "supplierExport",
+      "supplierDateSort"
+    ]
+  },
+  "newSuccessEffectivePeriods": {
+    "label": "新品成功条件生效期间",
+    "keywords": [
+      "生效季度",
+      "生效年度"
+    ],
+    "sources": [
+      "src/modules/business-rules/01-success-periods.js",
+      "src/modules/business-rules/01-success-rule-store.js",
+      "src/modules/business-rules/03-success-workspace.js",
+      "src/modules/business-rules/04-success-dialog.js",
+      "src/modules/business-rules/04-success-workspace.js",
+      "src/modules/business-rules/01-store.js",
+      "src/modules/business-rules/03-new-view.js",
+      "src/modules/business-rules/04-controller.js",
+      "src/modules/new-products/01-success.js",
+      "src/modules/new-products/04-success-help.js",
+      "src/modules/business-rules/00-result-groups.js",
+      "src/modules/business-rules/03-view.js",
+      "src/modules/new-products/02-view.js",
+      "styles/85-business-rules.css"
+    ],
+    "checks": [
+      "newSuccessEffectivePeriods",
+      "businessRuleNewSections",
+      "newSuccessRolling",
+      "businessRuleSuccessGroups"
+    ]
+  },
+  "taskLedgerForm": {
+    "label": "任务台账表单交互",
+    "keywords": [
+      "提需人",
+      "第二负责人",
+      "任务链群"
+    ],
+    "sources": [
+      "src/modules/global-task-entry/01-ledger.js",
+      "src/modules/global-task-entry/02-assignee-picker.js",
+      "src/modules/global-task-entry/03-ledger-controls.js",
+      "src/modules/global-task-entry/03-view.js",
+      "src/modules/global-task-entry/04-ledger-detail.js",
+      "src/modules/global-diagnosis/04-analysis-view.js",
+      "src/modules/global-diagnosis/04-action-table.js",
+      "src/modules/global-diagnosis/07-controller.js",
+      "styles/94-global-task-entry.css"
+    ],
+    "checks": [
+      "taskLedgerForm",
+      "taskLedger",
+      "singleManualTasks"
+    ]
+  },
+  "taskRowExpansion": {
+    "label": "任务清单同行展开",
+    "sources": [
+      "src/modules/global-diagnosis/04-task-preview.js"
+    ],
+    "checks": [
+      "taskRowExpansion",
+      "reportProblemPreview"
+    ]
+  },
+  "taskCreateNext": {
+    "label": "新增任务提交并继续创建",
+    "sources": [
+      "src/modules/global-task-entry/03-view.js",
+      "styles/94-global-task-entry.css"
+    ],
+    "checks": [
+      "taskCreateNext",
+      "singleManualTasks"
+    ]
+  },
+  "taskLedgerDetailLayout": {
+    "label": "任务详情布局与变更记录",
+    "sources": [
+      "src/modules/global-task-entry/03-view.js",
+      "src/modules/global-task-entry/04-ledger-history.js",
+      "src/modules/global-task-entry/03-ledger-display.js",
+      "src/modules/global-task-entry/04-ledger-detail.js",
+      "src/modules/global-task-entry/01-ledger.js",
+      "src/modules/global-task-entry/01-model.js",
+      "src/modules/global-diagnosis/01-model.js",
+      "styles/94-global-task-entry.css"
+    ],
+    "checks": [
+      "taskLedgerDetailLayout",
+      "taskLedgerFieldDisplay",
+      "singleManualTasks",
+      "taskLedgerForm",
+      "taskLedger"
+    ]
+  },
+  "aiResultHistory": {
+    "label": "AI结果跨日历史、失败保留及状态依据",
+    "sources": [
+      "src/modules/ai-result-history/01-store.js",
+      "src/modules/ai-result-history/02-global.js",
+      "src/modules/ai-result-history/03-followup.js",
+      "src/modules/global-diagnosis/03-tasks.js",
+      "src/modules/global-diagnosis/04-analysis-view.js",
+      "src/modules/unified-product/04-ai-summary.js",
+      "src/modules/shop-detail/02-views.js",
+      "src/modules/project-panorama/09-analysis-view.js"
+    ],
+    "checks": [
+      "aiResultHistory",
+      "aiSummary",
+      "shopDetail"
+    ]
+  },
+  "taskLedgerAutosave": {
+    "label": "任务详情即时保存与逐条变更记录",
+    "sources": [
+      "src/modules/global-task-entry/02-close-guard.js",
+      "src/modules/global-task-entry/03-view.js",
+      "src/modules/global-task-entry/03-ledger-display.js",
+      "src/modules/global-task-entry/04-ledger-detail.js",
+      "src/modules/global-task-entry/04-ledger-history.js"
+    ],
+    "styles": [
+      "styles/94-global-task-entry.css"
+    ],
+    "checks": [
+      "taskLedgerAutosave",
+      "singleManualTasks",
+      "taskLedgerDetailLayout",
+      "taskLedgerFieldDisplay",
+      "taskLedgerForm",
+      "taskCreateNext",
+      "taskLedger"
+    ]
+  },
+  "taskColumnWidths": {
+    "label": "任务清单列宽偏好升级",
+    "sources": [
+      "src/modules/global-diagnosis/04-action-table.js",
+      "src/modules/global-diagnosis/04-task-preview.js"
+    ],
+    "styles": [
+      "styles/94-global-task-entry.css"
+    ],
+    "checks": [
+      "taskColumnWidths",
+      "taskRowExpansion"
+    ]
+  },
+  "taskLedgerRules": {
+    "label": "任务部门、状态与不限登记日期",
+    "sources": [
+      "src/modules/global-task-entry/01-ledger.js",
+      "src/modules/global-task-entry/03-view.js",
+      "src/modules/global-task-entry/03-ledger-controls.js",
+      "src/modules/global-task-entry/04-ledger-history.js",
+      "src/modules/global-task-entry/01-model.js",
+      "src/modules/global-diagnosis/01-model.js",
+      "src/modules/global-diagnosis/03-task-dates.js",
+      "src/modules/global-diagnosis/04-view.js",
+      "src/modules/global-diagnosis/03-analysis-model.js",
+      "src/modules/ai-result-history/02-global.js"
+    ],
+    "checks": [
+      "taskDateFilters",
+      "taskLedgerAutosave",
+      "taskLedgerFieldDisplay",
+      "taskLedgerForm",
+      "taskLedgerDetailLayout",
+      "aiResultHistory"
+    ]
+  },
+  "aiConciseStrategy": {
+    "label": "精简策略与真实五来源请求边界",
+    "sources": [
+      "dev/ai-strategy-prompts.mjs",
+      "dev/ai-output-schema.mjs",
+      "dev/ai-output-contract.mjs",
+      "dev/ai-request-input.mjs",
+      "dev/ai-finding-updates.mjs",
+      "dev/ai-key-work-analysis.mjs"
+    ],
+    "checks": [
+      "aiConciseStrategy"
+    ]
+  },
+  "diagnosisRuleLifecycle": {
+    "label": "三项规则及状态边界",
+    "sources": [
+      "src/modules/ai-result-history/01-store.js",
+      "src/modules/ai-result-history/02-global.js"
+    ],
+    "checks": [
+      "diagnosisRuleLifecycle",
+      "newHighRiskSamples",
+      "reportTabs"
+    ]
+  },
+  "diagnosisSourcePresentation": {
+    "label": "来源依据三层展示与真实采集时间",
+    "sources": [
+      "src/modules/global-diagnosis/05-source-location.js",
+      "src/modules/global-diagnosis/05-analysis-details.js"
+    ],
+    "checks": [
+      "diagnosisSourcePresentation",
+      "reportTabs",
+      "diagnosisDailyReview",
+      "todoOrigins"
+    ]
+  },
+  "diagnosisEmptyFollowState": {
+    "label": "空跟进状态灰色暂无",
+    "sources": [
+      "src/modules/ai-result-history/03-followup.js",
+      "src/modules/ai-result-history/02-global.js"
+    ],
+    "checks": [
+      "diagnosisEmptyFollowState"
+    ]
+  }
+}

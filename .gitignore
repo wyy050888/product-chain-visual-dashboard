@@ -1,5 +1,6 @@
 # Dependencies and local caches
 node_modules/
+/00-原型/.dev-cache/
 __pycache__/
 *.py[cod]
 /.artifact-build-*/
@@ -28,3 +29,6 @@ Desktop.ini
 
 /dist/
 .wrangler/
+
+# Archived local work directories
+/outputs/archive/artifact-build-*/

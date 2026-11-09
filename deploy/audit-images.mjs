@@ -14,7 +14,7 @@ const cacheRoot = path.join(directory, 'cache');
 const reportFile = path.join(directory, 'report.json');
 fs.mkdirSync(directory, { recursive: true });
 fs.writeFileSync(path.join(directory, '.gitignore'), '/cache/\n');
-const files = JSON.parse(fs.readFileSync(path.join(root, '原型/manifest.json'), 'utf8')).images;
+const files = JSON.parse(fs.readFileSync(path.join(root, '00-原型/manifest.json'), 'utf8')).images;
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
 const previous = fs.existsSync(reportFile) ? JSON.parse(fs.readFileSync(reportFile, 'utf8')) : {};
 const resume = process.argv.includes('--resume') && previous.url === baseUrl;

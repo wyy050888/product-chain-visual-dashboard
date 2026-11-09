@@ -1,13 +1,13 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { buildPrototype } from '../原型/build.mjs';
+import { buildPrototype } from '../00-原型/build.mjs';
 import { optimizeAssets } from './lib/optimize-assets.mjs';
 import { copyFiles } from './lib/copy-files.mjs';
 
 const projectRoot = fileURLToPath(new URL('../', import.meta.url));
 const from = process.argv.find(arg => arg.startsWith('--from='))?.slice(7);
-const prototypeRoot = from ? path.resolve(projectRoot, from) : path.join(projectRoot, '原型');
+const prototypeRoot = from ? path.resolve(projectRoot, from) : path.join(projectRoot, '00-原型');
 const outputRoot = path.join(projectRoot, 'dist');
 if (!from) buildPrototype();
 

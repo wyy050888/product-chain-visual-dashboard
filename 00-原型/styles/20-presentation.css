@@ -1,0 +1,89 @@
+/* 删除展示层冗余文案，同时保留脚本需要的节点及必要日期、金额和状态。 */
+.presentation-suppressed { display: none !important; }
+#rules, #timerules, #dp-rules, #pb-rules, [data-rules] { display: none !important; }
+.lifehead { justify-content: flex-end; }
+.metric-help {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  margin-left: 5px;
+  vertical-align: 1px;
+  flex: 0 0 14px;
+  border: 1px solid #a7b7cf;
+  border-radius: 50%;
+  color: #8395ae;
+  background: #fff;
+  font-size: 10px;
+  line-height: 1;
+  font-weight: 500;
+  cursor: help;
+}
+.metric-help::before { content: '?'; }
+.metric-help:hover, .metric-help:focus-visible { color: #1966ff; border-color: #1966ff; outline: 2px solid #dbe8ff; outline-offset: 2px; }
+.metric-tooltip {
+  pointer-events: auto;
+  position: fixed;
+  z-index: 1000;
+  width: max-content;
+  max-width: min(320px, calc(100vw - 16px));
+  padding: 11px 13px;
+  border: 1px solid #dde6f2;
+  border-radius: 6px;
+  color: #34425b;
+  background: #fff;
+  box-shadow: 0 5px 20px #263e6826;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.65;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.metric-tooltip[hidden] { display: none !important; }
+.sectionhead .titlegroup { gap: 8px; }
+.ai-detail-heading:has(h3.presentation-suppressed) { min-height: 0; }
+.period-note { min-height: 0; }
+
+/* 榜单提示与模块规则卡片共用字体层级和字色。 */
+.metric-tooltip:is(.metric-tooltip-card,.metric-rule-card){--rule-title-color:#203650;--rule-text-color:#34425b;--rule-muted-color:#677a93;--rule-body-size:13px;--rule-title-size:14px;--rule-note-size:12px;font-family:inherit;color:var(--rule-text-color)}
+/* 六榜标题提示：分组标题、条件列表与排序步骤。 */
+.metric-tooltip.metric-tooltip-card {
+  box-sizing: border-box;
+  width: 460px;
+  padding: 16px 18px;
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.75;
+  max-width: calc(100vw - 16px);
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  white-space: normal;
+}
+.rhead h3 > .card-metric-help { margin-left: 7px; vertical-align: 2px; }
+
+.metric-tooltip-card .metric-rule-section+ .metric-rule-section {margin-top:14px;padding-top:14px;border-top:1px solid #e8eef6}
+.metric-tooltip-card .metric-rule-section h4 {display:flex;align-items:center;gap:7px;margin:0 0 8px;font-size:var(--rule-title-size);font-weight:600;line-height:22px;color:var(--rule-title-color)}
+.metric-tooltip-card .metric-rule-section h4::before {content:"";width:3px;height:13px;border-radius:2px;background:#1677ff;flex:none}
+.metric-tooltip-card .metric-rule-section p {margin:0 0 8px;padding:7px 10px;border-radius:5px;background:#f5f8fc;color:var(--rule-muted-color);font-size:var(--rule-note-size)}
+.metric-tooltip-card .metric-rule-formulas {display:grid;gap:5px;margin-top:9px;padding:10px 12px;border-radius:6px;background:#f5f8fc;color:#677a93;font-size:12px;overflow-wrap:anywhere}
+.metric-tooltip-card .metric-rule-section :is(ul,ol) {margin:0;padding-left:20px}
+.metric-tooltip-card .metric-rule-section li {padding-left:3px;margin:0 0 7px}
+.metric-tooltip-card .metric-rule-section li:last-child {margin-bottom:0}
+.metric-tooltip-card .metric-rule-section li::marker {color:#6988b4;font-weight:600}
+.metric-tooltip-card .metric-rule-section .metric-rule-sublist{margin-top:6px;padding-left:17px;list-style-type:circle}
+.metric-tooltip-card .metric-rule-sublist>li{margin-bottom:6px;color:#677a93}
+.metric-tooltip-card .metric-rule-sublist p{margin:4px 0 0;padding:0;background:transparent;border-radius:0}
+
+
+/* 总退灯色说明：一行公式和三条条件。 */
+.metric-tooltip-card .rp-return-rule-formula{padding:8px 10px;border-radius:5px;background:#f5f8fc;font-size:13px;font-weight:600;color:#34425b}
+.metric-tooltip-card .rp-return-rule-table{width:100%;min-width:0;margin:10px 0;border-collapse:collapse;table-layout:auto;font-size:12px}
+.metric-tooltip-card .rp-return-rule-table :is(th,td){padding:8px 10px;border-bottom:1px solid #e8eef6;text-align:left;white-space:normal;line-height:1.65;font-weight:400}
+.metric-tooltip-card .rp-return-rule-table tbody th{width:68px;white-space:nowrap;font-weight:600}
+.metric-tooltip-card .rp-return-rule-table tbody th::before{content:'';display:inline-block;width:6px;height:6px;margin-right:6px;border-radius:50%;background:currentColor;vertical-align:2px}
+.metric-tooltip-card .rp-return-rule-table [data-tone=red]{color:#c13750}
+.metric-tooltip-card .rp-return-rule-table [data-tone=yellow]{color:var(--orange)}
+.metric-tooltip-card .rp-return-rule-table [data-tone=green]{color:var(--green)}
+
+.metric-tooltip-card .rp-return-rule-table thead th{background:#f5f8fc;color:#677a93;white-space:nowrap}

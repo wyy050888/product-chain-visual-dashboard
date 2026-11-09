@@ -1,0 +1,35 @@
+/* 同类规则提示共用外框和内容组件，只按表格/列表表达不同内容。 */
+#metric-tooltip.metric-rule-card{width:560px;max-width:calc(100vw - 16px);max-height:calc(100dvh - 16px);box-sizing:border-box;padding:16px 18px;border:1px solid #dde6f2;border-radius:10px;background:#fff;box-shadow:0 5px 20px #263e6826;color:var(--rule-text-color);font-family:inherit;font-size:var(--rule-body-size);line-height:1.75;white-space:normal;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
+#metric-tooltip.metric-rule-card .metric-rule-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 8px;padding:0;border:0;background:transparent}
+#metric-tooltip.metric-rule-card h4{display:flex;align-items:center;gap:7px;margin:0;color:var(--rule-title-color);font-size:var(--rule-title-size);font-weight:600;line-height:22px}
+#metric-tooltip.metric-rule-card .metric-rule-badge{flex:none;padding:2px 7px;border-radius:4px;background:#edf4ff;color:#2676de;font-size:11px;line-height:20px;white-space:nowrap}
+#metric-tooltip.metric-rule-card .metric-rule-body{min-width:0}
+#metric-tooltip.metric-rule-card .metric-rule-body>p{margin:0 0 8px;color:var(--rule-text-color)}
+#metric-tooltip.metric-rule-card .metric-rule-list{list-style:disc;margin:0;padding-left:20px}
+#metric-tooltip.metric-rule-card .metric-rule-list>li{padding:0 0 0 3px;margin:0 0 7px;border:0}
+#metric-tooltip.metric-rule-card .metric-rule-list>li:first-child{padding-top:0;border-top:0}
+#metric-tooltip.metric-rule-card .metric-rule-list>li:last-child{padding-bottom:0;margin-bottom:0}
+#metric-tooltip.metric-rule-card .metric-rule-line{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:4px 12px}
+#metric-tooltip.metric-rule-card h5{margin:0;color:var(--rule-title-color);font-size:var(--rule-body-size);font-weight:600;line-height:1.75}
+#metric-tooltip.metric-rule-card .metric-rule-line>strong{color:var(--rule-text-color);font-size:var(--rule-body-size);font-weight:400}
+#metric-tooltip.metric-rule-card .metric-rule-list p{margin:4px 0 0;color:var(--rule-muted-color);font-size:var(--rule-note-size);line-height:1.75}
+#metric-tooltip.metric-rule-card .metric-rule-section+.metric-rule-section{margin-top:14px;padding-top:14px;border-top:1px solid #e8eef6}
+#metric-tooltip.metric-rule-card .metric-rule-section>h5{margin-bottom:7px}
+#metric-tooltip.metric-rule-card .metric-rule-body .metric-rule-note{display:block;margin:8px 0 0;padding:7px 10px;border:0;border-radius:5px;background:#f5f8fc;color:var(--rule-muted-color);font-size:var(--rule-note-size);line-height:1.75}
+#metric-tooltip.metric-rule-card .metric-rule-body>.metric-rule-note:first-child{margin-top:0}
+#metric-tooltip.metric-rule-card .metric-rule-table{width:100%;min-width:0;table-layout:fixed;border-collapse:collapse;font-size:var(--rule-body-size);line-height:1.75}
+#metric-tooltip.metric-rule-card .metric-rule-table :is(th,td){padding:8px 9px;border:0;border-bottom:1px solid #edf1f7;text-align:left;vertical-align:top;font-weight:400;white-space:normal;overflow-wrap:anywhere}
+#metric-tooltip.metric-rule-card .metric-rule-table th{background:#f5f8fc;color:var(--rule-muted-color);font-size:var(--rule-note-size)}
+#metric-tooltip.metric-rule-card .metric-rule-table td{color:var(--rule-text-color)}
+#metric-tooltip.metric-rule-card .metric-rule-table .green{color:var(--green);background:var(--green-soft)}
+#metric-tooltip.metric-rule-card .metric-rule-table .yellow{color:var(--orange);background:var(--orange-soft)}
+#metric-tooltip.metric-rule-card .metric-rule-table .red{color:var(--red);background:#fff3f4}
+#metric-tooltip.metric-rule-card .metric-rule-table .is-current>:first-child{background:#edf4ff;color:#3475d9}
+#metric-tooltip.metric-rule-card .metric-rule-grade-table th:first-child{width:56px}
+#metric-tooltip.metric-rule-card .metric-rule-grade-table th:nth-child(2){width:42%}
+#metric-tooltip.metric-rule-card .metric-rule-band-table :is(th,td){text-align:center}
+#metric-tooltip.metric-rule-card .metric-rule-band-table th:first-child{width:19%}
+@media(max-width:600px){#metric-tooltip.metric-rule-card{padding:12px}#metric-tooltip.metric-rule-card .metric-rule-table :is(th,td){padding:7px 5px}}
+
+#metric-tooltip.metric-rule-card h4::before{content:"";width:3px;height:13px;border-radius:2px;background:#1677ff;flex:none}
+#metric-tooltip.metric-rule-card .metric-rule-list>li::marker{color:#6988b4;font-weight:600}

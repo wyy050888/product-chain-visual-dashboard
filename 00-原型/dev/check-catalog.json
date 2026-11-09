@@ -1,0 +1,891 @@
+{
+  "diagnosisColumnLayout": {
+    "file": "./checks/diagnosis-column-layout.mjs",
+    "export": "diagnosisColumnLayout"
+  },
+  "metricRuleCards": {
+    "file": "./checks/metric-rule-cards.mjs",
+    "export": "metricRuleCards"
+  },
+  "productGradeOptions": {
+    "file": "./checks/product-grade-options.mjs",
+    "export": "productGradeOptions"
+  },
+  "shopAssignmentSnapshots": {
+    "file": "./checks/shop-assignment-snapshots.mjs",
+    "export": "shopAssignmentSnapshots"
+  },
+  "newProductIteration": {
+    "file": "./checks/new-products.mjs",
+    "export": "newProductIteration"
+  },
+  "detailTrendAxes": {
+    "file": "./checks/detail-trend-axes.mjs",
+    "export": "detailTrendAxes"
+  },
+  "lifecycleTargetZeroImport": {
+    "file": "./checks/lifecycle-target-zero-import.mjs",
+    "export": "lifecycleTargetZeroImport"
+  },
+  "diagnosisProjectDeadline": {
+    "file": "./checks/diagnosis-listed-date.mjs",
+    "export": "diagnosisProjectDeadline"
+  },
+  "profitRateComparisons": {
+    "file": "./checks/profit-rate-comparisons.mjs",
+    "export": "profitRateComparisons"
+  },
+  "refurbDelayRemoval": {
+    "file": "./checks/inventory-refurb.mjs",
+    "export": "refurbDelayRemoval"
+  },
+  "rankingsWithoutTrends": {
+    "file": "./checks/rankings-without-trends.mjs",
+    "export": "rankingsWithoutTrends"
+  },
+  "productReturnComparisons": {
+    "file": "./checks/product-return-comparisons.mjs",
+    "export": "productReturnComparisons"
+  },
+  "comparisonSigns": {
+    "file": "./checks/comparison-signs.mjs",
+    "export": "comparisonSigns"
+  },
+  "detailContact": {
+    "file": "./checks/detail-contact.mjs",
+    "export": "detailContact"
+  },
+  "riskGroupNavigation": {
+    "file": "./checks/risk-group-navigation.mjs",
+    "export": "riskGroupNavigation"
+  },
+  "detailStockPeriod": {
+    "file": "./checks/detail-stock-period.mjs",
+    "export": "detailStockPeriod"
+  },
+  "shopCoreProducts": {
+    "file": "./checks/shop-core-products.mjs",
+    "export": "shopCoreProducts"
+  },
+  "supplierAnnualImport": {
+    "file": "./checks/supplier-annual-import.mjs",
+    "export": "supplierAnnualImport"
+  },
+  "supplierMaterialDrawer": {
+    "file": "./checks/supplier-material-drawer.mjs",
+    "export": "supplierMaterialDrawer"
+  },
+  "supplierMaterialScroll": {
+    "file": "./checks/supplier-material-scroll.mjs",
+    "export": "supplierMaterialScroll"
+  },
+  "supplierMaterialSummarySort": {
+    "file": "./checks/supplier-material-tables.mjs",
+    "export": "supplierMaterialSummarySort"
+  },
+  "supplierSourcingType": {
+    "file": "./checks/supplier-sourcing-type.mjs",
+    "export": "supplierSourcingType"
+  },
+  "supplierMaterialBrand": {
+    "file": "./checks/supplier-material-tables.mjs",
+    "export": "supplierMaterialBrand"
+  },
+  "systemContentScroll": {
+    "file": "./checks/system-menu-structure.mjs",
+    "export": "systemContentScroll"
+  },
+  "supplierExport": {
+    "file": "./checks/supplier-export.mjs",
+    "export": "supplierExport"
+  },
+  "supplierDateSort": {
+    "file": "./checks/supplier-date-sort.mjs",
+    "export": "supplierDateSort"
+  },
+  "coreLinkDateSort": {
+    "file": "./checks/core-link-date-sort.mjs",
+    "export": "coreLinkDateSort"
+  },
+  "keyProductDualCards": {
+    "file": "./checks/key-product-dual-cards.mjs",
+    "export": "keyProductDualCards"
+  },
+  "supplierRequiredTemplate": {
+    "file": "./checks/supplier-required-template.mjs",
+    "export": "supplierRequiredTemplate"
+  },
+  "costStructuredTemplate": {
+    "file": "./checks/cost-split.mjs",
+    "export": "costStructuredTemplate"
+  },
+  "costDepartmentDirectory": {
+    "file": "./checks/cost-department-directory.mjs",
+    "export": "costDepartmentDirectory"
+  },
+  "coreLinkTemplate": {
+    "file": "./checks/core-link-template.mjs",
+    "export": "coreLinkTemplate"
+  },
+  "systemMenuStructure": {
+    "file": "./checks/system-menu-structure.mjs",
+    "export": "systemMenuStructure"
+  },
+  "systemDataActions": {
+    "file": "./checks/system-data-actions.mjs",
+    "export": "systemDataActions"
+  },
+  "shopScoreRules": {
+    "file": "./checks/business-rule-shop-scores.mjs",
+    "export": "shopScoreRules"
+  },
+  "uploadExperience": {
+    "file": "./checks/upload-experience.mjs",
+    "export": "uploadExperience"
+  },
+  "dropdownIcons": {
+    "file": "./checks/dropdown-icons.mjs",
+    "export": "dropdownIcons"
+  },
+  "reportMakeup": {
+    "file": "./checks/report-makeup.mjs",
+    "export": "reportMakeup"
+  },
+  "diagnosisRebuild": {
+    "file": "./checks/diagnosis-rebuild.mjs",
+    "export": "diagnosisRebuild"
+  },
+  "taskDateFilters": {
+    "file": "./checks/task-date-filters.mjs",
+    "export": "taskDateFilters"
+  },
+  "diagnosisRebuildTasks": {
+    "file": "./checks/diagnosis-rebuild-tasks.mjs",
+    "export": "diagnosisRebuildTasks"
+  },
+  "formFields": {
+    "file": "./checks/form-field-captions.mjs",
+    "export": "formFields"
+  },
+  "businessRuleSuccessGroups": {
+    "file": "./checks/business-rule-result-groups.mjs",
+    "export": "businessRuleSuccessGroups"
+  },
+  "businessRuleResultGroups": {
+    "file": "./checks/business-rule-result-groups.mjs",
+    "export": "businessRuleResultGroups"
+  },
+  "businessRuleObjectMetrics": {
+    "file": "./checks/business-rule-object-metrics.mjs",
+    "export": "businessRuleObjectMetrics"
+  },
+  "tooltipHover": {
+    "file": "./checks/tooltip-hover.mjs",
+    "export": "tooltipHover"
+  },
+  "businessRuleCompound": {
+    "file": "./checks/business-rule-conditions.mjs",
+    "export": "businessRuleCompound"
+  },
+  "newSuccessEffectivePeriods": {
+    "file": "./checks/new-success-effective-periods.mjs",
+    "export": "newSuccessEffectivePeriods"
+  },
+  "businessRuleNewSections": {
+    "file": "./checks/business-rule-new-sections.mjs",
+    "export": "businessRuleNewSections"
+  },
+  "businessRuleGrades": {
+    "file": "./checks/business-rule-conditions.mjs",
+    "export": "businessRuleGrades"
+  },
+  "businessRuleConditions": {
+    "file": "./checks/business-rule-conditions.mjs",
+    "export": "businessRuleConditions"
+  },
+  "returnPresentation": {
+    "file": "./checks/return-presentation.mjs",
+    "export": "returnPresentation"
+  },
+  "businessRuleAi": {
+    "file": "./checks/business-rules-ai.mjs",
+    "export": "businessRuleAi"
+  },
+  "businessRuleRisk": {
+    "file": "./checks/business-rules-risk.mjs",
+    "export": "businessRuleRisk"
+  },
+  "businessRules": {
+    "file": "./checks/business-rules.mjs",
+    "export": "businessRules"
+  },
+  "riskPlatformMenu": {
+    "file": "./checks/risk-platform-menu.mjs",
+    "export": "riskPlatformMenu"
+  },
+  "typography": {
+    "file": "./checks/typography.mjs",
+    "export": "typography"
+  },
+  "strategicSupplierImport": {
+    "file": "./checks/strategic-supplier-import.mjs",
+    "export": "strategicSupplierImport"
+  },
+  "gradeStrategy": {
+    "file": "./checks/grade-strategy.mjs",
+    "export": "gradeStrategy"
+  },
+  "defaultSorts": {
+    "file": "./checks/default-sorts.mjs",
+    "export": "defaultSorts"
+  },
+  "collaborativeTodos": {
+    "file": "./checks/collaborative-todos.mjs",
+    "export": "collaborativeTodos"
+  },
+  "searchFields": {
+    "file": "./checks/search-fields.mjs",
+    "export": "searchFields"
+  },
+  "dynamicDates": {
+    "file": "./checks/dynamic-dates.mjs",
+    "export": "dynamicDates"
+  },
+  "aiBusinessFollowup": {
+    "file": "./checks/key-products-ai-followup.mjs",
+    "export": "aiBusinessFollowup"
+  },
+  "drawerSummary": {
+    "file": "./checks/drawer-summary.mjs",
+    "export": "drawerSummary"
+  },
+  "keyProductSidebar": {
+    "file": "./checks/key-products-sidebar.mjs",
+    "export": "keyProductSidebar"
+  },
+  "newProductPrices": {
+    "file": "./checks/new-products-price.mjs",
+    "export": "newProductPrices"
+  },
+  "keyProductPrice": {
+    "file": "./checks/key-products-price.mjs",
+    "export": "keyProductPrice"
+  },
+  "matrixZoomFilters": {
+    "file": "./checks/key-products-zoom-filters.mjs",
+    "export": "matrixZoomFilters"
+  },
+  "coreLinks": {
+    "file": "./checks/core-links.mjs",
+    "export": "coreLinks"
+  },
+  "productManagement": {
+    "file": "./checks/product-management.mjs",
+    "export": "productManagement"
+  },
+  "supplierTargets": {
+    "file": "./checks/supplier-targets.mjs",
+    "export": "supplierTargets"
+  },
+  "costUpdater": {
+    "file": "./checks/cost-split.mjs",
+    "export": "costUpdater"
+  },
+  "costConfig": {
+    "file": "./checks/cost-split.mjs",
+    "export": "costConfig"
+  },
+  "costDetailRules": {
+    "file": "./checks/cost-split.mjs",
+    "export": "costDetailRules"
+  },
+  "costTargetGrid": {
+    "file": "./checks/cost-split.mjs",
+    "export": "costTargetGrid"
+  },
+  "costActualGrid": {
+    "file": "./checks/cost-split.mjs",
+    "export": "costActualGrid"
+  },
+  "costImportHeaders": {
+    "file": "./checks/import-template-headers.mjs",
+    "export": "importTemplateHeaders",
+    "args": [true]
+  },
+  "costImportColors": {
+    "file": "./checks/import-template-colors.mjs",
+    "export": "importTemplateColors",
+    "args": [true]
+  },
+  "costSharedUpload": {
+    "file": "./checks/upload-experience.mjs",
+    "export": "uploadExperience",
+    "args": [{"modules": ["降本目标值", "供应商名单", "核心链接"], "procurement": false}]
+  },
+  "costControl": {
+    "file": "./checks/cost-control.mjs",
+    "export": "costControl"
+  },
+  "supplierPlanning": {
+    "file": "./checks/supplier-planning.mjs",
+    "export": "supplierPlanning"
+  },
+  "supplierQuarterNavigation": {
+    "file": "./checks/supplier-quarter-navigation.mjs",
+    "export": "supplierQuarterNavigation"
+  },
+  "riskCardClick": {
+    "file": "./checks/risk-card-click.mjs",
+    "export": "riskCardClick"
+  },
+  "detailPeriod": {
+    "file": "./checks/detail-period.mjs",
+    "export": "detailPeriod"
+  },
+  "keyProducts": {
+    "file": "./checks/key-products.mjs",
+    "export": "keyProducts"
+  },
+  "inventoryControl": {
+    "file": "./checks/inventory-control.mjs",
+    "export": "inventoryControl"
+  },
+  "shopFilters": {
+    "file": "./checks/shop-filters.mjs",
+    "export": "shopFilters"
+  },
+  "shopConfig": {
+    "file": "./checks/shop-config.mjs",
+    "export": "shopConfig"
+  },
+  "lifecycleTargets": {
+    "file": "./checks/lifecycle-targets.mjs",
+    "export": "lifecycleTargets"
+  },
+  "lifecycleProjectLinks": {
+    "file": "./checks/lifecycle-project-links.mjs",
+    "export": "lifecycleProjectLinks"
+  },
+  "projectRiskDetail": {
+    "file": "./checks/project-risk-detail.mjs",
+    "export": "projectRiskDetail"
+  },
+  "projectRiskEvents": {
+    "file": "./checks/project-risk-events.mjs",
+    "export": "projectRiskEvents"
+  },
+  "projectDates": {
+    "file": "./checks/project-dates.mjs",
+    "export": "projectDates"
+  },
+  "projectAnalysis": {
+    "file": "./checks/project-analysis.mjs",
+    "export": "projectAnalysis"
+  },
+  "columnResize": {
+    "file": "./checks/column-resize.mjs",
+    "export": "columnResize"
+  },
+  "projectPanorama": {
+    "file": "./checks/project-panorama.mjs",
+    "export": "projectPanorama"
+  },
+  "diagnosisDailyReview": {
+    "file": "./checks/diagnosis-daily-review.mjs",
+    "export": "diagnosisDailyReview"
+  },
+  "productAiEvidence": {
+    "file": "./checks/product-ai-evidence.mjs",
+    "export": "productAiEvidence"
+  },
+  "aiSummary": {
+    "file": "./checks/ai-summary.mjs",
+    "export": "aiSummary"
+  },
+  "multiFilters": {
+    "file": "./checks/multi-filters.mjs",
+    "export": "multiFilters"
+  },
+  "newProducts": {
+    "file": "./checks/new-products.mjs",
+    "export": "newProducts"
+  },
+  "shopDetail": {
+    "file": "./checks/shop-detail.mjs",
+    "export": "shopDetail"
+  },
+  "salesCards": {
+    "file": "./checks/sales-cards.mjs",
+    "export": "salesCards"
+  },
+  "smoke": {
+    "file": "./checks/smoke.mjs",
+    "export": "smoke"
+  },
+  "filters": {
+    "file": "./checks/filters.mjs",
+    "export": "filters"
+  },
+  "risk": {
+    "file": "./checks/risk.mjs",
+    "export": "risk"
+  },
+  "riskQualityFilterRemoval": {
+    "file": "./checks/risk-sort.mjs",
+    "export": "riskQualityFilterRemoval"
+  },
+  "periodPerformance": {
+    "file": "./checks/period-performance.mjs",
+    "export": "periodPerformance"
+  },
+  "detailOperating": {
+    "file": "./checks/detail-operating.mjs",
+    "export": "detailOperating"
+  },
+  "detailQualityTodos": {
+    "file": "./checks/detail-quality-todos.mjs",
+    "export": "detailQualityTodos"
+  },
+  "inventoryStaleAnalysis": {
+    "file": "./checks/inventory-stale-analysis.mjs",
+    "export": "inventoryStaleAnalysis"
+  },
+  "diagnosisReadableText": {
+    "file": "./checks/diagnosis-readable-text.mjs",
+    "export": "diagnosisReadableText"
+  },
+  "businessRulesToday": {
+    "file": "./checks/business-rules-today.mjs",
+    "export": "verifyTodayRules"
+  },
+  "inventoryStagnantTop": {
+    "file": "./checks/inventory-stagnant-top.mjs",
+    "export": "inventoryStagnantTop"
+  },
+  "inventoryBrandShares": {
+    "file": "./checks/inventory-brand-shares.mjs",
+    "export": "inventoryBrandShares"
+  },
+  "stockPreview": {
+    "file": "./checks/stock-preview.mjs",
+    "export": "stockPreview"
+  },
+  "lossPreview": {
+    "file": "./checks/loss-preview.mjs",
+    "export": "lossPreview"
+  },
+  "returnPreview": {
+    "file": "./checks/return-preview.mjs",
+    "export": "returnPreview"
+  },
+  "qualityPreview": {
+    "file": "./checks/quality-preview.mjs",
+    "export": "qualityPreview"
+  },
+  "stagnantPreview": {
+    "file": "./checks/stagnant-preview.mjs",
+    "export": "stagnantPreview"
+  },
+  "shortagePreview": {
+    "file": "./checks/shortage-preview.mjs",
+    "export": "shortagePreview"
+  },
+  "qualityViolation": {
+    "file": "./checks/quality-violation.mjs",
+    "export": "qualityViolation"
+  },
+  "productGradePlacement": {
+    "file": "./checks/product-grade-placement.mjs",
+    "export": "productGradePlacement"
+  },
+  "taskDatePicker": {
+    "file": "./checks/task-date-picker.mjs",
+    "export": "taskDatePicker"
+  },
+  "singleManualTasks": {
+    "file": "./checks/single-manual-tasks.mjs",
+    "export": "singleManualTasks"
+  },
+  "taskEntryClose": {
+    "file": "./checks/global-task-close.mjs",
+    "export": "taskEntryClose"
+  },
+  "taskImportTemplate": {
+    "file": "./checks/task-import-template.mjs",
+    "export": "taskImportTemplate"
+  },
+  "taskObjectTemplate": {
+    "file": "./checks/task-object-template.mjs",
+    "export": "taskObjectTemplate"
+  },
+  "globalTasks": {
+    "file": "./checks/global-tasks.mjs",
+    "export": "globalTasks"
+  },
+  "manualTaskCollaboration": {
+    "file": "./checks/manual-task-collaboration.mjs",
+    "export": "manualTaskCollaboration"
+  },
+  "riskResponsive": {
+    "file": "./checks/risk-responsive.mjs",
+    "export": "riskResponsive"
+  },
+  "riskSticky": {
+    "file": "./checks/risk-sticky.mjs",
+    "export": "riskSticky"
+  },
+  "sectionSticky": {
+    "file": "./checks/section-sticky.mjs",
+    "export": "sectionSticky"
+  },
+  "returnPlatformSamples": {
+    "file": "./checks/return-platform-samples.mjs",
+    "export": "returnPlatformSamples"
+  },
+  "returnProductType": {
+    "file": "./checks/return-product-type.mjs",
+    "export": "returnProductType"
+  },
+  "riskGroups": {
+    "file": "./checks/risk-groups.mjs",
+    "export": "riskGroups"
+  },
+  "riskPlatformCards": {
+    "file": "./checks/risk-platform-cards.mjs",
+    "export": "riskPlatformCards"
+  },
+  "riskSeasonTabs": {
+    "file": "./checks/card-seasons.mjs",
+    "export": "cardSeasons",
+    "args": [
+      [
+        0,
+        6
+      ]
+    ]
+  },
+  "newAssessmentMatrix": {
+    "file": "./checks/new-assessment-matrix.mjs",
+    "export": "newAssessmentMatrix"
+  },
+  "newAssessmentSort": {
+    "file": "./checks/new-assessment-sort.mjs",
+    "export": "newAssessmentSort"
+  },
+  "newSuccessHistoryUI": {
+    "file": "./checks/new-success-history-ui.mjs",
+    "export": "newSuccessHistoryUI"
+  },
+  "newAssessmentApproval": {
+    "file": "./checks/new-assessment-approval.mjs",
+    "export": "newAssessmentApproval"
+  },
+  "newSuccessRolling": {
+    "file": "./checks/new-success-rolling.mjs",
+    "export": "newSuccessRolling"
+  },
+  "keyProductMonthlyPolicy": {
+    "file": "./checks/key-product-monthly-policy.mjs",
+    "export": "keyProductMonthlyPolicy"
+  },
+  "productCenter": {
+    "file": "./checks/product-center.mjs",
+    "export": "productCenter"
+  },
+  "pageEntries": {
+    "file": "./checks/page-entries.mjs",
+    "export": "pageEntries"
+  },
+  "reportRoleRubrics": {
+    "file": "./checks/report-role-rubrics.mjs",
+    "export": "reportRoleRubrics"
+  },
+  "diagnosisCategories": {
+    "file": "./checks/diagnosis-categories.mjs",
+    "export": "diagnosisCategories"
+  },
+  "diagnosisStatusDropdown": {
+    "file": "./checks/diagnosis-status-dropdown.mjs",
+    "export": "diagnosisStatusDropdown"
+  },
+  "diagnosisTaskStatusTabs": {
+    "file": "./checks/diagnosis-status-dropdown.mjs",
+    "export": "diagnosisTaskStatusTabs"
+  },
+  "diagnosisTaskColumns": {
+    "file": "./checks/diagnosis-task-columns.mjs",
+    "export": "diagnosisTaskColumns"
+  },
+  "businessRuleRefurbCycle": {
+    "file": "./checks/business-rule-refurb-cycle.mjs",
+    "export": "businessRuleRefurbCycle"
+  },
+  "globalLoad": {
+    "file": "./checks/global-load.mjs",
+    "export": "globalLoad"
+  },
+  "interactionPerformance": {
+    "file": "./checks/interaction-performance.mjs",
+    "export": "interactionPerformance"
+  },
+  "platformTerminology": {
+    "file": "./checks/platform-terminology.mjs",
+    "export": "platformTerminology"
+  },
+  "globalLoadViews": {
+    "file": "./checks/global-load.mjs",
+    "export": "globalLoadViews"
+  },
+  "newProductDetail": {
+    "file": "./checks/new-products-detail.mjs",
+    "export": "newProductDetail"
+  },
+  "diagnosisStickyOperations": {
+    "file": "./checks/diagnosis-sticky-operations.mjs",
+    "export": "diagnosisStickyOperations"
+  },
+  "todoExecutionGroups": {
+    "file": "./checks/todo-execution-table.mjs",
+    "export": "todoExecutionTable"
+  },
+  "todoExecutionTable": {
+    "file": "./checks/todo-execution-table.mjs",
+    "export": "todoExecutionTable"
+  },
+  "todoPageLifetime": {
+    "file": "./checks/todo-page-lifetime.mjs",
+    "export": "todoPageLifetime"
+  },
+  "todoRowHeight": {
+    "file": "./checks/todo-row-height.mjs",
+    "export": "todoRowHeight"
+  },
+  "reportTabs": {
+    "file": "./checks/report-tabs.mjs",
+    "export": "reportTabs"
+  },
+  "reportScoring": {
+    "file": "./checks/report-scoring.mjs",
+    "export": "reportScoring"
+  },
+  "reportProblemPreview": {
+    "file": "./checks/report-problem-preview.mjs",
+    "export": "reportProblemPreview"
+  },
+  "todoOrigins": {
+    "file": "./checks/todo-origins.mjs",
+    "export": "todoOrigins"
+  },
+  "drawerScroll": {
+    "file": "./checks/drawer-scroll.mjs",
+    "export": "drawerScroll"
+  },
+  "diagnosisCatalog": {
+    "file": "./checks/diagnosis-catalog.mjs",
+    "export": "diagnosisCatalog"
+  },
+  "newHighRiskSamples": {
+    "file": "./checks/new-high-risk-samples.mjs",
+    "export": "newHighRiskSamples"
+  },
+  "diagnosisRiskDateSort": {
+    "file": "./checks/diagnosis-listed-date.mjs",
+    "export": "diagnosisRiskDateSort"
+  },
+  "diagnosisListedDate": {
+    "file": "./checks/diagnosis-listed-date.mjs",
+    "export": "diagnosisListedDate"
+  },
+  "diagnosisWorkspace": {
+    "file": "./checks/diagnosis-workspace.mjs",
+    "export": "diagnosisWorkspace"
+  },
+  "inventoryStockRules": {
+    "file": "./checks/inventory-stock-rules.mjs",
+    "export": "inventoryStockRules"
+  },
+  "inventoryWarningRules": {
+    "file": "./checks/inventory-warning-rules.mjs",
+    "export": "inventoryWarningRules"
+  },
+  "lifecycleTargetData": {
+    "file": "./checks/lifecycle-target-data.mjs",
+    "export": "lifecycleTargetData"
+  },
+  "yearPicker": {
+    "file": "./checks/year-picker.mjs",
+    "export": "yearPicker"
+  },
+  "platformSelect": {
+    "file": "./checks/platform-select.mjs",
+    "export": "platformSelect"
+  },
+  "pagination": {
+    "file": "./checks/pagination.mjs",
+    "export": "pagination"
+  },
+  "paginationDepartments": {
+    "file": "./checks/pagination.mjs",
+    "export": "paginationDepartments"
+  },
+  "paginationShops": {
+    "file": "./checks/pagination.mjs",
+    "export": "paginationShops"
+  },
+  "keyProductBubbles": {
+    "file": "./checks/key-products-bubbles.mjs",
+    "export": "keyProductBubbles"
+  },
+  "supplierCategoryIsolation": {
+    "file": "./checks/supplier-category-isolation.mjs",
+    "export": "supplierCategoryIsolation"
+  },
+  "chainTaxonomy": {
+    "file": "./checks/chain-taxonomy.mjs",
+    "export": "chainTaxonomy"
+  },
+  "lifecycleChainFilter": {
+    "file": "./checks/lifecycle-chain-filter.mjs",
+    "export": "lifecycleChainFilter"
+  },
+  "stockSeasonDefaults": {
+    "file": "./checks/stock-season-defaults.mjs",
+    "export": "stockSeasonDefaults"
+  },
+  "stockBatchSamples": {
+    "file": "./checks/stock-batch-samples.mjs",
+    "export": "stockBatchSamples"
+  },
+  "productPddLinks": {
+    "file": "./checks/product-pdd-links.mjs",
+    "export": "productPddLinks"
+  },
+  "productDates": {
+    "file": "./checks/product-dates.mjs",
+    "export": "productDates"
+  },
+  "riskBoardDates": {
+    "file": "./checks/risk-board-dates.mjs",
+    "export": "riskBoardDates"
+  },
+  "returnComparisonColumns": {
+    "file": "./checks/return-comparison-columns.mjs",
+    "export": "returnComparisonColumns"
+  },
+  "importTemplateColors": {
+    "file": "./checks/import-template-colors.mjs",
+    "export": "importTemplateColors"
+  },
+  "importTemplateHeaders": {
+    "file": "./checks/import-template-headers.mjs",
+    "export": "importTemplateHeaders"
+  },
+  "importIdentityRules": {
+    "file": "./checks/import-identity-rules.mjs",
+    "export": "importIdentityRules"
+  },
+  "shopPlatformMetrics": {
+    "file": "./checks/shop-platform-metrics.mjs",
+    "export": "shopPlatformMetrics"
+  },
+  "shopReturnPeriods": {
+    "file": "./checks/shop-return-periods.mjs",
+    "export": "shopReturnPeriods"
+  },
+  "shopScoreRed": {
+    "file": "./checks/shop-score-red.mjs",
+    "export": "shopScoreRed"
+  },
+  "violationProductType": {
+    "file": "./checks/violation-product-type.mjs",
+    "export": "violationProductType"
+  },
+  "goalImportExperience": {
+    "file": "./checks/goal-import-experience.mjs",
+    "export": "goalImportExperience"
+  },
+  "legacyEntryCleanup": {
+    "file": "./checks/legacy-entry-cleanup.mjs",
+    "export": "legacyEntryCleanup"
+  },
+  "supplierCategoryTabs": {
+    "file": "./checks/supplier-category-list.mjs",
+    "export": "supplierCategoryTabs"
+  },
+  "supplierMaterialRows": {
+    "file": "./checks/supplier-material-tables.mjs",
+    "export": "supplierMaterialRows"
+  },
+  "supplierMaterialPlan": {
+    "file": "./checks/supplier-material-plan.mjs",
+    "export": "supplierMaterialPlan"
+  },
+  "supplierCatalogFilters": {
+    "file": "./checks/supplier-catalog-filters.mjs",
+    "export": "supplierCatalogFilters"
+  },
+  "supplierImportTabs": {
+    "file": "./checks/supplier-import-tabs.mjs",
+    "export": "supplierImportTabs"
+  },
+  "shopPddDiagnosis": {
+    "file": "./checks/shop-pdd-diagnosis.mjs",
+    "export": "shopPddDiagnosis"
+  },
+  "taskLedger": {
+    "file": "./checks/task-ledger.mjs",
+    "export": "taskLedger"
+  },
+  "taskLedgerForm": {
+    "file": "./checks/task-ledger-form.mjs",
+    "export": "taskLedgerForm"
+  },
+  "taskRowExpansion": {
+    "file": "./checks/task-row-expansion.mjs",
+    "export": "taskRowExpansion"
+  },
+  "taskLedgerDetailLayout": {
+    "file": "./checks/task-ledger-detail-layout.mjs",
+    "export": "taskLedgerDetailLayout"
+  },
+  "taskLedgerFieldDisplay": {
+    "file": "./checks/task-ledger-field-display.mjs",
+    "export": "taskLedgerFieldDisplay"
+  },
+  "taskCreateNext": {
+    "file": "./checks/task-create-next.mjs",
+    "export": "taskCreateNext"
+  },
+  "diagnosisEvidencePresentation": {
+    "file": "./checks/diagnosis-evidence-presentation.mjs",
+    "export": "diagnosisEvidencePresentation"
+  },
+  "aiResultHistory": {
+    "file": "./checks/ai-result-history.mjs",
+    "export": "aiResultHistory"
+  },
+  "taskLedgerAutosave": {
+    "file": "./checks/task-ledger-autosave.mjs",
+    "export": "taskLedgerAutosave"
+  },
+  "taskColumnWidths": {
+    "file": "./checks/task-column-widths.mjs",
+    "export": "taskColumnWidths"
+  },
+  "aiConciseStrategy": {
+    "file": "./checks/ai-concise-strategy.mjs",
+    "export": "aiConciseStrategy"
+  },
+  "diagnosisRuleLifecycle": {
+    "file": "./checks/diagnosis-rule-lifecycle.mjs",
+    "export": "diagnosisRuleLifecycle"
+  },
+  "diagnosisSourcePresentation": {
+    "file": "./checks/source-presentation.mjs",
+    "export": "diagnosisSourcePresentation"
+  },
+  "diagnosisEmptyFollowState": {
+    "file": "./checks/source-presentation.mjs",
+    "export": "diagnosisEmptyFollowState"
+  }
+}

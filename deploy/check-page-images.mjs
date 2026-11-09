@@ -6,7 +6,8 @@ const require = createRequire(import.meta.url);
 const { chromium } = require(path.resolve(path.dirname(process.execPath), '../node_modules/playwright'));
 const baseUrl = process.argv[2] || 'https://chainboard-wyy.pages.dev/';
 const reportFile = new URL('../outputs/image-audit/' + new URL(baseUrl).hostname + '/report.json', import.meta.url);
-const browser = await chromium.launch({ headless: true, executablePath: 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe' });
+// 验证固定使用 HTTPS/TCP，避免本机 QUIC 传输波动影响资源完整性结论。
+const browser = await chromium.launch({ headless: true, args: ['--disable-quic'], executablePath: 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe' });
 try {
   const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
   const failedRequests = [];
