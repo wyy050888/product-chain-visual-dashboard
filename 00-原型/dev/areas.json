@@ -46,6 +46,23 @@
       "aiResultHistory"
     ]
   },
+  "diagnosisInlineEvidence": {
+    "label": "六类业务抽屉来源与跟进、首次诊断及行内依据",
+    "sources": [
+      "src/modules/ai-result-history/02-global.js",
+      "src/modules/ai-result-history/04-followup-view.js",
+      "src/modules/global-diagnosis/05-analysis-details.js"
+    ],
+    "styles": [
+      "styles/102-ai-result-history.css"
+    ],
+    "checks": [
+      "diagnosisInlineEvidence",
+      "diagnosisEvidencePresentation",
+      "diagnosisDailyReview",
+      "reportTabs"
+    ]
+  },
   "productGradeOptions": {
     "label": "产品等级仅保留SABC",
     "sources": [
@@ -525,7 +542,7 @@
     ]
   },
   "reportTabs": {
-    "label": "报告与来源依据两标签",
+    "label": "报告诊断单页与来源依据跟进",
     "keywords": [
       "报告标签",
       "来源依据",
@@ -533,7 +550,14 @@
     ],
     "sources": [
       "src/modules/global-diagnosis/05-analysis-details.js",
-      "src/modules/global-diagnosis/05-evidence.js"
+      "src/modules/global-diagnosis/05-evidence.js",
+      "src/modules/global-diagnosis/05-report-score-view.js",
+      "src/modules/ai-result-history/02-global.js",
+      "src/modules/ai-result-history/04-followup-view.js"
+    ],
+    "styles": [
+      "styles/81-diagnosis-analysis.css",
+      "styles/102-ai-result-history.css"
     ],
     "checks": [
       "reportTabs",
@@ -549,6 +573,7 @@
       "取消报告评分"
     ],
     "sources": [
+      "src/modules/global-diagnosis/03-analysis-model.js",
       "src/modules/global-diagnosis/03-report-deduction-rules.js",
       "src/modules/global-diagnosis/03-report-scoring.js",
       "src/modules/global-diagnosis/03-report-diagnosis.js",
@@ -1200,6 +1225,7 @@
       "src/modules/ai-result-history/01-store.js",
       "src/modules/ai-result-history/03-followup.js",
       "src/modules/ai-result-history/02-global.js",
+      "src/modules/global-diagnosis/03-analysis-model.js",
       "src/modules/global-diagnosis/04-analysis-tables.js",
       "src/modules/global-diagnosis/04-key-work-table.js",
       "src/modules/global-diagnosis/04-analysis-view.js"
@@ -3583,6 +3609,24 @@
     ],
     "checks": [
       "diagnosisEmptyFollowState"
+    ]
+  },
+  "diagnosisPerformance": {
+    "label": "总诊断卡片、筛选与加载性能",
+    "sources": [
+      "src/modules/global-diagnosis/03-analysis-model.js",
+      "src/modules/global-diagnosis/04-analysis-view.js",
+      "src/modules/global-diagnosis/04-view.js",
+      "src/modules/global-diagnosis/04-column-layout.js",
+      "src/modules/global-diagnosis/07-controller.js",
+      "src/modules/ai-result-history/05-followup-demo.js"
+    ],
+    "checks": [
+      "diagnosisPerformance",
+      "diagnosisWorkspace",
+      "diagnosisColumnLayout",
+      "diagnosisInlineEvidence",
+      "taskDateFilters"
     ]
   }
 }

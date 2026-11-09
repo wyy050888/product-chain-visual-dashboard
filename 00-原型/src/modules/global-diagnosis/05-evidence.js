@@ -2,11 +2,6 @@
 const gdPreviousDrawerProfile=drawerProfile;
 drawerProfile=function(body,title){
  const root=body.querySelector(':scope>.gd-dialog');if(!root)return gdPreviousDrawerProfile(body,title);
- if(root.matches('.gd-report-dialog'))return {
-  root,entries:[...root.children].map(node=>({node,key:node.dataset.gdReportPane||'shared'})),
-  
-  tabs:[{key:'report',label:'报告'},{key:'sources',label:'来源依据'}]
- };
  return {root,entries:[...root.children].map(node=>({node,key:'shared'})),tabs:[]};
 };
 function gdFind(id,data=gdRenderedData||gdDataset()){return [...gdSectionRows(data),...data.work,...data.deviations,...data.improvements,...data.mismatch,...data.reports,...data.focus,...data.tasks,...data.origins].find(r=>r.id===id)}

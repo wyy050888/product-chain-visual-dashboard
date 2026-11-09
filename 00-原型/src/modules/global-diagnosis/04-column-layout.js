@@ -42,15 +42,20 @@ function gdMountAnalysisColumns(root){
  gdAnalysisColumnObserver?.disconnect();
  const table=root.querySelector('table[data-gd-column-profile]');if(!table)return;
  const host=table.parentElement;
- const fit=()=>{
+ const measure=()=>{
   // 已保存或手工调整过的宽度由公共列宽组件维护。
   if(!table.isConnected||table.classList.contains('ui-table-widths'))return;
   const minimum=Number(table.dataset.gdMinimumWidth),width=Math.max(minimum,host.clientWidth);
   const columns=[...table.querySelectorAll(':scope>colgroup>col')];
   const specs=columns.map(col=>gdAnalysisColumnSpec(col.dataset.gdColumn,table.dataset.gdColumnProfile));
   const extra=(width-minimum)/Math.max(1,specs.filter(spec=>spec.flex).length);
-  columns.forEach((col,index)=>{const spec=specs[index];col.style.width=(spec.flex?spec.min+extra:spec.width)+'px'});
-  table.style.width=width+'px';
+  const widths=specs.map(spec=>(spec.flex?spec.min+extra:spec.width)+'px');
+  return ()=>{
+   if(!table.isConnected||table.classList.contains('ui-table-widths'))return;
+   columns.forEach((col,index)=>{if(col.style.width!==widths[index])col.style.width=widths[index]});
+   if(table.style.width!==width+'px')table.style.width=width+'px';
+  };
  };
+ const fit=()=>dashboardQueueLayout(host,measure);
  fit();gdAnalysisColumnObserver=new ResizeObserver(fit);gdAnalysisColumnObserver.observe(host);
 }

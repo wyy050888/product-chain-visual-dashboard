@@ -1,10 +1,15 @@
 // 分析查看与任务办理共用来源身份；重点建议确认后进入执行单。
-function gdRefreshFilters(all=false){if(all)gdState.pages={};else gdState.pages[gdState.part+'|'+gdState.tabs[gdState.part]]=1;gdRender()}
+function gdRefreshFilters(all=false){if(all)gdState.pages={};else gdState.pages[gdState.part+'|'+gdState.tabs[gdState.part]]=1;gdRender({reuseData:!all})}
 document.addEventListener('click',event=>{
  if(event.target.closest('[data-gd-generated]'))return gdOpenGeneratedTasks();
  const target=event.target,part=target.closest('[data-gd-part]'),tab=target.closest('[data-gd-tab]'),status=target.closest('[data-gd-status]');
- if(part){if(!gdParts.some(([key])=>key===part.dataset.gdPart))return;gdState.part=part.dataset.gdPart;gdRender();$('[data-gd-part="'+gdState.part+'"]').focus({preventScroll:true});return}
- if(tab){if(!gdTabs[gdState.part]?.some(([key])=>key===tab.dataset.gdTab))return;gdState.tabs[gdState.part]=tab.dataset.gdTab;gdRender();$('[data-gd-tab="'+tab.dataset.gdTab+'"]').focus({preventScroll:true});return}
+ if(part){if(!gdParts.some(([key])=>key===part.dataset.gdPart)||gdState.part===part.dataset.gdPart)return;gdState.part=part.dataset.gdPart;gdRender({reuseData:true});return}
+ if(tab){
+  const part=gdState.part,key=tab.dataset.gdTab;
+  if(!gdTabs[part]?.some(([value])=>value===key)||gdState.tabs[part]===key)return;
+  gdState.tabs[part]=key;gdRender({reuseData:true});
+  requestAnimationFrame(()=>{if(gdState.part===part&&gdState.tabs[part]===key)$('[data-gd-tab="'+key+'"]')?.focus({preventScroll:true})});return;
+ }
  const departments=gdState.part==='tasks'?[...new Set([...upTodoDepartments,...gdLedgerValues('department')])]:gdState.part==='execution'?Object.keys(gdReportProfileCatalog):upTodoDepartments;
  for(const [attribute,field,allowed] of [['category','category',gdState.part==='execution'?[]:['all',...(gdState.part==='tasks'?gdLedgerChains:pfCategories)]],['department','department',['all',...departments]],['priority','priority',['all',...Object.keys(upTodoPriorities)]],['report-type','reportType',['all','日报','周报','月报']]]){
   const button=target.closest('[data-gd-'+attribute+']');if(!button)continue;const key=button.getAttribute('data-gd-'+attribute);if(!allowed.includes(key))return;

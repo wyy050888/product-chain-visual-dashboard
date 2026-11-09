@@ -133,9 +133,8 @@ export async function diagnosisWorkspace(page){
   assert.equal(await root.locator('.key-work [data-label="优先级"] .gd-project-light,.key-work .gd-key-light').count(),0,'灯色不再放在优先级列');
   for(const record of await root.locator('[data-gd-key-work]').all()){
    const workKey=await record.getAttribute('data-gd-key-work'),row=expected.find(r=>r.workKey===workKey);
-   const light=record.locator('[data-label="业务对象"] strong>.gd-project-light');
-   if(row.object.type==='project'&&row.light)assert.equal((await light.innerText()).replace('●','').trim(),row.light,'项目名称后显示对应灯色');
-   else assert.equal(await light.count(),0,'非项目对象不显示项目灯色');
+   if(key==='project')assert.equal(await record.locator('[data-label="项目红绿灯"] [aria-label]').getAttribute('aria-label'),row.projectLight||row.light,'项目灯色在独立字段展示');
+   else assert.equal(await record.locator('[data-label="项目红绿灯"]').count(),0,'新增高危显示榜名，不额外增加灯色列');
   }
 
   assert.deepEqual([...new Set(await root.locator('.key-work [data-label="操作"]').allTextContents())],['查看依据'],'重点清单两类仅保留查看依据');
@@ -160,14 +159,14 @@ export async function diagnosisWorkspace(page){
   assert.equal(await page.locator('#dialogsub [data-business-object-type="'+row.object.type+'"]').count(),1);
   assert.equal(await page.locator('#dialogbody .product-detail-image').count(),0);
   assert.equal(await detail.locator('.gd-detail-head').count(),0);
-  assert.deepEqual(await detail.locator('h5').evaluateAll(es=>es.filter(e=>!e.closest('[data-ai-finding-history]')).map(e=>e.textContent)),[...fields,'来源依据'],'重点依据与主表字段一致，跟进记录另核');
-  assert.equal(await detail.locator('.gd-detail-priority .up-todo-priority').innerText(),({P0:'紧急',P1:'重要',P2:'一般'})[row.priority]);
+  assert.deepEqual((await detail.locator('h5').evaluateAll(es=>es.filter(e=>!e.closest('[data-ai-finding-history]')).map(e=>e.textContent))).sort(),[...fields].sort(),'重点依据与主表业务字段一致，来源在跟进记录内');
+  assert.equal(await detail.locator('.gd-detail-priority').count(),0,'重点清单不增加优先级');
   const sections=detail.locator('.gd-text-section');
-  assert.equal(await sections.nth(1).locator('p').innerText(),problem,'问题描述完整复用主表');
-  if(key==='project')assert.equal(await sections.last().locator('p').innerText(),due,'日期复用主表原值');
+  assert.equal(await sections.filter({has:page.locator('h5',{hasText:'问题描述'})}).locator('p').innerText(),problem,'问题描述完整复用主表');
+  if(key==='project')assert.equal(await sections.filter({has:page.locator('h5',{hasText:'建议整改期限'})}).locator('p').innerText(),due,'日期复用主表原值');
   else assert(!(await detail.innerText()).includes('建议整改期限'),'新增高危依据同步移除日期');
   assert.deepEqual(await detail.locator('.gd-person-name').allTextContents(),row.participants.map(p=>p.assignee||'待分配'));
-  assert.deepEqual(await detail.locator('.gd-detail-section > .gd-analysis-sources [data-analysis-source]').evaluateAll(es=>es.map(e=>e.dataset.analysisSource)),row.sources.map(source=>source.id));
+  assert.deepEqual(await detail.locator('.gd-follow-evidence-row [data-analysis-source]').evaluateAll(es=>es.map(e=>e.dataset.analysisSource)),row.sources.map(source=>source.id));
   assert.equal(await detail.locator('input,textarea,select,[data-todo-action]').count(),0);
   await page.locator('#close').click();
 
@@ -193,7 +192,7 @@ export async function diagnosisWorkspace(page){
  assert.deepEqual(await store(),beforeStore,'查看和刷新不自动下发重点事项');
  await root.locator('[data-gd-header-sort="due"]').click();
  assert.equal(await root.locator('th[aria-sort="ascending"] [data-gd-header-sort="due"]').count(),1);
- await root.locator('[data-gd-header-sort="priority"]').click();
+ assert.equal(await root.locator('[data-gd-header-sort="priority"]').count(),0,'重点清单不提供优先级排序');
 
  // 重点工作清单只读查看依据，不改变执行单和原事项。
  const high=initial.work.find(r=>r.keyType==='high-risk');
@@ -202,12 +201,13 @@ export async function diagnosisWorkspace(page){
  const highRow=root.locator('[data-gd-key-work="'+high.workKey+'"]');
  await highRow.locator('[data-gd-action="analysis"]').click();
  assert.match(await page.locator('#dialogtitle').innerText(),/^查看依据 - /);
- assert.equal(await page.locator('#dialogbody .gd-detail-section > .gd-analysis-sources [data-source-type-key="risk-alert"]').count(),high.sources.length);
+ assert.equal(await page.locator('#dialogbody .gd-follow-evidence-row .gd-analysis-sources [data-source-type-key="risk-alert"]').count(),high.sources.length);
+ await page.locator('.gd-work-follow [data-gd-follow-evidence]').first().click();
  assert(!(await page.locator('#dialogbody').innerText()).includes('绝缘耐压'));
  const riskAudit=await page.evaluate(()=>globalDiagnosisRiskSnapshot());
  assert(riskAudit.rows.every(r=>['新出现风险','风险复核'].includes(r.changeType)));
  assert(riskAudit.rows.every(r=>!r.problem.includes('升级')),'不再从灯色变化推断新增');
- assert((await page.locator('#dialogbody').innerText()).includes('上方风险榜出现记录'));
+ assert(await page.locator('#dialogbody .gd-follow-evidence-row:not([hidden]) [data-analysis-source]').count()>0,'风险来源按本次核对记录展开');
  assert(!(await page.locator('#dialogbody').innerText()).includes('新增高危展示记录'));
  const boardHistory=await page.evaluate(()=>riskBoardAppearanceSnapshot());
  assert(boardHistory.history.some(row=>row.baseline),'风险榜全量入榜采集不限三个历史样例');
@@ -257,7 +257,7 @@ export async function diagnosisWorkspace(page){
   assert.equal((await audit()).state.tabs.resource,tab,'查看提示不改变Tab');
   await help.focus();await help.press('Escape');await page.locator('#metric-tooltip').waitFor({state:'hidden'});
 
-  assert.deepEqual(await root.locator('.deviation th').allTextContents(),['业务对象','优先级','问题描述','行动建议','涉及人员','操作']);
+  assert.deepEqual(await root.locator('.deviation th').allTextContents(),['诊断日期','业务对象','优先级','问题描述','行动建议','涉及人员','跟进状态','更新日期','操作']);
   assert.equal(await root.locator('[data-gd-status-dropdown],[data-gd-task],[data-gd-action="task-detail"],[data-gd-action="task"]').count(),0);
   for(const button of await root.locator('.deviation [data-gd-action]').all())assert.equal(await button.innerText(),'查看依据');
   const row=(await audit()).visible[0];
@@ -267,16 +267,18 @@ export async function diagnosisWorkspace(page){
   assert.equal(await detail.locator('.gd-detail-head').count(),0);
   const fields=await detail.locator('h5').evaluateAll(es=>es.filter(e=>!e.closest('[data-ai-finding-history]')).map(e=>e.textContent));
   const tableFields=(await root.locator('.deviation th').allTextContents()).filter(label=>!['业务对象','操作'].includes(label));
-  assert.deepEqual(fields,[...tableFields,'来源依据'],'依据抽屉业务字段与主表一致，不额外增加诊断字段');
+  assert.deepEqual([...fields].sort(),[...tableFields].sort(),'依据抽屉业务字段与主表一致，来源在跟进记录内');
   assert.equal(await detail.locator('.gd-detail-priority .up-todo-priority').innerText(),({P0:'紧急',P1:'重要',P2:'一般'})[row.priority],'抽屉与表格优先级一致');
   const tones=await detail.locator('.gd-text-section').nth(1).evaluate(el=>({label:getComputedStyle(el.querySelector('h5')).color,value:getComputedStyle(el.querySelector('p')).color}));
   assert.notEqual(tones.label,tones.value,'字段名与字段值使用不同颜色层级');
   assert.match(await page.locator('#dialogtitle').innerText(),/^查看依据/);
   assert.equal(await page.locator('.up-todo-dialog[open]').count(),0);
   assert.equal(await detail.locator('[data-todo-action],[data-todo-field-edit],input,textarea,select').count(),0);
-  assert.deepEqual(await detail.locator('.gd-detail-section > .gd-analysis-sources [data-analysis-source]').evaluateAll(es=>es.map(e=>e.dataset.analysisSource)),row.sources.map(s=>s.id));
+  const reading=row.sources.filter(s=>String(s.source||'').startsWith('来源扫描清单'));
+  assert.deepEqual(await detail.locator('.gd-follow-evidence-row [data-analysis-source]').evaluateAll(es=>es.map(e=>e.dataset.analysisSource)),row.sources.filter(s=>!reading.includes(s)).map(s=>s.id));
+  for(const source of reading)assert((await detail.locator('[data-source-reading-scope]').textContent()).includes(source.content),'读取范围保留在来源表后的说明中');
   assert.match(await detail.innerText(),/优先级.*问题描述.*行动建议.*涉及人员.*来源依据/s);
-  assert.doesNotMatch(await detail.innerText(),/建议整改期限|实际完成日期|任务状态|确认下发|删除任务/);
+  assert.doesNotMatch((await detail.locator(':scope>.gd-detail-section>h5').allTextContents()).join(' '),/建议整改期限|实际完成日期|任务状态|确认下发|删除任务/);
   await page.locator('#close').click();
  }
 
@@ -286,7 +288,7 @@ export async function diagnosisWorkspace(page){
   assert((await item.locator('[data-label="行动建议"]').innerText()).includes('确认'),'列表显示具体配合事项');
   await item.locator('[data-gd-action="analysis"]').click();
   const detail=page.locator('.gd-deviation-dialog');assert(await detail.isVisible());
-  assert.deepEqual(await detail.locator('.gd-detail-section > .gd-analysis-sources [data-analysis-source]').evaluateAll(es=>es.map(e=>e.dataset.analysisSource)),row.sources.map(source=>source.id));
+  assert.deepEqual(await detail.locator('.gd-follow-evidence-row [data-analysis-source]').evaluateAll(es=>es.map(e=>e.dataset.analysisSource)),row.sources.map(source=>source.id));
   assert.deepEqual(await detail.locator('.gd-person-name').allTextContents(),row.participants.map(person=>person.assignee));
   assert.equal(await detail.locator('input,textarea,select,[data-todo-action]').count(),0,'主动协同依据仍只读');
   await page.locator('#close').click();

@@ -5,3 +5,29 @@
 .ai-result-history p{line-height:1.7;overflow-wrap:anywhere}
 
 .gd-follow-table-wrap{overflow:auto;max-width:100%}.gd-follow-table-wrap table{min-width:1080px;border-collapse:collapse;font-size:12px}.gd-follow-table-wrap th,.gd-follow-table-wrap td{padding:10px;border-bottom:1px solid #e8edf5;vertical-align:top;min-width:130px;max-width:290px;white-space:pre-line;overflow-wrap:anywhere}.gd-follow-filter{flex:none}.gd-analysis-table [data-label="诊断日期"],.gd-analysis-table [data-label="更新日期"]{min-width:95px;white-space:nowrap}.gd-analysis-table [data-label="跟进状态"]{min-width:100px}
+
+/* 六类业务依据抽屉加宽；报告和其他抽屉保留原布局。 */
+#dialog.drawer.business-drawer:has(>#dialogbody>.gd-evidence-dialog){width:min(1280px,100vw)}
+.gd-work-follow{margin-top:20px}
+.gd-work-follow>h5{margin-bottom:10px}
+.gd-follow-meta{display:flex;flex-wrap:wrap;gap:6px 20px;margin-bottom:12px;color:#7b8ca4;font-size:12px;line-height:1.8}
+.gd-work-follow-table{width:1280px;min-width:1280px!important;table-layout:fixed}
+.gd-work-follow-table>thead>tr>th,.gd-work-follow-table>tbody>.gd-follow-record>td{min-width:0;max-width:none;text-align:left;line-height:1.8}
+.gd-work-follow-table>thead>tr>th{background:#f3f7fc;color:#7b8ca4;font-weight:400;white-space:normal}
+.gd-work-follow-table>tbody>.gd-follow-record>td{white-space:normal}
+.gd-work-follow-table>tbody>.gd-follow-record>td>p{margin:6px 0 0}
+.gd-work-follow-table>thead>tr>th:last-child,.gd-work-follow-table>tbody>.gd-follow-record>td:last-child{position:sticky;right:0;z-index:2;box-shadow:-1px 0 #e8edf5}
+.gd-work-follow-table>tbody>.gd-follow-record>td:last-child{background:#fff}
+.gd-work-follow-table .gd-first-diagnosis{display:block;width:max-content;margin-top:5px;padding:0 6px;border:1px solid #d9dfe7;border-radius:4px;background:#fff;color:#7b8796;font-size:11px;line-height:20px;white-space:nowrap}
+.gd-follow-evidence-row[hidden]{display:none}
+.gd-follow-evidence-row>td{padding:0;white-space:normal;max-width:none}
+/* 合并行只负责占位；内容始终贴住可视区左侧，宽度与滚动容器一致。 */
+.gd-follow-evidence-shell{position:sticky;left:0;width:var(--gd-follow-viewport,100%);box-sizing:border-box;padding:14px;background:#f6f8fb;white-space:normal}
+.gd-follow-evidence-shell .gd-analysis-sources{overflow:visible;background:#fff}
+.gd-follow-evidence-shell .gd-analysis-sources>table{width:100%;min-width:0;table-layout:fixed}
+.gd-follow-evidence-shell .gd-analysis-sources :is(th,td){min-width:0;max-width:none;white-space:pre-line;overflow-wrap:anywhere}
+.gd-follow-evidence-shell .gd-analysis-sources th:first-child{width:27%}
+.gd-follow-evidence-shell .gd-source-type{max-width:100%;white-space:normal}
+.gd-follow-source-text{max-height:66px;overflow:hidden;line-height:22px;overflow-wrap:anywhere}
+.gd-follow-source-text.is-expanded{max-height:none}
+.gd-follow-source-more{margin-top:6px}

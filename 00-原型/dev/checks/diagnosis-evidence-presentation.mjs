@@ -18,7 +18,7 @@ export async function diagnosisEvidencePresentation(page){
  await row.locator('[data-gd-action="analysis"]').click();
  const drawer=page.locator('.gd-analysis-dialog');assert(await drawer.locator('.gd-action-summary').count());assert(await drawer.locator('table[aria-label="来源与内容"]').count());
  const history=drawer.locator('[data-ai-finding-history]');assert(await history.count());const text=await history.innerText();
- assert(text.includes('跟进情况'));assert(text.includes('当前进度：'));assert(text.includes('首次发现：'));assert(text.includes('最近核对：'));assert(await history.locator('table[aria-label="问题跟进记录"]').count());
+ assert(text.includes('来源依据与跟进'));assert.equal(await history.locator('.gd-follow-meta').count(),0,'不展示重复汇总行');assert(await history.locator('table[aria-label="问题跟进记录"]').count());
  assert(!/T\d{2}:\d{2}:\d{2}|状态与历史依据|1版/.test(text),'不展示技术时间或无变化版本');
  vm.runInContext(fs.readFileSync(new URL('../../src/modules/ai-result-history/02-global.js',import.meta.url),'utf8'),box);
  box.aiHistoryStream=()=>box.stream;box.gdProblemText=row=>row.problem||'';

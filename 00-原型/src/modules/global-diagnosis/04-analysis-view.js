@@ -44,17 +44,28 @@ function gdTableControls(data){
  return `<div class="gd-filters gd-redesigned-filters"><div class="gd-filter-toolbar">${gdScopeTabs(data)}<div class="gd-filter-search "><label class="ui-search-field"><input type="search" data-gd-search aria-label="搜索诊断内容" placeholder="${placeholders}" value="${esc(filter.query)}"></label></div>${work||part==='coordination'?gdFollowFilterMarkup():''}</div><div class="gd-filter-groups gd-panel-navigation ${category?'gd-has-category':''}">${category}${department}${priority}${type}</div></div>`;
 }
 let gdRenderedData=null;
-function gdRender(){
+// 卡片身份保持不变，点击后无需重新创建焦点节点及其全部子树。
+function gdRenderCards(data,counts){
+ const host=$('#aigrid');
+ if(host.querySelectorAll(':scope>[data-gd-part]').length!==gdParts.length)host.innerHTML=gdParts.map(([key,label])=>`<button type="button" class="gd-card" data-gd-part="${key}" aria-controls="ai-inline-details"><div class="gd-card-head"><h3>${esc(label)}</h3></div><div class="gd-card-number"></div><div class="gd-card-stats"></div></button>`).join('');
+ gdParts.forEach(([key,label],index)=>{
+  const card=host.querySelector('[data-gd-part="'+key+'"]'),active=gdState.part===key;
+  card.classList.toggle('selected',active);card.setAttribute('aria-pressed',String(active));
+  for(const [selector,text] of [['h3',data.partLabels?.[key]||label],['.gd-card-number',String(counts[index].count)]]){const node=card.querySelector(selector);if(node.textContent!==text)node.textContent=text}
+  dashboardRenderMarkup(card.querySelector('.gd-card-stats'),counts[index].stats.map(([name,n])=>`<span>${name}<b>${n}</b></span>`).join(''));
+ });
+}
+function gdRender({reuseData=false}={}){
  if(!gdParts.some(([key])=>key===gdState.part))gdState.part=gdParts[0][0];
- const section=$('#ai');if(!section)return;section.classList.add('gd-workspace');const data=gdDataset(),counts=gdCardCounts(data),part=gdState.part,tab=gdState.tabs[part];gdRenderedData=data;
+ const section=$('#ai');if(!section)return;section.classList.add('gd-workspace');const data=reuseData&&gdRenderedData?gdRenderedData:gdDataset(),counts=gdCardCounts(data),part=gdState.part,tab=gdState.tabs[part];gdRenderedData=data;
  $('#aitime').textContent='业务数据截至 '+DATA_CUTOFF+(data.historyStatus?.failure?' · 更新失败，保留'+data.historyStatus.businessDate+'结果':'')+(data.historyStatus?.storageError?' · '+data.historyStatus.storageError:'');gdMountHeader(section);
- $('#aigrid').innerHTML=gdParts.map(([key,label],i)=>`<button type="button" class="gd-card ${part===key?'selected':''}" data-gd-part="${key}" aria-pressed="${part===key}" aria-controls="ai-inline-details"><div class="gd-card-head"><h3>${esc(data.partLabels?.[key]||label)}</h3></div><div class="gd-card-number">${counts[i].count}</div><div class="gd-card-stats">${counts[i].stats.map(([name,n])=>`<span>${name}<b>${n}</b></span>`).join('')}</div></button>`).join('');
+ gdRenderCards(data,counts);
  $('#ai-inline-summary').innerHTML='';$('#ai-inline-summary').hidden=true;$('#ai-inline-foot').textContent='';
  const rows=gdSectionRows(data),items=part==='tasks'?gdTableEntries(rows):part==='resource'?rpSortRows(rows,{key:'priority',direction:gdTableFilters().sortDirection||'asc'},row=>upTodoPriorityRank(row.priority)):part==='coordination'?gdKeyWorkSorted(rows):rows,pageKey=part+'|'+tab,pages=Math.max(1,Math.ceil(items.length/listPageSize('gd-pager',10))),page=Math.min(gdState.pages[pageKey]||1,pages);gdState.pages[pageKey]=page;
  const slice=items.slice((page-1)*listPageSize('gd-pager',10),page*listPageSize('gd-pager',10)),body=part==='tasks'?gdActionTable(slice):part==='resource'?gdDeviationTable(slice):part==='coordination'?gdKeyWorkTable(slice,tab):gdReportsTable(slice,tab==='missing');
  $('#ai-inline-details').innerHTML=`<div class="gd-panel">${gdTableControls(data)}${body}<div class="gd-pagination" id="gd-pager"></div></div>`;
  gdMountAnalysisColumns(section);gdMountTaskPreviews(section);gdBindLedgerDepartments(section);
- $('#gd-pager').innerHTML=listPager(items.length,page,listPageSize('gd-pager',10));bindListPager($('#gd-pager'),next=>{gdState.pages[pageKey]=next;gdRender()});
+ $('#gd-pager').innerHTML=listPager(items.length,page,listPageSize('gd-pager',10));bindListPager($('#gd-pager'),next=>{gdState.pages[pageKey]=next;gdRender({reuseData:true})});
  $('#refreshai').onclick=()=>{gdRender();toast('诊断已刷新')};
 }
 const gdPreviousInline=renderInlineAI;

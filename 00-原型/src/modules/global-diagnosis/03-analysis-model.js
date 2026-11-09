@@ -60,7 +60,8 @@ function gdAnalysisRows(data,part=gdState.part,tab=gdState.tabs[part]){
  if(part==='tasks')return data.tasks;
  if(part==='coordination')return data.work.filter(r=>r.keyType===tab);
  if(part==='resource')return data.deviations.filter(r=>r.kind===tab);
- return part==='execution'?data.reports.filter(r=>tab==='missing'?r.missing&&r.type==='日报':!r.missing):[];
+ // 审阅记录完整保留；问题列表和计数只使用有实际问题的报告。
+ return part==='execution'?data.reports.filter(r=>tab==='missing'?r.missing&&r.type==='日报':!r.missing&&r.findings?.some(f=>String(f.problem||'').trim())):[];
 }
 
 function gdAnalysisDepartments(row){return row.participants?gdRowDepartments(row):[...new Set([...(row.departments||[]),row.department,...(row.sources||[]).map(s=>s.department)].filter(Boolean))]}
@@ -72,9 +73,12 @@ function gdAnalysisMatches(row,filter,ignore=''){
  const status=!row.task||ignore==='status'||pfIncludes(filter.status,row.task.status);
  const type=ignore==='reportType'||filter.reportType==='all'||row.type===filter.reportType;
  const query=ignore==='query'?'':filter.query.trim().toLowerCase();
+ const follow=row.kind==='key-work'||['omission','blocker','solution','focus-shift'].includes(row.kind)?gdFollowMatches(row,filter.followStatus):true;
+ const matches=category&&department&&priority&&status&&type&&follow;
+ // 计数和空搜索无需逐条拼接正文及全部来源，筛选失败的行也不再整理检索文本。
+ if(!matches||!query)return matches;
  const fields=[row.object?.name,row.objectName,row.title,row.problem,row.causalProblem,row.problem?gdProblemText(row):'',row.suggestion,row.content,row.owner,...(row.businessObjects||[]).map(o=>o.name),...(row.people||[]),...(row.topics||[]).map(t=>t.name),...(row.participants||[]).flatMap(r=>[r.assignee,r.action]),...(row.sources||[]).map(s=>s.content)];
- const follow=row.kind==='key-work'||['omission','blocker','solution','focus-shift'].includes(row.kind)?gdFollowMatches(row,filter.followStatus||'active'):true;
- return category&&department&&priority&&status&&type&&follow&&(!query||fields.some(value=>String(value||'').toLowerCase().includes(query)));
+ return fields.some(value=>String(value||'').toLowerCase().includes(query));
 }
 function gdSectionRows(data,part=gdState.part,tab=gdState.tabs[part],filter=gdTableFilters(part,tab)){
  let rows=gdAnalysisRows(data,part,tab);

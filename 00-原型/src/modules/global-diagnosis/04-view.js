@@ -13,6 +13,10 @@ function gdMountHeader(section){
  const header=section.querySelector(':scope>.sectionhead');let tools=header.querySelector('[data-gd-header-tools]');
  if(!tools){tools=document.createElement('div');tools.className='gd-header-tools';tools.dataset.gdHeaderTools='';const period=document.createElement('div');period.className='gd-header-period';period.dataset.gdHeaderPeriod='';tools.append(period,$('#refreshai'));header.append(tools)}
  const task=gdState.part==='tasks',period=task?gdTaskCurrentPeriod():gdState.period;
+ // 纯列表切换保留日期控件，避免重复挂载年份组件及其布局测量。
+ const key=JSON.stringify([task,period,!!gdState.taskPeriod,DATA_CUTOFF]);
+ if(tools.dataset.gdPeriodKey===key)return;
+ tools.dataset.gdPeriodKey=key;
  tools.querySelector('[data-gd-header-period]').innerHTML=(gdState.part==='tasks'?'<span class="gd-date-caption">登记日期</span>':'')+gdTimeControls(period);
  const host=tools.querySelector('[data-gd-period]'),year=host.querySelector('[data-gd-year]'),value=host.querySelector('[data-gd-value]');
  if(year){for(const option of [...year.options])if(+option.value<+aiCoverageStart.slice(0,4)||+option.value>+DATA_CUTOFF.slice(0,4))option.remove()}

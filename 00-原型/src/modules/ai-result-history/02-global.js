@@ -60,25 +60,27 @@ function gdHistoryDataset(){
   const projectLight=project?ppProjectDisplayLight(project):row.projectLight||row.light;
   return {...row,...(row.keyType==='project'?{projectLight}:{}),lifecycle:transition,followUp:followIndex.get(row.historyKey),isCurrent:activeKeys.has(gdHistoryIdentity(row))};
  });
- const visible=dated;
+ const visible=[...dated,...gdFollowDemoRows(selected)];
  const tasks=Object.values(upTodos).filter(t=>t.gdLedger&&!t.deletedAt&&gdTaskDatesMatch(t)).map(gdLedgerRow);
  return {...current,work:visible.filter(r=>r.kind==='key-work'),deviations:visible.filter(r=>['omission','blocker','solution','focus-shift'].includes(r.kind)),reports:visible.filter(r=>r.kind==='report-analysis'),tasks,historyStatus:aiHistoryStatus('global'),historyRows:dated};
 }
 function gdHistoryBadge(row){return ''}
 function gdHistoryEvidence(row){
- if(!row.historyKey)return '';
- if(row.followUp){
-  const f=row.followUp;
-  const rows=f.records.slice().reverse().map(record=>`<tr><td>${esc(gdSourceDate(record.at))}</td><td>${gdReadableMarkup(record.previousAction)}</td><td>${gdReadableMarkup(record.progress)}<p>${gdReadableMarkup(record.judgement)}</p></td><td>${gdFollowStatusMarkup({lifecycle:{status:record.status}})}</td><td>${gdReadableMarkup(record.action)}</td><td>${record.sources.map(s=>`<details><summary>${esc(s.sourceName||s.source||'原始记录')} · ${esc(gdSourceDate(s.date))}</summary><p>${gdReadableMarkup(s.content)}</p></details>`).join('')}</td></tr>`).join('');
-  return `<section class="gd-detail-section" data-ai-finding-history><h5>跟进情况</h5><p>当前进度：${gdFollowStatusMarkup(row)}；首次发现：${esc(gdFollowDate(row,'firstAt'))}；最近内容更新：${esc(gdFollowDate(row,'updatedAt'))}；最近核对：${esc(gdSourceDate(f.checkedAt))}</p><div class="gd-follow-table-wrap"><table aria-label="问题跟进记录"><thead><tr><th>核对日期</th><th>此前待跟进事项</th><th>本次进展与判断</th><th>跟进状态</th><th>剩余行动及建议接手人</th><th>对应依据</th></tr></thead><tbody>${rows}</tbody></table></div></section>`;
- }
- const versions=aiHistoryStream('global').revisions.flatMap(r=>gdHistoryRows(r.payload).filter(x=>gdHistoryIdentity(x)===row.historyKey).map(x=>({revision:r,row:x,state:r.payload.findingStates?.[row.historyKey]})));
+ if(!row.historyKey&&row.kind!=='report-analysis')return '';
+ if(row.followUp)return gdWorkFollowEvidence(row);
+ const versions=row.historyKey?aiHistoryStream('global').revisions.flatMap(r=>gdHistoryRows(r.payload).filter(x=>gdHistoryIdentity(x)===row.historyKey).map(x=>({revision:r,row:x,state:r.payload.findingStates?.[row.historyKey]}))):[];
  const changes=[];let previous='';
- for(const version of versions){const x=version.row,fingerprint=JSON.stringify([version.state?.status,x.problem,x.suggestion,x.participants,(x.sources||[]).map(s=>[s.sourceName,s.date,s.content])]);if(fingerprint!==previous)changes.push(version);previous=fingerprint}
- const status=row.lifecycle?.status||'待核实',reason=row.lifecycle?.reason||'尚无新的处理结果';
- const dates=`首次发现：${gdSourceDate(row.firstDetectedAt)||'未记录'}；最近核对：${gdSourceDate(versions.at(-1)?.revision.knownAt)||'未记录'}`;
- const history=`<div class="gd-follow-table-wrap"><table aria-label="报告诊断跟进记录"><thead><tr><th>核对日期</th><th>本次问题与判断</th><th>处理情况</th><th>对应依据</th></tr></thead><tbody>${changes.slice().reverse().map(({revision:r,row:x,state})=>`<tr><td>${esc(gdSourceDate(r.knownAt)||r.date)}</td><td>${gdReadableMarkup(gdProblemText(x))}</td><td>${esc(state?.reason||'本次报告诊断，尚无新的处理记录')}</td><td>${gdAnalysisSourceTable(x.sources||[])}</td></tr>`).join('')}</tbody></table></div>`;
- return `<section class="gd-detail-section" data-ai-finding-history><h5>跟进情况</h5><p>当前状态：${esc(status)}；${esc(reason)}</p><p class="gd-analysis-muted">${esc(dates)}</p>${history}</section>`;
+ for(const version of versions){const x=version.row,fingerprint=JSON.stringify([version.state?.status,x.problem,x.findings,x.suggestion,x.participants,(x.sources||[]).map(s=>[s.sourceName,s.date,s.content])]);if(fingerprint!==previous)changes.push(version);previous=fingerprint}
+ // 无历史的报告也保留本次来源；旧记录始终读取当次快照，不借用最新原文。
+ if(!changes.length)changes.push({revision:{knownAt:row.historyKnownAt||row.firstDetectedAt||'',date:''},row});
+ const records=changes.map(({revision:r,row:x,state},index)=>{
+  const id='gd-report-follow-evidence-'+index,sources=(x.sources||[]).length?gdAnalysisSourceTable(x.sources):'<p class="muted">暂无来源依据</p>';
+  const empty='<span class="muted">暂无</span>',problem=Array.isArray(x.findings)?gdReportFindingsContent(x):gdReadableMarkup(gdProblemText(x));
+  const handling=index===0?empty:gdReadableMarkup(state?.reason||'')||empty;
+  return `<tr class="gd-follow-record" data-gd-report-follow-record="${index}"><td data-label="核对日期">${esc(gdSourceDate(r.knownAt)||r.date||'未记录')}${index===0?'<span class="gd-first-diagnosis">首次诊断</span>':''}</td><td data-label="本次问题与判断">${problem||empty}</td><td data-label="处理情况">${handling}</td><td data-label="操作"><button type="button" class="link" data-gd-follow-evidence="${id}" aria-expanded="false" aria-controls="${id}">查看依据</button></td></tr><tr id="${id}" class="gd-follow-evidence-row" hidden><td colspan="4"><div class="gd-follow-evidence-shell">${sources}</div></td></tr>`;
+ }).reverse().join('');
+ const history=`<div class="gd-follow-table-wrap" data-gd-follow-scroll><table class="gd-report-follow-table" aria-label="报告诊断跟进记录"><colgroup><col style="width:130px"><col style="width:440px"><col style="width:410px"><col style="width:100px"></colgroup><thead><tr><th>核对日期</th><th>本次问题与判断</th><th>处理情况</th><th>操作</th></tr></thead><tbody>${records}</tbody></table></div>`;
+ return `<section class="gd-detail-section gd-report-follow" data-ai-finding-history data-gd-report-pane="sources"><h5>来源依据与跟进</h5>${history}</section>`;
 }
 document.addEventListener('click',event=>{
  const toggle=event.target.closest('[data-ai-include-handled]');if(!toggle)return;

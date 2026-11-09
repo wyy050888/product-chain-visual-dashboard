@@ -19,10 +19,11 @@ function gdFocusTable(rows){
 function gdMismatchTable(rows){
  return gdAnalysisTable(['业务对象','诊断结论','行动建议','涉及人员','操作'],rows.map(r=>`<tr data-analysis-row="${esc(r.id)}"><td>${gdAnalysisObject(r)}</td><td>${gdProblemMarkup(r)}</td><td>${gdProseMarkup(r.suggestion)}</td><td><div class="gd-person-list">${r.people.map(name=>gdPersonMarkup(name,upTodoPersonDepartment(name))).join('')}</div></td><td>${gdButton('analysis',r.id,'查看依据')}</td></tr>`).join(''),'mismatch');
 }
-function gdReportFindingsMarkup(report){
- const content=report.findings.length?report.findings.map(f=>`<div class="gd-report-finding"><span class="gd-readable-text">${gdReadableMarkup(f.problem)}</span></div>`).join(''):'<span class="gd-analysis-muted">未发现内容问题</span>';
- return gdCellPreview(content);
+// 列表和核对记录共用逐条诊断内容，避免另取摘要造成措辞或顺序不一致。
+function gdReportFindingsContent(report){
+ return report.findings.length?report.findings.map(f=>`<div class="gd-report-finding"><span class="gd-readable-text">${gdReadableMarkup(f.problem)}</span></div>`).join(''):'<span class="gd-analysis-muted">未发现内容问题</span>';
 }
+function gdReportFindingsMarkup(report){return gdCellPreview(gdReportFindingsContent(report))}
 function gdReportMakeupStatus(row){
  const submitted=row.latestSubmittedAt||row.submitted;
  if(submitted)return Number.isFinite(Date.parse(submitted))?'是':'待核实';

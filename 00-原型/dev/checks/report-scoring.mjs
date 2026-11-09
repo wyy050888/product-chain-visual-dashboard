@@ -27,11 +27,26 @@ function verifyDiagnosisModel(){
 // 保留历史检查命令名，当前验证问题诊断而非评分。
 export async function reportScoring(page){
  verifyDiagnosisModel();
+ const selection=vm.createContext({});
+ vm.runInContext(readFileSync(new URL('../../src/modules/global-diagnosis/03-analysis-model.js',import.meta.url),'utf8'),selection);
+ const edge=JSON.parse(vm.runInContext(`JSON.stringify((()=>{
+  const d={reports:[{id:'clean',findings:[]},{id:'blank',findings:[{problem:'  '}]},{id:'unread'},{id:'issue',findings:[{problem:'已核实问题'}]},{id:'daily',missing:true,type:'日报',findings:[]}]};
+  return {quality:gdAnalysisRows(d,'execution','quality').map(r=>r.id),missing:gdAnalysisRows(d,'execution','missing').map(r=>r.id)};
+ })())`,selection));
+ assert.deepEqual(edge,{quality:['issue'],missing:['daily']},'空问题及未审阅不能作为问题，欠交不受影响');
  const root=page.locator('#ai');
  await root.locator('[data-gd-part="execution"]').click();await root.locator('[data-gd-tab="quality"]').click();
  const audit=await page.evaluate(()=>globalDiagnosisAudit()),reports=audit.reports;
  assert.equal(reports.length,15);assert.equal(reports.filter(r=>r.missing).length,3);assert(!Object.hasOwn(audit,'scores'));
- assert.equal(reports.filter(r=>!r.missing&&!r.findings.length).length,4,'正常报告保留无问题状态');
+ assert.equal(reports.filter(r=>!r.missing&&!r.findings.length).length,4,'正常报告仍保留后台审阅记录');
+ const projection=await page.evaluate(()=>{
+  const d=globalDiagnosisAudit();
+  return {quality:d.visible.map(r=>r.id),missing:d.reports.filter(r=>r.missing&&r.type==='日报').map(r=>r.id),card:d.counts.find(c=>c.key==='execution')};
+ });
+ assert.deepEqual(projection.quality,reports.filter(r=>!r.missing&&r.checks.some(c=>!c.passed)).map(r=>r.id),'列表只包含有确认问题的报告');
+ assert.deepEqual(projection.missing,reports.filter(r=>r.missing&&r.type==='日报').map(r=>r.id),'日报欠交独立保留');
+ assert.equal(projection.card.count,projection.quality.length+projection.missing.length,'卡片计数排除无问题审阅记录');
+ assert.equal(await root.locator('[data-gd-tab="quality"] > span').innerText(),String(projection.quality.length),'问题页签计数一致');
  assert.equal(await root.locator('[data-gd-rubric],.gd-score-summary,.gd-score').count(),0);
  assert.deepEqual(await root.locator('.quality th').allTextContents(),['人员 / 部门','报告类型','工作日期','问题说明','操作']);
  for(const report of reports){
@@ -43,13 +58,14 @@ export async function reportScoring(page){
  const examples=[reports.find(r=>r.department==='品质中心'&&r.type==='日报'),reports.find(r=>r.department==='产品中心'&&r.type==='月报'),reports.find(r=>r.department==='采购部'&&r.type==='日报')];
  for(const report of examples){
   await root.locator('[data-gd-search]').fill(report.owner);
-  const row=root.locator('[data-report-row="'+report.id+'"]');assert.equal(await row.locator('td').count(),5);
+  const row=root.locator('[data-report-row="'+report.id+'"]');
+  if(!report.findings.length){assert.equal(await row.count(),0,'正常报告不上问题主表');continue}
+  assert.equal(await row.locator('td').count(),5);
   assert.equal(await row.locator('.gd-report-finding b').count(),0,'问题前无扣分数字');
   await row.locator('td:last-child button').click();
   const drawer=page.locator('.gd-report-dialog');assert.equal(await page.locator('.gd-report-score-banner,.gd-applied-rubric,[data-gd-rubric]').count(),0);
   const table=drawer.locator('[aria-label="报告问题诊断"]');
-  if(!report.findings.length)assert.equal((await drawer.locator('[data-gd-report-pane="report"]').innerText()).trim(),'未发现内容问题');
-  else{
+  {
    assert.deepEqual(await table.locator('th').allTextContents(),['诊断项','问题说明','对应原文']);
    for(const check of report.checks.filter(c=>!c.passed)){
     const cells=table.locator('[data-gd-diagnosis-key="'+check.key+'"] td');assert.equal(await cells.count(),3);
@@ -58,8 +74,9 @@ export async function reportScoring(page){
    }
   }
   for(const width of [1920,390]){await page.setViewportSize({width,height:1000});const box=await page.locator('#dialog').boundingBox();assert(box.x>=-1&&box.x+box.width<=width+1)}
-  await page.setViewportSize({width:1920,height:1000});await page.locator('#drawer-tabs [data-drawer-tab="sources"]').click();
-  assert.equal((await page.locator('[data-gd-report-pane="sources"] tbody td:last-child').textContent()).replace(/\s+/g,''),displayTerms(report.content.replace(/\b20(\d{2})-(\d{2})-(\d{2})\b/g,'$1/$2/$3')).replace(/\s+/g,''));
+  await page.setViewportSize({width:1920,height:1000});await drawer.locator('[data-gd-follow-evidence]').first().click();
+  const sourceCell=drawer.locator('.gd-follow-evidence-row:not([hidden]) .gd-analysis-sources > table > tbody > tr > td:last-child').first();
+  assert((await sourceCell.textContent()).replace(/\s+/g,'').includes(displayTerms(report.content.replace(/\b20(\d{2})-(\d{2})-(\d{2})\b/g,'$1/$2/$3')).replace(/\s+/g,'')),'当前来源保留完整原文，允许展示业务日期元数据');
   await page.locator('#close').click();
  }
  await root.locator('[data-gd-search]').fill('');

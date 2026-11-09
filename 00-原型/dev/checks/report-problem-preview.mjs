@@ -25,7 +25,7 @@ export async function reportProblemPreview(page){
    assert(Math.abs(box.y+box.height/2-(tail.top+tail.bottom)/2)<5,'入口与末行同排');
    await root.locator('.gd-analysis-table.quality').screenshot({path:fileURLToPath(new URL('../../outputs/report-inline-tail-closed.png',import.meta.url))});
   }
-  assert(await root.locator('[data-report-row^="diagnosis-report-0-2|"] [data-gd-cell-more]').isHidden(),'无问题的说明不显示展开');
+  assert.equal(await root.locator('[data-report-row^="diagnosis-report-0-2|"]').count(),0,'无问题报告不进入问题列表');
   await button.click();assert.equal(await button.innerText(),'收起');
   await assertPreviewButtonClear(preview);
   assert((await row.boundingBox()).height>height,'完整问题在原行撑高');

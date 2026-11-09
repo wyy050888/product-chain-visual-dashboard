@@ -8,14 +8,20 @@ export async function diagnosisDailyReview(page){
  for(const value of ['未开始','跟进中','已暂停','已完成'])assert.equal(box.gdFollowStatus({lifecycle:{status:value}}),value);
  assert.equal(box.gdFollowStatus({lifecycle:{status:'待验证'}}),'跟进中');
  assert.equal(box.gdFollowStatus({lifecycle:{status:'待核实',verificationPending:true,previous:'已暂停'}}),'已暂停');
- assert(box.gdFollowStatusMarkup({}).includes('>—</span>'));assert(box.gdFollowStatusMarkup({}).includes('缺少本事项的明确跟进证据'));
- assert.equal(box.gdFollowMatches({},'active'),true);assert.equal(box.gdFollowMatches({},'all'),true);
+ assert(box.gdFollowStatusMarkup({}).includes('>暂无</span>'));assert(!box.gdFollowStatusMarkup({}).includes('缺少本事项的明确跟进证据'));
+ assert.equal(box.gdFollowMatches({}),true);assert.equal(box.gdFollowMatches({},'all'),true);
+ assert.equal(box.gdFollowMatches({},'empty'),true,'暂无筛选只匹配空状态');
+ assert.equal(box.gdFollowMatches({lifecycle:{status:'已完成'}},'empty'),false);
+ assert.equal(box.gdFollowMatches({lifecycle:{status:'已暂停'}},'已暂停'),true);
+ assert.equal(box.gdFollowMatches({lifecycle:{status:'跟进中'}},'未开始'),false);
+ assert.equal(box.gdFollowMatches({lifecycle:{status:'已完成'}}),true,'默认全部包含已完成');
+ assert.equal(box.gdFollowFilterValue('active'),'all','旧未完成筛选恢复为全部');
  for(const status of ['未开始','跟进中','已暂停','已完成'])assert.equal(box.gdFollowMatches({},status),false,'空状态不混入任一确定状态');
  const row={id:'only-engineering-case',problem:'同一问题',participants:[],sources:[]};
  const revision=(date,problem=row.problem)=>({knownAt:date,payload:{work:[{...row,problem}],deviations:[],findingStates:{[row.id]:{status:'待跟进',reason:'仍需跟进'}}}});
  let found=box.gdFollowIndex([revision('2026-11-05'),revision('2026-11-06')]).get(row.id);
  assert.equal(found.firstAt,'2026-11-05');assert.equal(found.updatedAt,'2026-11-05');assert.equal(found.checkedAt,'2026-11-06');assert.equal(found.records.length,1,'无实质进展不复制记录');
- const recheck=revision('2026-11-06');recheck.payload.findingStates[row.id].reason='仅核对说法改变，没有新事实';const same=box.gdFollowIndex([revision('2026-11-05'),recheck]).get(row.id);assert.equal(same.updatedAt,'2026-11-05','核对说明变化不伪造内容更新');assert.equal(box.gdFollowMatches({exit_reason:'工程撤回',lifecycle:{status:'跟进中'}},'active'),false);
+ const recheck=revision('2026-11-06');recheck.payload.findingStates[row.id].reason='仅核对说法改变，没有新事实';const same=box.gdFollowIndex([revision('2026-11-05'),recheck]).get(row.id);assert.equal(same.updatedAt,'2026-11-05','核对说明变化不伪造内容更新');assert.equal(box.gdFollowMatches({exit_reason:'工程撤回',lifecycle:{status:'跟进中'}},'跟进中'),false);
  found=box.gdFollowIndex([revision('2026-11-05'),revision('2026-11-06','新增执行结果')]).get(row.id);assert.equal(found.updatedAt,'2026-11-06');assert.equal(found.firstAt,'2026-11-05');
  await page.clock.setFixedTime(new Date('2026-11-06T02:30:00Z'));await page.reload({waitUntil:'domcontentloaded'});await page.locator('a[href="#ai"]').click();
  const tasks=await page.evaluate(()=>JSON.stringify(globalDiagnosisAudit().tasks.map(r=>r.task)));
@@ -23,13 +29,16 @@ export async function diagnosisDailyReview(page){
   await page.locator('[data-gd-part="'+part+'"]').click();await page.locator('[data-gd-tab="'+tab+'"]').click();
   const root=page.locator('#ai'),headers=await root.locator('.gd-analysis-table th').allTextContents();assert.equal(headers[0],'诊断日期');assert.equal(headers[1],'业务对象');assert.equal(headers.indexOf('更新日期'),headers.indexOf('跟进状态')+1);assert(!headers.includes('上榜日期'));
   const status=root.locator('[data-gd-follow-status]');assert.equal(await status.count(),1);assert(await status.evaluate(el=>!!el.closest('.unified-input-group')),'复用统一筛选组件');
-  assert.deepEqual(await status.locator('option').allTextContents(),['未完成','全部记录','未开始','跟进中','已暂停','已完成']);
+  assert.deepEqual(await status.locator('option').allTextContents(),['全部','未开始','跟进中','已暂停','已完成','暂无']);
+  assert.equal(await status.inputValue(),'all','首次进入默认全部');
   assert.equal(await root.locator('[data-ai-include-handled]').count(),0);
   const unknown=root.locator('[data-follow-state=""]');assert(await unknown.count()>0,'未确认进度的样例不默认未开始');
-  assert((await unknown.first().locator('..').innerText()).includes('缺少本事项的明确跟进证据'));
+  assert.equal((await unknown.first().innerText()).trim(),'暂无');
   const row=root.locator('.gd-analysis-table tbody tr').first();assert.equal(await row.locator('[data-label="业务对象"] .gd-analysis-muted').count(),0);
   if(tab==='project'){const object=await row.locator('[data-label="业务对象"]').innerText();assert(object.includes('项目：')&&object.includes('任务：'));assert(!object.includes('任务：—'),'项目卡点保留具体任务名');assert((await row.locator('[data-label="建议负责人"] .gd-person').count())<=1,'外侧仅显示一个已明确的建议主责');}
-  await row.locator('[data-gd-action="analysis"]').click();assert(await page.locator('table[aria-label="问题跟进记录"]').count());assert((await page.locator('[data-ai-finding-history]').innerText()).includes('最近核对'));await page.locator('#close').click();
+  await row.locator('[data-gd-action="analysis"]').click();assert(await page.locator('table[aria-label="问题跟进记录"]').count());assert(await page.locator('[data-ai-finding-history] th').filter({hasText:'核对日期'}).count());await page.locator('#close').click();
+  await status.selectOption('empty');assert.equal(await status.inputValue(),'empty');assert(await root.locator('[data-follow-state=""]').count()>0);
+  assert(await root.locator('[data-follow-state]').evaluateAll(rows=>rows.every(r=>r.dataset.followState==='')),'暂无不混入明确状态');
   await status.evaluate(el=>{el.value='已完成';el.dispatchEvent(new Event('change',{bubbles:true}))});assert(await root.locator('[data-follow-state]').evaluateAll(rows=>rows.every(r=>r.dataset.followState==='已完成')));
   await status.evaluate(el=>{el.value='未开始';el.dispatchEvent(new Event('change',{bubbles:true}))});assert.equal(await root.locator('[data-follow-state=""]').count(),0,'未开始筛选排除空状态');
  }

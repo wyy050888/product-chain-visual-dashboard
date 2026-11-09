@@ -36,7 +36,7 @@ function gdActionContentCell(row,roles){
 }
 function gdActionOperationsCell(row){
  const icon=(action,label,paths)=>`<button type="button" class="gd-task-icon" data-gd-action="${action}" data-gd-id="${esc(row.id)}" aria-label="${label}" title="${label}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths}</svg></button>`;
- return '<div class="gd-action-tools">'+icon('task-detail','查看','<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>')+icon('task-delete','删除','<path d="M3 6h18M9 6V4h6v2M6 6l1 14h10l1-14M10 10v6M14 10v6"/>')+'</div>';
+ return '<div class="gd-action-tools">'+icon('task-detail','编辑','<path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L9 17l-4 1 1-4Z"/>')+icon('task-delete','删除','<path d="M3 6h18M9 6V4h6v2M6 6l1 14h10l1-14M10 10v6M14 10v6"/>')+'</div>';
 }
 function gdActionEvidenceMarkup(row){
  const reasons=gdDiagnosisReasons(row);

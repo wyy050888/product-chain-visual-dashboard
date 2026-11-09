@@ -39,9 +39,12 @@ export async function diagnosisSourcePresentation(page){
  const before=await page.evaluate(()=>JSON.stringify(globalDiagnosisAudit().reports));
  for(const type of ['日报','周报','月报']){
   await root.locator('[data-gd-report-type="'+type+'"]').click();
+  if(!(await page.evaluate(()=>globalDiagnosisAudit().visible.length))){
+   assert.equal(await root.locator('[data-report-row]').count(),0,'无问题的报告类型不提供详情入口');continue;
+  }
   await root.locator('[data-report-row]').first().locator('td:last-child button').click();
-  await page.locator('#drawer-tabs [data-drawer-tab="sources"]').click();
-  const table=page.locator('#dialogbody [data-gd-report-pane="sources"] .gd-analysis-sources > table[aria-label="来源与内容"]').first();
+  await page.locator('#dialogbody .gd-report-follow [data-gd-follow-evidence]').first().click();
+  const table=page.locator('#dialogbody .gd-report-follow .gd-follow-evidence-row:not([hidden]) .gd-analysis-sources > table[aria-label="来源与内容"]').first();
   assert.deepEqual(await table.locator(':scope > thead > tr > th').allTextContents(),['来源','内容']);
   const labels=await table.locator('[data-source-type]').allTextContents();
   assert(labels.length>0);assert(labels.every(label=>label===type));
@@ -58,7 +61,7 @@ export async function diagnosisEmptyFollowState(page){
  const box=vm.createContext({esc:escape,document:{addEventListener(){}}});
  vm.runInContext(fs.readFileSync(new URL('../../src/modules/ai-result-history/03-followup.js',import.meta.url),'utf8'),box);
  const source={lifecycle:{status:'',verificationPending:true,reason:'保留原缺证说明'}};const before=JSON.stringify(source);
- assert.equal(box.gdFollowStatus(source),'');assert.equal(box.gdFollowMatches(source,'active'),true);
+ assert.equal(box.gdFollowStatus(source),'');assert.equal(box.gdFollowMatches(source,'empty'),true);
  assert.equal(box.gdFollowStatusMarkup(source),'<span class="muted" data-follow-state="">暂无</span>');
  assert.equal(JSON.stringify(source),before,'暂无仅用于展示，不回写业务状态');
  for(const status of ['未开始','跟进中','已暂停','已完成'])assert.match(box.gdFollowStatusMarkup({lifecycle:{status}}),new RegExp('>'+status+'<'));
@@ -67,6 +70,6 @@ export async function diagnosisEmptyFollowState(page){
  assert.equal(await empty.innerText(),'暂无');assert(await empty.evaluate(e=>e.classList.contains('muted')));
  assert.equal(await empty.evaluate(e=>e.closest('td[data-label="跟进状态"]').innerText.trim()),'暂无','状态单元格只展示暂无');
  const values=await root.locator('[data-gd-follow-status] option').evaluateAll(options=>options.map(option=>option.value));
- assert.deepEqual(values.slice(2),['未开始','跟进中','已暂停','已完成']);assert(!values.includes('暂无'));
- console.log('通过：空跟进状态显示灰色暂无，空值及未完成筛选语义保留，四个业务状态不变');
+ assert.deepEqual(values,['all','未开始','跟进中','已暂停','已完成','empty']);assert(!values.includes('暂无'),'暂无筛选使用空值标识，不作为业务状态');
+ console.log('通过：空跟进状态显示灰色暂无，可单独筛选空值，四个业务状态不变');
 }

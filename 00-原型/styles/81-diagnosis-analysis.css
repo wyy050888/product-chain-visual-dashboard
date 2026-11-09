@@ -18,6 +18,8 @@
 .gd-analysis-dialog .gd-focus-topic strong{font-size:13px;font-weight:600;color:#2e496c}
 .gd-analysis-dialog :is(.gd-text-section,.gd-detail-roster){display:grid;grid-template-columns:104px minmax(0,1fr);align-items:baseline;gap:12px;margin:0;padding:8px 0;border-bottom:1px solid #edf1f6}
 .gd-analysis-dialog :is(.gd-text-section,.gd-detail-roster)>h5{margin:0}
+.gd-analysis-dialog .gd-detail-advice{min-width:0}
+.gd-analysis-dialog .gd-detail-advice>.gd-action-content+.gd-action-content{margin-top:8px}
 .gd-analysis-dialog .gd-detail-roster>h5{white-space:nowrap}
 .gd-analysis-dialog .gd-detail-roster .gd-detail-people{min-width:0;line-height:22px}
 .gd-analysis-dialog .gd-analysis-sources td{padding-block:10px;line-height:1.7}
@@ -150,3 +152,13 @@
 .gd-report-evidence :is(td,blockquote){white-space:pre-line;overflow-wrap:anywhere;line-height:1.7}
 .gd-report-evidence blockquote{margin:0;padding:0;border:0;background:transparent;color:#7185a0}
 .gd-report-issue+.gd-report-issue,.gd-report-evidence blockquote+blockquote{margin-top:8px}
+.gd-report-diagnosis>h5,.gd-report-follow>h5{margin:0 0 12px}
+.gd-report-follow{margin-top:24px}
+.gd-report-follow-table{width:100%;min-width:1080px;table-layout:fixed}
+.gd-report-follow-table>thead>tr>th,.gd-report-follow-table>tbody>.gd-follow-record>td{min-width:0;max-width:none;text-align:left;line-height:1.8;white-space:normal}
+.gd-report-follow-table>thead>tr>th{background:#f3f7fc;color:#7b8ca4;font-weight:400}
+.gd-report-follow-table>thead>tr>th:last-child,.gd-report-follow-table>tbody>.gd-follow-record>td:last-child{position:sticky;right:0;z-index:2;box-shadow:-1px 0 #e8edf5}
+.gd-report-follow-table>tbody>.gd-follow-record>td:last-child{background:#fff}
+.gd-report-follow-table>tbody>.gd-follow-record:hover>td{background:#fafbff}
+.gd-report-follow-table>tbody>.gd-follow-record>td:is([data-label="本次问题与判断"],[data-label="处理情况"]){white-space:pre-line}
+.gd-report-follow-table .gd-first-diagnosis{display:block;width:max-content;margin-top:5px;padding:0 6px;border:1px solid #d9dfe7;border-radius:4px;background:#fff;color:#7b8796;font-size:11px;line-height:20px;white-space:nowrap}

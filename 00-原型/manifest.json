@@ -1950,6 +1950,14 @@
       "module": "诊断日期与四状态跟进"
     },
     {
+      "file": "src/modules/ai-result-history/04-followup-view.js",
+      "module": "业务跟进行内来源与首次诊断展示"
+    },
+    {
+      "file": "src/modules/ai-result-history/05-followup-demo.js",
+      "module": "工作遗漏两次核对演示样例"
+    },
+    {
       "file": "src/modules/global-diagnosis/03-tasks.js",
       "module": "全局AI总诊断四部分重构"
     },

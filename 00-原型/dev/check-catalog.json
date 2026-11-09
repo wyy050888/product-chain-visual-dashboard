@@ -310,17 +310,30 @@
   "costImportHeaders": {
     "file": "./checks/import-template-headers.mjs",
     "export": "importTemplateHeaders",
-    "args": [true]
+    "args": [
+      true
+    ]
   },
   "costImportColors": {
     "file": "./checks/import-template-colors.mjs",
     "export": "importTemplateColors",
-    "args": [true]
+    "args": [
+      true
+    ]
   },
   "costSharedUpload": {
     "file": "./checks/upload-experience.mjs",
     "export": "uploadExperience",
-    "args": [{"modules": ["降本目标值", "供应商名单", "核心链接"], "procurement": false}]
+    "args": [
+      {
+        "modules": [
+          "降本目标值",
+          "供应商名单",
+          "核心链接"
+        ],
+        "procurement": false
+      }
+    ]
   },
   "costControl": {
     "file": "./checks/cost-control.mjs",
@@ -860,6 +873,10 @@
     "file": "./checks/diagnosis-evidence-presentation.mjs",
     "export": "diagnosisEvidencePresentation"
   },
+  "diagnosisInlineEvidence": {
+    "file": "./checks/diagnosis-inline-evidence.mjs",
+    "export": "diagnosisInlineEvidence"
+  },
   "aiResultHistory": {
     "file": "./checks/ai-result-history.mjs",
     "export": "aiResultHistory"
@@ -887,5 +904,9 @@
   "diagnosisEmptyFollowState": {
     "file": "./checks/source-presentation.mjs",
     "export": "diagnosisEmptyFollowState"
+  },
+  "diagnosisPerformance": {
+    "file": "./checks/diagnosis-performance.mjs",
+    "export": "diagnosisPerformance"
   }
 }

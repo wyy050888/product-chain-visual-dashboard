@@ -5,7 +5,7 @@ function gdAnalysisSourceTable(sources){
 // 重点清单与工作偏差共用依据布局，字段名和数值对应各自主表。
 function gdWorkEvidenceFields(row){
  const keyWork=row.kind==='key-work',participants=row.participants||[];
- const suggestion=`<section class="gd-detail-section gd-text-section"><h5>行动建议</h5>${gdParticipantAdvice(participants)}</section>`;
+ const suggestion=`<section class="gd-detail-section gd-text-section"><h5>行动建议</h5><div class="gd-detail-advice">${gdParticipantAdvice(participants)}</div></section>`;
  const priority=keyWork?`<section class="gd-detail-section gd-text-section"><h5>${row.keyType==='project'?'项目红绿灯':'风险榜单'}</h5><p>${gdKeyWorkFactMarkup(row)}</p></section>`:`<section class="gd-detail-section gd-text-section gd-detail-priority"><h5>优先级</h5><p>${gdPriority(row)}</p></section>`;
  const roster=`<section class="gd-detail-section gd-detail-roster"><h5>${keyWork?'建议负责人':'涉及人员'}</h5><div class="gd-person-list gd-detail-people">${participants.map(p=>gdPersonMarkup(p.assignee,p.department)).join('')}</div></section>`;
  return gdTextSection('诊断日期',gdFollowDate(row,'firstAt'))+gdTextSection('更新日期',gdFollowDate(row,'updatedAt'))+priority+gdTextSection('问题描述',gdProblemText(row))+suggestion+roster+(keyWork&&row.keyType==='project'?gdTextSection('建议整改期限',upTodoDate(row.due)):'')+gdTextSection('跟进状态',gdFollowStatus(row)||'—',gdFollowStatus(row)?'':'（缺少本事项的明确跟进证据）');
@@ -22,10 +22,11 @@ function gdOpenAnalysis(row,topicName=''){
  const diagnosis=evidence?gdWorkEvidenceFields(row):resource?gdTextSection(row.kind==='improvement'?'当前情况':'诊断结论',gdProblemText(row))+gdTextSection('行动建议',row.suggestion)+gdTextSection('预期改善',row.benefit)+`<section class="gd-detail-section gd-detail-roster"><h5>涉及人员</h5><div class="gd-person-list gd-detail-people">${people.map(person=>gdImprovementPersonMarkup(row,person)).join('')}</div></section>`:row.problem?gdTextSection('问题描述',row.problem):'';
  const context=evidence?'':row.coreHit?gdTextSection('命中核心标准',row.coreHit):row.dependencies?gdTextSection('上下游依赖',row.dependencies.join(' → ')):row.gaps?gdTextSection('方案缺口',row.gaps.join('、')):row.coverage?gdTextSection('扫描结果',`${row.coverage.start} — ${row.coverage.end}，已收集 ${row.coverage.checked} 条具名来源，该对象匹配 0 条。该判断限定于已收集材料。`):'';
  const detailHead=evidence||row.kind==='improvement'?'':focus?`<section class="gd-detail-section gd-text-section gd-focus-topic"><h5>当前聚焦事项</h5><p><strong>${esc(heading)}</strong></p></section>`:report?'':`<div class="gd-detail-head"><h3>${esc(heading)}</h3>${name&&!deviation&&row.kind!=='key-work'?resource?gdAnalysisObject(row):`<div>${esc(name)}</div>`:''}</div>`;
- const reportTabs=report&&!row.missing;
- const sourceContent=`<section class="gd-detail-section" ${reportTabs?'data-gd-report-pane="sources"':''}>${reportTabs?'':'<h5>来源依据</h5>'}${gdAnalysisSourceTable(sources)}${gdHistoryEvidence(row)}</section>`;
- const content=reportTabs?`<div data-gd-report-pane="report">${reportDiagnosis}</div>${sourceContent}`:detailHead+roster+diagnosis+context+reportDiagnosis+sourceContent;
- openModal(title,`<article class="gd-dialog gd-analysis-dialog ${focus?'gd-focus-dialog':''} ${row.kind==='improvement'?'gd-improvement-dialog':''} ${evidence?'gd-evidence-dialog':''} ${deviation?'gd-deviation-dialog':''} ${keyWork?'gd-key-work-dialog':''} ${reportTabs?'gd-report-dialog':''}" ${evidence?'data-skip-product-summary':''} data-gd-analysis-detail="${esc(row.id)}">${content}</article>`);
+ const reportDetail=report&&!row.missing;
+ const sourceContent=evidence?gdWorkFollowEvidence(row):reportDetail?gdHistoryEvidence(row):`<section class="gd-detail-section"><h5>来源依据</h5>${gdAnalysisSourceTable(sources)}${gdHistoryEvidence(row)}</section>`;
+ const content=reportDetail?`<div data-gd-report-pane="report">${reportDiagnosis}</div>${sourceContent}`:detailHead+roster+diagnosis+context+reportDiagnosis+sourceContent;
+ openModal(title,`<article class="gd-dialog gd-analysis-dialog ${focus?'gd-focus-dialog':''} ${row.kind==='improvement'?'gd-improvement-dialog':''} ${evidence?'gd-evidence-dialog':''} ${deviation?'gd-deviation-dialog':''} ${keyWork?'gd-key-work-dialog':''} ${reportDetail?'gd-report-dialog':''}" ${evidence?'data-skip-product-summary':''} data-gd-analysis-detail="${esc(row.id)}">${content}</article>`);
  // 公共副标题与主标题同排，已有抽屉栈会保留其中的标签节点。
  if(focus||evidence)$('#dialogsub').innerHTML=diagnosisObjectTag(row.object?.type);
+ if(evidence||reportDetail)gdMountFollowEvidence($('#dialogbody'));
 }
