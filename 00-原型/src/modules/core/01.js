@@ -20,7 +20,8 @@ function category(p){return p.sales>=config.high?(p.profit>=config.profit?'A':'B
 // 兼容旧表：把原分级单元格移入产品身份，不改变其分级值。
 function tableInlineProductGrade(cell,gradeCell){
  const template=document.createElement('template'),grade=document.createElement('span');
- template.innerHTML=String(gradeCell??'');const text=template.content.textContent.trim()||'待分级';
+ template.innerHTML=String(gradeCell??'');const text=template.content.textContent.trim();
+ if(!text||text==='待分级')return String(cell??'');
  grade.className='product-grade-label';grade.dataset.productGrade=/^[SABCD]/.test(text)?text[0]:'unrated';
  grade.textContent=text;grade.setAttribute('aria-label','产品分级：'+text);
  template.innerHTML=String(cell??'');let line=template.content.querySelector('.product-name-line');

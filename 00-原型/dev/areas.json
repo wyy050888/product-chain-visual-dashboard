@@ -3628,5 +3628,18 @@
       "diagnosisInlineEvidence",
       "taskDateFilters"
     ]
+  },
+  "drawerGradeOptions": {
+    "label": "抽屉产品分级仅保留SABC",
+    "sources": [
+      "src/modules/core/01.js",
+      "src/modules/risk-presentation/03-filters.js",
+      "src/modules/risk-presentation/03-product-grade.js"
+    ],
+    "checks": [
+      "drawerGradeOptions",
+      "productGradeOptions",
+      "smoke"
+    ]
   }
 }

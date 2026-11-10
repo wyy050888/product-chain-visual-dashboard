@@ -7,7 +7,7 @@ function rpRankingGrade(record){
  return rows.get(id);
 }
 function rpRankingGradeMarkup(record){
- const grade=rpRankingGrade(record);return `<span class="rp-product-grade ${grade}" data-rp-grade="${grade}">${grade==='unrated'?'待分级':grade}</span>`;
+ const grade=rpRankingGrade(record);return grade==='unrated'?'':`<span class="rp-product-grade ${grade}" data-rp-grade="${grade}">${grade}</span>`;
 }
 
 window.dashboardRankingGradeSnapshot=()=>rpWithListPeriod(()=>{

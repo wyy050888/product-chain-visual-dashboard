@@ -2077,7 +2077,8 @@ function category(p){return p.sales>=config.high?(p.profit>=config.profit?'A':'B
 // 兼容旧表：把原分级单元格移入产品身份，不改变其分级值。
 function tableInlineProductGrade(cell,gradeCell){
  const template=document.createElement('template'),grade=document.createElement('span');
- template.innerHTML=String(gradeCell??'');const text=template.content.textContent.trim()||'待分级';
+ template.innerHTML=String(gradeCell??'');const text=template.content.textContent.trim();
+ if(!text||text==='待分级')return String(cell??'');
  grade.className='product-grade-label';grade.dataset.productGrade=/^[SABCD]/.test(text)?text[0]:'unrated';
  grade.textContent=text;grade.setAttribute('aria-label','产品分级：'+text);
  template.innerHTML=String(cell??'');let line=template.content.querySelector('.product-name-line');
@@ -13600,7 +13601,12 @@ function rpWithListPeriod(run){const kind=rpListState.kind??0;return rpWithBoard
 // 每榜筛选按Tab保存；产品类型包含季品与属性（新品／老品／清仓品），两组组合查询。
 const rpQualityKinds=[{value:'fine',label:'平台罚款'},{value:'frozen',label:'资金冻结'},{value:'down',label:'链接下架／掉权'}];
 function rpDefaultFilters(){return {...pfDefaults(),shopCategory:'all',assessed:'all',qualityRisk:'all',qualityOnly:true,grade:'all',query:''}}
-function rpSavedFilters(k){return rpListState.filters[k]||(rpListState.filters[k]={...rpDefaultFilters(),...rpCardProductFilters(k)})}
+function rpSavedFilters(k){
+ const filters=rpListState.filters[k]||(rpListState.filters[k]={...rpDefaultFilters(),...rpCardProductFilters(k)});
+ const selected=pfSelected(filters.grade),grades=selected.filter(value=>['S','A','B','C'].includes(value));
+ if(grades.length!==selected.length)filters.grade=grades.length?grades:'all';
+ return filters;
+}
 function rpFilterOptions(values,selected){return pfOptions(values,selected)}
 function rpFilterSelect(key,label,values,filters){return `<label>${label}<select data-rp-filter="${key}" multiple data-pf-multiple data-pf-label="${esc(label)}" aria-label="${label}">${rpFilterOptions(values,filters[key])}</select></label>`}
 function rpQualityHit(k,r,kind,qualityOnly=true){
@@ -13614,7 +13620,7 @@ function rpFilterTools(k,filters,platform){
  const shop=k===1;
  const search=`<label class="rp-search-label"><input type="search" data-rp-filter="query" aria-label="${shop?'店铺搜索':[3,4].includes(k)?'SKU搜索':'产品搜索'}" placeholder="${shop?'店铺名称 / 店铺ID / 产品名称 / SPU码 / 型号':[3,4].includes(k)?'SKU名称 / SKU编码':'产品名称 / SPU码 / 型号'}" value="${esc(filters.query)}"></label>`;
  return search+(shop?rpFilterSelect('brand','品牌',[...new Set([...sampleShops,...sampleDemoShops].map(p=>p.brand))],filters)+rpFilterSelect('chain','核心主营产品链群',pfCategories,filters)+rpShopAttributeField(filters,platform):pfFields(filters,undefined,'data-rp-filter',true))
- +(shop?'':rpFilterSelect('grade','产品分级',[{value:'S',label:'S'},{value:'A',label:'A'},{value:'B',label:'B'},{value:'C',label:'C'},{value:'unrated',label:'待分级'}],filters))
+ +(shop?'':rpFilterSelect('grade','产品分级',['S','A','B','C'],filters))
  +([0,1].includes(k)?rpFilterSelect('qualityRisk','风险类型',rpQualityKinds,filters):'')
  +'<button type="button" class="link" data-rp-reset>重置筛选</button>';
 }
@@ -13650,7 +13656,7 @@ function rpRankingGrade(record){
  return rows.get(id);
 }
 function rpRankingGradeMarkup(record){
- const grade=rpRankingGrade(record);return `<span class="rp-product-grade ${grade}" data-rp-grade="${grade}">${grade==='unrated'?'待分级':grade}</span>`;
+ const grade=rpRankingGrade(record);return grade==='unrated'?'':`<span class="rp-product-grade ${grade}" data-rp-grade="${grade}">${grade}</span>`;
 }
 
 window.dashboardRankingGradeSnapshot=()=>rpWithListPeriod(()=>{

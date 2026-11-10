@@ -908,5 +908,9 @@
   "diagnosisPerformance": {
     "file": "./checks/diagnosis-performance.mjs",
     "export": "diagnosisPerformance"
+  },
+  "drawerGradeOptions": {
+    "file": "./checks/drawer-grade-options.mjs",
+    "export": "drawerGradeOptions"
   }
 }
