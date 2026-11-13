@@ -5,11 +5,11 @@ import vm from 'node:vm';
 export async function diagnosisListedDate(page){
  const text=value=>String(value??'—');
  const box=vm.createContext({esc:text,upTodoDate:text,gdCellPreview:text,gdAnalysisObject:row=>row.objectName,gdFollowDate:(row,key)=>key==='firstAt'?row.date:row.updatedAt,gdFollowStatusMarkup:()=>'',gdParticipantAdvice:()=>'',gdProblemMarkup:row=>row.problem,gdProseMarkup:text,gdPersonMarkup:text,gdButton:()=>'',gdAnalysisTable:(headers,markup)=>({headers:Array.from(headers,h=>typeof h==='string'?h:h.label),markup})});
- vm.runInContext(readFileSync(new URL('../../src/modules/project-panorama/13-risk-detail-view.js',import.meta.url),'utf8'),box);
+ for(const file of ['01-model','13-risk-detail-view'])vm.runInContext(readFileSync(new URL('../../src/modules/project-panorama/'+file+'.js',import.meta.url),'utf8'),box);
  vm.runInContext(readFileSync(new URL('../../src/modules/global-diagnosis/04-key-work-table.js',import.meta.url),'utf8'),box);
  const row={workKey:'repeat-risk',keyType:'high-risk',riskBoardName:'呆滞预警榜（实时）',objectName:'测试产品',problem:'再次上榜',participants:[{action:'核对处置',assignee:'负责人'}],date:'2026-10-28',updatedAt:'2026-10-30',firstSeenAt:'2026-09-01',due:'2026-11-05'};
  const listed=box.gdKeyWorkTable([row],'high-risk');
- assert.deepEqual(Array.from(listed.headers),['诊断日期','更新日期','业务对象','风险榜单','问题描述','行动建议','建议负责人','跟进状态','操作']);
+ assert.deepEqual(Array.from(listed.headers),['诊断日期','业务对象','风险榜单','问题描述','行动建议','建议负责人','跟进状态','更新日期','操作']);
  assert(listed.markup.includes('<td data-label="诊断日期">2026-10-28</td>'));
  assert(listed.markup.includes('<td data-label="风险榜单">呆滞预警榜（实时）</td>'));
  assert(!listed.markup.includes('2026-09-01'),'再次上榜不显示最早入榜日');
@@ -17,7 +17,8 @@ export async function diagnosisListedDate(page){
  const project=box.gdKeyWorkTable([{...row,keyType:'project',projectLight:'高危红灯'}],'project');
  assert(project.headers.includes('建议整改期限'));assert(!project.headers.includes('上榜日期'));
  assert(project.headers.includes('项目红绿灯'));assert(!project.headers.includes('优先级'));
- for(const light of ['红灯','黄灯','绿灯','高危红灯'])assert(box.gdKeyWorkFactMarkup({keyType:'project',projectLight:light}).includes('data-light="'+light+'"'));
+ for(const light of ['红灯','黄灯','绿灯'])assert(box.gdKeyWorkFactMarkup({keyType:'project',projectLight:light}).includes('data-light="'+light+'"'));
+ assert(project.markup.includes('data-light="红灯"'),'旧诊断记录的高危红灯显示为红灯');
  assert(project.markup.includes('<td data-label="建议整改期限">2026-11-05</td>'));
  const root=page.locator('#ai');
  await root.locator('[data-gd-part="coordination"]').click();
@@ -34,15 +35,17 @@ export async function diagnosisListedDate(page){
 }
 
 export async function diagnosisRiskDateSort(page){
- await page.clock.setFixedTime(new Date('2026-11-06T02:30:00Z'));await page.reload({waitUntil:'domcontentloaded'});await page.locator('a[href="#ai"]').click();
+ await page.clock.setFixedTime(new Date('2026-11-06T02:30:00Z'));
+ await page.evaluate(()=>localStorage.removeItem(riskBoardAppearanceSnapshot().storageKey));
+ await page.reload({waitUntil:'domcontentloaded'});await page.locator('a[href="#ai"]').click();
  const root=page.locator('#ai');
  await root.locator('[data-gd-part="coordination"]').click();
  await root.locator('[data-gd-tab="high-risk"]').click();
- const samples=await page.evaluate(()=>globalDiagnosisAudit().work.filter(row=>row.keyType==='high-risk'&&row.sample).map(row=>({id:row.workKey,date:row.date,previous:row.previousAppearedAt})));
+ const samples=await page.evaluate(()=>globalDiagnosisAudit().work.filter(row=>row.keyType==='high-risk'&&row.sample).map(row=>({id:row.workKey,date:row.date,previous:row.previousReminderAt})));
  assert(samples.length>=4,'新增高危至少展示4条演示记录');
  assert(new Set(samples.map(row=>row.date)).size>=4,'样例覆盖不同上榜日期');
- assert(samples.some(row=>row.previous),'包含间隔后再次上榜样例');
- for(const row of samples)if(row.previous)assert((Date.parse(row.date)-Date.parse(row.previous))/86400000>=15);
+ assert(samples.some(row=>row.previous),'包含到期复核样例');
+ for(const row of samples)if(row.previous)assert((Date.parse(row.date)-Date.parse(row.previous))/86400000>=3);
  const dateHeader=root.locator('[data-gd-header-sort="listedAt"]');
  const dates=()=>root.locator('[data-gd-key-work] [data-label="诊断日期"]').allTextContents();
  function ordered(values,direction){assert(values.length>0);const sorted=[...values].sort();if(direction==='desc')sorted.reverse();assert.deepEqual(values,sorted);}
@@ -53,7 +56,9 @@ export async function diagnosisRiskDateSort(page){
  await root.locator('[data-gd-tab="high-risk"]').click();
  assert.equal(await dateHeader.getAttribute('data-direction'),'asc','切换Tab保留手选排序');ordered(await dates(),'asc');
  await dateHeader.click();ordered(await dates(),'desc');
- await root.locator('[data-gd-key-work] [data-gd-action="analysis"]').first().click();
+ const sampleRow=root.locator('[data-gd-key-work="'+samples[0].id+'"]');
+ await sampleRow.locator('[data-gd-action="analysis"]').click();
+ await page.locator('.gd-work-follow [data-gd-follow-evidence]').first().click();
  assert((await page.locator('#dialogbody').innerText()).includes('演示样例'),'模拟入榜历史在依据中标明');
  await page.locator('#close').click();
  await page.reload();

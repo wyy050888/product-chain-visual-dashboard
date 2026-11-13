@@ -34,14 +34,14 @@
 .kpm-main #matrixtabs button>span{margin-left:6px;font-size:11px;opacity:.7}
 #matrix.kpm-main #matrixtable{overflow:auto;max-height:var(--kpm-table-max-height,none);width:100%;min-width:0;border:0;border-radius:0;scrollbar-width:thin}
 .kpm-main #matrixtable table{min-width:1580px;width:100%;border-collapse:separate;border-spacing:0;table-layout:auto;font-size:12px}
-.kpm-main #matrixtable th{position:sticky;top:0;z-index:2;background:#f4f7fc;font-weight:400;white-space:nowrap;padding:14px 16px}
+.kpm-main #matrixtable th{position:sticky;top:0;z-index:2;white-space:nowrap}
 .kpm-main #matrixtable td{padding:16px;height:88px;box-sizing:border-box;vertical-align:middle;white-space:nowrap}
 .kpm-main #matrixtable td>small{display:block;margin-top:6px;font-size:11px;color:#8393ad}
 .kpm-main #matrixtable th:first-child,.kpm-main #matrixtable td:first-child{position:sticky;left:0;width:340px;min-width:340px;max-width:400px;box-shadow:1px 0 #e4ecfa}
 .kpm-main #matrixtable td:first-child{z-index:1;background:white}
 .kpm-main #matrixtable th:first-child{z-index:3}
 .kpm-main #matrixtable th:last-child,.kpm-main #matrixtable td:last-child{position:sticky;right:0;width:64px;min-width:64px;z-index:2;background:white;box-shadow:-1px 0 #e4ecfa}
-.kpm-main #matrixtable th:last-child{background:#f4f7fc;z-index:3}
+.kpm-main #matrixtable th:last-child{z-index:3}
 .kpm-main .kpm-grade{display:inline-flex;align-items:center;gap:6px;border-radius:5px;padding:5px 7px;font-size:11px;background:#f0f3f8;color:#71849b}
 .kpm-main .kpm-grade b{font-size:14px}
 .kpm-main .kpm-empty{padding:60px 15px;text-align:center;font-size:13px;color:#8393ad}

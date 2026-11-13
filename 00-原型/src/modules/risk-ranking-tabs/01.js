@@ -1,5 +1,5 @@
 const riskRankingTabs=[
- {kind:0,label:'产品违规榜'}, {kind:6,label:'退货恶化榜'},
+ {kind:0,label:'产品违规榜'}, {kind:6,label:'退货恶化榜'}, {kind:8,label:'退货偏差榜'},
  {kind:1,label:'店铺风险榜'}, {kind:4,label:'呆滞预警榜（实时）'},
  {kind:3,label:'缺货预警榜（实时）'}, {kind:2,label:'亏损产品榜'}
 ];

@@ -30,7 +30,17 @@
 #riskrail .rp-platform-product .rp-platform-metric{display:grid;grid-template-rows:24px 18px;row-gap:4px;align-content:center;min-width:0;text-align:left;white-space:nowrap}
 #riskrail .rp-platform-product .rp-platform-metric>strong{display:flex;align-items:center;justify-content:flex-start;min-width:0;font-size:15px;font-weight:500;line-height:24px}
 #riskrail .rp-platform-product .rp-platform-metric>small{display:flex;align-items:center;justify-content:flex-start;gap:3px;margin:0;min-height:18px;font-size:11px;line-height:18px;white-space:nowrap}
+#riskrail .rp-platform-product .rp-card-actual-value{color:#000}
 #riskrail .rp-platform-product .rp-platform-metric .rp-comparison-label{font-size:inherit}
+#riskrail .rp-platform-product .rp-platform-metric[data-comparison-first]>strong{gap:2px;font-size:13px;font-weight:600}
+#riskrail .rp-platform-metric[data-comparison-first]>strong .rp-comparison-label{font-size:10px;font-weight:400}
+#riskrail .rp-platform-metric[data-comparison-first]>strong .number-signal{padding-inline:2px}
+/* 汉字占满字身，收一档字号和字重，与同列百分比的视觉大小对齐。 */
+#riskrail .rp-platform-metric>strong[data-flat-comparison]>.rp-comparison-value{font-size:var(--type-data);font-weight:var(--weight-medium)}
+/* 退货卡片按同列最长数值定宽，窄屏只在卡片内部横向滚动。 */
+#riskrail :is([data-rp-board="6"],[data-rp-board="8"]) .rp-platform-card-table{display:grid;grid-template-columns:30px repeat(var(--rp-platform-metrics),minmax(max-content,1fr));column-gap:10px}
+#riskrail :is([data-rp-board="6"],[data-rp-board="8"]) :is(.rp-platform-card-head,.rp-platform-card-row){grid-column:1/-1;grid-template-columns:subgrid}
+#riskrail [data-rp-board="8"] .rp-platform-card-table{min-width:400px;grid-template-columns:30px repeat(3,minmax(max-content,1fr)) minmax(max-content,1.2fr)}
 #riskrail .rp-platform-card-head .net-sales-help{margin-left:3px;vertical-align:middle}
 #riskrail .rp-platform-metric-label{display:block;font-size:12px;font-weight:400;line-height:18px;color:#7f8fa5}
 /* 指标名称弱化为灰色辅助文字，仅保留淡底线，沿用原网格坐标。 */

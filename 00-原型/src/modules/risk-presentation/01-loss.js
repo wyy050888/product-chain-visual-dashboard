@@ -1,6 +1,6 @@
 // 亏损榜字段：经营指标跟随所选期间/平台，库存保持公司最新快照。
 const rpLossCardKeys=['loss','margin','gsv','return','received','total'];
-const rpLossListKeys=['gsv','sales','netSales','margin','loss','return','received','total','totalCoverage15','season','productType'];
+const rpLossListKeys=['loss','margin','gsv','sales','netSales','return','received','total','totalCoverage15','season','productType'];
 let rpLossMarginHint='净利润率＝所选期间利润率－10%。';
 // 表头使用本榜计算口径，随全局扣减规则同步，不套用通用经营利润说明。
 function rpLossAmountHint(){
@@ -22,9 +22,9 @@ function rpLossReturnTarget(product,platform,start,end){
  for(const channel of upChannels(platform)){const n=upSummary(product,start,end,channel).sales;if(n>0){const target=qrbTarget(upProduct(product),channel);sales+=n;if(Number.isFinite(target))weighted+=n*target;else complete=false}}
  return complete&&sales?weighted/sales:null;
 }
-function rpLossMarginComparison(now,before,{reverse=false,signed=true}={}){
- const raw=!Number.isFinite(now)||!Number.isFinite(before)?null:now===before?0:before===0?null:(now-before)/Math.abs(before)*100;
- return {target:signed?rpSignedComparisonText(raw):rpComparisonText(raw),targetTone:rpComparisonTone(raw,reverse)};
+function rpLossMarginComparison(now,before,{reverse=false}={}){
+ const raw=periodRateGrowth(now,before);
+ return {target:'环比 '+periodRateGrowthText(raw),targetTone:rpComparisonTone(raw,reverse)};
 }
 // 净利润率独立判色；负值改善仍为上涨，不使用10%灰色区间。
 function rpNetMarginComparison(now,before){
@@ -43,10 +43,10 @@ function rpLossFields(record,current,previous){
  const add=(key,name,value,raw,tone='rp-quality-normal',target='',targetTone='',hint='')=>fields.push({...rpField(key,name,value,tone,hint,target),sortValue:raw,targetTone});
  const compareHint='环比取紧邻等长区间；'+rpComparisonRuleText();
  for(const [key,name,value,old] of [['gsv','GSV',current.gsvCents,previous.gsvCents],['sales','销量',current.sales,previous.sales],['netSales','销量',current.sales-current.returned,previous.sales-previous.returned]]){
-  add(key,name,key==='gsv'?rpQualityMoney(value/100):fmt(value),value,'rp-quality-normal',rpQualityChange(value,old),rpQualityChangeTone(value,old),compareHint);
+  add(key,name,key==='gsv'?rpQualityMoney(value/100):formatSalesQuantity(value),value,'rp-quality-normal',rpQualityChange(value,old),rpQualityChangeTone(value,old),compareHint);
  }
  const marginChange=rpNetMarginComparison(now.profitRate,before.profitRate);
- add('margin','净利润率',upPercent(now.profitRate),now.profitRate,'rp-quality-normal',marginChange.target,marginChange.targetTone,rpLossMarginHint+'环比＝本期净利润率－上期净利润率，以%展示。涨绿降红，不设10%灰色区间；持平和缺失灰色。');
+ add('margin','净利润率',upPercent(now.profitRate),now.profitRate,'rp-quality-normal',marginChange.target,marginChange.targetTone,rpLossMarginHint+'环比增长率＝（本期净利润率－上期净利润率）÷上期净利润率绝对值×100%。涨绿降红，不设10%灰色区间；持平和无可比数据灰色。');
  const loss=Math.min(0,now.profitCents),previousLoss=Math.min(0,before.profitCents);
  // 主值保留负号；环比比较亏损绝对值，减亏为下降，增亏为上涨。
  const lossChange=rpLossAmountComparison(current.gsvCents>0?loss:null,previous.gsvCents>0?previousLoss:null);

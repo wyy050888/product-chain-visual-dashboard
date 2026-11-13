@@ -1,9 +1,12 @@
 import vm from 'node:vm';
-import {readAiPrompts} from '../ai-strategy-prompts.mjs';
+import {readPrototypeAiPrompts} from '../prototype-ai-prompts.mjs';
 import fs from 'node:fs';
 const definitions=fs.readFileSync(new URL('../../src/modules/business-rules/00-definitions.js',import.meta.url),'utf8');
+export const salesQuantityFormatter=fs.readFileSync(new URL('../../src/modules/core/01.js',import.meta.url),'utf8').match(/^function formatSalesQuantity\([^]*?^}/m)[0];
 export function businessRuleContext(environment={}){
- const context=vm.createContext({dashboardAiPrompts:readAiPrompts(),...environment});vm.runInContext(definitions,context);
+ const context=vm.createContext({dashboardAiPrompts:readPrototypeAiPrompts(),...environment});vm.runInContext(definitions,context);
+ vm.runInContext(salesQuantityFormatter,context);
+ vm.runInContext(fs.readFileSync(new URL('../../src/modules/period/00-rate-growth.js',import.meta.url),'utf8'),context);
  if(typeof context.brcNumber!=='function')vm.runInContext('function brcNumber(key){return brcDefaults[key]}',context);
  for(const file of ['00-refurb-cycle.js','00-condition-catalog.js','00-condition-math.js','00-score-rules.js','00-grade-scale.js','00-condition-runtime.js','00-result-groups.js','01-validation.js','01-success-periods.js'])vm.runInContext(fs.readFileSync(new URL('../../src/modules/business-rules/'+file,import.meta.url),'utf8'),context);
  return context;

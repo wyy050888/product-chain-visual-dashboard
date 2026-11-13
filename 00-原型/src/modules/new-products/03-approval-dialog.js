@@ -4,15 +4,15 @@ function nspApprovalPeriodLabel(assessment){const range=nspApprovalPeriodRange(a
 function nspApprovalActions(product,assessment){
  const fact=product.successAssessment;
  const action=fact.approval?'revoke':!fact.success?'approve':'';
- return '<span class="nsp-assessment-actions"><button type="button" class="link" data-nsp-assess-product="'+esc(product.spuId)+'">查看</button>'
-  +(action?'<button type="button" class="link" data-nsp-approval="'+action+'" data-nsp-approval-spu="'+esc(product.spuId)+'" aria-label="'+esc((action==='approve'?'特批成功':'撤销特批')+' '+product.name+' '+nspApprovalPeriodLabel(assessment))+'">'+(action==='approve'?'特批成功':'撤销特批')+'</button>':'')+'</span>';
+ return '<span class="nsp-assessment-actions">'+nspSpuPicker(product,true)
+  +(action?'<button type="button" class="link" data-nsp-approval="'+action+'" data-nsp-approval-spu="'+esc(product.spuId)+'" aria-label="'+esc((action==='approve'?'特批成功':'撤销特批')+' '+product.shortName+' '+nspApprovalPeriodLabel(assessment))+'">'+(action==='approve'?'特批成功':'撤销特批')+'</button>':'')+'</span>';
 }
 function nspOpenApproval(product,assessment,revoke,trigger,onSaved){
  nspApprovalDialog?.close();
  const approval=product.successAssessment.approval,title=revoke?'撤销特批':'特批成功',dialog=document.createElement('dialog');
  dialog.className='nsp-approval-dialog';dialog.setAttribute('aria-labelledby','nsp-approval-title');
  dialog.innerHTML='<form novalidate><header><h3 id="nsp-approval-title">'+title+'</h3><button type="button" class="btn small" data-nsp-approval-close aria-label="关闭'+title+'">×</button></header><div class="nsp-approval-body">'
-  +'<dl><dt>产品</dt><dd>'+esc(product.name)+'</dd><dt>考核期间</dt><dd>'+esc(nspApprovalPeriodLabel(assessment))+'</dd></dl>'
+  +'<dl><dt>产品简称</dt><dd>'+esc(product.shortName)+'</dd><dt>考核期间</dt><dd>'+esc(nspApprovalPeriodLabel(assessment))+'</dd></dl>'
   +(revoke?'<p class="nsp-approval-reason">特批原因：'+esc(approval?.reason||'—')+'</p><p>撤销后按实际考核结果重新判定。</p>':'<label>特批原因 <span class="red">*</span><textarea name="reason" aria-label="特批原因" required maxlength="500" rows="3"></textarea></label>')
   +'<p class="nsp-approval-error" role="alert" data-nsp-approval-error></p></div><footer><button type="button" class="btn" data-nsp-approval-close>取消</button><button type="submit" class="btn primary">'+(revoke?'确认撤销':'确认特批')+'</button></footer></form>';
  const root=trigger.closest('.nsp-assessment');

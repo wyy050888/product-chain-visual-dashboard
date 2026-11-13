@@ -22,13 +22,8 @@ function ipRenderBrandShareTooltip(host,help){
  const card=help.closest('[data-ip-brand-chart]'),name=help.dataset.ipBrandArc;
  const row=[...card.querySelectorAll('[data-ip-share-brand]')].find(node=>node.dataset.ipShareBrand===name);
  if(!row)return;
- const append=(parent,tag,text,klass='')=>{const node=document.createElement(tag);if(text)node.textContent=text;if(klass)node.className=klass;parent.append(node);return node};
- const head=append(host,'div','','ip-share-tip-head');
- const brand=append(head,'div','','ip-share-tip-brand'),dot=append(brand,'i','');dot.style.background=help.getAttribute('stroke');dot.setAttribute('aria-hidden','true');
- append(brand,'strong',name);
- const metrics=append(host,'dl','','ip-share-tip-metrics');
- for(const [label,value,unit] of [['货值',fmt(Number(row.dataset.value)/1000000,2),'万元'],['占比',fmt(Number(row.dataset.share),1)+'%','']]){
-  const line=append(metrics,'div','');append(line,'dt',label);
-  const data=append(line,'dd','');append(data,'b',value);if(unit)append(data,'small',unit);
- }
+ renderBrandShareTooltip(host,name,help.getAttribute('stroke'),[
+  ['货值',fmt(Number(row.dataset.value)/1000000,2),'万元'],
+  ['占比',fmt(Number(row.dataset.share),1)+'%']
+ ]);
 }

@@ -1,3 +1,4 @@
+import {openNewProductSpu} from './new-products-detail.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {fileURLToPath} from 'node:url';
@@ -101,7 +102,7 @@ export async function pagination(page){
  await page.getByRole('button',{name:'查看季度考核',exact:true}).click();
  await verifyPager(page,'[data-nsp-assessment-pages]','[data-nsp-assessment-table] tbody tr');
  const before=await page.locator('[data-nsp-assessment-pages] .list-pagination').getAttribute('data-list-current');
- await page.locator('[data-nsp-assess-product]').first().click();await page.locator('.up-detail').waitFor();await page.locator('#close').click();
+ await openNewProductSpu(page.locator('[data-nsp-assess-product]').first());await page.locator('.up-detail').waitFor();await page.locator('#close').click();
  assert.equal(await page.locator('[data-nsp-assessment-pages] select.list-page-size').inputValue(),'50');
  assert.equal(await page.locator('[data-nsp-assessment-pages] .list-pagination').getAttribute('data-list-current'),before);
  await page.locator('#close').click();

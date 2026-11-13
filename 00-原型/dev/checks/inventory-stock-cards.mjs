@@ -27,7 +27,7 @@ export async function verifyInventoryCards(page){
 
 
  const root=page.locator('#inventory'),cards=root.locator('.stock-overview-cards'),data=await page.evaluate(()=>inventoryControlAudit()),b=data.balance;
- assert.deepEqual(await cards.locator('h4').allTextContents(),['总库存','我司可售库存','工厂可售库存','在途库存','库存周转率','交付及时率','翻新闭环率']);
+ assert.deepEqual(await cards.locator('h4').allTextContents(),['总库存','我司可售库存','工厂可售库存','在途库存','库存周转率','交付及时率','爆款断货次数','翻新闭环率']);
  assert.equal(b.sellableUnits,b.warehouse+b.factoryAvailable+b.transit);
  assert.equal(b.totalUnits,b.sellableUnits+b.factoryInspection+b.factoryDefective+b.factoryUnrefurbished+b.purchaseOpen,'完整库存组成互斥且守恒');
  assert.equal(b.seasons.reduce((n,r)=>n+r.units,0),b.sellableUnits);assert.equal(b.seasons.reduce((n,r)=>n+r.valueCents,0),b.sellableValueCents);
@@ -73,5 +73,53 @@ export async function verifyInventoryCards(page){
   }
  }
  await page.setViewportSize({width:1920,height:1080});
- console.log('通过：库存七卡保留原六网格位置、周转与交付独立、组成/货值守恒、独立呆滞分布图、问号口径、响应式布局');
+ await verifyStockout(page);
+ console.log('通过：库存八卡保留原六网格位置、周转与交付独立、组成/货值守恒、独立呆滞分布图、问号口径、响应式布局');
+}
+
+async function verifyStockout(page){
+ const products=['valid','C','clearance','delisted','noSales','nonzero'].map(spuId=>({spuId,name:spuId}));
+ const ctx=vm.createContext({
+  DATA_CUTOFF:'2026-11-12',upIdentity:row=>row,upProduct:row=>({...row,state:row.spuId==='delisted'?'下市':'在售'}),
+  ipSnapshotDate:()=>true,rpShortageExcluded:row=>row.spuId==='clearance',
+  upSellableStock:row=>({dailyNet15:row.spuId==='noSales'?0:1}),
+  kpmGradeAssessment:row=>({level:row.spuId==='C'?'C':'A'}),
+  targetSum:values=>values.reduce((sum,value)=>sum+value,0)
+ });
+ vm.runInContext(readFileSync(new URL('../../src/modules/inventory-period/02-stockout.js',import.meta.url),'utf8'),ctx);
+ const snapshots=products.map(({spuId})=>({spuId,date:'2026-11-05',warehouse:spuId==='nonzero'?2:0}));
+ snapshots.push(snapshots[0],{...snapshots[0],date:'2026-11-09'},{...snapshots[0],date:'2026-10-31'});
+ const model=ctx.ipStockoutModel(products,{start:'2026-11-01',cutoff:'2026-11-12'},snapshots);
+ assert.equal(model.count,2);
+ assert.deepEqual(Array.from(model.rows,row=>[row.spuId,...row.dates]),[['valid','2026-11-09','2026-11-05']]);
+
+ const cards=page.locator('#inventorymetrics'),time=page.locator('#inventory [data-ip-period-host="overview"]');
+ const audit=()=>page.evaluate(()=>inventoryControlAudit().overview);
+ const initial=await audit(),tip=page.locator('#metric-tooltip');
+ await cards.locator('[data-ip-overview-help="delivery"]').hover();
+ assert.equal(await tip.locator('strong').innerText(),'（人工导入）');
+ assert.match(await tip.innerText(),/考核期内的已交付量.*考核期内的采购总量/s);
+ assert.equal(initial.delivery,(initial.deliveryOn+initial.importedStock)/initial.deliveryDue*100);
+ await cards.locator('[data-ip-overview-help="stockout"]').hover();
+ assert.equal(await tip.innerText(),'非C级品、非清仓品、非下市品，近15天日均净销＞0 且 我司可售库存为0的次数');
+ await page.keyboard.press('Escape');
+ await cards.locator('[data-ip-stockout-open]').click();
+ const drawer=page.locator('.ip-stockout-drawer'),drawerTime=drawer.locator('[data-ip-stockout-period]');
+ assert.deepEqual(await drawer.locator('th').allTextContents(),['产品名称','断货次数','断货日期']);
+ const rows=await drawer.locator('tbody tr').evaluateAll(nodes=>nodes.map(row=>[row.querySelector('strong').textContent,...Array.from(row.querySelectorAll('time'),time=>time.dateTime)]));
+ assert.deepEqual(rows,initial.stockout.rows.map(row=>[row.name,...row.dates]),'同一产品的多天断货展示在同一单元格');
+ await drawerTime.locator('[data-ip-time-mode="month"]').click();
+ await drawerTime.locator('[data-ip-time-value]').selectOption('11');
+ let current=await audit();
+ assert.equal(current.metricPeriod.value,11);
+ assert.equal(await time.locator('[data-ip-time-value]').inputValue(),'11','抽屉修改时间同步外部筛选');
+ assert.equal(await drawer.locator('time').count(),current.stockout.count);
+ await drawerTime.locator('[data-ip-time-value]').selectOption('9');
+ current=await audit();
+ assert.equal(current.stockout.count,0);
+ assert.equal(await cards.locator('[data-ip-stockout-open]').count(),0);
+ assert.match(await drawer.innerText(),/暂无断货产品/);
+ await page.locator('#close').click();
+ await time.locator('[data-ip-time-mode="'+initial.metricPeriod.mode+'"]').click();
+ await time.locator('[data-ip-time-value]').selectOption(String(initial.metricPeriod.value));
 }

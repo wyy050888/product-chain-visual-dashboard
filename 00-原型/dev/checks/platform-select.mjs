@@ -1,3 +1,4 @@
+import {openNewProductSpu} from './new-products-detail.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 const root=new URL('../../',import.meta.url),platforms=['抖音','快手','视频号','天猫','京东','拼多多'];
@@ -54,7 +55,7 @@ export async function platformSelect(page){
  await numeric.click();assert.equal(await panel().locator('[data-ui-platform-value="3"] img').count(),1,'动态选项无需重新进入页面');
  await page.keyboard.press('Escape');await fixture.evaluate(n=>n.remove());
  // 原有产品抽屉仍沿用图标按钮组，不重复出现两套平台选择。
- await page.locator('#newtable [data-nsp-view]').first().click();await page.locator('.up-detail').waitFor();
+ await openNewProductSpu(page.locator('#newtable [data-nsp-view]').first());await page.locator('.up-detail').waitFor();
  await page.waitForFunction(()=>document.querySelector('#up-platform')?.hasAttribute('data-platform-enhanced'));
  assert.equal(await page.locator('#dialogbody .drawer-platform-switch .platform-mark').count(),6);
  assert.equal(await page.locator('#dialogbody #up-platform').getAttribute('data-ui-platform-select'),null);

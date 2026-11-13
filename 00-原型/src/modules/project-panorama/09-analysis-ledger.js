@@ -3,11 +3,10 @@ const ppAnalysisState={department:ppDepartments[0],mode:'all',page:1,sort:{key:'
 function ppAnalysisPageSize(){return listPageSize('pp-analysis')}
 function ppAnalysisSelection(rows,department=ppAnalysisState.department,mode=ppAnalysisState.mode){
  const facts=ppAnalysisDepartment(rows,department),group=facts.top.find(item=>item.key===mode);
- const highIds=new Set(facts.high.map(project=>project.id));
- const metricRecords=facts.records.filter(entry=>entry.risk.status!=='已闭环'&&ppAnalysisRiskLights.includes(entry.risk.light));
- const records=group?group.records:mode==='high'?metricRecords.filter(entry=>highIds.has(entry.project.id)):mode==='red'?metricRecords.filter(entry=>entry.project.status==='红灯'):facts.records;
+ const light=({red:'红灯',yellow:'黄灯'})[mode];
+ const records=group?group.records:light?facts.activeRecords.filter(entry=>entry.project.status===light):facts.records;
  // 全局条件改变后，已不存在的根因回到全部台账。
- if(department===ppAnalysisState.department&&mode===ppAnalysisState.mode&&!group&&!['all','red','high'].includes(mode)){ppAnalysisState.mode='all';ppAnalysisState.page=1}
+ if(department===ppAnalysisState.department&&mode===ppAnalysisState.mode&&!group&&!light&&mode!=='all'){ppAnalysisState.mode='all';ppAnalysisState.page=1}
  return {facts,group,records};
 }
 function ppAnalysisLedgerRows(selection){return ppRiskSorted(ppRiskFiltered(selection.records,ppAnalysisState.filters,ppAnalysisRiskLights),ppAnalysisState.sort)}

@@ -1,4 +1,3 @@
-@media(max-width:1100px) and (min-width:701px){#projects.pp-main #pp-overview{grid-template-columns:repeat(2,minmax(0,1fr))}}
 #projects.pp-main #pp-overview .pp-card-head h3{font-size:14px;line-height:1.4}
 #projects.pp-main #pp-overview .pp-card-head>span{line-height:1.5}
 
@@ -6,19 +5,16 @@
 #projects.pp-main .pp-dept-risk-row{cursor:default}
 #projects.pp-main .pp-dept-risk-row .pp-bar-label{border:0;background:transparent;padding:0;text-align:left;font:inherit;font-size:11px;color:inherit;cursor:pointer}
 #projects.pp-main .pp-dept-risk-row .pp-risk-segment{min-width:0;min-height:0;height:100%;padding:0;border:0;border-radius:0;cursor:pointer}
-#projects.pp-main .pp-dept-risk-row .pp-risk-counts{display:flex;align-items:center;justify-content:flex-end;gap:3px;min-width:52px;white-space:nowrap}
 #projects.pp-main .pp-risk-counts>button{padding:1px 2px;border:0;background:transparent;font:inherit;font-size:11px;cursor:pointer}
-#projects.pp-main .pp-risk-counts>span{color:#a8b3c3}
+#projects.pp-main .pp-risk-count-separator{color:#a8b3c3;white-space:pre}
 #projects.pp-main .pp-dept-risk-row button:focus-visible{outline:2px solid #1677ff;outline-offset:1px}
 #projects.pp-main .pp-risk-counts>button[aria-pressed=true]{background:#e4efff;border-radius:3px}
 
-@media(max-width:700px){#projects.pp-main #pp-overview{grid-template-columns:minmax(0,1fr)}}
-
 /* 业务分区以标题和间距组织；图表共用高度，不再逐卡套框。 */
-#projects.pp-main .pp-layout{grid-template-columns:minmax(0,1fr);gap:24px;padding:0 18px}
-/* 两图共用列头与行高；条带统一加高至20px，保持灯色与数量对齐。 */
-#projects.pp-main #pp-overview{--pp-chart-row-height:40px;--pp-chart-count-width:38px;--pp-chart-head-height:32px;--pp-chart-data-height:calc(var(--pp-chart-head-height) + var(--pp-chart-row-height)*5);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:stretch}
-#projects.pp-main #pp-overview>.pp-card{min-width:0;position:relative;padding:14px;border-radius:0;display:grid;grid-template-rows:32px 32px var(--pp-chart-data-height);gap:10px;flex:none;border:0;background:#fff;box-shadow:none}
+#projects.pp-main .pp-layout{grid-template-columns:minmax(0,1fr);gap:16px;padding:0 18px}
+/* 两张条形图等宽，风险事件表使用较窄的独立列。 */
+#projects.pp-main #pp-overview{--pp-chart-row-height:40px;--pp-chart-label-width:76px;--pp-chart-count-width:38px;--pp-chart-head-height:32px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr)) clamp(248px,19%,344px);gap:16px;align-items:stretch}
+#projects.pp-main #pp-overview>.pp-card{min-width:0;position:relative;padding:14px 14px 8px;border-radius:0;display:grid;grid-template-rows:44px 32px auto;align-content:start;gap:8px;flex:none;border:0;background:#fff;box-shadow:none}
 #projects.pp-main .pp-overview-section{min-width:0}
 #projects.pp-main .pp-section-title{margin:0 0 14px;color:#203951;font-size:16px;font-weight:700;line-height:26px}
 #projects.pp-main .pp-details-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
@@ -36,43 +32,38 @@
 #projects.pp-main #pp-overview .pp-card-tools{display:grid;grid-template-rows:32px;min-width:0}
 #projects.pp-main #pp-overview .pp-tabs{height:32px;min-height:0;flex:none;margin:0;padding:2px;background:#f5f7fa;border-radius:5px}
 #projects.pp-main #pp-overview .pp-tabs button{padding:5px 2px;font-size:12px;line-height:18px;box-shadow:none}
-#projects.pp-main #pp-overview .pp-chart-body{min-width:0;display:grid;grid-template-rows:var(--pp-chart-head-height) minmax(0,1fr)}
-#projects.pp-main #pp-overview .pp-chart-columns{display:grid;grid-template-columns:62px minmax(0,1fr);gap:8px;align-items:center;min-width:0;border-radius:0;border-bottom:1px solid #f1f4f8;background:transparent;color:#8190a5;font-size:12px;font-weight:400;line-height:20px;white-space:nowrap}
+#projects.pp-main #pp-overview .pp-chart-body{min-width:0;display:grid;grid-template-rows:var(--pp-chart-head-height) auto}
+#projects.pp-main #pp-overview .pp-chart-columns{display:grid;grid-template-columns:var(--pp-chart-label-width) minmax(0,1fr);gap:8px;align-items:center;min-width:0;border-radius:0;border-bottom:1px solid #f1f4f8;background:transparent;color:#8190a5;font-size:12px;font-weight:400;line-height:20px;white-space:nowrap}
 #projects.pp-main #pp-overview .pp-chart-columns-line{display:flex;align-items:center;gap:8px;min-width:0}
 #projects.pp-main #pp-overview .pp-chart-column-bar{flex:1;min-width:0}
 /* 列头只保留小色点，灯色不再铺满文字；数字列仍按原规则着色。 */
 #projects.pp-main #pp-overview .pp-chart-columns .pp-chart-count-head b{display:flex;align-items:center;justify-content:flex-end;gap:2px;font:inherit;font-size:12px;font-weight:400;color:#8190a5;text-align:right}
 #projects.pp-main #pp-overview .pp-chart-count-head b::before{content:"";flex:none;width:3px;height:3px;border-radius:50%;background:var(--pp-column-dot);opacity:.65}
-#projects.pp-main #pp-overview .pp-chart-count-head .pp-high-risk{--pp-column-dot:var(--red-high)}
 #projects.pp-main #pp-overview .pp-chart-count-head .red{--pp-column-dot:var(--red)}
 #projects.pp-main #pp-overview .pp-chart-count-head .orange{--pp-column-dot:var(--orange-fill)}
 #projects.pp-main #pp-overview .pp-chart-count-head .green{--pp-column-dot:var(--pp-green-fill,var(--green))}
-#projects.pp-main #pp-overview .pp-bars{display:grid;grid-template-rows:repeat(5,var(--pp-chart-row-height));flex:none;gap:0;justify-content:stretch}
-#projects.pp-main #pp-overview .pp-bars>.pp-link{display:grid;grid-template-columns:62px minmax(0,1fr);align-items:center;gap:8px;padding:3px 0;min-height:0;margin:0}
-#projects.pp-main #pp-overview .pp-bar-label{font-size:13px;margin:0;line-height:20px;color:#49617c}
+#projects.pp-main #pp-overview .pp-bars{display:grid;grid-auto-rows:var(--pp-chart-row-height);flex:none;gap:0;justify-content:stretch}
+#projects.pp-main #pp-overview .pp-bars>.pp-link{display:grid;grid-template-columns:var(--pp-chart-label-width) minmax(0,1fr);align-items:center;gap:8px;padding:3px 0;min-height:0;margin:0}
+#projects.pp-main #pp-overview .pp-bar-label{font-size:13px;margin:0;line-height:20px;color:#49617c;white-space:nowrap}
 #projects.pp-main #pp-overview .pp-bar-line{gap:8px;min-width:0}
 #projects.pp-main #pp-overview .pp-track{height:20px;border-radius:4px;background:#f1f4f8}
-#projects.pp-main #pp-overview .pp-distribution .pp-distribution-counts{display:grid;grid-template-columns:repeat(4,var(--pp-chart-count-width));flex:none;min-width:calc(var(--pp-chart-count-width)*4);font-size:13px;line-height:20px;font-variant-numeric:tabular-nums}
+#projects.pp-main #pp-overview .pp-distribution .pp-distribution-counts{display:grid;grid-template-columns:repeat(3,var(--pp-chart-count-width));flex:none;min-width:calc(var(--pp-chart-count-width)*3);font-size:13px;line-height:20px;font-variant-numeric:tabular-nums}
 #projects.pp-main #pp-overview .pp-distribution-counts b{text-align:right;font-size:inherit;font-weight:500}
-#projects.pp-main #pp-overview .pp-dept-options{margin:0;gap:4px;height:28px;flex:1;max-width:280px;min-width:0}
-#projects.pp-main #pp-overview .pp-dept-options button{padding:4px 1px;font-size:12px;line-height:18px;border-color:transparent;background:transparent}
-#projects.pp-main #pp-overview .pp-dept-options button[aria-pressed=true]{background:#edf4ff;border-color:transparent}
-@media(max-width:600px){#projects.pp-main #pp-overview>.pp-card{grid-template-rows:auto 32px var(--pp-chart-data-height)}#projects.pp-main #pp-overview .pp-card-head{height:auto;flex-wrap:wrap}#projects.pp-main #pp-overview .pp-dept-options{flex-basis:100%;max-width:none}}
-#projects.pp-main #pp-overview .pp-risk-counts{display:grid;grid-template-columns:repeat(2,var(--pp-chart-count-width));gap:0;min-width:calc(var(--pp-chart-count-width)*2)}
-#projects.pp-main #pp-overview .pp-risk-counts>span{display:none}
+#projects.pp-main #pp-overview .pp-risk-counts{display:grid;grid-template-columns:1fr max-content 1fr;align-items:center;flex:0 0 76px;white-space:nowrap}
+#projects.pp-main #pp-overview .pp-risk-counts>.pp-risk-count-separator{font-size:12px}
 #projects.pp-main #pp-overview .pp-risk-counts>button{padding:0;text-align:right;font-size:13px;line-height:20px;font-weight:500;font-variant-numeric:tabular-nums}
+#projects.pp-main #pp-overview .pp-risk-counts>button.orange{text-align:left}
+#projects.pp-main #pp-overview .pp-risk-counts.pp-chart-count-head .orange{justify-content:flex-start;text-align:left}
 #projects.pp-main .pp-filters{display:flex;align-items:center;gap:10px;overflow-x:auto;padding:3px 0 8px;margin-bottom:8px}
 #projects.pp-main .pp-filter-row{grid-template-columns:minmax(260px,1.5fr) minmax(210px,1.1fr) minmax(190px,1fr) minmax(140px,.8fr) minmax(150px,.85fr) minmax(190px,1fr);gap:10px;min-width:1190px;flex:1 0 1190px}
 #projects.pp-main .pp-filter-row>.ui-search-field{grid-column:auto}
 #projects.pp-main .pp-filters>.pp-reset{flex:none;min-width:44px;white-space:nowrap}
 #projects.pp-main .pp-filter-row .pf-multi-menu[popover]{position:fixed;inset:auto;margin:0;max-width:calc(100vw - 16px)}
 #projects.pp-main .pp-light-tabs{margin-bottom:12px}
-/* 明细只承载两行内容；长字段截断，不让单条项目把整行撑高。 */
+/* 表格行随项目名称、报价和风险描述的实际内容增高。 */
 #projects.pp-main .pp-table td{height:72px;padding:12px 14px;line-height:20px}
-#projects.pp-main #pp-table-scroll :is(td>.pp-wrap,.pp-cell-lines){display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;max-height:40px;line-height:20px;overflow:hidden;overflow-wrap:anywhere;white-space:normal}
-#projects.pp-main #pp-table-scroll .pp-product b{display:block;max-height:20px;line-height:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#projects.pp-main #pp-table-scroll :is(.pp-wrap,.pp-cell-lines,.pp-product b){display:block;-webkit-line-clamp:none;max-height:none;line-height:20px;overflow:visible;overflow-wrap:anywhere;white-space:normal}
 #projects.pp-main #pp-table-scroll :is(.pp-product small,.pp-root-cause small){margin-top:4px;line-height:18px;white-space:nowrap}
-#projects.pp-main #pp-table-scroll .pp-root-cause>.pp-wrap{display:block;width:100%;max-height:20px;line-height:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #projects.pp-main #pp-table-scroll .pp-plan-dates{gap:4px;line-height:20px}
 #projects.pp-main #pp-table-scroll .pp-plan-dates small{margin:0;line-height:18px}
 #projects.pp-main .pp-table>tbody>tr:nth-child(even)>td{background:#fafcff}
@@ -81,6 +72,11 @@
 #projects.pp-main .pp-table .pp-product>:is(img,.pp-placeholder){width:44px;height:44px}
 #projects.pp-main .pp-table .pp-product b{font-size:13px}
 #projects.pp-main .pp-table .pp-product small{font-size:11px}
+@media(max-width:1360px){
+ #projects.pp-main #pp-overview{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #projects.pp-main #pp-overview>.pp-events{grid-column:1/-1}
+ #projects.pp-main #pp-overview>.pp-events::before{display:none}
+}
 @media(max-width:1200px){
  #projects.pp-main #pp-overview{grid-template-columns:minmax(0,1fr);gap:16px}
  #projects.pp-main #pp-overview>.pp-card::before{display:none}
@@ -88,7 +84,6 @@
 @media(max-width:700px){
  #projects.pp-main .pp-layout{padding:0 12px;gap:16px}
  #projects.pp-main #pp-overview{grid-template-columns:minmax(0,1fr);gap:12px}
- #projects.pp-main #pp-overview>.pp-card{padding:14px}
  #projects.pp-main #pp-overview>.pp-card::before{display:none}
 }
 
@@ -104,7 +99,7 @@
 #projects.pp-main .pp-scope-tabs .pp-scope-group button.active>span{background:#dfeaff;color:#2169ce}
 @media(max-width:1400px){#projects.pp-main .pp-scope-tabs #pp-category-tabs{flex-basis:100%;border-left:0;padding-left:0}}
 
-#projects.pp-main .pp-summary-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;min-width:0;margin-bottom:10px}
+#projects.pp-main .pp-summary-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;min-width:0;margin-bottom:10px}
 #projects.pp-main .pp-summary-card{--pp-summary-color:#314c70;--pp-summary-line:#b6c3f5;display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:22px 36px;align-content:center;align-items:center;gap:10px 14px;min-width:0;min-height:112px;padding:16px 18px;text-align:left;border:1px solid transparent;border-radius:8px;background:#f7f9fd;color:#314c70;cursor:pointer}
 #projects.pp-main .pp-summary-card:hover{background:#f1f5fc}
 #projects.pp-main .pp-summary-card.active{border-color:var(--pp-summary-line);background:#f3f5ff}
@@ -116,31 +111,59 @@
 #projects.pp-main .pp-summary-count b,#projects.pp-main .pp-summary-rate{font-size:28px;line-height:36px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--pp-summary-color)}
 #projects.pp-main .pp-summary-unit{font-size:var(--type-secondary-kpi);font-weight:var(--weight-regular);line-height:1.25;color:var(--pp-summary-color)}
 #projects.pp-main .pp-summary-rate{text-align:right}
-#projects.pp-main .pp-summary-high{--pp-summary-color:var(--red-high);--pp-summary-line:color-mix(in srgb,var(--red-high) 30%,white)}
 #projects.pp-main .pp-summary-red{--pp-summary-color:var(--red);--pp-summary-line:color-mix(in srgb,var(--red) 30%,white)}
 #projects.pp-main .pp-summary-yellow{--pp-summary-color:var(--orange);--pp-summary-line:var(--orange-line)}
-@media(max-width:1000px){#projects.pp-main .pp-summary-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:1000px){#projects.pp-main .pp-summary-cards{grid-template-columns:repeat(2,minmax(0,1fr))}#projects.pp-main .pp-summary-all{grid-column:1/-1}}
 @media(max-width:600px){#projects.pp-main .pp-summary-cards{grid-template-columns:minmax(0,1fr);gap:10px}#projects.pp-main .pp-summary-card{padding:14px 16px;min-height:104px}}
 
 /* 窄屏压缩数量列，表头与数值继续使用同一个列宽。 */
 @media(max-width:600px){#projects.pp-main #pp-overview{--pp-chart-count-width:30px}}
 
-/* 整体灯色占比：高危、普通红灯、黄灯、绿灯互斥排列。 */
+/* 整体灯色占比：红灯、黄灯、绿灯互斥排列。 */
 #projects.pp-main .pp-light-distribution{--pp-green-fill:var(--green);display:flex;width:100%;height:6px;flex:none;overflow:hidden;border-radius:3px;background:#eef2f7;margin:0 0 12px}
 #projects.pp-main .pp-light-segment{display:block;height:100%;flex:none;min-width:0}
 #projects.pp-main .pp-light-segment.pp-unknown{background:#dce3ed}
 
-/* 左右共用等高标题栏；部门按钮留在右侧同一行，窄屏仅按钮条横滚。 */
-#projects.pp-main #pp-overview>.pp-card{grid-template-rows:44px 32px var(--pp-chart-data-height)}
+/* 部门按钮和标题同排，窄屏只滚动按钮区。 */
 #projects.pp-main #pp-overview .pp-card-head{height:44px;min-height:44px;flex-wrap:nowrap;gap:12px}
 #projects.pp-main #pp-overview .pp-card-head h3{flex:none}
-#projects.pp-main #pp-overview .pp-dept-options{display:flex;align-items:center;flex:0 1 auto;min-width:0;max-width:none;height:44px;gap:10px;margin:0;padding-inline:2px;overflow-x:auto;scrollbar-width:thin}
-#projects.pp-main #pp-overview .pp-dept-options button{display:inline-flex;align-items:center;justify-content:center;gap:8px;flex:none;min-height:36px;padding:0 14px;border:1px solid #dfe6ef;border-radius:8px;background:#fff;color:#52627b;font-size:13px;font-weight:400;line-height:20px;transition:background-color .15s,border-color .15s,color .15s}
+#projects.pp-main #pp-overview>.pp-departments{container-type:inline-size}
+#projects.pp-main #pp-overview .pp-dept-options{display:flex;align-items:center;min-width:0;height:44px;gap:8px;margin:0;padding-inline:2px;overflow-x:auto;scrollbar-width:thin}
+#projects.pp-main #pp-overview .pp-dept-options button{display:flex;align-items:center;justify-content:center;flex:1 0 auto;min-height:36px;padding:0 8px;border:1px solid #dfe6ef;border-radius:8px;background:#fff;color:#52627b;font-size:13px;font-weight:400;line-height:16px;transition:background-color .15s,border-color .15s,color .15s}
+#projects.pp-main #pp-overview .pp-departments .pp-dept-options button{flex-direction:column}
+@container(min-width:640px){
+ #projects.pp-main #pp-overview .pp-departments .pp-dept-options{gap:5px}
+ #projects.pp-main #pp-overview .pp-departments .pp-dept-options button{flex-direction:row;gap:4px;padding-inline:5px}
+}
 #projects.pp-main #pp-overview .pp-dept-options button:hover{background:#f7f9fc;border-color:#bdcce0;color:#344c6b}
 #projects.pp-main #pp-overview .pp-dept-options button[aria-pressed=true]{background:#edf4ff;border-color:#9fc1fa;color:#1765d1;font-weight:500}
 #projects.pp-main #pp-overview .pp-dept-options button[aria-pressed=true]:hover{background:#e5efff;border-color:#83b0f4}
 #projects.pp-main #pp-overview .pp-dept-options button:focus-visible{outline:2px solid #83b4ff;outline-offset:2px}
-/* 数量随标签呈现，不再叠加小底框，避免一个选项里出现两层按钮感。 */
-#projects.pp-main #pp-overview .pp-dept-count{display:inline-flex;align-items:center;gap:2px;padding:0;border-radius:0;background:transparent;color:#7d8da5;font-size:12px;font-weight:500;line-height:20px;font-variant-numeric:tabular-nums}
-#projects.pp-main #pp-overview .pp-dept-count>span{font-size:12px;font-weight:400}
+/* 数量和部门名在同一个按钮内。 */
+#projects.pp-main #pp-overview .pp-dept-count{padding:0;border-radius:0;background:transparent;color:#7d8da5;font-size:12px;font-weight:500;line-height:16px;font-variant-numeric:tabular-nums}
 #projects.pp-main #pp-overview [aria-pressed=true] .pp-dept-count{background:transparent;color:inherit}
+@media (min-width:1361px) and (max-width:1540px){
+ #projects.pp-main #pp-overview .pp-dept-options{gap:4px}
+ #projects.pp-main #pp-overview .pp-dept-options button{padding-inline:5px}
+}
+
+#projects.pp-main #pp-overview .pp-events .pp-card-head{gap:6px}
+#projects.pp-main #pp-overview>.pp-events{container-type:inline-size}
+#projects.pp-main .pp-events .risk-date-trigger{flex:0 1 auto;min-width:0}
+#projects.pp-main .pp-events .risk-date-trigger>span{min-width:0;overflow:hidden;text-overflow:ellipsis}
+@container(max-width:260px){
+ #projects.pp-main .pp-event-period-range{display:grid;line-height:13px}
+ #projects.pp-main .pp-events .risk-date-trigger:has(.pp-event-period-range){padding-block:3px}
+}
+#projects.pp-main #pp-overview .pp-events .pp-card-tools{display:flex;align-items:center;gap:8px}
+#projects.pp-main #pp-overview .pp-events .pp-tabs{flex:1;min-width:0}
+#projects.pp-main .pp-events select{height:32px;max-width:100%;padding:0 6px;border:1px solid #d4e0f0;border-radius:5px;background:#fff;color:#52627b;font-size:12px}
+#projects.pp-main .pp-event-table-wrap{align-self:start;border:1px solid #e5ebf4;border-radius:6px}
+#projects.pp-main .pp-event-table-wrap table{width:100%;min-width:0;table-layout:fixed;font-variant-numeric:tabular-nums}
+#projects.pp-main .pp-event-table-wrap :is(th,td){box-sizing:border-box;padding:0 9px;white-space:nowrap}
+#projects.pp-main .pp-event-table-wrap tr>:first-child{width:46%;text-align:left}
+#projects.pp-main .pp-event-table-wrap thead th{height:var(--pp-chart-head-height);font-weight:400}
+#projects.pp-main .pp-event-table-wrap tbody :is(th,td){height:var(--pp-chart-row-height);border-bottom:1px solid #edf1f7}
+#projects.pp-main .pp-event-table-wrap tbody th{background:#fff;color:#49617c;font-weight:400}
+#projects.pp-main .pp-event-table-wrap tbody tr:last-child>*{border-bottom:0}
+#projects.pp-main .pp-event-table-wrap tr>:not(:first-child){text-align:right}

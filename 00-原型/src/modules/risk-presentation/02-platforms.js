@@ -1,6 +1,7 @@
 // 产品违规和退货各自多选平台；店铺独立单选，库存固定公司口径，亏损独立。
 const rpCardPlatformState={value:'all'};
 const rpShopPlatformState={value:'抖音'};
+let rpDeviationPlatform='all';
 // 违规/退货季品各自单选，库存两榜季品联动单选，其余榜独立多选；筛选后取 TOP 6。
 // 两个实时库存榜仅在初始化时按数据日聚焦当季品，重绘不覆盖手动选择。
 function rpStockDefaultSeason(date=DATA_CUTOFF){
@@ -54,7 +55,7 @@ document.addEventListener('keydown',event=>{
  else rpFocusSeasonTag(buttons[next]);
 });
 
-const rpQualityPlatformKinds=[0,6],rpQualityDefaultPlatforms=['抖音','天猫'];
+const rpQualityPlatformKinds=[0,6,8],rpQualityDefaultPlatforms=['抖音','天猫'];
 function rpSetQualityPlatform(kind,platform){
  if(!rpQualityPlatformKinds.includes(kind))return false;
  const selected=pfSelected(platform);if(!selected.every(value=>qrPlatforms.includes(value)))return false;
@@ -63,12 +64,16 @@ function rpSetQualityPlatform(kind,platform){
  // 只更新当前榜；完整榜单继承本榜选择，且持有独立数组，避免回写首页或另一个榜。
  const listPlatform=Array.isArray(platform)?[...platform]:platform;
  if(kind===0){qrState.platform=platform;qrState.listPlatform=listPlatform}
- else{rrState.platform=platform;rfState.listPlatforms[6]=listPlatform}
+ else{
+  if(kind===6)rrState.platform=platform;
+  else rpDeviationPlatform=platform;
+  rfState.listPlatforms[kind]=listPlatform;
+ }
  return true;
 }
 for(const kind of rpQualityPlatformKinds)rpSetQualityPlatform(kind,rpQualityDefaultPlatforms);
 brState.platform=rpShopPlatformState.value;rfState.listPlatforms[1]=rpShopPlatformState.value;
-function rpCardPlatform(k){return k===1?rpShopPlatformState.value:k===0?qrState.platform:k===6?rrState.platform:[3,4].includes(k)?'all':rpCardPlatformState.value}
+function rpCardPlatform(k){return k===1?rpShopPlatformState.value:k===0?qrState.platform:k===6?rrState.platform:k===8?rpDeviationPlatform:[3,4].includes(k)?'all':rpCardPlatformState.value}
 function rpCardDisplayPlatforms(kind){return qrPlatforms.filter(platform=>pfIncludes(rpCardPlatform(kind),platform))}
 function rpPlatformOptions(value,includeAll=true){return [...(includeAll?['all']:[]),...qrPlatforms].map(p=>`<option value="${p}" ${pfOptionSelected(value,p)?'selected':''}>${p==='all'?'全平台':p}</option>`).join('')}
 function rpPlatformValue(control){const selected=pfSelected(pfControlValue(control));return selected.length===0?'all':selected.length===1?selected[0]:selected}
@@ -91,6 +96,7 @@ function rpComputeRowsForPlatform(k,platform){
  if(k===0)return qrRows(platform);
  if(k===1)return brShopRows().filter(r=>pfIncludes(platform,r.channel));
  if(k===6){const before=rrState.platform;rrState.platform=Array.isArray(platform)?'all':platform;try{return rrRows().filter(r=>pfIncludes(platform,r.channel))}finally{rrState.platform=before}}
+ if(k===8)return rpDeviationRows(platform);
  const w=upWindow();
  if(k===2)return rpLossRows(platform);
  if(k===4){
@@ -99,7 +105,10 @@ function rpComputeRowsForPlatform(k,platform){
  if(k===3)return srSeasonFilter(3,rpShortageRows());
  return rfRows(k);
 }
-function rpCardRows(k){return rpRowsForPlatform(k,rpCardPlatform(k)).filter(r=>pfMatches(r,rpCardProductFilters(k)))}
+function rpCardRows(k,platform=rpCardPlatform(k)){
+ const filters=rpCardProductFilters(k);
+ return rpRowsForPlatform(k,platform).filter(row=>pfMatches(row,filters));
+}
 document.addEventListener('change',e=>{
  const select=e.target.closest('#riskrail [data-rp-card-season]');
  if(!select)return;

@@ -3,7 +3,7 @@ function gdTaskPreviewRow(button){
  const row=button.closest('tr[data-gd-task]');return row?.closest('table')?.dataset.columnKey==='gd-ledger-columns-v3'?row:null;
 }
 function gdCellPreview(markup){return '<div class="gd-task-cell" data-ui-cell-inline><div class="gd-task-preview" data-ui-cell-content>'+markup+'</div><button type="button" class="gd-task-more" data-gd-cell-more aria-expanded="false" hidden>展开</button></div>'}
-let gdTaskPreviewObserver=null,gdTaskPreviewFrame=0,gdTaskPreviewSequence=0;
+let gdTaskPreviewObserver=null,gdTaskPreviewSequence=0;
 const gdTaskPreviewAnimations=new WeakMap();
 // 读取最后一个可见文字行的真实末端，避免把入口钉在宽单元格的最右侧。
 function gdReadCellTail(preview,expanded){
@@ -30,25 +30,25 @@ function gdReadCellTail(preview,expanded){
 }
 function gdApplyCellTail(state){
  const {cell,left,top,extra,compact}=state;
- cell.style.setProperty('--gd-toggle-left',left+'px');cell.style.setProperty('--gd-toggle-top',top+'px');
- cell.style.setProperty('--gd-toggle-extra',extra+'px');cell.classList.toggle('is-compact',compact);
+ for(const [key,value] of [['left',left],['top',top],['extra',extra]])if(cell.style.getPropertyValue('--gd-toggle-'+key)!==value+'px')cell.style.setProperty('--gd-toggle-'+key,value+'px');
+ if(cell.classList.contains('is-compact')!==compact)cell.classList.toggle('is-compact',compact);
 }
 function gdMountTaskPreviews(root){
- gdTaskPreviewObserver?.disconnect();cancelAnimationFrame(gdTaskPreviewFrame);
+ gdTaskPreviewObserver?.disconnect();
  const previews=[...root.querySelectorAll('.gd-table-scroll .gd-task-preview')];
- const refresh=()=>{
-  cancelAnimationFrame(gdTaskPreviewFrame);
-  gdTaskPreviewFrame=requestAnimationFrame(()=>{
+ const measure=()=>{
    const states=previews.filter(el=>el.isConnected&&!el.parentElement.classList.contains('is-transitioning')).map(el=>{
     const button=el.parentElement.querySelector('[data-gd-cell-more]'),expanded=button.getAttribute('aria-expanded')==='true',clipped=uiCellClipped(el);
     return {button,expanded,clipped,label:gdTaskPreviewRow(button)?'本行':el.closest('td').dataset.label,tail:expanded||clipped?gdReadCellTail(el,expanded):null};
    });
-   for(const {button,expanded,clipped,label,tail} of states){
+   return ()=>{for(const {button,expanded,clipped,label,tail} of states){
     if(tail)gdApplyCellTail(tail);
-    button.hidden=!expanded&&!clipped;button.setAttribute('aria-label',(expanded?'收起':'展开')+label+'完整内容');
-   }
-  });
+    const hidden=!expanded&&!clipped,text=(expanded?'收起':'展开')+label+'完整内容';
+    if(button.hidden!==hidden)button.hidden=hidden;
+    if(button.getAttribute('aria-label')!==text)button.setAttribute('aria-label',text);
+   }};
  };
+ const refresh=()=>dashboardQueueLayout(root,measure);
  gdTaskPreviewObserver=new ResizeObserver(refresh);
  for(const preview of previews){
   preview.id='gd-task-preview-'+(++gdTaskPreviewSequence);

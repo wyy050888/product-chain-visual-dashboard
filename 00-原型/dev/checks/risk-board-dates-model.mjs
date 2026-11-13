@@ -20,12 +20,14 @@ export function riskBoardDatesModel(){
  vm.runInContext(fs.readFileSync(new URL('../../src/modules/shop-scoring/00-score-history.js',import.meta.url),'utf8'),context);
  const shop={score:4.7,scoreHistory:[{date:'2026-09-30',score:4.1,productScore:4.2},{date:'2026-10-10',score:4.6,productScore:4.9},{date:'2026-10-29',score:5,productScore:5}]};
  assert.equal(context.sbShopScoreAt(shop,'2026-10-28').productScore,4.9);assert.equal(context.sbShopScoreAt(shop,'2026-10-01').score,4.1);assert.equal(context.sbShopScoreAt(shop,'2026-09-01').score,null);
- context.riskRateDelta=(a,b)=>Number.isFinite(a)&&Number.isFinite(b)?a-b:null;context.fmt=(value,digits)=>value.toFixed(digits);
+ vm.runInContext(fs.readFileSync(new URL('../../src/modules/period/00-rate-growth.js',import.meta.url),'utf8'),context);
+ context.fmt=(value,digits)=>value.toFixed(digits);
+ vm.runInContext(fs.readFileSync(new URL('../../src/modules/risk-presentation/01-quality.js',import.meta.url),'utf8'),context);
  vm.runInContext(fs.readFileSync(new URL('../../src/modules/risk-presentation/01-return.js',import.meta.url),'utf8'),context);
- assert.equal(context.rpReturnPeriodComparison(14,10).target,'环比 +4.0%');
- assert.equal(context.rpReturnPeriodComparison(3,0).target,'环比 +3.0%','上期为零仍可计算两期差值');
+ assert.equal(context.rpReturnPeriodComparison(14,10).target,'环比 ↑ 40.0%');
+ assert.equal(context.rpReturnPeriodComparison(3,0).target,'环比 —','上期为零没有可比基数');
  assert.equal(context.rpReturnPeriodComparison(10,14).targetTone,'rp-quality-green');
- assert.equal(context.rpReturnPeriodComparison(10,10.01).target,'环比 持平');
- assert.equal(context.rpReturnPeriodComparison(10,null).target,'环比 --');
+ assert.equal(context.rpReturnPeriodComparison(10,10.001).target,'环比 持平');
+ assert.equal(context.rpReturnPeriodComparison(10,null).target,'环比 —');
  console.log('通过：T−16边界、滚动周、成熟月开放/回退、大小月/闰年/跨年及评分截止日快照。');
 }

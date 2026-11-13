@@ -14,7 +14,6 @@ function ipRenderSummaryHelp(host,help){
  group('库存周转率',['month','quarter','year'].map(key=>[{month:'月度',quarter:'季度',year:'年度'}[key],brcBandRows('turn.'+key).map(r=>r.text),key===mode]));
  group('交付及时率',[['全部周期',brcBandRows('delivery').map(r=>r.text)]]);
  const closure=metricRuleNode(body,'section','','metric-rule-section');metricRuleNode(closure,'h5','翻新闭环率');
- metricRuleNode(closure,'p','周期≤40天的已完成请购单数 ÷ 已完成请购单数 × 100%；包含第40天','metric-rule-note');
- metricRuleNode(closure,'p','翻新完成日期：按先进先出分配良品，累计达到该请购单请购数量时，取对应的质检日期；免检良品取审核日期','metric-rule-note');
- metricRuleNode(closure,'p','按翻新完成日期筛选已完成请购单；翻新周期＝翻新完成日期－报价完结时间，同一请购单只计一次','metric-rule-note');
+ metricRuleNode(closure,'p',ipOverviewRules.refurb.text,'metric-rule-note');
+ metricRuleNode(closure,'p','按采购单下单日期筛选，每单计一次，含未完成单。','metric-rule-note');
 }

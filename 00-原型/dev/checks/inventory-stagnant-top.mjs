@@ -54,7 +54,9 @@ export async function inventoryStagnantTop(page){
  await page.keyboard.press('Escape');
  const ownHeaders=await host.locator('th').allTextContents();
  await page.locator('#riskrail [data-risk="4"]').click();
- const referenceHeaders=await page.locator('#rf-list-table th').allTextContents();assert.deepEqual(ownHeaders,referenceHeaders.filter(name=>name!=='属性'),'Top10除属性外继续复用呆滞榜表头');
+ const referenceHeaders=await page.locator('#rf-list-table th').allTextContents();
+ const originalNames={库存:'呆滞库存',货值:'呆滞货值',最高库龄:'呆滞最高库龄',可售库存:'我司可售库存',可售天数:'我司可售天数'};
+ assert.deepEqual(ownHeaders,referenceHeaders.filter(name=>!['属性','责任渠道'].includes(name)).map(name=>originalNames[name]??name),'Top10保留原指标全名，不展示预警责任渠道');
  await page.keyboard.press('Escape');
  const select=page.locator('#inventory .ip-season-filter select');
  for(const seasons of [['夏季品'],['冬季品'],['夏季品','四季品']]){await select.selectOption(seasons,{force:true});await verify(seasons);await verifyPresentation()}

@@ -21,7 +21,7 @@
 @media(max-width:850px){#inventory .stock-overview-cards,#dialogbody .stock-overview-cards{grid-template-columns:repeat(2,minmax(0,1fr))}.stock-overview-cards .primary strong,#dialogbody .stock-overview-cards .primary strong{font-size:19px}}
 @media(max-width:500px){#inventory .stock-overview-cards,#dialogbody .stock-overview-cards{grid-template-columns:1fr}}
 
-/* 产品库存八卡两行：先展示余额，再展示净销量及三项期间指标。 */
+/* 产品库存先展示总库存和可售库存，再展示净销量及三项期间指标。 */
 #dialogbody .stock-product-scroll{max-width:100%;min-width:0;padding-bottom:2px}
 #dialogbody .stock-overview-cards.stock-product-cards{grid-template-columns:repeat(4,minmax(0,1fr));min-width:0;gap:12px}
 #dialogbody .stock-product-cards .stock-balance-card{padding:12px}
@@ -30,8 +30,10 @@
 #dialogbody .stock-product-cards .stock-card-head>span{font-size:10px}
 #dialogbody .stock-product-cards .stock-card-head h4{font-size:11px;white-space:normal}
 #dialogbody .stock-product-cards .stock-card-pair{gap:6px}
+@media(min-width:901px){
+ #dialogbody .stock-product-cards :is([data-stock-card="total"],[data-stock-card="sellable"]){grid-column:span 2}
+}
 
-#dialogbody .up-stock-sku-table{min-width:2140px}
 #dialogbody .up-stock-sku-table :is(th,td):nth-child(n+3){text-align:right;font-variant-numeric:tabular-nums}
 
 /* 季品条置于卡片标题右侧；数量与金额占比由公共悬浮提示展示。 */
@@ -43,7 +45,7 @@
 .stock-season-aside .stock-season-legend i{width:4px;height:4px}
 .stock-sellable-card>.stock-sellable-value{justify-content:space-between;gap:8px}
 
-/* 总览两行四列：数量、货值分组；详情八卡继续使用独立布局。 */
+/* 总览两行四列：数量与货值分组。 */
 #inventory #inventorymetrics{max-width:100%;overflow:visible;padding:0}
 #inventory .stock-overview-cards{grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;padding:0;background:transparent}
 #inventory .stock-summary-card{position:relative;display:flex;flex-direction:column;min-width:0;height:112px;padding:12px 16px;border:1px solid #e2e9f3;border-radius:8px;background:#f8faff}
@@ -85,11 +87,6 @@
 .stock-refurb-buckets>div{display:flex;flex-direction:column;gap:4px;border-left:2px solid #d4def0;padding-left:7px;min-width:0}
 .stock-refurb-buckets>div:first-child{border-left-color:var(--green)}.stock-refurb-buckets>div:last-child{border-left-color:#f29b73}
 .stock-refurb-buckets span{font-size:10px;color:#8390a5;white-space:nowrap}.stock-refurb-buckets b{font-size:14px;font-weight:500;color:#526b85}
-.metric-tooltip.metric-tooltip-stock-refurb{box-sizing:border-box;width:360px;max-width:calc(100vw - 16px);max-height:calc(100dvh - 16px);overflow:auto;white-space:normal;padding:16px;color:#526b85}
-.metric-tooltip-stock-refurb h4{margin:0 0 10px;font-size:14px;color:#294561}
-.metric-tooltip-stock-refurb .stock-refurb-formula{margin:0 0 12px;color:#1677ff;font-size:13px;font-weight:500;line-height:1.8}
-.metric-tooltip-stock-refurb dl{display:grid;grid-template-columns:58px minmax(0,1fr);gap:10px 12px;margin:0;font-size:12px;line-height:1.8}
-.metric-tooltip-stock-refurb dt{font-weight:600;color:#294561}.metric-tooltip-stock-refurb dd{margin:0}
 @media(max-width:850px){.stock-refurb-buckets{gap:4px}.stock-refurb-buckets>div{padding-left:4px}.stock-refurb-buckets span{font-size:9px}}
 
 .ip-refurb-rate{display:inline-flex;align-items:baseline;gap:8px;white-space:nowrap;border:0;padding:0;background:transparent;color:#1677ff;font:inherit;cursor:pointer;line-height:1.6;font-variant-numeric:tabular-nums}
@@ -118,8 +115,22 @@
 #inventory .stock-stale-distribution-legend strong{font-size:var(--type-data,13px);line-height:18px;font-weight:500;color:#526b85;font-variant-numeric:tabular-nums}
 
 /* 原周转率卡片位置一分为二，共用期间与判灯，其他卡片位置保持。 */
-#inventory .stock-period-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;min-width:0}
+#inventory .stock-period-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;min-width:0}
 #inventory .stock-period-cards .stock-card-head{grid-template-columns:minmax(0,1fr)}
+#inventory .stock-period-cards .stock-card-head h4{white-space:normal;line-height:20px}
+.ip-stockout-entry{display:inline-flex;align-items:baseline;gap:6px;padding:0}
+#dialog.drawer.business-drawer:has(>#dialogbody>.ip-stockout-drawer){width:min(1080px,100vw)}
+.ip-stockout-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.ip-stockout-toolbar .ui-search-field{flex:1 1 220px;max-width:340px}
+.ip-stockout-dates{display:flex;flex-wrap:wrap;gap:4px 12px;font-variant-numeric:tabular-nums}
+.ip-stockout-dates time{white-space:nowrap}
+.ip-stockout-drawer .ip-stockout-table table{min-width:560px}
+.ip-stockout-table :is(th,td):nth-child(2){width:112px}
+@media(min-width:601px) and (max-width:850px){
+ #inventory .stock-period-cards{gap:6px}
+ #inventory .stock-period-cards .stock-summary-card{padding-inline:7px}
+ #inventory .stock-period-cards .primary strong{font-size:16px}
+}
 @media(max-width:600px){#inventory .stock-period-cards{grid-template-columns:minmax(0,1fr);gap:10px}}
 
 #dialogbody .up-stock-period{flex:none;max-width:100%;min-width:0;padding:5px 0}

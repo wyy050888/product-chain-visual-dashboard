@@ -9,16 +9,22 @@ function kpmPageSize(){return listPageSize('matrix-product-pager',10)}
 function kpmRows(){
  const platform=kpmBusinessPlatforms(),range=upWindow(),previousEnd=shiftDate(range.start,-1),previousStart=shiftDate(range.start,-aiFlowDayDiff(range.start,range.end)-1);
  const stockBySpu=upWithRange({start:shiftDate(DATA_CUTOFF,-29),end:DATA_CUTOFF},()=>new Map(inventoryProductLedger().map(r=>[r.spuId,upStockFacts(r)])));
- return productRows(false).map(p=>{
-  const identity=upIdentity(p),observed=upSummary(identity,range.start,range.end,platform),stock=stockBySpu.get(p.spuId)||null;
+ return productRows(false).flatMap(p=>{
+  const identity=upIdentity(p),pool=identity.cohort==='new'?nspPoolStatus(p,range.end):null;
+  if(pool?.inNewPool)return [];
+  const observed=upSummary(identity,range.start,range.end,platform),stock=stockBySpu.get(p.spuId)||null;
   const {gmvCents,refundCents,gsvCents,profitRate,profitCents,sales:units,returned,received,returnRate,receivedRate}=observed;
   const facts={gmvCents,refundCents,gsvCents,profitRate,profitCents,sales:units,returned,received,netSales:units-returned,returnRate,receivedRate};
   const sales=facts.gsvCents/1000000,profit=facts.profitRate,base={...p,sales,profit,guidePriceCents:upProduct(identity).guidePriceCents};
   const assessment=kpmGradeComparison(identity,range.end,platform,periodFor('matrix').mode,range.start),level=assessment.current.level;
+  if(pool&&nspIsInPool(pool.poolExitDate,assessment.previous.end)){
+   assessment.previous={...assessment.previous,level:null,inNewPool:true};
+   assessment.change=level?'new':'pending';
+  }
   const priceStart=shiftDate(range.end,-29),priceFacts=range.start===priceStart?observed:upSummary(identity,priceStart,range.end,platform),priceCents=priceFacts.sales>0?Math.round(priceFacts.gmvCents/priceFacts.sales):null;
   const earlier=upSummary(identity,previousStart,previousEnd,platform),previous={gsvCents:earlier.gsvCents,sales:earlier.sales,returned:earlier.returned,received:earlier.received,returnRate:earlier.returnRate,receivedRate:earlier.receivedRate,netSales:earlier.sales-earlier.returned,profitRate:earlier.profitRate},targets=upReturnTargets({product:identity},{platform,start:range.start,end:range.end});
-  return {...base,returnRate:returnRate??0,receivedRate,units,facts,stock,level,assessment,priceCents,category:pfCategory(p),season:pfIdentity(p).attribute,brand:pfIdentity(p).brand,previous,...targets,
-   state:nspSalesState(p.state,stock),stockRisks:upStockRiskTags(stock)};
+  return [{...base,returnRate:returnRate??0,receivedRate,units,facts,stock,level,assessment,priceCents,category:pfCategory(p),season:pfIdentity(p).attribute,brand:pfIdentity(p).brand,previous,...targets,
+   state:nspSalesState(p.state,stock),stockRisks:upStockRiskTags(stock)}];
  });
 }
 function kpmFilterRows(rows,grade=true,change=true,filters=kpmFilters){

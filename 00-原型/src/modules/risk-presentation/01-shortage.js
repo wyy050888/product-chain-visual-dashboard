@@ -3,7 +3,7 @@ const rpShortageLimits={sellableDays:15,totalDays:45};
 function rpShortageRule(){
  const first=brcStockWarningRuleText('stock.shortage.sellableDays'),second=brcStockWarningRuleText('stock.shortage.totalDays'),active=key=>brcResultKeyActive('stock-shortage-days',key);
  const priority=active('stock.shortage.sellableDays')&&active('stock.shortage.totalDays')?first+'优先于仅'+second+'；同时命中归第一类':active('stock.shortage.sellableDays')?first:active('stock.shortage.totalDays')?second:'按缺货预警条件入榜';
- return ['入榜条件','按SKU、公司库存口径统计；按已保存的且／或条件判断','• '+brcResultText('stock-shortage-warning'),'可售库存＝我司可售库存＋在途库存＋工厂可售库存','可售天数＝可售库存÷近15日均净销量','总可售天数＝总库存÷近15日均净销量','','排序规则','1. '+priority,'2. 按命中天数条件的首项指标升序；未命中天数条件的记录排后','3. 近15日均净销量降序','4. 总库存货值降序'].join('\n');
+ return ['入榜条件','按SKU、公司库存口径统计；按已保存的且／或条件判断','• '+brcResultText('stock-shortage-warning'),'可售库存＝'+rpSellableInventoryFormula,'可售天数＝'+rpSellableDaysFormula,'总可售天数＝总库存÷近15日均净销量','','排序规则','1. '+priority,'2. 按命中天数条件的首项指标升序；未命中天数条件的记录排后','3. 近15日均净销量降序','4. 总库存货值降序'].join('\n');
 }
 function rpShortageExcluded(record,product={}){
  const states=[record.salesState,record.state,record.productState,product.salesState,product.state];

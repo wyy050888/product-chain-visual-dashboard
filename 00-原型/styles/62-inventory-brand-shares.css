@@ -29,14 +29,14 @@
 @media(max-width:380px){#inventory :is(.ip-brand-share-columns,.ip-brand-share-row){grid-template-columns:minmax(68px,1fr) minmax(70px,1fr) 48px;gap:6px}}
 
 /* 浮层挂在body上，字号沿用全局语义，不影响其他指标提示。 */
-#metric-tooltip.metric-tooltip-ip-brand-share{box-sizing:border-box;width:260px;max-width:calc(100vw - 24px);padding:0;border:1px solid #dce6f3;border-radius:10px;background:#fff;box-shadow:0 8px 28px #213b6826;overflow:hidden;white-space:normal;color:var(--color-primary-data);font-size:var(--type-data)}
-.metric-tooltip-ip-brand-share .ip-share-tip-head{padding:12px 14px;background:#f6f9ff;border-bottom:1px solid #e9eef6}
-.metric-tooltip-ip-brand-share .ip-share-tip-brand{display:flex;align-items:center;gap:8px;line-height:1.6}
-.metric-tooltip-ip-brand-share .ip-share-tip-brand>i{width:8px;height:8px;flex:none;border-radius:2px}
-.metric-tooltip-ip-brand-share .ip-share-tip-brand>strong{font-size:var(--type-primary-data);font-weight:var(--weight-heading)}
-.metric-tooltip-ip-brand-share .ip-share-tip-metrics{display:grid;gap:8px;margin:0;padding:12px 14px}
-.metric-tooltip-ip-brand-share .ip-share-tip-metrics>div{display:flex;align-items:baseline;justify-content:space-between;gap:16px}
-.metric-tooltip-ip-brand-share .ip-share-tip-metrics dt{font-size:var(--type-meta);color:#7d8da5}
-.metric-tooltip-ip-brand-share .ip-share-tip-metrics dd{display:inline-flex;align-items:baseline;gap:4px;margin:0;font-variant-numeric:tabular-nums}
-.metric-tooltip-ip-brand-share .ip-share-tip-metrics b{font-size:var(--type-primary-data);font-weight:var(--weight-medium)}
-.metric-tooltip-ip-brand-share .ip-share-tip-metrics small{font-size:var(--type-meta);color:#7d8da5}
+#metric-tooltip.metric-tooltip-brand-share{box-sizing:border-box;width:260px;max-width:calc(100vw - 24px);padding:0;border:1px solid #dce6f3;border-radius:10px;background:#fff;box-shadow:0 8px 28px #213b6826;overflow:hidden;white-space:normal;color:var(--color-primary-data);font-size:var(--type-data)}
+.metric-tooltip-brand-share .ip-share-tip-head{padding:12px 14px;background:#f6f9ff;border-bottom:1px solid #e9eef6}
+.metric-tooltip-brand-share .ip-share-tip-brand{display:flex;align-items:center;gap:8px;line-height:1.6}
+.metric-tooltip-brand-share .ip-share-tip-brand>i{width:8px;height:8px;flex:none;border-radius:2px}
+.metric-tooltip-brand-share .ip-share-tip-brand>strong{font-size:var(--type-primary-data);font-weight:var(--weight-heading)}
+.metric-tooltip-brand-share .ip-share-tip-metrics{display:grid;gap:8px;margin:0;padding:12px 14px}
+.metric-tooltip-brand-share .ip-share-tip-metrics>div{display:flex;align-items:baseline;justify-content:space-between;gap:16px}
+.metric-tooltip-brand-share .ip-share-tip-metrics dt{font-size:var(--type-meta);color:#7d8da5}
+.metric-tooltip-brand-share .ip-share-tip-metrics dd{display:inline-flex;align-items:baseline;gap:4px;margin:0;font-variant-numeric:tabular-nums}
+.metric-tooltip-brand-share .ip-share-tip-metrics b{font-size:var(--type-primary-data);font-weight:var(--weight-medium)}
+.metric-tooltip-brand-share .ip-share-tip-metrics small{font-size:var(--type-meta);color:#7d8da5}

@@ -39,5 +39,5 @@ function sdDiagnosis(m,state){
  if(!leadActions.length&&!actions.length)leadActions.push('按相同口径复查'+(links?'核心链接考核':shop.channel==='视频号'?'经营表现':'评分')+'、去退后销量及新增违规，明确恶化后再安排整改。');
  if(leadActions.length)actions.unshift(owner+'：'+leadActions.join(''));
  const summary=!hasSales?'当前无有效成交记录，先核对经营状态，再决定新增投入。':restrictions&&down?'优先核实限制状态及整改进度，暂缓扩大经营投入。':c.violations?'优先处理违规事项，经营调整以整改结果和有效成交为依据。':links?.red?'优先复核核心链接异常，经营调整以整改结果和有效成交为依据。':score.low?'维持经营，优先改善评分短板，新增投入结合整改和成交表现决定。':down||returnUp?'优先核对有效成交与退货变化，暂缓无依据的投入扩张。':'可维持现有经营节奏，持续监控'+(links?'核心链接考核':shop.channel==='视频号'?'经营表现':'评分')+'、有效成交及违规变化。';
- return {summary,context:'累计GSV '+pfMoneyYuan(c.gsv)+'，累计去退后销量'+fmt(c.netSales)+'；近30日GSV '+pfMoneyYuan(recent.gsv)+'，去退后销量'+fmt(recent.netSales)+'。',dimensions:rows,actions:actions.join('\n'),owner,range:m.range||{start:state.start,end:state.end}};
+ return {summary,context:'累计GSV '+pfMoneyYuan(c.gsv)+'，累计去退后销量'+formatSalesQuantity(c.netSales)+'；近30日GSV '+pfMoneyYuan(recent.gsv)+'，去退后销量'+formatSalesQuantity(recent.netSales)+'。',dimensions:rows,actions:actions.join('\n'),owner,range:m.range||{start:state.start,end:state.end}};
 }

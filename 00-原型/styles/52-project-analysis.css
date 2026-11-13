@@ -17,8 +17,8 @@
 #projects.pp-main .pp-analysis-metrics>button:hover{background:#edf4ff}
 #projects.pp-main .pp-analysis-metrics span{font-size:11px;color:#7b8ba3;white-space:nowrap}
 #projects.pp-main .pp-analysis-metrics strong{font-size:25px;line-height:1.2;font-weight:650;color:#304b6e;font-variant-numeric:tabular-nums}
-#projects.pp-main .pp-analysis-metrics [data-mode="high"] strong{color:var(--red-high)}
 #projects.pp-main .pp-analysis-metrics [data-mode="red"] strong{color:#f0546e}
+#projects.pp-main .pp-analysis-metrics [data-mode="yellow"] strong{color:var(--orange)}
 /* 箭头与悬停反馈提示数字可筛选；风险占比保持静态展示。 */
 #projects.pp-main .pp-analysis-value{display:inline-flex;align-items:baseline;gap:6px;white-space:nowrap}
 #projects.pp-main .pp-analysis-chevron{color:#8a9bb2;font-size:18px;font-style:normal;font-weight:400;line-height:1}

@@ -28,6 +28,7 @@ projectResetButton.onclick=()=>{
   projectStatus='all';
   projectPage=1;
   renderProjects();
+  polishDashboardControls($('#projects'));
 };
 const uiFilterSelector='#newchain,#projectchain,#projecttype,#ai-chain,#ai-department,#ai-owner,.ai-dimension-filters select';
 function polishDashboardControls(root){
@@ -63,15 +64,17 @@ document.addEventListener('keydown',event=>{
     [...(replacement?.children||[])].filter(n=>n.matches('button:not(:disabled)'))[targetIndex]?.focus({preventScroll:true});
   });
 });
-document.addEventListener('change',()=>polishDashboardControls(document.body));
+document.addEventListener('change',event=>{
+  if(event.target.matches?.(uiFilterSelector)&&event.target.parentElement)polishDashboardControls(event.target.parentElement);
+});
 const uiControlsObserver=new MutationObserver(records=>{
   const scopes=new Set();
   for(const record of records){
     if(record.target.closest?.('.metric-help,.metric-tooltip,.portal-header,.ui-year-field'))continue;
     if(record.type==='childList'&&!record.addedNodes.length)continue;
     if(record.type==='childList'&&[...record.addedNodes].every(node=>node.nodeType===1&&node.matches('.ui-column-handle,colgroup,col,.metric-help,.metric-tooltip,.ui-year-field')))continue;
-    const scope=record.target.closest?.('section.section,#dialogbody')||record.target;
-    if(scope.querySelectorAll)scopes.add(scope);
+    const scope=record.type==='attributes'?record.target.parentElement:record.target;
+    if(scope?.querySelectorAll)scopes.add(scope);
   }
   for(const scope of scopes)if(scope.isConnected&&![...scopes].some(parent=>parent!==scope&&parent.contains(scope)))polishDashboardControls(scope);
 });

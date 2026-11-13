@@ -40,7 +40,7 @@ export async function defaultSorts(page){
  await page.locator('#riskrail [data-risk="0"]').click();
  for(const kind of [0,1,2,3,4,6]){
   await page.locator('[data-drawer-tab="ranking-'+kind+'"]').click();
-  if(kind===2||kind===4){await assertDefault(page.locator('.rp-list-table'),kind===2?'loss':'coverage15',kind===2?'asc':'desc',true);}
+  if(kind===2||kind===4){await assertDefault(page.locator('.rp-list-table'),kind===2?'loss':'sellableCoverage15',kind===2?'asc':'desc',true);}
   else{
    assert.equal(await page.locator('[data-rp-default-order]').count(),0);const original=await page.locator('.rp-list-table tbody tr').allTextContents();
    const header=page.locator('.rp-list-table [data-rp-sort]').first();await header.click();await header.click();await header.click();assert.deepEqual(await page.locator('.rp-list-table tbody tr').allTextContents(),original,'复合业务顺序保持');
@@ -48,7 +48,7 @@ export async function defaultSorts(page){
  }
  // 呆滞预警卡片和完整榜单使用同一可售天数次序。
  await page.locator('[data-drawer-tab="ranking-4"]').click();
- const stale=page.locator('.rp-list-table'),index=await stale.locator('[data-rp-sort="coverage15"]').evaluate(e=>e.closest('th').cellIndex);
+ const stale=page.locator('.rp-list-table'),index=await stale.locator('[data-rp-sort="sellableCoverage15"]').evaluate(e=>e.closest('th').cellIndex);
  const amounts=await stale.locator('tbody tr').evaluateAll((rows,i)=>rows.map(row=>{const text=row.cells[i].querySelector('strong').textContent;return Number(text.replace(/[^0-9.+-]/g,''))*(text.includes('w')?10000:1)}),index);assert(amounts.every((n,i)=>!i||amounts[i-1]>=n));
  await page.locator('[data-drawer-tab="ranking-1"]').click();await page.locator('.rp-list-table button').filter({hasText:'查看详情'}).first().click();await assertDefault(page.locator('[data-sd-spu-table]'),'gsvCents','desc',true);await page.locator('.drawer-back').click();
  await page.locator('[data-drawer-tab="ranking-2"]').click();await page.locator('.rp-list-table button').filter({hasText:'查看详情'}).first().click();await page.locator('[data-drawer-tab="stock"]').click();await assertDefault(page.locator('#up-stock-skus'),'totalUnits','desc',true);await page.locator('#close').click();

@@ -30,13 +30,15 @@ function ppAnalysisRiskShare(rows,department){
 }
 function ppAnalysisDepartment(rows,department){
  // 指标沿用未闭环风险口径；共性根因与全部台账使用部门全部风险。
- const facts=ppDepartmentFacts(rows,department,ppAnalysisRiskLights),red=facts.redProjects,high=red.filter(ppHighRisk);
  const seen=new Set(),normalized=filterCatalog.normalizeDepartment(department);
  const records=rows.flatMap(project=>(project.ledger||[]).flatMap((risk,index)=>{
   const key=project.id+':'+(risk.id??index);
   if(!ppDepartmentValues(risk.department).includes(normalized)||seen.has(key))return [];
   seen.add(key);return [{project,risk}];
  }));
+ const activeRecords=records.filter(({risk})=>risk.status!=='已闭环'&&ppAnalysisRiskLights.includes(risk.light));
+ const projects=[...new Map(activeRecords.map(({project})=>[project.id,project])).values()];
+ const red=projects.filter(project=>project.status==='红灯'),yellow=projects.filter(project=>project.status==='黄灯');
  const groups=new Map();
  for(const entry of records){
   const root=String(entry.risk.rootCause||'').trim();if(!root)continue;
@@ -45,5 +47,5 @@ function ppAnalysisDepartment(rows,department){
   const group=groups.get(family.key);group.records.push(entry);group.projects.add(entry.project.id);
  }
  const top=[...groups.values()].sort((a,b)=>b.records.length-a.records.length||b.projects.size-a.projects.size||a.key.localeCompare(b.key)).slice(0,3);
- return {department,red,high,records,groups:[...groups.values()],top,riskShare:ppAnalysisRiskShare(rows,department)};
+ return {department,red,yellow,records,activeRecords,groups:[...groups.values()],top,riskShare:ppAnalysisRiskShare(rows,department)};
 }

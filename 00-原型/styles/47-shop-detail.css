@@ -23,7 +23,7 @@
 .sd-violation-filters>.ui-search-field,.up-violation-filters>.ui-search-field{width:270px;max-width:100%}
 .sd-violation-filters .active{background:#edf5ff;color:#1677ff;border-color:#91bfff}
 .sd-detail [data-sd-violation-table] table{min-width:1400px}.sd-detail [data-sd-violation-table] td{line-height:1.7;vertical-align:top}
-.sd-violation-cell{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;white-space:pre-line;min-width:85px;max-width:230px}
+.sd-violation-cell{white-space:pre-line;overflow-wrap:anywhere;min-width:85px;max-width:230px}
 @media(max-width:700px){#dialogbody .sd-operating-overview{grid-template-columns:1fr}.sd-detail .sd-violation-stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}.sd-detail .up-hero>div{min-width:0}}
 
 /* 顶部右侧评分与卡片取数、配色一致；拼多多替换为两类链接风险。 */

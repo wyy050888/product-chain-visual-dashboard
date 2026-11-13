@@ -6,10 +6,8 @@ function nspAssessmentData(period,cutoff=null,filters={...nspFilters}){
   const range=bounds(period);if(cutoff&&cutoff<range.cutoff)range.cutoff=cutoff;
   const assessment={...nspSuccessPeriod(period),end:range.cutoff};
   const scoped=nspCategoryRows(filters.season,range);
-  const rows=nspFilterRows(scoped,{...filters,success:'all',launchStart:'',launchEnd:''})
-   .filter(p=>p.successAssessment.included&&(!filters.developmentType||filters.developmentType==='all'||p.developmentType===filters.developmentType));
-  const unique=[...new Map(rows.map(p=>[p.spuId,p])).values()];
-  return {period:{...period},assessment,summary:nspSuccessSummary(unique,assessment),rows:unique};
+  const rows=nspFilterRows(scoped,{...filters,success:'all',launchStart:'',launchEnd:''}).filter(p=>p.successAssessment.included);
+  return {period:{...period},assessment,summary:nspSuccessSummary(rows,assessment),rows};
  },'new');
 }
 let nspAssessmentCurrent=null;
@@ -20,7 +18,7 @@ function nspOpenAssessment(initial=null,result='all',mode=null){
  let period=initial||{mode:kind,year:Number(summary.end.slice(0,4)),value:kind==='year'?1:Math.ceil(Number(summary.end.slice(5,7))/3)};
  let cutoff=initial?null:summary.end,page=1,data=null,matrix=null,chain='all',query='',quarter=period.mode==='quarter'?period.value:Math.ceil(Number(summary.end.slice(5,7))/3);
  const matrices=new Map();
- const filters={...nspFilters,developmentType:'all'},sort={key:'gsv',direction:'desc'};
+ const filters={...nspFilters},sort={key:'gsv',direction:'desc'};
  openModal('新品销售成功考核','<div class="nsp-assessment"><div class="nsp-assessment-head-controls" data-nsp-assessment-controls role="group" aria-label="考核筛选"></div><div data-nsp-assessment-summary></div><div class="nsp-assessment-detail-toolbar" data-nsp-assessment-detail-header></div><div class="up-table" data-nsp-assessment-table></div><div data-nsp-assessment-pages></div></div>',false);
  const root=$('#dialogbody .nsp-assessment');
  const header=root.querySelector('[data-nsp-assessment-controls]');
@@ -47,7 +45,7 @@ function nspOpenAssessment(initial=null,result='all',mode=null){
   const tableHost=root.querySelector('[data-nsp-assessment-table]');
   const tableMarkup=rows.length?table(nspAssessmentTableHeaders(sort),rows.slice((page-1)*listPageSize('nsp-assessment',10),page*listPageSize('nsp-assessment',10)).map(p=>{
    const a=p.successAssessment,f=a.facts;
-   return [titleProduct(p,{showBrand:false}),nspAssessmentLaunchQuarterTag(p.actualLaunch),upMoney(f.gsvCents),upPercent(f.profitRate),upPercent(f.returnRate),nspAssessmentBadge(a.success,true,a.approval),p.actualLaunch,nspApprovalActions(p,data.assessment)];
+   return [nspSpuCell(p),esc(p.shortName),nspAssessmentLaunchQuarterTag(p.actualLaunch),upMoney(f.gsvCents),upPercent(f.profitRate),upPercent(f.returnRate),nspAssessmentBadge(a.success,true,a.approval),p.actualLaunch,esc(p.developmentType),nspApprovalActions(p,data.assessment)];
   })):'<div class="empty">'+(query.trim()?'暂无匹配产品':'该周期暂无符合条件的考核产品')+'</div>';
   nspRenderAssessmentTable(tableHost,tableMarkup,sort);
   const host=root.querySelector('[data-nsp-assessment-pages]');host.innerHTML=listPager(rows.length,page,listPageSize('nsp-assessment',10),{sizeKey:'nsp-assessment',attr:'data-nsp-assess-page'});
@@ -58,7 +56,7 @@ function nspOpenAssessment(initial=null,result='all',mode=null){
  };
  header.onclick=e=>{
   const development=e.target.closest('[data-nsp-assess-development]');
-  if(development){const value=development.dataset.nspAssessDevelopment;if(!['all',...filterCatalog.developmentTypes].includes(value)||value===filters.developmentType)return;
+  if(development){const value=development.dataset.nspAssessDevelopment;if(!['all',...nspProjectTypes].includes(value)||value===filters.developmentType)return;
    filters.developmentType=value;page=1;render();return;
   }
   const button=e.target.closest('[data-nsp-assess-kind]');if(!button||button.dataset.nspAssessKind===period.mode)return;
@@ -75,7 +73,10 @@ function nspOpenAssessment(initial=null,result='all',mode=null){
  root.onclick=e=>{
   const approval=e.target.closest('[data-nsp-approval]');
   if(approval){const product=data.rows.find(row=>row.spuId===approval.dataset.nspApprovalSpu);if(!product)return;
-   nspOpenApproval(product,{...data.assessment},approval.dataset.nspApproval==='revoke',approval,()=>{matrices.clear();render();nspRefreshResults()});return;
+   nspOpenApproval(product,{...data.assessment},approval.dataset.nspApproval==='revoke',approval,()=>{
+    matrices.clear();render();nspRefreshResults();
+    if($('#matrix.kpm-main'))renderModule('matrix');
+   });return;
   }
   const matrixCell=e.target.closest('[data-nsp-assess-matrix]'),resultButton=e.target.closest('[data-nsp-assess-result]');
   if(matrixCell){
@@ -88,9 +89,9 @@ function nspOpenAssessment(initial=null,result='all',mode=null){
    sort.direction=sort.key===key&&sort.direction==='desc'?'asc':'desc';sort.key=key;page=1;fillTable();
    root.querySelector('[data-nsp-assess-sort="'+key+'"]')?.focus({preventScroll:true});return;
   }
-  const pager=e.target.closest('[data-nsp-assess-page]'),product=e.target.closest('[data-nsp-assess-product]');
-  if(pager&&!pager.disabled){page=Number(pager.dataset.nspAssessPage);fillTable()}
-  else if(product)upOpenDetail({spuId:product.dataset.nspAssessProduct,start:data.assessment.start,end:data.assessment.end,period:{...period},tab:'operating',platform:'all',module:'new'});
+  const pager=e.target.closest('[data-nsp-assess-page]');
+  if(pager&&!pager.disabled){page=Number(pager.dataset.nspAssessPage);fillTable();return}
+  nspHandleSpuPicker(e,spuId=>upOpenDetail({spuId,start:data.assessment.start,end:data.assessment.end,period:{...period},tab:'operating',platform:'all',module:'new'}));
  };
  root.onkeydown=e=>{
   const tab=e.target.closest('[data-nsp-assess-result]');if(!tab||!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;

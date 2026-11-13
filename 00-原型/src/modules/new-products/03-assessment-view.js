@@ -1,7 +1,7 @@
 // 筛选集中在汇总表上方；整体随父抽屉快照恢复，详情返回不重建状态。
 function nspAssessmentHeaderHTML(period,developmentType='all'){
  const years=dashboardYears(2,period.year).filter(y=>y<=Number(DATA_CUTOFF.slice(0,4)));
- return '<select data-nsp-assess-year aria-label="考核年份">'+years.map(y=>'<option value="'+y+'" '+(y===period.year?'selected':'')+'>'+y+'年</option>').join('')+'</select><span class="period-segment" role="group" aria-label="考核视图">'+[['quarter','季度总览'],['year','年度考核']].map(([key,label])=>'<button type="button" data-nsp-assess-kind="'+key+'" aria-pressed="'+(period.mode===key)+'">'+label+'</button>').join('')+'</span><span class="period-segment" role="group" aria-label="项目类型">'+[['all','全部'],...filterCatalog.developmentTypes.map(name=>[name,name])].map(([key,label])=>'<button type="button" data-nsp-assess-development="'+key+'" aria-pressed="'+(developmentType===key)+'">'+label+'</button>').join('')+'</span>';
+ return '<select data-nsp-assess-year aria-label="考核年份">'+years.map(y=>'<option value="'+y+'" '+(y===period.year?'selected':'')+'>'+y+'年</option>').join('')+'</select><span class="period-segment" role="group" aria-label="考核视图">'+[['quarter','季度总览'],['year','年度考核']].map(([key,label])=>'<button type="button" data-nsp-assess-kind="'+key+'" aria-pressed="'+(period.mode===key)+'">'+label+'</button>').join('')+'</span><span class="period-segment" role="group" aria-label="项目类型">'+[['all','全部'],...nspProjectTypes.map(name=>[name,name])].map(([key,label])=>'<button type="button" data-nsp-assess-development="'+key+'" aria-pressed="'+(developmentType===key)+'">'+label+'</button>').join('')+'</span>';
 }
 // 保留年份触发器和周期按钮，期间变化只更新选项与选中状态，避免重复挂载测量。
 function nspRenderAssessmentHeader(host,period,developmentType='all'){

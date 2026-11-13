@@ -50,8 +50,8 @@ export async function newSuccessRolling(page){
  await page.waitForFunction(()=>document.documentElement.dataset.dashboardBoot==='ready');
  const before=await page.evaluate(()=>dashboardNewProductsSnapshot());
  assert.equal(await page.locator('#time-new .metric-help').count(),0,'不恢复已删除的时间问号');
- assert.equal(await page.locator('#newtable th').nth(5).innerText(),'是否成功');
- for(const row of before.visible.slice(0,10)){const cell=page.locator('#newtable tbody tr').filter({has:page.locator('[data-nsp-view="'+row.spuId+'"]')}).locator('td').nth(5);assert.equal(await cell.innerText(),row.successQuarters.length?'成功':'不成功')}
+ assert.equal(await page.locator('#newtable th').nth(6).innerText(),'是否成功');
+ for(const row of before.visible.slice(0,10)){const cell=page.locator('#newtable tbody tr').filter({has:page.locator('[data-nsp-view="'+row.spuId+'"]')}).locator('td').nth(6);assert.equal(await cell.innerText(),row.successQuarters.length?'成功':'不成功')}
  await page.locator('[data-nsp-assessment="all"]').first().click();
  await page.locator('.nsp-assessment').waitFor();
  let data=await page.evaluate(()=>dashboardNewProductAssessmentSnapshot());assert.equal(data.rows.length,before.success.total);assert.equal(data.summary.success,before.success.success);
@@ -62,7 +62,7 @@ export async function newSuccessRolling(page){
  await page.locator('[data-nsp-assess-kind="year"]').click();data=await page.evaluate(()=>dashboardNewProductAssessmentSnapshot());assert(data.assessment.annual);
  assert.deepEqual(await page.locator('[data-nsp-assess-results] [role=tab]').evaluateAll(tabs=>tabs.map(tab=>tab.dataset.nspAssessResult)),['all','success','failure']);assert.equal(await page.locator('[data-nsp-assess-quarter]').count(),0,'时间控件不再包含季度下拉');
  const annualPool=new Set(data.rows.map(r=>r.spuId)),quarterPool=new Set();
- assert.equal(data.summary.total,24,'当前2026样例年度池仍为24款');const rules=await page.evaluate(()=>businessRuleConfigSnapshot().values);
+ assert.equal(data.rows.flatMap(row=>row.members).length,24,'年度简称池覆盖24个SPU');const rules=await page.evaluate(()=>businessRuleConfigSnapshot().values);
  const annualExpected=data.rows.filter(row=>{const f=row.successAssessment.facts,year=Number(data.assessment.start.slice(0,4)),start=Math.max(Date.parse(row.actualLaunch+'T00:00:00Z'),Date.UTC(year,0,1)),end=Date.UTC(year+1,0,1),ratio=(end-start)/(end-Date.UTC(year,0,1)),target=rules[row.season==='四季品'?'new.yearGsv':'new.seasonGsv']*1000000*ratio;return f.gsvCents>=target&&f.profitRate>=rules['new.profit']&&f.returnRate<=rules['new.return']}).length;
  assert.equal(data.summary.success,annualExpected,'年度按每个产品的上市周期独立折算，不固定成功款数');
  await page.locator('[data-nsp-assess-kind="quarter"]').click();
@@ -70,19 +70,19 @@ export async function newSuccessRolling(page){
  assert.deepEqual([...annualPool].sort(),[...quarterPool].sort(),'页面年度名单与当年季度名单去重并集一致');
  await page.locator('[data-nsp-assess-matrix="3"][data-nsp-assess-chain="all"][data-nsp-assess-pool="all"]').first().click();data=await page.evaluate(()=>dashboardNewProductAssessmentSnapshot());assert(data.rows.every(r=>r.successAssessment.included));assert(data.rows.every(r=>!r.successAssessment.firstSuccess||r.successAssessment.firstSuccess.date<=data.assessment.end));
  await page.locator('#close').click();assert.deepEqual((await page.evaluate(()=>dashboardNewProductsSnapshot())).period,before.period);
- await page.locator('#time-new [data-time-mode="year"]').click();assert.equal(await page.locator('#newtable th').nth(5).innerText(),'是否成功');assert.equal(await page.locator('#newtable th').nth(6).innerText(),'年度是否成功');
+ await page.locator('#time-new [data-time-mode="year"]').click();assert.equal(await page.locator('#newtable th').nth(6).innerText(),'是否成功');assert.equal(await page.locator('#newtable th').nth(7).innerText(),'年度是否成功');
  const entry=page.locator('#newtop [data-nsp-assessment-entry]');assert.equal(await entry.innerText(),'查看年度考核');
  const annualBefore=await page.evaluate(()=>dashboardNewProductsSnapshot());await entry.click();data=await page.evaluate(()=>dashboardNewProductAssessmentSnapshot());
  assert.equal(data.period.mode,'year');assert.equal(data.period.year,annualBefore.period.year);assert.equal(data.summary.total,annualBefore.success.total);assert.equal(data.summary.success,annualBefore.success.success);assert.equal(await page.locator('[data-nsp-assess-quarter]').count(),0);await page.locator('#close').click();
  const annualHelp=page.locator('#newtop [data-nsp-kpi="新品销售成功率"]');assert.equal(await annualHelp.getAttribute('data-nsp-annual'),'true');await annualHelp.scrollIntoViewIfNeeded();await page.mouse.move(0,0);await page.waitForTimeout(120);await annualHelp.hover();await page.waitForFunction(()=>!document.querySelector('#metric-tooltip').hidden);assert.match(await page.locator('#metric-tooltip .nsp-tip-heading h4').innerText(),/年度/);assert.match(await page.locator('#metric-tooltip .nsp-tip-formula').innerText(),/年度成功数/);assert.match(await page.locator('#metric-tooltip').innerText(),/全年GSV门槛×当年上市日至12月31日/);await page.mouse.move(0,0);
- const annualRows=await page.evaluate(()=>dashboardNewProductsSnapshot());for(const row of annualRows.visible.slice(0,10)){const cells=page.locator('#newtable tbody tr').filter({has:page.locator('[data-nsp-view="'+row.spuId+'"]')}).locator('td');assert.equal(await cells.nth(5).innerText(),row.successQuarters.length?'成功':'不成功');assert.equal(await cells.nth(6).innerText(),!row.successAssessment.included?'未纳入':row.salesSuccess?'成功':'不成功')}
+ const annualRows=await page.evaluate(()=>dashboardNewProductsSnapshot());for(const row of annualRows.visible.slice(0,10)){const cells=page.locator('#newtable tbody tr').filter({has:page.locator('[data-nsp-view="'+row.spuId+'"]')}).locator('td');assert.equal(await cells.nth(6).innerText(),row.successQuarters.length?'成功':'不成功');assert.equal(await cells.nth(7).innerText(),!row.successAssessment.included?'未纳入':row.salesSuccess?'成功':'不成功')}
  for(const mode of ['month','day']){await page.locator('#time-new [data-time-mode="'+mode+'"]').click();assert.equal(await entry.innerText(),'查看季度考核');await entry.click();assert.equal((await page.evaluate(()=>dashboardNewProductAssessmentSnapshot())).period.mode,'quarter');await page.locator('#close').click()}
  // 跨年后上一年Q4成功但尚未到30天出池日的产品，主表可见但不参加新年度考核。
  await page.clock.setFixedTime(new Date('2027-01-15T04:00:00Z'));await page.reload({waitUntil:'domcontentloaded'});await page.waitForFunction(()=>document.documentElement.dataset.dashboardBoot==='ready');
  await page.locator('a[href="#new"]').click();await page.locator('#time-new [data-time-mode="year"]').click();
  const nextYear=await page.evaluate(()=>dashboardNewProductsSnapshot()),excluded=nextYear.filtered.filter(r=>r.inNewPool&&!r.successAssessment.included);
  assert(excluded.length,'跨年样例包含仍在主表但不纳入年度的往年成功产品');
- for(const row of excluded){await page.locator('[data-nsp-search]').fill(row.spuCode);const cells=page.locator('#newtable tbody tr').filter({has:page.locator('[data-nsp-view="'+row.spuId+'"]')}).locator('td');assert.equal(await cells.nth(5).innerText(),'成功');assert.equal(await cells.nth(6).innerText(),'未纳入')}
+ for(const row of excluded){await page.locator('[data-nsp-search]').fill(row.spuCode);const cells=page.locator('#newtable tbody tr').filter({has:page.locator('[data-nsp-view="'+row.spuId+'"]')}).locator('td');assert.equal(await cells.nth(6).innerText(),'成功');assert.equal(await cells.nth(7).innerText(),'未纳入')}
  await page.locator('[data-nsp-search]').fill('');await page.locator('[data-nsp-assessment-entry]').click();
  const annualNext=await page.evaluate(()=>dashboardNewProductAssessmentSnapshot());assert(annualNext.rows.every(r=>!r.successAssessment.firstSuccess||r.successAssessment.firstSuccess.date>='2027-01-01'),'年度抽屉排除往年已成功产品');assert(excluded.every(r=>!annualNext.rows.some(v=>v.spuId===r.spuId)));
  await page.locator('[data-nsp-assess-kind="quarter"]').click();const q1=await page.evaluate(()=>dashboardNewProductAssessmentSnapshot());assert.deepEqual(annualNext.rows.map(r=>r.spuId).sort(),q1.rows.map(r=>r.spuId).sort(),'1月年度池只包含截至当日Q1纳入产品');await page.locator('#close').click();

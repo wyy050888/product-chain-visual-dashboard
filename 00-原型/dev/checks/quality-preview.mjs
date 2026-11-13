@@ -13,19 +13,19 @@ function qualityModel(){
  vm.runInContext(fs.readFileSync(new URL('../../src/modules/quality-monthly/00-contact.js',import.meta.url),'utf8'),ctx);
  vm.runInContext(fs.readFileSync(new URL('../../src/modules/risk-presentation/01-quality.js',import.meta.url),'utf8'),ctx);
  const events=[{type:'罚款',amount:7000},{type:'资金冻结',amount:3000},{type:'下架',amount:0},{type:'掉权',amount:0}].map(e=>({...e,reasonType:'quality'}));
- const record={platform:'拼多多',monthly:{events,fine:7000,frozen:3000}};
+ const record={platform:'京东',monthly:{events,fine:7000,frozen:3000}};
  const current={sales:100,returned:20,gsvCents:80000,profitRate:20,contactRate:10,badRate:3,returnRate:10.5,receivedRate:8.2};
  const previous={sales:100,returned:10,gsvCents:100000,profitRate:10,contactRate:20,badRate:2,start:'2026-09-01',end:'2026-09-10'};
  const rows=ctx.rpQualityFields(record,[...['gsv','margin','contact','bad','return','received','fine','frozen'].map(key=>({key})),{key:'returnTarget',sortValue:10},{key:'receivedTarget',sortValue:8}],current,previous);
  const fields=Object.fromEntries(Array.from(rows,f=>[f.key,f]));
  assert.equal(fields.netSales.sortValue,80);
- assert.equal(fields.contact.target,'环比 -10.0%');assert.equal(fields.bad.target,'环比 +1.0%');
- for(const [now,before,expected] of [[4,3,'环比 +1.0%'],[3,4,'环比 -1.0%'],[4,0,'环比 +4.0%'],[0,4,'环比 -4.0%'],[0,0,'环比 持平'],[4,null,'环比 —'],[null,4,'环比 —']])assert.equal(ctx.rpRateDeltaComparison(now,before).target,expected);
- for(const [now,before,tone] of [[4,3,'red'],[3,4,'green'],[4,4,'gray'],[.1,0,'red'],[0,.1,'green'],[4.049,4,'gray'],[3.951,4,'gray'],[4.051,4,'red'],[3.949,4,'green'],[4,null,'gray'],[null,4,'gray']])assert.equal(ctx.rpRateDeltaComparison(now,before).targetTone,'rp-quality-'+tone,'进线/差评按显示的%差判色');
- assert.match(fields.bad.hint,/本期差评率－上期差评率/);assert.doesNotMatch(fields.bad.hint,/÷上期/);
- for(const [current,previous,hit] of [[30,10,false],[30.1,10,true],[20,0,false],[20.1,0,true],[10.1,.1,false],[20.1,.1,false],[5,10,false],[null,0,false],[30,null,false]])assert.equal(ctx.qrbContactDecision(current,previous).hit,hit);
+ assert.equal(fields.contact.target,'环比 ↓ 50.0%');assert.equal(fields.bad.target,'环比 ↑ 50.0%');
+ for(const [now,before,expected] of [[4,3,'环比 ↑ 33.3%'],[3,4,'环比 ↓ 25.0%'],[4,0,'环比 —'],[0,4,'环比 ↓ 100.0%'],[0,0,'环比 —'],[4,null,'环比 —'],[null,4,'环比 —']])assert.equal(ctx.rpRiskRateComparison(now,before).target,expected);
+ for(const [now,before,tone] of [[4,3,'red'],[3,4,'green'],[4,4,'gray'],[.1,0,'gray'],[0,.1,'green'],[4.0019,4,'gray'],[3.9981,4,'gray'],[4.0021,4,'red'],[3.9979,4,'green'],[4,null,'gray'],[null,4,'gray']])assert.equal(ctx.rpRiskRateComparison(now,before).targetTone,'rp-quality-'+tone,'进线和差评按显示的增长率判色');
+ assert.match(fields.bad.hint,/（本期比率－上期比率）÷上期比率/);
+ for(const [current,previous,hit] of [[12,10,false],[12.01,10,true],[20,0,false],[20.1,0,false],[10.1,.1,true],[20.1,.1,true],[5,10,false],[null,0,false],[30,null,false]])assert.equal(ctx.qrbContactDecision(current,previous).hit,hit);
  for(const count of [0,1,11,100])for(let seed=0;seed<5;seed++){const split=ctx.qrbContactSplit(count,seed);assert.equal(split.qualityContacts+split.experienceContacts,count);assert(Number.isInteger(split.qualityContacts)&&Number.isInteger(split.experienceContacts))}
- assert.equal(ctx.qrbContactDecision(30,10).growth,20);
+ assert.equal(ctx.qrbContactDecision(12,10).growth,20);
 
  const productFields=ctx.rpQualityProductFields({attribute:'冬季品',isNew:true,clearance:true});
  assert.equal(productFields[0].value,'冬季品');
@@ -33,7 +33,7 @@ function qualityModel(){
  assert.equal(ctx.rpQualityProductFields({isNew:false})[1].value,'老品');
  assert.equal(ctx.rpQualityProductFields({})[1].value,'—');
  assert.equal(fields.gsv.target,'环比 ↓ 20.0%');
- assert.equal(fields.margin.target,'环比 +10.0%');
+ assert.equal(fields.margin.target,'环比 ↑ 100.0%');
  assert.equal(fields.violations.targetTone,'rp-quality-red');assert.equal(fields.down.targetTone,'rp-quality-red');
  assert.equal(fields.violations.sortValue,4);assert.equal(fields.violations.target,'环比 +3次');
  assert.equal(fields.sanctions.sortValue,10000);assert.equal(fields.sanctions.target,'2次');
@@ -41,12 +41,13 @@ function qualityModel(){
  assert.equal(fields.offShelf.value,'1次');assert.equal(fields.offShelf.target,'环比 持平');
  assert.equal(fields.drop.value,'1次');assert.equal(fields.drop.target,'环比 +1次');
  assert.equal(fields.fine.target,'1次');assert.equal(fields.frozen.target,'1次');
- const expected={抖音:['资金冻结','下架'],快手:['罚款','下架'],视频号:['资金冻结','下架'],天猫:['罚款','下架'],京东:['罚款','下架'],拼多多:['罚款','资金冻结','下架','掉权'],all:['罚款','资金冻结','下架','掉权']};
+ const expected={抖音:['资金冻结','下架'],快手:['罚款','下架'],视频号:['资金冻结','下架'],天猫:['罚款','下架'],京东:['罚款','资金冻结','下架','掉权'],拼多多:['罚款','下架','掉权'],all:['罚款','资金冻结','下架','掉权']};
  for(const [platform,types] of Object.entries(expected)){
   assert.deepEqual(Array.from(ctx.rpPlatformViolationEvents(events,platform,platform),e=>e.type),types);
  }
  assert.equal(ctx.rpViolationMetricAllowed('fine',['抖音','快手']),true);
  assert.equal(ctx.rpViolationMetricAllowed('drop',['抖音','快手']),false);
+ assert.equal(ctx.rpViolationMetricAllowed('limited','all'),false);
  const scoped=Object.fromEntries(Array.from(ctx.rpQualityFields({...record,platform:'抖音'},[{key:'fine'},{key:'frozen'}],current,previous,true,'all'),f=>[f.key,f]));
  assert.equal(scoped.violations.sortValue,2);assert.equal(scoped.sanctions.sortValue,3000);assert.equal(scoped.sanctions.target,'1次');
  assert.equal(scoped.fine.value,'--');assert.equal(scoped.fine.sortValue,null);assert.equal(scoped.fine.target,'');assert.equal(scoped.drop.value,'--');
@@ -103,21 +104,6 @@ function qualityModel(){
 
 
 }
-// 新增趋势按当天原始分子/分母计算，零基数保留暂无数据。
-function qualityTrendModel(){
- const daily=[{date:'2026-10-09',sales:200,contacts:30,qualityContacts:20,experienceContacts:10,reviews:40,bad:3,returned:10,received:5,gsvCents:10000,profitCents:1000},
-  {date:'2026-10-10',sales:0,contacts:0,qualityContacts:0,experienceContacts:0,reviews:0,bad:0,returned:0,received:0,gsvCents:0,profitCents:0}];
- const ctx=businessRuleContext({riskRange:()=>({end:'2026-10-10'}),shiftDate:()=> '2026-10-04',upIdentity:r=>r,
-  upSummary:()=>({points:daily}),rpQualityEvents:()=>[],rpPlatformViolationEvents:rows=>rows,qrState:{listPlatform:'all'}});
- vm.runInContext(fs.readFileSync(new URL('../../src/modules/risk-presentation/03-trends.js',import.meta.url),'utf8'),ctx);
- const points=ctx.rpTrendPoints(0,{spuId:'test',platform:'抖音'});
- assert.equal(points[0].contact,15);assert.equal(points[0].qualityContact,10);assert.equal(points[0].experienceContact,5);assert.equal(points[0].bad,7.5);
- assert.equal(points[1].contact,null);assert.equal(points[1].bad,null);
- ctx.rpQualityEvents=(_record,_start,_end,qualityOnly)=>qualityOnly?[{date:'2026-10-09'}]:[{date:'2026-10-09'},{date:'2026-10-09'}];
- assert.equal(ctx.rpTrendPoints(0,{spuId:'test',platform:'抖音'},true)[0].violations,1);
- assert.equal(ctx.rpTrendPoints(0,{spuId:'test',platform:'抖音'},false)[0].violations,2);
-
-}
 async function verifyQualityColors(page,selector){
  const colors={red:'rgb(195, 61, 86)',green:'rgb(0, 164, 134)',yellow:'rgb(251, 189, 35)',gray:'rgb(134, 147, 164)'};
  Object.assign(colors,await page.evaluate(()=>{const css=getComputedStyle(document.documentElement),sample=document.createElement('span'),result={};for(const [tone,token] of [['red','--red'],['green','--green'],['yellow','--orange']]){sample.style.color=css.getPropertyValue(token).trim();result[tone]=sample.style.color;}return result;}));
@@ -138,7 +124,7 @@ function operatingComparisonModel(){
   const fields=Object.fromEntries(Array.from(ctx.upOperatingMetrics({current,previous},{}),f=>[f.key,f]));
   assert.equal(fields.expense.targetTone,'rp-quality-'+expenseTone,'消耗 '+percent+'%');
   assert.equal(fields.feeRate.targetTone,'rp-quality-'+feeTone,'费率 '+percent+'%');
-  if(percent){assert.match(fields.expense.target,percent>0?/↑/:/↓/);assert.match(fields.feeRate.target,percent>0?/\+/:/-/);assert.doesNotMatch(fields.feeRate.target,/↑|↓/)}
+   if(percent){assert.match(fields.expense.target,percent>0?/↑/:/↓/);assert.match(fields.feeRate.target,percent>0?/↑/:/↓/)}
  }
  for(const feeRate of [null,0]){
   const fields=ctx.upOperatingMetrics({current:{feeRate:12},previous:{feeRate}},{});
@@ -147,7 +133,7 @@ function operatingComparisonModel(){
 }
 
 export async function qualityPreview(page){
- qualityModel();qualityTrendModel();operatingComparisonModel();violationComparisonModel();
+ qualityModel();operatingComparisonModel();violationComparisonModel();
  await page.locator('#riskrail [data-rp-platform-menu="0"] [data-rp-platform-option="all"]').click();
  await page.locator('#riskrail [data-rp-platform-menu="0"] [data-rp-platform-option="抖音"]').click();
  await page.setViewportSize({width:1920,height:1080});
@@ -155,8 +141,8 @@ export async function qualityPreview(page){
  assert.equal(await card.locator('.rp-quality-entry').count(),6);
  assert.equal(await card.locator('[data-quality-rates]').count(),0,'卡片不显示进线率计算口径问号');
  assert.equal(await card.locator('.rp-quality-rate-pair,[data-rp-field="contact"],[data-rp-field="bad"]').count(),0,'卡片移除进线率和差评率');
- assert.deepEqual(await card.locator('.rp-platform-card-head').first().locator('.rp-platform-metric-label').allTextContents(),['平台罚款','资金冻结','链接下架','GSV']);assert.equal(await card.locator('[data-rp-field=gsv]').count(),6);assert.match(await page.locator('#riskrail .rp-shop-card .rhead h3').innerText(),/^店铺风险榜/);
- assert.deepEqual(await card.locator('.rp-quality-entry').first().locator('[data-rp-platform-row]').first().locator('[data-rp-field]').evaluateAll(nodes=>nodes.map(n=>n.dataset.rpField)),['fine','frozen','offShelf','gsv']);
+ assert.deepEqual(await card.locator('.rp-platform-card-head').first().locator('.rp-platform-metric-label').allTextContents(),['平台罚款','资金冻结','链接下架','链接掉权','近30日 GSV']);assert.equal(await card.locator('[data-rp-field=gsv]').count(),6);assert.match(await page.locator('#riskrail .rp-shop-card .rhead h3').innerText(),/^店铺风险榜/);
+ assert.deepEqual(await card.locator('.rp-quality-entry').first().locator('[data-rp-platform-row]').first().locator('[data-rp-field]').evaluateAll(nodes=>nodes.map(n=>n.dataset.rpField)),['fine','frozen','offShelf','drop','gsv']);
  for(const width of [1440,390,1920]){
   await page.setViewportSize({width,height:1080});
   const overflow=await card.evaluate(c=>[...c.querySelectorAll('.rp-quality-metric')].filter(el=>el.scrollWidth>el.clientWidth+1).length);
@@ -167,7 +153,7 @@ export async function qualityPreview(page){
  await card.screenshot({path:fileURLToPath(new URL('../../outputs/quality-card-v2.png',import.meta.url))});
  await page.locator('#riskrail [data-risk="0"]').click();
  assert.equal(await page.locator('#qr-list-table [data-quality-rates]').count(),0,'移除指标对应的表头问号');
- assert.deepEqual(await page.locator('#qr-list-table [data-rp-sort]').evaluateAll(nodes=>nodes.map(n=>n.dataset.rpSort)),['gsv','netSales','margin','return','received','violations','frozen','offShelf']);
+ assert.deepEqual(await page.locator('#qr-list-table [data-rp-sort]').evaluateAll(nodes=>nodes.map(n=>n.dataset.rpSort)),['violations','frozen','offShelf','return','received','gsv','netSales','margin']);
  assert.equal(await page.locator('#qr-list-table .rp-list-risks').count(),0);
  const cells=page.locator('#qr-list-table tbody tr').first().locator('td');
  const offShelfIndex=await page.locator('#qr-list-table [data-rp-sort=offShelf]').evaluate(e=>e.closest('th').cellIndex),offShelf=card.locator('.rp-quality-entry [data-rp-field=offShelf]').first();assert.equal(await offShelf.locator('strong').innerText(),await cells.nth(offShelfIndex).locator('strong').innerText());assert.equal((await offShelf.locator('small').innerText()).replace(/\s+/g,' '),(await cells.nth(offShelfIndex).locator('em').innerText()).replace(/\s+/g,' '));

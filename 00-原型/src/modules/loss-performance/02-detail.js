@@ -12,7 +12,7 @@ riskDetail=function(kind,id){
    metrics.innerHTML=facts.map(m=>`<div><small>${m.name}</small><strong>${rfCell(m)}</strong><span>${esc(m.rule)}</span></div>`).join('');
    body.querySelector('.risk-context').innerHTML=[['型号',product.model],['品类',chains[product.chain]],['品牌',product.brand],['统计范围',scope],['当前责任人',product.owner]].map(([label,value])=>`<span>${label}：<b>${esc(value)}</b></span>`).join('');
    const buckets=riskTrendBuckets(period.points);
-   body.querySelector('.risk-trends').innerHTML=`<div><h3>所选周期发货销量趋势 <span>${scope} · ${fmt(period.sales)}件</span></h3>${riskTrendChart(buckets,'sales','#7b88fa','所选周期发货销量趋势','件')}</div><div><h3>所选周期退货率趋势 <span>${scope}</span></h3>${riskTrendChart(buckets,'rate','#e56570','所选周期退货率趋势','%')}</div>`;
+   body.querySelector('.risk-trends').innerHTML=`<div><h3>所选周期发货销量趋势 <span>${scope} · ${formatSalesQuantity(period.sales,'件')}</span></h3>${riskTrendChart(buckets,'sales','#7b88fa','所选周期发货销量趋势','件')}</div><div><h3>所选周期退货率趋势 <span>${scope}</span></h3>${riskTrendChart(buckets,'rate','#e56570','所选周期退货率趋势','%')}</div>`;
    const signal=body.querySelector('.risk-analysis .rd-decision>div p');
    if(signal)signal.textContent=`${scope}：所选周期${period.loss>0?'亏损':'盈利'} ${pfMoneyYuan((Math.abs(period.loss))*10000)}，利润率 ${period.gsv?fmt(-period.loss/period.gsv*100,1)+'%':'—'}。`;
    $('#dialogsub').textContent=period.start+' — '+period.end+' · '+scope;

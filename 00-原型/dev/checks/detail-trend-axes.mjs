@@ -1,5 +1,7 @@
+import {openNewProductSpu} from './new-products-detail.mjs';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
+import {salesQuantityFormatter} from './business-rules-context.mjs';
 
 export async function detailTrendAxes(page){
  await page.setViewportSize({width:1920,height:1080});
@@ -17,7 +19,7 @@ export async function detailTrendAxes(page){
  assert.deepEqual(await page.locator('.up-sales-tooltip-row>span').allTextContents(),['GSV','销量']);
  await page.mouse.move(0,0);
  await page.locator('#close').click();
- await page.locator('#newtable [data-nsp-view]').first().click();
+ await openNewProductSpu(page.locator('#newtable [data-nsp-view]').first());
  await page.locator('[data-drawer-tab="operating"]').click();
  const product=page.locator('.up-detail');
  assert.doesNotMatch(await product.locator('.up-operating-trend [data-up-axis]').allTextContents().then(v=>v.join('')),/GSV|利润率|万元/);
@@ -32,11 +34,13 @@ export async function detailTrendAxes(page){
  const sample=await page.evaluate(source=>{
   const chrQuote=String.fromCharCode(34);
   const render=new Function('fmt','esc','upPercent','netSalesHelp',source+';return upSalesTrend;')((v,d=0)=>Number(v).toFixed(d),v=>String(v).replaceAll('&','&amp;').replaceAll(chrQuote,'&quot;'),v=>v+'%',()=>'' );
-  const host=document.createElement('div');host.innerHTML=render([{date:'2026-10-01',gsvCents:1400000,sales:92,profitCents:-140000},{date:'2026-10-02',gsvCents:2000000,sales:75,profitCents:400000},{date:'2026-10-03',gsvCents:0,sales:0,profitCents:0}]);
-  return {axis:host.querySelector('[data-up-axis="margin"]').textContent,paths:[...host.querySelectorAll('[data-up-series] path')].map(n=>n.getAttribute('d')),values:JSON.parse(host.querySelector('[data-up-trend-point]').dataset.seriesValues)};
- },renderSource);
+  const host=document.createElement('div');host.innerHTML=render([{date:'2026-10-01',gsvCents:1400000,sales:92,profitCents:-140000},{date:'2026-10-02',gsvCents:2000000,sales:12500,profitCents:400000},{date:'2026-10-03',gsvCents:0,sales:0,profitCents:0}]);
+  const points=[...host.querySelectorAll('[data-up-trend-point]')].map(point=>JSON.parse(point.dataset.seriesValues));
+  return {axis:host.querySelector('[data-up-axis="margin"]').textContent,paths:[...host.querySelectorAll('[data-up-series] path')].map(n=>n.getAttribute('d')),points};
+ },salesQuantityFormatter+'\n'+renderSource);
  assert.match(sample.axis,/-/);assert(!sample.paths.join('').match(/NaN|Infinity/));
  assert.notEqual(sample.paths[0],sample.paths[1],'金额和件数用各自刻度');
- assert.deepEqual(sample.values.map(v=>v.value),['1.40万元','92件','-10.0%']);
+ assert.deepEqual(sample.points[0].map(v=>v.value),['1.40万元','92件','-10.0%']);
+ assert.equal(sample.points[1].find(v=>v.key==='sales').value,'1.3w件');
  console.log('通过：店铺左右轴、产品金额/利润率双轴、销量隐藏轴及图例提示、负利润与缺失数据。');
 }

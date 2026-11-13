@@ -4,7 +4,7 @@ import vm from 'node:vm';
 import {businessRuleContext} from './business-rules-context.mjs';
 
 function verifyReturnBoundaries(){
- const context=businessRuleContext({boundedCache:()=>new Map(),esc:value=>String(value??''),upPercent:value=>Number.isFinite(value)?value.toFixed(1)+'%':'—',upMoney:String,fmt:String,nspComparison:()=>({target:'环比 --',targetTone:'rp-quality-gray'}),ResizeObserver:class{}});
+ const context=businessRuleContext({boundedCache:()=>new Map(),esc:value=>String(value??''),upPercent:value=>Number.isFinite(value)?value.toFixed(1)+'%':'—',upMoney:String,stockQuantity:()=> '—',fmt:String,nspComparison:()=>({target:'环比 --',targetTone:'rp-quality-gray'}),ResizeObserver:class{}});
  for(const file of ['unified-product/01-aggregates.js','numeric-signals/01.js','risk-presentation/01-quality.js','risk-presentation/03-columns.js','key-products/09-detail-table.js'])vm.runInContext(fs.readFileSync(new URL('../../src/modules/'+file,import.meta.url),'utf8'),context);
  for(const [kind,target,lower,limit] of [['return',6,1,2],['received',8,.3,.5]]){
   for(const [gap,tone] of [[-1,'green'],[0,'green'],[lower-.0001,'green'],[lower,'yellow'],[limit,'yellow'],[limit+.0001,'red']]){
@@ -15,7 +15,8 @@ function verifyReturnBoundaries(){
    assert.equal(cell.includes('number-signal--'),tone!=='green');
    assert(!context.rpTargetText(rule).includes('number-signal-text">偏差'),'偏差文字不能放入标签');
    const facts={returnRate:kind==='return'?target+gap:6,receivedRate:kind==='received'?target+gap:8};
-   const row=context.kpmTableMetrics({facts,previous:{},returnTarget:6,stock:{}})[kind==='return'?3:4];
+   const key=kind==='return'?'returns':'received';
+   const row=context.kpmTableMetrics({facts,previous:{},returnTarget:6,stock:{}}).find(cell=>cell.includes('data-kpm-metric="'+key+'"'));
    assert(!row.split('<strong')[1].split('</strong>')[0].includes('number-signal'),'关键产品必须传递主值字段身份');
    if(kind==='return')assert(row.includes('rp-quality-'+tone),'总退沿用配置目标');else{assert(row.includes('rp-quality-normal'),'已收退无统一目标时中性展示');assert(!row.includes('偏差'),'不生成无依据的已收退偏差');}
   }
@@ -47,7 +48,7 @@ export async function returnPresentation(page){
   assert(result.count>0,'应存在退货率主值');assert.equal(result.bad,0,'退货主值不能带标签');
  };
  const rules=await page.evaluate(()=>window.businessRuleConfigSnapshot());assert(!rules.items.some(item=>item.key==='quality.receivedTarget'));assert(!('quality.receivedTarget' in rules.values));
- await verify(page.locator('#riskrail [data-rp-field="return"]>strong,#riskrail [data-rp-field="received"]>strong'));
+ await verify(page.locator('#riskrail :is([data-rp-field="return"],[data-rp-field="received"]):not([data-comparison-first])>strong,#riskrail [data-comparison-first]>small'));
  await verify(page.locator('#matrixtable :is(.kpm-metric-returns,.kpm-metric-received) strong'));
  const verifyTable=async table=>{
   const result=await table.evaluate(table=>{

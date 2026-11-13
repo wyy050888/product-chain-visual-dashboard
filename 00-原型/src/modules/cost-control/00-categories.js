@@ -6,6 +6,7 @@ const ccCategories=[
 ];
 const ccCategoryByValue=value=>ccCategories.find(category=>category.id===value||category.name===value);
 const ccCategoryName=id=>ccCategoryByValue(id)?.name||'未分类';
+const ccProductCostTypes=['产品原料降本','研发降本','谈判降本','产品集采降本','品牌方促销返利'];
 // 仅维护原型既有样例的归类；新增指标必须显式选择，不能根据名称猜分类。
 function ccSampleCategory(department,metric){
  if(department==='risk')return 'risk';

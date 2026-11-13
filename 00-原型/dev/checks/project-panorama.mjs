@@ -31,7 +31,7 @@ export async function projectPanorama(page){
  assert.equal(await page.locator('#projects>.sectionhead #pp-filter-category,#pp-scope').count(),0);
  assert.equal(await page.locator('#pp-overview-title,.pp-main-table .pp-scope-tabs').count(),0);
  assert.equal(await page.locator('.pp-overview-section>.pp-scope-tabs+#pp-overview').count(),1);
- assert.equal(await page.locator('#pp-overview .pp-chart-columns').count(),2,'两张条形图显示与数值对齐的列头');
+ assert.equal(await page.locator('#pp-overview .pp-chart-columns').count(),2,'两张条形图显示列头');
  assert.equal(await page.locator('.pp-main-table>.pp-details-heading+#pp-light-tabs+#pp-light-distribution+#pp-filters').count(),1,'项目明细标题、灯色卡、筛选区按箭头顺序排列');
  for(const width of [390,900,1440,1920]){
   await page.setViewportSize({width,height:1080});
@@ -58,9 +58,9 @@ export async function projectPanorama(page){
  await page.locator('[data-pp-reset]').click();assert.deepEqual((await snapshot()).state.category,[]);assert.equal(await categoryTab('all').getAttribute('aria-pressed'),'true');
 
  // 首屏演示由固定排期产生，仍按有效计划日期排序，不能靠错配灯色凑展示。
- const demo=initial.filtered.slice(0,10),light=p=>p.status==='红灯'&&p.delay>15?'高危':p.status;
- assert.deepEqual([...new Set(initial.filtered.map(light))].sort(),['高危','红灯','黄灯'].sort());
- assert([1,3,6,9,16,20].every(days=>demo.some(p=>p.delay===days)));
+ const demo=initial.filtered.slice(0,10);
+ assert.deepEqual([...new Set(initial.filtered.map(p=>p.status))].sort(),['红灯','黄灯'].sort());
+ assert([1,3,6,9,16,20].every(days=>initial.filtered.some(p=>p.delay===days)));
  assert(demo.some(p=>p.revisedPlan)&&demo.some(p=>!p.revisedPlan));
  assert(demo.every(p=>p.delay===Math.max(0,Math.round((Date.parse(initial.cutoff)-Date.parse(p.plan))/86400000))));
  assert(demo.every((p,i)=>!i||[demo[i-1].plan,demo[i-1].revisedPlan].filter(Boolean).sort().at(-1)<=[p.plan,p.revisedPlan].filter(Boolean).sort().at(-1)));
@@ -90,35 +90,33 @@ export async function projectPanorama(page){
  assert.equal(await page.locator('[data-pp-distribution="stage"]').count(),0);
  assert.equal(await page.locator('[data-pp-distribution]').count(),2);
  assert.equal(await page.locator('#pp-ai [role=tab]').count(),4);assert.equal(await page.locator('#pp-ai .pp-analysis-card').count(),1);
- // 四张卡片合并原灯色Tab及率卡；进行中项目包含绿灯，明细仍限红黄灯。
+ // 进行中总量用于计算占比，明细卡片可筛选红灯、黄灯。
  const lights=page.locator('#pp-light-tabs'),tab=value=>lights.locator(`[data-pp-light-tab="${value}"]`);
  let current;
  assert.equal(await page.locator('.pp-rate,#pp-filter-light').count(),0);
- assert.equal(await lights.locator('button').count(),4);
- assert.deepEqual(await lights.locator('.pp-summary-label').allTextContents(),['进行中项目','高危红灯项目','红灯项目','黄灯项目']);
+ assert.equal(await lights.locator('button').count(),3);
+ assert.deepEqual(await lights.locator('.pp-summary-label').allTextContents(),['进行中项目','红灯项目','黄灯项目']);
  assert(await lights.evaluate(el=>el.getBoundingClientRect().top>=document.querySelector('#pp-overview').getBoundingClientRect().bottom));
  const assertCounts=async rows=>{
   const red=rows.filter(p=>p.status==='红灯').length,yellow=rows.filter(p=>p.status==='黄灯').length;
-  for(const value of ['all','高危红灯','红灯','黄灯']){
-   const count=value==='all'?rows.length:rows.filter(p=>value==='高危红灯'?p.status==='红灯'&&p.delay>15:p.status===value).length;
+  for(const value of ['all','红灯','黄灯']){
+   const count=value==='all'?rows.length:rows.filter(p=>p.status===value).length;
    assert.equal(await tab(value).locator('[data-pp-card-count]').innerText(),String(count));
    const numerator=value==='all'?red+yellow:count;
    assert.equal(await tab(value).locator('[data-pp-card-rate]').innerText(),rows.length?(numerator/rows.length*100).toFixed(1)+'%':'—');
   }
  };
  await assertCounts(initial.scope);
- for(const value of ['高危红灯','红灯','黄灯']){
+ for(const value of ['红灯','黄灯']){
   await tab(value).click();current=await snapshot();
   assert.deepEqual(current.state.light,[value]);assert.equal(current.state.link,null);assert.equal(current.state.page,1);
-  const expected=detailScope.filter(p=>value==='高危红灯'?p.status==='红灯'&&p.delay>15:p.status===value);
+  const expected=detailScope.filter(p=>p.status===value);
   assert.deepEqual(current.filtered.map(p=>p.id).sort((a,b)=>a-b),expected.map(p=>p.id).sort((a,b)=>a-b));
   assert.equal(await tab(value).getAttribute('aria-pressed'),'true');await assertCounts(initial.scope);
   await tab(value).click();assert.deepEqual((await snapshot()).state.light,[]);assert.equal(await tab('all').getAttribute('aria-pressed'),'true');
  }
- await tab('高危红灯').click();
- const severe=(await snapshot()).filtered;
- assert((await page.locator('.pp-table tbody td:nth-child(2) [data-light]').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('aria-label')))).every(value=>value==='高危红灯'));
- assert.equal(await page.locator('.pp-table tbody td[data-label="延期天数"] .pp-delay-high').count(),Math.min(10,severe.length));
+ await tab('红灯').click();
+ assert((await page.locator('.pp-table tbody td:nth-child(2) [data-light]').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('aria-label')))).every(value=>value==='红灯'));
  await page.keyboard.press('End');assert.deepEqual((await snapshot()).state.light,['黄灯']);
  await page.keyboard.press('ArrowLeft');assert.deepEqual((await snapshot()).state.light,['红灯']);
  await page.keyboard.press('Home');assert.deepEqual((await snapshot()).state.light,[]);
@@ -128,7 +126,7 @@ export async function projectPanorama(page){
  await tab('红灯').click();await assertCounts(searched);
  await page.locator('[data-pp-search]').fill('没有匹配的项目');await assertCounts([]);
  await page.locator('[data-pp-reset]').click();assert.deepEqual((await snapshot()).state.light,[]);await assertCounts(initial.scope);
- // 高危红灯从红灯中拆分，四段互斥且总计100%；分组包含绿灯项目。
+ // 红黄绿三段互斥且总计100%。
  assert.equal(await page.locator('.pp-distribution h3').innerText(),'进行中项目分布');
  for(const dimension of ['category','type']){
   await page.locator(`[data-pp-distribution="${dimension}"]`).click();
@@ -136,8 +134,7 @@ export async function projectPanorama(page){
   for(let i=0;i<await groups.count();i++){
    const group=groups.nth(i),value=await group.getAttribute('data-value');
    const rows=initial.scope.filter(p=>p[dimension]===value);
-   const high=rows.filter(p=>p.status==='红灯'&&p.delay>15).length;
-   const counts=[high,rows.filter(p=>p.status==='红灯').length-high,...['黄灯','绿灯'].map(status=>rows.filter(p=>p.status===status).length)];
+   const counts=['红灯','黄灯','绿灯'].map(status=>rows.filter(p=>p.status===status).length);
    assert.deepEqual(await group.locator('.pp-bar-line b').allTextContents(),counts.map(String));
    assert.equal(await group.locator('.pp-green').count(),1);
    const widths=await group.locator('.pp-track i').evaluateAll(els=>els.map(el=>parseFloat(el.style.width)));
@@ -149,7 +146,7 @@ export async function projectPanorama(page){
   const group=groups.filter({has:page.locator('.pp-bar-label',{hasText:greenProject[dimension]})});
   await group.click();current=await snapshot();assert.deepEqual(current.state[dimension],[greenProject[dimension]]);assert.deepEqual(await selectedScope(dimension),[greenProject[dimension]]);assert.equal(await group.getAttribute('aria-pressed'),'true');
   assert.equal(current.filtered.length,detailScope.filter(p=>p[dimension]===greenProject[dimension]&&['红灯','黄灯','绿灯'].includes(p.status)).length);
-  assert(!current.filtered.some(p=>p.id===greenProject.id),'概览保留绿灯统计，分组下钻仍只列红黄灯项目');await group.click();
+  assert(!current.filtered.some(p=>p.id===greenProject.id),'分组下钻仅显示红灯和黄灯项目');await group.click();
   current=await snapshot();assert.deepEqual(current.state[dimension],[],'再次点击当前单选项取消选择');
   assert.equal(current.filtered.length,detailScope.length,'取消后恢复该维度全部项目');
   assert.deepEqual(await selectedScope(dimension),['all']);
@@ -315,7 +312,7 @@ export async function projectPanorama(page){
  const first=await page.locator('[data-pp-row]').first().getAttribute('data-pp-row');
  await page.locator('[data-pp-page="2"]').first().click();assert.notEqual(await page.locator('[data-pp-row]').first().getAttribute('data-pp-row'),first);
  await page.locator('[data-pp-reset]').click();
- const alignment=await page.locator('#pp-layout').evaluate(el=>{const cards=[...el.querySelectorAll('#pp-overview>.pp-card')].map(e=>e.getBoundingClientRect()),list=el.querySelector('.pp-main-table').getBoundingClientRect(),overview=el.querySelector('#pp-overview').getBoundingClientRect();return {aligned:cards.length===2&&cards.every(r=>Math.abs(r.top-cards[0].top)<2&&Math.abs(r.bottom-cards[0].bottom)<2&&Math.abs(r.width-cards[0].width)<2),below:list.top>=overview.bottom,full:Math.abs(list.width-overview.width)<2}});assert(alignment.aligned&&alignment.below&&alignment.full,'概览两图各占一半且等高、主表在下方全宽展示');
+ const alignment=await page.locator('#pp-layout').evaluate(el=>{const [left,middle,right]=[...el.querySelectorAll('#pp-overview>.pp-card')].map(e=>e.getBoundingClientRect()),list=el.querySelector('.pp-main-table').getBoundingClientRect(),overview=el.querySelector('#pp-overview').getBoundingClientRect();return {aligned:Math.abs(left.width-middle.width)<2&&right.width<left.width&&[middle,right].every(r=>Math.abs(r.top-left.top)<2&&Math.abs(r.bottom-left.bottom)<2),below:list.top>=overview.bottom,full:Math.abs(list.width-overview.width)<2}});assert(alignment.aligned&&alignment.below&&alignment.full,'概览宽图与窄表并排、主表在下方全宽展示');
  await page.locator('#pp-table-scroll').evaluate(el=>el.scrollLeft=0);await page.locator('a[href="#projects"]').click();
  await page.screenshot({path:fileURLToPath(new URL('../../outputs/project-panorama-desktop.png',import.meta.url))});
  for(const width of [1280,900,600,390]){await page.setViewportSize({width,height:1000});assert(await page.locator('#pp-layout').evaluate(el=>el.getBoundingClientRect().right<=innerWidth+1),'项目布局不溢出屏幕');assert(await page.locator('.pp-departments').evaluate(el=>el.scrollWidth<=el.clientWidth+1),'责任部门风险柱图不溢出卡片');}

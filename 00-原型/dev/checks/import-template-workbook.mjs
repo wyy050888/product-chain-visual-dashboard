@@ -46,7 +46,12 @@ with zipfile.ZipFile(io.BytesIO(base64.b64decode(p['workbook']))) as z:
    for i,value in enumerate(values):
     n=i+1; col=''
     while n:n,d=divmod(n-1,26);col=chr(65+d)+col
-    c=E.SubElement(row,q('c'),{'r':col+str(at),'t':'inlineStr'});E.SubElement(E.SubElement(c,q('is')),q('t')).text=str(value)
+    if isinstance(value,dict) and 'formula' in value:
+     c=E.SubElement(row,q('c'),{'r':col+str(at),'t':value.get('type','n')})
+     E.SubElement(c,q('f')).text=value['formula']
+     if value.get('cached') is not None: E.SubElement(c,q('v')).text=str(value['cached'])
+    else:
+     c=E.SubElement(row,q('c'),{'r':col+str(at),'t':'inlineStr'});E.SubElement(E.SubElement(c,q('is')),q('t')).text=str(value)
   out=io.BytesIO()
   with zipfile.ZipFile(out,'w',zipfile.ZIP_DEFLATED) as result:
    for item in z.infolist():result.writestr(item,E.tostring(sheet,encoding='utf-8',xml_declaration=True) if item.filename==sheetPath else z.read(item.filename))

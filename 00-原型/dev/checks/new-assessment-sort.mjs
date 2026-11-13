@@ -1,3 +1,4 @@
+import {openNewProductSpu} from './new-products-detail.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
@@ -46,7 +47,7 @@ export async function newAssessmentSort(page){
  await page.locator('[data-nsp-assess-matrix="3"][data-nsp-assess-chain="all"][data-nsp-assess-pool="all"]').first().click();assert.deepEqual((await verify()).sort,retained);
  await page.locator('[data-nsp-assess-result="all"]').click();await verify();
  const before=await host.locator('[data-nsp-assess-product]').evaluateAll(nodes=>nodes.map(n=>n.dataset.nspAssessProduct));
- await host.locator('[data-nsp-assess-product]').first().click();await page.locator('.up-detail').waitFor();await page.locator('#close').click();await page.locator('.nsp-assessment').waitFor();
+ await openNewProductSpu(host.locator('[data-nsp-assess-product]').first());await page.locator('.up-detail').waitFor();await page.locator('#close').click();await page.locator('.nsp-assessment').waitFor();
  assert.deepEqual((await verify()).sort,retained);assert.deepEqual(await host.locator('[data-nsp-assess-product]').evaluateAll(nodes=>nodes.map(n=>n.dataset.nspAssessProduct)),before,'详情返回保留顺序');
  await page.locator('[data-nsp-assess-kind="year"]').click();assert.deepEqual((await verify()).sort,retained);
  for(const width of [1920,390]){await page.setViewportSize({width,height:1080});assert(await page.locator('#dialogbody').evaluate(node=>node.scrollWidth<=node.clientWidth+2),'只允许表格内部横滚');await button('gsv').click();await verify()}

@@ -1,3 +1,4 @@
+import {openNewProductSpu} from './new-products-detail.mjs';
 import assert from 'node:assert/strict';
 import {fileURLToPath} from 'node:url';
 import {verifyNewProductOverview} from './new-products-overview.mjs';
@@ -31,7 +32,7 @@ export async function verifyNewProductPrices(page){
  await min.fill(amount);await page.keyboard.press('Escape');assert(await panel.isHidden());
  await page.locator('[data-nsp-filter="brand"]').selectOption(chosen.brand,{force:true});await check(rows.filter(p=>p.brand===chosen.brand&&p.priceCents===chosen.priceCents));
  await page.locator('[data-nsp-filter="brand"]').selectOption('all',{force:true});
- await page.locator('#newtable [data-nsp-view]').first().click();await page.locator('.up-detail').waitFor();await page.locator('#close').click();assert.equal((await snapshot()).filters.min,amount,'返回详情保留价格筛选');
+ await openNewProductSpu(page.locator('#newtable [data-nsp-view]').first());await page.locator('.up-detail').waitFor();await page.locator('#close').click();assert.equal((await snapshot()).filters.min,amount,'返回详情保留价格筛选');
  for(const mode of ['year','quarter']){await page.locator('#time-new [data-time-mode="'+mode+'"]').click();const s=await snapshot();await check(s.rows.filter(p=>p.inNewPool&&p.priceCents===chosen.priceCents));assert.equal(s.filters.price,'custom')}
  await choose('all');await page.locator('#time-new [data-time-value]').selectOption('3',{force:true});await choose('500-1000');const q3=await snapshot();await check(q3.rows.filter(p=>p.inNewPool&&p.priceCents>=50000&&p.priceCents<100000));
  await choose('all');await page.locator('#time-new [data-time-value]').selectOption('4',{force:true});await check(rows);

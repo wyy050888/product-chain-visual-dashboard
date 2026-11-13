@@ -7,7 +7,7 @@ function upQualityMetric(f){
  return `<div class="up-quality-metric" data-up-quality-metric="${f.key}"><small data-up-basic="true">${esc(f.name)}${f.headingMarkup||''}</small><div><strong class="${f.tone||''}">${numberSignalMain(f)}</strong>${goal}${f.comparison===false?'':`<span class="up-quality-comparison ${f.targetTone||''}">${rpTargetText(f)}</span>`}</div>${f.detailMarkup||''}</div>`;
 }
 function upViolationMetrics(m,qualityOnly=false,platform='all'){
- const events=upViolationRows(m,qualityOnly,platform),before=m.quality.flatMap(r=>rpPlatformViolationEvents(rpQualitySelectEvents(qrObservation(m.product,r.platform,m.previousStart,m.previousEnd).monthly,qualityOnly),platform,r.platform));
+ const events=upViolationRows(m,qualityOnly,platform),before=m.quality.flatMap(r=>rpPlatformViolationEvents(rpQualitySelectEvents(qrbMonthly(m.product,r.platform,m.previousEnd,m.previousStart),qualityOnly),platform,r.platform));
  const count=(rows,type)=>rows.filter(e=>!type||e.type===type).length;
  const frequency=(key,name,type)=>{const now=count(events,type),previous=count(before,type);return {key,name,value:now+'次',...rpCountComparison(now,previous)}};
  const money=(key,name,type)=>{const rows=events.filter(e=>e.type===type),sum=rows.reduce((n,e)=>n+(Number(e.amount)||0),0);return {key,name,value:pfMoneyYuan(sum),tone:rpQualityAmountTone(sum),target:rows.length+'次',targetTone:'rp-quality-gray'}};
@@ -24,7 +24,7 @@ function upQualityView(m,state){
   const field=operating.find(f=>f.key===key);
   return key==='sales'?field:{...field,goal:targets[key==='returned'?'returnTarget':'receivedTarget']};
  });
- returns.push({key:'unreceived',name:'未收退',value:upPercent(upUnreceivedRate(m.current)),...rpRateDeltaComparison(upUnreceivedRate(m.current),upUnreceivedRate(m.previous))});
+ returns.push({key:'unreceived',name:'未收退',value:upPercent(upUnreceivedRate(m.current)),...rpRiskRateComparison(upUnreceivedRate(m.current),upUnreceivedRate(m.previous))});
  const channels=`<div class="drawer-platform-switch up-quality-channels" role="group" aria-label="品质退货平台">${qrPlatforms.map(name=>`<button type="button" class="platform-button ${name===state.platform?'active':''}" data-up-quality-platform="${esc(name)}" aria-pressed="${name===state.platform}">${rpPlatformMark(name)}${esc(name)}</button>`).join('')}</div>`;
  return channels+`<section class="up-quality-region"><h3>退货率数据</h3><div class="up-quality-overview"><div class="up-return-metrics">${returns.map(upQualityMetric).join('')}</div><div id="up-return-chart">${upReturnTrend(upReturnTrendPoints(m,state),state.returnPeriod||'day',targets)}</div></div></section>
   <section class="up-quality-region up-quality-violations"><h3>产品违规</h3><div class="up-violation-stats-scroll"><div class="up-violation-stats">${upViolationStatsMarkup(m,state)}</div></div>

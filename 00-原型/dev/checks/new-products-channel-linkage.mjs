@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import {verifyNewProductOperatingTotals} from './new-products-overview.mjs';
 
 // 图表、下拉框共用销售渠道条件；同一批SPU的公司业绩口径不被改写。
 export async function verifyNewProductChannelLinkage(page){
@@ -12,7 +13,7 @@ export async function verifyNewProductChannelLinkage(page){
   assert.equal(data.filters.channel,channel);assert(!('platform' in data.filters),'不保留隐藏平台条件');
   assert.equal(await select.inputValue(),channel,'图表点击同步下拉框');
   assert.deepEqual(ids(data.visible),ids(expected),'明细与销售渠道使用同一产品条件');
-  assert.equal(await page.locator('#newtop .dp-ring').getAttribute('aria-label'),'共'+expected.length+'个新品');
+  await verifyNewProductOperatingTotals(page,expected);
   const selected=page.locator('#newtop [data-nsp-channel][aria-pressed="true"]');
   assert.equal(await selected.count(),channel==='all'?0:2,'柱形与平台图标共用选中态');
   for(const value of await selected.evaluateAll(es=>es.map(e=>e.dataset.nspChannel)))assert.equal(value,channel);

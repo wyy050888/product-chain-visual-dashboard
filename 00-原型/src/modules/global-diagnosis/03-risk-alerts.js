@@ -1,18 +1,24 @@
 // 新增高危只消费上方风险榜的出现记录；不生成AI清单展示台账。
-const gdRiskQuietDays=15;
+const gdRiskRepeatRule=`以上次提醒日为第1天，第2～${rpWarningRepeatGapDays}天不重复，第${rpWarningRepeatGapDays+1}天起，只要当天在榜就重判并提醒，持续入榜也适用。`;
 function gdRiskHistoryKey(history){return rpWarningHistoryKey(history)}
 function gdRiskAppearanceDates(history){return rpWarningDates(history.appearances)}
-// 当天在上方入榜，且距上次入榜至少15个自然日才可进入新增；连续入榜逐日更新抑制窗口。
+// 从入榜记录重放提醒日期。同一身份按最近一次满足提醒间隔的日期计时。
 function gdRiskReminder(history,current,date,dates=gdRiskAppearanceDates(history),observedDates=rpWarningObservedDates){
  if(!current||!uiPeriodValidDate(date)||history.handledAt&&String(history.handledAt).slice(0,10)>=date)return null;
- const known=rpWarningDates(dates).filter(day=>day<=date);if(!known.includes(date))return null;
- const first=known[0],previous=known.filter(day=>day<date).at(-1)||'';
- if(!previous&&history.baseline)return null;
- // 未采集的日期不等于当天未入榜；缺少前14天完整快照时，不猜测是新增或复现。
- const covered=history.sample?rpWarningDates([...observedDates,...(history.sampleObservedDates||[])]):observedDates;
- if(!rpWarningHistoryCovered(date,covered))return null;
- if(previous&&(Date.parse(date+'T00:00:00Z')-Date.parse(previous+'T00:00:00Z'))/86400000<gdRiskQuietDays)return null;
- return {type:previous?'风险复核':'新出现风险',date,firstSeen:first,previousAppeared:previous};
+ const known=rpWarningDates(dates).filter(day=>day<=date);if(known.at(-1)!==date)return null;
+ const first=known[0];
+ let reminder=first,previousReminder='';
+ for(const day of known.slice(1)){
+  if((Date.parse(day+'T00:00:00Z')-Date.parse(reminder+'T00:00:00Z'))/86400000<rpWarningRepeatGapDays)continue;
+  previousReminder=reminder;
+  reminder=day;
+ }
+ if(reminder!==date)return null;
+ if(!previousReminder){
+  const covered=history.sample?rpWarningDates([...observedDates,...(history.sampleObservedDates||[])]):observedDates;
+  if(history.baseline||!rpWarningHistoryCovered(date,covered))return null;
+ }
+ return {type:previousReminder?'风险复核':'新出现风险',date,firstSeen:first,previousAppeared:known.at(-2)||'',previousReminder};
 }
 function gdRiskIdentity(kind,row){return rpWarningIdentity(kind,row)}
 function gdRiskSeverity(kind,row){
@@ -39,15 +45,15 @@ function gdNewRiskKeyWork(context,range){
   const r=current.row,shop=current.kind===1,object={key:(shop?'shop':'product')+'|'+(shop?r.shopId||r.id:r.spuId),type:shop?'shop':'product',name:r.name||r.shopName,spuId:r.spuId};
   const eventKey='risk-alert|'+sourceKey+'|'+change.date,platform=history.platform==='all'?'全公司':history.platform;
   const details=current.metrics.map(m=>m.name+'：'+m.value+(m.target?'（'+m.target+'）':'')).join('；\n');
-  const changeText=change.previousAppeared?'在上方风险榜再次出现，距上次出现已满15天':'在上方风险榜出现，且已知历史中无此前出现记录';
+  const changeText=change.previousReminder?`仍满足上方风险榜入榜条件，距上次计时日已满${rpWarningRepeatGapDays}天，进入复核`:'在上方风险榜出现，且已知历史中无此前出现记录';
   const problem=platform+' · '+current.title+'于'+gdSourceDate(change.date)+changeText+'。\n当前预警：'+details+'。';
   const defaultDepartment=shop?'产品中心':[0,6].includes(current.kind)?'品质中心':current.kind===2?'产品中心':'采购部';
   const action=shop?'核对店铺风险触发项及处理记录，明确处置安排和责任人。':current.kind===3?'核对该SKU可售库存、在途到货及补货排期，确认缺口和保供安排。':current.kind===4?'核对该SKU库存、动销和季节窗口，明确去化或退厂安排。':current.kind===2?'核对亏损构成及已有改善记录，提出可执行的利润改善方案。':'核对平台风险记录及相关商品，确认原因、处理范围和整改安排。';
   const rawOwner=r.owner||'',owner=aiAssignees.some(([name])=>name===rawOwner)?rawOwner:'',department=upTodoPersonDepartment(owner)||defaultDepartment;
   const evidence=(id,date,name,content)=>({...diagnosisNormalizeSource({sourceTypeKey:'risk-alert',source:'全局高危预警\n'+name}),id,date,capturedDate:DATA_CUTOFF,objectKey:object.key,objectName:object.name,sourceTypeKey:'risk-alert',sourceName:name,content});
   const sources=[evidence('risk-board|'+history.id,sourceRange.end||sourceRange.cutoff,current.title+' · '+object.name,platform+'\n'+details),
-   evidence('risk-appearance|'+history.id+'|'+change.date,change.date,'上方风险榜出现记录'+(history.sample?'（演示样例）':''),(history.sample?'演示样例：出现日期为模拟历史，当前指标引用上方风险榜。\n':'')+'本次出现：'+gdSourceDate(change.date)+(change.previousAppeared?'\n上次出现：'+gdSourceDate(change.previousAppeared):'')+'\n去重：以上方风险榜最近出现日计时，第2～15天不重复，第16天起重判；持续入榜不重复。')];
-  const entry={id:'key|'+eventKey,kind:'key-work',keyType:'high-risk',workKey:eventKey,eventKey,sample:history.sample===true,riskAlertId:history.id,riskIdentity:sourceKey,riskBoardKind:current.kind,changeType:change.type,firstSeenAt:change.firstSeen,previousAppearedAt:change.previousAppeared,
+   evidence('risk-appearance|'+history.id+'|'+change.date,change.date,'上方风险榜出现记录'+(history.sample?'（演示样例）':''),(history.sample?'演示样例：出现日期为模拟历史，当前指标引用上方风险榜。\n':'')+'本次出现：'+gdSourceDate(change.date)+(change.previousAppeared?'\n上次出现：'+gdSourceDate(change.previousAppeared):'')+(change.previousReminder?'\n上次计时日：'+gdSourceDate(change.previousReminder):'')+'\n去重：'+gdRiskRepeatRule)];
+  const entry={id:'key|'+eventKey,kind:'key-work',keyType:'high-risk',workKey:eventKey,eventKey,sample:history.sample===true,riskAlertId:history.id,riskIdentity:sourceKey,riskBoardKind:current.kind,changeType:change.type,firstSeenAt:change.firstSeen,previousAppearedAt:change.previousAppeared,previousReminderAt:change.previousReminder,
    object,objectName:object.name,spuId:r.spuId,source:'risk',sourceName:'风险预警',date:change.date,riskBoardName:current.title,category:r.category||pfCategory(r),department,owner,
    title:current.title+' · '+change.type,problem,action,sources,decisionParticipants:[{assignee:owner,department,action,completionCriteria:'已核对原始预警，并形成对应处置记录。'}],
    executionOrderId:history.executionOrderId,businessObjects:[{type:object.type,id:String(shop?r.shopId||r.id:r.spuId),name:object.name}]};

@@ -21,7 +21,7 @@ export async function projectRiskDetail(page){
   assert.equal(await container.locator('.pp-traffic-radio').count(),0,'只读灯色不显示蓝色选择圈');
   const reds=container.locator('.pp-traffic-red .pp-traffic-pill');
   assert((await reds.evaluateAll(els=>els.map(e=>getComputedStyle(e).backgroundColor))).every(color=>color===chartRed),'普通红灯与左侧图表同色');
-  assert((await container.locator('.pp-traffic-high .pp-traffic-pill').evaluateAll(els=>els.map(e=>getComputedStyle(e).backgroundColor))).every(color=>color!==chartRed),'高危红灯保持独立颜色');
+  assert.equal(await container.locator('.pp-traffic-high').count(),0,'项目台账统一使用三种灯色');
  };
  await page.locator('[data-pp-light-tab="红灯"]').click();
  await assertLights(page.locator('.pp-table'));

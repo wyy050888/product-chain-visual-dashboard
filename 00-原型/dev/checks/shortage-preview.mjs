@@ -3,15 +3,15 @@ import {verifyStockRankingModel,assertRankingOrder,shortageTuple} from './stock-
 import fs from 'node:fs';
 import vm from 'node:vm';
 function skuOperatingModel(){
- const totals={sales:155,returned:34,gsvCents:345678,profitCents:10000},ctx=vm.createContext({boundedCache:()=>new Map(),targetSum:rows=>rows.reduce((sum,value)=>sum+value,0),upIdentity:p=>p,upFactsKey:(p,platform,start,end)=>p.spuId+'|'+start+'|'+end,upSummary:(_p,start)=>start==='zero'?{sales:0,returned:0,gsvCents:0,profitCents:0}:totals,upStockSkus:()=>[1,2,3,4].map(index=>({skuId:'SKU'+index}))});
+ const totals={sales:155,returned:34,gsvCents:345678,profitCents:10000},ctx=vm.createContext({boundedCache:()=>new Map(),targetSum:rows=>rows.reduce((sum,value)=>sum+value,0),upIdentity:p=>p,upFactsKey:(p,platform,start,end)=>p.spuId+'|'+start+'|'+end,upSummary:(_p,start)=>start==='zero'?{sales:0,returned:0,gsvCents:0,profitCents:0}:totals,stockQuantity:String,upMoney:String});
  const split=fs.readFileSync(new URL('../../src/modules/sales-target/01.js',import.meta.url),'utf8').match(/^function splitTarget.*$/m)[0];vm.runInContext(split,ctx);
- vm.runInContext(fs.readFileSync(new URL('../../src/modules/unified-product/06-sku-operating-samples.js',import.meta.url),'utf8'),ctx);
- const rows=ctx.upSkuOperatingRows({spuId:'spu'},'2026-09-25','2026-10-24');
+ for(const file of ['06-stock-model.js','06-sku-operating-samples.js'])vm.runInContext(fs.readFileSync(new URL('../../src/modules/unified-product/'+file,import.meta.url),'utf8'),ctx);
+ const product={spuId:'spu',spuCode:'SPU',name:'样例产品'},rows=ctx.upSkuOperatingRows(product,'2026-09-25','2026-10-24');
  for(const key of ['sales','returned','gsvCents','profitCents'])assert.equal(rows.reduce((sum,row)=>sum+row[key],0),totals[key],'SKU合计与SPU一致 '+key);
  assert(rows.some(row=>row.profitRate>0)&&rows.some(row=>row.profitRate<0),'SKU利润样例覆盖盈利和亏损');
  for(const row of rows)assert.equal(row.profitRate,row.gsvCents>0?row.profitCents/row.gsvCents*100:null);
  assert.equal(rows.reduce((sum,row)=>sum+row.netSales,0),121);assert(rows.every(row=>row.sales-row.returned===row.netSales&&Number.isInteger(row.gsvCents)));
- assert(ctx.upSkuOperatingRows({spuId:'spu'},'zero','zero').every(row=>row.gsvCents===0&&row.netSales===0),'零值及不同期间不串用缓存');
+ assert(ctx.upSkuOperatingRows(product,'zero','zero').every(row=>row.gsvCents===0&&row.netSales===0),'零值及不同期间不串用缓存');
 }
 function skuInventoryValues(){
  const ctx=vm.createContext({targetSum:rows=>rows.reduce((sum,value)=>sum+value,0),upSummary:()=>({sales:150,returned:0}),shiftDate:v=>v,upIdentity:p=>p,pfIdentity:()=>({attribute:'冬季品'}),filterCatalog:{seasons:['冬季品']},stockQuantity:String,upMoney:String,fmt:String});
@@ -36,7 +36,7 @@ export async function shortagePreview(page){
  await page.locator('#riskrail [data-rp-card-season="3"]').selectOption('all',{force:true});
  shortageModel();
  const snapshot=await page.evaluate(()=>window.shortageRankingSnapshot());assert(snapshot.rows.length>=6);
- assert.match(snapshot.rule,/是否清仓或下架＝否/);assert.match(snapshot.rule,/可售天数≤15天/);assert.match(snapshot.rule,/总可售天数≤45天/);assert.doesNotMatch(snapshot.rule,/独立排序|30天|红黄规则/);
+ assert.match(snapshot.rule,/非清仓品、非下架品/);assert.match(snapshot.rule,/可售天数≤15天/);assert.match(snapshot.rule,/总可售天数≤45天/);assert.doesNotMatch(snapshot.rule,/独立排序|30天|红黄规则/);
  const seen=new Set();for(const row of snapshot.rows){assert(row.skuId&&row.skuCode&&!seen.has(row.skuId));seen.add(row.skuId);assert(row.dailyNet15>0&&(row.sellableCoverage15<=15||row.totalCoverage15<=45));assert(Math.abs((row.warehouse+row.transit+row.factoryAvailable)/row.dailyNet15-row.sellableCoverage15)<1e-8);assert.equal(row.shortageType,row.sellableCoverage15<=15?1:2);assert.equal(row.tone,row.shortageType===1?'rp-quality-red':'rp-quality-yellow');assert(!row.clearance&&!['下架','清仓','清仓品'].includes(row.state));}
  assertRankingOrder(snapshot.rows,shortageTuple);
  const card=page.locator('#riskrail [data-rp-board="3"]');assert.deepEqual(await card.locator('.rp-identity b').allTextContents(),snapshot.rows.slice(0,6).map(r=>r.name));

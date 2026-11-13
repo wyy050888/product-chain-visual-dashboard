@@ -8,7 +8,7 @@ function kpmCloseChartZoom(restoreFocus=true){
  kpmChartPoints.clear();for(const [id,row] of state.points)kpmChartPoints.set(id,row);kpmChartContext=state.chartContext;
  state.legend.parent.insertBefore(state.legend.node,state.legend.next);
  state.marker.replaceWith(state.plot);document.body.append(kpmPointTooltip);
- state.trigger.textContent='⛶ 放大';state.trigger.setAttribute('aria-label','放大产品经营矩阵');state.trigger.setAttribute('aria-expanded','false');
+ state.trigger.textContent='查看分布图';state.trigger.removeAttribute('aria-label');state.trigger.setAttribute('aria-expanded','false');
  state.dialog.remove();document.documentElement.classList.remove('kpm-zoom-open');
  if(restoreFocus&&state.trigger.isConnected)state.trigger.focus({preventScroll:true});
 }

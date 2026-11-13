@@ -1,11 +1,19 @@
 // 库存/呆滞展示只组合统一经营、库存和处罚台账，不改变入榜规则。
-const rpStockCardKeys={3:['sellable','sellableCoverage15','total','totalCoverage15','dailyNet15'],4:['staleUnits','staleValue','age','warehouse','coverage15','dailyNet15']};
-const rpStockListKeys={3:['sellable','sellableCoverage15','warehouse','factoryAvailable','transit','total','totalCoverage15','dailyNet15','gsv','netSales','margin','productType'],4:['staleUnits','staleValue','age','warehouse','coverage15','dailyNet15','season','productType']};
+const rpStockCardKeys={3:['sellable','sellableCoverage15','total','totalCoverage15','dailyNet15'],4:['staleUnits','staleValue','age','responsibleChannel','sellable','sellableCoverage15','dailyNet15']};
+const rpStockListKeys={3:['sellable','sellableCoverage15','warehouse','factoryAvailable','transit','total','totalCoverage15','dailyNet15','gsv','netSales','margin','productType'],4:[...rpStockCardKeys[4],'season','productType']};
 const rpStockEventCache=boundedCache(1200);
+function rpSkuSellableFields(record,days,tone){
+ const units=brcStockSellableUnits(record),value=record.sellableValueCents;
+ const amount='货值 '+(Number.isFinite(value)?rpQualityMoney(value/100):'—');
+ return [
+  {...rpField('sellable','可售库存',stockQuantity(units),'rp-quality-normal',rpSellableInventoryFormula,amount),sortValue:units,targetTone:'rp-quality-normal'},
+  {...rpField('sellableCoverage15','可售天数',Number.isFinite(days)?fmt(days,1)+'天':'—',tone,rpSellableDaysFormula),sortValue:days,targetTone:''}
+ ];
+}
 function rpStockEvents(product,start,end,platform){
  const key=[upRuleRevision,product.spuId,start,end,platform].join('|');
  let events=rpStockEventCache.get(key);
- if(!events){events=(platform==='all'?qrPlatforms:[platform]).flatMap(channel=>rpQualitySelectEvents(qrObservation(upProduct(product),channel,start,end).monthly,false));rpStockEventCache.set(key,events)}
+ if(!events){events=(platform==='all'?qrPlatforms:[platform]).flatMap(channel=>rpQualitySelectEvents(qrbMonthly(upProduct(product),channel,end,start),false));rpStockEventCache.set(key,events)}
  return events;
 }
 function rpShortageSkuFields(record){
@@ -16,7 +24,6 @@ function rpShortageSkuFields(record){
   const row=field(key,name,stockQuantity(units),units,hint);
   row.target=row.cardTarget='货值 '+money(value);row.targetTone=row.cardTargetTone='rp-quality-normal';return row;
  };
- const available=inventory('sellable','可售库存',record.sellableUnits,record.sellableValueCents,'我司可售库存＋在途库存＋工厂可售库存');
  const total=inventory('total','总库存',record.totalUnits,record.goodsValueCents,'SKU仓内＋工厂＋新机未交付');
  const warehouse=inventory('warehouse','我司可售库存',record.warehouse,record.warehouseValueCents);
  const factory=inventory('factoryAvailable','工厂可售库存',record.factoryAvailable,record.factoryAvailableValueCents);
@@ -30,14 +37,14 @@ function rpShortageSkuFields(record){
  const margin=field('margin','利润率',rate===null?'—':upPercent(rate),rate),comparison=rpProfitRateComparison(rate,previous);
  margin.target=comparison.target;margin.targetTone=comparison.targetTone;
  const totalDays=field('totalCoverage15','总可售天数',daysText,days,'总库存÷近15日均净销量',tone);
- return [available,field('sellableCoverage15','可售天数',known(sellable)?fmt(sellable,1)+'天':'—',sellable,'（我司可售库存＋在途库存＋工厂可售库存）÷近15日均净销量',tone),
+ return [...rpSkuSellableFields(record,sellable,tone),
   warehouse,factory,transit,total,totalDays,
-  field('dailyNet15','近15日均净销量',stockQuantity(Number.isFinite(record.dailyNet15)?Math.round(record.dailyNet15):null),record.dailyNet15,'近15日净销量÷15'),
+  field('dailyNet15','近15日均净销量',formatSalesQuantity(Math.round(record.dailyNet15??NaN),'件'),record.dailyNet15,'近15日净销量÷15'),
   performance('gsv','GSV',record.skuGsvCents,record.skuPreviousGsvCents,money),
-  performance('netSales','销量',record.skuNetSales,record.skuPreviousNetSales,value=>fmt(value)),margin,...rpQualityProductFields(record)];
+  performance('netSales','销量',record.skuNetSales,record.skuPreviousNetSales,formatSalesQuantity),margin,...rpQualityProductFields(record)];
 }
-function rpStagnantSkuFields(record){
- const tone=rpStagnantTone(record),known=Number.isFinite;
+function rpStagnantSkuFields(record,tone=rpStagnantTone(record)){
+ const known=Number.isFinite;
  const field=(key,name,value,raw,color='rp-quality-normal',hint='')=>({...rpField(key,name,value,color,hint,''),sortValue:raw,targetTone:'',noNumericSignal:true});
  const share=(part,total)=>known(part)&&known(total)&&total>0?upPercent(part/total*100):'—';
  const stale=field('staleUnits','呆滞库存',known(record.staleUnits)?stockQuantity(record.staleUnits):'—',record.staleUnits,known(record.staleUnits)?tone:'rp-quality-gray','SKU呆滞库存数量；占比为该SKU呆滞库存÷总库存');
@@ -50,10 +57,15 @@ function rpStagnantSkuFields(record){
  warehouse.target=warehouse.cardTarget='货值 '+(known(record.warehouseValueCents)?rpQualityMoney(record.warehouseValueCents/100):'—');warehouse.targetTone=warehouse.cardTargetTone='rp-quality-normal';
  return [stale,amount,age,warehouse,field('warehouseValue','我司可售货值',known(record.warehouseValueCents)?rpQualityMoney(record.warehouseValueCents/100):'—',record.warehouseValueCents),
   field('coverage15','我司可售天数',known(record.coverage15)?fmt(record.coverage15,1)+'天':'—',record.coverage15,tone,'我司可售库存÷近15日均净销量'),
-  field('dailyNet15','近15日均净销量',stockQuantity(Number.isFinite(record.dailyNet15)?Math.round(record.dailyNet15):null),record.dailyNet15),...rpQualityProductFields(record)];
+  field('dailyNet15','近15日均净销量',formatSalesQuantity(Math.round(record.dailyNet15??NaN),'件'),record.dailyNet15),...rpQualityProductFields(record)];
 }
 function rpStockFields(kind,record,current,previous){
- if(kind===4&&record.skuId)return rpStagnantSkuFields(record);
+ if(kind===4&&record.skuId){
+  const channel=rpField('responsibleChannel',rpStagnantMetricLabels.responsibleChannel[0],rpStagnantSkuChannel(record)??'—','rp-quality-normal');
+  const tone=rpStagnantTone(record);
+  const sellable=rpSkuSellableFields(record,rpStagnantSellableDays(record),tone).map(field=>({...field,noNumericSignal:true}));
+  return [...rpStagnantSkuFields(record,tone),...sellable,{...channel,targetTone:''}];
+ }
  if(kind===3&&record.skuId)return rpShortageSkuFields(record);
  const product=upIdentity(record),w=upWindow(),platform=kind===3?'all':record.metricPlatform||'all';
  const stock=kind===3?record:upPlatformStockFacts(record,platform),fields=[];
@@ -61,7 +73,7 @@ function rpStockFields(kind,record,current,previous){
  const compareHint='环比取紧邻等长区间；'+rpComparisonRuleText();
  const ratio=stock.goodsValueCents>0?stock.staleValueCents/stock.goodsValueCents*100:0;
  if(kind===3){
-  for(const [key,name,value,before] of [['gsv','GSV',current.gsvCents,previous.gsvCents],['sales','销量',current.sales,previous.sales],['netSales','销量',current.sales-current.returned,previous.sales-previous.returned]])add(key,name,key==='gsv'?rpQualityMoney(value/100):fmt(value),value,'rp-quality-normal',rpQualityChange(value,before),rpQualityChangeTone(value,before),compareHint);
+  for(const [key,name,value,before] of [['gsv','GSV',current.gsvCents,previous.gsvCents],['sales','销量',current.sales,previous.sales],['netSales','销量',current.sales-current.returned,previous.sales-previous.returned]])add(key,name,key==='gsv'?rpQualityMoney(value/100):formatSalesQuantity(value),value,'rp-quality-normal',rpQualityChange(value,before),rpQualityChangeTone(value,before),compareHint);
   const change=rpProfitRateComparison(current.profitRate,previous.profitRate);
   add('margin','利润率',upPercent(current.profitRate),current.profitRate,'rp-quality-normal',change.target,change.targetTone,'所选期间利润额÷GSV；'+rpProfitRateComparisonRuleText());
   const target=rpLossReturnTarget(product,platform,w.start,w.end);
@@ -76,7 +88,7 @@ function rpStockFields(kind,record,current,previous){
   const warehouse=add('warehouse','我司可售库存',stockQuantity(stock.warehouse),stock.warehouse);
   warehouse.cardTarget='货值 '+(Number.isFinite(stock.warehouseValueCents)?rpQualityMoney(stock.warehouseValueCents/100):'—');warehouse.cardTargetTone='rp-quality-normal';
   warehouse.cardTargetHint='我司可售库存对应货值，使用库存台账原值。';
-  add('dailyNet15','近15日均净销量',Number.isFinite(stock.dailyNet15)?stockQuantity(Math.round(stock.dailyNet15)):'—',stock.dailyNet15,'rp-quality-normal','','','近15天（销量－总退件数）÷15；缺货判定使用未取整数值。');
+  add('dailyNet15','近15日均净销量',Number.isFinite(stock.dailyNet15)?formatSalesQuantity(Math.round(stock.dailyNet15),'件'):'—',stock.dailyNet15,'rp-quality-normal','','','近15天（销量－总退件数）÷15；缺货判定使用未取整数值。');
   add('value','货值（总库存）',rpQualityMoney(stock.goodsValueCents/100),stock.goodsValueCents);
   add('turn','库存周转率',Number.isFinite(stock.turn)?fmt(stock.turn,1)+'次':'—',stock.turn,'rp-quality-normal','','','库存风险快照近30天出库成本÷平均库存成本。');
   add('staleRatio','呆滞占比',upPercent(ratio),ratio,'rp-quality-normal','','','超库龄货值÷总库存货值；没有呆滞库存时显示0。');
@@ -104,7 +116,7 @@ function rpStockFields(kind,record,current,previous){
   const coverage=add('coverage15','我司可售天数',dailyNet>0?fmt(stock.warehouse/dailyNet,1)+'天':'—',dailyNet>0?stock.warehouse/dailyNet:null,'rp-quality-normal','','','公司可售库存÷所选平台近15日均净销量。库存保持公司口径。');
   warehouse.target=warehouse.cardTarget='货值 '+rpQualityMoney(warehouseValueCents/100);warehouse.targetTone=warehouse.cardTargetTone='rp-quality-normal';
   warehouse.cardTargetHint='我司可售库存数量×财务单价。';
-  add('dailyNet15','近15日均净销量',stockQuantity(Math.round(dailyNet)),dailyNet,'rp-quality-normal','','','截至所选结束日近15天（销量－总退件数）÷15，按所选平台计算；显示四舍五入整数，可售天数仍使用未取整均值。');
+  add('dailyNet15','近15日均净销量',formatSalesQuantity(Math.round(dailyNet),'件'),dailyNet,'rp-quality-normal','','','截至所选结束日近15天（销量－总退件数）÷15，按所选平台计算；显示四舍五入整数，可售天数仍使用未取整均值。');
  }
  return [...fields,...rpQualityProductFields(record)].map(field=>({...field,noNumericSignal:kind===4||/^stale/.test(field.key)}));
 }

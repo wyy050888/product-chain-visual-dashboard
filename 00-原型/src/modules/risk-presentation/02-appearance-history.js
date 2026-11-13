@@ -6,16 +6,17 @@ const rpWarningHistorySeeds=[
  {id:'quality-freeze-existing-a831',kind:0,objectId:'SPU-SOURCE-016',platform:'抖音',appearances:['2026-09-01']}
 ];
 const rpWarningAppearanceStorageKey='dashboard.risk-board-appearances.v1',rpWarningKinds=[0,6,1,4,3,2];
+const rpWarningRepeatGapDays=3;
 const rpWarningSnapshotCache=boundedCache(4);
 let rpWarningAppearances={},rpWarningObservedDates=[],rpWarningSamplesVersion='';
 try{const saved=JSON.parse(localStorage.getItem(rpWarningAppearanceStorageKey)||'{}');if(saved&&typeof saved==='object'&&!Array.isArray(saved)){rpWarningAppearances=saved.records||{};rpWarningObservedDates=rpWarningDates(saved.observedDates);rpWarningSamplesVersion=typeof saved.sampleVersion==='string'?saved.sampleVersion:''}}catch(_){}
 function rpWarningHistoryKey(record){return record.kind+'|'+record.objectId+'|'+record.platform}
 function rpWarningIdentity(kind,row){return rpWarningHistoryKey({kind,objectId:kind===1?row.shopId||row.id:row.skuId||row.spuId||row.productId||row.id,platform:row.platform||row.channel||'all'})}
 function rpWarningDates(dates){return [...new Set(Array.isArray(dates)?dates:[])].filter(uiPeriodValidDate).sort()}
-// 窗口只判断最近14个此前自然日；缺一天快照也不能推断当天未入榜。
+// 首次提醒需要此前的快照支持，历史不足时先建立观察基线。
 function rpWarningHistoryCovered(date,dates=rpWarningObservedDates){
  if(!uiPeriodValidDate(date))return false;const observed=new Set(dates);
- for(let day=1;day<15;day++){const prior=new Date(Date.parse(date+'T00:00:00Z')-day*86400000).toISOString().slice(0,10);if(!observed.has(prior))return false}
+ for(let day=1;day<rpWarningRepeatGapDays;day++){const prior=new Date(Date.parse(date+'T00:00:00Z')-day*86400000).toISOString().slice(0,10);if(!observed.has(prior))return false}
  return true;
 }
 function rpWarningHistory(){

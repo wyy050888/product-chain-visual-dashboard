@@ -13,7 +13,23 @@ const cecTargetFileHeaders=['责任部门','年度','年度目标（元）',...A
 const cecDerivedFields=new Set(['出厂价降本额（元）','品牌费降本额（元）','单台降本额（元）','单台累计降本率','降本单价（元）']);
 const cecText=value=>String(value??'').normalize('NFKC').trim();
 const cecFileHeader=value=>String(value??'').trim().replace(/^[*＊]\s*/,'').replace(/（(?:YYYY\/MM\/DD|YYYY\/MM|填报目标时必填)）$/,'').replace(/^(\d{1,2})月$/,'$1月（元）');
-const cecRawCell=value=>value&&typeof value==='object'&&Object.hasOwn(value,'formula')?'[公式：'+(value.formula||'共享公式')+']':String(value??'');
+const cecIsFormula=value=>value!==null&&typeof value==='object'&&Object.hasOwn(value,'formula');
+const cecTextFormula=value=>['str','inlineStr'].includes(value.type);
+const cecHasFormulaResult=value=>value.cached!=null&&(value.cached!==''||cecTextFormula(value));
+function cecRawCell(value){
+ if(!cecIsFormula(value))return String(value??'');
+ const result=cecHasFormulaResult(value)?'结果：'+(value.cached||'空文本'):'未保存计算结果';
+ return '[公式：'+(value.formula||'共享公式')+'；'+result+']';
+}
+const cecImportHasContent=value=>cecIsFormula(value)?!cecTextFormula(value)||!cecHasFormulaResult(value)||!!cecText(value.cached):!!cecText(value);
+function cecImportValue(raw,field,fail){
+ if(!cecIsFormula(raw))return cecText(raw);
+ if(raw.type==='e')fail(field,'公式结果为 '+(raw.cached||'错误值')+'，请修正后保存');
+ else if(!cecHasFormulaResult(raw))fail(field,'公式未保存计算结果，请重新计算并保存文件');
+ else if(raw.type==='b'||raw.type==='n'&&!Number.isFinite(Number(raw.cached)))fail(field,'公式结果须为数值或文本');
+ else return cecText(raw.cached);
+ return '';
+}
 const cecImportModule=kind=>kind==='target'?'降本目标值':'降本实际值';
 function cecDownloadSplitTemplate(kind=cecState.tab){
  const name=kind==='target'?'降本目标值导入模板.xlsx':'降本实际值导入模板.xlsx',link=document.createElement('a');link.href='assets/templates/'+name;link.download=name;document.body.append(link);link.click();link.remove();

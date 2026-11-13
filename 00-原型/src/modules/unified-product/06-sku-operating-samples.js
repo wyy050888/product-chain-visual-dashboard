@@ -4,9 +4,9 @@ const upSkuOperatingCache=boundedCache(3200);
 function upSkuOperatingRows(product,start,end){
  const p=upIdentity(product),key=upFactsKey(p,'sku-demo',start,end),cached=upSkuOperatingCache.get(key);
  if(cached)return cached;
- const summary=upSummary(p,start,end,'all'),weights=[50,30,20,0];
- const net=splitTarget(summary.sales-summary.returned,weights),returned=splitTarget(summary.returned,weights);
- const values=splitTarget(summary.gsvCents,net.some(value=>value>0)?net:weights);
+ const summary=upSummary(p,start,end,'all');
+ const net=upSkuNetSalesSample(summary),returned=splitTarget(summary.returned,upSkuSalesWeights);
+ const values=splitTarget(summary.gsvCents,net.some(value=>value>0)?net:upSkuSalesWeights);
  const profits=upSkuProfitSamples(p,summary,values,end);
  const rows=upStockSkus(p).map((sku,index)=>({...sku,start,end,sales:net[index]+returned[index],returned:returned[index],netSales:net[index],gsvCents:values[index],
   profitCents:profits[index],profitRate:values[index]>0&&Number.isFinite(profits[index])?profits[index]/values[index]*100:null,source:'demo'}));

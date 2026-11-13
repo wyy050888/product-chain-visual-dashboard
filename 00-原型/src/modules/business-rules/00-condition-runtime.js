@@ -5,14 +5,18 @@ function brcConditions(){
 }
 function brcMatch(key,value,context={}){const metric=brcMetricConfig(key).default;return brcPredicateTest(brcConditions()[key],metric,{...context,[metric]:value})}
 // 三种天数共用近15日均净销量；组成缺失不当作0，无正净销量不计算天数。
+function brcStockSellableUnits(stock){
+ const valid=value=>Number.isFinite(value)&&value>=0;
+ if(valid(stock.sellableUnits))return stock.sellableUnits;
+ const parts=[stock.warehouse,stock.transit,stock.factoryAvailable];
+ return parts.every(valid)?parts.reduce((sum,value)=>sum+value,0):null;
+}
 function brcStockMetrics(stock){
  const valid=value=>Number.isFinite(value)&&value>=0,daily=stock.dailyNet15;
  if(daily!==undefined&&(!Number.isFinite(daily)||daily<=0))return {coverage15:null,sellableCoverage15:null,totalCoverage15:null};
  const days=units=>valid(units)&&Number.isFinite(daily)&&daily>0?units/daily:null;
- const parts=[stock.warehouse,stock.transit,stock.factoryAvailable];
- const sellable=valid(stock.sellableUnits)?stock.sellableUnits:parts.every(valid)?parts.reduce((sum,value)=>sum+value,0):null;
  return {coverage15:valid(stock.coverage15)?stock.coverage15:days(stock.warehouse),
-  sellableCoverage15:valid(stock.sellableCoverage15)?stock.sellableCoverage15:days(sellable),
+  sellableCoverage15:valid(stock.sellableCoverage15)?stock.sellableCoverage15:days(brcStockSellableUnits(stock)),
   totalCoverage15:valid(stock.totalCoverage15)?stock.totalCoverage15:days(stock.totalUnits)};
 }
 function brcStockRuleMatch(key,stock){const metrics=brcStockMetrics(stock);return brcMatch(key,metrics[key==='stock.shortDays'?'totalCoverage15':'coverage15'],metrics)}
@@ -25,7 +29,7 @@ function brcStockWarningMetrics(stock,excluded=false){
  const days=brcStockMetrics(stock);
  // 台账明确给出空天数时保留缺失；不以推算值覆盖数据源的空值。
  if(Number.isFinite(stock.dailyNet15)&&stock.dailyNet15>0)for(const key of Object.keys(days))if(Object.hasOwn(stock,key))days[key]=Number.isFinite(stock[key])&&stock[key]>=0?stock[key]:null;
- return {...days,warehouse:Number.isFinite(stock.warehouse)?stock.warehouse:null,netSales15:Number.isFinite(stock.dailyNet15)?Math.round(stock.dailyNet15*15):null,excluded:excluded?1:0};
+ return {...days,sellableUnits:brcStockSellableUnits(stock),warehouse:Number.isFinite(stock.warehouse)?stock.warehouse:null,netSales15:Number.isFinite(stock.dailyNet15)?Math.round(stock.dailyNet15*15):null,excluded:excluded?1:0};
 }
 function brcStockWarningRuleText(key){return brcNamedConditionText(key,brcConditions()[key])}
 function brcStockWarningPrimary(key,stock){

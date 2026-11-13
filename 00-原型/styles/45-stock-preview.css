@@ -1,6 +1,9 @@
-/* 缺货五项、呆滞六项；窄卡继续沿用三列/两列换行。 */
+/* 缺货五项、呆滞七项；窄卡按容器宽度换行。 */
 #riskrail :is(.rp-stock-columns,.rp-stock-values) {grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
-#riskrail :is(.rp-stock-columns-4,.rp-stock-values-4) {grid-template-columns:repeat(6,minmax(0,1fr))}
+#riskrail :is(.rp-stock-columns-4,.rp-stock-values-4) {grid-template-columns:repeat(7,minmax(0,1fr))}
+@container risk-card (360px < width <= 560px){
+ #riskrail .riskcard .rp-stock-values-4 {grid-template-columns:repeat(4,minmax(0,1fr))}
+}
 #riskrail .rp-stock-columns>span {white-space:nowrap}
 /* 与产品榜单共用260px身份列和128px指标列，按实际列数自然形成表宽。 */
 #dialogbody #rf-list-table.rp-stock-table table {min-width:100%!important}

@@ -46,7 +46,7 @@ function smShowPage(route){
  $('#lt-system-nav').setAttribute('aria-current','page');smRenderMenu();page.onShow();$('#sm-content').scrollTo({top:0,left:0,behavior:'instant'});window.scrollTo({top:0,behavior:'instant'});
 }
 function smHidePage(){smActiveRoute='';smHost.hidden=true;document.body.classList.remove('lt-system-active');$('#lt-system-nav').removeAttribute('aria-current')}
-function smRestoreView(destination){
+function smRestoreView(destination,refreshLifecycle=true){
  if(qualityEntryView)qualityEntryView.hidden=true;
  if(destination==='#quality-department')showQualityEntry();
  else if(destination==='#procurement'||destination.startsWith('#pb-'))pbSwitchView(false);
@@ -54,9 +54,12 @@ function smRestoreView(destination){
  else{
   const key=['project','research'].find(k=>destination==='#'+dwProfiles[k].route||destination.startsWith('#'+dwProfiles[k].route+'-'));
   if(key){const module=destination.slice(dwProfiles[key].route.length+2);dwOpen(key,false,dxModuleOrder.includes(module)?module:null)}
-  else{dpSwitchView('director',false);renderLife()}
+  else{dpSwitchView('director',false);if(refreshLifecycle)renderLife()}
  }
- requestAnimationFrame(()=>document.getElementById(destination.slice(1))?.scrollIntoView({block:'start',behavior:'instant'}));
+ requestAnimationFrame(()=>{
+  if(pcIsActive()&&destination.startsWith('#dp-'))pcScrollToModule(destination.slice(4));
+  else document.getElementById(destination.slice(1))?.scrollIntoView({block:'start',behavior:'instant'});
+ });
 }
 function smSyncRoute(){
  if(smPages.has(location.hash)){if(smActiveRoute!==location.hash)smShowPage(location.hash);return}

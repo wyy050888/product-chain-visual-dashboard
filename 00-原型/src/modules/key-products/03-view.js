@@ -23,7 +23,10 @@ function kpmRender(){kpmCloseChartZoom(false);kpmHidePointTooltip();return withP
  const rows=kpmRows(),base=kpmFilterRows(rows,false,false),visible=kpmSortedRows(rows),managementRows=kpmFilterRows(rows,true,false);
  // 等级与异动条件作用于明细；矩阵保留当前业务范围的完整分布。
  kpmRenderScopeTabs(section,rows);
- dashboardRenderMarkup(section.querySelector('.matrixplot'),`<div class="kpm-chart-head"><h3 id="kpm-structure-heading">产品经营矩阵</h3><div class="kpm-chart-legend">${kpmChartLegend()}</div><div class="kpm-chart-actions"><button type="button" class="kpm-expand" data-kpm-expand aria-expanded="false">⛶ 放大</button></div></div><div id="matrixchart">${kpmChart(base,base)}</div>`);
+ const plot=section.querySelector('.matrixplot');
+ if(!plot.querySelector('.kpm-grade-summary'))plot.innerHTML=`<div class="kpm-chart-head"><h3 id="kpm-structure-heading">产品经营矩阵</h3><div class="kpm-chart-legend">${kpmChartLegend()}</div><div class="kpm-chart-actions"><button type="button" class="kpm-expand" data-kpm-expand aria-expanded="false">查看分布图</button></div></div><div class="kpm-grade-summary" role="region" aria-labelledby="kpm-structure-heading" tabindex="0"></div><div id="matrixchart"></div>`;
+ dashboardRenderMarkup(plot.querySelector('.kpm-grade-summary'),kpmGradeSummaryTable(base));
+ dashboardRenderMarkup(plot.querySelector('#matrixchart'),kpmChart(base,base));
  kpmRenderSidebar(rows,managementRows);
  kpmRenderChangeCondition();
  kpmPage.value=Math.max(1,Math.min(kpmPage.value,Math.ceil(visible.length/kpmPageSize())||1));

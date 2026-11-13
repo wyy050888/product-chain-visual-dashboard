@@ -19,7 +19,7 @@ export function violationComparisonModel(){
   const priorFacts={...facts(before),gsv:100,netSales:100};
   ctx.rpShopPeriodFacts=(_shop,start)=>start===range.start?facts(now):priorFacts;
   ctx.qrObservation=()=>({monthly:{events:events(before)}});
-  const product={product:{},quality:[{platform:'拼多多',monthly:{events:events(now)}}],previousStart:range.previousStart,previousEnd:range.previousEnd};
+  const product={product:{},quality:[{platform:'京东',monthly:{events:events(now)}}],previousStart:range.previousStart,previousEnd:range.previousEnd};
   const productFields=ctx.upViolationMetrics(product,false,'all');
   for(const key of ['violations','offShelf','drop'])assert.equal(productFields.find(f=>f.key===key).targetTone,'rp-quality-'+tone,'产品详情 '+key+' '+now+'/'+before);
   for(const field of productFields.filter(f=>['fine','frozen'].includes(f.key))){assert.equal(field.targetTone,'rp-quality-gray');assert.equal(field.target,now+'次','金额下仍只显示次数')}

@@ -21,7 +21,9 @@ function uiColumnApply(state,widths){
   if(right)cell.style.setProperty('right',offsets.at(-1)-offsets[start+span]+'px','important');
  }
  table.style.setProperty('table-layout','fixed','important');
- for(const key of ['width','min-width'])table.style.setProperty(key,offsets.at(-1)+'px','important');
+ const totalWidth=offsets.at(-1)+'px';
+ table.style.setProperty('width',table.hasAttribute('data-column-fill')?`max(100%, ${totalWidth})`:totalWidth,'important');
+ table.style.setProperty('min-width',totalWidth,'important');
  table.style.setProperty('max-width','none','important');table.classList.add('ui-table-widths');
  // 保留原表格节点和选择器；缺少滚动容器时只在其承载层开启横向滚动。
  const host=table.parentElement;if(host&&state.hostOverflowVisible)host.style.overflowX='auto';
@@ -93,15 +95,13 @@ document.addEventListener('keydown',e=>{
  widths[index]=Math.max(uiColumnMin,Math.min(uiColumnMax,widths[index]+(e.key==='ArrowRight'?1:-1)*(e.shiftKey?24:8)));
  state.cells=uiColumnCells(table);state.hostOverflowVisible=getComputedStyle(table.parentElement).overflowX==='visible';uiColumnApply(state,widths);uiColumnRemember(state.key,widths);
 },true);
-const uiColumnPending=new Set();let uiColumnScan=0;
+function uiColumnMeasure(table){
+ const prepared=uiColumnPrepare(table);
+ if(prepared)return ()=>uiColumnInit(table,prepared);
+}
 function uiColumnQueue(table){
- uiColumnPending.add(table);if(uiColumnScan)return;
- uiColumnScan=requestAnimationFrame(()=>{
-  uiColumnScan=0;
-  const batch=[...uiColumnPending].filter(table=>table.isConnected);uiColumnPending.clear();
-  const prepared=batch.map(uiColumnPrepare).filter(Boolean);
-  for(const state of prepared)uiColumnInit(state.table,state);
- });
+ // 与图表、年份控件共用读写批次，避免不同rAF回调互相使布局失效。
+ dashboardQueueLayout(table,uiColumnMeasure);
 }
 new MutationObserver(records=>{
  if(uiColumnDrag&&!uiColumnDrag.state.table.isConnected)uiColumnFinish(true);

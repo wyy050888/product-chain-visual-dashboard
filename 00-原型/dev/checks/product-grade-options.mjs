@@ -3,18 +3,16 @@ import assert from 'node:assert/strict';
 export async function productGradeOptions(page) {
   await page.waitForFunction(() => document.documentElement.dataset.dashboardBoot === 'ready');
   await page.locator('a[href="#new"]').click();
-  const tabs = page.locator('#nsp-grade-tabs [data-nsp-grade]');
-  assert.deepEqual(await tabs.evaluateAll(nodes => nodes.map(node => node.dataset.nspGrade)), ['all', 'S', 'A', 'B', 'C']);
-  const legend = page.locator('#newtop .nsp-distribution .dp-legend [data-nsp-grade]');
-  assert.deepEqual(await legend.evaluateAll(nodes => nodes.map(node => node.dataset.nspGrade)), ['S', 'A', 'B', 'C']);
+  const tabs = page.locator('#nsp-project-tabs [data-nsp-project]');
+  assert.deepEqual(await tabs.evaluateAll(nodes => nodes.map(node => node.dataset.nspProject)), ['all', '自研', '自选', '-']);
   const initial = await page.evaluate(() => dashboardNewProductsSnapshot());
-  const counts = await legend.locator('b').allTextContents();
-  assert.equal(counts.reduce((total, value) => total + Number(value.replace('个', '')), 0), initial.visible.length);
-  const grade = initial.visible.find(row => row.grade)?.grade;
-  assert(grade);
-  await page.locator('#nsp-grade-tabs [data-nsp-grade="' + grade + '"]').click();
-  assert((await page.evaluate(() => dashboardNewProductsSnapshot())).visible.every(row => row.grade === grade));
-  await page.locator('#nsp-grade-tabs [data-nsp-grade=all]').click();
+  assert.equal(await page.locator('#newtop .nsp-distribution').count(),0);
+  assert.equal(Number(await tabs.first().locator('span').textContent()),initial.visible.length);
+  const projectType = '-';
+  assert(initial.visible.some(row => row.developmentType === projectType));
+  await page.locator('#nsp-project-tabs [data-nsp-project="' + projectType + '"]').click();
+  assert((await page.evaluate(() => dashboardNewProductsSnapshot())).visible.every(row => row.developmentType === projectType));
+  await page.locator('#nsp-project-tabs [data-nsp-project=all]').click();
   assert.equal((await page.evaluate(() => dashboardNewProductsSnapshot())).visible.length, initial.visible.length);
   assert.doesNotMatch(await page.locator('#new').innerText(), /未分级/);
 

@@ -1,6 +1,7 @@
 // 图标徽标复用统一浮层，避免浏览器原生title的延迟提示。
 // 指标说明仅由问号触发；名称补全和图表数据点继续使用各自入口。
-const metricHelpSelector='.metric-help,.rp-shop-core[data-rp-core-names],.ip-brand-share-arc[data-metric-rule],.ip-stale-mark[data-metric-rule]';
+const brandShareArcSelector='.ip-brand-share-arc,.ms-brand-share-arc';
+const metricHelpSelector='.metric-help,.rp-shop-core[data-rp-core-names],.ip-stale-mark[data-metric-rule],:is('+brandShareArcSelector+')[data-metric-rule]';
 const metricTooltip = document.createElement('div');
 metricTooltip.id = 'metric-tooltip';
 metricTooltip.className = 'metric-tooltip';
@@ -15,6 +16,29 @@ function hideMetricTooltip() {
   activeMetricHelp = null;
   metricTooltip.hidden = true;
 }
+function renderBrandShareTooltip(host,name,color,values){
+ const append=(parent,tag,text='',className='')=>{
+  const node=document.createElement(tag);
+  node.textContent=text;
+  if(className)node.className=className;
+  parent.append(node);
+  return node;
+ };
+ const head=append(host,'div','','ip-share-tip-head');
+ const brand=append(head,'div','','ip-share-tip-brand');
+ const dot=append(brand,'i');
+ dot.style.background=color;
+ dot.setAttribute('aria-hidden','true');
+ append(brand,'strong',name);
+ const metrics=append(host,'dl','','ip-share-tip-metrics');
+ for(const [label,value,unit] of values){
+  const line=append(metrics,'div');
+  append(line,'dt',label);
+  const data=append(line,'dd');
+  append(data,'b',value);
+  if(unit)append(data,'small',unit);
+ }
+}
 // 两张新品指标卡：公式、统计口径、判定条件分别排版。
 function renderNewKpiTooltip(help){
  if(help.dataset.nspKpi==='新品销售成功率'){nspRenderSuccessTooltip(metricTooltip,help.dataset.nspAnnual==='true');return}
@@ -22,7 +46,8 @@ function renderNewKpiTooltip(help){
  const header=append(metricTooltip,'div','','nsp-tip-heading');append(header,'h4',help.dataset.nspKpi.replace('上线及时率','上市及时率'));
  append(metricTooltip,'div','实际上市项目数 ÷ 应上市项目数 × 100%','nsp-tip-formula');
  const list=append(metricTooltip,'dl','','nsp-tip-definitions');
- for(const [k,v] of [['分子','截至截止日已完成大货交付，且实际完成不晚于允许期限的项目'],['分母','包含大货交付任务的应上市项目']]){append(list,'dt',k);append(list,'dd',v)}
+ const period=help.dataset.nspAnnual==='true'?'本年度':'本季度';
+ for(const [k,v] of [['分子','截至截止日已完成大货交付，且实际完成不晚于允许期限的项目'],['分母','大货交付计划日期落在'+period+'的应上市项目']]){append(list,'dt',k);append(list,'dd',v)}
  const criteria=append(metricTooltip,'section','','nsp-tip-criteria');append(criteria,'h5','按期完成条件');append(criteria,'strong','实际完成时间 ≤ 计划完成时间＋'+brcNumber('new.deliveryDays')+'天');
  append(metricTooltip,'p','未完成或超期不计入分子。','nsp-tip-note');
 }
@@ -32,12 +57,12 @@ function renderMetricTooltipContent(help){
  metricTooltip.replaceChildren();
  metricTooltip.classList.remove('metric-rule-card');
  if(help.matches('.ip-brand-share-arc')){ipRenderBrandShareTooltip(metricTooltip,help);return}
+ if(help.matches('.ms-brand-share-arc')){msRenderBrandShareTooltip(metricTooltip,help);return}
  if(help.dataset.ipTrendPoint){ipRenderStaleTrendTooltip(metricTooltip,help);return}
  if(help.dataset.gdCoreHelp){gdRenderCoreTooltip(metricTooltip);return}
  if(kpmIsGradeHelp(help)){kpmRenderGradeHelp(metricTooltip);return}
  if(help.dataset.rpCoreHelp){rpRenderShopCoreHelp(metricTooltip);return}
  if(help.dataset.qualityRates){renderQualityRatesTooltip(metricTooltip);return}
- if(help.dataset.ipOverviewHelp==='refurb'){ipRenderOverviewHelp(metricTooltip);return}
  if(help.dataset.ipSummaryHelp){ipRenderSummaryHelp(metricTooltip,help);return}
  if(help.dataset.scpResourceHelp){scpRenderResourceHelp(metricTooltip,Number(help.dataset.scpRuleYear)||+DATA_CUTOFF.slice(0,4));return}
  if(help.dataset.scpMaterialHelp){scpRenderMaterialHelp(metricTooltip,Number(help.dataset.scpRuleYear)||+DATA_CUTOFF.slice(0,4));return}
@@ -54,7 +79,14 @@ function renderMetricTooltipContent(help){
  }
  if(help.dataset.gdTabHelp){gdRenderScopeTooltip(metricTooltip,help);return}
  if(!help.classList.contains('card-metric-help')||!text.startsWith('入榜条件\n')){
-  metricTooltip.textContent=text;return;
+  const emphasis=help.dataset.metricEmphasis,position=emphasis?text.indexOf(emphasis):-1;
+  if(position<0)metricTooltip.textContent=text;
+  else{
+   metricTooltip.append(text.slice(0,position));
+   metricRuleNode(metricTooltip,'strong',emphasis);
+   metricTooltip.append(text.slice(position+emphasis.length));
+  }
+  return;
  }
  for(const block of text.split('\n\n')){
   const [heading,...lines]=block.split('\n');
@@ -91,7 +123,7 @@ function showMetricTooltip(help) {
   activeMetricHelp?.removeAttribute('aria-describedby');
   activeMetricHelp = help;
   metricTooltip.classList.toggle('metric-tooltip-gd-core',Boolean(help.dataset.gdCoreHelp));
-  metricTooltip.classList.toggle('metric-tooltip-ip-brand-share',help.matches('.ip-brand-share-arc'));
+  metricTooltip.classList.toggle('metric-tooltip-brand-share',help.matches(brandShareArcSelector));
   metricTooltip.classList.toggle('metric-tooltip-ip-stale-trend',Boolean(help.dataset.ipTrendPoint));
   help.setAttribute('aria-describedby', 'metric-tooltip');
   metricTooltip.classList.toggle('metric-tooltip-card', help.classList.contains('card-metric-help'));
@@ -102,7 +134,6 @@ function showMetricTooltip(help) {
   metricTooltip.classList.toggle('metric-tooltip-period', help.classList.contains('nsp-period-help'));
   metricTooltip.classList.toggle('metric-tooltip-project-analysis', help.classList.contains('pp-analysis-help'));
   metricTooltip.classList.toggle('metric-tooltip-inventory',Boolean(help.dataset.ipRule));
-  metricTooltip.classList.toggle('metric-tooltip-stock-refurb',help.dataset.ipOverviewHelp==='refurb');
   metricTooltip.classList.toggle('metric-tooltip-inventory-summary',Boolean(help.dataset.ipSummaryHelp));
   metricTooltip.classList.toggle('metric-tooltip-quality-rates',Boolean(help.dataset.qualityRates));
   metricTooltip.classList.toggle('metric-tooltip-scp-sourcing',Boolean(help.dataset.scpSourcingHelp||help.dataset.scpCategoryHelp||help.dataset.scpMaterialHelp||help.dataset.scpResourceHelp));
@@ -110,6 +141,7 @@ function showMetricTooltip(help) {
   metricTooltip.classList.toggle('metric-tooltip-scp-resource',Boolean(help.dataset.scpResourceHelp));
   metricTooltip.classList.toggle('metric-tooltip-shop-core',Boolean(help.dataset.rpCoreHelp));
   metricTooltip.classList.toggle('metric-tooltip-shop-core-names',Boolean(help.dataset.rpCoreNames));
+  metricTooltip.toggleAttribute('data-preserve-terms',help.hasAttribute('data-preserve-terms'));
   renderMetricTooltipContent(help);
   cleanDemoPresentation(metricTooltip);
   metricTooltip.style.removeProperty('max-height');

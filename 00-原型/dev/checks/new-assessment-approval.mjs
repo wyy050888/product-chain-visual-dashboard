@@ -49,7 +49,7 @@ export async function newAssessmentApproval(page){
   await page.locator('[data-nsp-assess-development="'+candidate.developmentType+'"]').click();data=await audit();assert(record(data,id).successAssessment.approval,'开发类型切换保留本期特批');
   await showAction(id,'revoke');await page.keyboard.press('Escape');
   const row=page.locator('[data-nsp-approval-spu="'+id+'"]').locator('xpath=ancestor::tr');
-  assert.equal(await row.locator('td').nth(5).innerText(),'特批成功');
+  assert.equal(await row.locator('.nsp-success-status').innerText(),'特批成功');
   await page.locator('[data-nsp-assess-development="all"]').click();await page.locator('#close').click();
   await page.reload({waitUntil:'domcontentloaded'});await page.waitForFunction(()=>document.documentElement.dataset.dashboardBoot==='ready');assert.equal((await state()).records.length,2,'刷新保留两个独立记录');
   await open();await quarter(3);data=await audit();assert(record(data,id).successAssessment.approval);assert.equal(data.summary.success,before.summary.success+1);

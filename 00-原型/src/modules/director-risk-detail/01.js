@@ -14,17 +14,19 @@ function rfReturnFacts(r){
  const priceCents=Math.round(r.price*100),gmvCents=r.shipped*priceCents,refundCents=r.returned*priceCents,gsvCents=gmvCents-refundCents,previousGsvCents=(r.previousShipped-r.previousReturned)*priceCents,profile=(r.productId+qrPlatforms.indexOf(r.channel))%6,costCents=Math.round(gmvCents*[.84,.90,.78,.88,.96,.80][profile]),profitCents=gsvCents-costCents;
  return {gmvCents,refundCents,gsvCents,previousGsvCents,costCents,profitCents,profitRate:gsvCents>0?profitCents/gsvCents*100:null,targetCents:Math.round(previousGsvCents*1.05),receivedLimit:null};
 }
-function rfGrowth(value,current,previous){return previous===0?(current>0?'新增':'0.0%'):rrSigned(value,1,'%')}
-function rfGrowthHit(value,current,previous){return previous===0?current>0:value>=10}
+function rfGrowthMetric(name,key,growth){
+ const rule=key==='received'?'quality.worsenReceived':'quality.worsenReturn';
+ return rfMetric(name,periodRateGrowthText(growth),Number.isFinite(growth)?rpReturnGrowthHighlighted(key,growth):null,'按周／月对照区间计算退货率环比增长率，'+brcDescribe(rule)+'标红');
+}
 function rfFacts(k,r){
  const cutoff=bounds().cutoff;
  if(k===6){
   const f=rfReturnFacts(r);
-  return [rfMetric('总退货率',fmt(r.returnRate,1)+'%',r.returnRate>r.returnTarget,'所选周期退货件数÷发货件数；高于目标 '+fmt(r.returnTarget,1)+'% 标红'),rfMetric('总退环比增长',rfGrowth(r.growth,r.returnRate,r.previousRate),rfGrowthHit(r.growth,r.returnRate,r.previousRate),'总退货率较上期等长周期增长≥10%标红；上期为0且本期新增时标红'),rfMetric('已收退货率',fmt(r.receivedRate,1)+'%',null,'所选周期消费者签收后退货件数÷同期发货件数'),rfMetric('已收退环比增长',rfGrowth(r.receivedGrowthRate,r.received,r.prevReceived),rfGrowthHit(r.receivedGrowthRate,r.received,r.prevReceived),'已收退件数较上期等长周期增长≥10%标红；上期为0且本期新增时标红'),rfMetric('利润率',f.profitRate===null?'无净销售':fmt(f.profitRate,1)+'%',f.profitRate===null||f.profitRate<10,'演示净利润÷GSV；低于10%或无净销售标红'),rfMetric('GSV',pfMoneyYuan((f.gsvCents/1000000)*10000),f.gsvCents<f.targetCents,'所选周期退款后净销售额；演示目标为上期等长周期GSV×105%：'+pfMoneyYuan((f.targetCents/1000000)*10000))];
+  return [rfMetric('总退货率',fmt(r.returnRate,1)+'%',r.returnRate>r.returnTarget,'所选周期退货件数÷发货件数；高于目标 '+fmt(r.returnTarget,1)+'% 标红'),rfGrowthMetric('总退环比增长','return',r.growth),rfMetric('已收退货率',fmt(r.receivedRate,1)+'%',null,'所选周期消费者签收后退货件数÷同期发货件数'),rfGrowthMetric('已收退环比增长','received',r.receivedRateGrowth),rfMetric('利润率',f.profitRate===null?'无净销售':fmt(f.profitRate,1)+'%',f.profitRate===null||f.profitRate<10,'演示净利润÷GSV；低于10%或无净销售标红'),rfMetric('GSV',pfMoneyYuan((f.gsvCents/1000000)*10000),f.gsvCents<f.targetCents,'所选周期退款后净销售额；演示目标为上期等长周期GSV×105%：'+pfMoneyYuan((f.targetCents/1000000)*10000))];
  }
  if(k===4){
   const f=rfSlowFacts(r);
-  return [rfMetric('库存周转天数',f.turnDays===null?'无周转':fmt(f.turnDays,1)+'天',f.turnDays===null||f.turnDays>rfDemo.slowTurnDays,'所选周期已统计天数÷同期库存周转率；演示：超过60天或有库存无周转为红色'),rfMetric('滞销库存货值',pfMoneyYuan((r.amount)*10000),r.amount>0,'沿用呆滞库存货值台账；金额＞0为红色'),rfMetric('期间销量',fmt(f.sales)+'件',f.sales<Math.ceil(rfDemo.slowSales30*f.periodDays/30),'与详情所选周期销量趋势合计一致；演示：30天基准20件，按所选天数折算目标'),rfMetric('滞销金额',pfMoneyYuan((r.amount)*10000),r.amount>0,'当前演示与滞销库存货值采用同一口径，不重复相加；金额＞0为红色'),rfMetric('库存总量',fmt(r.num)+'件',r.num>f.stockLimit,'仓内期末库存；超过所选周期日均销量×90天（'+fmt(f.stockLimit)+'件）为红色'),rfMetric('动销率',fmt(f.sellThrough,1)+'%',f.sellThrough<rfDemo.slowSellThrough,'单品演示口径：所选周期销量÷（所选周期销量＋期末库存）；低于5%为红色')];
+  return [rfMetric('库存周转天数',f.turnDays===null?'无周转':fmt(f.turnDays,1)+'天',f.turnDays===null||f.turnDays>rfDemo.slowTurnDays,'所选周期已统计天数÷同期库存周转率；演示：超过60天或有库存无周转为红色'),rfMetric('滞销库存货值',pfMoneyYuan((r.amount)*10000),r.amount>0,'沿用呆滞库存货值台账；金额＞0为红色'),rfMetric('期间销量',formatSalesQuantity(f.sales,'件'),f.sales<Math.ceil(rfDemo.slowSales30*f.periodDays/30),'与详情所选周期销量趋势合计一致；演示：30天基准20件，按所选天数折算目标'),rfMetric('滞销金额',pfMoneyYuan((r.amount)*10000),r.amount>0,'当前演示与滞销库存货值采用同一口径，不重复相加；金额＞0为红色'),rfMetric('库存总量',fmt(r.num)+'件',r.num>f.stockLimit,'仓内期末库存；超过所选周期日均销量×90天（'+fmt(f.stockLimit)+'件）为红色'),rfMetric('动销率',fmt(f.sellThrough,1)+'%',f.sellThrough<rfDemo.slowSellThrough,'单品演示口径：所选周期销量÷（所选周期销量＋期末库存）；低于5%为红色')];
  }
  if(k===1){
   const period=riskShopPeriod(r),target=period.target,gsv=period.gsv,scoreRisk=sbScoreRisk(r),scoreHit=!!scoreRisk;
@@ -32,10 +34,10 @@ function rfFacts(k,r){
  }
  if(k===2){
   const period=riskLossPeriod(r),sales=period.sales,returned=period.returned,rate=period.rate,gsv=+period.gsv.toFixed(2),profit=-period.loss,margin=gsv?profit/gsv*100:0,target=+(gsv/[.78,1.1,.89,1.15][r.id%4]).toFixed(2),salesTarget=Math.ceil(sales/[.82,1.12,1.06,.75][r.id%4]),returnTarget=[4,6,5,4][r.id%4],received=period.received,receivedRate=period.receivedRate,receivedTarget=null;
-  return [rfMetric('亏损金额',brLossAmount(Math.max(0,-profit))+'万',profit<0,'同期亏损金额以负数展示'),rfMetric('利润率',fmt(margin,1)+'%',margin<10,'利润÷GSV；低于10%为红色'),rfMetric('GSV',pfMoneyYuan((gsv)*10000),gsv<target,'所选周期净销售额；演示目标 '+fmt(target,2)+' 万元'),rfMetric('销量',fmt(sales),sales<salesTarget,'所选周期发货销量；演示目标 '+fmt(salesTarget)+' 件'),rfMetric('退货率',fmt(rate,1)+'%',rate>returnTarget,'所选周期退货件数÷发货销量；演示目标 '+returnTarget+'%'),rfMetric('已收退货率',fmt(receivedRate,1)+'%',null,'所选周期消费者签收后退货件数÷发货销量；已收退 '+fmt(received)+'，销量 '+fmt(sales))];
+  return [rfMetric('亏损金额',brLossAmount(Math.max(0,-profit))+'万',profit<0,'同期亏损金额以负数展示'),rfMetric('利润率',fmt(margin,1)+'%',margin<10,'利润÷GSV；低于10%为红色'),rfMetric('GSV',pfMoneyYuan((gsv)*10000),gsv<target,'所选周期净销售额；演示目标 '+fmt(target,2)+' 万元'),rfMetric('销量',formatSalesQuantity(sales),sales<salesTarget,'所选周期发货销量；演示目标 '+formatSalesQuantity(salesTarget,' 件')),rfMetric('退货率',fmt(rate,1)+'%',rate>returnTarget,'所选周期退货件数÷发货销量；演示目标 '+returnTarget+'%'),rfMetric('已收退货率',fmt(receivedRate,1)+'%',null,'所选周期消费者签收后退货件数÷发货销量；已收退 '+fmt(received)+'，销量 '+formatSalesQuantity(sales))];
  }
  const series=irSalesSeries(r).points,periodDays=riskRange().days,last15=series,sales=last15.reduce((s,p)=>s+p.volume,0),staleUnits=Math.round(r.num*r.staleCents/Math.max(1,r.amountCents)),coverage=sales?r.warehouse/(sales/periodDays):null,unitPrice=r.financePriceCents/100*1.35,gsv=+(sales*unitPrice*(1-r.returnRate/100)/10000).toFixed(2),salesTarget=Math.max(periodDays,Math.ceil(r.warehouse/60*periodDays)),gsvTarget=+(salesTarget*unitPrice*(1-r.returnRate/100)/10000).toFixed(2),turnHit=ipSignal('turn',r.turn)==='red',unit=ipPeriod().unit;
- return [rfMetric('滞销库存货值',pfMoneyYuan((r.stale)*10000),r.stale>0,'沿用呆滞库存货值台账，金额＞0为红色'),rfMetric('滞销库存数',fmt(staleUnits)+'件',staleUnits>0,'按呆滞货值占仓内货值比例折算库存数量；数量＞0为红色'),rfMetric('周转率',r.turn===null?'—':fmt(r.turn,2)+'次/'+unit,turnHit,'所选周期出库成本÷平均库存成本，折算月均低于2次为红色'),rfMetric('可售天数',coverage===null?'无动销':fmt(coverage,1)+'天',coverage===null||coverage<rfDemo.coverageMin||coverage>rfDemo.coverageMax,'仓内可售库存÷所选周期日均销量；演示正常区间15—90天，无动销也标红'),rfMetric('期间销量',fmt(sales)+'件',sales<salesTarget,'所选周期销量趋势合计；演示目标 '+fmt(salesTarget)+' 件'),rfMetric('GSV',pfMoneyYuan((gsv)*10000),gsv<gsvTarget,'所选周期净销售额；演示目标 '+fmt(gsvTarget,2)+' 万元')];
+ return [rfMetric('滞销库存货值',pfMoneyYuan((r.stale)*10000),r.stale>0,'沿用呆滞库存货值台账，金额＞0为红色'),rfMetric('滞销库存数',fmt(staleUnits)+'件',staleUnits>0,'按呆滞货值占仓内货值比例折算库存数量；数量＞0为红色'),rfMetric('周转率',r.turn===null?'—':fmt(r.turn,2)+'次/'+unit,turnHit,'所选周期出库成本÷平均库存成本，折算月均低于2次为红色'),rfMetric('可售天数',coverage===null?'无动销':fmt(coverage,1)+'天',coverage===null||coverage<rfDemo.coverageMin||coverage>rfDemo.coverageMax,'仓内可售库存÷所选周期日均销量；演示正常区间15—90天，无动销也标红'),rfMetric('期间销量',formatSalesQuantity(sales,'件'),sales<salesTarget,'所选周期销量趋势合计；演示目标 '+formatSalesQuantity(salesTarget,' 件')),rfMetric('GSV',pfMoneyYuan((gsv)*10000),gsv<gsvTarget,'所选周期净销售额；演示目标 '+fmt(gsvTarget,2)+' 万元')];
 }
 function rfCell(m){return `<span class="rf-value ${m.hit===null?'':m.hit?'red':'green'}" aria-label="${esc(m.name+' '+m.value+' '+(m.hit===null?'':m.hit?'异常':'正常'))}"><i></i>${esc(m.value)}</span>`}
 function rfRows(k){return k===1?brFilteredShops():riskRows(k)}
@@ -48,12 +50,11 @@ const rfPreviousTitle=directorRiskTitle;
 directorRiskTitle=function(title){return rfPreviousTitle(title).replaceAll('劣质店铺榜','店铺风险榜')};
 function rfRuleRows(k){if(k===6)return [
  ['总退货率','退货件数÷同期发货件数','高于总退货率目标红色，未超过绿色'],
- ['总退环比增长','（本期总退货率−上期等长周期总退货率）÷上期等长周期总退货率','增长≥10%红色，其余绿色'],
+ ['总退环比增长','（本期总退货率−上期总退货率）÷上期总退货率×100%','增长＞10%标红，上期为0或缺失显示—'],
  ['已收退货率','所选周期消费者签收后退货件数÷同期发货件数×100%','仅展示实际值'],
- ['已收退环比增长','（本期已收退件数−上期等长周期件数）÷上期等长周期件数','增长≥10%红色，其余绿色；按件数环比，不是退货率之差'],
+ ['已收退环比增长','（本期已收退货率−上期已收退货率）÷上期已收退货率×100%','增长＞10%标红，上期为0或缺失显示—'],
  ['利润率','演示净利润÷GSV×100%','＜10%红色；≥10%绿色；无净销售红色'],
- ['GSV','GMV−退款金额','低于上期等长周期GSV×105%的演示目标红色，否则绿色'],
- ['新增退货','上期无退货，本期发生退货','红色预警']
+ ['GSV','GMV−退款金额','低于上期等长周期GSV×105%的演示目标红色，否则绿色']
  ];if(k===4)return [
  ['库存周转天数','所选周期已统计天数÷库存周转率','＞60天红色；≤60天绿色；有库存无周转红色'],
  ['滞销库存货值','对应产品呆滞库存台账金额','＞0红色；0绿色'],

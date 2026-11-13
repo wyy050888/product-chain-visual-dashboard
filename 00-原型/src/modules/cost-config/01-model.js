@@ -67,6 +67,7 @@ function cecApplyStore(){
 
   if(Object.hasOwn(value,'actualCents')){
    const last=new Date(Date.UTC(+month.slice(0,4),+month.slice(5,7),0)).toISOString().slice(0,10),date=month===DATA_CUTOFF.slice(0,7)?DATA_CUTOFF:last;
+   row.actualFromStore=true;
    row.actualMissing=value.actualCents===null;row.confirmations=value.actualCents===null?[]:[{id:'CFG-'+key,date,cents:value.actualCents}];
   }
  }

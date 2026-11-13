@@ -5,12 +5,29 @@ function ipOverviewSummary(records,balance){
   const rows=records.filter(row=>pfIdentity(row).attribute===label);
   return {label,units:targetSum(rows.map(row=>row.staleUnits||0)),valueCents:targetSum(rows.map(row=>row.staleValueCents||0))};
  });
- return {...metrics,seasons,unrefurbished:ipUnrefurbishedSummary(records),metricPeriod:{...ipMetricPeriod},range:bounds(ipMetricPeriod),totalUnits:balance.totalUnits,goodsValueCents:balance.goodsValueCents,
+ const range=bounds(ipMetricPeriod);
+ return {...metrics,seasons,unrefurbished:ipUnrefurbishedSummary(records),stockout:ipStockoutModel(records,range),metricPeriod:{...ipMetricPeriod},range,totalUnits:balance.totalUnits,goodsValueCents:balance.goodsValueCents,
   staleRatio:balance.totalUnits?metrics.staleUnits/balance.totalUnits*100:null,
   staleValueRatio:balance.goodsValueCents?metrics.staleValueCents/balance.goodsValueCents*100:null};
 }
-function ipOverviewHelp(key,label,rule){
- return `<span class="metric-help" tabindex="0" role="button" aria-label="查看${label}口径" data-ip-overview-help="${key}" data-metric-rule="${esc(rule)}"></span>`;
+const ipOverviewRules={
+ delivery:{
+  title:'新机交付及时率',
+  text:'新机交付及时率 =（考核期内的已交付量+当前最新库存数（人工导入））/ 考核期内的采购总量',
+  emphasis:'（人工导入）'
+ },
+ refurb:{
+  title:'翻新闭环率',
+  text:'翻新闭环率 = 到工厂之后30天完成翻新的采购单量 / 总采购单量'
+ },
+ stockout:{
+  title:'爆款断货次数',
+  text:'非C级品、非清仓品、非下市品，近15天日均净销＞0 且 我司可售库存为0的次数'
+ }
+};
+function ipOverviewHelp(key){
+ const {title,text,emphasis}=ipOverviewRules[key];
+ return `<span class="metric-help" tabindex="0" role="button" aria-label="查看${title}口径" data-ip-overview-help="${key}" data-metric-rule="${esc(text)}"${emphasis?` data-metric-emphasis="${esc(emphasis)}"`:''}></span>`;
 }
 // 总览使用独立紧凑布局；库存快照、期间指标和产品详情仍共用原模型。
 function ipOverviewCard({key,title,help='',quantity,value='',valueLabel='货值',foot='',className=''}){
@@ -32,6 +49,6 @@ function ipOverviewCards(model,balance){
  const turnTone=ipSignal('turn',model.turn,model.metricPeriod.mode);
  const turn=ipOverviewCard({key:'turn',title:'库存周转率',quantity:`<strong class="ip-signal ${turnTone==='none'?'muted':turnTone}" data-stock-turn="${model.turn??''}">${numberSignal(Number.isFinite(model.turn)?fmt(model.turn,2)+'次':'—',turnTone)}</strong>`,className:'stock-summary-single'});
  const deliveryTone=ipSignal('delivery',model.delivery,model.metricPeriod.mode);
- const delivery=ipOverviewCard({key:'delivery',title:'交付及时率',quantity:`<strong class="ip-signal ${deliveryTone==='none'?'muted':deliveryTone}" data-stock-delivery="${model.delivery??''}">${numberSignal(Number.isFinite(model.delivery)?fmt(model.delivery,1)+'%':'—',deliveryTone)}</strong>`,className:'stock-summary-single'});
- return `<div class="stock-overview-cards">${stock}<div class="stock-period-cards">${turn}${delivery}</div>${ipRefurbCard(model.refurb,model.unrefurbished)}</div>`;
+ const delivery=ipOverviewCard({key:'delivery',title:'交付及时率',help:ipOverviewHelp('delivery'),quantity:`<strong class="ip-signal ${deliveryTone==='none'?'muted':deliveryTone}" data-stock-delivery="${model.delivery??''}">${numberSignal(Number.isFinite(model.delivery)?fmt(model.delivery,1)+'%':'—',deliveryTone)}</strong>`,className:'stock-summary-single'});
+ return `<div class="stock-overview-cards">${stock}<div class="stock-period-cards">${turn}${delivery}${ipStockoutCard(model.stockout)}</div>${ipRefurbCard(model.refurb,model.unrefurbished)}</div>`;
 }

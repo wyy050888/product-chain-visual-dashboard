@@ -30,7 +30,7 @@ export async function detailStockPeriod(page){
   await setOverview(period);
   const data=await page.evaluate(()=>window.inventoryControlAudit()),row=data.stockRecords.find(row=>row.spuId===id);
   assert(row,'总览可找到当前SPU');
-  const facts={cost:row.cost,avg:row.avg,turn:row.turn,delivery:row.delivery,on:row.deliveryOn,due:row.deliveryDue,refurbRate:row.refurbRate,refurb:row.refurb,orders:row.refurbOrders,range:data.overview.range};
+  const facts={cost:row.cost,avg:row.avg,turn:row.turn,delivery:row.delivery,on:row.deliveryOn,due:row.deliveryDue,importedStock:row.importedStock,refurbRate:row.refurbRate,refurb:row.refurb,orders:row.refurbOrders,range:data.overview.range};
   await setOverview(initialInventoryPeriod);
   const rate=stock.locator('[data-stock-card="refurbRate"] .ip-refurb-rate');
   assert.equal(await rate.evaluate(el=>getComputedStyle(el).color),'rgb(22, 119, 255)');
@@ -38,18 +38,18 @@ export async function detailStockPeriod(page){
   await verifyRefurbDistribution(page,rate,facts.refurb);
   assert((await page.locator('#ip-refurb-distribution h4').innerText()).startsWith(await rate.getAttribute('data-ip-refurb-name')));
   const now=await read();
-  for(const key of ['total','warehouse','factory','transit','dailyNet15'])assert.deepEqual(now[key],start[key],'期间不改最新库存/近15日净销量 '+key);
+  for(const key of ['total','sellable','dailyNet15'])assert.deepEqual(now[key],start[key],'期间不改最新库存/近15日净销量 '+key);
   const numeric=v=>v[0]===''?null:Number(v[0]);
   assert.equal(numeric(now.turn),facts.turn);assert.equal(numeric(now.delivery),facts.delivery);assert.equal(numeric(now.refurbRate),facts.refurbRate);
   assert.equal(facts.turn,facts.avg>0?facts.cost/facts.avg:null);
-  assert.equal(facts.delivery,facts.due>0?facts.on/facts.due*100:null);
-  assert.equal(facts.refurbRate,facts.refurb.completed&&!facts.refurb.unknown?facts.refurb.onTime/facts.refurb.completed*100:null);
-  for(const order of facts.orders)assert(order.completedAt>=facts.range.start&&order.completedAt<=facts.range.cutoff,'翻新按交付完成归期');
+  assert.equal(facts.delivery,facts.due>0?(facts.on+facts.importedStock)/facts.due*100:null);
+  assert.equal(facts.refurbRate,facts.refurb.total&&!facts.refurb.unknown?facts.refurb.onTime/facts.refurb.total*100:null);
+  for(const order of facts.orders)assert(order.orderedAt>=facts.range.start&&order.orderedAt<=facts.range.cutoff,'翻新按采购单下单日归期');
   const skuRates=await stock.locator('[data-stock-metric="turn"]').evaluateAll(nodes=>nodes.map(n=>n.dataset.stockRaw));
   if(previous&&previous.period.mode!==period.mode)assert.notDeepEqual(skuRates,previous.skuRates,'SKU周转率随期间重算');
   previous={period,skuRates};
   assert.equal(await stock.locator('[data-rp-sort="delivery"],[data-rp-sort="refurbRate"]').count(),0,'SKU不增加交付/翻新列');
-  assert.equal(await stock.locator('thead th').count(),15);
+  assert.equal(await stock.locator('thead th').count(),10);
   assert.deepEqual([await root.getAttribute('data-up-start'),await root.getAttribute('data-up-end')],operatingDates,'不改经营/品质日期');
   assert.deepEqual(await page.evaluate(()=>window.inventoryControlAudit().metricPeriod),initialInventoryPeriod,'恢复库存总览期间');
  }

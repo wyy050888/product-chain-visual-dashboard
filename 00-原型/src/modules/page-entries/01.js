@@ -24,5 +24,5 @@ function initializeDashboardEntry(){
  }
  const destination=location.hash||dashboardEntryRoutes[dashboardEntryView];
  if(smPages.has(destination))smShowPage(destination);
- else smRestoreView(destination);
+ else smRestoreView(destination,false);
 }

@@ -86,12 +86,16 @@ function upBuildDaily(p, platform, start, end, version=upFactsVersion(p)) {
   });
   return rows;
 }
+const upQualityViews=new WeakMap();
 function upQualityData(p, platform, start, end) {
   const data = upSummary(upIdentity(p),start,end,platform);
   // 汇总卡片不展开每日明细；保留原字段及可枚举points，仅图表读取时生成。
-  const {points:dailyProperty,...properties}=Object.getOwnPropertyDescriptors(data);
-  const result=Object.assign(Object.defineProperties({},properties),{returnRate:data.returnRate??0,receivedRate:data.receivedRate??0,badRate:data.badRate??0});
+  const cached=upQualityViews.get(data);if(cached)return cached;
+  const result={};
+  for(const field of Object.keys(data))if(field!=='points')result[field]=data[field];
+  for(const field of ['returnRate','receivedRate','badRate'])result[field]??=0;
   let points;
-  Object.defineProperty(result,'points',{enumerable:true,get:()=>points??=(dailyProperty.get()).map(d=>({...d,returnRate:qrRate(d.returned,d.sales),contactRate:qrRate(d.contacts,d.sales)}))});
+  Object.defineProperty(result,'points',{enumerable:true,get:()=>points??=data.points.map(d=>({...d,returnRate:qrRate(d.returned,d.sales),contactRate:qrRate(d.contacts,d.sales)}))});
+  upQualityViews.set(data,result);
   return result;
 }

@@ -30,7 +30,7 @@ function nspUpdateAssessmentMatrixSelection(root,quarter,chain,result){
  });
 }
 function nspRenderAssessmentDetailHeader(host,data,result,chain,query=''){
- if(!host.firstElementChild)host.innerHTML='<div class="nsp-assessment-detail-heading"><h3></h3><span class="nsp-assessment-range"></span></div><div class="nsp-assessment-detail-controls"><label class="ui-search-field nsp-assessment-search"><input type="search" data-nsp-assess-search aria-label="搜索考核产品名称、SPU码或型号" placeholder="搜索产品名称 / SPU码 / 型号" autocomplete="off"></label><div class="nsp-assessment-results" data-nsp-assess-results role="tablist" aria-label="考核结果"></div></div>';
+ if(!host.firstElementChild)host.innerHTML='<div class="nsp-assessment-detail-heading"><h3></h3><span class="nsp-assessment-range"></span></div><div class="nsp-assessment-detail-controls"><label class="ui-search-field nsp-assessment-search"><input type="search" data-nsp-assess-search aria-label="搜索考核产品简称、SPU名称或型号" placeholder="搜索产品简称 / SPU名称 / 型号" autocomplete="off"></label><div class="nsp-assessment-results" data-nsp-assess-results role="tablist" aria-label="考核结果"></div></div>';
  const search=host.querySelector('[data-nsp-assess-search]');if(search.value!==query)search.value=query;
  const title=host.querySelector('h3'),label=(data.assessment.annual?'年度':data.assessment.label)+' · '+(chain==='all'?'公司汇总':chain);
  if(title.textContent!==label)title.textContent=label;

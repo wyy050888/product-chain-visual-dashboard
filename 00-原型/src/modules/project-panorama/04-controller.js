@@ -26,7 +26,7 @@ function ppMount(){
 }
 function ppRender(){
  ppMount();const all=ppRows(),scope=ppScope(all);
- $('#pp-overview').innerHTML=ppOverview(scope);
+ ppRenderOverview(all,scope);
  $('#pp-filters').innerHTML=ppToolbar(scope);
  decorateFilterFields($('#pp-filters'));
  ppBindFilterMenus();
@@ -38,12 +38,13 @@ renderProjects=function(...args){
  return withPeriod('projects',ppRender);
 };
 function ppRefreshTable(){withPeriod('projects',()=>ppTable(ppScope(ppRows())))}
-// 两张概览图共用一个分组维度；只重绘图表，保留明细筛选、分页和滚动。
+function ppRenderOverview(all=ppRows(),scope=ppScope(all)){$('#pp-overview').innerHTML=ppOverview(scope,all)}
+// 三张概览图共用一个分组维度；只重绘图表，保留明细筛选、分页和滚动。
 function ppSwitchChartDimension(button){
- const attribute=['data-pp-distribution','data-pp-dept-dimension'].find(key=>button.hasAttribute(key));
+ const attribute=['data-pp-distribution','data-pp-dept-dimension','data-pp-event-dimension'].find(key=>button.hasAttribute(key));
  const dimension=button.getAttribute(attribute);if(!['type','category'].includes(dimension))return;
  ppState.distribution=dimension;
- withPeriod('projects',()=>{$('#pp-overview').innerHTML=ppOverview(ppScope(ppRows()))});
+ withPeriod('projects',ppRenderOverview);
  $('#pp-overview ['+attribute+'="'+dimension+'"]')?.focus({preventScroll:true});
 }
 
@@ -62,7 +63,7 @@ function ppBindPlan(key){
 }
 document.addEventListener('change',e=>{
  const select=e.target.closest('#projects.pp-main [data-pp-filter]');
- if(select){ppState[select.dataset.ppFilter]=pfSelected(pfControlValue(select));if(select.dataset.ppFilter==='department')ppState.riskDepartment=ppState.department.length===1?ppState.department[0]:'全部';ppState.page=1;if(['category','type'].includes(select.dataset.ppFilter)){ppState.link=null;ppState.stage=[];renderProjects()}else if(select.dataset.ppFilter==='projectState'){ppState.link=null;renderProjects()}else if(['riskLight','department'].includes(select.dataset.ppFilter)){withPeriod('projects',()=>{$('#pp-overview').innerHTML=ppOverview(ppScope(ppRows()))});ppRefreshTable()}else ppRefreshTable()}
+ if(select){ppState[select.dataset.ppFilter]=pfSelected(pfControlValue(select));if(select.dataset.ppFilter==='department')ppState.riskDepartment=ppState.department.length===1?ppState.department[0]:'全部';ppState.page=1;if(['category','type'].includes(select.dataset.ppFilter)){ppState.link=null;ppState.stage=[];renderProjects()}else if(select.dataset.ppFilter==='projectState'){ppState.link=null;renderProjects()}else if(['riskLight','department'].includes(select.dataset.ppFilter)){withPeriod('projects',ppRenderOverview);ppRefreshTable()}else ppRefreshTable()}
 });
 document.addEventListener('input',e=>{
  const input=e.target.closest('#projects.pp-main [data-pp-search]');if(!input)return;
@@ -83,7 +84,7 @@ document.addEventListener('click',e=>{
  if(d.ppLedger!==undefined){ppShowLedger(b);return}
  if(d.ppPage){ppState.page=Number(d.ppPage);ppRefreshTable();return}
  if(d.ppEvidence!==undefined){ppState.query='';ppState.link=null;const id=Number(d.ppEvidence);withPeriod('projects',()=>{const rows=ppDetailRows(ppScope(ppRows()));ppState.page=Math.floor(rows.findIndex(p=>p.id===id)/10)+1});renderProjects();const trigger=$('#pp-table-scroll [data-pp-ledger="'+id+'"]');if(trigger){trigger.scrollIntoView({block:'nearest',inline:'nearest'});ppShowLedger(trigger)}return}
- if(d.ppDistribution||d.ppDeptDimension){ppSwitchChartDimension(b);return}
+ if(d.ppDistribution||d.ppDeptDimension||d.ppEventDimension){ppSwitchChartDimension(b);return}
  if(d.ppLink==='light'){ppState.light=ppLightActive(d.value)?[]:ppLightValues(d.value);if(ppState.link?.kind==='light')ppState.link=null;ppState.page=1;renderProjects();return}
  // 分布图单选切换，再次点击当前单选项取消；同步下拉筛选。
  if(['type','category'].includes(d.ppLink)){const key=d.ppLink;ppState[key]=ppState[key].length===1&&ppState[key][0]===d.value?[]:[d.value];ppState.link=null;ppState.stage=[];ppState.page=1;renderProjects();return}

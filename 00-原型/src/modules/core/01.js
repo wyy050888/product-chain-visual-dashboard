@@ -1,6 +1,11 @@
 
 const numberFormatters=new Map();
 function fmt(n,d=0){let formatter=numberFormatters.get(d);if(!formatter){formatter=new Intl.NumberFormat('zh-CN',{minimumFractionDigits:d,maximumFractionDigits:d});numberFormatters.set(d,formatter);}return formatter.format(Number(n));}
+function formatSalesQuantity(value,unit=''){
+ if(!Number.isFinite(value))return '--';
+ const display=Math.abs(value)>10000?fmt(value/10000,1).replaceAll(',','')+'w':fmt(value);
+ return display+unit;
+}
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)], esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const chains=filterCatalog.chainByIndex,brands=[...new Set(['海尔','创维','康佳','美的','苏泊尔',...sampleSpus.map(p=>p.brand)])],channels=filterCatalog.platforms,depts=['产品部','项目部','品质部','研发部','采购部'],types=['自研立项','选品立项','自研上品','选品上品','产品迭代','研发创新','产品下市','自选','自研','品质整改','创新项目'];
 const config={green:brcNumber('lights.green'),yellow:brcNumber('lights.yellow'),low:20,high:60,profit:10,delay:brcNumber('lights.projectDelay'),returnGrowth:5,inventory:1.2};

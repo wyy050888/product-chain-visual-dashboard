@@ -1,7 +1,7 @@
 // 项目卡点排除已有执行单；新增高危只按风险榜出现记录判断。
 const gdKeyWorkStandards=[
  ['项目卡点','• 项目进行中，项目、所属阶段和任务均为红灯。\n• 该任务既未关联项目风险台账，也未关联执行单。\n• 按当前有效灯色判断；项目或阶段修正后，不因任务延期红灯重复提醒。'],
- ['新增高危','• 当前满足上方风险预警条件。\n• 同一榜单、产品/SKU或店铺、平台合并去重。\n• 以上方风险榜最近出现日为第1天，第2～15天不重复，第16天起重判；持续入榜不重复。']
+ ['新增高危','• 当前满足上方风险预警条件。\n• 同一榜单、产品/SKU或店铺、平台合并去重。\n• '+gdRiskRepeatRule]
 ];
 function gdHasExecution(row,tasks=Object.values(upTodos)){
  if(row.executionOrderId||(row.executionOrders||[]).length)return true;

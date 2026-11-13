@@ -4,7 +4,8 @@ function rpCompanyStockRows(){
  localPeriods.risk={mode:'day',year:+DATA_CUTOFF.slice(0,4),value:+DATA_CUTOFF.slice(5,7),start:shiftDate(DATA_CUTOFF,-29),end:DATA_CUTOFF};
  try{return withPeriod('risk',()=>irLedger().map(r=>{
   const p=upIdentity(r),s=upSummary(p,shiftDate(DATA_CUTOFF,-29),DATA_CUTOFF),month=DATA_CUTOFF.slice(0,7)+'-01';
-  const violation=qrPlatforms.reduce((n,platform)=>{const m=qrObservation(upProduct(p),platform,month,DATA_CUTOFF).monthly;return n+Number(m.offShelf||0)+(m.events||[]).filter(e=>e.type==='资金冻结').length},0);
+  const product=upProduct(p);
+  const violation=qrPlatforms.reduce((n,platform)=>{const m=qrbMonthly(product,platform,DATA_CUTOFF,month);return n+Number(m.offShelf||0)+(m.events||[]).filter(e=>e.type==='资金冻结').length},0);
   const facts={...r,...upPlatformStockFacts(r,'all'),violation:brcMatch('stock.violations',violation)?'红色':'正常',violationCount:violation,platformMetrics:[{platform:'全公司',profitRate:s.profitRate,returnRate:s.returnRate,receivedRate:s.receivedRate}],snapshotDate:DATA_CUTOFF};
   return {...facts,reasons:irReasons(facts)};
  }).filter(r=>r.reasons.length&&r.totalUnits>0).sort((a,b)=>b.goodsValueCents-a.goodsValueCents))}finally{if(previous)localPeriods.risk=previous;else delete localPeriods.risk}
@@ -27,7 +28,7 @@ qrbMonthly=function(...args){
  const dropped=raw.events.filter(e=>e.type==='掉权');
  const {returnHit}=qrbQualityDecision(original.current,original.previous);
  // 进线判定保留供指标展示，产品违规榜仅由四类品质处罚入榜。
- const contactHit=qrbContactDecision(original.current.contactRate,original.previous.contactRate,{orders:original.current.orders,returnDelta:riskRateDelta(original.current.returnRate,original.previous.returnRate)}).hit;
+ const contactHit=qrbContactDecision(original.current.contactRate,original.previous.contactRate,{orders:original.current.orders,returnDelta:periodRateGrowth(original.current.returnRate,original.previous.returnRate)}).hit;
  const events=rpPlatformViolationEvents([...original.events,...dropped],platform,platform);
  const amount=type=>events.filter(e=>e.type===type).reduce((sum,e)=>sum+(Number(e.amount)||0),0);
  const fine=amount('罚款'),frozen=amount('资金冻结'),offShelf=events.filter(e=>e.type==='下架').length,dropCount=events.filter(e=>e.type==='掉权').length;
@@ -74,7 +75,7 @@ irRules=function(){return '库存仅按全公司统计，不按平台筛选。�
 rrRows=function(){
  const w=upWindow();
  const rows=rrAll().filter(r=>pfIncludes(rrState.platform,r.channel)).map(r=>{
-  const m=qrObservation(upProduct(upIdentity(r)),r.channel,w.start,w.end).monthly;
+  const m=qrbMonthly(upProduct(upIdentity(r)),r.channel,w.end,w.start);
   const fineEvents=m.events.filter(e=>e.type==='罚款'),penaltyCount=m.events.length,penaltyMetrics={qualityPenaltyCount:penaltyCount,qualityFine:m.fine};
   const fineHit=fineEvents.some(e=>brcMatch('shops.fine',Number(e.amount),penaltyMetrics));
   const violation=brcMatch('shops.penalties',m.offShelf,penaltyMetrics)||fineHit||brcMatch('shops.penalties',penaltyCount,penaltyMetrics);
@@ -90,7 +91,7 @@ rrRows=function(){
 function pfReturnCauses(s,previous={returnRate:s.previousRate,receivedRate:s.previousReceivedRate}){
  const sold=Number.isFinite(s.sales)?s.sales:s.shipped;
  const netSales=Object.hasOwn(s,'netSales')?(Number.isFinite(s.netSales)?s.netSales:null):Number.isFinite(sold)&&Number.isFinite(s.returned)?sold-s.returned:null;
- const metrics={netSales,returnDelta:riskRateDelta(s.returnRate,previous.returnRate),receivedDelta:riskRateDelta(s.receivedRate,previous.receivedRate)};
+ const metrics={netSales,returnDelta:periodRateGrowth(s.returnRate,previous.returnRate),receivedDelta:periodRateGrowth(s.receivedRate,previous.receivedRate)};
  if(!brcResultMatch('quality-worsening',metrics))return [];
  return [brcResultKeyActive('quality-worsening','quality.worsenReturn')&&brcMatch('quality.worsenReturn',metrics.returnDelta,metrics)?'总退环比恶化':'',brcResultKeyActive('quality-worsening','quality.worsenReceived')&&brcMatch('quality.worsenReceived',metrics.receivedDelta,metrics)?'已收退环比恶化':''].filter(Boolean);
 }

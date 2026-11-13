@@ -15,10 +15,11 @@ export function verifyLazyRiskFacts(){
  const window={start:'2025-01-01',end:'2025-12-31',previousStart:'2024-01-02',previousEnd:'2024-12-31'};
  const ctx=vm.createContext({qrObservation:()=>{},qrPlatforms:['抖音','快手'],qrCatalog:()=>[{id:1,chain:0}],qrState:{platform:'all'},qrWindow:()=>window,riskRange:()=>window,
   qrbRawObservation:p=>({...p,points:[]}),qrbMonthly:(_p,_platform,end,start)=>{queries++;const length=Date.parse(end)-Date.parse(start)+86400000;return {current:summary(start,end),previous:summary(new Date(Date.parse(start)-length).toISOString().slice(0,10),new Date(Date.parse(start)-86400000).toISOString().slice(0,10)),events:[],risks:['进线率恶化'],priority:0,penaltyHit:false,offShelf:0,target:10}},
-  qfCompare:(a,b)=>a.id-b.id,qrRate:(n,d)=>d?n/d*100:0,fmt:String,riskRateDelta:(a,b)=>a-b,brcResultMatch:()=>true,
+  qfCompare:(a,b)=>a.id-b.id,qrRate:(n,d)=>d?n/d*100:0,fmt:String,brcResultMatch:()=>true,
   upIdentity:r=>r,upSummary:(_p,start,end)=>{const s=summary(start,end);return Object.assign(s,{gmvCents:s.sales*92900,gsvCents:(s.sales-s.returned)*92900})},
-  upWindow:()=>window,upProduct:r=>({id:r.productId||r.id,chain:r.chain}),pfReturnCauses:()=>['总退环比恶化'],brcMatch:()=>false});
+  upWindow:()=>window,periodFor:()=>window,shiftDate:(day,offset)=>new Date(Date.parse(day)+offset*86400000).toISOString().slice(0,10),upProduct:r=>({id:r.productId||r.id,chain:r.chain}),pfReturnCauses:()=>['总退环比恶化'],brcMatch:()=>false});
  vm.runInContext(source('performance/01-cache.js'),ctx);
+ vm.runInContext(source('period/00-rate-growth.js'),ctx);
  vm.runInContext('const filterCatalog={normalizeChain:()=>null};'+source('product-filters/00-multiselect.js').split('function pfOptionSelected')[0],ctx);
  const assignment=(file,name)=>source(file).split(/\r?\n/).find(line=>line.startsWith(name+'=function'));
  vm.runInContext(assignment('quality-monthly/01.js','qrObservation'),ctx);
@@ -29,6 +30,7 @@ export function verifyLazyRiskFacts(){
  vm.runInContext(source('return-comparison/01.js').split('const rrPreviousRows=')[0],ctx);
  const adapters=source('unified-product/02-operating-adapters.js');
  vm.runInContext(adapters.slice(adapters.indexOf('const upOriginalReturnRows ='),adapters.indexOf('nsSalesFacts =')),ctx);
+ vm.runInContext(source('risk-presentation/01-return.js'),ctx);
  const confirmed=source('product-filters/03-confirmed-risk.js');
  vm.runInContext(confirmed.slice(confirmed.indexOf('rrRows=function'),confirmed.indexOf('function pfReturnCauses')),ctx);
  queries=0;const rows=ctx.rrRows();assert.equal(rows.length,1);assert.equal(queries,5,'保留两平台各两期观察及当前平台的判定入口');

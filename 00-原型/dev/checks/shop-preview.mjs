@@ -101,7 +101,7 @@ export async function shopPreview(page){
  await page.screenshot({path:fileURLToPath(new URL('../../outputs/shop-drawer-v2.png',import.meta.url))});
  await table.evaluate(el=>el.scrollLeft=el.scrollWidth);
  await page.screenshot({path:fileURLToPath(new URL('../../outputs/shop-drawer-right.png',import.meta.url))});
- await page.locator('[data-rp-filter="qualityRisk"]').selectOption('down',{force:true});
+ await page.locator('[data-rp-filter="qualityRisk"]').selectOption(['offShelf','drop'],{force:true});
  assert(await table.locator('tbody tr').count()>0);
  await page.locator('#close').click();
  await pddLinks(page);

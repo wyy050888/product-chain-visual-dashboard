@@ -175,11 +175,6 @@
 #projects.pp-main .pp-plan-dates{display:flex;flex-direction:column;gap:6px;align-items:flex-start}
 #projects.pp-main .pp-plan-dates small{font-size:11px;white-space:nowrap}
 
-/* 高危项目用钴蓝区分；仅作用于项目展示，不改变风险单灯色判定。 */
-#projects.pp-main .pp-high-risk,.pp-analysis-detail .pp-high-risk{color:var(--red-high)}
-#projects.pp-main .pp-high,#projects.pp-main .dot.pp-high-risk{background:var(--red-high)}
-#projects.pp-main .tag.pp-high-risk,.pp-analysis-detail .tag.pp-high-risk{background:var(--red-high-soft);color:var(--red-high);font-weight:600;white-space:nowrap}
-#projects.pp-main .pp-delay-high,.pp-analysis-detail .pp-delay-high{font-weight:600}
 #projects.pp-main .pp-distribution .pp-bar-line>span:last-child{min-width:100px}
 
 /* 项目主表与风险明细共用状态标签；暂停、取消使用相同灰色。 */

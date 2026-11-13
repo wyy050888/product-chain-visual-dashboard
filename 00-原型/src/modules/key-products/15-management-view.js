@@ -1,3 +1,25 @@
+function kpmGradeSummaryTable(rows){
+ const row=(level,facts,operating=false)=>{
+  const kind=operating?'operating':'grade',unrated=level==='unrated';
+  const selected=kpmSelectedGrade===level&&(operating?kpmSelectedOperating===level:!kpmSelectedOperating);
+  const label=operating?`<span aria-hidden="true">↳</span> ${esc(kpmGrades[level])}`:`<span class="kpm-grade ${level}">${level}级</span>`;
+  const name=unrated?'未分级':`<button type="button" data-kpm-summary-select="${kind}" value="${level}" aria-pressed="${selected}">${label}</button>`;
+  const shareWidth=Number.isFinite(facts.share)?Math.max(0,Math.min(100,facts.share)):0;
+  return `<tr class="${operating?'kpm-summary-operating':'kpm-summary-grade'}" data-kpm-summary-level="${level}"${selected?' data-selected':''}>
+   <th scope="row">${name}</th><td>${fmt(facts.count)}</td><td>${upMoney(facts.gsv)}</td>
+   <td class="kpm-summary-share"><div class="kpm-summary-share-value"><span class="kpm-summary-share-track" aria-hidden="true"><i style="width:${shareWidth}%"></i></span><span>${upPercent(facts.share)}</span></div></td>
+   <td>${formatSalesQuantity(facts.netSales)}</td>
+   <td${facts.margin<0?' class="negative"':''}>${upPercent(facts.margin)}</td></tr>`;
+ };
+ const body=kpmManagementStructure(rows).map(group=>group.level==='unrated'
+  ?group.count?row(group.level,group):''
+  :row(group.level,group)+row(group.level,group.operating,true)).join('');
+ return `<table aria-labelledby="kpm-structure-heading" data-up-basic>
+  <thead><tr><th scope="col">等级 / 经营标签</th><th scope="col">产品数</th><th scope="col" data-up-basic>GSV</th>
+  <th scope="col" class="kpm-summary-share">GSV占比</th><th scope="col" data-up-basic>${netSalesLabel('销量','netSales')}</th><th scope="col" data-up-basic>利润率</th></tr></thead>
+  <tbody>${body}</tbody></table>`;
+}
+
 // 六卡共用基础范围，计数忽略自身等级和异动筛选。
 function kpmManagementStructureView(rows){
  const changes=['up','down'].map(key=>{

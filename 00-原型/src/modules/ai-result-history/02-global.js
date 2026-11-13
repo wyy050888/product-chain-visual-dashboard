@@ -57,7 +57,7 @@ function gdHistoryDataset(){
   const historicalReport=row.kind==='report-analysis';
   const transition=historicalReport?{status:row.missing?(row.latestSubmittedAt?'已补交':'未提交'):'已诊断',reason:'原报告日期与原文快照保留'}:normalized.findingStates[row.historyKey];
   const project=selected.end>=DATA_CUTOFF&&row.keyType==='project'?current.sources.find(s=>s.id==='projects')?.rows.find(p=>String(p.id)===String(row.projectId)):null;
-  const projectLight=project?ppProjectDisplayLight(project):row.projectLight||row.light;
+  const projectLight=project?ppProjectDisplayLight(project):ppNormalizeProjectLight(row.projectLight||row.light);
   return {...row,...(row.keyType==='project'?{projectLight}:{}),lifecycle:transition,followUp:followIndex.get(row.historyKey),isCurrent:activeKeys.has(gdHistoryIdentity(row))};
  });
  const visible=[...dated,...gdFollowDemoRows(selected)];

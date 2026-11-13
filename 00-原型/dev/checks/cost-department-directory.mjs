@@ -56,6 +56,35 @@ export async function costDepartmentDirectory(page){
  assert.equal(await page.locator('[data-cec-project]').count(),20,'明细表按20条分页');await page.locator('[data-cec-department=risk]').click();assert.equal(await page.locator('[data-cec-project]').count(),8);await page.locator('[data-cec-department=""]').click();
  await page.evaluate(()=>location.hash='#cost');await page.locator('#cost').waitFor({state:'visible'});await page.locator('[data-cc-view="category"]').click();
  assert.deepEqual(await page.locator('#costtable tbody .cc-row-name').allTextContents(),audit.categories.map(item=>item.name));
+ const product=page.locator('#costtable [data-cc-row=product]');
+ await product.locator('[data-cc-category]').click();
+ const detail=page.locator('.cc-department-table');
+ assert.deepEqual(await detail.locator('tbody .cc-row-name').allTextContents(),['产品原料降本','研发降本','谈判降本','产品集采降本','品牌方促销返利']);
+ assert.deepEqual(await detail.locator('tfoot td:first-child').allTextContents(),['合计']);
+ assert.notEqual(await detail.locator('tbody tr').nth(1).locator('[data-cc-value=year-actual]').innerText(),'--','旧工艺和设计样例已汇入研发降本');
+ const {box}=pristine;
+ box.bounds=()=>({end:'2026-10-31'});
+ vm.runInContext(read('cost-control/01-model.js'),box);
+ const reconciliation=vm.runInContext(`(()=>{
+  const period={year:2026,mode:'month',value:10};
+  const metrics=ccCategoryGroups().find(group=>group.id==='product').metrics;
+  const {groups,pending}=ccProductCostGroups(metrics);
+  const saved={itemId:'research-0',actualFromStore:true};
+  const research=groups.find(group=>group.name==='研发降本');
+  const conserved=ccGroups(period).every(({mode})=>
+   groups.reduce((sum,group)=>sum+(ccTotals(group.metrics,period,mode,false,group.includeRow).actual??0),0)
+    ===ccTotals(metrics,period,mode,false).actual);
+  return {conserved,originalKept:pending.metrics.some(metric=>metric.id===saved.itemId)&&pending.includeRow(saved)&&!research.includeRow(saved)};
+ })()`,box);
+ assert(reconciliation.conserved,'五个类目月、季、年合计均与原样例金额一致');
+ assert(reconciliation.originalKept,'旧指标上用户保存的金额沿用原归属');
+ const mode='year-actual',amount=scope=>scope.locator('[data-cc-value="'+mode+'"]').innerText();
+ assert.equal(await amount(detail.locator('tfoot tr').last()),await amount(product));
+ assert.notEqual(await amount(detail.locator('tbody tr').first()),'--');
+ await page.locator('#dialogsub [data-cc-mode=year]').click();
+ assert.equal(await detail.locator('tbody tr').count(),5);
+ assert.equal(await amount(detail.locator('tfoot tr').last()),await amount(product));
+ await page.locator('#close').click();
  await page.locator('[data-cc-category="fine"]').click();assert.match(await page.locator('.cc-department-table').innerText(),/质量问题平台罚款追回（用户中心）/);await page.locator('#close').click();
  await page.locator('[data-cc-view="department"]').click();const names=await page.locator('#costtable tbody .cc-row-name').allTextContents();assert(names.includes('采购部'));assert(names.includes('发货部'));assert.doesNotMatch(names.join(' '),/去计划|去仓储/);
  await page.evaluate(()=>location.hash='#system-cost-efficiency');

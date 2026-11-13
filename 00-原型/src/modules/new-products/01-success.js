@@ -28,9 +28,28 @@ function nspSuccessPass(facts,season,annual,periodStart,actualLaunch=periodStart
  const conditions=typeof brcSuccessConditions==='function'?brcSuccessConditions(annual,periodStart):undefined;
  return Number.isFinite(facts.gsvCents)&&brcResultMatch(group,metrics,conditions);
 }
+function nspAssessmentFacts(product,start,end,includePoints=false){
+ const members=product.members||[product];
+ if(members.length===1)return upSummary(upIdentity(members[0]),start,end,'all');
+ const fields=['gsvCents','profitCents','sales','returned'];
+ const facts={gsvCents:0,profitCents:0,sales:0,returned:0},days=new Map();
+ for(const member of members){
+  if(member.actualLaunch>end)continue;
+  const summary=upSummary(upIdentity(member),member.actualLaunch>start?member.actualLaunch:start,end,'all');
+  for(const key of fields)facts[key]+=summary[key];
+  if(includePoints)for(const point of summary.points){
+   if(!days.has(point.date))days.set(point.date,{date:point.date,gsvCents:0,profitCents:0,sales:0,returned:0});
+   const daily=days.get(point.date);
+   for(const key of fields)daily[key]+=point[key];
+  }
+ }
+ return {...facts,profitRate:facts.gsvCents?facts.profitCents/facts.gsvCents*100:null,
+  returnRate:facts.sales?facts.returned/facts.sales*100:null,points:[...days.values()].sort((a,b)=>a.date.localeCompare(b.date))};
+}
 // 逐日累加本季度台账，记录首次满足条件的日期；不读取截止日之后的数据。
 function nspFirstNaturalQuarterSuccess(product,cutoff=DATA_CUTOFF){
- const identity=upIdentity(product),key=[product.spuId,product.actualLaunch,cutoff,upRuleRevision,JSON.stringify(upFactsVersion(identity))].join('|');
+ const members=product.members||[product],key=JSON.stringify([product.seriesId||product.spuId,product.actualLaunch,cutoff,upRuleRevision,
+  members.map(member=>[member.spuId,member.actualLaunch,upFactsVersion(upIdentity(member))])]);
  const cached=nspSuccessCache.get(key);if(cached!==undefined)return cached;
  let found=null;
  for(let year=Number(product.actualLaunch.slice(0,4));year<=Number(cutoff.slice(0,4))&&!found;year++)for(let q=1;q<=4&&!found;q++){
@@ -39,7 +58,7 @@ function nspFirstNaturalQuarterSuccess(product,cutoff=DATA_CUTOFF){
   if(start>end||product.actualLaunch>end)continue;
   const first=product.actualLaunch>start?product.actualLaunch:start;
   let gsvCents=0,profitCents=0,sales=0,returned=0;
-  for(const day of upSummary(identity,first,end,'all').points){
+  for(const day of nspAssessmentFacts(product,first,end,true).points){
    gsvCents+=day.gsvCents;profitCents+=day.profitCents;sales+=day.sales;returned+=day.returned;
    if(nspSuccessPass({gsvCents,profitRate:gsvCents?profitCents/gsvCents*100:null,returnRate:sales?returned/sales*100:null},pfIdentity(product).attribute,false,start)){
     found={quarter:year+'-Q'+q,date:day.date};break;
@@ -55,18 +74,18 @@ function nspFirstQuarterSuccess(product,cutoff=DATA_CUTOFF){
 }
 function nspSuccessFact(product,period){
  const first=nspFirstQuarterSuccess(product,period.end),prior=first&&first.date<period.start;
- // 年度以年初为边界排除往年已成功者，等价于当年截至所选日期各季度纳入SPU的并集。
+ // 年度以年初为边界排除往年已成功的简称，等价于当年各季度纳入名单的并集。
  // 当年首次成功后仍保留年度资格，年度业绩按全年独立汇总，不累加季度结果。
  const included=period.start<=period.end&&product.actualLaunch<=period.end&&!prior;
  const start=product.actualLaunch>period.start?product.actualLaunch:period.start;
- const facts=included?upSummary(upIdentity(product),start,period.end,'all'):null;
- const approval=included?nspApprovalFor(product.spuId,period.key,period.end):null;
+ const facts=included?nspAssessmentFacts(product,start,period.end):null;
+ const approval=included?nspApprovalFor(product,period.key,period.end):null;
  return {included,carried:included&&product.actualLaunch<period.start,origin:product.actualLaunch<period.start?'往季滚入':'本季上市',
   success:!!(included&&(approval||(period.annual?nspSuccessPass(facts,pfIdentity(product).attribute,true,period.start,product.actualLaunch):first&&first.quarter===period.key))),approval,
   periodKey:period.key,firstSuccess:first,facts:facts?{gsvCents:facts.gsvCents,profitCents:facts.profitCents,sales:facts.sales,returned:facts.returned,profitRate:facts.profitRate,returnRate:facts.returnRate}:null};
 }
 function nspSuccessSummary(rows,period=nspSuccessPeriod()){
- const pool=[...new Map(rows.filter(p=>p.successAssessment.included).map(p=>[p.spuId,p])).values()];
+ const pool=[...new Map(rows.filter(p=>p.successAssessment.included).map(p=>[p.seriesId||p.spuId,p])).values()];
  const success=pool.filter(p=>p.successAssessment.success).length,total=pool.length;
  return {...period,success,total,carried:pool.filter(p=>p.successAssessment.carried).length,rate:total?success/total*100:null};
 }
@@ -80,3 +99,8 @@ function nspPoolExitDate(successQuarters){
  return shiftDate(iso(new Date(Date.UTC(year,q*3,0))),brcNumber('new.exitDays'));
 }
 function nspIsInPool(exitDate,cutoff){return !exitDate||cutoff<exitDate}
+function nspPoolStatus(product,cutoff){
+ if(!product.members&&typeof nspSeriesBySpu!=='undefined'&&nspSeriesBySpu.has(product.spuId))product=nspSeriesFor(product,cutoff);
+ const successQuarters=nspSuccessfulQuarters(product,cutoff),poolExitDate=nspPoolExitDate(successQuarters);
+ return {successQuarters,poolExitDate,inNewPool:nspIsInPool(poolExitDate,cutoff)};
+}

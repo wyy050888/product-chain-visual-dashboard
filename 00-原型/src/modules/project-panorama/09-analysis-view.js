@@ -7,9 +7,9 @@ function ppAnalysisMetricValue(count){
 const ppAnalysisHelp={
  scope:'三个指标按当前范围内未闭环风险统计；TOP3共性根因使用全部风险台账。',
  metrics:[
-  {label:'红灯项目',description:'风险单的责任部门包含该部门的红灯项目数。'},
-  {label:'高危项目',get description(){return '上述红灯项目中，延期天数'+brcDescribe('lights.projectDelay')+'的项目数。'}},
-  {label:'红灯风险占比',numerator:'该部门红灯风险单数',denominator:'红灯风险单总数',description:'分子为责任部门包含该部门的红灯风险单数。'}
+  {label:'红灯项目',description:'关联本部门未闭环风险单、项目灯色为红灯的项目，按项目去重。'},
+  {label:'黄灯项目',description:'关联本部门未闭环风险单、项目灯色为黄灯的项目，按项目去重。'},
+  {label:'红灯风险占比',numerator:'该部门红灯风险单数',denominator:'红灯风险单总数',description:'分子为本部门未闭环红灯风险单数，分母为当前查询范围内全部未闭环红灯风险单去重数。分母为 0 时显示「—」。'}
  ],
  note:'各部门独立统计，同一项目或风险单可关联多个部门。'
 };
@@ -46,7 +46,7 @@ function ppAI(rows){
  <div class="pp-analysis-tabs" role="tablist" aria-label="风险分析部门">${ppDepartments.map(name=>`<button type="button" role="tab" id="pp-analysis-tab-${ppDepartments.indexOf(name)}" aria-controls="pp-analysis-panel" aria-selected="${department===name}" tabindex="${department===name?0:-1}" data-pp-analysis-department="${name}">${name}</button>`).join('')}</div></div>
  <div id="pp-analysis-panel" class="pp-analysis-layout" role="tabpanel" aria-labelledby="pp-analysis-tab-${ppDepartments.indexOf(department)}">
  <article class="pp-analysis-card" data-analysis-department="${department}"><div class="pp-card-head"><h4>${department}</h4></div>
- <div class="pp-analysis-metrics">${ppAnalysisButton(department,'high','<span>高危项目</span>',ppAnalysisMetricValue(facts.high.length))}${ppAnalysisButton(department,'red','<span>红灯项目</span>',ppAnalysisMetricValue(facts.red.length))}<div class="pp-analysis-share"><span>红灯风险占比</span><strong>${facts.riskShare.rate}</strong></div></div>
+ <div class="pp-analysis-metrics">${ppAnalysisButton(department,'red','<span>红灯项目</span>',ppAnalysisMetricValue(facts.red.length))}${ppAnalysisButton(department,'yellow','<span>黄灯项目</span>',ppAnalysisMetricValue(facts.yellow.length))}<div class="pp-analysis-share"><span>红灯风险占比</span><strong>${facts.riskShare.rate}</strong></div></div>
  <h5>TOP 3 共性根因</h5><div class="pp-root-list">${facts.top.length?facts.top.map((item,index)=>ppAnalysisButton(department,item.key,`<span class="pp-root-rank">${index+1}</span>`,`<span class="pp-root-content"><b>${esc(item.title)}</b>${item.summary?`<span class="pp-root-summary">${esc(item.summary)}</span>`:''}<small>${item.records.length} 条风险 · ${item.projects.size} 个项目 <em>查看台账 ›</em></small></span>`,'pp-root-item')).join(''):'<div class="pp-analysis-empty">暂无可归纳的根因</div>'}</div>
  ${ppAnalysisButton(department,'all','查看全部风险台账','<span>→</span>','pp-analysis-all')}</article>
  <section class="pp-analysis-ledger pp-risk-detail" aria-label="${department}风险台账"><div class="pp-analysis-ledger-head"><h4>风险台账${group?' · '+esc(group.title):''}</h4></div>

@@ -17,9 +17,9 @@ function cleanDemoPresentation(root){
  for(const node of nodes){const next=presentationDemoText(node.textContent);if(next!==node.textContent)node.textContent=next;}
  const elements=[root,...root.querySelectorAll('[title],[data-metric-rule],[aria-label]')];
  for(const element of elements){
-  if(!element.getAttribute||element.closest(skipped))continue;
+  if(!element.getAttribute)continue;
   for(const attr of ['title','data-metric-rule','aria-label']){
-   const text=element.getAttribute(attr);if(!text||!/演示|模拟|样例/.test(text))continue;
+   const text=element.getAttribute(attr);if(!text||!/演示|模拟|样例/.test(text)||element.closest(skipped))continue;
    const next=presentationDemoText(text);if(next!==text)element.setAttribute(attr,next);
   }
  }

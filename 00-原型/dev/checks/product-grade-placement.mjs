@@ -18,7 +18,7 @@ export async function productGradePlacement(page){
   for(const identity of identities){assert.equal(identity.nameSize,'13px');assert.equal(identity.nameWeight,'500');assert.equal(identity.codeSize,'12px');assert.equal(identity.line,'18px');assert.equal(identity.gap,'4px');assert(identity.code.startsWith(kind===1?'ID：':[3,4].includes(kind)?'SKU码：':'SPU码：'),'各榜单编码按记录粒度展示');assert.doesNotMatch(identity.code,/夏季品|冬季品|四季品/);if(identity.sku)assert.equal(identity.code,'SKU码：'+identity.sku);}
   const geometry=await host.evaluate(e=>({head:e.querySelectorAll('th').length,sizes:[...e.querySelectorAll('tbody tr')].map(r=>r.cells.length)}));
   assert(geometry.sizes.every(n=>n===geometry.head));
-  if(![1,4].includes(kind)){
+  if(![1,3,4].includes(kind)){
    const rows=await host.locator('.rp-identity').evaluateAll(nodes=>nodes.map(n=>{const title=n.querySelector('b'),grade=title.querySelector('[data-rp-grade]'),icon=title.querySelector('.rp-platform-mark');return {grade:!!grade,afterIcon:!icon||!!(icon.compareDocumentPosition(grade)&Node.DOCUMENT_POSITION_FOLLOWING),last:title.lastElementChild===grade}}));
    assert(rows.every(r=>r.grade&&r.afterIcon&&r.last),'名称→渠道→分级的顺序完整');
   }
@@ -40,7 +40,7 @@ export async function productGradePlacement(page){
  for(const [anchor,selector,badge] of [['new','#newtable','.nsp-grade'],['matrix','#matrixtable','.kpm-grade']]){
   await page.locator('a[href="#'+anchor+'"]').click();const table=page.locator(selector);
   assert.equal(await table.locator('th').filter({hasText:/^产品(?:分级|等级)$/}).count(),0);
-  assert.equal(await table.locator('.product-name-line '+badge).count(),await table.locator('tbody tr').count());
+  assert.equal(await table.locator('.product-name-line '+badge).count(),anchor==='new'?0:await table.locator('tbody tr').count());
   const aligned=await table.evaluate(t=>[...t.querySelectorAll('tbody tr')].every(r=>r.cells.length===t.querySelectorAll('th').length));assert(aligned);
  }
  // 其余旧表通过公共渲染入口迁移，原始输入与渠道图标保持。

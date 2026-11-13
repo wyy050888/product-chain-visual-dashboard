@@ -17,8 +17,11 @@ function ipStockSum(records){
  const total=Object.fromEntries(fields.map(key=>[key,targetSum(records.map(row=>row[key]||0))]));
  // 天数先汇总近15日均净销量，再用库存相除；缺失分母不补零。
  const dailyNet15=records.length&&records.every(row=>Number.isFinite(row.dailyNet15))?targetSum(records.map(row=>row.dailyNet15)):null;
+ const importedStock=records.length&&records.every(row=>Number.isSafeInteger(row.latestNewMachineInventory)&&row.latestNewMachineInventory>=0)
+  ?targetSum(records.map(row=>row.latestNewMachineInventory)):null;
+ const delivery=total.deliveryDue&&importedStock!==null?(total.deliveryOn+importedStock)/total.deliveryDue*100:null;
  const refurb=ipRefurbSummary(records,records.find(row=>row.refurbEnd)?.refurbEnd||DATA_CUTOFF);
- return {...total,dailyNet15,...upStockCoverage(total.warehouse,total.totalUnits,dailyNet15),turn:total.avg?total.cost/total.avg:null,delivery:total.deliveryDue?total.deliveryOn/total.deliveryDue*100:null,
+ return {...total,importedStock,dailyNet15,...upStockCoverage(total.warehouse,total.totalUnits,dailyNet15),turn:total.avg?total.cost/total.avg:null,delivery,
   staleRatio:total.totalUnits?total.staleUnits/total.totalUnits*100:null,
   staleValueRatio:total.goodsValueCents?total.staleValueCents/total.goodsValueCents*100:null,
   refurb,refurbRate:refurb.rate,count:records.length};

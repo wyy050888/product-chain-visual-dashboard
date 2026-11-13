@@ -1,3 +1,7 @@
+/* 新品专项与关键产品共用价格带横条样式。 */
+:is(.kpm-price-track,.nsp-price-track){height:20px;border-radius:10px;background:#f0effb;overflow:hidden}
+:is(.kpm-price-track,.nsp-price-track)>i{display:block;height:100%;border-radius:inherit;background:#9791fb}
+
 /* 预设与自定义区间同在受控下拉内，筛选栏始终只占一行。 */
 .kpm-price-filter{position:relative;display:block;min-width:0;height:36px;font-size:12px;color:#526b8c}
 .kpm-price-filter[data-price-open]{z-index:110}

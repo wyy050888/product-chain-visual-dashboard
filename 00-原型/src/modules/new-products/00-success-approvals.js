@@ -23,12 +23,18 @@ function nspApprovalRead(){
  }catch(_){return empty}
 }
 let nspApprovalState=nspApprovalRead(),nspApprovalRevision=0;
-function nspApprovalFor(spuId,periodKey,cutoff=DATA_CUTOFF){
- const record=nspApprovalState.records.find(item=>item.spuId===spuId&&item.periodKey===periodKey&&item.effectiveDate<=cutoff);
+function nspApprovalIds(product){
+ return typeof product==='string'?[product]:[product.seriesId||product.spuId,...(product.members||[]).map(member=>member.spuId)];
+}
+function nspApprovalFor(product,periodKey,cutoff=DATA_CUTOFF){
+ const ids=nspApprovalIds(product);
+ const record=nspApprovalState.records.filter(item=>ids.includes(item.spuId)&&item.periodKey===periodKey&&item.effectiveDate<=cutoff)
+  .sort((a,b)=>a.effectiveDate.localeCompare(b.effectiveDate))[0];
  return record?{...record}:null;
 }
 function nspFirstQuarterApproval(product,cutoff){
- const record=nspApprovalState.records.filter(item=>item.spuId===product.spuId&&item.periodKey.includes('-Q')&&item.effectiveDate<=cutoff&&item.effectiveDate>=product.actualLaunch)
+ const ids=nspApprovalIds(product);
+ const record=nspApprovalState.records.filter(item=>ids.includes(item.spuId)&&item.periodKey.includes('-Q')&&item.effectiveDate<=cutoff&&item.effectiveDate>=product.actualLaunch)
   .sort((a,b)=>a.effectiveDate.localeCompare(b.effectiveDate))[0];
  return record?{quarter:record.periodKey,date:record.effectiveDate,approval:{...record}}:null;
 }
@@ -36,14 +42,14 @@ function nspSaveApproval(product,assessment,reason,revoke=false){
  if(JSON.stringify(nspApprovalRead())!==JSON.stringify(nspApprovalState))throw Error('特批记录已更新，请刷新页面后重试');
  const range=nspApprovalPeriodRange(assessment.key);
  if(!range||range.annual!==assessment.annual||assessment.start!==range.start||!nspApprovalValidDate(assessment.end)||assessment.end<range.start||assessment.end>range.end||assessment.end>DATA_CUTOFF)throw Error('考核期间无效');
- const current=nspApprovalFor(product.spuId,assessment.key,assessment.end),fact=nspSuccessFact(product,assessment);
+ const current=nspApprovalFor(product,assessment.key,assessment.end),fact=nspSuccessFact(product,assessment);
  if(!fact.included)throw Error('该产品未纳入本期考核');
  if(revoke&&!current)throw Error('该产品本期没有特批记录');
  if(!revoke&&(current||fact.success))throw Error(current?'该产品本期已特批成功':'该产品已达到成功标准');
  const content=String(reason||'').trim();if(!revoke&&(!content||content.length>500))throw Error('请填写特批原因，最多500字');
  const stamp=new Date().toISOString(),actor='管理员账户';
- const record=revoke?current:{spuId:product.spuId,periodKey:assessment.key,effectiveDate:assessment.end,reason:content,approvedBy:actor,approvedAt:stamp};
- const records=nspApprovalState.records.filter(item=>item.spuId!==product.spuId||item.periodKey!==assessment.key);
+ const record=revoke?current:{spuId:product.seriesId||product.spuId,periodKey:assessment.key,effectiveDate:assessment.end,reason:content,approvedBy:actor,approvedAt:stamp};
+ const records=nspApprovalState.records.filter(item=>item.spuId!==record.spuId||item.periodKey!==assessment.key);
  if(!revoke)records.push(record);
  const next={version:1,records,history:[...nspApprovalState.history,{action:revoke?'revoke':'approve',record:{...record},actor,at:stamp}]};
  // 写入失败保留原状态；撤销只移除本期特批，其他周期和自然成功均不改写。

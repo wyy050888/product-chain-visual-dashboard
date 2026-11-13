@@ -13,10 +13,10 @@ function upOpenDetail(context) {
   const inheritedPlatforms=Array.isArray(state.platform)?[...state.platform]:null;
   const identity=pfIdentity(base),attributeTags=rpQualityProductFields(base).find(field=>field.key==='productType').tags;
   if(!state.period||upWindow(state.period).start!==state.start||upWindow(state.period).end!==state.end)state.period=drawerPeriodFromRange(state);
-  let model=upDetailModel(state);
   // 品质退货独立记忆单渠道，不改变业绩表现的汇总/渠道选择。
   const qualityPlatforms=Array.isArray(state.platform)?state.platform:qrPlatforms;
-  const qualityState={...state,tab:'quality',platform:qrPlatforms.includes(state.platform)?state.platform:qualityPlatforms.find(name=>model.platformRows.some(row=>row.platform===name&&row.sales>0))||qualityPlatforms[0]};
+  const qualityPlatform=qrPlatforms.includes(state.platform)?state.platform:qualityPlatforms.find(name=>qrPlatforms.includes(name)&&upSummary(product,state.start,state.end,name).sales>0)||qualityPlatforms[0];
+  const qualityState={...state,tab:'quality',platform:qualityPlatform};
   openModal('产品详情',`<article class="up-detail" data-up-spu="${esc(state.spuId)}" data-up-tab="${state.tab}">
     <header class="up-hero" data-product-summary>${riskThumbnail(base.name)}<div><div class="up-product-heading"><h2>${esc(base.name)}</h2>${upProductGradeBadge(null)}${attributeTags.length?rpProductTagMarkup(attributeTags):''}<button type="button" class="link up-project-link" data-up-project>查看项目</button></div>
       <div class="up-identity-row"><dl data-up-identity></dl><div class="up-guide-price"><span>指导价：</span><strong data-up-guide-price>${Number.isFinite(base.guidePriceCents)?(base.guidePriceCents/100).toFixed(2):'—'}</strong>${Number.isFinite(base.guidePriceCents)?'<small>元</small>':''}</div></div></div>
@@ -28,9 +28,8 @@ function upOpenDetail(context) {
   const projectLink=root.querySelector('[data-up-project]');
   if(projectLink)projectLink.onclick=()=>toast('已关联项目时跳转到项目详情页；未关联项目时提示“该产品暂未关联项目”');
   function paint() {
-    model=upDetailModel(state);
     Object.assign(qualityState,{start:state.start,end:state.end,period:state.period});
-    const qualityModel=upDetailModel(qualityState);
+    const [model,qualityModel]=pfWithCompanyStockBatch(()=>[upDetailModel(state),upDetailModel(qualityState)]);
     const gradeMode=state.period?.mode==='recent30'?'recent30':upGradeTrendPeriod(state).mode,gradeStart=state.period?.mode==='day'?kpmGradeWindow(state.end,'month').start:state.start;
     root.querySelector('[data-up-product-grade]').outerHTML=upProductGradeBadge(kpmGradeAssessment(product,state.end,'all',gradeMode,gradeStart).level);
     const fields=[['SPU码',base.spuCode],['型号',base.model],['品牌',base.brand],['链群',identity.category],['季品',identity.attribute]];

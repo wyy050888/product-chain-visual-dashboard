@@ -74,6 +74,10 @@ button,input,select,textarea,.num,.cec-dialog{font-family:var(--ui-font-family)}
  font-size:var(--type-card)!important;font-weight:var(--weight-heading)!important;
  line-height:1.5;font-variant-numeric:tabular-nums;
 }
+#riskrail .rp-quality-metric[data-rp-field="responsibleChannel"]>strong,
+#dialogbody .rp-stock-table .rp-list-value[data-rp-field="responsibleChannel"]>.rp-value{
+ font-weight:var(--weight-medium)!important;white-space:normal;line-height:1.5;
+}
 .page .ms-mini-metrics>strong,
 :is(.page,.dp-view,#dialogbody) .rp-list-value>.rp-value{
  font-size:var(--type-primary-data)!important;font-weight:var(--weight-heading)!important;

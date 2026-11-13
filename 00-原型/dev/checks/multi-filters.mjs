@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import {verifyNewProductOperatingTotals} from './new-products-overview.mjs';
 export async function multiFilters(page){
  const total=async()=>Number(await page.locator('#rp-list-pagination nav').getAttribute('data-list-total'));
  const values=control=>control.evaluate(e=>[...e.selectedOptions].map(o=>o.value));
@@ -12,7 +13,7 @@ export async function multiFilters(page){
  const selected=await page.evaluate(()=>window.dashboardNewProductsSnapshot());
  const expected=before.rows.filter(p=>['清洁类','环境类'].includes(p.category)&&p.attribute==='四季品');
  assert.deepEqual(selected.rows.map(p=>p.spuId),expected.map(p=>p.spuId));
- assert.equal(await page.locator('#newtop .dp-ring').getAttribute('aria-label'),`共${expected.length}个新品`);
+ await verifyNewProductOperatingTotals(page,selected.visible);
  await page.locator('[data-nsp-category="all"]').click();await page.locator('[data-nsp-season="all"]').click();
  // 五个产品榜季品多选，并继承到各自完整榜单。
  await page.locator('a[href="#risk"]').click();

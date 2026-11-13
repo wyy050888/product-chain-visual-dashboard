@@ -4,8 +4,8 @@ function drawerWithPeriod(period,run,scope='risk'){
  try{return withPeriod(scope,run)}finally{if(prior)localPeriods[scope]=prior;else delete localPeriods[scope]}
 }
 function drawerPeriodFromRange(range){return {mode:'day',year:+range.end.slice(0,4),value:+range.end.slice(5,7),start:range.start,end:range.end}}
-function drawerMountPeriod(host,initial,onChange,triggerId,scope='risk'){
- let period={...initial},dayRange=upWindow(period);
+function drawerMountPeriod(host,initial,onChange,triggerId,scope='risk',initialDayRange=upWindow(initial)){
+ let period={...initial},dayRange=initialDayRange;
  function render(){
   host.innerHTML=drawerWithPeriod(period,()=>periodControls(scope),scope)
    .replaceAll('data-time-','data-drawer-time-').replaceAll('data-risk-day','data-drawer-time-day')

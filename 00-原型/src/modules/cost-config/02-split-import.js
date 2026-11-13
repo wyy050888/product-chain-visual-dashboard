@@ -37,14 +37,14 @@ function cecValidateSplitActual(input){
   if(seen.has(sheet.name))errors.push({row:sheet.name+'!1',message:'部门Sheet重复'});seen.add(sheet.name);
   const group=cecSplitSheet(sheet,expected,errors);groups.push(group);
   // 模板内预置的公式和空行不算业务记录，也不形成覆盖月份。
-  group.rows=group.rows.filter(row=>row.values.some((value,i)=>!cecDerivedFields.has(group.valid?expected[i]:group.headers[i])&&cecRawCell(value).trim()));
+  group.rows=group.rows.filter(row=>row.values.some((value,i)=>!cecDerivedFields.has(group.valid?expected[i]:group.headers[i])&&cecImportHasContent(value)));
   if(!group.valid)continue;
   for(const row of group.rows){
    const key=sheet.name+'!'+row.sourceRow,start=errors.length;
    if(row.raw.length>expected.length)errors.push({row:key,field:'数据列',message:'数据列数多于表头'});
    const validation=cecValidateDetail(schema,row.values);errors.push(...validation.errors.map(error=>({...error,row:key})));
    if(errors.length!==start)continue;
-   const values=cecComputeDetail(schema,row.values),get=field=>values[expected.indexOf(field)];
+   const values=cecComputeDetail(schema,validation.values),get=field=>values[expected.indexOf(field)];
    entries.push({department:cecDepartmentByName(sheet.name).id,type:validation.standard.name,category:validation.standard.category,month:cecText(get('月份')).replace('/','-'),amountCents:cecAmount(cecText(get(schema.amount))),productId:validation.product?.spuId||'',sheet:sheet.name,sourceRow:row.sourceRow,values});
   }
  }
@@ -58,15 +58,20 @@ function cecValidateSplitTarget(input){
  for(const sheet of input.sheets){
   const group=cecSplitSheet(sheet,cecTargetFileHeaders,errors);groups.push(group);
   if(sheet.name!=='部门目标')errors.push({row:sheet.name+'!1',message:'目标值文件只允许“部门目标”Sheet'});
-  group.rows=group.rows.filter(row=>(group.valid?row.values.slice(2):row.values).some(value=>cecRawCell(value).trim()));
+  group.rows=group.rows.filter(row=>(group.valid?row.values.slice(2):row.values).some(cecImportHasContent));
   if(!group.valid)continue;
   for(const row of group.rows){
-   const key=sheet.name+'!'+row.sourceRow,start=errors.length,values=row.values.map(cecText),department=cecDepartmentByName(values[0]),year=values[1],amounts=[];
+   const key=sheet.name+'!'+row.sourceRow,start=errors.length,amounts=[],formulaErrors=new Set();
    const fail=(field,message)=>errors.push({row:key,field,message});
-   if(!department)fail('责任部门','部门不存在或未填写');
-   if(!/^\d{4}$/.test(year)||!dashboardYears(4).includes(+year))fail('年度','年度超出可配置范围');
+   const values=row.values.map((raw,index)=>cecImportValue(raw,cecTargetFileHeaders[index],(field,message)=>{formulaErrors.add(field);fail(field,message)}));
+   const department=cecDepartmentByName(values[0]),year=values[1];
+   if(!department&&!formulaErrors.has('责任部门'))fail('责任部门','部门不存在或未填写');
+   if(!formulaErrors.has('年度')&&(!/^\d{4}$/.test(year)||!dashboardYears(4).includes(+year)))fail('年度','年度超出可配置范围');
    if(row.raw.length>cecTargetFileHeaders.length)fail('数据列','数据列数多于表头');
-   for(let i=2;i<15;i++){try{const cents=cecAmount(values[i],true);if(cents===null)fail(cecTargetFileHeaders[i],'必填，明确为零请填0');amounts.push(cents)}catch(error){fail(cecTargetFileHeaders[i],error.message)}}
+   for(let i=2;i<15;i++){
+    const field=cecTargetFileHeaders[i];if(formulaErrors.has(field))continue;
+    try{const cents=cecAmount(values[i],true);if(cents===null)fail(field,'必填，明确为零请填0');amounts.push(cents)}catch(error){fail(field,error.message)}
+   }
    if(errors.length!==start)continue;
    if(amounts[0]!==amounts.slice(1).reduce((sum,value)=>sum+value,0))fail('年度目标（元）','须等于12个月目标合计，不自动分摊');
    const identity=department.id+'|'+year;if(seen.has(identity))fail('责任部门','同一部门同一年度重复');seen.add(identity);

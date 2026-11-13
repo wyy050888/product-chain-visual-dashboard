@@ -1,6 +1,6 @@
-/* 灯色只读胶囊，普通红灯与左侧风险分布统一；完整名称保留供悬浮和辅助技术读取。 */
+/* 灯色只读胶囊与风险分布统一；完整名称供辅助技术读取。 */
 .pp-traffic{display:inline-flex;align-items:center;vertical-align:middle;white-space:nowrap;cursor:default;--pp-light:var(--red)}
-.pp-traffic-red{--pp-light:var(--red)}.pp-traffic-yellow{--pp-light:var(--orange)}.pp-traffic-green{--pp-light:var(--green)}.pp-traffic-high{--pp-light:var(--red-high)}
+.pp-traffic-red{--pp-light:var(--red)}.pp-traffic-yellow{--pp-light:var(--orange)}.pp-traffic-green{--pp-light:var(--green)}
 .pp-plan-dates .pp-revised-date{color:var(--pp-light,var(--muted))}
 .pp-delay-days{color:var(--pp-light,var(--muted))}
 .pp-traffic-pill{display:inline-block;width:30px;height:16px;border-radius:10px;background:var(--pp-light);flex:none}

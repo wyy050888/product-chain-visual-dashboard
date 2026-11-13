@@ -1,6 +1,6 @@
 // 全部部门下每份风险记录只计一次；单部门按台账中的责任部门匹配。
 function ppDepartmentRiskRecords(project,department){
- return project.ledger.filter(r=>r.status!=='已闭环'&&['红灯','黄灯'].includes(r.light)&&ppDepartmentValues(r.department).some(name=>ppDepartments.includes(name)&&(department==='全部'||name===filterCatalog.normalizeDepartment(department))));
+ return project.ledger.filter(r=>r.status!=='已闭环'&&ppRiskLights.includes(r.light)&&ppMatchesRiskDepartment(r,department));
 }
 function ppDepartmentRiskGroups(rows,dimension,department){
  const keys=dimension==='type'?Object.keys(ppStages):pfCategories;
@@ -27,21 +27,20 @@ function ppDepartmentRiskRow(group,dimension,department,max){
  const selected=['红灯','黄灯',''].some(light=>ppDepartmentRiskActive(dimension,group.key,department,light?[light]:['红灯','黄灯']));
  return `<div class="pp-link pp-dept-risk-row ${selected?'selected':''}"><button type="button" class="pp-bar-label" ${attributes('')} aria-label="${label('红黄灯')}">${esc(group.key)}</button>
  <span class="pp-bar-line"><span class="pp-track">${[['红灯','red',group.red],['黄灯','yellow',group.yellow]].map(([light,tone,count])=>`<button type="button" class="pp-risk-segment pp-${tone}" ${attributes(light)} style="width:${count/max*100}%" title="${label(light)} ${count}条" aria-label="${label(light)} ${count}条" ${count?'':'disabled'}></button>`).join('')}</span>
- <span class="pp-risk-counts"><button type="button" class="red" ${attributes('红灯')} aria-label="${label('红灯')} ${group.red}条">${group.red}</button><span>/</span><button type="button" class="orange" ${attributes('黄灯')} aria-label="${label('黄灯')} ${group.yellow}条">${group.yellow}</button></span></span></div>`;
+ <span class="pp-risk-counts"><button type="button" class="red" ${attributes('红灯')} aria-label="${label('红灯')} ${group.red}条">${group.red}</button>${ppRiskCountSeparator}<button type="button" class="orange" ${attributes('黄灯')} aria-label="${label('黄灯')} ${group.yellow}条">${group.yellow}</button></span></span></div>`;
 }
 // 按与右图相同的风险记录计数；全部只计一条，多部门共责分别计入对应部门。
 function ppDepartmentRiskOptions(rows){
  return '<div class="pp-dept-options" role="group" aria-label="责任部门">'+['全部',...ppDepartments].map(name=>{
   const count=rows.reduce((sum,project)=>sum+ppDepartmentRiskRecords(project,name).length,0);
-  return '<button type="button" data-pp-risk-department="'+name+'" aria-pressed="'+(ppState.riskDepartment===name)+'" aria-label="'+name+'，'+count+'条风险" title="未闭环红黄灯风险 '+count+'条"><span>'+name+'</span><b class="pp-dept-count" data-pp-dept-count="'+count+'">'+count+'<span>条</span></b></button>';
+  return '<button type="button" data-pp-risk-department="'+name+'" aria-pressed="'+(ppState.riskDepartment===name)+'" aria-label="'+name+'，'+count+'条风险" title="未闭环红黄灯风险 '+count+'条"><span>'+name+'</span><b class="pp-dept-count" data-pp-dept-count="'+count+'">'+count+'</b></button>';
  }).join('')+'</div>';
 }
+const ppDepartmentRiskTitle='未关闭风险数';
 function ppDepartmentRiskChart(rows){
  const dimension=ppState.distribution,groups=ppDepartmentRiskGroups(rows,dimension,ppState.riskDepartment),max=Math.max(1,...groups.map(g=>g.red+g.yellow));
- const title=ppState.riskDepartment==='全部'?'责任部门风险数':ppState.riskDepartment+'风险数';
- return `<article class="pp-card pp-departments"><div class="pp-card-head"><h3 data-pp-department-title>${esc(title)}</h3>${ppDepartmentRiskOptions(rows)}</div>
- <div class="pp-card-tools"><div class="pp-tabs">${[['type','项目类型'],['category','链群']].map(([key,label])=>`<button type="button" data-pp-dept-dimension="${key}" aria-pressed="${dimension===key}" class="${dimension===key?'active':''}">${label}</button>`).join('')}</div>
- </div>
+ return `<article class="pp-card pp-departments"><div class="pp-card-head"><h3 data-pp-department-title>${ppDepartmentRiskTitle}</h3>${ppDepartmentRiskOptions(rows)}</div>
+ ${ppChartDimensionTabs('data-pp-dept-dimension')}
  <div class="pp-chart-body">${ppChartColumns(dimension,true)}<div class="pp-bars">${groups.map(group=>ppDepartmentRiskRow(group,dimension,ppState.riskDepartment,max)).join('')}</div></div></article>`;
 }
 document.addEventListener('click',e=>{

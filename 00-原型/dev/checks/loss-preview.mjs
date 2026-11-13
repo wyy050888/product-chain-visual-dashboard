@@ -14,9 +14,9 @@ function lossModel(){
  const current={gsvCents:100000,profitCents:-10000,profitRate:-10,sales:100,returned:20,returnRate:20,receivedRate:6};
  const previous={...current,gsvCents:80000,profitCents:-16000,profitRate:-20,sales:80,returned:10,receivedRate:4};
  const fields=Object.fromEntries(ctx.rpLossFields({spuId:'fixture',metricPlatform:'all'},current,previous).map(f=>[f.key,f]));
- assert.equal(fields.margin.sortValue,-20);assert.equal(fields.margin.target,'环比 +10.0%');assert.equal(fields.margin.targetTone,'rp-quality-green');
+ assert.equal(fields.margin.sortValue,-20);assert.equal(fields.margin.target,'环比 ↑ 33.3%');assert.equal(fields.margin.targetTone,'rp-quality-green');
  assert.equal(ctx.rpLossMarginComparison(-10,-10).target,'环比 持平');
- assert.equal(ctx.rpLossMarginComparison(0,0).target,'环比 持平');
+ assert.equal(ctx.rpLossMarginComparison(0,0).target,'环比 —');
  assert.equal(ctx.rpLossMarginComparison(10,null).target,'环比 —');
  assert.equal(fields.loss.sortValue,-20000);assert.equal(fields.loss.target,'环比 ↓ 16.7%');assert.equal(fields.loss.targetTone,'rp-quality-green');
  const worsening=Object.fromEntries(ctx.rpLossFields({spuId:'fixture'}, {...current,profitCents:-30000},previous).map(f=>[f.key,f]));assert.equal(worsening.loss.target,'环比 ↑ 66.7%');assert.equal(worsening.loss.targetTone,'rp-quality-red');
@@ -35,14 +35,14 @@ function lossModel(){
  const subset=Object.fromEntries(ctx.rpLossFields({spuId:'fixture',metricPlatform:['抖音','快手']},current,previous).map(f=>[f.key,f]));
  assert.equal(subset.return.target,'偏差 +11.0%');assert.equal(subset.received.target,'偏差 +1.5%');
  for(const [now,before,tone] of [[-9.99,-10,'gray'],[-10,-10,'gray'],[-11,-10,'gray'],[-11.01,-10,'red'],[-9,-10,'gray'],[-8,-10,'green'],[-12,-10,'red'],[1,0,'gray'],[null,10,'gray']])assert.equal(ctx.rpLossMarginComparison(now,before).targetTone,'rp-quality-'+tone);
- // 净利润率取百分点差，0.0%按显示精度归持平；上期为0仍可比较。
- for(const [now,before,tone] of [[-9.99,-10,'gray'],[-10.01,-10,'gray'],[-9.9,-10,'green'],[-10.1,-10,'red'],[-9,-10,'green'],[-11,-10,'red'],[10.1,10,'green'],[9.9,10,'red'],[-10,-10,'gray'],[0,0,'gray'],[1,0,'green'],[null,10,'gray']])assert.equal(ctx.rpNetMarginComparison(now,before).targetTone,'rp-quality-'+tone,'净利润率无10%灰色区间');
+ // 净利润率用相对增长率，保留涨跌方向并覆盖零基期。
+ for(const [now,before,tone] of [[-9.999,-10,'gray'],[-10.001,-10,'gray'],[-9.9,-10,'green'],[-10.1,-10,'red'],[-9,-10,'green'],[-11,-10,'red'],[10.1,10,'green'],[9.9,10,'red'],[-10,-10,'gray'],[0,0,'gray'],[1,0,'gray'],[null,10,'gray']])assert.equal(ctx.rpNetMarginComparison(now,before).targetTone,'rp-quality-'+tone,'净利润率无10%灰色区间');
  for(const [net,tone] of [[-10100,'red'],[-10000,'gray'],[-9900,'green']]){
   const actual={...current,gsvCents:100000,profitCents:10000+net},prior={...current,gsvCents:100000,profitCents:0};
   const margin=ctx.rpLossFields({spuId:'fixture',metricPlatform:'all'},actual,prior).find(f=>f.key==='margin');
   assert(Math.abs(margin.sortValue-net/1000)<1e-10);assert.equal(margin.targetTone,'rp-quality-'+tone);
   assert.match(margin.hint,/不设10%灰色区间/);
-  if(net!==-10000)assert.match(margin.target,net>-10000?/\+/:/-/);
+  if(net!==-10000)assert.match(margin.target,net>-10000?/↑/:/↓/);
  }
  // 亏损不设10%灰色区间，普通经营环比仍保留；验证箭头、颜色和负数主值。
  for(const [amount,tone] of [[8900,'green'],[9000,'green'],[9500,'green'],[9990,'green'],[10000,'gray'],[10010,'red'],[10500,'red'],[11000,'red'],[11100,'red']]){
@@ -78,6 +78,8 @@ export async function lossPreview(page){
  await card.locator('[data-risk="2"]').click();
  const table=page.locator('.rp-loss-table');
  assert.equal(await table.locator('th').count(),12);
+ assert.deepEqual(await table.locator('thead [data-rp-sort]').evaluateAll(nodes=>nodes.map(node=>node.dataset.rpSort)),
+  ['loss','margin','gsv','netSales','return','received','total','totalCoverage15']);
  const inventoryColumn=await table.locator('[data-rp-sort=total]').evaluate(node=>node.closest('th').cellIndex);
  const daysColumn=await table.locator('[data-rp-sort=totalCoverage15]').evaluate(node=>node.closest('th').cellIndex);assert.equal(daysColumn,inventoryColumn+1);
  assert(!(await table.locator('th').allTextContents()).some(text=>text.includes('货值（总库存）')));

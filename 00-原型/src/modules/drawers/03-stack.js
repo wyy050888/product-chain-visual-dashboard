@@ -84,7 +84,12 @@ document.addEventListener('click',e=>{
  if(outside||closes||backs){e.preventDefault();e.stopImmediatePropagation();closeModal()}
 },true);
 document.addEventListener('keydown',e=>{
- if(!$('#overlay').hidden&&e.key==='Escape'&&!document.querySelector('dialog[open]')){e.preventDefault();e.stopImmediatePropagation();closeModal()}
+ if(!$('#overlay').hidden&&e.key==='Escape'&&!document.querySelector('dialog[open]')){
+  e.preventDefault();e.stopImmediatePropagation();
+  const picker=$('#dialog .nsp-spu-picker:popover-open');
+  if(picker){picker.hidePopover();picker.previousElementSibling.focus({preventScroll:true});return}
+  closeModal();
+ }
 },true);
 new MutationObserver(()=>{
  if($('#overlay').hidden){for(const frame of drawerFrames)frame.preview.remove();drawerFrames.length=0;drawerUpdateDepth()}

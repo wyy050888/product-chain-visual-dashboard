@@ -24,7 +24,7 @@ riskDetail=function(k,id) {
   const period=rpDetailPeriod(k);
   return drawerWithPeriod(period,()=>{
     const row=(k===0?qrCatalog():k===6?rrAll():riskRows(k)).find(r=>r.id===+id);if(!row)return;
-    return upEntry(row,'risk',k===0||k===6?'quality':k===3||k===4?'stock':'operating',k===6?row.channel:k===0?qrState.platform:'all');
+    return upEntry(row,'risk',k===0||k===6?'quality':k===3||k===4?'stock':'operating',k===6?row.channel:k===0?qrState.platform:'all',{rankingKind:k});
   });
 };
 pnrDetail=function(r,context=r?.context){if(r)return upEntry(r,'new','quality',r.channel,{start:context.start,end:context.end})};

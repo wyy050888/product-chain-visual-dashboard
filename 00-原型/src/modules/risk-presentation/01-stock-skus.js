@@ -1,4 +1,6 @@
 // 统一使用产品库存详情的SKU台账；不在公共取数层排除状态或判定风险。
+const rpSellableInventoryFormula='我司可售库存＋在途库存＋工厂可售库存';
+const rpSellableDaysFormula='可售库存÷近15日均净销量';
 function rpStockSkuRows(){
  const operating=upWindow(),previousEnd=shiftDate(operating.start,-1),previousStart=shiftDate(operating.start,-aiFlowDayDiff(operating.start,operating.end)-1);
  return upWithRange({start:shiftDate(DATA_CUTOFF,-29),end:DATA_CUTOFF,platform:'all'},()=>inventoryProductLedger().flatMap((record,index)=>{

@@ -44,4 +44,10 @@ table :is(.risk-shop-icon,.pp-placeholder,.thumb){font-size:18px!important}
 #dialogbody :is(#qr-list-table,#rf-list-table).rp-list-table :is(th,td):nth-child(2){padding-inline:14px}
 #dialogbody :is(#qr-list-table,#rf-list-table).rp-list-table .rp-identity{width:100%;max-width:none}
 #dialogbody .rp-list-table .rp-identity b{font-size:var(--table-body-size)!important;font-weight:500;line-height:1.6}
+#dialogbody .rp-list-table .rp-platform-name>span:first-child{white-space:normal;overflow-wrap:anywhere;overflow:visible;text-overflow:clip}
 #dialogbody .rp-list-table .rp-identity small{display:block;font-size:var(--table-secondary-size)!important;line-height:18px;margin-top:4px;color:#8693a4;white-space:normal;overflow-wrap:anywhere}
+
+/* 任务表的普通字段可换行，展开按钮继续控制长任务预览。 */
+.gd-table-scroll td :is(small,b,.gd-row-note),.gd-table-scroll .gd-subject strong,.gd-table-scroll .gd-owner-line>span{
+ white-space:normal;overflow-wrap:anywhere;overflow:visible;text-overflow:clip;
+}

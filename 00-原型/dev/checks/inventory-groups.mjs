@@ -12,7 +12,7 @@ export async function verifyInventoryGroups(page,initial){
   for(const row of groups){
    assert.equal(row.staleRatio,row.totalUnits?row.staleUnits/row.totalUnits*100:null);
    assert.equal(row.staleValueRatio,row.goodsValueCents?row.staleValueCents/row.goodsValueCents*100:null);
-   assert.equal(row.delivery,row.deliveryDue?row.deliveryOn/row.deliveryDue*100:null);
+   assert.equal(row.delivery,row.deliveryDue?(row.deliveryOn+row.importedStock)/row.deliveryDue*100:null);
    assert.equal(row.turn,row.avg?row.cost/row.avg:null);
    assert.equal(row.totalCoverage15,row.dailyNet15>0?row.totalUnits/row.dailyNet15:null);
    assert.equal(row.coverage15,row.dailyNet15>0?row.warehouse/row.dailyNet15:null);
@@ -21,7 +21,7 @@ export async function verifyInventoryGroups(page,initial){
  for(const row of initial.stockRecords){
   assert.equal(row.staleRatio,row.totalUnits?row.staleUnits/row.totalUnits*100:null,'SPU呆滞数量占比有实际分母');
   assert.equal(row.staleValueRatio,row.goodsValueCents?row.staleValueCents/row.goodsValueCents*100:null,'SPU呆滞金额占比有实际分母');
-  assert.equal(row.delivery,row.deliveryDue?row.deliveryOn/row.deliveryDue*100:null);
+  assert.equal(row.delivery,row.deliveryDue?(row.deliveryOn+row.importedStock)/row.deliveryDue*100:null);
  }
  const metrics=['totalUnits','goodsValueCents','warehouse','warehouseValueCents','factory','factoryValueCents','staleUnits','staleRatio','staleValueCents','staleValueRatio','turn','delivery','refurbRate'];
  for(const panel of await panels.all()){

@@ -1,7 +1,10 @@
-// 批次先读样式再挂载；只处理受影响的 select，不同步无关控件。
+// 与图表、导航共用测量批次；微任务只登记，避免在整页渲染中途强制布局。
+function uiYearMeasureMount(select){
+ const style=select.uiYearControl?.field.contains(select)||select.closest('.ui-year-field')?.querySelector(':scope>.ui-year-trigger')?null:uiYearReadStyle(select);
+ return ()=>uiYearMount(select,style);
+}
 function uiYearRefresh(selects){
- const work=[...new Set(selects)].filter(select=>select.isConnected&&(select.uiYearControl||!select.hidden&&uiYearOptions(select))).map(select=>({select,style:select.uiYearControl?.field.contains(select)||select.closest('.ui-year-field')?.querySelector(':scope>.ui-year-trigger')?null:uiYearReadStyle(select)}));
- for(const {select,style} of work)uiYearMount(select,style);
+ for(const select of new Set(selects))if(select.isConnected&&(select.uiYearControl||!select.hidden&&uiYearOptions(select)))dashboardQueueLayout(select,uiYearMeasureMount);
 }
 function uiYearSelects(root){return [...(root.matches?.('select')?[root]:[]),...(root.querySelectorAll?.('select')||[])]}
 function uiYearEnhance(root){uiYearRefresh(uiYearSelects(root))}

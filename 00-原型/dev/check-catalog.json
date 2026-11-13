@@ -1,4 +1,16 @@
 {
+  "productStartup": {
+    "file": "./checks/product-startup.mjs",
+    "export": "productStartup"
+  },
+  "managementScoreBatch": {
+    "file": "./checks/management-score-batch.mjs",
+    "export": "managementScoreBatch"
+  },
+  "startupLayout": {
+    "file": "./checks/startup-layout.mjs",
+    "export": "startupLayout"
+  },
   "diagnosisColumnLayout": {
     "file": "./checks/diagnosis-column-layout.mjs",
     "export": "diagnosisColumnLayout"

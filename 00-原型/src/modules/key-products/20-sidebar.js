@@ -10,14 +10,23 @@ function kpmPriceBandFacts(rows){
  const gsv=sum('gsvCents'),profit=sum('profitCents');
  return {count:rows.length,gsv,margin:Number.isFinite(gsv)&&gsv!==0&&Number.isFinite(profit)?profit/gsv*100:null};
 }
-function kpmPriceBandMetrics(facts){
- return `<span class="kpm-band-gsv" data-kpm-price-gsv>${Number.isFinite(facts.gsv)?upMoney(facts.gsv):'—'}</span><span class="kpm-band-margin ${facts.margin<0?'negative':''}" data-kpm-price-margin>${Number.isFinite(facts.margin)?upPercent(facts.margin):'—'}</span>`;
+function kpmPriceBandMetrics(facts,totalGsv){
+ const hasGsv=Number.isFinite(facts.gsv);
+ const share=hasGsv&&totalGsv>0?upPercent(facts.gsv/totalGsv*100):'—';
+ return `<span class="kpm-band-gsv" data-kpm-price-gsv>${hasGsv?upMoney(facts.gsv):'—'}</span><span class="kpm-band-share" data-kpm-price-share>${share}</span><span class="kpm-band-margin ${facts.margin<0?'negative':''}" data-kpm-price-margin>${Number.isFinite(facts.margin)?upPercent(facts.margin):'—'}</span>`;
 }
 function kpmPriceDistribution(rows){
  const scope=kpmPriceDistributionRows(rows),bands=kpmPriceBands.filter(b=>!['all','custom'].includes(b.key));
+ const totalGsv=kpmPriceBandFacts(scope).gsv;
  const groups=bands.map(b=>kpmPriceBandFacts(scope.filter(p=>kpmPriceMatch(p,{price:b.key})))),max=Math.max(1,...groups.map(g=>g.count));
  const missing=kpmPriceBandFacts(scope.filter(p=>!Number.isFinite(p.priceCents)));
- return `<div class="kpm-price-heading"><h3>产品价格带分布</h3><span data-up-basic>GSV</span><span data-up-basic>利润率</span></div><div class="kpm-price-bands" role="list">${bands.map((band,i)=>`<div role="listitem" data-kpm-price-band="${band.key}" data-price-count="${groups[i].count}" aria-label="${band.label}，${groups[i].count?'共'+groups[i].count+'个':'暂无产品'}"><span class="kpm-band-label"><span>${band.label}</span>${groups[i].count?`<span class="kpm-price-track" aria-hidden="true"><i style="width:${groups[i].count/max*100}%"></i></span>`:'<span class="kpm-price-empty">暂无产品</span>'}</span><strong>${groups[i].count?groups[i].count+'<small>个</small>':'—'}</strong>${kpmPriceBandMetrics(groups[i])}</div>`).join('')}</div>${missing.count?`<div class="kpm-price-missing"><span>暂无价格</span><strong>${missing.count}<small>个</small></strong>${kpmPriceBandMetrics(missing)}</div>`:''}`;
+ const bandRows=bands.map((band,i)=>{
+  const facts=groups[i];
+  return `<div role="listitem" data-kpm-price-band="${band.key}" data-price-count="${facts.count}" aria-label="${band.label}，${facts.count?'共'+facts.count+'个':'暂无产品'}"><span class="kpm-band-label"><span>${band.label}</span>${facts.count?`<span class="kpm-price-track" aria-hidden="true"><i style="width:${facts.count/max*100}%"></i></span>`:'<span class="kpm-price-empty">暂无产品</span>'}</span><strong>${facts.count?facts.count+'<small>个</small>':'—'}</strong>${kpmPriceBandMetrics(facts,totalGsv)}</div>`;
+ }).join('');
+ return `<div class="kpm-price-heading"><h3>产品价格带分布</h3><span data-up-basic>GSV</span><span data-up-basic>GSV占比</span><span data-up-basic>利润率</span></div>
+ <div class="kpm-price-bands" role="list">${bandRows}</div>
+ ${missing.count?`<div class="kpm-price-missing"><span>暂无价格</span><strong>${missing.count}<small>个</small></strong>${kpmPriceBandMetrics(missing,totalGsv)}</div>`:''}`;
 }
 
 function kpmRenderSidebar(rows,managementRows){

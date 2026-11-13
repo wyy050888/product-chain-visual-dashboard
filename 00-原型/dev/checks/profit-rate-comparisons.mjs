@@ -15,21 +15,21 @@ function profitModel(){
  return ctx;
 }
 
-// 使用页面实际模型：负数、跨零、零基数与灰色边界不能按相对增幅计算。
+// 使用页面实际模型：验证负数、跨零和零基数时的相对增长率。
 export async function profitRateComparisons(page){
  await page.waitForFunction(()=>document.documentElement.dataset.dashboardBoot==='ready');
- const ctx=profitModel(),pairs=[[-8,-10],[-10,-8],[2,0],[0,2],[2,-2],[0,0],[null,2],[10,0],[10.1,0]];
- const result=pairs.map(([now,before])=>({normal:ctx.rpProfitRateComparison(now,before),net:ctx.rpNetMarginComparison(now,before),newProduct:ctx.nspComparison(now,before,{margin:true,signed:true}),
+ const ctx=profitModel(),pairs=[[-8,-10],[-10,-8],[2,0],[0,2],[2,-2],[0,0],[null,2],[11,10],[11.01,10]];
+ const result=pairs.map(([now,before])=>({normal:ctx.rpProfitRateComparison(now,before),net:ctx.rpNetMarginComparison(now,before),newProduct:ctx.nspComparison(now,before,{margin:true}),
   detail:ctx.upOperatingMetrics({current:{profitRate:now},previous:{profitRate:before}},{}).find(f=>f.key==='margin')}));
- const text=['环比 +2.0%','环比 -2.0%','环比 +2.0%','环比 -2.0%','环比 +4.0%','环比 持平','环比 —','环比 +10.0%','环比 +10.1%'];
+ const text=['环比 ↑ 20.0%','环比 ↓ 25.0%','环比 —','环比 ↓ 100.0%','环比 ↑ 200.0%','环比 —','环比 —','环比 ↑ 10.0%','环比 ↑ 10.1%'];
  for(const [i,row] of result.entries()){
   for(const key of ['normal','net','newProduct','detail'])assert.equal(row[key].target,text[i],key+' 第'+i+'组');
-  for(const key of ['normal','newProduct','detail'])assert.equal(row[key].targetTone,'rp-quality-'+(['green','red','green','red','green','gray','gray','green','green'][i]));
-  assert.equal(row.net.targetTone,'rp-quality-'+(['green','red','green','red','green','gray','gray','green','green'][i]));
+  for(const key of ['normal','newProduct','detail'])assert.equal(row[key].targetTone,'rp-quality-'+(['green','red','gray','red','green','gray','gray','green','green'][i]));
+  assert.equal(row.net.targetTone,'rp-quality-'+(['green','red','gray','red','green','gray','gray','green','green'][i]));
  }
  const quality=ctx.rpQualityFields({platform:'拼多多',monthly:{events:[]}},[{key:'margin'}],{profitRate:-8,sales:10,returned:0},{profitRate:-10,sales:10,returned:0,start:'2026-09-01',end:'2026-09-30'}).find(f=>f.key==='margin');
- assert.equal(quality.target,'环比 +2.0%','品质榜负利润率使用差值，不显示无可比数据');
- // 真正的新品/关键产品行使用两期差值，不只测试格式化函数。
+ assert.equal(quality.target,'环比 ↑ 20.0%','品质榜负利润率以上期绝对值为基数');
+ // 真正的新品/关键产品行使用两期增长率，不只测试格式化函数。
  for(const [hash,selector] of [['new','#newtable'],['matrix','#matrixtable']]){
   const url=new URL(page.url());url.hash=hash;await page.goto(url.href,{waitUntil:'domcontentloaded'});
   await page.locator(selector+' tbody tr').first().waitFor();
@@ -60,5 +60,5 @@ export async function profitRateComparisons(page){
   });
  },cases);
  for(const row of colors){assert.equal(row.actual,row.expected,'详情规模偏差 '+row.rate);assert.equal(row.width,(row.rate??0)+'%')}
- console.log('通过：利润率/净利润率两期差值、负数/跨零/零基数、新品/关键产品实际行、详情规模进度条红黄绿及缺目标灰色。');
+ console.log('通过：利润率/净利润率两期增长率、负数/跨零/零基数、新品/关键产品实际行、详情规模进度条红黄绿及缺目标灰色。');
 }

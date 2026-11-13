@@ -2,7 +2,7 @@
 function upAiEvidenceSnapshot(a,brief){
  const {model:m}=upAiFullContext(a.product),period=a.range.start+' — '+a.range.end,d=a.demo;
  const source=(name,range,content,extra={})=>({name,period:range,content,...extra});
- const metrics=source('产品业绩（原型数据）',period,'累计GSV '+upAiMoney(m.company.gsvCents)+'；页面利润率 '+upPercent(m.company.profitRate)+'；销量 '+fmt(m.company.sales)+'件。');
+ const metrics=source('产品业绩（原型数据）',period,'累计GSV '+upAiMoney(m.company.gsvCents)+'；页面利润率 '+upPercent(m.company.profitRate)+'；销量 '+formatSalesQuantity(m.company.sales,'件')+'。');
  const recent=source('近期业绩对比（原型数据）',shiftDate(a.range.end,-29)+' — '+a.range.end,'近30日GSV '+upAiMoney(m.recent.gsvCents)+'；前期 '+m.previousStart+' — '+m.previousEnd+'，GSV '+upAiMoney(m.previous.gsvCents)+'。');
  const rating=source('考核月业绩与评级规则（原型数据）',d.rating.start+' — '+d.rating.end,'GSV '+upAiMoney(d.rating.facts.gsvCents)+'；页面利润率 '+upPercent(d.rating.facts.profitRate)+'；规模等级 '+(a.assessment.grade||'未确认')+'。');
  const simulated=key=>source({cost:'成本试算记录',report:'采购日报',meeting:'经营会议',inspection:'品质周报',task:'研发周报'}[key], '原记录未提供日期',d.records[key],{simulated:true,author:'未提供',recordDate:'未提供'});

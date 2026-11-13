@@ -82,7 +82,7 @@ rfFacts=function(k,r) {
     const days=Math.max(1,aiFlowDayDiff(w.start,w.end)+1),turnDays=r.turn>0?days/r.turn:null;
     return [rfMetric('库存周转天数',turnDays===null?'—':fmt(turnDays,1)+'天',turnDays!==null&&turnDays>=60,'所选周期天数÷库存周转率；滞销入榜另按近15日均净销量计算可售天数≥60天。'),
       rfMetric('滞销库存货值',pfMoneyYuan((r.staleValueCents/1000000)*10000),r.staleValueCents>0,'只计算超库龄部分，沿用库存台账超库龄货值。'),
-      rfMetric('期间销量',fmt(s.sales)+'件',false,'所选周期全平台销量；与经营表现及逐日台账一致。'),
+      rfMetric('期间销量',formatSalesQuantity(s.sales,'件'),false,'所选周期全平台销量；与经营表现及逐日台账一致。'),
       rfMetric('滞销金额',pfMoneyYuan((r.staleValueCents/1000000)*10000),r.staleValueCents>0,'与滞销库存货值为同一超库龄金额，不重复相加。'),
       rfMetric('库存总量',fmt(r.totalUnits)+'件',r.slow,'仓内＋工厂＋新机未交付；近15日净销量＞0且仓内库存÷近15日均净销量≥60天时入滞销榜。'),
       rfMetric('动销率',upPercent(r.warehouse+s.sales?s.sales/(r.warehouse+s.sales)*100:null),false,'期间销量÷（期间销量＋期末仓内库存）；阈值尚未确认，不单独判灯。')];

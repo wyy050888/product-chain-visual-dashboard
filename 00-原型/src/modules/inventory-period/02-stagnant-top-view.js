@@ -12,7 +12,8 @@ function ipStagnantFields(row){
  });
 }
 function ipStagnantTable(model){
- const keys=rpColumnKeys(4).filter(key=>key!=='productType'),fields=new Map(model.rows.map(row=>[row,ipStagnantFields(row)]));
+ const keys=['staleUnits','staleValue','age','warehouse','coverage15','dailyNet15'];
+ const fields=new Map(model.rows.map(row=>[row,ipStagnantFields(row)]));
  const ranked=new Map(model.rows.map((row,index)=>[row.skuId,index+1]));
  const rows=rpSortRows(model.rows,ipStagnantSort,(row,key)=>fields.get(row).find(field=>field.key===key)?.sortValue);
  const headers=['序号','SKU信息',...keys.map(key=>rpSortHeader(key,rpColumnName(key,model.rows,4),ipStagnantSort,4,{key:'staleValue',direction:'desc'})),'操作'];

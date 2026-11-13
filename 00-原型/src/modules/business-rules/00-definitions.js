@@ -1,6 +1,6 @@
 // 原有数值键保留为兼容投影；可编辑条件与结果分段由condition-catalog声明。
 // 按业务对象归属组织编辑与提交；规则键保持稳定，兼容已有浏览器配置。
-const brcGroups=[['new','新品'],['products','产品'],['shops','店铺'],['stock','库存'],['projects','项目']];
+const brcGroups=[['new','新品'],['products','产品'],['shops','店铺'],['stock','库存']];
 const brcDefinitions=[];
 function brcDefine(group,section,rows){for(const [key,label,value,unit,op='≥',min=0,max=100,integer=false] of rows)brcDefinitions.push({key,group,section,label,value,unit,op,min,max,integer})}
 brcDefine('common','达成率判灯',[
@@ -9,7 +9,8 @@ brcDefine('common','达成率判灯',[
 brcDefine('products','退货率红绿灯',[
  ['lights.return','总退偏差黄灯上限',2,'%','≤'],['lights.received','已收退偏差黄灯上限',.5,'%','≤']
 ]);
-brcDefine('projects','项目高危红灯',[
+// 采购部预警继续读取此阈值，兼容已保存的项目规则。
+brcDefine('projects','项目延期预警',[
  ['lights.projectDelay','延期天数',15,'天','＞',0,365,true]
 ]);
 brcDefine('stock','库存周转率判灯',[
@@ -26,13 +27,13 @@ for(const rule of brcDefinitions)if(rule.key.startsWith('grades.')){rule.configu
 
 
 brcDefine('products','品质风险触发',[
- ['quality.orders','有效订单下限',100,'单','≥',1,1000000,true],['quality.returnDelta','总退环比增长值',3,'%','＞'],['quality.contactDelta','总进线率环比增长值',20,'%','＞']
+ ['quality.orders','有效订单下限',100,'单','≥',1,1000000,true],['quality.returnDelta','总退环比增长率',3,'%','＞'],['quality.contactDelta','总进线率环比增长率',20,'%','＞']
 ]);
 brcDefine('products','退货恶化触发',[
  ['quality.worsenSales','销量下限',100,'件','＞',0,1000000000,true],
- ['quality.worsenReturn','总退环比增长值',3,'%','＞'],['quality.worsenReceived','已收退环比增长值',2,'%','＞']
+ ['quality.worsenReturn','总退环比增长率',10,'%','＞'],['quality.worsenReceived','已收退环比增长率',10,'%','＞']
 ]);
-// 撤下退货恶化触发配置入口，保留既有判定及历史已保存条件。
+// 退货恶化条件只供运行时判定，配置页不提供入口。
 for(const rule of brcDefinitions)if(rule.group==='products'&&rule.section==='退货恶化触发')rule.configurable=false;
 for(const [platform,red,yellow] of [['抖音',4.6,4.8],['快手',4.4,4.7],['天猫',4.6,4.8],['京东',4.6,4.8]])brcDefine('shops',platform+'店铺分',[
  ['shops.'+platform+'.red','红灯上限',red,'分',platform==='天猫'?'＜':'≤',0,5],['shops.'+platform+'.yellow','黄灯上限',yellow,'分','＜',0,5]
@@ -51,9 +52,9 @@ brcDefine('stock','历史高危库存参数',[
 ]);
 // 库存预警使用完整条件组；旧天数键沿用，历史数值自动生成对应条件。
 brcDefine('stock','库存预警规则',[
- ['stock.warning.warehouse','我司可售库存',0,'件','＞',0,1000000000,true],
+ ['stock.warning.warehouse','可售库存',0,'件','＞',0,1000000000,true],
  ['stock.warning.netSales','近15日净销量',0,'件','＞',0,1000000000,true],
- ['stock.warning.coverageDays','我司可售天数',60,'天','≥',1,3650,true],
+ ['stock.warning.coverageDays','可售天数',60,'天','≥',1,3650,true],
  ['stock.shortage.excluded','是否清仓或下架',0,'','＝',0,1,true],
  ['stock.shortage.netSales','近15日净销量',0,'件','＞',0,1000000000,true],
  ['stock.shortage.sellableDays','可售天数上限（含）',15,'天','≤',1,3650,true],['stock.shortage.totalDays','总可售天数上限（含）',45,'天','≤',1,3650,true]

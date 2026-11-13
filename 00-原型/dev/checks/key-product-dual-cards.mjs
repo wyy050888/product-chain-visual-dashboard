@@ -4,6 +4,43 @@ import vm from 'node:vm';
 import {fileURLToPath} from 'node:url';
 import {businessRuleContext} from './business-rules-context.mjs';
 
+async function verifyNewPoolScope(page){
+ await page.clock.setFixedTime(new Date('2026-11-12T04:00:00Z'));
+ await page.reload({waitUntil:'domcontentloaded'});
+ await page.locator('a[href="#matrix"]').click();
+ const root=page.locator('#matrix'),snap=()=>page.evaluate(()=>dashboardKeyProductsSnapshot());
+ const {rows:newProducts}=await page.evaluate(()=>dashboardNewProductsSnapshot());
+ const exited=newProducts.find(p=>!p.inNewPool);
+ assert(exited&&newProducts.some(p=>p.inNewPool),'样例同时有在池和已出池新品');
+ if((await snap()).change==='up')await root.locator('[data-kpm-summary-change=up]').click();
+ const start=exited.poolExitDate.slice(0,7)+'-01';
+ const dayBefore=new Date(Date.parse(exited.poolExitDate)-86400000).toISOString().slice(0,10);
+ const verify=async end=>{
+  const data=await snap();
+  assert.equal(data.range.end,end);
+  const newIds=new Set(newProducts.map(p=>p.spuId));
+  const eligible=newProducts.filter(p=>p.poolExitDate&&p.poolExitDate<=end).map(p=>p.spuId).sort();
+  assert.deepEqual(data.rows.filter(p=>newIds.has(p.spuId)).map(p=>p.spuId).sort(),eligible);
+  assert.equal(data.structure.reduce((total,grade)=>total+grade.count,0),data.base.length);
+  const bands=await root.locator('[data-kpm-price-band]').evaluateAll(nodes=>nodes.reduce((sum,n)=>sum+Number(n.dataset.priceCount),0));
+  assert.equal(bands,data.base.filter(p=>Number.isFinite(p.priceCents)).length);
+  const points=await root.locator('#matrixchart [data-kpm-point]').evaluateAll(nodes=>nodes.map(n=>n.dataset.kpmPoint).sort());
+  assert.deepEqual(points,data.base.filter(p=>p.assessment.current.sales>0&&Number.isFinite(p.assessment.current.profitRate)).map(p=>p.spuId).sort());
+  const detailIds=await root.locator('#matrixtable [data-kpm-detail]').evaluateAll(nodes=>nodes.map(n=>n.dataset.kpmDetail));
+  assert.deepEqual(detailIds,data.visible.slice(0,data.size).map(p=>p.spuId));
+  return data.rows.find(p=>p.spuId===exited.spuId);
+ };
+ await verify('2026-11-12');
+ for(const end of [dayBefore,exited.poolExitDate]){
+  await root.locator('[data-product-date=matrix]').click();
+  await page.locator('[data-range-date="'+start+'"]:not(:disabled)').click();
+  await page.locator('[data-range-date="'+end+'"]:not(:disabled)').click();
+  const row=await verify(end);
+  if(end===dayBefore)assert.equal(row,undefined);
+  else {assert(row);assert.equal(row.assessment.previous.inNewPool,true);assert.equal(row.assessment.previous.level,null);}
+ }
+}
+
 export async function keyProductDualCards(page){
  const ctx=businessRuleContext({window:{}});
  for(const [mode,factor] of [['recent30',1],['month',1],['quarter',3],['year',12]]){
@@ -51,6 +88,35 @@ export async function keyProductDualCards(page){
   })),'每张卡上下展示两组指标');
  };
  await verify();
+ const summary=root.locator('.kpm-grade-summary');
+ assert(await summary.isVisible());assert(await root.locator('#matrixchart').isHidden());
+ const headers=summary.locator('thead th');
+ assert.deepEqual(await headers.allTextContents(),['等级 / 经营标签','产品数','GSV','GSV占比','销量','利润率']);
+ const salesHelp=headers.nth(4).locator('.net-sales-help');
+ assert.equal(await salesHelp.getAttribute('data-metric-rule'),'此处为去退后销量');
+ const initial=await snap(),totalGsv=initial.base.reduce((sum,p)=>sum+p.facts.gsvCents,0);
+ const percent=value=>value===null?'—':value.toLocaleString('zh-CN',{minimumFractionDigits:1,maximumFractionDigits:1})+'%';
+ const number=(value,digits)=>value.toLocaleString('zh-CN',{minimumFractionDigits:digits,maximumFractionDigits:digits});
+ for(const level of ['S','A','B','C']){
+  const items=initial.base.filter(p=>p.level===level);
+  for(const [kind,products] of [['grade',items],['operating',items.filter(p=>ctx.brcProductOperatingMatch(level,p.facts.profitRate))]]){
+   const button=summary.locator(`[data-kpm-summary-select="${kind}"][value="${level}"]`);
+   const gsv=products.reduce((sum,p)=>sum+p.facts.gsvCents,0),profit=products.reduce((sum,p)=>sum+p.facts.profitCents,0);
+   const sales=products.reduce((sum,p)=>sum+p.facts.netSales,0);
+   const row=button.locator('xpath=ancestor::tr');
+   const cells=await row.locator('td').allTextContents();
+   const share=gsv/totalGsv*100;
+   const gsvLabel=Math.abs(gsv)>1000000?number(gsv/1000000,1)+'w':number(gsv/100,1)+'元';
+   const salesLabel=sales>10000?number(sales/10000,1).replaceAll(',','')+'w':number(sales,0);
+   assert.deepEqual(cells,[String(products.length),gsvLabel.replaceAll(',',''),percent(share),salesLabel,percent(gsv?profit/gsv*100:null)]);
+   const bar=await row.locator('.kpm-summary-share-track').evaluate(track=>({track:track.clientWidth,fill:track.firstElementChild.getBoundingClientRect().width}));
+   assert(bar.track>0&&Math.abs(bar.fill-bar.track*share/100)<1,'横条按总 GSV 占比绘制');
+   await button.click();
+   assert.deepEqual((await snap()).visible.map(p=>p.spuId).sort(),products.map(p=>p.spuId).sort());
+   assert.equal(await button.getAttribute('aria-pressed'),'true');
+   await button.click();
+  }
+ }
  const metric=root.locator('[data-kpm-grade=S]');
  const appearance=()=>metric.evaluate(n=>({background:getComputedStyle(n).backgroundColor,shadow:getComputedStyle(n).boxShadow}));
  const parent=root.locator('[data-kpm-card-grade=S]');
@@ -98,7 +164,7 @@ export async function keyProductDualCards(page){
   }
   assert(!(await root.locator('.kpm-chart-legend').innerText()).includes('深色：'),'图例不显示深浅颜色说明文字');
  };
- await verifyLabels();await verifyPointTones();await root.locator('[data-kpm-expand]').click();await verifyLabels();await verifyPointTones();
+ await root.locator('[data-kpm-expand]').click();assert(await summary.isHidden());await verifyLabels();await verifyPointTones();
  await root.locator('.kpm-chart-zoom').screenshot({path:fileURLToPath(new URL('../../outputs/关键产品矩阵完整等级-检查.png',import.meta.url))});
  await root.locator('[data-kpm-expand]').click();
  for(const grade of ['S','A','B','C']){
@@ -117,7 +183,7 @@ export async function keyProductDualCards(page){
  for(const width of [1920,1440,1000,700,390]){await page.setViewportSize({width,height:1080});await verify()}
  await page.setViewportSize({width:1920,height:1080});
  fs.mkdirSync(new URL('../../outputs/',import.meta.url),{recursive:true});
- await root.locator('#matrixchart').screenshot({path:fileURLToPath(new URL('../../outputs/关键产品利润关注区域-检查.png',import.meta.url))});
+ assert(await summary.isVisible());
  await root.locator('.kpm-structure-summary').screenshot({path:fileURLToPath(new URL('../../outputs/关键产品双指标卡片-检查.png',import.meta.url))});
  // SABC等级与经营标签使用统一来源，后台不再提供本地编辑入口。
  await page.evaluate(()=>{location.hash='#system-business-rules'});
@@ -126,5 +192,6 @@ export async function keyProductDualCards(page){
  assert.equal(await page.locator('[data-brc-section-tab=grade]').count(),0);
  assert.equal(await page.locator('[data-brc-metric^="grades."]').count(),0);
  await page.evaluate(()=>location.hash='#matrix');
- console.log('通过：仅GSV评级、经营标签独立统计及环比、六卡筛选、五档宽度、无本地SABC编辑入口。');
+ await verifyNewPoolScope(page);
+ console.log('通过：仅GSV评级、经营标签独立统计及环比、六卡筛选、五档宽度、无本地SABC编辑入口、出池边界与关键产品口径。');
 }

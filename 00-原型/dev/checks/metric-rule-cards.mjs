@@ -57,6 +57,13 @@ export async function metricRuleCards(page){
    return {body:[body.fontFamily,body.fontSize,body.color],title:[title.fontFamily,title.fontSize,title.fontWeight,title.color]};
   }),typography,'字体字号及字色必须与入榜条件一致：'+title);
   for(const note of await tip.locator('.metric-rule-note').all()){
+   if(section==='new'){
+    assert.deepEqual(await note.evaluate(el=>{
+     const style=getComputedStyle(el),row=el.parentElement,heading=row.querySelector('h5');
+     return [style.backgroundColor,style.padding,getComputedStyle(row).display,heading.getBoundingClientRect().right<el.getBoundingClientRect().left];
+    }),['rgba(0, 0, 0, 0)','0px','grid',true],'新品提示使用无底色的标题与说明分列');
+    continue;
+   }
    assert.deepEqual(await note.evaluate(el=>{
     const s=getComputedStyle(el);return [s.backgroundColor,s.padding,s.borderRadius,s.fontSize,s.color];
    }),noteStyle,'解释说明统一使用灰底说明块：'+title);

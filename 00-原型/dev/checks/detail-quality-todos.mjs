@@ -61,14 +61,14 @@ export async function detailQualityTodos(page){
  assert.equal(await page.locator('[data-up-quality-metric="unreceived"] .up-quality-comparison').count(),0);
  await page.locator('#dialog').screenshot({path:fileURLToPath(new URL('../../outputs/detail-quality.png',import.meta.url))});
  await page.locator('[data-drawer-tab="stock"]').click();
- assert.equal(await page.locator('[data-up-panel="stock"] .up-stock-card').count(),8);
+ assert.equal(await page.locator('[data-up-panel="stock"] .up-stock-card').count(),6);
  assert.equal(await page.locator('#up-stock-skus tbody tr').count(),4);
  assert.match(await page.locator('.up-detail .up-stock-card').first().innerText(),/总可售天数/);
  const tags=await page.locator('.up-stock-risk-tag').allTextContents();
  assert(tags.length<=2&&tags.every(t=>['缺货','调货','滞销'].includes(t)));
  assert(!tags.includes('滞销')||tags.length===1);
  await verifyProductStockCards(page);
- assert.equal(await page.locator('[data-up-panel=stock] [data-stock-rule]').count(),4,'仅保留指定指标的问号口径');
+ assert.equal(await page.locator('[data-up-panel=stock] [data-stock-rule]').count(),2,'仅两张库存余额卡提供问号口径');
  assert.equal(await page.locator('[data-up-panel=stock] .metric-help:not([data-stock-rule])').count(),0);
  await verifyProductTabs(page,detailRef);
 }

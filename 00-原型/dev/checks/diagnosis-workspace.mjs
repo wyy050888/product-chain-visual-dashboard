@@ -4,7 +4,7 @@ import vm from 'node:vm';
 import {readFileSync} from 'node:fs';
 
 export function verifyExecutionIdentity(){
- const box=vm.createContext({upTodos:{}});
+ const box=vm.createContext({upTodos:{},gdRiskRepeatRule:''});
  vm.runInContext(readFileSync(new URL('../../src/modules/global-diagnosis/03-key-work.js',import.meta.url),'utf8'),box);
  const row={workKey:'project-risk|7|r1',projectId:7,riskId:'r1',workTaskId:'task-r1',keyType:'project'};
  assert.equal(box.gdHasExecution(row,[]),false);
@@ -18,7 +18,7 @@ export function verifyExecutionIdentity(){
  assert.equal(box.gdHasExecution(taskRow,[{id:'assigned',status:'working',gdProjectId:7,gdProjectTaskId:'s1-t1'}]),true);
  assert.equal(box.gdHasExecution(taskRow,[{id:'assigned',status:'working',gdProjectId:7,gdSource:'projects',gdIssue:'work-core-delivery'}]),false,'同项目其它处理事项不能覆盖本任务');
  const activeRisk={keyType:'high-risk',riskIdentity:'3|sku1|all',eventKey:'risk-alert|3|sku1|all|2026-10-16',workKey:'risk-alert|3|sku1|all|2026-10-16'};
- assert.equal(box.gdHasExecution(activeRisk,[{id:'old-window',status:'working',gdEventKey:'risk-alert|3|sku1|all|2026-10-01'}]),true,'在办执行单跨15天窗口继续匹配');
+ assert.equal(box.gdHasExecution(activeRisk,[{id:'old-window',status:'working',gdEventKey:'risk-alert|3|sku1|all|2026-10-01'}]),true,'在办执行单跨重判窗口继续匹配');
  assert.equal(box.gdHasExecution(activeRisk,[{id:'old-window',status:'done',gdEventKey:'risk-alert|3|sku1|all|2026-10-01'}]),false,'旧窗口已结束时仍按当前风险重新判断');
  assert.equal(box.gdHasExecution(activeRisk,[{id:'other-platform',status:'working',gdEventKey:'risk-alert|3|sku1|抖音|2026-10-01'}]),false);
  const high={eventKey:'safety|spu-1|event-1',workKey:'safety|spu-1|event-1'};
@@ -27,7 +27,7 @@ export function verifyExecutionIdentity(){
 }
 export function verifyRiskTaskIndependence(){
  const cutoff='2026-10-26',risk={keyType:'high-risk',workKey:'risk-alert|3|sku1|all|'+cutoff,eventKey:'risk-alert|3|sku1|all|'+cutoff,date:cutoff,title:'新增高危',object:{name:'SKU1'}},project={keyType:'project',workKey:'project-risk|7|r1',date:cutoff,title:'项目卡点',object:{name:'项目1'}};
- const box=vm.createContext({DATA_CUTOFF:cutoff,upTodos:{},gdNewRiskKeyWork:()=>[risk],gdProjectKeyWork:()=>[project],gdProposal:()=>({status:'suggested'}),gdPresentAction:row=>row,aiToday:()=>cutoff});
+ const box=vm.createContext({DATA_CUTOFF:cutoff,upTodos:{},gdRiskRepeatRule:'',gdNewRiskKeyWork:()=>[risk],gdProjectKeyWork:()=>[project],gdProposal:()=>({status:'suggested'}),gdPresentAction:row=>row,aiToday:()=>cutoff});
  vm.runInContext(readFileSync(new URL('../../src/modules/global-diagnosis/03-key-work.js',import.meta.url),'utf8'),box);
  for(const status of ['pending','working','done']){
   box.upTodos={risk:{status,gdWorkKey:risk.workKey,gdEventKey:risk.eventKey},project:{status,gdWorkKey:project.workKey}};
@@ -69,26 +69,26 @@ export function verifyRiskChanges(){
   return box;
  };
  const box=load(),history={kind:3,objectId:'sku1',platform:'all',appearances:['2026-10-01']},current={severity:2};
- const coverage=date=>Array.from({length:14},(_,i)=>new Date(Date.parse(date+'T00:00:00Z')-(i+1)*86400000).toISOString().slice(0,10));
+ const coverage=date=>Array.from({length:2},(_,i)=>new Date(Date.parse(date+'T00:00:00Z')-(i+1)*86400000).toISOString().slice(0,10));
  const event=(date,c=current,h=history,dates=[...h.appearances,date])=>box.gdRiskReminder(h,c,date,dates,coverage(date));
- assert.equal(box.gdRiskReminder(history,current,'2026-10-16',['2026-10-01','2026-10-16'],[]),null,'缺少前14天快照，不能把没记录当作未入榜');
+ assert.equal(box.gdRiskReminder(history,current,'2026-10-04',['2026-10-01','2026-10-04'],[]).type,'风险复核','到期在榜即可复核，无需第2～3天退榜或连续快照');
  assert.equal(event('2026-10-01').date,'2026-10-01');
- for(const date of ['2026-10-02','2026-10-15'])assert.equal(event(date),null,'近期在上方风险榜出现过，不重复新增');
- const next=event('2026-10-16');assert.equal(next.date,'2026-10-16');assert.equal(next.previousAppeared,'2026-10-01');assert.equal(next.type,'风险复核','间隔15个自然日可重判');
- for(const severity of [1,2,3])assert.equal(event('2026-10-15',{severity}),null,'灯色变化不绕过出现去重');
+ for(const date of ['2026-10-02','2026-10-03'])assert.equal(event(date),null,'第2～3天不重复新增');
+ const next=event('2026-10-04');assert.equal(next.date,'2026-10-04');assert.equal(next.previousAppeared,'2026-10-01');assert.equal(next.type,'风险复核','第4天再次入榜可重判');
+ for(const severity of [1,2,3])assert.equal(event('2026-10-03',{severity}),null,'灯色变化不绕过出现去重');
  assert.equal(event('2026-10-16',null),null,'解除的风险不展示');
  assert.equal(event('2026-10-16',current,{...history,handledAt:'2026-10-10'}).type,'风险复核','旧事件已处理不能永久屏蔽间隔后的新事件');
  assert.equal(event('2026-10-16',current,{...history,handledAt:'2026-10-16'}),null,'本次事件已处理时不重复提醒');
  assert.equal(event('2026-10-16',current,history,[]),null,'没有当日入榜出现记录不伪造首次');
  assert.equal(event('2026-10-16',current,history,['2026-10-20']),null,'不读取未来出现记录');
  assert.equal(event('2026-10-16',current,history,['2026-10-01']),null,'不把旧榜单记录改成当日出现');
- assert.equal(event('2026-10-16',current,{...history,appearances:['2026-10-01','2026-10-10']}),null,'使用上方最近一次出现，即使AI从未展示也抑制');
- const daily=Array.from({length:16},(_,i)=>'2026-10-'+String(i+1).padStart(2,'0'));
- assert.equal(event('2026-10-16',current,history,daily),null,'连续在上方入榜满16天不自动重复');
- assert.equal(event('2026-10-30',current,history,['2026-10-16','2026-10-30']),null);
- assert.equal(event('2026-10-31',current,history,['2026-10-16','2026-10-31']).date,'2026-10-31');
- for(const [first,day15,day16] of [['2026-01-25','2026-02-08','2026-02-09'],['2024-02-20','2024-03-05','2024-03-06'],['2025-12-25','2026-01-08','2026-01-09']]){
-  const h={...history,objectId:first,appearances:[first]};assert.equal(event(day15,current,h),null);assert.equal(event(day16,current,h).previousAppeared,first,'跨月/闰年/跨年仍按自然日');
+ assert.equal(event('2026-10-16',current,{...history,appearances:['2026-10-01','2026-10-14']}),null,'第4天不在榜时，下次提醒从实际复核日开始计时');
+ const daily=Array.from({length:7},(_,i)=>'2026-10-'+String(i+1).padStart(2,'0'));
+ assert.deepEqual(daily.filter(date=>event(date,current,history,daily)),['2026-10-01','2026-10-04','2026-10-07'],'持续入榜每三天提醒一次');
+ const continuous=event('2026-10-04',current,history,daily);
+ assert.equal(continuous.previousReminder,'2026-10-01');assert.equal(continuous.previousAppeared,'2026-10-03','上次提醒与最近入榜分别保留');
+ for(const [first,day3,day4] of [['2026-01-30','2026-02-01','2026-02-02'],['2024-02-27','2024-02-29','2024-03-01'],['2025-12-30','2026-01-01','2026-01-02']]){
+  const h={...history,objectId:first,appearances:[first]};assert.equal(event(day3,current,h),null);assert.equal(event(day4,current,h).previousAppeared,first,'跨月/闰年/跨年仍按自然日');
  }
  assert.equal(box.gdRiskHistoryKey(history),box.gdRiskHistoryKey({...history,id:'another-record'}));
  assert.notEqual(box.gdRiskHistoryKey(history),box.gdRiskHistoryKey({...history,platform:'抖音'}));assert.notEqual(box.gdRiskHistoryKey(history),box.gdRiskHistoryKey({...history,kind:4}));
@@ -102,21 +102,36 @@ export function verifyRiskChanges(){
  assert.deepEqual(Array.from(load().rpWarningHistory().find(row=>row.objectId==='sku1').appearances),['2026-10-26'],'上方出现记录刷新后保持');
  saved.set('dashboard.risk-board-appearances.v1',JSON.stringify({records:{},observedDates:coverage('2026-10-26')}));
  const complete=load();complete.rpRecordWarningAppearances([{key:'3|new-sku|all'}],'2026-10-26');
- const fresh=complete.rpWarningHistory().find(row=>row.objectId==='new-sku');assert.equal(fresh.baseline,false,'前14天全量快照完整，首次入榜可确认为新增');
+ const fresh=complete.rpWarningHistory().find(row=>row.objectId==='new-sku');assert.equal(fresh.baseline,false,'前2天全量快照完整，首次入榜可确认为新增');
  assert.equal(complete.gdRiskReminder(fresh,current,'2026-10-26').type,'新出现风险');
  // 新增高危来源阶段同样不排除已有执行任务或执行单编号。
  complete.rpWarningHistory=()=>[{...fresh,id:'new-risk',executionOrderId:'EXEC-1'}];complete.gdRiskSources=()=>[{key:'3|new-sku|all',kind:3,title:'缺货预警榜',severity:2,row:{spuId:'spu1',skuId:'new-sku',name:'SKU1',category:'环境'},metrics:[]}];
  complete.gdHasExecution=()=>{throw Error('新增高危不应查询执行任务作为入榜前提')};complete.gdSourceDate=value=>value;complete.aiAssignees=[];complete.upTodoPersonDepartment=()=>'';complete.diagnosisNormalizeSource=value=>value;
  const rows=complete.gdNewRiskKeyWork({by:()=>({range:{start:'2026-10-01',end:'2026-10-26'}})},{start:'2026-10-01',end:'2026-10-26'});assert.equal(rows.length,1);assert(!rows[0].problem.includes('执行任务'));
+ assert(rows[0].sources.some(source=>source.content.includes('第4天起，只要当天在榜就重判并提醒，持续入榜也适用')),'查看依据与重判规则一致');
 }
 export async function diagnosisWorkspace(page){
  verifyExecutionIdentity();verifyRiskTaskIndependence();verifyProjectTaskGaps();verifyRiskChanges();
  await page.waitForFunction(()=>document.documentElement.dataset.dashboardBoot==='ready');
  // 确认原型不拿稀疏历史推断新增；专项随后注入明确的完整历史快照夹具。
  const original=await page.evaluate(()=>({board:riskBoardAppearanceSnapshot(),risks:globalDiagnosisRiskSnapshot()}));
- if(original.board.observedDates.length<15)assert.equal(original.risks.rows.filter(row=>!row.sample).length,0,'普通记录历史不完整时不制造新增高危；显式样例使用隔离的模拟历史');
- await page.evaluate(()=>{const board=riskBoardAppearanceSnapshot(),end=board.observedDates.at(-1),observedDates=Array.from({length:15},(_,i)=>new Date(Date.parse(end+'T00:00:00Z')-i*86400000).toISOString().slice(0,10));localStorage.setItem(board.storageKey,JSON.stringify({records:Object.fromEntries(board.history.map(row=>[row.kind+'|'+row.objectId+'|'+row.platform,row])),observedDates}))});
+ if(original.board.observedDates.length<3)assert.equal(original.risks.rows.filter(row=>!row.sample&&row.changeType==='新出现风险').length,0,'历史不完整时不推断首次出现');
+ const continuousRisk=await page.evaluate(()=>{
+  const board=riskBoardAppearanceSnapshot(),end=board.observedDates.at(-1);
+  const observedDates=Array.from({length:4},(_,i)=>new Date(Date.parse(end+'T00:00:00Z')-i*86400000).toISOString().slice(0,10));
+  const key=row=>row.kind+'|'+row.objectId+'|'+row.platform;
+  const records=Object.fromEntries(board.history.map(row=>[key(row),row]));
+  const activeKeys=new Set(globalDiagnosisRiskSnapshot().sources.map(source=>source.key));
+  const continuous=board.history.find(row=>!row.sample&&row.baseline&&row.appearances.includes(end)&&activeKeys.has(key(row)));
+  const identity=key(continuous);
+  records[identity]={...continuous,appearances:[...observedDates].reverse()};
+  localStorage.setItem(board.storageKey,JSON.stringify({records,observedDates}));
+  return {identity,date:end,previousAppearedAt:observedDates[1],previousReminderAt:observedDates[3]};
+ });
  await page.reload();await page.waitForFunction(()=>document.documentElement.dataset.dashboardBoot==='ready');
+ const recurring=await page.evaluate(identity=>globalDiagnosisRiskSnapshot().rows.find(row=>row.riskIdentity===identity),continuousRisk.identity);
+ assert.equal(recurring?.changeType,'风险复核','第4天持续在榜的风险进入新增高危');
+ for(const key of ['date','previousAppearedAt','previousReminderAt'])assert.equal(recurring[key],continuousRisk[key]);
  const root=page.locator('#ai'),audit=()=>page.evaluate(()=>globalDiagnosisAudit());
  await root.locator('[data-gd-part="coordination"]').click();
  assert.deepEqual(await root.locator('#aigrid h3').allTextContents(),['重点工作清单','工作偏差预警','日周报诊断','任务清单']);
@@ -142,7 +157,11 @@ export async function diagnosisWorkspace(page){
   await help.focus();
   await page.locator('#metric-tooltip').waitFor({state:'visible'});
   assert((await page.locator('#metric-tooltip').innerText()).startsWith(label));
-  if(key==='high-risk')assert(!(await page.locator('#metric-tooltip').innerText()).includes('执行任务'),'新增高危提示移除执行任务前提');
+  if(key==='high-risk'){
+   const text=await page.locator('#metric-tooltip').innerText();
+   assert(!text.includes('执行任务'),'新增高危提示移除执行任务前提');
+   assert.match(text,/以上次提醒日为第1天，第2～3天不重复，第4天起，只要当天在榜就重判并提醒，持续入榜也适用/);
+  }
   assert(await page.locator('#metric-tooltip .metric-rule-section li').count()>=2,'二级提示逐点展示');
   assert.equal((await audit()).state.tabs.coordination,key,'查看提示不切换分类');
   await help.press('Escape');
@@ -212,14 +231,16 @@ export async function diagnosisWorkspace(page){
  const boardHistory=await page.evaluate(()=>riskBoardAppearanceSnapshot());
  assert(boardHistory.history.some(row=>row.baseline),'风险榜全量入榜采集不限三个历史样例');
  assert(!riskAudit.rows.some(row=>boardHistory.history.find(h=>h.kind+'|'+h.objectId+'|'+h.platform===row.riskIdentity)?.baseline&&row.date===boardHistory.history.find(h=>h.kind+'|'+h.objectId+'|'+h.platform===row.riskIdentity)?.appearances[0]),'基线不冒充新增');
- for(const r of riskAudit.rows)if(r.previousAppearedAt)assert((Date.parse(r.date)-Date.parse(r.previousAppearedAt))/86400000>=15,'复核满足15天间隔');
+ for(const r of riskAudit.rows)if(r.previousReminderAt)assert((Date.parse(r.date)-Date.parse(r.previousReminderAt))/86400000>=3,'复核距上次计时至少3个自然日');
  for(const row of riskAudit.rows){
   const history=riskAudit.history.find(h=>h.id===row.riskAlertId);
-  assert(history);assert(history.appearances.includes(row.date));assert(!history.appearances.some(day=>day<row.date&&(Date.parse(row.date)-Date.parse(day))/86400000<15),'按最近一次上方出现抑制');assert(riskAudit.sources.some(source=>source.key===history.kind+'|'+history.objectId+'|'+history.platform),'新增记录绑定真实预警榜身份');
+  assert(history);assert(history.appearances.includes(row.date));
+  if(row.previousReminderAt)assert(history.appearances.includes(row.previousReminderAt),'计时日来自真实入榜记录');
+  assert(riskAudit.sources.some(source=>source.key===history.kind+'|'+history.objectId+'|'+history.platform),'新增记录绑定真实预警榜身份');
   assert.equal(row.source,'risk');assert(row.sources.every(source=>source.sourceTypeKey==='risk-alert'));
   assert(!row.problem.includes('绝缘耐压'));
  }
- assert(riskAudit.rows.filter(row=>row.riskAlertId==='quality-freeze-existing-a831').every(row=>row.changeType==='风险复核'&&row.previousAppearedAt),'历史预警满15天且仍触发才复核');
+ assert(riskAudit.rows.filter(row=>row.riskAlertId==='quality-freeze-existing-a831').every(row=>row.changeType==='风险复核'&&row.previousAppearedAt),'历史预警再次入榜且达到间隔才复核');
  await page.locator('#close').click();
  assert.deepEqual(await store(),beforeStore,'查看重点依据不生成或修改执行单');
  await root.locator('#refreshai').click();

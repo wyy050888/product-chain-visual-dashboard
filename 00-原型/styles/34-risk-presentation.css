@@ -51,8 +51,8 @@
 #dialogbody :is(#qr-list-table,#rf-list-table).rp-list-table th {background:#f5f8fc;white-space:nowrap;color:#8190a6;font-weight:500}
 #dialogbody :is(#qr-list-table,#rf-list-table).rp-list-table td {background:white}
 #dialogbody :is(#qr-list-table,#rf-list-table).rp-list-table tr:hover td {background:#f9fbff}
-#dialogbody :is(#qr-list-table,#rf-list-table).rp-list-table :is(th,td):first-child {min-width:48px!important;width:48px;position:sticky;left:0;z-index:1}
-#dialogbody :is(#qr-list-table,#rf-list-table).rp-list-table :is(th,td):nth-child(2) {min-width:255px!important;width:255px;position:sticky;left:48px;z-index:1;border-right:1px solid #edf1f7}
+#dialogbody :is(#qr-list-table,#rf-list-table).rp-list-table :is(th,td):first-child {min-width:64px!important;width:64px;position:sticky;left:0;z-index:1}
+#dialogbody :is(#qr-list-table,#rf-list-table).rp-list-table :is(th,td):nth-child(2) {min-width:255px!important;width:255px;position:sticky;left:64px;z-index:1;border-right:1px solid #edf1f7}
 #dialogbody :is(#qr-list-table,#rf-list-table).rp-list-table :is(th,td):last-child {min-width:95px!important;position:sticky;right:0;z-index:1;border-left:1px solid #edf1f7}
 #dialogbody :is(#qr-list-table,#rf-list-table).rp-list-table td:has(.rp-list-risks) {min-width:230px;max-width:320px}
 #dialogbody .rp-list-value .rp-value {font-size:13px;font-weight:500;white-space:nowrap}

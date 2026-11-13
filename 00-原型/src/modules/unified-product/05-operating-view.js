@@ -40,16 +40,22 @@ function upOperatingMetrics(m,state){
   const s=m.current,p=m.previous;
   const fields=[
     ['gsv','GSV',s.gsvCents,p.gsvCents,upMoney],
-    ['sales','销量',s.sales,p.sales,fmt],
-    ['netSales','去退后销量',s.sales-s.returned,p.sales-p.returned,fmt],
+    ['sales','销量',s.sales,p.sales,formatSalesQuantity],
+    ['netSales','去退后销量',s.sales-s.returned,p.sales-p.returned,formatSalesQuantity],
     ['expense','消耗',s.expenseCents,p.expenseCents,upMoney],
     ['feeRate','费率',s.feeRate,p.feeRate,upPercent],
     ['margin','利润率',s.profitRate,p.profitRate,upPercent]
-  ].map(([key,name,now,before,format])=>({key,name,value:format(now),
-    tone:'',...(key==='margin'?rpProfitRateComparison(now,before):rpLossMarginComparison(now,before,{reverse:key==='feeRate',signed:key==='feeRate'}))}));
+  ].map(([key,name,now,before,format])=>{
+    const comparison=key==='margin'?rpProfitRateComparison(now,before):key==='feeRate'?rpLossMarginComparison(now,before,{reverse:true}):
+      {target:rpQualityChange(now,before),targetTone:rpQualityChangeTone(now,before)};
+    return {key,name,value:format(now),tone:'',...comparison};
+  });
   const {returnTarget:totalTarget,receivedTarget}=upReturnTargets(m,state);
-  for(const [key,name,actual,target] of [['returned','总退',s.returnRate,totalTarget],['received','已收退',s.receivedRate,receivedTarget]])
-    fields.push({key,name,value:upPercent(actual),...rpQualityReturnRule(actual,target,key)});
+  for(const [key,name,actual,target] of [['returned','总退',s.returnRate,totalTarget],['received','已收退',s.receivedRate,receivedTarget]]){
+    const comparison=rpQualityReturnRule(actual,target,key);
+    const noNumericSignal=(state.rankingKind===6||state.rankingKind===8)&&comparison.targetTone==='rp-quality-red';
+    fields.push({key,name,value:upPercent(actual),...comparison,noNumericSignal});
+  }
   return fields;
 }
 

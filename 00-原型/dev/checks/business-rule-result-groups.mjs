@@ -19,8 +19,18 @@ function verifyResultModel(){
  assert.equal(ctx.brcResultMatch('quality-risk',{orders:100,returnDelta:4,value:21}),true);
  ctx.brcCommit('products',defaults,conditions);
  let draft=ctx.brcCopyConditions(conditions);draft['quality.worsenReturn'].groupOp='all';ctx.brcCommit('products',defaults,draft);
- assert.equal(ctx.brcResultMatch('quality-worsening',{netSales:101,returnDelta:4,receivedDelta:0}),true,'退货恶化采用固定入榜规则，不由本地配置改变');
+ assert.equal(ctx.brcResultMatch('quality-worsening',{netSales:101,returnDelta:11,receivedDelta:0}),true,'退货恶化采用固定入榜规则，不由本地配置改变');
  assert.equal(ctx.brcRead().conditions['quality.worsenReturn'].groupOp,undefined,'不可编辑字段不保存草稿覆盖');
+ const storageKey='dashboard-business-rules-v3',stored=JSON.parse(memory.get(storageKey));
+ for(const [key,oldValue] of [['quality.worsenReturn',3],['quality.worsenReceived',2]]){
+  stored.values[key]=oldValue;stored.conditions[key]={op:'gte',a:oldValue};
+ }
+ memory.set(storageKey,JSON.stringify(stored));
+ const upgraded=ctx.brcRead();
+ for(const key of ['quality.worsenReturn','quality.worsenReceived']){
+  assert.equal(upgraded.values[key],10);
+  assert.deepEqual({...upgraded.conditions[key]},{op:'gt',a:10});
+ }
  draft=ctx.brcCopyConditions(conditions);draft['grades.S.salesAbove'].groupOp='any';ctx.brcCommit('new',defaults,draft);assert.notEqual(ctx.brcRead().conditions['grades.S.salesAbove'].groupOp,'any','SABC外部配置不能由本地草稿覆盖');
  draft=ctx.brcCopyConditions(conditions);draft['new.quarterGsv']={op:'gt',a:600,groupOp:'any'};
  assert.equal(ctx.brcResultMatch('success-quarter',{gsv:550,profitRate:20,returnRate:5},draft),true);
@@ -63,7 +73,7 @@ export async function businessRuleResultGroups(page,{successOnly=false}={}){
  const added=quality.locator('[data-brc-metric="quality.contactDelta"]').last();await added.selectOption('orders');await quality.locator('[data-brc-term-op="quality.contactDelta"]').selectOption('gte');await quality.locator('[data-brc-upper="quality.contactDelta"]').fill('100');await save();
  assert.equal((await runtime()).qualityGroupReturn.hit,true);await quality.locator('[data-brc-remove="quality.contactDelta"]').last().click();await save();assert.equal((await runtime()).qualityGroupContact.hit,true);
  assert.equal(await editor('quality-worsening').count(),0,'固定退货恶化规则没有本地配置入口');
- assert.equal((await runtime()).worsening4.length,1,'本地条件编辑不改变固定退货恶化判定');
+ assert.equal((await runtime()).worsening11.length,1,'本地条件编辑不改变固定退货恶化判定');
  await revealBusinessRule(page,'stock.profit');const stock=editor('stock-platform');assert.equal(await stock.locator('.brc-condition-when').count(),1);assert.equal(await stock.locator('[data-brc-add]').count(),1);assert.equal(await stock.locator('.brc-condition-clause').count(),4,'四项合并为同一条件组');assert.equal((await runtime()).stockMixedPlatform,1);assert.equal((await runtime()).stockOnlyViolation,1);
  assert.equal(await page.locator('.brc-metric-table th[scope=rowgroup]').allTextContents().then(labels=>labels.join('|')),'滞销|缺货|调货|高危库存');
  await page.screenshot({path:fileURLToPath(new URL('../../outputs/business-rule-stock-four-group.png',import.meta.url))});

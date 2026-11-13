@@ -38,7 +38,11 @@ renderInventory=bindRender('inventory',function(){
  const title=$('#inventory>.sectionhead>.titlegroup');
  if(!title.querySelector('[data-ip-summary-help]'))title.querySelector('h2').insertAdjacentHTML('afterend',ipSummaryHelp());
  ipMountSeasonFilter();
- $('#inventorymetrics').innerHTML=ipOverviewCards(overview,balance);
+ const cards=$('#inventorymetrics');
+ cards.innerHTML=ipOverviewCards(overview,balance);
+ const stockoutButton=cards.querySelector('[data-ip-stockout-open]');
+ if(stockoutButton)stockoutButton.onclick=()=>ipOpenStockout(overview.stockout,overview.metricPeriod);
+ ipRefreshStockoutDrawer(overview.stockout,overview.metricPeriod);
  ipRenderStaleAnalysis();
  $('#inventory-brand-shares').innerHTML=ipBrandShareCharts(records);
  $('#inventorytable').innerHTML=ipGroupTable(records,'category')+ipGroupTable(records,'brand');
@@ -46,9 +50,10 @@ renderInventory=bindRender('inventory',function(){
  ipMountStagnantTop();
  const area=headerTimeArea($('#inventory'));let host=area.querySelector('[data-ip-period-host]');
  if(!host){host=document.createElement('div');host.dataset.ipPeriodHost='overview';area.append(host)}
- host.innerHTML=ipMetricPeriodMarkup(ipMetricPeriod);
- ipMountMetricPeriod(host,ipMetricPeriod,next=>{ipMetricPeriod=next;renderInventory()});
+ host.innerHTML=ipMetricPeriodMarkup(ipMetricPeriod,{overview:true});
+ ipMountMetricPeriod(host,ipMetricPeriod,ipChangeMetricPeriod);
 });
+function ipChangeMetricPeriod(next){ipMetricPeriod=next;renderInventory()}
 window.inventoryControlAudit=()=>withPeriod('inventory',()=>{
  const {stockRecords,balance,overview}=ipInventoryView(),records=ipSeasonLedger(inventoryProductLedger());
  return {period:periodFor(),season:pfSelected(ipSeasonSelection),metricPeriod:{...ipMetricPeriod},snapshot:DATA_CUTOFF,stagnantTop:ipStagnantTopModel(),total:inventoryProductSum(records),balance,overview,records,

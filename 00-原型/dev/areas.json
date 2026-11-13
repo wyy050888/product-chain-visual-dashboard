@@ -1,4 +1,22 @@
 {
+  "productStartup": {
+    "label": "产品中心首次加载、刷新与评分计算性能",
+    "sources": ["src/modules/startup/02-render.js", "src/modules/period-data/01.js", "src/modules/product-center/02-workspace.js", "src/modules/product-workspace/01.js", "src/modules/system-management/01-shell.js", "src/modules/risk-presentation/02-appearance-history.js"],
+    "checks": ["productStartup", "managementScoreBatch", "pageEntries", "startupLayout", "smoke"]
+  },
+  "startupLayout": {
+    "label": "首屏初始化的布局批次与控件完整挂载",
+    "sources": [
+      "src/modules/performance/02-layout.js",
+      "src/modules/year-picker/03-mount.js",
+      "src/modules/navigation/01.js",
+      "src/modules/risk-presentation/02-group-navigation.js",
+      "src/modules/inventory-period/02-stale-analysis-view.js",
+      "src/modules/ui-controls/05-column-resize.js",
+      "src/modules/global-diagnosis/04-task-preview.js"
+    ],
+    "checks": ["startupLayout", "smoke", "yearPicker", "columnResize", "riskGroupNavigation", "inventoryStaleAnalysis", "sectionSticky", "pageEntries", "reportProblemPreview", "taskLedgerDetailLayout", "diagnosisColumnLayout"]
+  },
   "diagnosisColumnLayout": {
     "label": "重点工作及工作偏差的字段列宽和偏好隔离",
     "sources": [
@@ -180,7 +198,7 @@
     ]
   },
   "comparisonSigns": {
-    "label": "环比正负号与次数差",
+    "label": "比率环比箭头与次数差",
     "sources": [
       "src/modules/risk-presentation/01-quality.js",
       "src/modules/risk-presentation/01-loss.js",
@@ -1188,6 +1206,7 @@
       "src/modules/unified-product/03-stock-balances.js",
       "src/modules/unified-product/06-stock-cards.js",
       "src/modules/new-products/00-samples.js",
+      "src/modules/new-products/01-series.js",
       "src/modules/new-products/01-model.js",
       "src/modules/new-products/02-launch-picker.js",
       "src/modules/new-products/02-price-distribution.js",
@@ -1195,6 +1214,7 @@
       "src/modules/key-products/19-price-filter.js",
       "src/modules/new-products/02-table-viewport.js",
       "src/modules/new-products/02-chart-typography.js",
+      "src/modules/new-products/02-series-view.js",
       "src/modules/new-products/02-view.js",
       "src/modules/new-product-facts/01.js",
       "src/modules/unified-product/00-grade-samples.js",
@@ -1364,7 +1384,7 @@
     ]
   },
   "risk-events": {
-    "label": "风险事件数据（概览图已移除）",
+    "label": "项目概览新增与闭环风险",
     "keywords": [
       "风险新增",
       "闭环风险",
@@ -1372,6 +1392,9 @@
     ],
     "sources": [
       "src/modules/project-panorama/10-risk-events-model.js",
+      "src/modules/project-panorama/11-risk-events-view.js",
+      "src/modules/date-range/01-model.js",
+      "src/modules/date-range/02-picker.js",
       "src/modules/ui-controls/06-natural-period-model.js",
       "src/modules/ui-controls/07-natural-period-picker.js",
       "src/modules/project-panorama/04-controller.js",
@@ -1380,6 +1403,7 @@
       "src/modules/core/01.js"
     ],
     "styles": [
+      "styles/26-risk-controls.css",
       "styles/53-project-risk-events.css",
       "styles/56-natural-period.css"
     ],
@@ -1572,6 +1596,7 @@
       "src/modules/inventory-period/02-season-filter.js",
       "src/modules/inventory-period/03-view.js",
       "src/modules/inventory-period/02-overview.js",
+      "src/modules/inventory-period/02-stockout.js",
       "src/modules/inventory-period/02-refurb.js",
       "src/modules/inventory-period/02-refurb-distribution.js",
       "src/modules/inventory-detail/01.js",
@@ -3069,7 +3094,7 @@
     ]
   },
   "newHighRiskSamples": {
-    "label": "新增高危演示样例及15天窗口",
+    "label": "新增高危演示样例及第4天重判",
     "keywords": [
       "新增高危样例",
       "风险出现历史"

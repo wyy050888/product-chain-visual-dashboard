@@ -33,20 +33,22 @@ export async function costConfig(page){await isolated(page,async()=>{
  await page.locator('#cec-tab-actual').click();assert.equal(await page.locator('#cec-departments [aria-selected=true]').getAttribute('data-cec-department'),'research');assert.equal(await page.locator('#cec-query').inputValue(),'工艺');
  await page.locator('#cec-reset').click();await page.locator('[data-cec-time-year]').selectOption('2026');
  const before=await audit(page),targets=JSON.stringify(before.store.departmentTargets);
- let input=researchRows([['2026/10','工艺降本','工艺一','100.01',''],['2026/10','工艺降本','工艺二','23.44',''],['2026/09','工艺降本','其他月份','9','']]);
+ let input=researchRows([['2026/10',{formula:'"研发降本"',cached:'研发降本',type:'str'},'工艺一',{formula:'100+0.01',cached:'100.01'},''],['2026/10','研发降本','工艺二','23.44',''],['2026/09','研发降本','其他月份','9','']]);
  // 用户中心字段无需供应商编码，仍需SPU档案。使用模板中的真实产品示例。
  const user=inspectImportWorkbook(actual,{sheet:8}),userHeader=importTemplateHeader(user),example=user.rows.find(row=>row.row===userHeader.row+1).values;
  const userRow=[...example];userRow[0]='2026/10';userRow[1]='工厂违规处罚';userRow[2]='自由填写的发货仓';userRow[5]='0';
  input=fillImportWorkbookRows(input,userHeader.row,[userRow],{sheet:8,keepExample:true});
  await select(page,input);assert.match(await page.locator('.cec-import-notice').innerText(),/整月覆盖所有部门.*未列出.*其他月份和目标值保留/);await confirm(page);
- let saved=await audit(page);assert.equal(saved.store.details.length,4);assert.equal(saved.store.months['research-0|2026-10'].actualCents,12345);assert.equal(saved.store.months['purchase-0|2026-10'].actualCents,null,'未列出的其他部门也清空当月实际');assert.equal(JSON.stringify(saved.store.departmentTargets),targets);
+ let saved=await audit(page);const researchMetric=saved.metrics.find(row=>row.department==='research'&&row.metric==='研发降本');assert.equal(researchMetric.category,'product');
+ const researchMonth=researchMetric.id+'|2026-10';
+ assert.equal(saved.store.details.length,4);assert.equal(saved.store.months[researchMonth].actualCents,12345);assert.equal(saved.store.months['purchase-0|2026-10'].actualCents,null,'未列出的其他部门也清空当月实际');assert.equal(JSON.stringify(saved.store.departmentTargets),targets);
  const imported=saved.store.details.find(row=>row.sheet==='用户中心');assert(imported.productId);assert.equal(imported.values[4],userRow[4]);assert(saved.metrics.some(row=>row.department==='user'&&row.metric==='工厂违规处罚'),'二级类目全局存在即可，不按部门限制');
  await page.locator('[data-cec-department=user]').click();assert.equal(await page.locator('[data-cec-view],#cec-editor').count(),0);assert.equal(await page.locator('[data-cec-project="'+imported.itemId+'"] [data-cec-actual-period=month-10]').innerText(),'0.00');
  // 重传只有一条10月明细，旧当月记录全部移除，9月和所有目标不变。
- input=researchRows([['2026/10','工艺降本','替换后','2.50','']]);await select(page,input);await confirm(page);saved=await audit(page);
- assert.equal(saved.store.details.filter(row=>row.month==='2026-10').length,1);assert.equal(saved.store.details.find(row=>row.month==='2026-09').amountCents,900);assert.equal(saved.store.months['research-0|2026-10'].actualCents,250);assert.equal(JSON.stringify(saved.store.departmentTargets),targets);
+ input=researchRows([['2026/10','研发降本','替换后','2.50','']]);await select(page,input);await confirm(page);saved=await audit(page);
+ assert.equal(saved.store.details.filter(row=>row.month==='2026-10').length,1);assert.equal(saved.store.details.find(row=>row.month==='2026-09').amountCents,900);assert.equal(saved.store.months[researchMonth].actualCents,250);assert.equal(JSON.stringify(saved.store.departmentTargets),targets);
  const actualBefore=JSON.stringify(saved.store.months),detailsBefore=JSON.stringify(saved.store.details);
- await page.locator('#cec-tab-target').click();const monthly=Array(12).fill('0');monthly[9]='-10.25';const targetInput=fillImportWorkbookRows(target,8,[['研发中心','2026','-10.25',...monthly]],{keepExample:true});await select(page,targetInput);await confirm(page);
+ await page.locator('#cec-tab-target').click();const monthly=Array(12).fill('0');monthly[9]={formula:'-10-0.25',cached:'-10.25'};const targetInput=fillImportWorkbookRows(target,8,[['研发中心','2026','-10.25',...monthly]],{keepExample:true});await select(page,targetInput);await confirm(page);
  saved=await audit(page);assert.equal(saved.store.departmentTargets['research|2026-10'].targetCents,-1025);assert.equal(saved.store.departmentTargets['research|2026-11'].targetCents,0);assert.equal(JSON.stringify(saved.store.months),actualBefore);assert.equal(JSON.stringify(saved.store.details),detailsBefore);
  assert.equal(await page.locator('#cec-history').getAttribute('data-ui-import-history'),'降本目标值');
  await page.locator('#cec-tab-actual').click();await page.locator('#cec-history').click();assert.match(await page.locator('#ui-import-history h2').innerText(),/降本实际值/);assert.equal(await page.locator('#ui-import-history tbody tr').count(),2);await page.locator('[data-ui-history-close]').first().click();
@@ -60,7 +62,9 @@ export async function costStructuredTemplate(page){await isolated(page,async()=>
  const spu=[],suppliers=[];
  for(let i=0;i<book.sheetNames.length;i++){const sheet=inspectImportWorkbook(actual,{sheet:i+1}),header=importTemplateHeader(sheet),fields=header.values.map(clean),notes=sheet.rows.filter(row=>row.row<header.row).map(row=>row.values.join(' ')).join('\n');
   assert.equal(sheet.rows.filter(row=>String(row.values[0]).startsWith('【示例】')).length,1);
-  assert.match(notes,new RegExp('从第'+(header.row+2)+'行'));assert.match(notes,/降本类型须存在于二级类目/);assert.doesNotMatch(notes,/本部门降本类型单选|规范为/);
+  assert.match(notes,new RegExp('从第'+(header.row+2)+'行'));assert.match(notes,/按一二级降本类目填写/);assert.doesNotMatch(notes,/本部门降本类型单选|规范为/);
+  assert.equal(sheet.rows.find(row=>row.row===header.row+1).values[fields.indexOf('降本类型')],'');
+  if(i===0)assert.doesNotMatch(notes,/出厂价差|品牌费差|累计率为公式列/);
   if(fields.includes('产品名称（SPU）')){spu.push(book.sheetNames[i]);assert.equal(fields[fields.indexOf('产品名称（SPU）')+1],'SPU码')}
   if(fields.includes('T+供应商名称')){suppliers.push(book.sheetNames[i]);assert.match(notes,/财务结算编码-供应商名称/);assert.match(notes,/6652-瑞安市联鑫机电有限公司/)}
   if(['发货部','仓储部'].includes(book.sheetNames[i])){assert.equal(header.row,8);assert.match(sheet.rows.find(row=>row.row===6).values[0],/^5\. T\+供应商名称/);assert.match(sheet.rows.find(row=>row.row===7).values[0],/^6\. 执行日期/)}
@@ -75,18 +79,22 @@ export async function costStructuredTemplate(page){await isolated(page,async()=>
  });console.log('通过：9部门实际模板、独立目标模板、填写说明、供应商豁免、SPU列、示例跳过与错误入口隔离。')}
 
 export async function costUpdater(page){await isolated(page,async()=>{
- const before=JSON.stringify((await audit(page)).store),valid=['2026/10','工艺降本','有效事项','123.45',''],invalid=['2026/10','工艺降本','','-1',''];
+ const before=JSON.stringify((await audit(page)).store),valid=['2026/10','研发降本','有效事项','123.45',''],invalid=['2026/10','工艺降本','',{formula:'1+1'},''];
  let input=researchRows([valid,invalid]);const user=inspectImportWorkbook(actual,{sheet:8}),header=importTemplateHeader(user).row,row=[...user.rows.find(row=>row.row===header+1).values];row[0]='2026/10';row[4]='不存在的SPU';input=fillImportWorkbookRows(input,header,[row],{sheet:8,keepExample:true});
  await select(page,input,'失败场景.xlsx');await confirm(page,false);assert.equal(JSON.stringify((await audit(page)).store),before);
  await page.locator('.ui-import-feedback button').click();const history=page.locator('#ui-import-history');assert.equal(await history.locator('[data-ui-history-sheet] option').count(),2);
  assert.deepEqual(await history.locator('th').allTextContents(),['原始行号','月份','降本类型','降本明细','金额（元）','备注','失败原因']);assert.match(await history.innerText(),/同批文件含错误，本行未导入/);
  const failed=await download(page,'[data-ui-history-errors]');assert.match(failed.name,/失败数据\.xlsx$/);assert.deepEqual(inspectImportWorkbook(failed.buffer).sheetNames,['研发中心','用户中心']);
+ assert.match(await history.innerText(),/有效的二级类目/);
+ assert.match(await history.innerText(),/公式未保存计算结果，请重新计算并保存文件/);
+ assert.match(await history.innerText(),/\[公式：1\+1；未保存计算结果\]/);
  await history.locator('[data-ui-history-sheet]').selectOption('1');assert.match(await history.innerText(),/不存在的SPU/);await history.locator('[data-ui-history-close]').first().click();await closeImport(page);
  input=researchRows([valid]);await select(page,input);
  await page.evaluate(()=>{window.cecNativeSet=Storage.prototype.setItem;Storage.prototype.setItem=function(key,value){if(key==='cost-efficiency-config-v1')throw Error('quota');return window.cecNativeSet.call(this,key,value)}});
  await confirm(page,false);assert.equal(JSON.stringify((await audit(page)).store),before,'保存失败不清空旧月度记录，也不写入更新人');
- await page.evaluate(()=>{Storage.prototype.setItem=window.cecNativeSet;delete window.cecNativeSet});await confirm(page);const saved=await audit(page),stamp=saved.store.months['research-0|2026-10'];assert.equal(stamp.actor,'管理员');assert.equal(saved.store.details[0].updatedAt,stamp.updatedAt);assert.equal(saved.store.details[0].actor,'管理员');assert.equal(stamp.actualCents,12345);
- const rowView=page.locator('[data-cec-project="research-0"]');assert.equal(await rowView.locator('.cec-updater').innerText(),'管理员');
+ await page.evaluate(()=>{Storage.prototype.setItem=window.cecNativeSet;delete window.cecNativeSet});await confirm(page);const saved=await audit(page),{itemId}=saved.store.details[0],stamp=saved.store.months[itemId+'|2026-10'];assert.equal(stamp.actor,'管理员');assert.equal(saved.store.details[0].updatedAt,stamp.updatedAt);assert.equal(saved.store.details[0].actor,'管理员');assert.equal(stamp.actualCents,12345);
+ await page.locator('[data-cec-department=research]').click();
+ const rowView=page.locator('[data-cec-project="'+itemId+'"]');assert.equal(await rowView.locator('.cec-updater').innerText(),'管理员');
  await ready(page);assert.equal(JSON.stringify((await audit(page)).store),JSON.stringify(saved.store));
  });console.log('通过：整批失败回滚、同批未导入行、原始字段及行号、单个多Sheet失败文件、存储失败重试、更新人与刷新。')}
 
@@ -101,16 +109,23 @@ export async function costDetailRules(){
  let checks=0;
  for(let i=0;i<schemas.length;i++){
   const schema=schemas[i],sheet=inspectImportWorkbook(actual,{sheet:i+1}),header=importTemplateHeader(sheet).row,base=[...sheet.rows.find(row=>row.row===header+1).values];base[0]=String(base[0]).replace('【示例】','').trim();
+  const typeIndex=schema.headers.indexOf('降本类型');base[typeIndex]='产品原料降本';
   const validate=row=>box.cecValidateDetail(schema,row,registry).errors;
   assert.equal(validate(base).length,0,schema.name+'示例规则有效');checks++;
   for(const field of schema.required){const row=[...base];row[schema.headers.indexOf(field)]='';assert(validate(row).some(error=>error.field===field));checks++}
   for(const field of ['干线供应商','T+供应商名称/发货仓'])if(schema.headers.includes(field)){const row=[...base];row[schema.headers.indexOf(field)]='任意名称/仓库';assert.equal(validate(row).length,0);checks++}
   for(const bad of ['-1','1.001','1000000000','1万元']){const row=[...base];row[schema.headers.indexOf(schema.amount)]=bad;assert(validate(row).some(error=>error.field===schema.amount));checks++}
   for(const type of ['工厂违规处罚','云仓快递问题处罚（发货/仓储）']){const row=[...base];row[schema.headers.indexOf('降本类型')]=type;assert.equal(validate(row).length,0);checks++}
+  for(const type of ['产品原料降本','研发降本','谈判降本','产品集采降本','品牌方促销返利']){
+   const row=[...base];row[typeIndex]=type;const result=box.cecValidateDetail(schema,row,registry);assert.equal(result.errors.length,0);assert.equal(result.standard.category,'product');checks++;
+  }
   if(schema.headers.includes('SPU码')){const row=[...base];row[schema.headers.indexOf('SPU码')]='无此SPU';assert(validate(row).some(error=>error.field==='SPU码'));checks++}
   if(schema.headers.includes('T+供应商名称')){const row=[...base];row[schema.headers.indexOf('T+供应商名称')]='6652-名称不符';assert(validate(row).some(error=>error.field==='T+供应商名称'));const noCode={...registry,suppliers:[{name:'瑞安市联鑫机电有限公司'}]};assert(box.cecValidateDetail(schema,base,noCode).errors.some(error=>/尚未维护财务结算编码/.test(error.message)));checks+=2}
-  const formula=[...base];formula[schema.headers.indexOf(schema.amount)]={formula:'1+1',cached:'2'};assert(validate(formula).some(error=>error.field===schema.amount));checks++;
-  formula[schema.headers.indexOf(schema.amount)]={formula:'',cached:'2'};assert(validate(formula).some(error=>error.field===schema.amount));checks++;
+  const formula=[...base],amountIndex=schema.headers.indexOf(schema.amount);
+  formula[amountIndex]={formula:'1+1',cached:'2',type:'n'};assert.equal(validate(formula).length,0);checks++;
+  formula[amountIndex]={formula:'',cached:'0',type:'n'};assert.equal(validate(formula).length,0);checks++;
+  formula[amountIndex]={formula:'1+1',type:'n'};assert.deepEqual([...validate(formula)].map(error=>error.message),['公式未保存计算结果，请重新计算并保存文件']);checks++;
+  formula[amountIndex]={formula:'1/0',cached:'#DIV/0!',type:'e'};assert.deepEqual([...validate(formula)].map(error=>error.message),['公式结果为 #DIV/0!，请修正后保存']);checks++;
  }
  assert.equal(box.cecValidDate('2026/02/30'),false);assert.equal(box.cecValidDate('2026/03',true),true);assert.equal(box.cecValidDate('2026/03',false),false);
  const targetHeaders=['责任部门','年度','年度目标（元）',...Array.from({length:12},(_,i)=>(i+1)+'月（元）')],targetRow=['研发中心','2026','12',...Array(12).fill('1')];

@@ -41,8 +41,8 @@ function sdSuggestions(m,state){
  if(c.frozen)add('freeze','核对冻结事件并补齐解冻材料',`历史累计冻结${c.frozenCount}次，事件金额${pfMoneyYuan(c.frozen)}，不代表当前冻结余额。`,'逐条核对冻结通知、关联订单和解冻条件，提交材料并记录平台回执；核对余额确认是否已解冻。','red');
  if(c.fine||c.offShelf||c.drop||c.limited)add('penalty','完成处罚条目整改与申诉核对',`罚款${pfMoneyYuan(c.fine)}，下架${c.offShelf}次，掉权${c.drop}次，限单${c.limited}次。`,'按违规编号确认对象、申诉截止时间与整改要求，修正对应内容或履约环节，逐项回填结果。','red');
  if(sdScoreFacts(m.shop).low)add('score','复核评分短板并明确整改责任',sdScoreFacts(m.shop).text,'复核店铺总分及商品、物流、服务分的评分口径，标记需关注分项；与已有违规原因交叉核对，原因明确后再协同对应部门，提交整改项和评分复查结果。','yellow');
- const recent=m.recent,priorRate=m.previousReturnRate;
- if(recent.returned&&priorRate!==null&&recent.returnRate>priorRate+1e-10)add('returns','复核退货变化及重点关注商品',`近30日（${recent.start} — ${recent.end}）销量${fmt(recent.sales)}，总退${upPercent(recent.returnRate)}，紧邻上期${upPercent(priorRate)}，上升${fmt(recent.returnRate-priorRate,1)}%；退货数量${fmt(recent.returned)}。`,'按店内SPU业绩复核退货数量、总退及去退后销量，列出重点关注商品；仅对已有违规对象可关联的事项标记共同风险，回填后续同口径业绩变化，不直接认定退货根因。','yellow');
+ const recent=m.recent,priorRate=m.previousReturnRate,growth=periodRateGrowth(recent.returnRate,priorRate);
+ if(recent.returned&&Number.isFinite(priorRate)&&recent.returnRate>priorRate+1e-10)add('returns','复核退货变化及重点关注商品',`近30日（${recent.start} — ${recent.end}）销量${formatSalesQuantity(recent.sales)}，总退${upPercent(recent.returnRate)}，紧邻上期${upPercent(priorRate)}，环比 ${periodRateGrowthText(growth)}；退货数量${fmt(recent.returned)}。`,'按店内SPU业绩复核退货数量、总退及去退后销量，列出重点关注商品；仅对已有违规对象可关联的事项标记共同风险，回填后续同口径业绩变化，不直接认定退货根因。','yellow');
  return items;
 }
 function sdTodoList(m,state){

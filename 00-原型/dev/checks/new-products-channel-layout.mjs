@@ -3,6 +3,14 @@ import assert from 'node:assert/strict';
 export async function verifyNewProductChannelLayout(page){
  for(const width of [1920,1440,1024,390]){
   await page.setViewportSize({width,height:1080});
+  const widths=await page.locator('#newtop').evaluate(overview=>{
+   const measure=selector=>Array.from(overview.querySelectorAll(selector),element=>element.getBoundingClientRect().width);
+   return {cards:measure('.newmetric'),charts:measure('.nsp-price-distribution,.nsp-channels')};
+  });
+  for(const [name,sizes,count] of [['指标卡',widths.cards,5],['图表',widths.charts,2]]){
+   assert.equal(sizes.length,count);
+   assert(Math.max(...sizes)-Math.min(...sizes)<1,width+'px '+name+'等宽');
+  }
   for(const end of [false,true]){
    const layout=await page.locator('#newtop .nsp-channels').evaluate((root,end)=>{
     const scroll=root.querySelector('.nsp-channel-scroll');scroll.scrollLeft=end?scroll.scrollWidth:0;

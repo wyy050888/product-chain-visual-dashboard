@@ -39,12 +39,17 @@ function kpmManagementIds(rows,key,tab='changes'){
  return kpmManagementGroups(rows,tab).find(g=>g.key===key)?.ids||[];
 }
 function kpmManagementStructure(rows){
- const total=rows.reduce((n,p)=>n+p.facts.gsvCents,0);
+ const sum=(items,key)=>items.every(p=>Number.isFinite(p.facts[key]))?items.reduce((total,p)=>total+p.facts[key],0):null;
+ const total=sum(rows,'gsvCents'),previousRows=rows.filter(p=>!p.assessment.previous.inNewPool);
+ const summarize=(items,before)=>{
+  const gsv=sum(items,'gsvCents'),profit=sum(items,'profitCents');
+  return {count:items.length,before,ids:items.map(p=>p.spuId),gsv,profit,netSales:sum(items,'netSales'),
+   share:total>0&&gsv!==null?gsv/total*100:null,margin:gsv!==null&&gsv!==0&&profit!==null?profit/gsv*100:null};
+ };
  return [...kpmGradeOrder,'unrated'].map(level=>{
-  const items=rows.filter(p=>(p.level||'unrated')===level),before=rows.filter(p=>(p.assessment.previous.level||'unrated')===level).length;
-  const amount=items.reduce((n,p)=>n+p.facts.gsvCents,0),profit=items.reduce((n,p)=>n+p.facts.profitCents,0);
-  const operating=level==='unrated'?[]:items.filter(p=>brcProductOperatingMatch(level,p.assessment.current.profitRate)),operatingBefore=level==='unrated'?[]:rows.filter(p=>p.assessment.previous.level===level&&brcProductOperatingMatch(level,p.assessment.previous.profitRate));
-  return {level,count:items.length,before,operating:{count:operating.length,before:operatingBefore.length,ids:operating.map(p=>p.spuId)},share:total>0?amount/total*100:null,gsv:amount,profit,margin:amount!==0?profit/amount*100:null,ids:items.map(p=>p.spuId)};
+  const items=rows.filter(p=>(p.level||'unrated')===level),before=previousRows.filter(p=>(p.assessment.previous.level||'unrated')===level).length;
+  const operating=level==='unrated'?[]:items.filter(p=>brcProductOperatingMatch(level,p.assessment.current.profitRate)),operatingBefore=level==='unrated'?[]:previousRows.filter(p=>p.assessment.previous.level===level&&brcProductOperatingMatch(level,p.assessment.previous.profitRate));
+  return {level,...summarize(items,before),operating:summarize(operating,operatingBefore.length)};
  });
 }
 window.dashboardKeyProductManagementSnapshot=()=>withPeriod('matrix',()=>{

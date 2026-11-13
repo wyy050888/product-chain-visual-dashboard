@@ -42,12 +42,12 @@ window.businessRuleConfigSnapshot=()=>({route:brcRoute,activeGroup:brcActiveGrou
 window.businessRuleRuntimeSnapshot=()=>({
  attainment100:status(100),returnGap3:rpQualityReturnRule(13,10).tone,receivedGap1:rpQualityReturnRule(9,8,'received').tone,
  grade650:kpmClassifyGrade(650,13),aiGrade650:upAiClassify(650000000,13).grade,gradeRules:JSON.parse(JSON.stringify(kpmGradeRules)),aiPrompt:upAiSummaryPrompt,
- qualityGrowth4:qrbReturnDecision(100,4,0,true),qualityGrowth1:qrbReturnDecision(100,1,0,true),qualityGrowth6:qrbReturnDecision(100,6,0,true),contactGrowth21:qrbContactDecision(21,0).hit,
- contactGrowth1:qrbContactDecision(1,0).hit,contactGrowth4:qrbContactDecision(4,0).hit,contactGrowth6:qrbContactDecision(6,0).hit,
- qualityGroupReturn:qrbQualityDecision({orders:100,returnRate:4,contactRate:0},{returnRate:0,contactRate:0}),
- qualityGroupContact:qrbQualityDecision({orders:0,returnRate:0,contactRate:21},{returnRate:0,contactRate:0}),
- qualityGroupBoth:qrbQualityDecision({orders:100,returnRate:4,contactRate:21},{returnRate:0,contactRate:0}),
- worsening4:pfReturnCauses({netSales:101,returnRate:4,previousRate:0,receivedRate:0,previousReceivedRate:0}),
+ qualityGrowth4:qrbReturnDecision(100,52,50,true),qualityGrowth1:qrbReturnDecision(100,50.5,50,true),qualityGrowth6:qrbReturnDecision(100,53,50,true),contactGrowth21:qrbContactDecision(60.5,50).hit,
+ contactGrowth1:qrbContactDecision(50.5,50).hit,contactGrowth4:qrbContactDecision(52,50).hit,contactGrowth6:qrbContactDecision(53,50).hit,
+ qualityGroupReturn:qrbQualityDecision({orders:100,returnRate:52,contactRate:50},{returnRate:50,contactRate:50}),
+ qualityGroupContact:qrbQualityDecision({orders:0,returnRate:50,contactRate:60.5},{returnRate:50,contactRate:50}),
+ qualityGroupBoth:qrbQualityDecision({orders:100,returnRate:52,contactRate:60.5},{returnRate:50,contactRate:50}),
+ worsening11:pfReturnCauses({netSales:101,returnRate:11.1,previousRate:10,receivedRate:0,previousReceivedRate:0}),
  shop47:rpShopScoreTone('抖音',4.7),shopHint:rpShopScoreHint('抖音'),
  shopPenalty1Fine6000:sbDecide({channel:'抖音',score:4.7,qualityPenaltyCount:1,qualityFine:6000,frozenAmount:0,returnProducts:[]}).signals.some(item=>item.label.startsWith('店铺评分红灯且当月品质处罚')),
  shopFine6000Count1:sbDecide({channel:'抖音',score:4.7,qualityPenaltyCount:1,qualityFine:6000,frozenAmount:0,returnProducts:[]}).signals.some(item=>item.label.startsWith('品质罚款')),
@@ -60,7 +60,7 @@ window.businessRuleRuntimeSnapshot=()=>({
  inventoryTurn05:ipSignal('turn',.5,'month'),net20:upNetEstimate({gsvCents:100000,profitCents:20000,profitRate:20}).profitRate,
  new550:nspSuccessPass({gsvCents:550000000,profitRate:20,returnRate:5},'四季品',false),
  delivery10:nspDeliveryAssessment([{id:0,name:'audit',chain:0}], [{projectId:0,taskId:'audit-delivery',kind:'bulk-delivery',planned:'2026-01-01',actual:'2026-01-11'}],{start:'2026-01-01',end:'2026-01-31',cutoff:'2026-01-31'}).ontime,
- refurb40:ipRefurbSummary([{refurbOrders:[{spuId:'audit',requisitionId:'audit-refurb',initiatedAt:'2026-01-01',quotedAt:'2026-01-01',completedAt:'2026-02-10'}]}],'2026-02-28').onTime,
+ refurb40:ipRefurbSummary([{refurbOrders:[{spuId:'audit',requisitionId:'audit-refurb',orderedAt:'2026-01-01',arrivedAt:'2026-01-11',completedAt:'2026-02-10'}]}],'2026-02-28').onTime,
  refurbCycle:[40,41,44,45,49,50,59,60,70].map(days=>({days,bucket:ipRefurbBuckets.find(bucket=>bucket.hit(days))?.key})),
  riskRule:rpCardRuleSummary(0),stockRule:rpCardRuleSummary(3),newRule:metricDefinitions['新品上线及时率'],gradeHelp:kpmGradeHelpText(),supplierRule:scpStrategicRuleText()
 });

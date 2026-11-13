@@ -1,4 +1,4 @@
-/* 公司及四条链群随页面自然展开，每组依次为指标卡、品牌表和平台表。 */
+/* 公司及四条链群随页面自然展开，每组依次为指标卡、品牌和平台。 */
 #sales .ms-sections-host{min-width:0}
 #sales .ms-sections{display:flex;flex-direction:column;gap:32px;min-width:0}
 #sales .ms-scope-section.salescard{display:block;min-width:0;min-height:0;margin:0;padding:0 0 28px;border:0;border-bottom:1px solid #e8edf6;border-radius:0;background:transparent;box-shadow:none;cursor:default}
@@ -27,13 +27,13 @@
 #sales .ms-summary-progress .ms-progress{grid-row:1;height:5px;margin:0;border-radius:3px}
 #sales .ms-summary-progress .ms-progress>i{border-radius:3px}
 #sales .ms-summary-progress .ms-time-marker{height:9px;top:-2px}
-#sales .ms-scope-tables{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;align-items:start}
+#sales .ms-scope-tables{--ms-platform-row-height:72px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;align-items:start}
 #sales .ms-scope-breakdown{min-width:0}
 #sales .ms-scope-breakdown>h4{margin:0 0 12px;color:#344963;font-size:var(--type-card);font-weight:var(--weight-heading)}
 #sales .ms-scope-breakdown .ms-table-scroll{border:1px solid #e8edf5;border-radius:8px;background:#fff}
-#sales .ms-scope-breakdown .ms-data-table tbody tr{height:72px}
+#sales .ms-scope-breakdown .ms-data-table tbody tr{height:var(--ms-platform-row-height)}
 #sales .ms-scope-breakdown .ms-data-table thead th{background:#f5f8fd}
-/* 桌面以左侧五品牌表的自然高度定行高，右侧六平台只在表内滚动。 */
+/* 桌面以左侧品牌区定行高，右侧六平台在表内滚动。 */
 @media(min-width:1101px){
  #sales .ms-scope-tables{align-items:stretch}
  #sales [data-ms-breakdown-view="platform"]{display:flex;flex-direction:column;min-height:0}
@@ -65,6 +65,37 @@
 #sales :is(.ms-brand-label,.ms-platform-label){display:inline-flex;align-items:center;gap:8px;max-width:100%;white-space:nowrap}
 #sales .ms-platform-label>img{width:32px;height:32px;object-fit:contain;flex:none}
 #sales .ms-brand-label>img{width:32px;height:32px;object-fit:contain;flex:none;background:#fff;border-radius:4px}
+#sales .ms-brand-share{display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,1.2fr);align-items:center;gap:20px;min-width:0;padding:20px;border:1px solid #e8edf5;border-radius:8px;background:#fff}
+#sales .ms-brand-share-ring{position:relative;width:min(100%,240px);justify-self:center}
+#sales .ms-brand-share-ring>svg{display:block;width:100%;height:auto}
+#sales :is(.ms-brand-share-track,.ms-brand-share-arc){fill:none;stroke-width:30}
+#sales .ms-brand-share-track{stroke:#edf2f9}
+#sales .ms-brand-share-arc{pointer-events:stroke;cursor:help}
+#sales .ms-brand-share-arc:is(:hover,:focus-visible){stroke-width:34;outline:none;filter:drop-shadow(0 0 2px #273e5a30)}
+#sales .ms-brand-share-center{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;color:#344963;font-size:var(--type-card);font-weight:var(--weight-heading)}
+#sales .ms-brand-share-legend{min-width:0;font-variant-numeric:tabular-nums}
+#sales .ms-brand-share-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(54px,auto) minmax(44px,auto);align-items:center;gap:8px;min-height:42px;padding:4px 0;border-bottom:1px solid #eef2f7;color:#344963;font-size:var(--type-data)}
+#sales .ms-brand-share-row>:not(:first-child){text-align:right;white-space:nowrap}
+#sales .ms-brand-share-head{min-height:34px;color:#71849b;font-size:var(--type-meta)}
+#sales .ms-brand-share-name{display:flex;align-items:center;gap:6px;white-space:nowrap}
+#sales .ms-brand-share-name>i{width:8px;height:8px;flex:none;border-radius:50%}
+#sales .ms-brand-share-empty{grid-column:1/-1;margin:0;text-align:center;color:#71849b;font-size:var(--type-meta)}
+@media(min-width:1101px){
+ #sales .ms-scope-section:not(.company) .ms-scope-tables{--ms-platform-header-height:48px}
+ #sales .ms-scope-section:not(.company) [data-ms-breakdown-view="platform"] thead th{height:var(--ms-platform-header-height);padding-block:0}
+ /* 两侧对齐。右侧滚动区初始露出表头、4 个完整平台和半个下一行。 */
+ #sales .ms-brand-share{
+  min-height:calc(var(--ms-platform-header-height) + 4.5 * var(--ms-platform-row-height) + 2px);
+  grid-template-columns:minmax(0,1fr) minmax(248px,1.2fr);
+ }
+ #sales .ms-brand-share-row{
+  grid-template-columns:minmax(100px,1.35fr) minmax(64px,1fr) minmax(48px,.65fr);
+  column-gap:18px;
+  min-height:46px;
+ }
+ #sales .ms-brand-share-head{min-height:34px}
+}
+@media(max-width:620px){#sales .ms-brand-share{grid-template-columns:minmax(0,1fr);padding:14px;gap:16px}#sales .ms-brand-share-ring{width:min(62%,200px)}}
 @media(max-width:550px){#sales .ms-scope-metric:is([data-ms-metric="target"],[data-ms-metric="targetMargin"]) .ms-scope-number>strong{font-size:18px}#sales [data-ms-metric="scaleRate"] .ms-scope-number>strong{font-size:26px}}
 
 @media(max-width:800px){#sales .ms-summary-pair .ms-scope-metric{display:flex;flex-direction:column;align-items:flex-start;gap:4px}#sales .ms-summary-pair .ms-scope-number>strong{font-size:20px}#sales .ms-scope-metric:is([data-ms-metric="target"],[data-ms-metric="targetMargin"]) .ms-scope-number>strong{font-size:18px}}

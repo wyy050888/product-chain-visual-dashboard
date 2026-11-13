@@ -1,3 +1,4 @@
+import {openNewProductSpu} from './new-products-detail.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
@@ -38,7 +39,7 @@ async function verifyVisibleTerms(page){
   const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);
   while(walker.nextNode()){
    const node=walker.currentNode,parent=node.parentElement;
-   if(parent?.closest('script,style,input,textarea,[contenteditable="true"]')||!parent?.checkVisibility())continue;
+   if(parent?.closest('script,style,input,textarea,[contenteditable="true"],[data-preserve-terms]')||!parent?.checkVisibility())continue;
    if(node.nodeValue.replaceAll('销售渠道','').replaceAll('淘客渠道','').includes('渠道'))return false;
   }
   return true;
@@ -62,7 +63,7 @@ export async function platformTerminology(page){
  assert(await page.locator('#metric-tooltip').isVisible(),'表格滚动后悬浮提示保持可见');
  assert.match(await page.locator('#metric-tooltip').innerText(),/^销售渠道：[\s\S]*已有销售记录的平台/);
  await page.keyboard.press('Escape');
- await page.locator('#newtable [data-nsp-view]').first().click();
+ await openNewProductSpu(page.locator('#newtable [data-nsp-view]').first());
  const table=page.locator('.up-platform-performance table');
  assert.deepEqual((await table.locator('tbody tr td:first-child').allTextContents()).sort(),[...platforms].sort());
  assert.match(await table.locator('th').first().innerText(),/^平台/);
@@ -78,8 +79,8 @@ export async function platformTerminology(page){
  await page.reload({waitUntil:'domcontentloaded'});
  await page.waitForFunction(()=>document.documentElement.dataset.dashboardBoot==='ready');
  await page.locator('a[href="#sales"]').click();
- await page.locator('#ms-sales-details [data-si-mode="platform"]').click();
- assert.deepEqual(await page.locator('#ms-sales-details tbody th').allTextContents(),platforms);
+ const companyPlatforms=page.locator('[data-ms-section="-1"] [data-ms-breakdown-view="platform"]');
+ assert.deepEqual(await companyPlatforms.locator('tbody th').allTextContents(),platforms);
  await verifyVisibleTerms(page);
  await page.goto(new URL('产品中心.html',page.url()).href,{waitUntil:'domcontentloaded'});
  await page.waitForFunction(()=>document.documentElement.dataset.dashboardBoot==='ready');

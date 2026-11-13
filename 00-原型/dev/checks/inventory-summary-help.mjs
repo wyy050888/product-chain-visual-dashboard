@@ -10,13 +10,13 @@ export async function verifyInventorySummaryHelp(page){
   await reveal(help);
   assert.equal(await help.getAttribute('aria-describedby'),'metric-tooltip');
   assert.deepEqual(await tooltip.locator('h5').allTextContents(),['库存周转率','交付及时率','翻新闭环率']);
-  assert.equal(await tooltip.locator('.ip-summary-rules').count(),2);
-  const text=await tooltip.innerText();for(const value of ['0.85','0.3','2.5','0.9','10','3.6','98%','97.5%','40天'])assert(text.includes(value),value);
-  assert.equal(await tooltip.locator('.is-current>th').innerText(),'季度');
+  assert.equal(await tooltip.locator('.metric-rule-band-table').count(),2);
+  const text=await tooltip.innerText();for(const value of ['0.85','0.3','2.5','0.9','10','3.6','98%','97.5%','30天','总采购单量'])assert(text.includes(value),value);
+  assert.equal(await tooltip.locator('.is-current>td:first-child').innerText(),'季度');
   assert(await tooltip.evaluate(e=>e.classList.contains('metric-tooltip-inventory-summary')&&!e.classList.contains('metric-tooltip-inventory')));
   await page.keyboard.press('Escape');assert(await tooltip.isHidden());assert.equal(await help.getAttribute('aria-describedby'),null);
  }
- await page.locator('#inventory>.sectionhead [data-ip-time-mode="month"]').click();await reveal(help);assert.equal(await tooltip.locator('.is-current>th').innerText(),'月度');await page.keyboard.press('Escape');
+ await page.locator('#inventory>.sectionhead [data-ip-time-mode="month"]').click();await reveal(help);assert.equal(await tooltip.locator('.is-current>td:first-child').innerText(),'月度');await page.keyboard.press('Escape');
  assert.equal(await page.locator('#inventory [data-ip-summary-help]').count(),1,'期间重绘不重复创建提示');
  await page.locator('#inventory>.sectionhead [data-ip-time-mode="month"]').click();
  for(const viewport of [{width:1920,height:1080},{width:390,height:844},{width:1024,height:420}]){

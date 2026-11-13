@@ -23,8 +23,21 @@ function ccOpenGroup(kind,id){
  const paint=()=>{
   const period=context.period,metrics=kind==='category'?(ccCategoryGroups().find(group=>group.id===context.group)?.metrics||[]):ccMetrics.filter(metric=>metric.department===context.group);
   root.dataset.ccGroup=context.group;if(kind==='department')root.dataset.ccDepartment=context.group;
-  const rows=metrics.map(metric=>({id:metric.id,name:metric.name,subtitle:kind==='category'?ccDepartments.find(dept=>dept.id===metric.department)?.name:ccCategoryName(metric.category),values:ccSummary([metric],period,true)}));
-  root.querySelector('.cc-department-table').innerHTML=ccTable(period,rows,{first:'降本指标',actualOnly:true,contextLabel:kind==='category'?'责任部门':'降本分类',summary:ccSummary(metrics,period,true)});
+  const byCategory=kind==='category',byProductType=byCategory&&context.group==='product';
+  let rows,extraSummary=null;
+  if(byProductType){
+   const {groups,pending}=ccProductCostGroups(metrics);
+   rows=groups.map(({name,metrics,includeRow})=>({
+    id:name,name,
+    subtitle:ccDepartments.filter(dept=>metrics.some(metric=>metric.department===dept.id)).map(dept=>dept.name).join('、'),
+    values:ccSummary(metrics,period,true,includeRow)
+   }));
+   const values=ccSummary(pending.metrics,period,true,pending.includeRow);
+   if(Object.values(values).some(value=>Number.isFinite(value.actual)))extraSummary={label:'历史金额（类目待确认）',values};
+  }else{
+   rows=metrics.map(metric=>({id:metric.id,name:metric.name,subtitle:byCategory?ccDepartments.find(dept=>dept.id===metric.department)?.name:ccCategoryName(metric.category),values:ccSummary([metric],period,true)}));
+  }
+  root.querySelector('.cc-department-table').innerHTML=ccTable(period,rows,{first:byProductType?'二级类目':'降本指标',actualOnly:true,contextLabel:byCategory?'责任部门':'降本分类',summary:ccSummary(metrics,period,true),extraSummary});
   ccMountPeriod(context,paint);drawerQueueRefresh();
  };
  root.ccSelect=key=>{context.group=key;paint();$('#dialogbody').scrollTop=0};paint();

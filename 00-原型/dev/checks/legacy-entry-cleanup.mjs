@@ -1,3 +1,4 @@
+import {openNewProductSpu} from './new-products-detail.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 
@@ -5,10 +6,10 @@ import fs from 'node:fs';
 export async function legacyEntryCleanup(page){
  const errors=[];page.on('pageerror',error=>errors.push(error.message));
  assert.equal(await page.locator('#inventory [data-stock]').count(),0);
- await page.locator('#newtable [data-nsp-view]').first().click();
+ await openNewProductSpu(page.locator('#newtable [data-nsp-view]').first());
  await page.locator('[data-drawer-tab="stock"]').click();
  assert(await page.locator('#up-stock-skus tbody tr').count()>0);
- assert.equal(await page.locator('#up-stock-skus th').count(),15);
+ assert.equal(await page.locator('#up-stock-skus th').count(),10);
  assert.equal(await page.locator('.inventory-products-detail,#up-target-form').count(),0);
  await page.locator('#close').click();
  await page.locator('#riskrail [data-risk="0"]').click();

@@ -40,8 +40,8 @@ button.scp-count:focus-visible,.scp-project-link:focus-visible{outline:2px solid
 .scp-project-link .prodname{gap:9px;min-width:0}
 .scp-project-link .prodname>div{min-width:0;flex:1}
 .scp-project-link :is(img,.product-thumb,.risk-thumb){width:32px;height:32px;object-fit:contain;flex:none}
-.scp-project-link :is(strong,b){font-size:13px;font-weight:500;line-height:1.5;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
-.scp-project-link small{display:block;font-size:12px;color:#8998ac;line-height:1.5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.scp-project-link :is(strong,b){display:block;font-size:13px;font-weight:500;line-height:1.5;white-space:normal;overflow-wrap:anywhere}
+.scp-project-link small{display:block;font-size:12px;color:#8998ac;line-height:1.5;white-space:normal;overflow-wrap:anywhere}
 .scp-project-link small:empty{display:none}
 .scp-category-table{min-width:440px}
 .scp-category-table :is(th,td):first-child{width:46%}

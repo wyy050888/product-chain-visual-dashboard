@@ -6,7 +6,8 @@ function cecReplaceActualMonths(entries){
  const totals=new Map();
  for(const row of entries){
   const item=cecResolveMetric(next,row.department,row.type,'',row.category);
-  if(!cecMetricCatalog(next).some(metric=>metric.id===item.id))next.metrics[item.id]=cecMetricMetadata(item,'');
+  const existing=cecMetricCatalog(next).find(metric=>metric.id===item.id);
+  if(existing?.category!==item.category)next.metrics[item.id]=cecMetricMetadata(item,'');
   const key=cecRecordKey(item.id,row.month);totals.set(key,(totals.get(key)||0)+row.amountCents);
   next.details.push({id:crypto.randomUUID(),itemId:item.id,month:row.month,amountCents:row.amountCents,productId:row.productId||'',sheet:row.sheet,sourceRow:row.sourceRow,values:row.values});
  }

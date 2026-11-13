@@ -16,8 +16,9 @@ renderRisks=function(changedKinds=null){
  return rpWithCardRows(()=>withPeriod('risk',()=>{
   rpObserveWarningBoards();
   const rail=$('#riskrail'),partial=Array.isArray(changedKinds)&&rail.querySelector('.rp-board-group');
-  const kinds=partial?[...new Set(changedKinds)]:[0,6,1,4,3,2],rules=new Map(),cards=new Map();
-  const classes={0:'qr-card rp-platform-board',1:'br-shop-card rp-shop-card rp-shop-board rf-card',2:'pr-shared-card rp-loss-card rf-card',3:'rp-stock-card rf-card',4:'rp-stock-card rf-card',6:'rp-return-card rp-platform-board rf-card'};
+  const qualityKinds=[0,6,8,1];
+  const kinds=partial?[...new Set(changedKinds)]:[...qualityKinds,4,3,2],rules=new Map(),cards=new Map();
+  const classes={0:'qr-card rp-platform-board',1:'br-shop-card rp-shop-card rp-shop-board rf-card',2:'pr-shared-card rp-loss-card rf-card',3:'rp-stock-card rf-card',4:'rp-stock-card rf-card',6:'rp-return-card rp-platform-board rf-card',8:'rp-return-card rp-platform-board rf-card'};
   for(const k of kinds)rpWithBoardPeriod(k,()=>{
    const rows=rpCardRows(k),filter=rpCardPlatformControl(k);
    rules.set(k,rpCardRuleSummary(k));
@@ -27,9 +28,9 @@ renderRisks=function(changedKinds=null){
   if(partial){
    // 季品只更新本榜；品质平台只更新联动三榜，其他榜保留数据、节点和滚动位置。
    for(const k of kinds){const current=rail.querySelector('[data-rp-board="'+k+'"]');if(current)current.outerHTML=cards.get(k)}
-  }else rail.innerHTML=group('quality','品质风险榜',[0,6,1])+group('inventory','库存风险榜',[4,3])+cards.get(2);
+  }else rail.innerHTML=group('quality','品质风险榜',qualityKinds)+group('inventory','库存风险榜',[4,3])+cards.get(2);
   for(const card of $$('#riskrail .riskcard')){const k=Number(card.querySelector('[data-risk]').dataset.risk);if(rules.has(k))rpRenderedCardRules.set(card,rules.get(k))}
-  const sub=$('#risk .sectionhead .sub');if(sub)sub.textContent='6 大风险榜单 · TOP 6';
+  const sub=$('#risk .sectionhead .sub');if(sub)sub.textContent='7 大风险榜单 · TOP 6';
   rpClearSharedDateControls();decorateModule('risk');
   rpMountGroupNavigation();alignRiskCardFilters();if(kinds.includes(2))rpMountLossHeading();rpMountBoardDateControls(rail);pfMultiMount(rail);
  }));
@@ -62,7 +63,7 @@ function rpCardRuleSummary(kind){
  if(kind===4)return rpStagnantRule();
  const rules={
   0:{
-   note:'按单一SPU全平台汇总统计，同一SPU仅排名一次',
+   note:'按单一SPU全平台汇总统计，同一SPU仅排名一次。卡片仅展示所选平台中本期命中违规的平台。',
    pool:['发生品质/质量相关处罚，含资金冻结、平台罚款、链接下架、链接掉权'],
    sort:['按该SPU全平台上述四类违规总次数从高到低排序','违规总次数相同，按该SPU近30天GSV从高到低排序']
   },
@@ -78,10 +79,16 @@ function rpCardRuleSummary(kind){
    sort:['亏损金额从低到高，亏损越大越靠前，例如－10万排在－5万前','亏损金额相同，净利润率从高到低']
   },
   6:{
-   note:'按SPU、平台统计，按以下条件组入榜',
+   note:'按SPU、平台统计，按以下条件组入榜。卡片仅展开所选平台中命中退货恶化的平台。',
    pool:[brcResultText('quality-worsening')],
    detail:'① 周对比：以基准日为T，T−22～T−16对比T−29～T−23。\n② 月对比：当月21日起，1日至T−16对比上月完整自然月；历史月份按完整自然月对比。',
-   sort:['按SPU环比涨幅最大值从高到低排序，涨幅越高，排名越靠前','涨幅相同，按该SPU近30天销售额从高到低排序']
+   sort:['按SPU的总退、已收退环比增长率最大值从高到低排序','涨幅相同，按该SPU近30天销售额从高到低排序']
+  },
+  8:{
+   note:'按SPU和平台判定，偏差＝所选成熟期间的实际退货率－目标退货率。',
+   pool:[`同期原始销量＞${rpDeviationMinSales}件，且总退或已收退存在偏差
+  • 总退偏差：＞${rpReturnDeviationLimits.return}；已收偏差：＞${rpReturnDeviationLimits.received}`],
+   sort:['按SPU的总退、已收退偏差最大值从高到低排序','偏差相同，按该SPU近30天销售额从高到低排序']
   }
  };
  const {note,pool,detail,sort,sortDetail}=rules[kind];

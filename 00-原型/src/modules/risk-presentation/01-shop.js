@@ -1,15 +1,10 @@
 // 高危店铺展示模型：期间流量、处罚事件与结束日评分分别取数。
-// 此目录仅约束店铺，产品违规榜保留自己的类型口径；数组顺序即展示顺序。
-const rpShopPlatformTypes={
- 抖音:['frozen','offShelf','limited'],快手:['fine','offShelf'],视频号:['fine','offShelf','limited'],
- 天猫:['fine','offShelf'],京东:['fine','offShelf','limited'],拼多多:['frozen','fine','offShelf','drop']
-};
 function rpShopMetricKeys(platform){
- const selected=Array.isArray(platform)?platform:[platform],types=selected.includes('all')?Object.values(rpShopPlatformTypes).flat():selected.flatMap(name=>rpShopPlatformTypes[name]||[]);
+ const selected=Array.isArray(platform)?platform:[platform],types=selected.includes('all')?Object.values(rpViolationPlatformTypes).flat():selected.flatMap(name=>rpViolationPlatformTypes[name]||[]);
  return [...new Set(types),'problemSpus'];
 }
 function rpShopMetricAllowed(key,platform){
- const type=({罚款:'fine',资金冻结:'frozen',掉权:'drop',下架:'offShelf',限单:'limited'})[key]||(/^fine/.test(key)?'fine':/^frozen/.test(key)?'frozen':key);
+ const type=rpViolationMetricKey(key);
  return !['fine','frozen','offShelf','drop','limited'].includes(type)||rpShopMetricKeys(platform).includes(type);
 }
 const rpShopListKeys=['mainSpu','gsv','netSales','problemSpus','violations','fine','frozen','offShelf','drop','limited','score','productScore','logisticsScore','serviceScore'];
@@ -48,7 +43,7 @@ function rpRenderShopScoreRules(host){
 
 function rpShopProblemHit(product){
  const currentTarget=product.currentTarget??product.target,previousTarget=product.previousTarget??product.target;
- return [product.current,product.previous,currentTarget,previousTarget].every(Number.isFinite)&&brcMatch('shops.returnExcess',product.current-currentTarget)&&brcMatch('shops.returnExcess',product.previous-previousTarget)&&product.current-product.previous>1e-9;
+ return [product.current,product.previous,currentTarget,previousTarget].every(Number.isFinite)&&brcMatch('shops.returnExcess',product.current-currentTarget)&&brcMatch('shops.returnExcess',product.previous-previousTarget)&&periodRateGrowth(product.current,product.previous)>0;
 }
 function rpShopReturnRule(){return '店铺内单品总退连续 2 周期超出预设目标值 '+brcNumber('shops.returnExcess')+'% 以上，环比持续恶化；'}
 function rpShopReturnPeriod(end=riskRange().end){return rpReturnPeriod('week',end,end)}
@@ -113,7 +108,7 @@ function rpShopFields(shop,qualityOnly=true){
  fields.push({...rpField('mainSpu','核心主营SPU',core.products.map(row=>row.product.name).join('、')||(core.available?'暂无达标产品':'暂无近30日数据'),'',rpShopCoreRule),core});
  for(const [key,name,count] of [['gsv','GSV',false],['netSales','销量',false],['violations','违规次数',true],['offShelf','链接下架',true],['drop','链接掉权',true],['limited','店铺限单',true]]){
   const change=count?rpCountComparison(now[key],before[key]):{target:rpQualityChange(now[key],before[key]),targetTone:rpQualityChangeTone(now[key],before[key])};
-  add(key,name,key==='gsv'?rpQualityMoney(now[key]):fmt(now[key])+(count?'次':''),now[key],'rp-quality-normal',change.target,change.targetTone,comparison+(count?rpCountComparisonRuleText():rpComparisonRuleText()));
+  add(key,name,key==='gsv'?rpQualityMoney(now[key]):count?fmt(now[key])+'次':formatSalesQuantity(now[key]),now[key],'rp-quality-normal',change.target,change.targetTone,comparison+(count?rpCountComparisonRuleText():rpComparisonRuleText()));
  }
  for(const [key,name] of [['fine','平台罚款'],['frozen','资金冻结']])add(key,name,rpQualityMoney(now[key]),now[key],rpQualityAmountTone(now[key]),now[key+'Count']+'次','rp-quality-gray',key==='frozen'?'期间冻结事件金额及次数，不作为实时冻结余额。':'期间平台罚款金额及次数。');
  add('sanctions','罚款＆冻结',rpQualityMoney(now.fine+now.frozen),now.fine+now.frozen,rpQualityAmountTone(now.fine+now.frozen),(now.fineCount+now.frozenCount)+'次','rp-quality-gray','平台罚款和冻结事件金额相加；下行是两类事件总次数。');

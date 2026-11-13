@@ -9,8 +9,8 @@ export async function verifyDetailContact(page){
   vm.runInContext(fs.readFileSync(new URL('../../src/modules/'+file,import.meta.url),'utf8'),ctx);
  const model={current:{contacts:50,qualityContacts:20,experienceContacts:30,qualityContactRate:10,experienceContactRate:15},previous:{qualityContactRate:8,experienceContactRate:10}};
  const parts=ctx.upContactParts(model);
- assert.deepEqual(Array.from(parts,p=>p.share),[40,60]);assert.equal(parts[0].rate,10);assert.equal(parts[0].comparison,'环比 +2.0%');
- assert.equal(parts[1].comparison,'环比 +5.0%');assert(parts.every(part=>part.tone==='rp-quality-red'),'进线上升分项也为红色');
+ assert.deepEqual(Array.from(parts,p=>p.share),[40,60]);assert.equal(parts[0].rate,10);assert.equal(parts[0].comparison,'环比 ↑ 25.0%');
+ assert.equal(parts[1].comparison,'环比 ↑ 50.0%');assert(parts.every(part=>part.tone==='rp-quality-red'),'进线上升分项也为红色');
  const empty=ctx.upContactParts({current:{contacts:0,qualityContacts:0,experienceContacts:0,qualityContactRate:0,experienceContactRate:0},previous:{qualityContactRate:null,experienceContactRate:null}});
  assert.deepEqual(Array.from(empty,p=>p.share),[0,0]);assert(empty.every(p=>p.comparison==='环比 —'));
  const root=page.locator('.up-detail'),region=root.locator('.up-violation-stats'),tip=page.locator('#up-contact-tooltip');
@@ -19,7 +19,7 @@ export async function verifyDetailContact(page){
  const tops=await region.locator('[data-up-quality-metric]').evaluateAll(es=>es.map(e=>e.getBoundingClientRect().top));assert(tops.every(t=>Math.abs(t-tops[0])<1),'违规、进线与差评同排');
  const buttons=region.locator('.up-contact-bar button'),payloads=await buttons.evaluateAll(es=>es.map(e=>JSON.parse(e.dataset.upContactDetail)));
  const total=payloads.reduce((n,p)=>n+p.count,0),sales=await root.locator('[data-up-return-point]').evaluateAll(es=>es.reduce((n,e)=>n+Number(e.dataset.sales),0));
- const badTrend=await region.locator('[data-up-quality-metric="bad"] .up-quality-comparison').innerText();assert(!/[↑↓]/.test(badTrend),'产品详情差评率环比使用正负差值');
+ const badTrend=await region.locator('[data-up-quality-metric="bad"] .up-quality-comparison').innerText();assert.match(badTrend,/^环比 (?:[↑↓] [\d,.]+%|持平|—)$/,'产品详情差评率环比用箭头显示增长率');
  const totalRate=await region.locator('[data-up-quality-metric="contact"] strong').innerText();
  assert.equal(totalRate,sales?(total/sales*100).toFixed(1)+'%':'—');
  assert.equal(await region.locator('.up-contact-bar>button').count(),2);

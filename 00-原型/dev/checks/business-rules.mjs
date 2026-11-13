@@ -26,7 +26,7 @@ export async function businessRules(page){
  const entry=page.getByRole('button',{name:'配置全局规则',exact:true});const a=await entry.boundingBox(),b=await page.locator('#dashboard-fullscreen').boundingBox();assert(a&&b&&a.x+a.width<=b.x,'文字入口位于全屏按钮左侧');await entry.click();
  assert.match(page.url(),/#system-business-rules$/);assert.equal(await page.locator('#business-rule-page .sm-page-title').innerText(),'规则配置');
  assert(await page.locator('.lt-menu-group').filter({has:page.locator('summary', {hasText:'业务配置'})}).getByRole('link',{name:'规则配置',exact:true}).isVisible());
- assert.deepEqual(await page.locator('#brc-tabs [role=tab]').allTextContents(),['新品','产品','店铺','库存','项目','供应商','降本增效']);
+ assert.deepEqual(await page.locator('#brc-tabs [role=tab]').allTextContents(),['新品','产品','店铺','库存']);
  const snapshot=()=>page.evaluate(()=>window.businessRuleConfigSnapshot()),runtime=()=>page.evaluate(()=>window.businessRuleRuntimeSnapshot());
  const initial=await snapshot(),baseline=await runtime();
  assert.equal(initial.activeGroup,'new');assert(initial.definitions.length>0);
@@ -34,7 +34,7 @@ export async function businessRules(page){
  const owner=key=>initial.definitions.find(rule=>rule.key===key)?.group;
  for(const [key,group] of [['quality.returnDelta','products'],['finance.deduction','products'],['lights.return','products'],['lights.turn.month.green','stock'],['lights.projectDelay','projects'],['lights.decline','common']])assert.equal(owner(key),group,key);
  assert(initial.definitions.every(rule=>!rule.key.startsWith('suppliers.')));
- for(const group of ['new','products','shops','stock','projects']){
+ for(const group of ['new','products','shops','stock']){
   await page.locator('[data-brc-tab="'+group+'"]').click();
   const keys=new Set(),sections=initial.sections[group];
   assert.deepEqual(await page.locator('[data-brc-section-tab]').allTextContents(),sections.map(part=>part.title),'模块标题 '+group);
@@ -66,7 +66,7 @@ export async function businessRules(page){
  await tab('products');await fill('lights.return',-1);await revealBusinessRule(page,'quality.returnDelta');await page.locator('[data-brc-save]').click();assert.equal((await snapshot()).activeSection,initial.sections.products.find(part=>part.keys.includes('lights.return')).id,'保存自动定位未展示模块的错误');assert.match(await page.locator('#brc-error').innerText(),/区间终点|条件无法同时满足/);assert.equal((await snapshot()).revision,initial.revision);await page.locator('[data-brc-cancel]').click();
  await tab('products');await fill('lights.return',4);await save();assert.equal((await runtime()).returnGap3,'rp-quality-yellow');
  assert.equal(await page.locator('[data-brc-field^="grades."]').count(),0,'本地不配置SABC或经营标签');
- await tab('products');await fill('quality.returnDelta',5);await fill('quality.contactDelta',25);await fill('quality.worsenReturn',5);await save();let actual=await runtime();assert.equal(actual.qualityGrowth4,false);assert.equal(actual.contactGrowth21,false);assert.deepEqual(actual.worsening4,[]);assert.match(actual.riskRule,/进线率环比增长值＞25%/);
+ await tab('products');await fill('quality.returnDelta',5);await fill('quality.contactDelta',25);await save();let actual=await runtime();assert.equal(actual.qualityGrowth4,false);assert.equal(actual.contactGrowth21,false);assert.deepEqual(actual.worsening11,['总退环比恶化']);assert.match(actual.riskRule,/进线率环比增长率＞25%/);
  await tab('shops');await fill('shops.抖音.red',4.75);await fill('shops.pddValue',35);await save();actual=await runtime();assert.equal(actual.shop47,'rp-quality-red');assert.equal(actual.pdd31,0);assert.match(actual.shopHint,/4.75/);
  await tab('stock');await fill('stock.slowDays',70);await fill('stock.refurbDays',30);await save();actual=await runtime();assert.deepEqual(actual.stock65,[]);assert.equal(actual.refurb40,0);
  await tab('new');await fill('new.quarterGsv',600);await fill('new.deliveryDays',5);await save();actual=await runtime();assert.equal(actual.new550,false);assert.equal(actual.delivery10,0);assert.match(actual.newRule,/＋5天/);
@@ -75,7 +75,7 @@ export async function businessRules(page){
  const values=(await snapshot()).values;await page.reload();await page.locator('#business-rule-page').waitFor({state:'visible'});assert.deepEqual((await snapshot()).values,values,'刷新保留保存配置');assert.equal((await runtime()).net20,baseline.net20);
  await tab('products');await fill('quality.returnDelta',6);assert.equal(await page.locator('[data-brc-section-tab][aria-selected=true] .brc-dirty').count(),1);await revealBusinessRule(page,'quality.worsenReturn');await revealBusinessRule(page,'quality.returnDelta');assert.equal(await page.locator('[data-brc-field="quality.returnDelta"]').inputValue(),'6','同对象模块切换保留草稿');await tab('stock');await tab('products');assert.equal(await page.locator('[data-brc-field="quality.returnDelta"]').inputValue(),'6','切换模块保留草稿');assert.equal((await runtime()).qualityGrowth6,true,'草稿不影响已保存规则');await page.locator('[data-brc-cancel]').click();assert.equal(await page.locator('[data-brc-field="quality.returnDelta"]').inputValue(),'5');
  await page.locator('[data-brc-defaults]').click();assert.equal((await runtime()).net20,baseline.net20,'恢复默认保持历史测算参数');await save();assert.equal((await runtime()).net20,baseline.net20);
- for(const [key] of [['products'],['shops'],['stock'],['new'],['projects']]){await tab(key);await page.locator('[data-brc-defaults]').click();if(await page.locator('[data-brc-save]').isEnabled())await save()}
+ for(const key of ['products','shops','stock','new']){await tab(key);await page.locator('[data-brc-defaults]').click();if(await page.locator('[data-brc-save]').isEnabled())await save()}
  assert.deepEqual((await snapshot()).values,initial.values,'所有模块可恢复默认');
  await tab('products');await page.locator('#toast').waitFor({state:'hidden'});
  for(const width of [1920,1100,390]){await page.setViewportSize({width,height:1000});assert.equal(await page.locator('#business-rule-page').evaluate(host=>host.scrollWidth<=host.clientWidth+1),true,'配置页不横向溢出 '+width)}

@@ -26,13 +26,13 @@
 #riskrail .rp-quality-metric strong {display:block;font-size:16px;font-weight:600;line-height:26px;white-space:nowrap;color:#52657d}
 #riskrail .rp-quality-metric small {display:block;color:#8693a4;font-size:11px;line-height:17px;white-space:nowrap}
 #riskrail .rp-quality-mobile-label {display:none}
-#dialogbody :is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table) .rp-list-value em {font-size:11px;white-space:nowrap;margin-top:2px;color:#8693a4}
+#dialogbody :is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table,.rp-list-table[data-rp-kind="8"]) .rp-list-value em {font-size:11px;white-space:nowrap;margin-top:2px;color:#8693a4}
+#dialogbody :is(.rp-return-table,.rp-list-table[data-rp-kind="8"]) .rp-card-actual-value {color:#000}
 
 /* 品质抽屉保留充足指标列宽，横向滚动时固定身份与操作。 */
 #dialogbody :is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table).rp-list-table table {table-layout:fixed!important;min-width:2398px!important}
 #dialogbody :is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table).rp-list-table :is(th,td) {min-width:0!important;width:128px;padding:12px 14px}
-#dialogbody :is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table).rp-list-table :is(th,td):first-child {width:48px;min-width:48px!important}
-#dialogbody :is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table).rp-list-table :is(th,td):nth-child(2) {width:260px;min-width:260px!important;left:48px}
+#dialogbody :is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table).rp-list-table :is(th,td):nth-child(2) {width:260px;min-width:260px!important}
 #dialogbody :is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table).rp-list-table :is(th,td):nth-child(5) {width:140px}
 #dialogbody :is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table).rp-list-table :is(th,td):last-child {width:96px;min-width:96px!important}
 #dialogbody :is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table) .rp-identity b {font-size:13px}
@@ -42,18 +42,18 @@
 
 
 /* 两行独立着色：与其他榜单的红绿判定隔离。 */
-:is(#riskrail :is(.rp-quality-metric,.rp-quality-rate-summary),#riskrail .rp-shop-metric,#riskrail .rp-shop-scores,#dialogbody :is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table) .rp-list-value,#dialogbody .rp-shop-table .rp-list-value) :is(strong,small,em).rp-quality-red {color:var(--red)}
-:is(#riskrail :is(.rp-quality-metric,.rp-quality-rate-summary),#riskrail .rp-shop-metric,#riskrail .rp-shop-scores,#dialogbody :is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table) .rp-list-value,#dialogbody .rp-shop-table .rp-list-value) :is(strong,small,em).rp-quality-green {color:var(--green)}
-:is(#riskrail :is(.rp-quality-metric,.rp-quality-rate-summary),#riskrail .rp-shop-metric,#riskrail .rp-shop-scores,#dialogbody :is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table) .rp-list-value,#dialogbody .rp-shop-table .rp-list-value) :is(strong,small,em).rp-quality-yellow {color:var(--orange)}
-:is(#riskrail :is(.rp-quality-metric,.rp-quality-rate-summary),#riskrail .rp-shop-metric,#riskrail .rp-shop-scores,#dialogbody :is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table) .rp-list-value,#dialogbody .rp-shop-table .rp-list-value) :is(strong,small,em).rp-quality-gray {color:#8693a4}
+:is(#riskrail :is(.rp-quality-metric,.rp-quality-rate-summary),#riskrail .rp-shop-metric,#riskrail .rp-shop-scores,#dialogbody :is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table,.rp-list-table[data-rp-kind="8"],.rp-shop-table) .rp-list-value) :is(strong,small,em).rp-quality-red {color:var(--red)}
+:is(#riskrail :is(.rp-quality-metric,.rp-quality-rate-summary),#riskrail .rp-shop-metric,#riskrail .rp-shop-scores,#dialogbody :is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table,.rp-list-table[data-rp-kind="8"],.rp-shop-table) .rp-list-value) :is(strong,small,em).rp-quality-green {color:var(--green)}
+:is(#riskrail :is(.rp-quality-metric,.rp-quality-rate-summary),#riskrail .rp-shop-metric,#riskrail .rp-shop-scores,#dialogbody :is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table,.rp-list-table[data-rp-kind="8"],.rp-shop-table) .rp-list-value) :is(strong,small,em).rp-quality-yellow {color:var(--orange)}
+:is(#riskrail :is(.rp-quality-metric,.rp-quality-rate-summary),#riskrail .rp-shop-metric,#riskrail .rp-shop-scores,#dialogbody :is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table,.rp-list-table[data-rp-kind="8"],.rp-shop-table) .rp-list-value) :is(strong,small,em).rp-quality-gray {color:#8693a4}
 
 @media(max-width:600px){
  #riskrail :is(.qr-card,.rp-shop-card,.rp-loss-card,.rp-stock-card,.rp-return-card,.pc-risk-card) .rhead {margin:-10px -10px 2px;padding:12px 10px 6px;min-height:46px}
 }
 
-:is(#riskrail :is(.rp-quality-metric,.rp-quality-rate-summary),#riskrail .rp-shop-metric,#riskrail .rp-shop-scores,#dialogbody :is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table) .rp-list-value,#dialogbody .rp-shop-table .rp-list-value) strong.rp-quality-normal {color:#52657d}
-:is(#riskrail :is(.rp-quality-metric,.rp-quality-rate-summary),#riskrail .rp-shop-metric,#riskrail .rp-shop-scores,#dialogbody :is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table) .rp-list-value,#dialogbody .rp-shop-table .rp-list-value) :is(small,em).rp-quality-normal,
-:is(#riskrail :is(.rp-quality-metric,.rp-quality-rate-summary),#riskrail .rp-shop-metric,#riskrail .rp-shop-scores,#dialogbody :is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table) .rp-list-value,#dialogbody .rp-shop-table .rp-list-value) .rp-comparison-label {color:#8693a4}
+:is(#riskrail :is(.rp-quality-metric,.rp-quality-rate-summary),#riskrail .rp-shop-metric,#riskrail .rp-shop-scores,#dialogbody :is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table,.rp-list-table[data-rp-kind="8"],.rp-shop-table) .rp-list-value) strong.rp-quality-normal {color:#52657d}
+:is(#riskrail :is(.rp-quality-metric,.rp-quality-rate-summary),#riskrail .rp-shop-metric,#riskrail .rp-shop-scores,#dialogbody :is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table,.rp-list-table[data-rp-kind="8"],.rp-shop-table) .rp-list-value) :is(small,em).rp-quality-normal,
+:is(#riskrail :is(.rp-quality-metric,.rp-quality-rate-summary),#riskrail .rp-shop-metric,#riskrail .rp-shop-scores,#dialogbody :is(#qr-list-table,.rp-loss-table,.rp-stock-table,.rp-return-table,.rp-list-table[data-rp-kind="8"],.rp-shop-table) .rp-list-value) .rp-comparison-label {color:#8693a4}
 
 /* 进线率与差评率上下按相同顺序并列，保留各自环比颜色。 */
 #riskrail .rp-quality-rate-pair {display:grid;grid-template-columns:max-content max-content;column-gap:3px;min-width:0}

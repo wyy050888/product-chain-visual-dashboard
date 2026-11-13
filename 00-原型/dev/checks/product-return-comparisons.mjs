@@ -4,9 +4,9 @@ import vm from 'node:vm';
 
 const rate=f=>f.sales>0?(f.returned-f.received)/f.sales*100:null;
 const change=(now,before)=>{
- if(!Number.isFinite(now)||!Number.isFinite(before))return '环比 —';
- const delta=now-before,n=Math.round(Math.abs(delta)*10)/10;
- return n===0?'环比 持平':'环比 '+(delta>0?'+':'-')+n.toFixed(1)+'%';
+ if(!Number.isFinite(now)||!Number.isFinite(before)||before===0)return '环比 —';
+ const delta=(now-before)/before*100,n=Math.round(Math.abs(delta)*10)/10;
+ return n===0?'环比 持平':'环比 '+(delta>0?'↑ ':'↓ ')+n.toFixed(1)+'%';
 };
 export async function productReturnComparisons(page){
  await page.clock.setFixedTime(new Date('2026-10-31T04:00:00Z'));await page.reload();
@@ -33,7 +33,7 @@ export async function productReturnComparisons(page){
  for(const platform of ['抖音','京东']){
   await page.locator('.up-detail [data-up-quality-platform="'+platform+'"]').click();
   const card=page.locator('.up-return-metrics [data-up-quality-metric="unreceived"]');
-  assert.match(await card.locator('.up-quality-comparison').innerText(),/^环比 (?:[+-]\d+(?:,\d{3})*\.\d%|持平|—)$/,'平台切换后仍显示有符号差值');
+  assert.match(await card.locator('.up-quality-comparison').innerText(),/^环比 (?:[↑↓] \d+(?:,\d{3})*\.\d%|持平|—)$/,'平台切换后仍用箭头显示增长率');
   assert.equal(await card.locator('[data-up-goal]').count(),0,'未收退只增加环比，不增加目标');
  }
  await page.locator('#close').click();
@@ -48,10 +48,11 @@ export async function productReturnComparisons(page){
    const p=data.visible[i];assert.equal(await body.nth(i).locator('td').nth(index).locator('em').innerText(),change(rate(p.current),rate(p.previous)),'新品未收退随经营日期重算');
   }
  }
- const context=vm.createContext({qrbRateDelta:(now,before)=>Number.isFinite(now)&&Number.isFinite(before)?now-before:null,fmt:(n,d=0)=>n.toFixed(d)});
+ const context=vm.createContext({fmt:(n,d=0)=>n.toFixed(d)});
+ vm.runInContext(fs.readFileSync(new URL('../../src/modules/period/00-rate-growth.js',import.meta.url),'utf8'),context);
  vm.runInContext(fs.readFileSync(new URL('../../src/modules/risk-presentation/01-quality.js',import.meta.url),'utf8'),context);
- const boundary=[[20,15],[0,3],[1,1],[null,0]].map(([now,before])=>{const f=context.rpRateDeltaComparison(now,before);return {text:f.target,tone:f.targetTone}});
- assert.deepEqual(boundary.map(f=>f.text),['环比 +5.0%','环比 -3.0%','环比 持平','环比 —']);
+ const boundary=[[20,15],[0,3],[1,1],[null,0]].map(([now,before])=>{const f=context.rpRiskRateComparison(now,before);return {text:f.target,tone:f.targetTone}});
+ assert.deepEqual(boundary.map(f=>f.text),['环比 ↑ 33.3%','环比 ↓ 100.0%','环比 持平','环比 —']);
  assert.deepEqual(boundary.map(f=>f.tone),['rp-quality-red','rp-quality-green','rp-quality-gray','rp-quality-gray']);
  console.log('通过：关键产品目标偏差、详情及新品未收退环比、平台/日期切换及正负/持平/缺失。');
 }

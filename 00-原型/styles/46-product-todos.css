@@ -25,7 +25,7 @@
 #dialogbody .up-todo-table tbody tr:nth-child(even){background:#fafcff}
 #dialogbody .up-todo-subject{display:flex;flex-direction:column;gap:4px;min-width:0;white-space:normal}
 #dialogbody .up-todo-subject b{display:block;white-space:pre-line;font-size:13px;font-weight:400;color:#28496b}
-#dialogbody .up-todo-subject span{overflow:hidden;white-space:nowrap;text-overflow:ellipsis;color:#8a98ad;font-size:11px}
+#dialogbody .up-todo-subject span{white-space:normal;overflow-wrap:anywhere;color:#8a98ad;font-size:11px}
 #dialogbody .up-todo-evidence-preview{white-space:normal;line-height:1.7;color:#65768c}
 #dialogbody .up-todo-row-actions{display:flex;gap:14px;align-items:center}
 #dialogbody .up-todo-row-actions button{font-size:12px;white-space:nowrap}
@@ -72,7 +72,7 @@
 @media(max-width:700px){#dialogbody .up-todo-toolbar{padding-bottom:10px;gap:10px}#dialogbody .up-todo-filters .up-todo-search{flex-basis:100%}#dialogbody .up-todo-filters>[data-todo-reset]{margin-left:0}.up-todo-dialog-assign{grid-template-columns:1fr}.up-todo-dialog-body{padding:16px}.up-todo-dialog footer{padding:12px}.up-todo-persons{gap:10px;padding:12px}}
 
 #dialogbody .up-detail[data-up-tab="handling"]>.up-toolbar{display:none}
-#dialogbody .up-todo-description{white-space:pre-line;line-height:1.7;color:#65768c;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+#dialogbody .up-todo-description{white-space:pre-line;overflow-wrap:anywhere;line-height:1.7;color:#65768c}
 .up-todo-priority{display:inline-flex;align-items:center;justify-content:center;min-width:34px;width:auto;height:24px;padding:0 7px;border-radius:4px;vertical-align:middle;font-size:12px;font-weight:600;line-height:22px;white-space:nowrap}
 .up-todo-priority.P0{background:#fff1f0;color:#cf1322}.up-todo-priority.P1{background:var(--orange-soft);color:var(--orange)}.up-todo-priority.P2{background:#edf4ff;color:#1677ff}.up-todo-priority.P3{background:#f1f3f6;color:#718096}
 .up-todo-priority:focus-visible{outline:2px solid #91beff;outline-offset:2px}

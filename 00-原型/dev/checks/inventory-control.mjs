@@ -32,7 +32,7 @@ export async function inventoryControl(page){
  assert(right.x>left.x+left.width&&Math.abs(right.y-left.y)<1);
  const initial=await audit();await verifyInventoryCards(page);await verifyInventoryRefurb(page);
  const refurbOrders=initial.records.flatMap(row=>row.refurbOrders);
- assert(refurbOrders.some(row=>row.completedAt&&(Date.parse(row.completedAt)-Date.parse(row.quotedAt))/86400000===40),'样例覆盖请购单第40天完成');
+ assert(refurbOrders.some(row=>row.completedAt&&(Date.parse(row.completedAt)-Date.parse(row.arrivedAt))/86400000===30),'样例覆盖到厂后第30天完成');
  assert(refurbOrders.some(row=>row.requisitionId&&!row.completedAt),'样例覆盖未完成请购单');
  // 全局回看不得改写实时库存，本月统计也保持一致。
  await page.locator('#globaltime [data-time-mode="year"]').dispatchEvent('click');

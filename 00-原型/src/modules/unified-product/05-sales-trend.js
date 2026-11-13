@@ -5,6 +5,8 @@ function upSalesTrend(points,options={}){
  const series=options.series||[{key:'gsv',name:'GSV',unit:'万元',color:'#1677ff',axis:'left'},
   {key:'sales',name:'销量',unit:'件',color:'#fa803b'},
   {key:'margin',name:'利润率',unit:'%',color:'#8a6bd1',axis:'right'}].filter(s=>s.key!=='margin'||options.margin!==false);
+ const displayValue=(value,metric)=>metric.unit==='件'?formatSalesQuantity(value,metric.unit)
+  :Number.isFinite(value)?fmt(value,metric.unit==='%'?1:2)+metric.unit:'—';
  const left=76,right=1060,top=38,bottom=options.bottom||186,x=i=>left+i*(right-left)/Math.max(1,rows.length-1);
  const ticks=[...new Set(Array.from({length:5},(_,i)=>Math.round((rows.length-1)*i/4)))];
  const grid=[0,.5,1].map(t=>`<line x1="${left}" x2="${right}" y1="${bottom-t*(bottom-top)}" y2="${bottom-t*(bottom-top)}" stroke="#e8edf6"/>`).join('');
@@ -17,13 +19,16 @@ function upSalesTrend(points,options={}){
   rows.forEach((row,i)=>{const value=row[item.key];if(!Number.isFinite(value)){connected=false;return}path+=(connected?'L':'M')+x(i)+','+y(value)+' ';connected=true});
   if(item.axis){
    const isRight=item.axis==='right',position=isRight?right+12:left-12,anchor=isRight?'start':'end';
-   const marks=[0,.5,1].map(t=>{const value=low+t*(high-low);return `<text x="${position}" y="${y(value)+4}" text-anchor="${anchor}">${fmt(value,item.unit==='件'?0:1)}${item.unit==='%'?'%':''}</text>`}).join('');
+   const marks=[0,.5,1].map(t=>{const value=low+t*(high-low);return `<text x="${position}" y="${y(value)+4}" text-anchor="${anchor}">${item.unit==='件'?formatSalesQuantity(value):fmt(value,1)}${item.unit==='%'?'%':''}</text>`}).join('');
    axis+=`<g data-up-axis="${item.key}" data-axis-side="${item.axis}">${marks}</g>`;
   }
   return `<g data-up-series="${item.key}" style="--series-color:${item.color}"><path d="${path}" fill="none" stroke="${item.color}" stroke-width="2"/>${rows.length===1&&values.length?`<circle cx="${left}" cy="${y(values[0])}" r="3" fill="${item.color}"/>`:''}</g>`;
  }).join('');
  const hitWidth=(right-left)/Math.max(1,rows.length-1);
- const hits=rows.map((row,i)=>`<rect x="${Math.max(left,x(i)-hitWidth/2)}" y="${top}" width="${rows.length===1?right-left:Math.min(right,x(i)+hitWidth/2)-Math.max(left,x(i)-hitWidth/2)}" height="${bottom-top}" fill="transparent" data-up-trend-point data-series-values="${esc(JSON.stringify(series.map(s=>({key:s.key,label:s.name,color:s.color,value:Number.isFinite(row[s.key])?fmt(row[s.key],s.unit==='件'?0:s.unit==='%'?1:2)+s.unit:'—'}))))}" data-date="${esc(row.date)}" data-gsv="${esc(fmt(row.gsv,2)+'万元')}" data-sales="${esc(fmt(row.sales)+'件')}" data-margin="${esc(upPercent(row.margin))}" tabindex="0" aria-label="${esc(row.date+'；'+series.map(s=>s.name+' '+(Number.isFinite(row[s.key])?fmt(row[s.key],s.unit==='件'?0:2)+s.unit:'—')).join('；'))}"></rect>`).join('');
+ const hits=rows.map((row,i)=>{
+  const values=series.map(s=>({key:s.key,label:s.name,color:s.color,value:displayValue(row[s.key],s)}));
+  return `<rect x="${Math.max(left,x(i)-hitWidth/2)}" y="${top}" width="${rows.length===1?right-left:Math.min(right,x(i)+hitWidth/2)-Math.max(left,x(i)-hitWidth/2)}" height="${bottom-top}" fill="transparent" data-up-trend-point data-series-values="${esc(JSON.stringify(values))}" data-date="${esc(row.date)}" data-gsv="${esc(fmt(row.gsv,2)+'万元')}" data-sales="${esc(formatSalesQuantity(row.sales,'件'))}" data-margin="${esc(upPercent(row.margin))}" tabindex="0" aria-label="${esc(row.date+'；'+values.map(s=>s.label+' '+s.value).join('；'))}"></rect>`;
+ }).join('');
  return `<section class="up-sales-trend up-operating-trend"><div class="up-trend-heading"><h3>${esc(options.title||'销售趋势')}</h3><div class="up-trend-legend" aria-label="销售趋势指标">${series.map(s=>`<span class="up-trend-legend-item"><button type="button" data-up-series-toggle="${s.key}" aria-pressed="true" style="--series-color:${s.color}"><i></i>${esc(s.name)}</button>${netSalesHelp(s.key)}</span>`).join('')}</div></div>
  <div class="up-trend-scroll"><svg viewBox="0 0 1140 ${bottom+40}" role="img" aria-label="${series.map(s=>s.name).join('、')}销售趋势，悬浮查看原值">${grid}${axis}${lines}${hits}${ticks.map(i=>`<text x="${x(i)}" y="${bottom+27}" text-anchor="middle">${esc(options.tick?options.tick(rows[i]):rows[i].date.slice(5,10))}</text>`).join('')}</svg></div></section>`;
 }
@@ -58,7 +63,7 @@ function upShowSalesTooltip(point,event){
   const percent=value=>value===''?'—':upPercent(Number(value));
   const grade=point.hasAttribute('data-up-grade-point');
   const fields=grade?JSON.parse(d.seriesValues||'[]').map(s=>[s.label,s.value,s.color]):chart?JSON.parse(d.seriesValues||'[]').filter(s=>chart.querySelector(`[data-up-series-toggle="${s.key}"]`)?.getAttribute('aria-pressed')==='true').map(s=>[s.label,s.value,s.color]):[
-   ['总退',percent(d.rate),'#ed6178'],['已收退',percent(d.receivedRate),'#8a6bd1'],['销量',fmt(Number(d.sales))+'件','#1677ff'],
+   ['总退',percent(d.rate),'#ed6178'],['已收退',percent(d.receivedRate),'#8a6bd1'],['销量',formatSalesQuantity(Number(d.sales),'件'),'#1677ff'],
    ...(d.returnTarget!==''&&d.returnTarget!==undefined?[['总退目标',percent(d.returnTarget),'#ed6178',true]]:[]),
    ...(d.receivedTarget!==''&&d.receivedTarget!==undefined?[['已收退目标',percent(d.receivedTarget),'#8a6bd1',true]]:[])
   ];

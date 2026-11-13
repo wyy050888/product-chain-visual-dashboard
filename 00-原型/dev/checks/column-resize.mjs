@@ -11,19 +11,19 @@ export async function columnResize(page){
  };
  const near=(actual,expected)=>assert(Math.abs(actual-expected)<2,actual+' ≠ '+expected);
  await page.locator('a[href="#new"]').click();
- const newTable=page.locator('#newtable table'),gsv=newTable.locator('thead th').nth(2);
+ const newTable=page.locator('#newtable table'),gsv=newTable.locator('th:has([data-nsp-sort="gsv"])'),sales=newTable.locator('th:has([data-nsp-sort="netSales"])');
  await gsv.locator('[data-ui-column-handle]').waitFor();
  assert(await page.locator('table').evaluateAll(es=>es.filter(e=>e.tHead).every(e=>e.querySelectorAll('thead [data-ui-column-handle]').length===e.querySelectorAll('thead th').length)),'动态表格统一挂载列宽控件');
- const label=await gsv.textContent(),before=await width(gsv),other=await width(newTable.locator('thead th').nth(3));
+ const label=await gsv.textContent(),before=await width(gsv),other=await width(sales);
  const sorted=await gsv.getAttribute('aria-sort');await drag(gsv,96);
- near(await width(gsv),before+96);near(await width(newTable.locator('thead th').nth(3)),other);
+ near(await width(gsv),before+96);near(await width(sales),other);
  assert.equal(await gsv.getAttribute('aria-sort'),sorted,'拖拽不触发排序');assert.equal(await gsv.textContent(),label);
  await gsv.locator('[data-ui-column-handle]').focus();await page.keyboard.press('ArrowLeft');
  const expected=await width(gsv);near(expected,before+88);
  await gsv.locator('[data-nsp-sort]').click();
- await page.waitForFunction(w=>Math.abs(document.querySelector('#newtable th:nth-child(3)').getBoundingClientRect().width-w)<2,expected);
+ await page.waitForFunction(w=>Math.abs(document.querySelector('#newtable th:has([data-nsp-sort="gsv"])').getBoundingClientRect().width-w)<2,expected);
  await page.reload();await page.locator('a[href="#new"]').click();
- await page.waitForFunction(w=>Math.abs(document.querySelector('#newtable th:nth-child(3)').getBoundingClientRect().width-w)<2,expected);
+ await page.waitForFunction(w=>Math.abs(document.querySelector('#newtable th:has([data-nsp-sort="gsv"])').getBoundingClientRect().width-w)<2,expected);
  // 旧的窄列宽不能继续截断新品表头，拖拽同样不能缩到表头所需宽度以下。
  await page.evaluate(()=>{
   const key='dashboard-column-widths-v1',saved=JSON.parse(localStorage.getItem(key)||'{}');
@@ -45,8 +45,18 @@ export async function columnResize(page){
  await warehouse.locator('[data-ui-column-handle]').focus();
  for(let i=0;i<8;i++)await page.keyboard.press('Shift+ArrowLeft');
  near(await width(warehouse),164);
- // 六榜固定左右列：改变序号/操作列宽后，相邻固定列同步更新偏移。
- await page.locator('#riskrail [data-risk="0"]').click();
+ // 呆滞榜序号保持一行完整可读，旧偏好也不能将其缩到文字宽度以下。
+ await page.locator('#riskrail [data-risk="4"]').click();
+ const stockRank=page.locator('#rf-list-table thead th').first();
+ await stockRank.locator('[data-ui-column-handle]').waitFor();
+ assert.equal(await stockRank.textContent(),'序号');
+ assert(await stockRank.evaluate(cell=>cell.scrollWidth<=cell.clientWidth+1));
+ await stockRank.locator('[data-ui-column-handle]').focus();
+ await page.keyboard.press('Shift+ArrowLeft');
+ assert(await width(stockRank)>=63);
+ assert(await stockRank.evaluate(cell=>cell.scrollWidth<=cell.clientWidth+1));
+ // 固定左右列：改变序号/操作列宽后，相邻固定列同步更新偏移。
+ await page.locator('[data-drawer-tab="ranking-0"]').click();
  const ranking=page.locator('#qr-list-table table'),first=ranking.locator('thead th').first();
  await first.locator('[data-ui-column-handle]').waitFor();const oldFirst=await width(first);await drag(first,40);
  const firstWidth=await width(first);near(firstWidth,oldFirst+40);

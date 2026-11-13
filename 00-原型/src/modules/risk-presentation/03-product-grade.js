@@ -1,16 +1,27 @@
-// 五个产品榜单统一展示公司产品分级；平台仅筛风险事实，分级与产品详情一致。
+// 完整榜单按统计截止日最近的完整自然月汇总全平台 GSV。
 const rpGradeCache=boundedCache(4);
+function rpRankingGradeMonth(cutoff){
+ const month=cutoff.slice(0,7),monthEnd=shiftDate(dateRangeMonthShift(month,1)+'-01',-1);
+ return kpmGradeWindow(cutoff===monthEnd?cutoff:shiftDate(month+'-01',-1),'month');
+}
 function rpRankingGrade(record){
- const range=riskRange(),end=range.cutoff||range.end,period=periodFor('risk'),mode=['recent30','month','quarter','year'].includes(period.mode)?period.mode:'month',start=period.mode==='day'?kpmGradeWindow(end,'month').start:range.start,identity=upIdentity(rpProduct(record)||record),key=mode+'|'+start+'|'+end+'|'+upRuleRevision;
+ const identity=upIdentity(record);
+ if(!identity)return 'unrated';
+ const cutoff=riskRange().end,{start,end}=rpRankingGradeMonth(cutoff<DATA_CUTOFF?cutoff:DATA_CUTOFF),key=end+'|'+upRuleRevision;
  let rows=rpGradeCache.get(key);if(!rows){rows=new Map();rpGradeCache.set(key,rows)}
- const id=identity.spuId;if(!rows.has(id))rows.set(id,kpmGradeAssessment(identity,end,'all',mode,start).level||'unrated');
+ const id=identity.spuId;
+ if(!rows.has(id)){
+  const launch=upProduct(identity).actualLaunch;
+  rows.set(id,!launch||launch>start?'pending':kpmGradeAssessment(identity,end,'all','month',start).level||'unrated');
+ }
  return rows.get(id);
 }
 function rpRankingGradeMarkup(record){
- const grade=rpRankingGrade(record);return grade==='unrated'?'':`<span class="rp-product-grade ${grade}" data-rp-grade="${grade}">${grade}</span>`;
+ const grade=rpRankingGrade(record),pending=grade==='pending';
+ return grade==='unrated'?'':`<span class="rp-product-grade ${pending?'unrated':grade}" data-rp-grade="${grade}">${pending?'待分级':grade}</span>`;
 }
 
 window.dashboardRankingGradeSnapshot=()=>rpWithListPeriod(()=>{
  const host=document.querySelector('.rp-list-table');if(!host)return null;const k=Number(host.dataset.rpKind),filters=rpSavedFilters(k);
- return {kind:k,filters:{...filters},rows:rpFilterRows(k,rpListRows(k),filters).map(r=>({spuId:upIdentity(rpProduct(r)||r).spuId,grade:k===1?null:rpRankingGrade(r)}))};
+ return {kind:k,filters:{...filters},rows:rpFilterRows(k,rpListRows(k),filters).map(r=>({spuId:upIdentity(rpProduct(r)||r).spuId,grade:rpRankingSupportsGrade(k)?rpRankingGrade(r):null}))};
 });

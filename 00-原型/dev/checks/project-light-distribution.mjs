@@ -3,20 +3,22 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 export async function verifyProjectLightDistribution(page){
  const ctx=vm.createContext({esc:String});vm.runInContext(fs.readFileSync(new URL('../../src/modules/project-panorama/03-scope-tabs.js',import.meta.url),'utf8'),ctx);
- const model=(total,green,yellow,red,high)=>({total,green,yellow,red,high,rate:n=>total?(n/total*100).toFixed(1)+'%':'—'});
- for(const counts of [model(0,0,0,0,0),model(1,0,0,1,1),model(4,1,1,1,1)]){
+ const model=(total,green,yellow,red)=>({total,green,yellow,red,rate:n=>total?(n/total*100).toFixed(1)+'%':'—'});
+ for(const counts of [model(0,0,0,0),model(1,0,0,1),model(4,1,1,1)]){
   const html=ctx.ppLightDistribution(counts);assert(!/NaN|Infinity/.test(html));
-  assert(html.includes('data-pp-light-share="high"'),'高危独立一段');
-  assert(html.includes('data-pp-light-share="red" data-count="'+(counts.red-counts.high)+'"'),'普通红灯扣除高危，不重复计数');
+  assert(html.includes('data-pp-light-share="red" data-count="'+counts.red+'"'),'红灯使用全部红灯项目数');
   assert.equal(html.includes('data-pp-light-share="unknown"'),counts.total>counts.green+counts.yellow+counts.red);
  }
  const bar=page.locator('#pp-light-distribution .pp-light-distribution');
  const read=()=>bar.evaluate(n=>({total:Number(n.dataset.total),parts:[...n.children].map(x=>({tone:x.dataset.ppLightShare,count:Number(x.dataset.count),share:Number(x.dataset.share)}))}));
  const assertCards=async()=>{
   const state=await read(),count=async key=>Number(await page.locator('[data-pp-light-tab="'+key+'"] [data-pp-card-count]').innerText());
-  assert.equal(state.total,await count('all'));assert.equal(state.parts.find(n=>n.tone==='high').count,await count('高危红灯'));assert.equal(state.parts.find(n=>n.tone==='red').count+state.parts.find(n=>n.tone==='high').count,await count('红灯'));assert.equal(state.parts.find(n=>n.tone==='yellow').count,await count('黄灯'));
+  assert.equal(state.total,await count('all'));
+  for(const [tone,label] of [['red','红灯'],['yellow','黄灯']])assert.equal(state.parts.find(n=>n.tone===tone).count,await count(label));
+  assert.equal(await page.locator('[data-pp-light-tab="绿灯"]').count(),0);
+  assert.equal(state.parts.find(n=>n.tone==='green').count,state.total-state.parts.filter(n=>n.tone!=='green').reduce((n,p)=>n+p.count,0),'总体占比保留绿灯数据');
   assert.equal(state.parts.reduce((n,p)=>n+p.count,0),state.total);assert(Math.abs(state.parts.reduce((n,p)=>n+p.share,0)-(state.total?100:0))<1e-8);
-  assert.deepEqual(state.parts.slice(0,4).map(p=>p.tone),['high','red','yellow','green']);return state;
+  assert.deepEqual(state.parts.slice(0,3).map(p=>p.tone),['red','yellow','green']);return state;
  };
  const initial=await assertCards();
  await page.locator('[data-pp-light-tab="红灯"]').click();assert.deepEqual(await assertCards(),initial,'灯色筛选不缩小整体分母');

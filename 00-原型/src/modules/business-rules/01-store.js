@@ -2,6 +2,16 @@
 const BRC_STORAGE='dashboard-business-rules-v3',BRC_PREVIOUS_STORAGE='dashboard-business-rules-v2',BRC_LEGACY_STORAGE='dashboard-business-rules-v1';
 // 本次仅一次重置旧新品成功方案；升级后新增、编辑的规则正常保留。
 const BRC_SUCCESS_DEFAULT_REVISION=1;
+const brcFixedWorseningRates=new Set(['quality.worsenReturn','quality.worsenReceived']);
+function brcUpgradeStagnantWarningMetrics(conditions){
+ const upgrade=condition=>{
+  for(const child of condition?.conditions||[])upgrade(child);
+  if(condition?.metric==='warehouse')condition.metric='sellableUnits';
+  if(condition?.metric==='coverage15')condition.metric='sellableCoverage15';
+ };
+ // 旧配置显式保存的我司口径同步切换，保留阈值和条件组关系。
+ for(const key of ['stock.warning.warehouse','stock.warning.netSales','stock.warning.coverageDays'])upgrade(conditions[key]);
+}
 function brcRead(){
  try{
   const data=JSON.parse(localStorage.getItem(BRC_STORAGE)||localStorage.getItem(BRC_PREVIOUS_STORAGE)||localStorage.getItem(BRC_LEGACY_STORAGE)||'null');
@@ -16,7 +26,10 @@ function brcRead(){
   // 本次订正仅升级退货灯色，保留其他业务配置；后续用户保存的条件正常保留。
   const upgradeReturns=data.returnRuleRevision!==1,returnKeys=new Set(brcBands.filter(b=>b.id.startsWith('return.')).flatMap(b=>b.keys));
   if(upgradeReturns){values['lights.return']=2;values['lights.received']=.5;}
-  const defaults=brcDefaultConditions(values),conditions=brcExpandLegacyFallbacks(Object.fromEntries(Object.entries(defaults).map(([key,c])=>[key,data.version>=2&&data.conditions?.[key]&&!(upgradeReturns&&returnKeys.has(key))&&!key.startsWith('grades.')&&!(upgradeShopReturns&&key==='shops.returnExcess')?brcNormalizeCondition(data.conditions[key]):c])));
+  // 固定使用增长率阈值，历史按差值保存的两项条件不再读取。
+  for(const key of brcFixedWorseningRates)values[key]=brcDefaults[key];
+  const defaults=brcDefaultConditions(values),conditions=brcExpandLegacyFallbacks(Object.fromEntries(Object.entries(defaults).map(([key,c])=>[key,data.version>=2&&data.conditions?.[key]&&!brcFixedWorseningRates.has(key)&&!(upgradeReturns&&returnKeys.has(key))&&!key.startsWith('grades.')&&!(upgradeShopReturns&&key==='shops.returnExcess')?brcNormalizeCondition(data.conditions[key]):c])));
+  brcUpgradeStagnantWarningMetrics(conditions);
   brcNormalizeGradeAxes(conditions,defaults);
   const projected=brcProjectValues(values,conditions);return brcValidate(projected,conditions)?null:{version:3,returnRuleRevision:1,deliveryRuleRevision:1,shopReturnRuleRevision:1,revision:data.revision,values:projected,conditions,successDefaultRevision:data.successDefaultRevision||0,successTimeline:brcSuccessReadTimeline(data.successDefaultRevision===BRC_SUCCESS_DEFAULT_REVISION?data.successTimeline:null,conditions,projected),updatedAt:String(data.updatedAt||'')};
  }catch(_){return null}

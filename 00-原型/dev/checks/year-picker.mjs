@@ -24,8 +24,9 @@ export async function yearPicker(page){
   console.log('年份入口：'+entry.file+' '+rows.length+' 个');
  }
  await page.goto(new URL('index.html',root).href,{waitUntil:'domcontentloaded'});await ready();
- await page.locator('#time-risk [data-time-mode=year]').click();
- const risk=page.locator('#time-risk [data-time-year]');
+ // 六榜已使用独立期间；通过品质榜的真实入口验证年份组件。
+ await page.locator('[data-rp-board-date="0"] [data-drawer-time-mode=year]').click();
+ const risk=page.locator('[data-rp-board-date="0"] [data-drawer-time-year]');
  await trigger(risk).click();assert.equal(await panel().locator('.ui-year-heading span').innerText(),'2020 年 - 2029 年');
  const options=await risk.locator('option').evaluateAll(ns=>ns.map(n=>Number(n.value)));
  for(const year of [2025,2026,2027])assert.equal(await panel().locator('[data-ui-year-value="'+year+'"]').isDisabled(),!options.includes(year));

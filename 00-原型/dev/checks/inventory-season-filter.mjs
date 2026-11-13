@@ -27,7 +27,9 @@ export async function verifyInventorySeasonFilter(page){
   assert.equal(data.overview.turn,data.stockTotal.turn);assert.equal(data.overview.refurb.total,data.stockTotal.refurb.total);
   assert.deepEqual(data.metricPeriod,initial.metricPeriod,'季品不重置日期');
   assert.equal(await category.locator('[data-rp-sort="staleUnits"]').getAttribute('data-direction'),'desc','季品不重置排序');
-  assert.equal(await root.locator('[data-stock-card]').count(),7);
+  assert.equal(await root.locator('[data-stock-card]').count(),8);
+  const stockoutRows=initial.overview.stockout.rows.filter(row=>!selected.length||selected.includes(seasons.get(row.spuId)));
+  assert.deepEqual(data.overview.stockout.rows,stockoutRows,'断货明细沿用外侧季品筛选');
   for(const row of data.overview.seasons)assert.equal(await root.locator('[data-stock-stale-season="'+row.label+'"]').innerText(),row.units.toLocaleString('en-US')+'件','呆滞分布随公共季品筛选汇总');
   assert.deepEqual(await tabs.locator('[aria-pressed="true"]').evaluateAll(nodes=>nodes.map(node=>node.dataset.ipSeason)),selected.length?selected:['all'],'分段选中态随筛选同步');
  };
@@ -49,5 +51,5 @@ export async function verifyInventorySeasonFilter(page){
  await category.locator('[data-rp-sort="staleUnits"]').click();await category.locator('[data-rp-sort="staleUnits"]').click();
  assert.deepEqual((await get()).balance,initial.balance,'全部产品还原库存卡片');
  await root.locator('[data-ip-stale-metric="valueCents"]').click();
- console.log('通过：库存季品平铺分段标签、默认全部、多选及键盘、六卡和双图双表汇总、期间排序保留及窄屏');
+ console.log('通过：库存季品多选及键盘、断货明细与库存指标同步、期间排序保留及窄屏');
 }

@@ -33,14 +33,14 @@ function sdMountDiagnosis(root,m,state){
 }
 function sdOperating(m,state){
  const c=m.current;
- const metrics=[['gsv','GSV',pfMoneyYuan(c.gsv),c.gsv,m.previous.gsv],['netSales','销量',fmt(c.netSales),c.netSales,m.previous.netSales]];
+ const metrics=[['gsv','GSV',pfMoneyYuan(c.gsv),c.gsv,m.previous.gsv],['netSales','销量',formatSalesQuantity(c.netSales),c.netSales,m.previous.netSales]];
  const chart=upSalesTrend([], {rows:sdTrendRows(sdTrendPoints(m,state),state.period?.mode),title:'店铺业绩趋势',bottom:186,tick:r=>state.period?.mode==='year'?r.date.slice(0,7):r.date.slice(5,10),series:[{key:'gsv',name:'GSV',unit:'万元',color:'#1677ff',axis:'left'},{key:'netSales',name:'销量',unit:'件',color:'#fa803b',axis:'right'}]});
  return `<div class="sd-operating-overview"><div class="sd-kpis">${metrics.map(([key,label,value,now,before])=>`<div class="up-metric"><small>${netSalesLabel(label,key)}</small><div class="up-operating-value"><strong>${esc(value)}</strong><span class="${rpQualityChangeTone(now,before)}">${esc(rpQualityChange(now,before))}</span></div></div>`).join('')}</div>${chart}</div><h3>店铺产品SPU业绩</h3><div class="up-table" data-sd-spu-table></div><div data-sd-spu-pages></div>`;
 }
 // 先对全量SPU按原值排序，再分页；换期间保留排序方向，页码回到第一页。
 function sdMountProducts(root,m,state){
  const host=root.querySelector('[data-sd-spu-table]'),pager=root.querySelector('[data-sd-spu-pages]');
- const columns=[['gsvCents','GSV',row=>upMoney(row.gsvCents)],['netSales','销量',row=>fmt(row.netSales)],['returnRate','总退',row=>upPercent(row.returnRate)],['profitRate','利润率',row=>upPercent(row.profitRate)]];
+ const columns=[['gsvCents','GSV',row=>upMoney(row.gsvCents)],['netSales','销量',row=>formatSalesQuantity(row.netSales)],['returnRate','总退',row=>upPercent(row.returnRate)],['profitRate','利润率',row=>upPercent(row.profitRate)]];
  const defaultSort={key:'gsvCents',direction:'desc'};state.productSort||={...defaultSort};let page=1;
  const fill=()=>{
   const scroll=host.scrollLeft,sort=state.productSort,rows=rpSortRows(m.products,sort,(row,key)=>row[key]);

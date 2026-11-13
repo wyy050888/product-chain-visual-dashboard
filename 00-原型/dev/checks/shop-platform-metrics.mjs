@@ -2,14 +2,15 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
 
-const platformKeys={抖音:['frozen','offShelf','limited','problemSpus'],快手:['fine','offShelf','problemSpus'],视频号:['fine','offShelf','limited','problemSpus'],天猫:['fine','offShelf','problemSpus'],京东:['fine','offShelf','limited','problemSpus'],拼多多:['frozen','fine','offShelf','drop','problemSpus']};
+const platformKeys={抖音:['frozen','offShelf','limited','problemSpus'],快手:['fine','offShelf','problemSpus'],视频号:['frozen','offShelf','limited','problemSpus'],天猫:['fine','offShelf','problemSpus'],京东:['fine','frozen','offShelf','drop','limited','problemSpus'],拼多多:['fine','offShelf','drop','problemSpus']};
 function verifyPlatformModel(){
  const types=['fine','frozen','offShelf','drop','limited'],ctx=vm.createContext({DATA_CUTOFF:'2026-10-28',fmt:String,
   rpField:(key,name,value,tone,hint,target)=>({key,name,value,tone,hint,target}),brcNumber:()=>3,
   riskRange:(start,end)=>({start,end}),riskShopPeriod:()=>({events:[{date:'2026-10-05',amount:100}]}),
   sampleShopNonQualityEvents:()=>types.map(type=>({type,reasonType:'operations'})),
   riskMonthShift:month=>month==='2026-10'?'2026-11':'2026-12'});
- vm.runInContext(fs.readFileSync(new URL('../../src/modules/risk-presentation/01-shop.js',import.meta.url),'utf8'),ctx);
+ vm.runInContext(fs.readFileSync(new URL('../../src/modules/period/00-rate-growth.js',import.meta.url),'utf8'),ctx);
+ for(const file of ['01-quality.js','01-shop.js'])vm.runInContext(fs.readFileSync(new URL('../../src/modules/risk-presentation/'+file,import.meta.url),'utf8'),ctx);
  for(const [platform,keys] of Object.entries(platformKeys)){
   assert.deepEqual(Array.from(ctx.rpShopMetricKeys(platform)),keys);
   const events=ctx.rpShopPeriodEvents({id:3,channel:platform,frozenAmount:100},'2026-10-01','2026-10-28',false);
@@ -28,6 +29,9 @@ export async function shopPlatformMetrics(page){
  verifyPlatformModel();await page.clock.setFixedTime(new Date('2026-10-28T04:00:00Z'));await page.reload();
  await page.waitForFunction(()=>document.documentElement.dataset.dashboardBoot==='ready',null,{timeout:60000});
  const board=page.locator('#riskrail [data-rp-board="1"]'),violationKeys=['fine','frozen','offShelf','drop','limited','problemSpus'];
+ const riskMenu=page.locator('#dialogbody [data-pf-multi-label="风险类型"]');
+ const riskOptions=riskMenu.locator('.pf-multi-option span');
+ const expectedOptions=['全部','平台罚款','资金冻结','链接下架','链接掉权','店铺限单'];
  for(const [platform,keys] of Object.entries(platformKeys)){
   await board.locator('[data-rp-platform-option="'+platform+'"]').click();
   const cards=board.locator('.rp-shop-entry');assert(await cards.count()>0,platform+'保留可核对的店铺样例');
@@ -48,11 +52,30 @@ export async function shopPlatformMetrics(page){
   for(const key of keys)values[key]={value:await first.locator('[data-rp-field="'+key+'"]>strong').innerText(),target:await first.locator('[data-rp-field="'+key+'"]>small').innerText()};
   await board.locator('[data-risk="1"]').click();
   const table=page.locator('#dialogbody .rp-shop-table');
+  assert.deepEqual(await riskOptions.allTextContents(),expectedOptions,platform+'的风险类型菜单展示全部五类');
   if(platform==='视频号')assert.equal(await table.locator('[data-rp-sort="score"],[data-rp-sort="productScore"],[data-rp-sort="logisticsScore"],[data-rp-sort="serviceScore"]').count(),4,'视频号完整榜单保留四项评分列');
   assert.deepEqual(await table.locator('thead [data-rp-sort]').evaluateAll((nodes,allowed)=>nodes.map(node=>node.dataset.rpSort).filter(key=>allowed.includes(key)),violationKeys),keys,'完整榜单隐藏不适用列并遵守平台顺序');
   const headers=await table.locator('thead [data-rp-sort]').evaluateAll(nodes=>Object.fromEntries(nodes.map(node=>[node.dataset.rpSort,node.closest('th').cellIndex]))),row=table.locator('tbody tr').filter({has:page.locator('[data-riskitem="'+firstId.replace(':',',')+'"]')});
   assert.equal(await row.count(),1);
   for(const key of keys){const cell=row.locator('td').nth(headers[key]);assert.equal(await cell.locator('strong').innerText(),values[key].value);assert.equal(await cell.locator('em').innerText(),values[key].target)}
+  if(platform==='京东'){
+   await riskMenu.locator('summary').click();
+   const riskSelect=riskMenu.locator('select');
+   const rows=await table.locator('tbody tr').evaluateAll((nodes,indices)=>nodes.map(node=>indices.map(index=>Number(node.cells[index].querySelector('strong').textContent.replace(/[,次]/g,''))>0)),[headers.offShelf,headers.drop,headers.limited]);
+   const total=()=>page.locator('#rp-list-pagination nav').evaluateAll(nodes=>Number(nodes[0]?.dataset.listTotal||0));
+   assert.equal(await total(),rows.length,'样例完整榜单可逐行核对');
+   for(const [index,key] of ['offShelf','drop','limited'].entries()){
+    await riskSelect.selectOption(key,{force:true});
+    assert.equal(await total(),rows.filter(row=>row[index]).length,'单独匹配'+key);
+   }
+   await riskSelect.selectOption(['offShelf','drop','limited'],{force:true});
+   assert.equal(await total(),rows.filter(row=>row.some(Boolean)).length,'多选匹配任一违规类型');
+   await riskSelect.selectOption('drop',{force:true});
+   await page.locator('#rf-list-platform').selectOption('抖音',{force:true});
+   assert.deepEqual(await riskOptions.allTextContents(),expectedOptions,'切换平台保留完整菜单');
+   assert.equal(await riskSelect.inputValue(),'drop','切换平台保留已选风险');
+   assert.equal(await total(),0,'所选平台无掉权记录');
+  }
   await page.locator('#close').click();
   await cards.first().locator('.rp-detail-link').click();await page.locator('.sd-detail [data-drawer-tab="violations"]').click();
   const root=page.locator('.sd-detail');

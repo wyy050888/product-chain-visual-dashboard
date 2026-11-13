@@ -18,11 +18,16 @@ function nspDeliveryAssessment(projects,tasks,range){
  const planned=rows.length,ontime=rows.filter(row=>row.onTime).length;
  return {planned,ontime,rate:planned?ontime/planned*100:null,rows,range:{...range}};
 }
-function nspDeliverySummary(){
+function nspDeliverySummary(assessment=nspSuccessPeriod()){
  const category=pfControlValue($('#newchain'));
  const projects=sampleProjectSource.filter(p=>pfIncludes(category,pfCategory(p))&&pfIncludes(nspFilters.brand,p.brand));
  // 品牌、类目是项目可直接映射字段；不以SPU销量、分级、销售状态反推项目范围。
- return nspDeliveryAssessment(projects,nspDeliverySamples,bounds());
+ const {annual,start,end:cutoff,label}=assessment;
+ const year=Number(start.slice(0,4)),quarter=Math.ceil(Number(start.slice(5,7))/3);
+ // 应上市项目覆盖整个季度或年度，完成日期截至新品销售成功率使用的同一统计日。
+ const period=bounds({mode:annual?'year':'quarter',year,value:annual?1:quarter});
+ const range={...period,cutoff,partial:period.end>cutoff};
+ return {...nspDeliveryAssessment(projects,nspDeliverySamples,range),label,annual};
 }
 
 function nspDepartmentDeliverySummary(){

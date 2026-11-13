@@ -70,4 +70,24 @@ export async function qualityViolation(page){
  await page.locator('#qr-list-table tbody [data-qr-detail]').first().click();assert(await page.locator('.up-detail').isVisible(),'单平台行可打开详情');
  assert.equal(await page.locator('#up-platform').inputValue(),all.candidates.find(row=>row.key===firstKey).platform,'详情继承该行平台');await page.locator('#close').click();
  assert.equal(await page.locator('#qr-list-table tbody [data-qr-detail]').first().getAttribute('data-qr-detail'),firstKey,'返回保留平台行及页码');
+ const riskMenu=page.locator('#dialogbody [data-pf-multi-label="风险类型"]');
+ const options=riskMenu.locator('.pf-multi-option span');
+ const expectedOptions=['全部','平台罚款','资金冻结','链接下架','链接掉权'];
+ await riskMenu.locator('summary').click();
+ assert.deepEqual(await options.allTextContents(),expectedOptions);
+ const total=()=>page.locator('#rp-list-pagination nav').evaluateAll(nodes=>Number(nodes[0]?.dataset.listTotal||0));
+ const riskSelect=riskMenu.locator('select');
+ for(const [value,key] of [['offShelf','offShelfCount'],['drop','dropCount']]){
+  const expected=all.candidates.filter(row=>row.facts[key]>0).length;
+  assert(expected>0,'覆盖实际发生的'+value);
+  await riskSelect.selectOption(value,{force:true});
+  assert.equal(await total(),expected,'分别匹配下架和掉权');
+ }
+ await riskSelect.selectOption(['offShelf','drop'],{force:true});
+ assert.equal(await total(),all.candidates.filter(row=>row.facts.offShelfCount>0||row.facts.dropCount>0).length,'多选匹配任一风险');
+ await riskSelect.selectOption('drop',{force:true});
+ await page.locator('#qr-list-platform').selectOption('抖音',{force:true});
+ assert.deepEqual(await options.allTextContents(),expectedOptions,'切换平台仍显示四类风险');
+ assert.equal(await riskSelect.inputValue(),'drop','切换平台保留所选风险');
+ assert.equal(await total(),0,'所选平台无掉权记录时显示空榜');
 }

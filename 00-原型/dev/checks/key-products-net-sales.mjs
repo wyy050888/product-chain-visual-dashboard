@@ -11,11 +11,12 @@ export async function verifyKeyProductNetSales(page){
    assert(Number.isInteger(product.facts.netSales)&&product.facts.netSales>=0);
   }
   const actual=await root.locator('#matrixtable tbody tr').evaluateAll(rows=>rows.map(row=>{
-   const cell=row.querySelector('[data-kpm-metric="units"]');return {id:row.querySelector('[data-kpm-detail]').dataset.kpmDetail,value:Number(cell.querySelector('strong').textContent.replaceAll(',','')),comparison:cell.querySelector('em').textContent.replace(/[\s,]/g,'')};
+   const cell=row.querySelector('[data-kpm-metric="units"]');return {id:row.querySelector('[data-kpm-detail]').dataset.kpmDetail,value:cell.querySelector('strong').textContent,comparison:cell.querySelector('em').textContent.replace(/[\s,]/g,'')};
   }));
   for(const row of actual){
    const product=state.rows.find(p=>p.spuId===row.id),now=product.facts.netSales,before=product.previous.netSales;
-   assert.equal(row.value,now,'主表显示扣除总退件数后的数量');
+   const quantity=now>10000?new Intl.NumberFormat('zh-CN',{minimumFractionDigits:1,maximumFractionDigits:1,useGrouping:false}).format(now/10000)+'w':now.toLocaleString('zh-CN');
+   assert.equal(row.value,quantity,'主表显示去退后销量，超万缩写为w');
    const change=before>0?(now-before)/before*100:now===before?0:null;
    const rounded=Math.round(Math.abs(change)*10)/10;
    const expected=change===null?'环比--':rounded===0?'环比持平':'环比'+(change>0?'↑':'↓')+rounded.toFixed(1)+'%';

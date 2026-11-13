@@ -7,10 +7,9 @@ export async function projectDates(page){
  // 原始值排序的边界：缺失置后、跨年日期、相同值稳定；格式化不影响计算。
  const source=fs.readFileSync(new URL('../../src/modules/project-panorama/01-model.js',import.meta.url),'utf8');
  const ctx=businessRuleContext({});ctx.window||={};vm.runInContext(fs.readFileSync(new URL('../../src/data/filter-catalog.js',import.meta.url),'utf8'),ctx);vm.runInContext(source,ctx);
- for(const [light,actual,delay,expected,high] of [
-  ['绿灯',null,1,'绿灯',false],['绿灯',null,15,'绿灯',false],['绿灯',null,16,'绿灯',false],['黄灯',null,51,'黄灯',false],['红灯',null,51,'红灯',true],
-  ['黄灯',null,0,'黄灯',false],['绿灯',null,0,'绿灯',false],['绿灯',null,null,'绿灯',false],['绿灯','2026-10-01',20,'绿灯',false]
- ]){const status=ctx.ppProjectLight({status:light},actual,delay);assert.equal(status,expected);assert.equal(vm.runInContext(`ppHighRisk(${JSON.stringify({status,delay})})`,ctx),high);}
+ for(const [light,expected] of [['绿灯','绿灯'],['黄灯','黄灯'],['红灯','红灯'],['高危红灯','红灯']]){
+  assert.equal(ctx.ppProjectLight({status:light,delay:51}),expected,'使用有效项目灯色，兼容旧红灯记录');
+ }
 
  assert.equal(ctx.ppProjectLight({},null,50),null,'项目有效灯色缺失时不能仅凭延期推断红灯');
  const records=[{id:3,plan:null},{id:2,plan:'2027-01-01'},{id:1,plan:'2026-12-31'},{id:4,plan:'2026-12-31'}];

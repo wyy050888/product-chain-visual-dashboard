@@ -23,13 +23,14 @@ export async function verifyInventoryMetricPeriod(page){
  }
  assert.equal(await page.locator('#inventorymetrics [data-stock-rule="value"]').count(),0);
  const money=page.locator('#inventorymetrics [data-stock-card="warehouse"] .stock-summary-worth');assert(await money.evaluate(e=>{const labelNode=e.closest('.stock-summary-card').querySelector('.stock-card-head .stock-summary-label'),label=labelNode.getBoundingClientRect(),value=e.querySelector('strong').getBoundingClientRect(),quantity=e.parentElement.querySelector('.primary').getBoundingClientRect();return label.bottom<=value.top+1&&Math.abs(label.left+parseFloat(getComputedStyle(labelNode).paddingLeft)-value.left)<=1.1&&quantity.right<=e.getBoundingClientRect().left+1}),'数量与货值分列，货值标签位于金额上方');
- assert.equal(await time.locator('.ip-metric-scope').innerText(),'筛选影响：库存周转率、交付及时率、翻新闭环率','说明日期实际影响范围');
+ assert.equal(await time.locator('.ip-metric-scope').innerText(),'筛选影响：库存周转率、交付及时率、翻新闭环率、爆款断货次数','说明日期实际影响范围');
  assert.equal(await time.locator('.metric-help').count(),0,'移除时间筛选说明浮窗入口');
  for(const mode of ['month','quarter','year']){
   await time.locator('[data-ip-time-mode="'+mode+'"]').click();const data=await get();
   assert((await category.locator('[data-ip-signal="turn"]').allTextContents()).every(text=>text.trim().endsWith('次')&&!text.includes('/')),'周转率只显示次数 '+mode);
   assert.equal(data.metricPeriod.mode,mode);assert.deepEqual(stockView(data),stockView(initial),'日期不改写库存快照');
   assert.deepEqual(data.balance,initial.balance);assert.deepEqual(data.overview.unrefurbished,initial.overview.unrefurbished,'未翻新数保持原库存指标，不改为期间未完成请购单');if(data.overview.range.start!==initial.overview.range.start){assert.notDeepEqual(data.brand.map(row=>row.turn),initial.brand.map(row=>row.turn),'品牌表同步重算');assert.notDeepEqual(rates(data),rates(initial),'期间三指标实际重算 '+mode)}
+  assert.equal(data.overview.importedStock,initial.overview.importedStock,'人工导入库存不随历史考核期回拨');
   assert.equal(data.overview.turn,data.stockTotal.turn);assert.equal(data.overview.delivery,data.stockTotal.delivery);
   assert.deepEqual(data.overview.refurb,data.stockTotal.refurb,'卡片与两表共用闭环及分布');
   assert.equal(Number(await page.locator('#inventorymetrics [data-stock-turn]').getAttribute('data-stock-turn')),data.stockTotal.turn);
@@ -47,8 +48,9 @@ export async function verifyInventoryMetricPeriod(page){
    assert.equal(groups.reduce((n,row)=>n+row.refurb.total,0),data.stockTotal.refurb.total);
   }
   assert.equal(await page.locator('#inventorymetrics [data-stock-card="turn"] .stock-card-foot').count(),0,'周转率卡不重复展示期间日期');
-  assert((await time.locator('.ip-metric-range').innerText()).includes(data.overview.range.start.slice(2).replaceAll('-','/')),'统一时间控件显示所选期间');
-  for(const row of data.stockRecords){assert(row.deliveryOn<=row.deliveryDue);assert.equal(row.delivery,row.deliveryDue?row.deliveryOn/row.deliveryDue*100:null);for(const order of row.refurbOrders){assert(order.completedAt>=data.overview.range.start&&order.completedAt<=data.overview.range.cutoff,'按翻新交付完成日期归期');assert.equal(order.spuId,String(row.spuId))}}
+  assert.equal(await time.locator('[data-ip-time-year]').inputValue(),String(data.metricPeriod.year),'统一时间控件显示所选年份');
+  if(mode!=='year')assert.equal(await time.locator('[data-ip-time-value]').inputValue(),String(data.metricPeriod.value));
+  for(const row of data.stockRecords){assert(row.deliveryOn<=row.deliveryDue);assert.equal(row.delivery,row.deliveryDue?(row.deliveryOn+row.importedStock)/row.deliveryDue*100:null);for(const order of row.refurbOrders){assert(order.orderedAt>=data.overview.range.start&&order.orderedAt<=data.overview.range.cutoff,'按采购单下单日期归期');assert.equal(order.spuId,String(row.spuId))}}
  }
  await time.locator('[data-ip-time-year]').selectOption('2025');const past=await get();assert.deepEqual(stockView(past),stockView(initial),'日期筛选不改最新库存');assert.equal(past.snapshot,initial.snapshot);assert.notDeepEqual(rates(past),rates(initial));
  for(const width of [1440,1024,390]){await page.setViewportSize({width,height:1080});for(const panel of [category,brand])assert(await panel.evaluate(e=>e.scrollWidth<=e.clientWidth+1),'控件不撑宽表格 '+width);assert(await time.evaluate(e=>{const r=e.getBoundingClientRect();return e.scrollWidth<=e.clientWidth+1&&r.left>=0&&r.right<=innerWidth}),'统一控件适配窄屏 '+width)}

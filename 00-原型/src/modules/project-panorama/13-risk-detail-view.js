@@ -1,6 +1,7 @@
-function ppTrafficTone(light){return {'红灯':'red','黄灯':'yellow','绿灯':'green','高危红灯':'high'}[light]||'unknown'}
+function ppTrafficTone(light){return {'红灯':'red','黄灯':'yellow','绿灯':'green'}[light]||'unknown'}
 function ppTraffic(light){
- if(!['红灯','黄灯','绿灯','高危红灯'].includes(light))return '<span class="muted">—</span>';
+ light=ppNormalizeProjectLight(light);
+ if(!ppProjectLights.includes(light))return '<span class="muted">—</span>';
  const tone=ppTrafficTone(light);
  // 灯色通过 aria-label 提供可访问名称，避免隐藏文字误触发表格截断提示。
  return `<span class="pp-traffic pp-traffic-${tone}" role="img" aria-label="${light}" data-light="${light}"><i class="pp-traffic-pill" aria-hidden="true"></i></span>`;

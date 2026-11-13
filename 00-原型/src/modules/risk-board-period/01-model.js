@@ -1,5 +1,5 @@
 // 六榜各自持有期间；库存始终使用最新快照，退货使用成熟区间及显式对照期。
-const rpTimedBoards=[0,6,1,2],rpBoardPeriods={};
+const rpTimedBoards=[0,6,8,1,2],rpBoardPeriods={};
 function rpLatestReturnMonth(reference=dashboardSyncDate()){
  const month=reference.slice(0,7);if(Number(reference.slice(8))>=21)return month;
  const stableEnd=shiftDate(reference,-16),stableMonth=stableEnd.slice(0,7),monthEnd=shiftDate(dateRangeMonthShift(stableMonth,1)+'-01',-1);
@@ -19,7 +19,7 @@ function rpReturnPeriod(mode='week',value=dashboardSyncDate(),reference=dashboar
   comparisonMode:'week',reference:anchor,previousStart:shiftDate(anchor,-29),previousEnd:shiftDate(anchor,-23),stableEnd:shiftDate(anchor,-16)};
 }
 function rpDefaultBoardPeriod(kind,date=dashboardSyncDate()){
- return kind===6?rpReturnPeriod('week',date,date):{mode:'day',year:+date.slice(0,4),value:+date.slice(5,7),start:shiftDate(date,-29),end:date};
+ return [6,8].includes(kind)?rpReturnPeriod('week',date,date):{mode:'day',year:+date.slice(0,4),value:+date.slice(5,7),start:shiftDate(date,-29),end:date};
 }
 for(const kind of rpTimedBoards)rpBoardPeriods[kind]=rpDefaultBoardPeriod(kind,DATA_CUTOFF);
 function rpUsesBoardPeriods(){return wfDirector()&&(typeof pcIsActive!=='function'||!pcIsActive())}
@@ -31,6 +31,7 @@ function rpDetailPeriod(kind){
 }
 function rpBoardRangeText(kind){
  const p=periodFor('risk');if(kind===6&&p.comparisonMode)return p.start+' ~ '+p.end+' vs '+p.previousStart+' ~ '+p.previousEnd;
+ if(kind===8&&p.comparisonMode)return p.start+' ~ '+p.end;
  return [3,4].includes(kind)?'实时快照 '+DATA_CUTOFF:riskRangeText();
 }
 // 日期区间与对比标记独立呈现，纯文本口径继续供其他入口复用。

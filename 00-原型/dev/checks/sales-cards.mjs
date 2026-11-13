@@ -36,6 +36,24 @@ export async function salesCards(page){
    for(const view of ['brand','platform']){
     const table=host.locator('[data-ms-breakdown-view="'+view+'"]'),names=view==='brand'?fixedBrands:platforms;
     const p=data.period,prefix=p.mode==='year'?String(p.year).slice(-2)+'年':p.mode==='quarter'?'Q'+p.value:p.value+'月';
+    for(const key of ['sale','target','gross','targetGross','sku'])assert(Math.abs(section[view].reduce((sum,row)=>sum+row[key],0)-summary[key])<.001,'分组汇总守恒 '+summary.name+'/'+view+'/'+key);
+    if(view==='brand'&&section.index>=0){
+     const other=section.brand.filter(row=>!fixedBrands.includes(row.name)).reduce((sum,row)=>sum+row.sale,0);
+     const expected=[...fixedBrands.map(name=>({name,sale:section.brand.find(row=>row.name===name)?.sale||0})),...(other?[{name:'其他品牌',sale:other}]:[])];
+     assert.equal(await table.locator('h4').innerText(),'分品牌');
+     assert.equal(await table.locator('.ms-detail-table').count(),0,'链群分品牌使用环形图');
+     assert.equal(await table.locator('.ms-brand-share-center').innerText(),'GSV占比');
+     assert.deepEqual(await table.locator('[role="columnheader"]').allTextContents(),['品牌',prefix+' GSV','占比']);
+     assert.equal(await table.locator('[data-ms-brand-arc]').count(),expected.filter(row=>row.sale>0).length);
+     const legend=await table.locator('[data-ms-brand-share]').evaluateAll(nodes=>nodes.map(node=>({name:node.dataset.msBrandShare,sale:Number(node.dataset.value),share:Number(node.dataset.share)})));
+     assert.deepEqual(legend.map(row=>row.name),expected.map(row=>row.name),'固定品牌之外只展示其他品牌合计');
+     for(const [index,row] of legend.entries()){
+      assert(Math.abs(row.sale-expected[index].sale)<.001);
+      assert(Math.abs(row.share-expected[index].sale/summary.sale*100)<1e-8);
+     }
+     assert(Math.abs(legend.reduce((sum,row)=>sum+row.share,0)-100)<1e-8);
+     continue;
+    }
     assert.deepEqual(await table.locator('thead th').allTextContents(),[view==='brand'?'品牌':'平台',prefix+'实际 / 目标GSV',prefix+'实际 / 目标利润率','规模达成'],'三组指标表头跟随期间');
     assert.deepEqual(await table.locator('tbody th').allTextContents(),names,'固定品牌及六平台同时展示');
     const shown=await table.locator('tbody tr').evaluateAll(nodes=>nodes.map(node=>({name:node.querySelector('th').textContent,sale:node.querySelector('.ms-gsv-actual').textContent,target:node.querySelector('.ms-gsv-target').textContent,gap:node.querySelector('.ms-gsv-cell>small span:last-child').textContent,margin:node.querySelector('.ms-margin-actual').textContent,targetMargin:node.querySelector('.ms-margin-target').textContent,marginGap:node.querySelector('td:nth-child(3)>small span:last-child').textContent,scale:node.querySelector('.ms-scale-main>strong').textContent,deviation:node.querySelector('.ms-scale-cell>small span:last-child').textContent,progress:Number(node.querySelector('.ms-scale-main [role="progressbar"]').getAttribute('aria-valuenow')),marker:parseFloat(node.querySelector('.ms-scale-main .ms-time-marker').style.left)})));
@@ -46,7 +64,6 @@ export async function salesCards(page){
      assert.equal(parseFloat(item.marginGap),Number(row.marginGap.toFixed(1)));assert.equal(parseFloat(item.deviation),Number(row.scaleDeviation.toFixed(1)));
      assert.equal(item.progress,row.scaleRate);assert(Math.abs(item.marker-row.progress)<.0001,'同行进度条保留时间进度');
     }
-    for(const key of ['sale','target','gross','targetGross','sku'])assert(Math.abs(section[view].reduce((sum,row)=>sum+row[key],0)-summary[key])<.001,'分组汇总守恒 '+summary.name+'/'+view+'/'+key);
    }
   }
  }
@@ -81,6 +98,26 @@ export async function salesCards(page){
 
   await verifySections();
  }
+ const ring=scope(page,0).locator('.ms-brand-share-ring'),tip=page.locator('#metric-tooltip');
+ await ring.scrollIntoViewIfNeeded();
+ for(const arc of [ring.locator('[data-ms-brand-arc]').first(),ring.locator('[data-ms-brand-arc]').last()]){
+  const brand=await arc.getAttribute('data-ms-brand-arc');
+  const point=await arc.evaluate(path=>{
+   const p=path.getPointAtLength(path.getTotalLength()/2).matrixTransform(path.getScreenCTM());
+   return {x:p.x,y:p.y};
+  });
+  await page.mouse.move(point.x,point.y);
+  await tip.waitFor({state:'visible'});
+  const legend=scope(page,0).locator('[data-ms-brand-share="'+brand+'"]');
+  const [, ,share]=await legend.locator('[role="cell"]').allTextContents();
+  const value=Number(await legend.getAttribute('data-value')).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+  assert.equal(await tip.locator('.ip-share-tip-brand strong').textContent(),brand);
+  assert.deepEqual(await tip.locator('dt').allTextContents(),['26年 GSV','占比']);
+  assert.deepEqual(await tip.locator('dd b').allTextContents(),[value,share]);
+  assert.equal(await tip.locator('dd small').textContent(),'万元');
+  assert.equal(await tip.evaluate(node=>getComputedStyle(node).borderRadius),'10px');
+ }
+ await page.keyboard.press('Escape');
  const scroll=page.locator('.ms-sections-host');
  await page.locator('#time-sales [data-time-mode="quarter"]').click();
  assert.equal(await scroll.evaluate(node=>node.scrollTop),0,'不生成区域纵向滚动');
@@ -94,10 +131,18 @@ export async function salesCards(page){
   assert(layout.groups.every((group,index)=>!index||group.top>=layout.groups[index-1].bottom),'公司及链群依次排列');
   for(const group of layout.groups){if(width>1100)assert(Math.abs(group.panels[0].top-group.panels[1].top)<1&&group.panels[1].left>group.panels[0].right,'桌面双表并排');else assert(group.panels[1].top>=group.panels[0].bottom,'窄屏双表上下排列')}
   for(const section of await page.locator('.ms-scope-section').all()){
-   const brand=section.locator('[data-ms-breakdown-view="brand"] .ms-table-scroll'),platform=section.locator('[data-ms-breakdown-view="platform"] .ms-table-scroll');
+   const brand=section.locator('[data-ms-breakdown-view="brand"] :is(.ms-table-scroll,.ms-brand-share)'),platform=section.locator('[data-ms-breakdown-view="platform"] .ms-table-scroll');
    const bounds=await Promise.all([brand.boundingBox(),platform.boundingBox()]);
    if(width>1100){
     assert(Math.abs(bounds[0].height-bounds[1].height)<1&&Math.abs(bounds[0].y-bounds[1].y)<1,'平台表与品牌表等高对齐');
+    if(await brand.getAttribute('data-ms-brand-total')!==null){
+     const fifthRowShare=await platform.evaluate(node=>{
+      const row=node.querySelector('tbody tr:nth-child(5)').getBoundingClientRect();
+      const visibleBottom=node.getBoundingClientRect().top+node.clientTop+node.clientHeight;
+      return (visibleBottom-row.top)/row.height;
+     });
+     assert(bounds[0].height<400&&Math.abs(fifthRowShare-.5)<.15,'链群两侧压低，默认展示四个半平台 '+width+'px');
+    }
     await platform.evaluate(node=>node.scrollTop=node.scrollHeight);
     assert(await platform.evaluate(node=>node.scrollTop>0),'六平台支持表内滚动');
     const visible=await platform.evaluate(node=>{const box=node.getBoundingClientRect(),head=node.querySelector('thead th').getBoundingClientRect(),last=node.querySelector('tbody tr:last-child').getBoundingClientRect();return{head:head.top-box.top,last:last.bottom-box.top,client:node.clientHeight}});
@@ -107,6 +152,7 @@ export async function salesCards(page){
    }else assert(await platform.evaluate(node=>node.scrollHeight<=node.clientHeight+1),'窄屏上下布局自然显示六平台');
   }
   assert(await page.locator('.ms-scope-metric,.ms-summary-card').evaluateAll(nodes=>nodes.every(node=>node.scrollWidth<=node.clientWidth+2)),'卡片内容不溢出 '+width);
+  assert(await page.locator('.ms-brand-share,.ms-brand-share-row').evaluateAll(nodes=>nodes.every(node=>node.scrollWidth<=node.clientWidth+2)),'环形图及图例内容不溢出 '+width);
   assert(await page.locator('#sales .ms-gsv-pair,#sales .ms-margin-pair,#sales .ms-scale-main').evaluateAll(nodes=>nodes.every(node=>node.scrollWidth<=node.clientWidth+2)),'合并数值与同行进度条不挤压 '+width);
   await scope(page,3).locator('h3').evaluate(node=>node.scrollIntoView({block:'center',behavior:'instant'}));
   assert(await page.evaluate(()=>window.scrollY>0),'由页面滚动到最后一条链群');assert.equal(await scroll.evaluate(node=>node.scrollTop),0);
@@ -120,5 +166,5 @@ export async function salesCards(page){
  await scope(page,-1).locator('.ms-scope-metrics').screenshot({path:fileURLToPath(new URL('../../outputs/sales-grouped-cards-390.png',import.meta.url))});
  await page.locator('#sales').screenshot({path:fileURLToPath(new URL('../../outputs/sales-scroll-390.png',import.meta.url))});
  await page.setViewportSize({width:1920,height:1080});assert(await page.locator('#overlay').isHidden());
- console.log('通过：五组指标卡与双表、期间与原台账守恒、页面滚动且无区域滚动、宽窄屏布局');
+ console.log('通过：四链群品牌环形图、期间表头与悬浮提示、其他品牌汇总、公司及平台表、宽窄屏布局');
 }

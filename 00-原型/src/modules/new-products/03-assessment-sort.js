@@ -9,7 +9,7 @@ const nspAssessmentSortFields={
 function nspAssessmentSortRows(rows,sort){return rpSortRows(rows,sort,(row,key)=>nspAssessmentSortFields[key].value(row))}
 function nspAssessmentTableHeaders(sort){
  const keys={'上市季度':'quarter','GSV':'gsv','利润率':'profit','总退':'returns','上市日期':'launch'};
- return ['SPU信息','上市季度','GSV','利润率','总退','考核结果','上市日期','操作'].map(label=>{
+ return ['SPU系列','产品简称','上市季度','GSV','利润率','总退','考核结果','上市日期','项目类型','操作'].map(label=>{
   const key=keys[label];if(!key)return label;
   const direction=sort.key===key?sort.direction:'',next=direction==='desc'?'升序':'降序';
   return '<button type="button" class="rp-sort-header" data-nsp-assess-sort="'+key+'" data-direction="'+direction+'" aria-label="'+label+'：点击'+next+'">'+label+'<span class="rp-sort-arrows" aria-hidden="true"></span></button>';

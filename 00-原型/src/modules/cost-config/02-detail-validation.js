@@ -5,16 +5,23 @@ function cecValidDate(value,allowMonth=false){
  if(!/^\d{4}\/\d{2}\/\d{2}$/.test(raw))return false;
  const iso=raw.replaceAll('/','-'),date=new Date(iso+'T00:00:00Z');return Number.isFinite(date.getTime())&&date.toISOString().slice(0,10)===iso;
 }
-function cecValidateDetail(schema,values,registry=cecDetailRegistry()){
- const errors=[],fail=(field,message)=>errors.push({field,message}),get=field=>cecText(values[schema.headers.indexOf(field)]);
- for(const field of schema.required)if(!get(field))fail(field,'必填项为空');
+function cecValidateDetail(schema,rawValues,registry=cecDetailRegistry()){
+ const errors=[],formulaErrors=new Set(),fail=(field,message)=>errors.push({field,message});
+ const values=schema.headers.map((field,index)=>{
+  const raw=rawValues[index];
+  if(cecDerivedFields.has(field)&&cecIsFormula(raw)&&raw.type!=='e')return '';
+  return cecImportValue(raw,field,(field,message)=>{formulaErrors.add(field);fail(field,message)});
+ });
+ const get=field=>values[schema.headers.indexOf(field)]||'';
+ for(const field of schema.required)if(!get(field)&&!formulaErrors.has(field))fail(field,'必填项为空');
  const month=get('月份');if(month&&!/^\d{4}\/(0[1-9]|1[0-2])$/.test(month))fail('月份','须按YYYY/MM填写有效月份');
- const standard=ccStandardMetrics.find(row=>cecText(row.name)===get('降本类型'));
- if(get('降本类型')&&!standard)fail('降本类型','须填写已有二级类目，一格只填一个');
+ const type=get('降本类型');
+ const standard=ccProductCostTypes.includes(type)?{name:type,category:'product'}:
+  ccStandardMetrics.find(row=>row.category!=='product'&&cecText(row.name)===type);
+ if(type&&!standard)fail('降本类型','请按一二级降本类目填写一个有效的二级类目');
  for(const field of schema.headers){
-  const raw=values[schema.headers.indexOf(field)],value=cecText(raw);if(!value)continue;
-  if(raw&&typeof raw==='object'&&Object.hasOwn(raw,'formula')){if(!cecDerivedFields.has(field))fail(field,'请粘贴为值后导入');continue}
-  if(/^#(?:REF!|VALUE!|DIV\/0!|N\/A|NAME\?|NUM!|SPILL!|CALC!)/.test(value))fail(field,'存在公式错误，请修正后导入');
+  const value=get(field);if(!value)continue;
+  if(/^#(?:REF!|VALUE!|DIV\/0!|N\/A|NAME\?|NUM!|SPILL!|CALC!)/.test(value)){fail(field,'存在公式错误，请修正后导入');continue}
   if(field.endsWith('日期')&&!cecValidDate(value,field==='执行日期'))fail(field,field==='执行日期'?'须为有效YYYY/MM或YYYY/MM/DD':'须为有效YYYY/MM/DD日期');
   if(field.endsWith('（元）')&&!cecDerivedFields.has(field)){try{cecAmount(value)}catch(error){fail(field,error.message)}}
   if(['提货量','发货量/充单量'].includes(field)&&!/^\d{1,12}$/.test(value))fail(field,'请填写非负整数数量');
@@ -24,7 +31,7 @@ function cecValidateDetail(schema,values,registry=cecDetailRegistry()){
   const matches=registry.products.filter(row=>cecText(row.spuCode)===get('SPU码'));
   if(get('SPU码')&&matches.length!==1)fail('SPU码','须在产品档案中唯一存在，不能填写SKU码');
   product=matches.length===1?matches[0]:null;
-  if(product&&cecText(product.name)!==get('产品名称（SPU）'))fail('产品名称（SPU）','须与SPU码对应的产品档案名称一致');
+  if(product&&get('产品名称（SPU）')&&cecText(product.name)!==get('产品名称（SPU）'))fail('产品名称（SPU）','须与SPU码对应的产品档案名称一致');
  }
  if(schema.headers.includes('产品类目（三级）')&&get('产品类目（三级）')&&!registry.categories.has(get('产品类目（三级）')))fail('产品类目（三级）','只填写已有三级类目名称，不填完整路径或一、二级类目');
  if(schema.headers.includes('T+供应商名称')&&get('T+供应商名称')){
@@ -36,10 +43,10 @@ function cecValidateDetail(schema,values,registry=cecDetailRegistry()){
    fail('T+供应商名称',missingCode?'现有供应商档案尚未维护财务结算编码，请先补齐':'财务结算编码或供应商名称与现有供应商档案不唯一对应');
   }
  }
- return {errors,standard,product};
+ return {errors,standard,product,values};
 }
 function cecComputeDetail(schema,values){
- const result=values.map(value=>value&&typeof value==='object'?'':String(value??'').trim()),get=field=>result[schema.headers.indexOf(field)],set=(field,value)=>{const index=schema.headers.indexOf(field);if(index>=0)result[index]=value};
+ const result=[...values],get=field=>result[schema.headers.indexOf(field)],set=(field,value)=>{const index=schema.headers.indexOf(field);if(index>=0)result[index]=value};
  const difference=(from,to,field)=>{if(get(from)!==''&&get(to)!==''){const cents=cecAmount(get(from))-cecAmount(get(to));set(field,(cents/100).toFixed(2));return cents}set(field,'');return null};
  if(schema.name==='采购部'){
   const factory=difference('首次出厂报价（元）','最新出厂报价（元）','出厂价降本额（元）'),brand=difference('首次品牌费（元）','最新品牌费（元）','品牌费降本额（元）');

@@ -33,5 +33,17 @@ function msSalesSections(){
  const cells=msSampleCells(),summaries=[msSum(cells.flat(),'公司整体'),...cells.map((row,index)=>msSum(row,chains[index]))];
  return summaries.map((row,ordinal)=>{const index=ordinal-1;return {index,summary:msFacts(row),brand:msBreakdown(index,'brand',cells).map(row=>msFacts(row)),platform:msBreakdown(index,'platform',cells).map(row=>msFacts(row))}});
 }
+function msBrandGsvShares(brandRows){
+ const other='其他品牌',sales=new Map([...msVisibleBrands,other].map(name=>[name,0]));
+ for(const {name,sale} of brandRows){
+  const key=sales.has(name)?name:other;
+  if(Number.isFinite(sale))sales.set(key,sales.get(key)+sale);
+ }
+ const total=targetSum([...sales.values()]);
+ const canChart=total>0&&[...sales.values()].every(sale=>sale>=0);
+ const rows=[...sales].filter(([name,sale])=>name!==other||sale!==0)
+  .map(([name,sale])=>({name,sale,share:canChart?msRatio(sale,total):null}));
+ return {total,rows};
+}
 function msRulesText(){return 'GSV达成＝实际GSV÷完整周期目标GSV；GSV偏差＝GSV达成－时间进度。利润率差额＝实际利润率－目标利润率。规模达成＝（实际GSV×实际利润率）÷（目标GSV×目标利润率）；规模偏差＝规模达成－时间进度。GSV与规模达成率最高100%，偏差使用封顶后的达成率减时间进度。偏差/差额按百分比直接相减，不计算相对增长率；＜−10%红，−10%≤值＜0%黄，≥0%绿。时间进度按所选周期已过自然日÷周期总自然日；截止日按样例数据日期封顶，正式截止口径待接入。经营数据、利润率目标、费率、消耗、去退后销量均为固定原型样例；六平台按独立样例权重分配，同范围合计与公司/链群一致；固定展示5个品牌，其他品牌仍计入汇总，利润率按汇总利润÷GSV重算。已配置的利润率目标优先于默认样例。'}
 window.dashboardSalesReviewSnapshot=()=>withPeriod('sales',()=>({period:copyPeriod(periodFor()),progress:msProgress(),sections:msSalesSections(),company:msFacts(msSum(msSampleCells().flat(),'公司整体')),chains:msSampleCells().map((row,i)=>msFacts(msSum(row,chains[i]))),brands:msSort(msBreakdown(-1,'brand')),channels:msBreakdown(-1,'platform').map(row=>msFacts(row)),breakdown:{index:msScope,view:siView,rows:msBreakdown(msScope,siView).map(row=>msFacts(row))}}));

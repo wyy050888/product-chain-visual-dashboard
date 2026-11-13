@@ -1,7 +1,7 @@
 const ppHeaders=['产品名称','项目红绿灯','计划上线日期','延期天数','卡点阶段','责任部门','根因分析','立项日期','目标成本','目标售价','最终产品报价','操作'];
 function ppSelect(key,label,values,selected=ppState[key]){
  const allLabel='全部';
- return `<label class="unified-filter-field"><span>${label}</span><select id="pp-filter-${key}" data-pp-filter="${key}" aria-label="项目${label}" multiple data-pf-multiple data-pf-label="${label}"><option value="all" ${!selected.length?'selected':''}>${allLabel}</option>${values.map(value=>`<option value="${esc(value)}" ${selected.includes(value)?'selected':''}>${esc(key==='light'&&value==='高危红灯'?'高危':value)}</option>`).join('')}</select></label>`;
+ return `<label class="unified-filter-field"><span>${label}</span><select id="pp-filter-${key}" data-pp-filter="${key}" aria-label="项目${label}" multiple data-pf-multiple data-pf-label="${label}"><option value="all" ${!selected.length?'selected':''}>${allLabel}</option>${values.map(value=>`<option value="${esc(value)}" ${selected.includes(value)?'selected':''}>${esc(value)}</option>`).join('')}</select></label>`;
 }
 function ppDateFilter(key,label,hint=''){
  return `<div class="pp-plan"><button type="button" class="pp-plan-trigger" aria-label="${label}筛选" aria-haspopup="dialog" aria-expanded="false" aria-controls="pp-${key}-panel"><span>${label}${hint?ppHelp(label,hint):''}</span><span>${esc(ppDateSelectionLabel(ppState[key]))}</span><i class="ui-dropdown-icon" aria-hidden="true"></i></button><button type="button" data-pp-plan-clear="${key}" aria-label="清空${label}" ${ppState[key]?'':'hidden'}>×</button><div id="pp-${key}-panel" class="nsp-launch-panel nsp-period-panel" popover="auto" role="dialog" aria-label="选择项目${label}期间"></div></div>`;
@@ -22,7 +22,7 @@ function ppLedger(p){
 // 主表长文字最多两行，完整值保留供通用悬浮查看。
 function ppCellText(value){return `<span class="pp-cell-lines" title="${esc(value)}">${esc(value)}</span>`}
 function ppPriceCell(p,key){if(!ppQuoteApplicable(p,key))return '<span class="muted">--</span>';const lines=ppQuoteLines(p,key);if(!lines.length)return '<span class="muted">—</span>';return `<span class="pp-wrap" title="${esc(lines.join('\n'))}">${lines.map(esc).join('<br>')}</span>`}
-function ppProjectDisplayLight(p){return ppHighRisk(p)?'高危红灯':p.status}
+function ppProjectDisplayLight(p){return ppProjectLight(p)}
 function ppProjectTraffic(p){return ppTraffic(ppProjectDisplayLight(p))}
 function ppProjectStateTag(value){
  const tone={'进行中':'active','已完成':'done','已暂停':'muted','已取消':'muted','已暂停/取消':'muted','未开始':'muted'}[value];
@@ -30,7 +30,7 @@ function ppProjectStateTag(value){
 }
 function ppProductCell(p){return `<button type="button" class="pp-product" data-pp-project="${p.id}">${p.image?`<img src="${esc(p.image)}" alt="">`:'<span class="pp-placeholder" role="img" aria-label="暂无产品图片" title="暂无产品图片"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m3 17 5-5 4 4 3-3 6 6"/></svg></span>'}<span><b title="${esc(p.name)}">${esc(p.name)}</b><small>${esc(p.type)}</small></span></button>`}
 function ppPlanDates(p){return `<span class="pp-plan-dates"><span>${esc(p.plan||'—')}</span>${p.revisedPlan?`<small class="muted">延期至 <span class="pp-revised-date pp-traffic-${ppTrafficTone(ppProjectDisplayLight(p))}">${esc(p.revisedPlan)}</span></small>`:''}</span>`}
-function ppDelayText(p){return p.delay==null?'—':`<span class="pp-delay-days pp-traffic-${ppTrafficTone(ppProjectDisplayLight(p))}${ppHighRisk(p)?' pp-delay-high':''}">${p.delay}天</span>`}
+function ppDelayText(p){return p.delay==null?'—':`<span class="pp-delay-days pp-traffic-${ppTrafficTone(ppProjectDisplayLight(p))}">${p.delay}天</span>`}
 // 同一风险单提供部门与责任人的对应关系；同部门聚合去重，不按姓名推测归属。
 function ppResponsibilityText(ledger){
  const values=value=>ppValues(value).flatMap(v=>String(v).split(/[\/、,，;；\n]+/)).map(v=>v.trim()).filter(v=>v&&!['—','-','未填写','待补充'].includes(v));

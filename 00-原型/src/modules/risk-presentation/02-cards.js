@@ -20,15 +20,20 @@ function rpIdentityMarkup(k,r,list=false,detail=false,withPlatform=true){
  const sku=[3,4].includes(k)&&r.skuId;
  const sub=sku?(list?'SKU码：'+(r.skuCode||r.skuId):''):k===1?`ID：${r.shopId}${list?'':' · '+rpShopType(r)}`:list?`SPU码：${p?.spuCode||'—'}`:`型号 ${model}`;
  const full=sku||k===1||list?sub:`SPU码：${p?.spuCode||'—'} · 型号 ${model}`;
- const showPlatform=withPlatform&&((list&&[0,6].includes(k))||([0,6].includes(k)&&rpCardPlatform(k)==='all')),platforms=showPlatform?rpIdentityPlatforms(k,r):[];
+ const showPlatform=withPlatform&&(list?[0,6,8].includes(k):[0,6].includes(k)&&rpCardPlatform(k)==='all');
+ const platforms=showPlatform?rpIdentityPlatforms(k,r):[];
  const marks=platforms.map(rpPlatformMark).join(''),icon=platforms.length>1?`<span class="rp-identity-platforms" role="group" aria-label="涉及平台：${esc(platforms.join('、'))}">${marks}</span>`:marks;
- const grade=list&&![1,4].includes(k)?rpRankingGradeMarkup(r):'',inline=Boolean(icon||grade);
+ const grade=list&&rpRankingSupportsGrade(k)&&k!==4?rpRankingGradeMarkup(r):'',inline=Boolean(icon||grade);
  const name=`<b class="${inline?'rp-platform-name':''}" title="${esc(r.name)}">${inline?'<span>'+esc(r.name)+'</span>':esc(r.name)}${icon}${grade}</b>`;
  const title=detail?`<div class="rp-identity-title">${name}<button type="button" class="link rp-detail-link" ${rpDetailAttr(k,r)} aria-label="查看${esc(r.name)}详情">详情 ›</button></div>`:name;
  const shortage=list&&sku&&k===3?`<span class="tag rp-shortage-tag ${rpShortageType(r)===1?'red':'orange'}">${esc(rpShortageTypeLabel(r))}</span>`:'';
  return `<div class="rp-identity${sku?' rp-sku-identity':''}"${sku?' data-sku-code="'+esc(r.skuCode||r.skuId)+'"':''}>${riskThumbnail(sku?p?.name||r.name:r.name,k===1)}<div>${title}${sub?'<small title="'+esc(full)+'">'+esc(sub)+'</small>':''}${shortage}</div></div>`;
 }
-function rpDetailAttr(k,r){return k===0?`data-qr-detail="${r.key}"`:`data-riskitem="${k},${r.id}"`}
+function rpDetailAttr(k,r){
+ if(k===0)return `data-qr-detail="${r.key}"`;
+ if(k===8)return rpPlatformDetailAttr(r.spuId,r.channel);
+ return `data-riskitem="${k},${r.id}"`;
+}
 // 品质榜使用独立五指标试版；其他榜保留原主辅指标布局。
 function rpCardEntry(k,r,i){
  if(k===0)return rpQualityCardEntry(r,i);
@@ -41,20 +46,21 @@ function rpCardEntry(k,r,i){
  return `<article class="rp-entry" style="--rp-primary-columns:${primaryCount}" data-rp-row="${k}:${r.id}" data-rp-kind="${k}"><div class="rp-entry-main"><header><span class="rank ${i<3?'top':''}">${String(i+1).padStart(2,'0')}</span>${rpIdentityMarkup(k,r,false,true)}</header><div class="rp-key-metrics">${fields.slice(0,primaryCount).map(f=>rpMetricMarkup(f,true)).join('')}</div></div><div class="rp-entry-bottom"><div class="rp-support-metrics">${fields.slice(primaryCount).map(f=>rpMetricMarkup(f)).join('')}</div></div></article>`;
 }
 function rpCard(k,rows,filter='',title=rpTitles[k]){
- const platforms=[0,6].includes(k),max=platforms?rpPlatformCardProducts(rows):rows.slice(0,6);
+ const platforms=rpQualityPlatformKinds.includes(k),max=platforms?rpPlatformCardProducts(rows):rows.slice(0,6);
  const columns=platforms?'':k===1?rpShopCardColumns():k===2?rpLossCardColumns():[3,4].includes(k)?rpStockCardColumns(k):'';
- const entries=max.map((r,i)=>platforms?rpPlatformProductCard(k,r,i):rpCardEntry(k,r,i)).join('');
- const date=k===6?`<div class="qr-card-date">${rpBoardRangeMarkup(k)}</div>`:'';
- return `<div class="rhead"><h3><i class="riskbadge"></i>${title}</h3>${rpBoardControlSlot(k)}<button class="link" data-risk="${k}">查看全部 ${rows.length} ›</button></div>${filter?`<div class="qr-card-filter">${filter}</div>`:''}${date}${rpPlatformMenu(k,rows)}<div class="rp-items">${columns}${entries||'<div class="empty">当前筛选下暂无风险记录</div>'}</div>`;
+ const entries=max.map((r,i)=>platforms?rpPlatformProductCard(k,r,i,rows):rpCardEntry(k,r,i)).join('');
+ const summary=k===0?rpQualitySummaryMarkup(rpCardRows(k,'all')):'';
+ const date=[6,8].includes(k)?`<div class="qr-card-date">${rpBoardRangeMarkup(k)}</div>`:'';
+ return `<div class="rhead"><h3><i class="riskbadge"></i>${title}</h3>${summary}${rpBoardControlSlot(k)}<button class="link" data-risk="${k}">查看全部 ${rows.length} ›</button></div>${filter?`<div class="qr-card-filter">${filter}</div>`:''}${date}${rpPlatformMenu(k,rows)}<div class="rp-items">${columns}${entries||'<div class="empty">当前筛选下暂无风险记录</div>'}</div>`;
 }
 qrCard=function(){return rpCard(0,rpCardRows(0),rpCardPlatformControl(0))};
 rfCard=function(k){const filter=rpCardPlatformControl(k);return rpCard(k,rpCardRows(k),filter)};
-// 六榜卡片仅保留标题规则与销量口径；品质比率问号在完整榜单中展示。
+// 六榜卡片仅保留明确指定的问号；品质比率问号在完整榜单中展示。
 groupRiskCardMetricHelp=function(root){
  const cards=[...root.querySelectorAll('#riskrail .riskcard')];
  if(root.matches?.('#riskrail .riskcard'))cards.unshift(root);
  for(const card of cards){
-  card.querySelectorAll('.metric-help:not(.card-metric-help):not(.net-sales-help)').forEach(help=>help.remove());
+  card.querySelectorAll('.metric-help:not(.card-metric-help,.net-sales-help,.rp-stagnant-metric-help)').forEach(help=>help.remove());
   const rule=rpRenderedCardRules.get(card),title=card.querySelector('.rhead h3');
   if(!rule||!title)continue;
   addMetricHelp(title,rule);

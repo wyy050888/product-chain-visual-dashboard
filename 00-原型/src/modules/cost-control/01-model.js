@@ -16,11 +16,11 @@ function ccTimeProgress(period,mode){
  const elapsed=range.cutoff<start?0:Math.min(days,aiFlowDayDiff(start,range.cutoff)+1);
  return elapsed/days*100;
 }
-function ccTotals(metrics,period,mode,withTargets=true){
+function ccTotals(metrics,period,mode,withTargets=true,includeRow=()=>true){
  const metricIds=new Set(metrics.map(metric=>metric.id)),ids=new Set(ccItems.filter(item=>metricIds.has(item.id)).map(item=>item.id)),range=ccRange(period,mode);let target=null,actual=null;
  // 未填报不能充当0；期间仅汇总已知值，整段无值时保留null。
  for(const row of ccLedger){
-  if(!ids.has(row.itemId)||row.month<range.first||row.month>range.last)continue;
+  if(!ids.has(row.itemId)||row.month<range.first||row.month>range.last||!includeRow(row))continue;
   if(withTargets&&typeof cecDepartmentTargetTotal!=='function'&&Number.isFinite(row.targetCents))target=(target??0)+row.targetCents;
   if(!row.actualMissing)for(const event of row.confirmations)if(event.date<=range.cutoff&&Number.isFinite(event.cents))actual=(actual??0)+event.cents;
  }
@@ -31,6 +31,33 @@ function ccTotals(metrics,period,mode,withTargets=true){
 }
 function ccRows(period,metrics=ccMetrics){return ccDepartments.filter(dept=>metrics.some(metric=>metric.department===dept.id)).map(dept=>({id:dept.id,name:dept.name,values:Object.fromEntries(ccGroups(period).map(({mode})=>[mode,ccTotals(metrics.filter(metric=>metric.department===dept.id),period,mode)]))}))}
 function ccCategoryRows(period,metrics=ccMetrics){return ccCategoryGroups(metrics).map(group=>({id:group.id,name:group.name,values:Object.fromEntries(ccGroups(period).map(({mode})=>[mode,ccTotals(group.metrics,period,mode,false)]))}))}
+// 旧样例按原事项归入新类目。用户保存的历史金额沿用其原有归属。
+const ccProductSampleTypes={
+ 'research-0':'研发降本','research-1':'研发降本','quality-0':'研发降本',
+ 'product-0':'研发降本','product-1':'研发降本','product-2':'研发降本',
+ 'product-3':'产品原料降本','purchase-standard-rebate':'品牌方促销返利'
+};
+function ccProductCostGroups(metrics){
+ const direct=new Map(ccProductCostTypes.map(name=>[name,[]]));
+ const sample=new Map(ccProductCostTypes.map(name=>[name,[]]));
+ const pending=[],sampleIds=new Set();
+ for(const metric of metrics){
+  const name=metric.name==='产品原材料降本'?'产品原料降本':metric.name;
+  if(direct.has(name)){direct.get(name).push(metric);continue}
+  pending.push(metric);
+  const sampleType=ccProductSampleTypes[metric.id];
+  if(!sampleType)continue;
+  sample.get(sampleType).push(metric);
+  sampleIds.add(metric.id);
+ }
+ return {
+  groups:ccProductCostTypes.map(name=>{
+   const demoIds=new Set(sample.get(name).map(metric=>metric.id));
+   return {name,metrics:[...direct.get(name),...sample.get(name)],includeRow:row=>!demoIds.has(row.itemId)||!row.actualFromStore};
+  }),
+  pending:{metrics:pending,includeRow:row=>!sampleIds.has(row.itemId)||row.actualFromStore}
+ };
+}
 // 金额按分、比率按未格式化原值排序；公共排序将缺失值固定置后。
 function ccSortedDepartmentRows(rows,sort){
  const match=/^(month|quarter|year)-(target|actual|rate|gap)$/.exec(sort.key||'');

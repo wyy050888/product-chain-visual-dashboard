@@ -36,6 +36,11 @@ function ipStaleDistributionPanel(model){
 }
 
 let ipStaleAnalysisObserver=null,ipStaleAnalysisWidth=0,ipStaleAnalysisHeight=0;
+// 先完成整页DOM写入再测量图表；同帧与年份控件、导航一起读取布局。
+function ipMeasureStaleTrend(plot){
+ const markup=ipStaleTrendSvg(ipStaleAnalysisModel().trend,plot.clientWidth,plot.clientHeight);
+ return ()=>dashboardRenderMarkup(plot,markup);
+}
 function ipRenderStaleAnalysis(){
  const host=$('#inventory-stale-analysis');if(!host)return;
  const model=ipStaleAnalysisModel();
@@ -44,9 +49,9 @@ function ipRenderStaleAnalysis(){
   const button=event.target.closest('[data-ip-stale-metric]'),next=button?.dataset.ipStaleMetric;if(!['valueCents','units'].includes(next)||next===ipStaleDistributionMetric)return;
   ipStaleDistributionMetric=next;host.querySelector('.ip-stale-distribution').outerHTML=ipStaleDistributionPanel(ipStaleAnalysisModel());host.querySelector('[data-ip-stale-metric="'+next+'"]').focus({preventScroll:true});
  })}
- const plot=host.querySelector('[data-ip-stale-trend-plot]');plot.innerHTML=ipStaleTrendSvg(model.trend,plot.clientWidth,plot.clientHeight);
+ const plot=host.querySelector('[data-ip-stale-trend-plot]');dashboardQueueLayout(plot,ipMeasureStaleTrend);
  if(!ipStaleAnalysisObserver){ipStaleAnalysisObserver=new ResizeObserver(entries=>{
   const {width,height}=entries[0].contentRect;if(Math.abs(width-ipStaleAnalysisWidth)<2&&Math.abs(height-ipStaleAnalysisHeight)<2)return;ipStaleAnalysisWidth=width;ipStaleAnalysisHeight=height;
-  const target=host.querySelector('[data-ip-stale-trend-plot]');if(target)target.innerHTML=ipStaleTrendSvg(ipStaleAnalysisModel().trend,target.clientWidth,target.clientHeight);
+  const target=host.querySelector('[data-ip-stale-trend-plot]');if(target)dashboardQueueLayout(target,ipMeasureStaleTrend);
  });ipStaleAnalysisObserver.observe(host)}
 }

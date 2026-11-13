@@ -49,9 +49,9 @@ export async function productManagement(page){
  
  for(const width of [1440,1100,390]){await page.setViewportSize({width,height:1080});assert(await root.locator('.kpm-management').evaluate(e=>e.scrollWidth<=e.clientWidth+1),'面板不溢出 '+width)}
  await page.setViewportSize({width:1920,height:1080});await verifyManagementPeriod(page);
- // 五个产品榜单增加同口径分级；店铺榜不增加。
+ // 核对产品榜的等级筛选，以及店铺、缺货榜的无分级展示。
  await page.locator('a[href="#risk"]').click();await page.locator('#riskrail [data-risk="0"]').click();
- for(const kind of [0,2,3,4,6]){
+ for(const kind of [0,2,4,6]){
   await page.locator('[data-drawer-tab="ranking-'+kind+'"]').click();
   const control=page.locator('[data-rp-filter="grade"]');assert.equal(await control.count(),1);
   assert.deepEqual(await control.locator('option').evaluateAll(ns=>ns.map(n=>n.value)),['all','S','A','B','C','unrated']);
@@ -66,6 +66,9 @@ export async function productManagement(page){
   if(kind===0)await page.locator('#dialogbody').screenshot({path:fileURLToPath(new URL('../../outputs/ranking-product-grade.png',import.meta.url))});
   const counts=await page.locator('.rp-list-table').evaluate(e=>({head:e.querySelectorAll('th').length,rows:[...e.querySelectorAll('tbody tr')].map(r=>r.cells.length)}));assert(counts.rows.every(n=>n===counts.head));
  }
- await page.locator('[data-drawer-tab="ranking-1"]').click();assert.equal(await page.locator('[data-rp-filter="grade"]').count(),0);
+ for(const kind of [1,3]){
+  await page.locator('[data-drawer-tab="ranking-'+kind+'"]').click();
+  assert.equal(await page.locator('[data-rp-filter="grade"],.rp-list-table [data-rp-grade]').count(),0);
+ }
  await page.locator('#close').click();
 }

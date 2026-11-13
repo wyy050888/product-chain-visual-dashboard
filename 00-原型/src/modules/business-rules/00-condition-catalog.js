@@ -47,8 +47,8 @@ function brcMetricConfig(key){
  const choices=entries=>entries.map(([id,label,source])=>{const field=brcEditorByKey.get(source);return {id,label,unit:field.unit,min:field.min,max:field.max,integer:field.integer,valueType:field.valueType||'number'}});
  if(item.band?.startsWith('score.'))return {default:'value',choices:[['value','店铺分'],['productScore','商品分'],['logisticsScore','物流分'],['serviceScore','服务分']].map(([id,label])=>({id,label,unit:'分',min:0,max:5,integer:false}))};
  if(key.startsWith('stock.warning.')||key.startsWith('stock.shortage.'))return {
-  default:({'stock.warning.warehouse':'warehouse','stock.warning.netSales':'netSales15','stock.warning.coverageDays':'coverage15','stock.shortage.excluded':'excluded','stock.shortage.netSales':'netSales15','stock.shortage.sellableDays':'sellableCoverage15','stock.shortage.totalDays':'totalCoverage15'})[key],
-  choices:choices([['warehouse','我司可售库存','stock.warning.warehouse'],['netSales15','近15日净销量','stock.warning.netSales'],['coverage15','我司可售天数','stock.warning.coverageDays'],['sellableCoverage15','可售天数','stock.shortage.sellableDays'],['totalCoverage15','总可售天数','stock.shortage.totalDays'],...(key.startsWith('stock.shortage.')?[['excluded','是否清仓或下架','stock.shortage.excluded']]:[])])
+  default:({'stock.warning.warehouse':'sellableUnits','stock.warning.netSales':'netSales15','stock.warning.coverageDays':'sellableCoverage15','stock.shortage.excluded':'excluded','stock.shortage.netSales':'netSales15','stock.shortage.sellableDays':'sellableCoverage15','stock.shortage.totalDays':'totalCoverage15'})[key],
+  choices:choices([['sellableUnits','可售库存','stock.warning.warehouse'],['warehouse','我司可售库存','stock.warning.warehouse'],['netSales15','近15日净销量','stock.warning.netSales'],['coverage15','我司可售天数','stock.warning.coverageDays'],['sellableCoverage15','可售天数','stock.shortage.sellableDays'],['totalCoverage15','总可售天数','stock.shortage.totalDays'],...(key.startsWith('stock.shortage.')?[['excluded','是否清仓或下架','stock.shortage.excluded']]:[])])
  };
  if(brcRefurbCycleKeys.includes(key))return {default:'value',choices:[{id:'value',label:'翻新耗时',unit:'天',min:0,max:365,integer:true}]};
  if(item.band?.startsWith('return.'))return {default:'value',choices:[{id:'value',label:item.band==='return.received'?'已收退偏差':'总退偏差',unit:item.unit,min:item.min,max:item.max,integer:item.integer}]};
@@ -58,9 +58,9 @@ function brcMetricConfig(key){
  };
  if(key.startsWith('grades.'))return {default:key.includes('.sales')?'gsv':'profitRate',choices:choices(key.includes('.sales')?[['gsv','月销GSV','grades.S.salesAbove']]:[['profitRate','利润率','grades.S.profitAbove']])};
  if(['quality.orders','quality.returnDelta','quality.contactDelta'].includes(key))return {default:key==='quality.orders'?'orders':key==='quality.returnDelta'?'returnDelta':'value',choices:choices([
-  ['orders','有效订单','quality.orders'],['returnDelta','总退环比增长值','quality.returnDelta'],[key==='quality.contactDelta'?'value':'contactDelta','总进线率环比增长值','quality.contactDelta']
+  ['orders','有效订单','quality.orders'],['returnDelta','总退环比增长率','quality.returnDelta'],[key==='quality.contactDelta'?'value':'contactDelta','总进线率环比增长率','quality.contactDelta']
  ])};
- if(['quality.worsenSales','quality.worsenReturn','quality.worsenReceived'].includes(key))return {default:key==='quality.worsenSales'?'netSales':key==='quality.worsenReturn'?'returnDelta':'receivedDelta',choices:choices([['netSales','销量','quality.worsenSales'],['returnDelta','总退环比增长值','quality.worsenReturn'],['receivedDelta','已收退环比增长值','quality.worsenReceived']])};
+ if(['quality.worsenSales','quality.worsenReturn','quality.worsenReceived'].includes(key))return {default:key==='quality.worsenSales'?'netSales':key==='quality.worsenReturn'?'returnDelta':'receivedDelta',choices:choices([['netSales','销量','quality.worsenSales'],['returnDelta','总退环比增长率','quality.worsenReturn'],['receivedDelta','已收退环比增长率','quality.worsenReceived']])};
  if(['stock.profit','stock.return','stock.received','stock.violations'].includes(key))return {default:({'stock.profit':'profitRate','stock.return':'returnRate','stock.received':'receivedRate','stock.violations':'value'})[key],choices:choices([
   ['profitRate','利润率','stock.profit'],['returnRate','总退','stock.return'],['receivedRate','已收退','stock.received'],[key==='stock.violations'?'value':'violationCount','当月下架与冻结次数','stock.violations']
  ])};

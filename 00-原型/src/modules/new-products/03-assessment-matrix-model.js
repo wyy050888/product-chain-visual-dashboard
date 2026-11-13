@@ -8,7 +8,7 @@ function nspAssessmentScopedData(data,chain='all'){
 // 明细搜索只收紧当前链群名单，不重算上方季度/年度汇总。
 function nspAssessmentSearchData(data,query=''){
  const text=query.trim().toLocaleLowerCase();if(!text)return data;
- const rows=data.rows.filter(product=>[product.name,product.spuCode,product.model].some(value=>String(value??'').toLocaleLowerCase().includes(text)));
+ const rows=data.rows.filter(product=>nspMatchesProduct(product,text));
  return {...data,rows,summary:nspSuccessSummary(rows,data.assessment)};
 }
 function nspAssessmentMatrix(year,annual,cutoff,filters){

@@ -29,6 +29,8 @@ function existingMetricRule(label) {
   return raw;
 }
 function decorateMetricLabels(root) {
+  const dialogBody=root.closest?.('#dialogbody');
+  const rankingDialog=Boolean(dialogBody?.querySelector('.rp-list-table'));
   for (const label of presentationElements(root,presentationLabelSelector)) {
     if(label.closest('.metric-help,.metric-tooltip,.ui-column-handle,.portal-header,svg'))continue;
     const text=metricLabelText(label);
@@ -40,7 +42,7 @@ function decorateMetricLabels(root) {
     }
     if(label.querySelector('[data-ip-rule]'))continue;
     // 六榜抽屉仅由榜单渲染器添加指定的两个指标说明，避免排序、翻页后自动补回其他问号。
-    if (label.closest('.rp-list-table') || label.closest('#dialogbody')?.querySelector('.rp-list-table')) continue;
+    if (rankingDialog || label.closest('.rp-list-table') || !dialogBody&&label.closest('#dialogbody')?.querySelector('.rp-list-table')) continue;
     if (label.closest('#cost,.cc-drawer,.scp-workspace,.scp-drawer,.gd-workspace,.gd-dialog') || label.hasAttribute('data-up-basic') || label.closest('.metric-help,.metric-tooltip,.portal-header,#lt-system,svg,.presentation-suppressed,.up-detail,.pp-risk-detail,.pp-traffic,#pp-ledger-popover,#riskrail .riskcard,#sales,#newtable,#projects.pp-main,#lifecycle')) continue;
     // 不把整个卡片或表格当成指标名称；只识别短标签。
     if (!text || text.length > 40 || label.querySelector('table,select,input,textarea')) continue;
@@ -104,7 +106,8 @@ const presentationObserver = new MutationObserver(records => {
     if (content.length && content.every(node => node.nodeType === 1 && node.matches('.metric-help,.metric-tooltip,.ui-column-handle,colgroup,col,[role="tooltip"],.ui-year-field'))) continue;
     // 新挂载的弹层或后台只整理新增子树，避免每次打开都重扫整张看板。
     if(record.target===document.body&&content.length&&content.every(node=>node.nodeType===1)){for(const node of content)scopes.add(node);continue;}
-    const scope = record.target.closest?.('section.section,.dialogbody,.dialogsub,.toast') || record.target;
+    // 榜单标题口径依赖整卡数据，其他内容只整理被更新的容器。
+    const scope = record.target.closest?.('#riskrail .riskcard') || record.target;
     if (scope.querySelectorAll) scopes.add(scope);
   }
   if (activeMetricHelp && !activeMetricHelp.isConnected) hideMetricTooltip();

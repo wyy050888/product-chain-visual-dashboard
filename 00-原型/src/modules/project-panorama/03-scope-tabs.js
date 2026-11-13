@@ -1,4 +1,4 @@
-// 两组筛选各忽略自身条件计数；类型复用原多选状态，灯色保留高危子集口径。
+// 两组筛选各忽略自身条件计数；类型复用原多选状态。
 function ppScopeTabMarkup(options,selected,attribute,count){
  return options.map(([value,label])=>{
   const active=value==='all'?!selected.length:selected.includes(value);
@@ -9,7 +9,6 @@ function ppScopeTabMarkup(options,selected,attribute,count){
 function ppLightSummary(rows){return ppCounts(ppFiltered(rows,{...ppState,light:[]}).filter(p=>p.projectState==='进行中'))}
 function ppLightTabs(rows,c=ppLightSummary(rows)){
  const cards=[['all','进行中项目',c.total,c.red+c.yellow,'红黄灯率','all'],
-  ['高危红灯','高危红灯项目',c.high,c.high,'占比','high'],
   ['红灯','红灯项目',c.red,c.red,'占比','red'],['黄灯','黄灯项目',c.yellow,c.yellow,'占比','yellow']];
  return cards.map(([value,label,count,numerator,rateLabel,tone])=>{
   const active=value==='all'?!ppState.light.length||ppLightActive('红黄灯'):ppLightActive(value);
@@ -19,12 +18,12 @@ function ppLightTabs(rows,c=ppLightSummary(rows)){
   </button>`;
  }).join('');
 }
-// 高危从红灯总数中拆出；四段互斥，不随灯色卡选中而缩小分母。
+// 三种灯色互斥，分母不随灯色卡选中而缩小。
 function ppLightDistribution(c){
- const parts=[['high','高危',c.high],['red','红灯',Math.max(0,c.red-c.high)],['yellow','黄灯',c.yellow],['green','绿灯',c.green]];
+ const parts=[['red','红灯',c.red],['yellow','黄灯',c.yellow],['green','绿灯',c.green]];
  const missing=Math.max(0,c.total-c.green-c.yellow-c.red);
  if(missing)parts.push(['unknown','未标灯',missing]);
- const description=([tone,label,count])=>label+' '+count+'个'+(tone==='red'?'（不含高危）':'')+'，占比 '+c.rate(count);
+ const description=([,label,count])=>label+' '+count+'个，占比 '+c.rate(count);
  const summary=c.total?'进行中项目灯色分布：'+parts.map(description).join('；'):'暂无进行中项目';
  const segments=parts.map(part=>{
   const [tone,,count]=part,share=c.total?count/c.total*100:0;

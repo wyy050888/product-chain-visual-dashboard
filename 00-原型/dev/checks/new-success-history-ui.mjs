@@ -1,3 +1,4 @@
+import {openNewProductSpu} from './new-products-detail.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -22,8 +23,8 @@ export async function newSuccessHistoryUI(page){
  assert.deepEqual(await page.locator('[data-nsp-assess-results] [role=tab]').allTextContents(),['全部纳入 '+data.summary.total,'成功 '+data.summary.success,'不成功 '+(data.summary.total-data.summary.success)]);
  assert.equal(await page.locator('[data-nsp-assess-quarter]').count(),0,'季度下拉已由四季矩阵替代');assert.equal(data.period.value,4);
  assert.equal(await page.locator('[data-nsp-assess-results] [aria-selected=true]').getAttribute('data-nsp-assess-result'),'all');
- assert.deepEqual(await page.locator('[data-nsp-assessment-table] th').allTextContents(),['SPU信息','上市季度','GSV','利润率','总退','考核结果','上市日期','操作']);
- assert.equal(await page.locator('[data-nsp-assessment-table] tbody tr').first().locator('td').nth(1).locator('.nsp-launch-quarter').count(),1);
+ assert.deepEqual(await page.locator('[data-nsp-assessment-table] th').allTextContents(),['SPU系列','产品简称','上市季度','GSV','利润率','总退','考核结果','上市日期','项目类型','操作']);
+ assert.equal(await page.locator('[data-nsp-assessment-table] tbody tr').first().locator('td').nth(2).locator('.nsp-launch-quarter').count(),1);
  assert.equal(data.summary.total,initial.success.total);assert.equal(data.summary.success,initial.success.success);
  await page.locator('[data-nsp-assess-matrix="3"][data-nsp-assess-chain="all"][data-nsp-assess-pool="all"]').first().click();data=await audit();assert(exited.every(r=>data.rows.some(v=>v.spuId===r.spuId)),'历史考核名单包含后来已出池产品');
  await page.locator('[data-nsp-assess-result="success"]').click();data=await audit();
@@ -31,7 +32,7 @@ export async function newSuccessHistoryUI(page){
  assert(data.rows.filter(r=>r.successAssessment.success).every(r=>r.successAssessment.firstSuccess.quarter==='2026-Q3'));
  await page.locator('[data-nsp-assess-result="all"]').click();data=await audit();
  const all=data.rows.length,success=data.summary.success;assert.equal(await page.locator('[data-nsp-assess-result="all"]').innerText(),'全部纳入 '+all);assert.equal(await page.locator('[data-nsp-assess-result="failure"]').innerText(),'不成功 '+(all-success));
- await page.locator('[data-nsp-assess-product]').first().click();await page.locator('.up-detail').waitFor();await page.locator('#close').click();await page.locator('.nsp-assessment').waitFor();assert.equal((await audit()).period.value,3);assert.equal(await page.locator('[data-nsp-assess-results] [aria-selected=true]').getAttribute('data-nsp-assess-result'),'all');assert.equal(await page.locator('[data-nsp-assessment-controls] [data-nsp-assess-year]').inputValue(),'2026');await page.locator('[data-nsp-assess-result="failure"]').click();assert.equal((await audit()).result,'failure','返回后查询交互仍生效');await page.locator('#close').click();assert.deepEqual((await snapshot()).filters,initial.filters);
+ await openNewProductSpu(page.locator('[data-nsp-assess-product]').first());await page.locator('.up-detail').waitFor();await page.locator('#close').click();await page.locator('.nsp-assessment').waitFor();assert.equal((await audit()).period.value,3);assert.equal(await page.locator('[data-nsp-assess-results] [aria-selected=true]').getAttribute('data-nsp-assess-result'),'all');assert.equal(await page.locator('[data-nsp-assessment-controls] [data-nsp-assess-year]').inputValue(),'2026');await page.locator('[data-nsp-assess-result="failure"]').click();assert.equal((await audit()).result,'failure','返回后查询交互仍生效');await page.locator('#close').click();assert.deepEqual((await snapshot()).filters,initial.filters);
  for(const result of ['success','all']){
   await page.locator('#newtop [data-nsp-assessment="'+result+'"]').click();data=await audit();
   assert.equal(data.result,result);assert.equal(data.summary.total,initial.success.total);assert.equal(data.summary.success,initial.success.success);
@@ -43,7 +44,7 @@ export async function newSuccessHistoryUI(page){
  assert.equal(data.period.mode,'year','年度视图中的文字入口进入年度考核');assert.equal(data.period.year,annual.period.year);assert.equal(data.assessment.end,annual.success.end);
  await page.locator('#close').click();await page.locator('#newtop [data-nsp-assessment="success"]').click();data=await audit();
  assert.equal(data.period.mode,'year','年度卡片数字仍进入独立年度考核');assert.equal(data.summary.total,annual.success.total);assert.equal(data.summary.success,annual.success.success);
- await page.locator('#close').click();await page.locator('#time-new [data-time-mode="recent30"]').click();
+ await page.locator('#close').click();await page.locator('#time-new [data-time-mode="day"]').click();
  const evidence=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../../../outputs/new-success-review');fs.mkdirSync(evidence,{recursive:true});
  for(const width of [1920,1440,1024,390,320]){
   await page.setViewportSize({width,height:1080});

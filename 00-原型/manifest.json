@@ -54,6 +54,10 @@
       "module": "跨模块布局测量与写入批处理"
     },
     {
+      "file": "src/modules/period/00-rate-growth.js",
+      "module": "比率环比增长率"
+    },
+    {
       "file": "src/modules/business-rules/00-definitions.js",
       "module": "业务规则定义与模块目录"
     },
@@ -527,6 +531,10 @@
     {
       "file": "src/modules/inventory-period/02-refurb-distribution.js",
       "module": "翻新天数分布点击浮层"
+    },
+    {
+      "file": "src/modules/inventory-period/02-stockout.js",
+      "module": "爆款断货次数与产品明细"
     },
     {
       "file": "src/modules/inventory-period/02-overview.js",
@@ -1178,6 +1186,9 @@
       "module": "退货恶化榜字段与卡片"
     },
     {
+      "file": "src/modules/risk-presentation/01-return-deviation.js"
+    },
+    {
       "file": "src/modules/risk-presentation/02-loss-card.js",
       "module": "亏损榜卡片"
     },
@@ -1345,6 +1356,14 @@
       "module": "项目上线及时率模型"
     },
     {
+      "file": "src/modules/new-products/01-unsold-model.js",
+      "module": "已提货未销售统计"
+    },
+    {
+      "file": "src/modules/new-products/01-series.js",
+      "module": "新品简称与成员聚合"
+    },
+    {
       "file": "src/modules/new-products/01-model.js",
       "module": "新品专项管控"
     },
@@ -1361,6 +1380,10 @@
       "module": "上线及时率项目下钻"
     },
     {
+      "file": "src/modules/new-products/02-unsold-view.js",
+      "module": "已提货未销售明细抽屉"
+    },
+    {
       "file": "src/modules/new-products/02-scope-tabs.js",
       "module": "新品季品与类目Tab筛选"
     },
@@ -1371,6 +1394,10 @@
     {
       "file": "src/modules/new-products/02-chart-typography.js",
       "module": "新品图表字号缩放补偿"
+    },
+    {
+      "file": "src/modules/new-products/02-series-view.js",
+      "module": "新品 SPU 名单和详情选择"
     },
     {
       "file": "src/modules/new-products/02-view.js",
@@ -1472,6 +1499,9 @@
     },
     {
       "file": "src/modules/project-panorama/10-risk-events-model.js"
+    },
+    {
+      "file": "src/modules/project-panorama/11-risk-events-view.js"
     },
     {
       "file": "src/modules/project-panorama/12-risk-detail-model.js"

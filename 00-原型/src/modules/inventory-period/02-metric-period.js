@@ -1,13 +1,14 @@
-// 库存余额保持最新，周转/交付/翻新取所选期间。
+// 库存余额保持最新，期间指标使用独立时间范围。
 const ipDefaultMetricPeriod=()=>({mode:'quarter',year:+DATA_CUTOFF.slice(0,4),value:Math.ceil(+DATA_CUTOFF.slice(5,7)/3)});
 let ipMetricPeriod=ipDefaultMetricPeriod();
 function ipWithMetricPeriod(period,run){
  const key='inventory-metrics',prior=localPeriods[key];localPeriods[key]={...period};
  try{return withPeriod(key,run)}finally{if(prior)localPeriods[key]=prior;else delete localPeriods[key]}
 }
-function ipMetricPeriodMarkup(period){
+function ipMetricPeriodMarkup(period,{overview=false,showScope=true}={}){
  const html=periodControls('inventory',{period,label:'库存指标',follow:false});
- return `<div class="ip-metric-period"><small class="ip-metric-scope">筛选影响：库存周转率、交付及时率、翻新闭环率</small>${html.replaceAll('data-time-','data-ip-time-')}</div>`;
+ const scope=showScope?`<small class="ip-metric-scope">筛选影响：库存周转率、交付及时率、翻新闭环率${overview?'、爆款断货次数':''}</small>`:'';
+ return `<div class="ip-metric-period">${scope}${html.replaceAll('data-time-','data-ip-time-')}</div>`;
 }
 function ipMountMetricPeriod(host,period,onChange){
  host.onclick=event=>{

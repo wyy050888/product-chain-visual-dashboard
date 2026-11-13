@@ -8,7 +8,10 @@ export async function verifyProductPlatformIsolation(page){
  await choose(6,['京东','拼多多']);assert.deepEqual(await selected(0),['快手']);assert.equal(await board(0).innerText(),qualityText);assert(await board(0).evaluate((node,original)=>node===original,quality));
  await choose(0,'all');assert.deepEqual(await selected(6),['京东','拼多多']);await choose(0,[]);assert.deepEqual(await selected(0),['all'],'清空仅恢复当前榜全平台');
  await choose(0,'快手');
- for(const kind of [0,6])for(const card of await board(kind).locator('.rp-platform-product').all())assert.deepEqual(await card.locator('[data-rp-platform-row]').evaluateAll(es=>es.map(e=>e.dataset.rpPlatformRow)),await selected(kind),'平台行随各自筛选展示');
+ for(const kind of [0,6])for(const card of await board(kind).locator('.rp-platform-product').all()){
+  const platforms=await selected(kind),rows=await card.locator('[data-rp-platform-row]').evaluateAll(es=>es.map(e=>e.dataset.rpPlatformRow));
+  assert(rows.length>0&&rows.every(platform=>platforms.includes(platform)),'仅展开本榜所选的命中平台');
+ }
  await board(0).locator('[data-risk]').click();
  const values=selector=>page.locator(selector).evaluate(e=>[...e.selectedOptions].map(o=>o.value));
  const tabs=id=>page.locator('[data-drawer-platform-for="'+id+'"]'),tab=(id,value)=>tabs(id).locator('[data-platform-value="'+value+'"]');
@@ -20,7 +23,8 @@ export async function verifyProductPlatformIsolation(page){
   if(id==='qr-list-platform'){
    const candidates=await page.evaluate(()=>qualityViolationRankingSnapshot().candidates),selected=await values('#'+id);
    const dropHeader=page.locator('#qr-list-table [data-rp-sort="drop"]');
-   assert.equal(await dropHeader.count(),selected.length>1||selected.includes('all')||selected.includes('拼多多')?1:0,'多平台对照保留链接掉权列');
+   const dropPlatforms=['京东','拼多多'];
+   assert.equal(await dropHeader.count(),selected.length>1||selected.includes('all')||selected.some(platform=>dropPlatforms.includes(platform))?1:0,'京东、拼多多及多平台对照保留链接掉权列');
    const dropIndex=await dropHeader.count()?await dropHeader.evaluate(e=>e.closest('th').cellIndex):-1;
    for(const row of await page.locator('#qr-list-table tbody tr').all()){
     const detail=row.locator('[data-qr-detail]');if(!await detail.count())continue;
@@ -28,7 +32,11 @@ export async function verifyProductPlatformIsolation(page){
     assert(candidate&&candidate.facts.totalCount>0);assert(selected.includes('all')||selected.includes(candidate.platform));const actual=[candidate.platform];
     assert(actual.length>0);assert.deepEqual(await row.locator('.rp-identity .rp-platform-mark').evaluateAll(es=>es.map(e=>e.alt)),actual,'每行只显示当前产品的单个平台Logo');
     assert.equal(await row.locator('.rp-platform-name').evaluate(e=>[...e.childNodes].filter(n=>n.nodeType===3).map(n=>n.textContent.trim()).join('')),'');
-    if(dropIndex>=0&&candidate.platform!=='拼多多')assert.equal((await row.locator('td').nth(dropIndex).innerText()).trim(),'--','不适用的平台不补造掉权次数');
+    if(dropIndex>=0){
+     const cell=row.locator('td').nth(dropIndex);
+     if(dropPlatforms.includes(candidate.platform))assert.equal(await cell.locator('strong').innerText(),candidate.facts.dropCount+'次','适用平台按事实展示掉权次数');
+     else assert.equal((await cell.innerText()).trim(),'--','不适用的平台显示缺省值');
+    }
    }
   }
  };

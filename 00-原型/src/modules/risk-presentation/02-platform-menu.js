@@ -6,7 +6,7 @@ function rpPlatformCounts(kind,currentRows){
  const selected=rpCardPlatform(kind);
  const matchSeason=rows=>rows.filter(row=>pfMatches(row,rpCardProductFilters(kind)));
  // 品质和退货按平台记录、店铺按所属平台分组；亏损须按各平台重新判定净利，不能拆分公司亏损结果。
- const pool=[0,1,6].includes(kind)?matchSeason(rpRowsForPlatform(kind,'all')):null;
+ const pool=[0,1,6,8].includes(kind)?matchSeason(rpRowsForPlatform(kind,'all')):null;
  return new Map(['all',...qrPlatforms].map(platform=>{
   const count=platform===selected?currentRows.length:pool?(platform==='all'?pool.length:pool.filter(row=>kind===0?row.violatedPlatforms.includes(platform):row.channel===platform).length):matchSeason(rpRowsForPlatform(kind,platform)).length;
   return [platform,count];
@@ -15,7 +15,7 @@ function rpPlatformCounts(kind,currentRows){
 function rpPlatformMenu(kind,rows){
  if([3,4].includes(kind))return rpCardSeasonTags(kind);
  const value=rpCardPlatform(kind),multiple=rpQualityPlatformKinds.includes(kind),counts=rpPlatformCounts(kind,rows),label=rpTitles[kind]+'平台';
- const includeAll=kind!==1,hint='入榜记录数随期间和季品更新'+(kind===0?'；同一SPU全平台去重，各平台筛选该平台有品质处罚的SPU，排序仍按全平台违规总次数及近30天GSV':kind===6?'；按SPU×平台逐条统计，同一SPU跨平台分别入榜':kind===1?'；按店铺所属平台统计':'；全平台沿用整体统计口径，不将各平台数量相加');
+ const includeAll=kind!==1,hint='入榜记录数随期间和季品更新'+(kind===0?'；同一SPU全平台去重，各平台筛选该平台有品质处罚的SPU，排序仍按全平台违规总次数及近30天GSV':[6,8].includes(kind)?'；按SPU×平台逐条统计，同一SPU跨平台分别入榜':kind===1?'；按店铺所属平台统计':'；全平台沿用整体统计口径，不将各平台数量相加');
  const buttons=[...(includeAll?['all']:[]),...qrPlatforms].map(platform=>{
   const selected=pfOptionSelected(value,platform),name=platform==='all'?'全平台':platform,count=counts.get(platform);
   return '<button type="button" class="rp-platform-tag" role="'+(multiple?'checkbox':'radio')+'" tabindex="'+(multiple||selected?'0':'-1')+'" aria-checked="'+selected+'" aria-label="'+esc(name+'，'+count+'条入榜记录')+'" title="'+esc(name+' · '+count+'条入榜记录')+'" data-rp-platform-option="'+platform+'">'+rpPlatformMenuLabel(platform)+'<b class="rp-platform-count">'+count+'</b></button>';

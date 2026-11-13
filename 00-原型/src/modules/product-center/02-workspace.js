@@ -1,6 +1,6 @@
 // 相同模块移动原DOM，保留ID、监听器及所有当前版本的筛选/抽屉，不复制旧模板。
 const pcSharedIds=['risk','ai','sales','new','projects','lifecycle','matrix','inventory'];
-let pcRenderedRole='';
+let pcRenderedRole='',pcDirectorNeedsRender=false;
 const pcSharedNodes=new Map(pcSharedIds.map(id=>{
  const node=$('#'+id),home=document.createComment('product-center-home:'+id);node.before(home);return [id,{node,home}];
 }));
@@ -10,7 +10,6 @@ function pcRestoreModules(){
  pcMounted=false;dpView.classList.remove('product-center-view','page');
  $('#risk .sectionhead h2').firstChild.textContent='全局高危预警';$('#ai .sectionhead h2').textContent='全局 AI 总诊断';
  document.body.classList.remove('product-center-active','product-center-manager');pcSyncRoleControl();
- renderRisks();
 }
 function pcOwnSection(id,title,content){
  const section=document.createElement('section');section.id='dp-'+id;section.className='section pc-own-section';
@@ -43,7 +42,7 @@ function pcRenderWorkspace(){
  }
  $('#ai .sectionhead h2').textContent='产品中心 AI 总诊断';
  $('#risk .sectionhead h2').firstChild.textContent='产品中心高危预警';
- if(refresh)renderAll();
+ if(refresh){pcDirectorNeedsRender=true;renderAll(moduleIds.filter(id=>pcSharedNodes.has(id)))}
  pcTrimScopedModules();pcSyncRoleControl();pcQueueNavigation();
 }
 renderDepartment=function(){
@@ -62,24 +61,44 @@ function pcTrimScopedModules(){
  }
 }
 const pcSwitchView=dpSwitchView;
-dpSwitchView=function(view,...args){if(view!=='department'&&pcMounted)pcRestoreModules();return pcSwitchView(view,...args)};
+dpSwitchView=function(view,...args){
+ if(view!=='department'&&pcMounted)pcRestoreModules();
+ const result=pcSwitchView(view,...args);
+ // 身份切回总看板后再补齐此前未渲染的模块。
+ if(view==='director'&&pcDirectorNeedsRender){pcDirectorNeedsRender=false;renderAll()}
+ return result;
+};
 
 // 共用模块日期使用原处理器；专属模块日期保留原部门状态。
 const pcRenderLife=renderLife;
 renderLife=function(...args){const result=pcRenderLife(...args);if(pcIsActive())pcTrimScopedModules();return result};
-let pcNavigationFrame=0;
-function pcQueueNavigation(){
- if(pcNavigationFrame)return;pcNavigationFrame=requestAnimationFrame(()=>{
-  pcNavigationFrame=0;if(!pcIsActive())return;
+function pcMeasureNavigation(){
+  if(!pcIsActive())return;
   const toolbar=dpView.querySelector('.pc-navigation-toolbar'),top=toolbar.getBoundingClientRect().bottom+20;
   const offset=(toolbar.offsetHeight+$('.head').offsetHeight+18)+'px';
   let current='risk';for(const id of dxModuleOrder){const node=pcSharedNodes.get(id)?.node||$('#dp-'+id);if(node.getBoundingClientRect().top<=top+1)current=id;else break}
   const nav=toolbar.querySelector('.jumpnav'),selected=nav.querySelector('a[href="#dp-'+current+'"]'),item=selected.getBoundingClientRect(),viewport=nav.getBoundingClientRect();
   const scroll=item.left<viewport.left?nav.scrollLeft+item.left-viewport.left-8:item.right>viewport.right?nav.scrollLeft+item.right-viewport.right+8:null;
+  return ()=>{
   if(dpView.style.getPropertyValue('--dashboard-anchor-offset')!==offset)dpView.style.setProperty('--dashboard-anchor-offset',offset);
-  for(const link of toolbar.querySelectorAll('.jumpnav a')){const active=link.hash==='#dp-'+current;link.classList.toggle('is-current',active);if(active)link.setAttribute('aria-current','location');else link.removeAttribute('aria-current')}
+  for(const link of toolbar.querySelectorAll('.jumpnav a')){
+   const active=link.hash==='#dp-'+current;
+   if(link.classList.contains('is-current')!==active)link.classList.toggle('is-current',active);
+   if(active){if(link.getAttribute('aria-current')!=='location')link.setAttribute('aria-current','location')}
+   else if(link.hasAttribute('aria-current'))link.removeAttribute('aria-current');
+  }
   if(scroll!==null)nav.scrollLeft=scroll;
- });
+  };
+}
+function pcQueueNavigation(){
+ if(pcIsActive())dashboardQueueLayout(dpView,pcMeasureNavigation);
+}
+function pcScrollToModule(id){
+ const node=pcSharedNodes.get(id)?.node||document.getElementById('dp-'+id),toolbar=dpView.querySelector('.pc-navigation-toolbar');
+ if(!node||!toolbar)return;
+ // 只扣一次导航高度，避免scroll-padding与scroll-margin叠加后仍高亮上一模块。
+ window.scrollTo({top:Math.max(0,scrollY+node.getBoundingClientRect().top-toolbar.getBoundingClientRect().bottom-18),behavior:'instant'});
+ pcQueueNavigation();
 }
 window.addEventListener('scroll',pcQueueNavigation,{passive:true});window.addEventListener('resize',pcQueueNavigation);
 document.addEventListener('fullscreenchange',()=>{
@@ -92,5 +111,5 @@ document.addEventListener('fullscreenchange',()=>{
 document.addEventListener('click',event=>{
  const link=event.target.closest('.pc-navigation-toolbar .jumpnav a');if(!link||event.button!==0||event.ctrlKey||event.metaKey||event.shiftKey||event.altKey)return;
  event.preventDefault();if(location.hash!==link.hash)history.pushState(null,'',link.hash);
- const id=link.hash.slice(4),node=pcSharedNodes.get(id)?.node||document.getElementById(link.hash.slice(1));node?.scrollIntoView({block:'start',behavior:'instant'});pcQueueNavigation();
+ pcScrollToModule(link.hash.slice(4));
 });

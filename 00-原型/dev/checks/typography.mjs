@@ -1,3 +1,4 @@
+import {openNewProductSpu} from './new-products-detail.mjs';
 import assert from 'node:assert/strict';
 import {fileURLToPath} from 'node:url';
 const modules=['risk','ai','sales','new','projects','lifecycle','matrix','inventory','suppliers','cost'];
@@ -26,10 +27,10 @@ export async function typography(page){
  await page.setViewportSize({width:1920,height:1080});
  for(const selector of ['.nsp-details-title','.kpm-structure-heading h3','.pp-details-heading h3','.pp-ai-heading h3'])assert.equal(await size(page.locator(selector)),'18px','明细分区标题');
  for(const selector of ['#inventory .ip-brand-share-card>h3','#inventory .ip-group-panel h3','#inventory .ip-stagnant-heading h3'])assert(await page.locator(selector).evaluateAll(nodes=>nodes.every(node=>getComputedStyle(node).fontSize==='18px')),'库存同级分区标题18px');
- for(const selector of ['#newtop .nsp-distribution>h3','#pp-overview .pp-card-head h3','#cost .cc-card h3'])assert.equal(await size(page.locator(selector).first()),'16px','图表/卡片标题');
+ for(const selector of ['#newtop .nsp-price-distribution>h3','#pp-overview .pp-card-head h3','#cost .cc-card h3'])assert.equal(await size(page.locator(selector).first()),'16px','图表/卡片标题');
  assert.equal(await size(page.locator('#inventory [data-stock-turn]')),'24px','紧凑库存指标与其他库存卡一致');
  for(const selector of ['.nsp-success-target','.pp-root-rank','.ms-delta-label','#inventory .stock-season-legend>span','.cc-card .cc-money-unit']){const node=page.locator(selector).first();if(await node.count())assert.equal(await size(node),'12px','辅助字号 '+selector)}
- await page.locator('a[href="#new"]').click();await page.locator('[data-nsp-view]').first().click();
+ await page.locator('a[href="#new"]').click();await openNewProductSpu(page.locator('[data-nsp-view]').first());
  assert.equal(await size(page.locator('#dialogtitle')),'20px','抽屉标题');
  assert.equal(await size(page.locator('#dialogbody .up-hero h2')),'16px','产品身份标题');
  assert(await page.locator('#dialogbody .up-metric strong').evaluateAll(es=>es.filter(e=>e.getClientRects().length).every(e=>getComputedStyle(e).fontSize==='24px')),'产品详情指标');

@@ -34,7 +34,7 @@ function rfReturnEvidence(r){
  ['总退货率',fmt(r.returnRate,1)+'%','上期等长周期 '+fmt(r.previousRate,1)+'% · 目标≤'+r.returnTarget+'%'],
  ['已收退件数',fmt(r.received)+'件','上期等长周期 '+fmt(r.prevReceived)+'件'],
  ['已收退',fmt(r.receivedRate,1)+'%','上期等长周期 '+fmt(r.previousReceivedRate,1)+'%'],
- ['销量',fmt(r.shipped)+'件','上期等长周期 '+fmt(r.previousShipped)+'件'],
+ ['销量',formatSalesQuantity(r.shipped,'件'),'上期等长周期 '+formatSalesQuantity(r.previousShipped,'件')],
  ['GMV',pfMoneyYuan((f.gmvCents/1000000)*10000),'退款前发货成交金额'],
  ['退款金额',pfMoneyYuan((f.refundCents/1000000)*10000),'模拟同价整件退款'],
  ['GSV',pfMoneyYuan((f.gsvCents/1000000)*10000),'上期等长周期 '+pfMoneyYuan((f.previousGsvCents/1000000)*10000)+' · 目标 '+pfMoneyYuan((f.targetCents/1000000)*10000)],
