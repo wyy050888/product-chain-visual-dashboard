@@ -7,7 +7,6 @@
 .ui-platform-trigger>.ui-platform-value{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-width:0;overflow:hidden;white-space:nowrap}
 .ui-platform-value>span{overflow:hidden;text-overflow:ellipsis}
 .ui-platform-trigger>.ui-dropdown-icon{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:12px;height:12px;pointer-events:none}
-.ui-platform-trigger[aria-expanded=true]>.ui-dropdown-icon{transform:translateY(-50%) rotate(180deg)}
 .ui-platform-trigger:focus-visible{outline:2px solid var(--blue);outline-offset:-2px}
 .ui-platform-trigger:disabled{cursor:default;opacity:.5}
 .ui-platform-options{position:fixed;inset:auto;margin:0;padding:4px;box-sizing:border-box;max-width:calc(100vw - 16px);max-height:300px;overflow:auto;border:1px solid #dce5f3;border-radius:6px;background:#fff;color:#34455f;box-shadow:0 6px 20px #243c6026;font-family:var(--ui-font-family);font-size:13px}

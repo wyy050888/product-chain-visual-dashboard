@@ -38,7 +38,7 @@ function gdBuildDiagnosis(){
  const issues=gdIssues(context),meetings=gdMeetings(context),savedIssueIds=new Set(Object.values(upTodos).map(t=>t.gdIssue));
  const historical=[...gdReports(context,true),...issues.focus].filter(r=>savedIssueIds.has(r.id));
  const origins=[...issues.coordination,...issues.resource,...meetings,...sample.taskSamples,...historical];
- // 重点工作复用任务身份；报告诊断和工作聚焦始终保持只读分析。
+ // 重点工作复用任务身份，工作聚焦保持只读分析。
  // 台账仅由手工录入或导入维护，刷新诊断不生成任务。
  // 四类偏差保持只读诊断，工作排序冲突归入资源错配。
  const allWork=sample.work.map(r=>({...r,date:r.sources.reduce((date,s)=>date>s.date?date:s.date,'')})).filter(inRange);
@@ -49,19 +49,18 @@ function gdBuildDiagnosis(){
  const workByTask=new Map([...prepared.filter(r=>upTodos[r.workTaskId]).map(r=>gdPresentWorkTask(r,upTodos[r.workTaskId]))].map(row=>[row.task.id,row]));
  const tasks=Object.values(upTodos).filter(t=>t.gdLedger&&!t.deletedAt&&gdTaskDatesMatch(t)).map(gdLedgerRow);
  const mismatch=sample.mismatches.map(r=>({...r,date:r.sources.reduce((date,s)=>date>s.date?date:s.date,'')})).filter(inRange);
- const reports=gdReportSamples(context).filter(inRange),focus=gdFocusGroups(gdCategorizeRows(sample.focusRecords.filter(inRange),categoryIndex));
+ const focus=gdFocusGroups(gdCategorizeRows(sample.focusRecords.filter(inRange),categoryIndex));
  const classifications=[...work,...deviations].map(r=>({id:r.id,module:r.kind==='key-work'?'coordination':'resource',kind:r.kind}));
  if(new Set(classifications.map(r=>r.id)).size!==classifications.length)throw new Error('诊断事项重复归类');
  // 保留空审计字段兼容历史读取，不再生成已撤下模块的数据。
  const categorized={work:gdCategorizeRows(work,categoryIndex),deviations:gdCategorizeRows(deviations,categoryIndex),improvements:[],mismatch:gdCategorizeRows(mismatch,categoryIndex),tasks};
- return {sources,context,...categorized,reports,focus,origins:[...origins,...prepared,...work],meetings,coordination:categorized.work,resource:categorized.deviations,records:sample.records.filter(inRange),classifications};
+ return {sources,context,...categorized,reports:[],focus,origins:[...origins,...prepared,...work],meetings,coordination:categorized.work,resource:categorized.deviations,records:sample.records.filter(inRange),classifications};
 }
 function gdAnalysisRows(data,part=gdState.part,tab=gdState.tabs[part]){
  if(part==='tasks')return data.tasks;
  if(part==='coordination')return data.work.filter(r=>r.keyType===tab);
  if(part==='resource')return data.deviations.filter(r=>r.kind===tab);
- // 审阅记录完整保留；问题列表和计数只使用有实际问题的报告。
- return part==='execution'?data.reports.filter(r=>tab==='missing'?r.missing&&r.type==='日报':!r.missing&&r.findings?.some(f=>String(f.problem||'').trim())):[];
+ return [];
 }
 
 function gdAnalysisDepartments(row){return row.participants?gdRowDepartments(row):[...new Set([...(row.departments||[]),row.department,...(row.sources||[]).map(s=>s.department)].filter(Boolean))]}
@@ -86,13 +85,16 @@ function gdSectionRows(data,part=gdState.part,tab=gdState.tabs[part],filter=gdTa
  const effectiveFilter=part==='execution'&&tab==='missing'?{...filter,reportType:'all'}:filter;
  return rows.filter(r=>gdAnalysisMatches(r,effectiveFilter));
 }
-function gdCardCounts(data){
+function gdCardCounts(data,weeks=gdWeeklyReportRows()){
  const work=gdTabs.coordination.map(([key,label])=>[label,gdSectionRows(data,'coordination',key,gdTableFilters('coordination',key)).length]);
  const deviations=gdTabs.resource.map(([key,label])=>[label,gdSectionRows(data,'resource',key,gdTableFilters('resource',key)).length]);
+ const latestReportWeek=weeks.find(week=>Object.keys(week.reports).length>0);
+ const reportCount=latestReportWeek?Object.keys(latestReportWeek.reports).length:0;
+ const reportSummary=latestReportWeek?`已生成${latestReportWeek.weekLabel}周报`:'暂无已生成周报';
  return [
   {key:'coordination',count:work.reduce((n,[,v])=>n+v,0),stats:work},
   {key:'resource',count:deviations.reduce((n,[,v])=>n+v,0),stats:deviations},
-  {key:'execution',count:gdTabs.execution.reduce((count,[key])=>count+gdAnalysisRows(data,'execution',key).length,0),stats:gdTabs.execution.map(([key,label])=>[label,gdAnalysisRows(data,'execution',key).length])},
+  {key:'execution',count:reportCount,stats:[[reportSummary]]},
   {key:'tasks',count:data.tasks.length,stats:gdStatusOptions('tasks').map(([key,label])=>[label,data.tasks.filter(row=>row.task.status===key).length])}
  ];
 }

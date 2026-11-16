@@ -1,6 +1,6 @@
 // 总诊断持有独立筛选；业务事实读取各模块当前口径，不改动模块筛选。
-const gdParts=[['coordination','重点工作清单'],['resource','工作偏差预警'],['execution','日周报诊断'],['tasks','任务清单']];
-const gdTabs={coordination:[['project','项目卡点'],['high-risk','新增高危']],resource:[['omission','工作遗漏'],['blocker','协同卡点'],['solution','缺少方案'],['focus-shift','资源错配']],execution:[['quality','问题诊断'],['missing','日报未提交']],tasks:[]};
+const gdParts=[['coordination','重点工作清单'],['resource','工作偏差预警'],['execution','部门诊断'],['tasks','任务清单']];
+const gdTabs={coordination:[['project','项目卡点'],['high-risk','新增高危']],resource:[['omission','工作遗漏'],['blocker','协同卡点'],['solution','缺少方案'],['focus-shift','资源错配']],execution:[],tasks:[]};
 // 提示只解释现有诊断口径，不新增判定阈值。
 const gdDeviationStandards={
  omission:'• 业务存在风险或待处理事项。\n• 已收集的会议、日周月报中未见对应工作安排。\n• 仅表示现有材料未发现，不代表实际未开展。',
@@ -9,7 +9,7 @@ const gdDeviationStandards={
  solution:'• 需要解决的问题已明确，但尚未形成可执行方案。\n• 方案需包含关键条件、实施安排及确认结论。'
 };
 const gdDayRange={start:shiftDate(DATA_CUTOFF,-29),end:DATA_CUTOFF};
-const gdState={part:'coordination',tabs:{execution:'quality',coordination:'project',resource:'omission',tasks:'all'},period:drawerPeriodFromRange(gdDayRange),taskPeriod:null,taskDueRange:{start:'',end:''},filters:{},pages:{}};
+const gdState={part:'coordination',tabs:{coordination:'project',resource:'omission',tasks:'all'},period:drawerPeriodFromRange(gdDayRange),taskPeriod:null,taskDueRange:{start:'',end:''},filters:{},pages:{}};
 function gdRange(){return uiNaturalPeriodRange(gdState.period,DATA_CUTOFF)}
 // 期间只控制总诊断；日区间单独记忆，切换自然周期不覆盖其他九模块。
 function gdApplyPeriod(period){
@@ -49,7 +49,7 @@ function gdBusinessSources(){
   source('projects','项目进度',[['进行中',projectRows.filter(p=>p.projectState==='进行中').length+'个'],['红灯项目',projectRows.filter(p=>p.status==='红灯').length+'个']],projectRows),
   source('lifecycle','产品全生命周期',[['业务规划',life.length+'类'],['本期完成',life.reduce((n,r)=>n+r.actual,0)+'项']],life),
   source('matrix','关键产品',[['产品数',key.length+'个'],['高销低利',key.filter(p=>p.level==='A').length+'个']],key),
-  source('inventory','库存管控',[['我司可售库存',fmt(stock.reduce((n,p)=>n+p.warehouse,0))],['呆滞库存金额',gdMoney(stock.reduce((n,p)=>n+p.staleValueCents,0))]],stock,{start:DATA_CUTOFF,end:DATA_CUTOFF}),
+  source('inventory','库存管控',[['我司可售库存',fmt(stock.reduce((n,p)=>n+p.warehouse,0))],['呆滞库存金额',formatStockValue(stock.reduce((n,p)=>n+p.staleValueCents,0))]],stock,{start:DATA_CUTOFF,end:DATA_CUTOFF}),
   source('suppliers','供应链采购',[['自研寻源项目',suppliers.length+'个'],['准入不足',suppliers.filter(r=>r.stats.admitted<stStandards(+DATA_CUTOFF.slice(0,4)).projectAdmitted).length+'个']],suppliers,{start:supplyRange.start,end:supplyRange.cutoff}),
   source('cost','降本增效',[['目标降本',gdMoney(cost.target)],['实际降本',gdMoney(cost.actual)],['达成率',gdPercent(cost.rate)]],ccRows(periodFor('cost')))
  ];

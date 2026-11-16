@@ -4,12 +4,15 @@ const sectionStickyMain=$('main.page');
 const sectionStickyModules=moduleIds.map(id=>$('#'+id)).filter(node=>node?.parentElement===sectionStickyMain);
 for(const section of sectionStickyModules)section.dataset.moduleSticky='';
 const sectionStickyRisk=$('#risk'),sectionStickyAiTitle=$('#ai>.sectionhead h2');
+function sectionStickyOffset(toolbar){
+ return Math.max(0,(parseFloat(getComputedStyle(toolbar).top)||0)+toolbar.getBoundingClientRect().height);
+}
 function sectionStickyMeasureTop(){
- const style=getComputedStyle(navigationToolbar),height=navigationToolbar.getBoundingClientRect().height;
- const top=Math.max(0,(parseFloat(style.top)||0)+height)+'px';
+ const top=sectionStickyOffset(navigationToolbar)+'px';
  if(sectionStickyMain.style.getPropertyValue('--module-sticky-top')!==top)return ()=>sectionStickyMain.style.setProperty('--module-sticky-top',top);
 }
 function sectionStickyMeasureBoundary(){
+ if(sectionStickyRisk.parentElement!==sectionStickyMain)return;
  const hasGroupNavigation=!!sectionStickyRisk.querySelector('#rp-group-navigation');
  const rect=(hasGroupNavigation?sectionStickyRisk:sectionStickyAiTitle).getBoundingClientRect();
  const head=sectionStickyRisk.querySelector(':scope>.sectionhead');

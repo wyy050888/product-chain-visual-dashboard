@@ -44,7 +44,6 @@ sbPanel=function(s){
  const score=sbScoreRisk(s),period=rpShopReturnPeriod(s.end||bounds().cutoff);
  const scoreValue=s.channel==='拼多多'?(score==='red'?'核心链接红灯':'未命中红灯'):fmt(s.score,2)+'分';
  const rows=[['评分红灯与当月品质处罚',scoreValue+' / '+s.qualityPenaltyCount+'次','两者同时满足',score==='red'&&brcMatch('shops.penalties',s.qualityPenaltyCount,s)],['当月纯品质罚款',pfMoneyYuan(s.qualityFine),''+brcDescribe('shops.fine')+'，不含冻结',brcMatch('shops.fine',s.qualityFine,s)],['资金冻结',pfMoneyYuan(s.frozenAmount),'按现有资金冻结规则',s.frozenAmount>0],['单品两周期退货恶化',s.returnProducts.filter(sbReturnRisk).length+'个SPU',rpShopReturnRule(),s.returnProducts.some(sbReturnRisk)]];
- if(s.channel==='视频号')rows.shift();
  return '<section class="sb-business"><h3>店铺品质风险依据</h3>'+table(['判定项','当前样例数据','执行条件','结果'],rows.map(([a,b,c,hit])=>[a,b,c,hit?'命中':'未命中']))+'<h4>单品退货 · 稳定周对比</h4>'+table(['产品','上期实际总退','本期实际总退','两期目标','判定结果'],s.returnProducts.map(r=>[esc(r.name),upPercent(r.previous),upPercent(r.current),upPercent(r.target),sbReturnRisk(r)?'本期恶化':'未命中']))+`<p class="note">本期：${period.start} ~ ${period.end}；上期：${period.previousStart} ~ ${period.previousEnd}。</p><details><summary>业务规则</summary><p>${sbRules()}</p></details></section>`;
 };
 
@@ -69,7 +68,7 @@ function pfCompanyStockModel(state){
   return {stock,highStock,stockSummary:upSummary(upSpus.get(state.spuId),range.start,range.end,'all'),stockEnd:range.end};
  });
 }
-irRules=function(){return '库存仅按全公司统计，不按平台筛选。余额读取最新样例快照，周转使用近30日。总库存＝仓内＋工厂＋新机未交付；货值按含税含品牌财务价计算。高危库存条件组（'+brcResultText('stock-platform')+'）或滞销命中即入榜。多个命中不重复计库存；当前按货值降序，排序优先级冲突待补充。批次库龄和实时业务库存台账尚未接入。'};
+irRules=function(){return '库存仅按全公司统计，不按平台筛选。余额读取最新样例快照，周转使用近30日。总库存＝'+upTotalStockFormula+'。货值按对应组成及含税含品牌财务价汇总。高危库存条件组（'+brcResultText('stock-platform')+'）或滞销命中即入榜。多个命中不重复计库存；当前按货值降序，排序优先级冲突待补充。批次库龄和实时业务库存台账尚未接入。'};
 
 // 所选期间平台净销量先满足门槛，再判断退货增长；处罚不独立触发入榜。
 rrRows=function(){

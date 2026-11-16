@@ -1,7 +1,7 @@
 // 台账状态复用任务标签颜色，选中值与候选均为标签；原生字段保留表单提交能力。
 function gdLedgerStatusEntries(creating=false){return Object.entries(gdLedgerStatus).filter(([key])=>!creating||key!=='done')}
 function gdLedgerStatusMarkup(value,creating=false){
- return '<div class="gd-ledger-status"><select name="status" aria-label="状态" hidden>'+gdLedgerStatusEntries(creating).map(([key,label])=>'<option value="'+key+'" '+(key===value?'selected':'')+'>'+label+'</option>').join('')+'</select><button type="button" class="gd-ledger-status-trigger" aria-label="选择状态" aria-haspopup="listbox" aria-expanded="false"><span data-ledger-status-label></span><span aria-hidden="true">⌄</span></button><div class="gd-task-object-options gd-ledger-status-options" role="listbox" aria-label="状态选项" popover="manual" hidden></div></div>';
+ return '<div class="gd-ledger-status"><select name="status" aria-label="状态" hidden>'+gdLedgerStatusEntries(creating).map(([key,label])=>'<option value="'+key+'" '+(key===value?'selected':'')+'>'+label+'</option>').join('')+'</select><button type="button" class="gd-ledger-status-trigger" aria-label="选择状态" aria-haspopup="listbox" aria-expanded="false"><span data-ledger-status-label></span><span class="ui-dropdown-icon" aria-hidden="true"></span></button><div class="gd-task-object-options gd-ledger-status-options" role="listbox" aria-label="状态选项" popover="manual" hidden></div></div>';
 }
 function gdBindLedgerForm(form){
  for(const name of ['primaryOwner','secondaryOwner','requestor']){

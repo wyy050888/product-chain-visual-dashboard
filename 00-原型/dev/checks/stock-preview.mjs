@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 
 // 库存风险已统一SKU；不再运行旧SPU分摊、旧列集和旧冻结卡片的断言。
 export async function stockPreview(page){
- const expected={3:['sellable','sellableCoverage15','total','totalCoverage15','dailyNet15'],4:['staleUnits','staleValue','age','responsibleChannel','sellable','sellableCoverage15','dailyNet15']};
+ const expected={3:['sellable','sellableCoverage15','total','totalCoverage15','dailyNet15'],4:['staleUnits','staleValue','age','responsibleChannel','warehouse','coverage15','dailyNet15']};
  for(const kind of [3,4])await page.locator(`#riskrail [data-rp-card-season="${kind}"]`).selectOption('all',{force:true});
  for(const width of [1920,1440,1100,390]){
   await page.setViewportSize({width,height:1080});
@@ -13,6 +13,10 @@ export async function stockPreview(page){
   const card=page.locator('.rp-stock-card').filter({has:page.locator('[data-risk="'+kind+'"]')}),first=card.locator('.rp-stock-entry').first(),count=await card.locator('.rp-stock-entry').count();
   assert(count<=6);
   if(count)assert.deepEqual(await first.locator('[data-rp-field]').evaluateAll(nodes=>nodes.map(node=>node.dataset.rpField)),expected[kind]);
+  if(count){
+   const selectors=kind===3?['[data-rp-field="sellable"] small','[data-rp-field="total"] small']:['[data-rp-field="staleValue"] strong'];
+   for(const selector of selectors)assert.match(await first.locator(selector).innerText(),/^(?:货值 )?(?:\d+\.\d{2}(?:万元|元)|—)$/);
+  }
   await card.locator('[data-risk]').click();const table=page.locator('.rp-stock-table');await table.waitFor();
   assert.equal(await table.locator('.rp-list-risks,[data-rp-trend],.rp-mini-trend').count(),0,'没有旧分组与趋势列');
   if(count){

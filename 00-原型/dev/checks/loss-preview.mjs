@@ -5,16 +5,18 @@ import vm from 'node:vm';
 import {fileURLToPath} from 'node:url';
 function lossModel(){
  const ctx=businessRuleContext({boundedCache:()=>({}),rpField:(key,name,value,tone,hint,target)=>({key,name,value,tone,hint,target}),
-  pfMoneyYuan:n=>n+'元',fmt:(n,d=0)=>Number(n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d}),upPercent:n=>Number.isFinite(n)?n.toFixed(1)+'%':'—',
+  fmt:(n,d=0)=>Number(n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d}),
   upIdentity:r=>r,upProduct:r=>r,upWindow:()=>({start:'2026-09-11',end:'2026-10-10'}),DATA_CUTOFF:'2026-10-10',
   filterCatalog:{platforms:['抖音','快手']},qrPlatforms:['抖音','快手'],upChannels:p=>p==='all'?['抖音','快手']:Array.isArray(p)?p:[p],qrbTarget:(_p,platform)=>platform==='抖音'?6:10,upSummary:(_p,_s,_e,platform)=>({sales:platform==='抖音'?100:300}),
   qrbReturnTargets:(_p,platform)=>({returnTarget:platform==='抖音'?6:10,receivedTarget:platform==='抖音'?3:5}),pfIdentity:()=>({attribute:'冬季品',isNew:true})});
- for(const file of ['ui-controls/00-stock-quantity.js','risk-presentation/01-quality.js','product-filters/00-net-estimate.js','risk-presentation/01-loss.js','unified-product/05-operating-view.js'])vm.runInContext(fs.readFileSync(new URL('../../src/modules/'+file,import.meta.url),'utf8'),ctx);
+ for(const file of ['ui-controls/00-stock-quantity.js','product-filters/04-display.js','risk-presentation/01-quality.js','product-filters/00-net-estimate.js','unified-product/03-stock-balances.js','risk-presentation/01-loss.js','unified-product/05-operating-view.js'])vm.runInContext(fs.readFileSync(new URL('../../src/modules/'+file,import.meta.url),'utf8'),ctx);
+ ctx.upPercent=n=>Number.isFinite(n)?n.toFixed(1)+'%':'—';
  ctx.rpLossStock=()=>({totalUnits:100,goodsValueCents:500000,totalCoverage15:12.5});
  const current={gsvCents:100000,profitCents:-10000,profitRate:-10,sales:100,returned:20,returnRate:20,receivedRate:6};
  const previous={...current,gsvCents:80000,profitCents:-16000,profitRate:-20,sales:80,returned:10,receivedRate:4};
  const fields=Object.fromEntries(ctx.rpLossFields({spuId:'fixture',metricPlatform:'all'},current,previous).map(f=>[f.key,f]));
  assert.equal(fields.margin.sortValue,-20);assert.equal(fields.margin.target,'环比 ↑ 33.3%');assert.equal(fields.margin.targetTone,'rp-quality-green');
+ assert.equal(fields.value.value,'5000.00元');
  assert.equal(ctx.rpLossMarginComparison(-10,-10).target,'环比 持平');
  assert.equal(ctx.rpLossMarginComparison(0,0).target,'环比 —');
  assert.equal(ctx.rpLossMarginComparison(10,null).target,'环比 —');
@@ -55,11 +57,23 @@ function lossModel(){
  for(const [now,before] of [[null,-100],[-100,null],[-100,0],[0,0],[-100,-100]])assert.equal(ctx.rpLossAmountComparison(now,before).targetTone,'rp-quality-gray','亏损持平或无可比数据');
  ctx.upSummary=()=>({sales:0});assert.equal(ctx.rpLossReturnTarget({},'all','',''),null);
  const empty=Object.fromEntries(ctx.rpLossFields({spuId:'fixture'}, {...current,gsvCents:0,profitCents:0},previous).map(f=>[f.key,f]));assert.equal(empty.margin.value,'—');assert.equal(empty.loss.target,'环比 --');
+ const operating=new Map([
+  ['a',{gsvCents:200000,profitCents:0}],
+  ['z',{gsvCents:100000,profitCents:-10000}],
+  ['y',{gsvCents:100000,profitCents:-10000}],
+  ['largest-loss',{gsvCents:400000,profitCents:10000}],
+  ['missing-rate',{gsvCents:0,profitCents:-20000}]
+ ]);
+ ctx.upSpus=new Map([...operating.keys()].map(spuId=>[spuId,{spuId}]));
+ ctx.upSummary=product=>operating.get(product.spuId);
+ ctx.upMoney=String;
+ assert.deepEqual(Array.from(ctx.rpLossRows('all'),row=>row.spuId),['largest-loss','y','z','a','missing-rate'],'金额优先，同额按净利润率升序，缺失率置后');
 }
 export async function lossPreview(page){
  lossModel();
  const text=async locator=>(await locator.innerText()).replace(/\s+/g,'');
  const card=page.locator('#riskrail .rp-loss-card');
+ assert.match(await card.locator('.card-metric-help').getAttribute('data-metric-rule'),/亏损金额相同，净利润率从低到高排序/);
  assert.equal(await card.locator('.rp-loss-entry').count(),6);
  assert.deepEqual(await card.locator('.rp-loss-entry').first().locator('[data-rp-field]').evaluateAll(ns=>ns.map(n=>n.dataset.rpField)),['loss','margin','gsv','return','received','total']);
  for(const width of [1440,390,1920]){await page.setViewportSize({width,height:1080});assert.equal(await card.locator('.rp-quality-metric').evaluateAll(ns=>ns.filter(n=>n.scrollWidth>n.clientWidth+1).length),0,'亏损卡片溢出 '+width)}

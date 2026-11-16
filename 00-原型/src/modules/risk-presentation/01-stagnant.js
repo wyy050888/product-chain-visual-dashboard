@@ -37,12 +37,13 @@ function rpStagnantWarehouseSamples(row){
 function rpStagnantSkuChannel(row){
  return rpStagnantResponsibility(rpStagnantWarehouseSamples(row));
 }
-function rpStagnantRule(){return ['入榜条件','按SKU、公司库存口径统计；按已保存的且／或条件判断','• '+brcResultText('stock-stagnant-warning'),'可售库存＝'+rpSellableInventoryFormula,'可售天数＝'+rpSellableDaysFormula,'','排序规则','1. 可售天数降序','2. 呆滞货值降序','3. 近15日均净销量升序'].join('\n')}
+const rpStagnantCoverageFormula='我司可售库存÷近15日均净销量';
+function rpStagnantRule(){return ['入榜条件','按SKU统计，以下条件需同时满足','• '+brcResultText('stock-stagnant-warning'),'我司可售天数＝'+rpStagnantCoverageFormula,'','排序规则','1. 我司可售天数降序','2. 呆滞货值降序','3. 近15日均净销量升序'].join('\n')}
 function rpStagnantEligible(row){return brcResultMatch('stock-stagnant-warning',brcStockWarningMetrics(row))}
 function rpStagnantTone(row){return rpStagnantEligible(row)?'rp-quality-red':'rp-quality-gray'}
-function rpStagnantSellableDays(row){return brcStockWarningMetrics(row).sellableCoverage15}
+function rpStagnantCompanyDays(row){return brcStockWarningMetrics(row).coverage15}
 function rpStagnantCompare(a,b){
- return rpStockNumericCompare(a,b,[[rpStagnantSellableDays,-1],['staleValueCents',-1],['dailyNet15',1]]);
+ return rpStockNumericCompare(a,b,[[rpStagnantCompanyDays,-1],['staleValueCents',-1],['dailyNet15',1]]);
 }
 function rpStagnantRows(){return rpStockSkuRank(rpStockSkuRows().filter(rpStagnantEligible).map(row=>({...row,level:'P1'})),rpStagnantCompare)}
-window.stagnantRankingSnapshot=()=>({rule:rpCardRuleSummary(4),rows:rpStagnantRows().map(row=>({id:row.id,spuId:row.spuId,skuId:row.skuId,skuCode:row.skuCode,name:row.name,attribute:row.attribute,seasonRank:row.seasonRank,warehouse:row.warehouse,transit:row.transit,factoryAvailable:row.factoryAvailable,sellableUnits:brcStockSellableUnits(row),sellableValueCents:row.sellableValueCents,dailyNet15:row.dailyNet15,coverage15:row.coverage15,sellableCoverage15:rpStagnantSellableDays(row),totalCoverage15:row.totalCoverage15,staleUnits:row.staleUnits,staleValueCents:row.staleValueCents,staleMaxAgeDays:row.staleMaxAgeDays,responsibleChannel:rpStagnantSkuChannel(row),tone:rpStagnantTone(row)}))});
+window.stagnantRankingSnapshot=()=>({rule:rpCardRuleSummary(4),rows:rpStagnantRows().map(row=>({id:row.id,spuId:row.spuId,skuId:row.skuId,skuCode:row.skuCode,name:row.name,attribute:row.attribute,seasonRank:row.seasonRank,warehouse:row.warehouse,warehouseValueCents:row.warehouseValueCents,transit:row.transit,factoryAvailable:row.factoryAvailable,sellableUnits:brcStockSellableUnits(row),sellableValueCents:row.sellableValueCents,dailyNet15:row.dailyNet15,coverage15:rpStagnantCompanyDays(row),sellableCoverage15:row.sellableCoverage15,totalCoverage15:row.totalCoverage15,staleUnits:row.staleUnits,staleValueCents:row.staleValueCents,staleMaxAgeDays:row.staleMaxAgeDays,responsibleChannel:rpStagnantSkuChannel(row),tone:rpStagnantTone(row)}))});

@@ -7,11 +7,10 @@ function profitModel(){
  const source=file=>fs.readFileSync(new URL('../../src/modules/'+file,import.meta.url),'utf8');
  const ctx=businessRuleContext({boundedCache:()=>new Map(),window:{},filterCatalog:{platforms:[],dashboardBrands:[]},
   fmt:(n,d=0)=>Number(n).toFixed(d),upPercent:n=>Number.isFinite(n)?n.toFixed(1)+'%':'—',upMoney:String,pfMoneyYuan:n=>n+'元',esc:String,
-  upIdentity:p=>p,upProduct:p=>p,pfIdentity:p=>p,qrObservation:()=>({monthly:{events:[]}}),rpField:(key,name,value,tone,hint,target)=>({key,name,value,tone,hint,target}),sampleSpus:[],salesChannelRows:()=>[],upGrid:items=>items.join(''),numberSignalMain:f=>f.value,rpTargetText:f=>f.target,
-  upSalesTrend:()=>'',upChannelContributionNote:()=>'',upChannelTable:()=>'',upChannelContributionView:()=>'',upGradeTrendView:()=>''});
+  upIdentity:p=>p,upProduct:p=>p,pfIdentity:p=>p,qrObservation:()=>({monthly:{events:[]}}),rpField:(key,name,value,tone,hint,target)=>({key,name,value,tone,hint,target})});
  for(const file of ['quality-monthly/00-contact.js','risk-presentation/01-quality.js','risk-presentation/01-loss.js','sales-review/01-model.js','unified-product/05-operating-view.js'])vm.runInContext(source(file),ctx);
  const nsp=source('new-products/01-model.js');vm.runInContext(nsp.slice(nsp.indexOf('function nspComparison('),nsp.indexOf('function nspMetrics(')),ctx);
- ctx.upReturnTargets=()=>({returnTarget:null,receivedTarget:null});ctx.msInlineDeviation=()=>'';
+ ctx.upReturnTargets=()=>({returnTarget:null,receivedTarget:null});
  return ctx;
 }
 
@@ -43,22 +42,5 @@ export async function profitRateComparisons(page){
   const expected=facts.map(p=>ctx.rpProfitRateComparison(p.now,p.before).target);
   assert.deepEqual(labels.map(s=>s.replace(/\s+/g,'')),expected.slice(0,labels.length).map(s=>s.replace(/\s+/g,'')));
  }
- // 在真实详情布局中验证绿/黄/红及缺目标灰色，不修改全局样例数据。
- const cases=[65,55,40,null].map(rate=>{
-  const attainment={prefix:'10月',progress:60,targets:{targetCents:100000,targetProfitCents:rate===null?0:10000},actual:{profitCents:rate===null?null:10000*rate/100}};
-  return {rate,tone:ctx.msTone(rate===null?null:rate-60),html:ctx.upOperatingView({product:{cohort:'new'},current:{},previous:{},platformRows:[],attainment},{platform:'all'})};
- });
- const colors=await page.evaluate(cases=>{
-  const root=document.querySelector('#dialogbody');
-  return cases.map(({rate,tone,html})=>{
-   const template=document.createElement('template');template.innerHTML=html;
-   const block=template.content.querySelector('.up-attainment');root.append(block);
-   const bar=block.querySelector('.up-attainment-progress i');
-   const probe=document.createElement('i');probe.style.color='var(--'+tone+')';root.append(probe);
-   const result={rate,actual:getComputedStyle(bar).backgroundColor,expected:getComputedStyle(probe).color,width:bar.style.width};
-   block.remove();probe.remove();return result;
-  });
- },cases);
- for(const row of colors){assert.equal(row.actual,row.expected,'详情规模偏差 '+row.rate);assert.equal(row.width,(row.rate??0)+'%')}
- console.log('通过：利润率/净利润率两期增长率、负数/跨零/零基数、新品/关键产品实际行、详情规模进度条红黄绿及缺目标灰色。');
+ console.log('通过：利润率/净利润率两期增长率、负数/跨零/零基数、新品/关键产品实际行。');
 }

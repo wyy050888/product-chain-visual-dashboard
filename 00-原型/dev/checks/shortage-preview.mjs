@@ -17,12 +17,13 @@ function skuInventoryValues(){
  const ctx=vm.createContext({targetSum:rows=>rows.reduce((sum,value)=>sum+value,0),upSummary:()=>({sales:150,returned:0}),shiftDate:v=>v,upIdentity:p=>p,pfIdentity:()=>({attribute:'冬季品'}),filterCatalog:{seasons:['冬季品']},stockQuantity:String,upMoney:String,fmt:String});
  vm.runInContext(fs.readFileSync(new URL('../../src/modules/sales-target/01.js',import.meta.url),'utf8').match(/^function splitTarget.*$/m)[0],ctx);
  vm.runInContext(fs.readFileSync(new URL('../../src/modules/unified-product/06-stock-model.js',import.meta.url),'utf8'),ctx);
- const stock={warehouse:10,factory:10,undelivered:7,transit:2,factoryAvailable:3,warehouseValueCents:1100,factoryAvailableValueCents:900,transitValueCents:800,sellableUnits:15,sellableValueCents:2800,goodsValueCents:7777};
+ const stock={warehouse:10,factory:10,undelivered:7,transit:2,factoryAvailable:3,warehouseValueCents:1100,factoryAvailableValueCents:900,transitValueCents:800,sellableUnits:15,sellableValueCents:2800,unproducedOrders:5,unrefurbishedUnits:4,unproducedValueCents:500,unrefurbishedValueCents:400,totalUnits:24,goodsValueCents:3700};
  const model=patch=>ctx.upStockModel({product:{spuCode:'demo'},stock:{...stock,...patch}},{end:'2026-10-26'});
  const rows=model().rows;
  for(const row of rows)assert.equal(row.sellableCoverage15,row.dailyNet15>0?(row.warehouse+row.transit+row.factoryAvailable)/row.dailyNet15:null,'SKU天数使用本SKU组成及净销量');
  assert(rows.some(row=>row.dailyNet15>0&&row.sellableCoverage15!==stock.sellableUnits/10),'SKU不继承SPU可售天数');
  for(const key of ['warehouseValueCents','factoryAvailableValueCents','transitValueCents','sellableValueCents','goodsValueCents'])assert.equal(rows.reduce((sum,r)=>sum+r[key],0),stock[key],'SKU分配守恒 '+key);
+ for(const row of rows)assert.equal(row.totalCoverage15,row.dailyNet15>0?(row.sellableUnits+row.unproducedOrders+row.unrefurbishedUnits)/row.dailyNet15:null);
  for(const row of rows)assert.equal(row.sellableValueCents,row.warehouseValueCents+row.factoryAvailableValueCents+row.transitValueCents,'可售货值等于对应SKU组成货值');
  assert(model({factoryAvailableValueCents:undefined,transitValueCents:undefined}).rows.every(row=>row.factoryAvailableValueCents===null&&row.transitValueCents===null),'缺失的SKU组成金额不继承SPU金额、不补0');
  assert.equal(model({sellableValueCents:0}).rows.reduce((sum,r)=>sum+r.sellableValueCents,0),0,'独立提供的零货值仍保留');

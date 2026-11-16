@@ -9,6 +9,6 @@ function sdEvidenceSnapshot(m,a){
  const roles=source('本店岗位（原型档案）','本次岗位资料',sdRoles(m.shop).map(p=>p.role+'：'+p.department+' · '+p.name).join('\n')||'未提供具名岗位安排');
  const items=[{section:'经营结论',statement:a.summary+a.context,nature:'分析判断',sources:[business,comparison,scores,events]}];
  for(const [label,text] of a.dimensions)items.push({section:'问题分析',statement:label+'：'+text,nature:'数据与分析判断',sources:label==='业绩'?[business,comparison]:label==='违规'?[events]:[scores]});
- for(const line of a.actions.split('\n').filter(Boolean))items.push({section:'部门行动',statement:line,nature:'分析建议',sources:[roles,events,comparison],note:'按本店资料及岗位提出的建议，不代表已经派发任务。'});
+ for(const line of a.actions.split('\n').filter(Boolean))items.push({section:'部门行动',statement:line,nature:'分析建议',sources:[roles,events,comparison]});
  return {subject:{id:m.shop.channel+'|'+m.shop.shopId,name:m.shop.name,code:String(m.shop.shopId),type:'店铺'},period:range,cutoff:a.range.end,generatedAt:new Date().toISOString(),items};
 }

@@ -1,10 +1,10 @@
 // 两榜复用品质卡片的身份、序号和两行指标，卡片辅助值与抽屉独立控制。
-function rpStagnantMetricHelp(key){
+function rpStagnantMetricHelp(key,rule){
  const metric=rpStagnantMetricLabels[key];
- return metric?`<span class="metric-help rp-stagnant-metric-help" role="button" tabindex="0" aria-label="查看${esc(metric[0])}说明" data-metric-rule="${esc(metric[1])}" data-preserve-terms></span>`:'';
+ return metric?`<span class="metric-help rp-stagnant-metric-help" role="button" tabindex="0" aria-label="查看${esc(metric[0])}说明" data-metric-rule="${esc(rule??metric[1])}" data-preserve-terms></span>`:'';
 }
 function rpStockCardColumns(kind){
- const names=kind===3?['可售库存','可售天数','总库存','总可售天数','近15日均净销量']:[...Object.values(rpStagnantMetricLabels).map(([label])=>label),'可售库存','可售天数','近15日均净销量'];
+ const names=kind===3?['可售库存','可售天数','总库存','总可售天数','近15日均净销量']:[...Object.values(rpStagnantMetricLabels).map(([label])=>label),'我司可售库存','我司可售天数','近15日均净销量'];
  return '<div class="rp-quality-columns rp-stock-columns rp-stock-columns-'+kind+'"'+(kind===4?' data-preserve-terms':'')+'>'+names.map(name=>'<span>'+name+'</span>').join('')+'</div>';
 }
 function rpStockCardEntry(kind,record,index){
@@ -13,7 +13,7 @@ function rpStockCardEntry(kind,record,index){
   const f={...field,noNumericSignal:field.noNumericSignal||(kind===3&&['sellableCoverage15','totalCoverage15'].includes(field.key)),target:field.cardTarget??field.target,targetTone:field.cardTargetTone??field.targetTone};
   const name=kind===4?rpStagnantMetricLabels[f.key]?.[0]??f.name:f.name;
   const help=kind===4?rpStagnantMetricHelp(f.key):'';
-  const value=numberSignalMain(f).replace(/([次天件])$/, '<span class="rp-stock-unit">$1</span>');
+  const value=numberSignalMain(f).replace(/(万元|元|次|天|件)$/, (_,unit)=>'<span class="rp-stock-unit'+(unit.endsWith('元')?' rp-stock-unit--money':'')+'">'+unit+'</span>');
   return '<div class="rp-quality-metric" data-rp-field="'+f.key+'" aria-label="'+esc(name)+'"'+(f.key==='responsibleChannel'?' data-preserve-terms':'')+'><span class="rp-quality-mobile-label">'+netSalesLabel(name,f.key)+help+'</span><strong class="'+f.tone+'">'+value+'</strong><small class="'+f.targetTone+'">'+(f.target?rpTargetText(f):'&nbsp;')+'</small></div>';
  }).join('')+'</div></div></article>';
 }

@@ -25,7 +25,7 @@ function rpIdentityMarkup(k,r,list=false,detail=false,withPlatform=true){
  const marks=platforms.map(rpPlatformMark).join(''),icon=platforms.length>1?`<span class="rp-identity-platforms" role="group" aria-label="涉及平台：${esc(platforms.join('、'))}">${marks}</span>`:marks;
  const grade=list&&rpRankingSupportsGrade(k)&&k!==4?rpRankingGradeMarkup(r):'',inline=Boolean(icon||grade);
  const name=`<b class="${inline?'rp-platform-name':''}" title="${esc(r.name)}">${inline?'<span>'+esc(r.name)+'</span>':esc(r.name)}${icon}${grade}</b>`;
- const title=detail?`<div class="rp-identity-title">${name}<button type="button" class="link rp-detail-link" ${rpDetailAttr(k,r)} aria-label="查看${esc(r.name)}详情">详情 ›</button></div>`:name;
+ const title=detail?`<div class="rp-identity-title">${name}<button type="button" class="link rp-detail-link ui-icon-label" ${rpDetailAttr(k,r)} aria-label="查看${esc(r.name)}详情"><span>详情</span><span class="ui-chevron-right" aria-hidden="true"></span></button></div>`:name;
  const shortage=list&&sku&&k===3?`<span class="tag rp-shortage-tag ${rpShortageType(r)===1?'red':'orange'}">${esc(rpShortageTypeLabel(r))}</span>`:'';
  return `<div class="rp-identity${sku?' rp-sku-identity':''}"${sku?' data-sku-code="'+esc(r.skuCode||r.skuId)+'"':''}>${riskThumbnail(sku?p?.name||r.name:r.name,k===1)}<div>${title}${sub?'<small title="'+esc(full)+'">'+esc(sub)+'</small>':''}${shortage}</div></div>`;
 }
@@ -51,7 +51,7 @@ function rpCard(k,rows,filter='',title=rpTitles[k]){
  const entries=max.map((r,i)=>platforms?rpPlatformProductCard(k,r,i,rows):rpCardEntry(k,r,i)).join('');
  const summary=k===0?rpQualitySummaryMarkup(rpCardRows(k,'all')):'';
  const date=[6,8].includes(k)?`<div class="qr-card-date">${rpBoardRangeMarkup(k)}</div>`:'';
- return `<div class="rhead"><h3><i class="riskbadge"></i>${title}</h3>${summary}${rpBoardControlSlot(k)}<button class="link" data-risk="${k}">查看全部 ${rows.length} ›</button></div>${filter?`<div class="qr-card-filter">${filter}</div>`:''}${date}${rpPlatformMenu(k,rows)}<div class="rp-items">${columns}${entries||'<div class="empty">当前筛选下暂无风险记录</div>'}</div>`;
+ return `<div class="rhead"><h3><i class="riskbadge"></i>${title}</h3>${summary}${rpBoardControlSlot(k)}<button class="link ui-icon-label" data-risk="${k}"><span>查看全部 ${rows.length}</span><span class="ui-chevron-right" aria-hidden="true"></span></button></div>${filter?`<div class="qr-card-filter">${filter}</div>`:''}${date}${rpPlatformMenu(k,rows)}<div class="rp-items">${columns}${entries||'<div class="empty">当前筛选下暂无风险记录</div>'}</div>`;
 }
 qrCard=function(){return rpCard(0,rpCardRows(0),rpCardPlatformControl(0))};
 rfCard=function(k){const filter=rpCardPlatformControl(k);return rpCard(k,rpCardRows(k),filter)};

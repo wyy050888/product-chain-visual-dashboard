@@ -6,7 +6,7 @@
 
 启动性能：`node dev/startup-profile.mjs --label=before --runs=5` 后台测量五轮独立冷启动，记录就绪、就绪后两帧、完整加载、样式/布局成本和首轮CPU采样，报告在 `outputs/performance/startup/`（项目根目录）。可用 `--url=地址`、`--out=目录` 指定对象与报告位置；需要可用的Playwright和Edge。改动共用布局调度后用 `node dev.mjs check startupLayout` 验证，避免以提前发出就绪事件替代实际提速。
 
-产品中心按当前工作区挂载一次，采购/降本模块在返回总看板时补齐；风险出现台账与诊断历史仍先初始化。人员评分的生命周期和项目事实只在本次评分内复用。专项验证：`node dev.mjs check productStartup`，覆盖首次/刷新、人员切换、导航及后台返回。
+产品中心按当前工作区挂载一次，共用总看板销售、新品、项目、生命周期、关键产品、库存及降本模块；返回总看板时再补齐采购模块。风险出现台账与诊断历史仍先初始化。专项：`node dev.mjs check --only productCenter productStartup`。
 
 直接打开对应 HTML：总看板 `index.html`；部门看板为 `产品中心.html`、`项目部.html`、`品质中心.html`、`研发中心.html`、`采购部.html`。部门入口打开、刷新即显示对应工作区，菜单直接跳转对应文件。品质中心当前仅预留“页面待设计”。不需要服务器或联网。
 

@@ -16,6 +16,8 @@
 
 /* 单位使用正常字重，数值保留原有强调。 */
 #riskrail .rp-stock-entry .rp-stock-unit {font-weight:400}
+#riskrail .rp-stock-entry .rp-stock-unit--money {font-size:.8em}
+#riskrail .rp-stock-entry :is([data-rp-field="sellable"],[data-rp-field="total"])>small {white-space:normal}
 
 /* 辅助占比在中等宽度可在标签与数值之间换行，保持文字完整。 */
 #riskrail .rp-stock-values-4 :is([data-rp-field="staleValue"],[data-rp-field="age"],[data-rp-field="warehouse"]) small {white-space:normal}

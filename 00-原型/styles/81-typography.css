@@ -63,7 +63,7 @@ button,input,select,textarea,.num,.cec-dialog{font-family:var(--ui-font-family)}
 }
 .page :is(.lifecard>.num,.pp-analysis-metrics strong,.stock-summary-card .primary strong,.stock-summary-worth strong,[data-stock-refurb-pending],
  .stock-refurb-main>strong,.scp-annual-secondary strong,.scp-annual-secondary .scp-count,.scp-annual .scp-rate),
-#dialogbody :is(.up-metric strong,.up-quality-metric strong,.up-attainment-primary strong){
+#dialogbody :is(.up-metric strong,.up-quality-metric strong){
  font-size:var(--type-compact-kpi)!important;font-weight:var(--weight-heading)!important;line-height:1.3;font-variant-numeric:tabular-nums;
 }
 .page .cc-card-metrics>div:not(.cc-actual) strong{

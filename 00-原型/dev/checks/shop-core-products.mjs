@@ -61,26 +61,33 @@ export async function verifyShopCoreProducts(page){
 }
 export async function verifyShopProductSort(page){
  const host=page.locator('.sd-detail [data-sd-spu-table]');
- const read=column=>host.locator('tbody tr').evaluateAll((rows,index)=>rows.map(row=>Number(row.cells[index].textContent.replace(/[,w%]/g,'').trim())),column);
- const codes=()=>host.locator('tbody .sd-spu-identity small').allTextContents();
- const original=await codes();assert(original.length>1);
+ const read=column=>host.locator('tbody tr').evaluateAll((rows,index)=>rows.map(row=>{
+  const text=row.cells[index].textContent.trim();return parseFloat(text.replaceAll(',',''))*(text.endsWith('w')?10000:1);
+ }),column);
+ const nameCells=host.locator('tbody td:first-child'),names=()=>nameCells.allTextContents();
+ const original=await names();assert(original.length>1);
+ assert.equal(await nameCells.locator('*').count(),0,'SPU名称只展示文本');
  assert.equal(await host.locator('th').nth(1).getAttribute('aria-sort'),'descending','进入时GSV默认降序');
- assert.deepEqual(await host.locator('th').allTextContents(),['SPU信息','GSV','销量','总退','利润率']);
- for(const [key,index] of [['gsvCents',1],['netSales',2],['returnRate',3],['profitRate',4]]){
+ assert.deepEqual(await host.locator('th').allTextContents(),['SPU名称','GSV','销量']);
+ const help=host.locator('th:has([data-rp-sort="netSales"]) .net-sales-help');
+ await help.hover();
+ const tip=page.locator('#metric-tooltip');await tip.waitFor({state:'visible'});
+ assert.match(await tip.innerText(),/此处为去退后销量/);await page.keyboard.press('Escape');
+ for(const [key,index] of [['gsvCents',1],['netSales',2]]){
   // GSV本来就是默认降序；默认列双态切换，其他列第三次恢复默认。
   for(const direction of key==='gsvCents'?['ascending','descending']:['descending','ascending','none']){
    await host.locator('[data-rp-sort="'+key+'"]').click();
    assert.equal(await host.locator('th').nth(index).getAttribute('aria-sort'),direction);
    const values=await read(index);assert(values.every(Number.isFinite));
    if(direction!=='none')assert.deepEqual(values,[...values].sort((a,b)=>direction==='ascending'?a-b:b-a));
-   else assert.deepEqual(await codes(),original,'恢复默认GSV降序');
+   else assert.deepEqual(await names(),original,'恢复默认GSV降序');
   }
  }
- const cells=await host.locator('tr').evaluateAll(rows=>rows.map(r=>r.cells.length));assert(cells.every(n=>n===5));
+ const cells=await host.locator('tr').evaluateAll(rows=>rows.map(r=>r.cells.length));assert(cells.every(n=>n===3));
  const alignment=await host.locator('tr').evaluateAll(rows=>rows.map(r=>[...r.cells].map(c=>getComputedStyle(c).textAlign)));assert(alignment.flat().every(v=>v==='left'));
- await host.locator('[data-rp-sort="returnRate"]').click();
+ await host.locator('[data-rp-sort="netSales"]').click();
  await page.locator('.sd-detail [data-drawer-tab="violations"]').click();await page.locator('.sd-detail [data-drawer-tab="operating"]').click();
- assert.equal(await host.locator('th').nth(3).getAttribute('aria-sort'),'descending','切换标签保留排序');
+ assert.equal(await host.locator('th').nth(2).getAttribute('aria-sort'),'descending','切换标签保留排序');
  await page.setViewportSize({width:390,height:900});assert.equal(await page.locator('#dialogbody').evaluate(n=>n.scrollWidth>n.clientWidth+1),false);await page.setViewportSize({width:1920,height:1080});
 }
 

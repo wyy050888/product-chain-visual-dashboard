@@ -11,11 +11,9 @@ function ipIndicator(kind,value){
 }
 const ipMetricRules={
  warehouse:{title:'我司可售库存',formula:'聚量实体仓仓库库存＋京东仓库存',note:'按SPU去重汇总，数量单位为件'},
- warehouseValue:{title:'我司可售货值',formula:'Σ（我司可售SKU库存数量 × 财务单价）',note:'只计算我司可售库存对应货值，金额单位为万元'},
- factory:{title:'工厂总库存',formula:'工厂新机良品库存＋已翻新良品库存＋工厂不良品库存＋工厂待检库存＋工厂未翻新库存',note:'数量单位为件'},
- factoryValue:{title:'工厂总货值',formula:'Σ（工厂各状态SKU库存数量 × 财务单价）',note:'包含工厂总库存的全部状态，金额单位为万元'},
+ warehouseValue:{title:'我司可售货值',formula:'Σ（我司可售SKU库存数量 × 财务单价）',note:'只计算我司可售库存对应货值'},
  staleUnits:{title:'呆滞库存',formula:'Σ（库存台账认定的呆滞SKU库存数量）',note:'数量单位为件；沿用底层呆滞认定，不按汇总比率重新判定'},
- staleRatio:{title:'呆滞库存占比',formula:'呆滞库存数量 ÷ 总库存数量 × 100%',note:'分母包含我司、工厂及在途等库存，与呆滞榜一致'},
+ staleRatio:{title:'呆滞库存占比',formula:'呆滞库存数量 ÷ 总库存数量 × 100%',note:'总库存按五项库存组成汇总，与呆滞榜一致'},
  staleValueRatio:{title:'呆滞金额占比',formula:'呆滞库存金额 ÷ 总库存货值 × 100%',note:'先合计货值再计算，不平均SPU占比'},
  num:{title:'库存数',formula:'仓内库存＋工厂库存',note:'仓内包含仓中与仓外库存；工厂包含良品与非良品，按SKU汇总'},
  amount:{title:'库存总金额',formula:'Σ（SKU库存数 × 财务价）',note:'财务价包含税与品牌费用'},

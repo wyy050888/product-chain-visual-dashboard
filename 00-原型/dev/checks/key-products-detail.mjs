@@ -12,6 +12,7 @@ export async function verifyKeyProductDetail(page){
   duration:row.cells[9].textContent,operation:row.cells[10].textContent
  })));
  const money=cents=>{const value=cents/100;return (Math.abs(value)>10000?value/10000:value).toFixed(1)+(Math.abs(value)>10000?'w':'元')};
+ const stockMoney=cents=>(cents/(Math.abs(cents)>1000000?1000000:100)).toFixed(2)+(Math.abs(cents)>1000000?'万元':'元');
  const compare=(a,b)=>{if(!Number.isFinite(a)||!Number.isFinite(b))return '环比 --';if(a===b)return '环比 持平';if(b===0)return '环比 --';const change=(a-b)/Math.abs(b)*100;return Math.round(Math.abs(change)*10)===0?'环比 持平':'环比 '+(change>0?'↑ ':'↓ ')+Math.abs(change).toLocaleString('en-US',{minimumFractionDigits:1,maximumFractionDigits:1})+'%'};
  for(const row of cells){
   const p=snapshot.visible.find(p=>p.spuId===row.id),m=row.metrics;
@@ -25,7 +26,7 @@ export async function verifyKeyProductDetail(page){
   const unreceived=f=>f.sales>0&&Number.isFinite(f.received)?(f.returned-f.received)/f.sales*100:null;
   for(const [key,current,previous] of [['returns',p.facts.returnRate,p.previous.returnRate],['received',p.facts.receivedRate,p.previous.receivedRate],['unreceived',unreceived(p.facts),unreceived(p.previous)]])assert.equal(m[key].aux,compare(current,previous),'全平台退货率环比 '+key);
   assert.equal(m.warehouse.value,Number.isFinite(p.stock?.warehouse)?p.stock.warehouse.toLocaleString('en-US'):'—');
-  assert.equal(m.warehouse.aux,'货值 '+(Number.isFinite(p.stock?.warehouseValueCents)?money(p.stock.warehouseValueCents):'—'));
+  assert.equal(m.warehouse.aux,'货值 '+(Number.isFinite(p.stock?.warehouseValueCents)?stockMoney(p.stock.warehouseValueCents):'—'));
   assert.equal(m.total.aux,'总可售天数 '+(Number.isFinite(p.stock?.totalCoverage15)?p.stock.totalCoverage15.toLocaleString('en-US',{minimumFractionDigits:1,maximumFractionDigits:1})+'天':'—'));
  }
  assert.equal(await root.locator('#matrixtable td:last-child [data-kpm-history]').count(),0,'操作列只保留产品查看');
@@ -85,6 +86,7 @@ export async function verifyKeyProductReturnComparisons(page){
  const colors=await page.locator('#matrix #matrixtable tbody tr').evaluateAll(rows=>rows.map(row=>{const color=key=>getComputedStyle(row.querySelector('[data-kpm-metric="'+key+'"] strong')).color;return {normal:color('units'),total:color('returns'),received:color('received')}}));
  assert(colors.every(row=>row.total===row.normal&&row.received===row.normal),'汇总退货主值使用普通数据色');
  const rate=f=>f.sales>0&&Number.isFinite(f.received)?(f.returned-f.received)/f.sales*100:null;
+ const stockMoney=cents=>(cents/(Math.abs(cents)>1000000?1000000:100)).toFixed(2)+(Math.abs(cents)>1000000?'万元':'元');
  const compare=(now,before)=>{if(!Number.isFinite(now)||!Number.isFinite(before)||before===0&&now!==0)return '环比 --';const raw=now===before?0:(now-before)/before*100,rounded=Math.round(Math.abs(raw)*10)/10;return rounded===0?'环比 持平':'环比 '+(raw>0?'↑ ':'↓ ')+rounded.toLocaleString('en-US',{minimumFractionDigits:1,maximumFractionDigits:1})+'%'};
  const percent=value=>Number.isFinite(value)?value.toFixed(1)+'%':'—';
  for(const row of cells){

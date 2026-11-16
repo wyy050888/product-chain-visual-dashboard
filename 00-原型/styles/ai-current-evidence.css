@@ -19,7 +19,7 @@
 .up-ai-evidence-body .up-ai-sources>table{min-width:0}
 .up-ai-evidence-body .up-ai-sources>table>tbody>tr>td{padding-block:10px;line-height:1.7;color:#304868}
 .up-ai-source p{margin:0;white-space:pre-line}
-.up-ai-evidence-note,.up-ai-evidence-empty{font-size:12px;color:#7d6b42;line-height:1.8}
+.up-ai-evidence-empty{font-size:12px;color:#7d6b42;line-height:1.8}
 .up-ai-source details{margin-top:8px}.up-ai-source summary{cursor:pointer;color:#1677ff}
 .up-ai-source-scroll{overflow-x:auto}.up-ai-source-scroll table{border-collapse:collapse;width:100%;min-width:440px}.up-ai-source-scroll th,.up-ai-source-scroll td{padding:7px;border-bottom:1px solid #e4eaf4;white-space:nowrap;text-align:left}
 @media(max-width:600px){

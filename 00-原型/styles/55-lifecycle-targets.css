@@ -5,8 +5,7 @@ body.lt-system-active>main.page{display:none}
 #lt-system .lt-sidebar{padding:20px 10px;background:#eef4ff}
 #lt-system .lt-menu-group>summary{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:44px;padding:11px 20px;color:#344b68;cursor:pointer;list-style:none;font-size:14px;line-height:22px}
 #lt-system .lt-menu-group>summary::-webkit-details-marker{display:none}
-#lt-system .lt-menu-group>summary>span{flex:none;width:6px;height:6px;border-right:1px solid #667b96;border-bottom:1px solid #667b96;font-size:0;transform:rotate(45deg);transition:transform .15s}
-#lt-system .lt-menu-group[open]>summary>span{transform:rotate(225deg)}
+#lt-system .lt-menu-group[open]>summary>.ui-dropdown-icon{background-image:var(--filter-chevron-up)}
 #lt-system .lt-sidebar :is(a,.lt-menu-disabled){display:block;min-height:42px;padding:11px 10px 11px 38px;margin-top:2px;border-radius:6px;background:transparent;color:#526780;font-size:13px;line-height:20px}
 #lt-system .lt-menu-group{margin-bottom:4px}
 #lt-system .lt-sidebar .lt-menu-disabled{color:#9aa7b7;cursor:not-allowed;background:transparent}

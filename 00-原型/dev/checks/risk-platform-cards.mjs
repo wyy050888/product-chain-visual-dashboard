@@ -75,7 +75,7 @@ export async function riskPlatformCards(page){
  };
  await verifyShopPlatformIsolation(page);await verifyProductPlatformIsolation(page);await checkSelection(['抖音','天猫']);
  assert.deepEqual(await board(0).locator('.rp-quality-summary dt').allTextContents(),['违规产品','平台罚款','资金冻结','链接下架','链接掉权']);
- assert.equal(await summaryPeriod(),'近30日 全平台合计');
+ assert.equal(await summaryPeriod(),'近30日 全平台合计（品质违规）');
  const initialSummary=await checkSummary();
  assert(initialSummary.products>6,'汇总覆盖前六张卡片之外的产品');
  assert.equal(await page.locator('#riskrail .rp-quality-summary').count(),1,'仅产品违规榜显示汇总');
@@ -173,7 +173,7 @@ export async function riskPlatformCards(page){
  await page.locator('#close').click();
  const date=board(0).locator('#rp-board-date-0');await date.click();
  const day=page.locator('#up-date-popover [data-range-date="2026-10-23"]:not(:disabled)');await day.click();await day.click();
- assert.equal(await summaryPeriod(),'所选期间 全平台合计','单日自选沿用所选期间口径');
+ assert.equal(await summaryPeriod(),'所选期间 全平台合计（品质违规）','单日自选沿用所选期间口径');
  await checkValues('GSV',{start:'2026-10-23',end:'2026-10-23'});
  const singleDaySummary=await checkSummary();
  assert(singleDaySummary.drop>0&&singleDaySummary.products<initialSummary.products,'切换日期后汇总仅计算当天事件');
@@ -197,18 +197,18 @@ export async function riskPlatformCards(page){
  await date.click();
  await page.locator('#up-date-popover [data-range-date="2026-10-20"]:not(:disabled)').click();
  await day.click();
- assert.equal(await summaryPeriod(),'所选期间 全平台合计');
+ assert.equal(await summaryPeriod(),'所选期间 全平台合计（品质违规）');
  await checkValues('GSV',{start:'2026-10-20',end:'2026-10-23'});
  const controls=board(0).locator('[data-rp-board-date]');
  const switchMode=mode=>controls.locator('[data-drawer-time-mode="'+mode+'"]').click();
  await switchMode('month');await controls.locator('[data-drawer-time-value]').selectOption('9');
- assert.equal(await summaryPeriod(),'9月 全平台合计');
+ assert.equal(await summaryPeriod(),'9月 全平台合计（品质违规）');
  await checkValues('9月 GSV',{start:'2026-09-01',end:'2026-09-30'});
  await switchMode('quarter');
- assert.equal(await summaryPeriod(),'Q3 全平台合计');
+ assert.equal(await summaryPeriod(),'Q3 全平台合计（品质违规）');
  await checkValues('Q3 GSV',{start:'2026-07-01',end:'2026-09-30'});
  await switchMode('year');
- assert.equal(await summaryPeriod(),'26年 全平台合计');
+ assert.equal(await summaryPeriod(),'26年 全平台合计（品质违规）');
  await checkValues('26年 GSV',{start:'2026-01-01',end:'2026-10-26'});
  console.log('通过：三榜3×2布局、产品两榜平台筛选、违规卡片仅展示本期命中平台、仅掉权入榜及黑色次数、平台详情和响应式布局');
 }

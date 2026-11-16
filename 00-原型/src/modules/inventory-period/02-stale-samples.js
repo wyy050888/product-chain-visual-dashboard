@@ -35,7 +35,7 @@ function ipStaleSampleHistory(current,existing){
     const sample={...row,totalUnits,totalValueCents,staleUnits:Math.min(totalUnits,Math.round(row.staleUnits*staleScale)),staleValueCents:Math.min(totalValueCents,Math.round(row.staleValueCents*staleScale))};
     return {...sample,batches:ipStaleSampleBatches(sample,date)};
    });
-   const snapshot=ipNormalizeSnapshot({date,source:'local-sample',rows});if(snapshot)history.push(snapshot);
+   const snapshot=ipNormalizeSnapshot({date,source:'local-sample',scope:current.scope,rows});if(snapshot)history.push(snapshot);
   }
   cursor=iso(new Date(Date.UTC(year,month,1))).slice(0,7);
  }

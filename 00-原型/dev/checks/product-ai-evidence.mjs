@@ -26,6 +26,7 @@ export async function productAiEvidence(page){
  assert.deepEqual(await body.locator('.up-ai-evidence-section>h5').allTextContents(),['经营结论','问题分析','部门行动']);
  assert(original.includes(before.payload.evidence.product.name));assert(original.includes(before.payload.evidence.cutoff)||original.includes(before.payload.evidence.cutoff.slice(2).replaceAll('-','/')));assert(original.includes('本次生成'));
  assert(await body.locator('.up-ai-evidence-item').count()>3);assert(await body.locator('.up-ai-evidence-item').evaluateAll(items=>items.every(item=>item.querySelector('.up-ai-source p')?.textContent.trim())));
+ assert.equal(await body.locator('.up-ai-evidence-note').count(),0);
  assert(!/原型数据|原型档案|模拟资料/.test(original));assert(original.includes('数智罗盘-产品结构'));assert(original.includes('分析建议'));assert.equal(await body.locator('pre').count(),0);assert(!/"strategy"|[a-f0-9]{64}/.test(original));
  const after=await read();assert.deepEqual(after,before,'查看依据不创建版本或改写保存数据');
  await page.keyboard.press('Escape');assert(!(await dialog.isVisible()));assert(await product.isVisible());assert.equal(await button.getAttribute('aria-expanded'),'false');
@@ -36,4 +37,7 @@ export async function productAiEvidence(page){
  vm.runInContext(fs.readFileSync(new URL('../../src/modules/unified-product/04-ai-evidence-sources.js',import.meta.url),'utf8'),box);
  vm.runInContext(fs.readFileSync(new URL('../../src/modules/unified-product/04-ai-evidence-view.js',import.meta.url),'utf8'),box);
  assert(box.upAiEvidenceMarkup(null,id).includes('未保存'));assert(box.upAiEvidenceMarkup(before.payload.evidence,'other-product').includes('与当前主体不一致'));
+ const current=before.payload.evidence;
+ const legacy={...current,items:current.items.map(item=>({...item,note:'经营去留与投入取舍为分析建议，不是已审批决定。'}))};
+ assert.equal(box.upAiEvidenceMarkup(legacy,id),box.upAiEvidenceMarkup(current,id),'旧诊断记录中的备注不再展示');
 }

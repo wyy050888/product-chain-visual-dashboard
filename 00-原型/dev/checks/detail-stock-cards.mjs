@@ -19,6 +19,7 @@ export async function verifyProductStockCards(page){
  const sellableUnits=stock.warehouse+stock.factoryAvailable+stock.transit;
  assert.equal(Number(await sellable.locator('[data-stock-quantity="sellableUnits"]').getAttribute('data-stock-raw')),sellableUnits);
  assert.equal(Number(await sellable.locator('[data-stock-value="sellableValueCents"]').getAttribute('data-stock-raw')),stock.sellableValueCents);
+ for(const value of await cards.locator('[data-stock-value]').allTextContents())assert.match(value,/^(?:\d+\.\d{2}(?:万元|元)|—)$/);
  const sellableDays=stock.dailyNet15>0?new Intl.NumberFormat('zh-CN',{minimumFractionDigits:1,maximumFractionDigits:1}).format(sellableUnits/stock.dailyNet15)+'天':'—';
  assert.equal(await sellable.locator('.stock-card-foot strong').innerText(),sellableDays);
  const sum=key=>rows.reduce((total,row)=>total+row[key],0);
@@ -51,18 +52,21 @@ export async function verifyProductStockCards(page){
   await header.click();
  }
  const settle=()=>page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
- for(const [key,text] of [['total','未交订单'],['sellable','我司可售库存＋工厂可售库存＋在途库存']]){
+ for(const [key,text] of [['total','我司可售库存＋在途库存＋工厂可售库存＋未产订单＋未翻新'],['sellable','我司可售库存＋工厂可售库存＋在途库存']]){
   const help=cards.locator('[data-stock-rule="'+key+'"]').first();await help.evaluate(e=>e.scrollIntoView({behavior:'instant',block:'center',inline:'center'}));await settle();await help.hover();await page.locator('#metric-tooltip').waitFor({state:'visible'});assert.match(await page.locator('#metric-tooltip').innerText(),new RegExp(text));await page.keyboard.press('Escape');
  }
  for(const width of [1920,1440,1024,768,390]){
   await page.setViewportSize({width,height:1080});await settle();
   const rects=await cards.locator('.up-stock-card').evaluateAll(es=>es.map(e=>({top:e.offsetTop,left:e.offsetLeft,width:e.offsetWidth,scroll:e.scrollWidth,client:e.clientWidth})));
   const rowSizes=Map.groupBy(rects,row=>row.top);
-  assert.deepEqual([...rowSizes.values()].map(row=>row.length),width>900?[2,4]:width>500?[2,2,2]:[1,1,1,1,1,1],'库存余额与其他指标按可用宽度换行 '+width);
+  assert.deepEqual([...rowSizes.values()].map(row=>row.length),[6],'六张库存卡同排 '+width);
+  assert(rects.slice(0,2).every(r=>rects.slice(2).every(simple=>r.width>simple.width)),'复合库存卡保留较宽一列 '+width);
   assert(rects.every(r=>r.scroll<=r.client+1),'卡片内容不溢出 '+width);
+  const scroll=cards.locator('..');
+  assert.equal(await scroll.evaluate(e=>e.scrollWidth>e.clientWidth+1),width<=1024,'卡片仅在抽屉宽度不足时横滚 '+width);
   assert(await page.locator('#dialogbody').evaluate(e=>e.scrollWidth<=e.clientWidth+1),'窄屏只在卡片/表格内部横滚 '+width);
   if(width===1920)assert(await page.locator('#up-stock-skus').evaluate(e=>e.scrollWidth<=e.clientWidth+1),'宽屏下10列表格完整显示');
  }
  await page.setViewportSize({width:1920,height:1080});
- console.log('通过：可售库存、货值及天数组合卡、SKU明细和响应式布局');
+ console.log('通过：六张库存卡同排、窄屏卡片横滚、货值及天数、SKU明细');
 }

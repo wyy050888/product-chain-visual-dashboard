@@ -3,7 +3,7 @@ function upNetEstimate(s){const deduction=Math.round(s.gsvCents*brcNumber('finan
 function rpLossRows(platform){
  const w=upWindow();return [...upSpus.values()].map(p=>{
   const s=upSummary(p,w.start,w.end,platform),n=upNetEstimate(s);
-  return {...upProduct(p),metricPlatform:platform,lossPlatform:platform,loss:-n.profitCents/1000000,value:upMoney(n.profitCents)};
- }).filter(r=>r.loss>0).sort((a,b)=>b.loss-a.loss||a.spuId.localeCompare(b.spuId));
+  return {...upProduct(p),metricPlatform:platform,lossPlatform:platform,loss:-n.profitCents/1000000,netProfitRate:n.profitRate,value:upMoney(n.profitCents)};
+ }).filter(r=>r.loss>0).sort((a,b)=>b.loss-a.loss||(a.netProfitRate??Infinity)-(b.netProfitRate??Infinity)||a.spuId.localeCompare(b.spuId));
 }
 

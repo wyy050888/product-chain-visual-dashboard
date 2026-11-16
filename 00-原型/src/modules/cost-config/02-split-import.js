@@ -8,32 +8,32 @@ async function cecReadSplitFile(file,kind){
  throw Error(kind==='actual'?'实际值请上传按部门分Sheet的.xlsx文件':'请选择.xlsx或.csv文件');
 }
 function cecSplitSheet(sheet,expected,errors){
- const at=sheet.rows.findIndex(row=>expected.includes(cecFileHeader(row[0]))),original=sheet.rows[at>=0?at:0]||[],headers=original.map(cecFileHeader);
+ const at=Math.max(0,sheet.rows.findIndex(row=>expected.includes(cecFileHeader(row[0]))));
+ const original=sheet.rows[at]||[],headers=original.map(cecFileHeader),headerRow=original.sourceRow||at+1;
  const valid=headers.length===expected.length&&new Set(headers).size===headers.length&&expected.every(field=>headers.includes(field));
- if(!valid)errors.push({row:sheet.name+'!'+(original.sourceRow||1),field:'表头',message:'表头不匹配，请使用本Tab的最新模板；不要删改或重复列'});
- const rows=sheet.rows.slice(at>=0?at+1:1).filter(row=>!String(row[0]||'').startsWith('【示例】')).map((row,index)=>({sourceRow:row.sourceRow||index+(at>=0?at:0)+2,raw:row,values:valid?expected.map(field=>row[headers.indexOf(field)]??''):[...row]}));
- return {name:sheet.name,headers,valid,rows};
+ if(!valid)errors.push({row:sheet.name+'!'+headerRow,field:'表头',message:'表头不匹配，请使用本Tab的最新模板；不要删改或重复列'});
+ const rows=sheet.rows.slice(at+1).filter(row=>!String(row[0]||'').startsWith('【示例】')).map((row,index)=>({sourceRow:row.sourceRow||index+at+2,raw:row,values:valid?expected.map(field=>row[headers.indexOf(field)]??''):[...row]}));
+ return {name:sheet.name,headers,headerRow,valid,rows};
 }
 function cecSplitResult(kind,groups,errors,entries,extra={}){
- if(errors.length)for(const group of groups)for(const row of group.rows){const key=group.name+'!'+row.sourceRow;if(!errors.some(error=>String(error.row)===key))errors.push({row:key,message:'同批文件含错误，本行未导入'})}
  const sourceTable=[['所属Sheet','原始行号']];
  for(const group of groups)for(const row of group.rows){const source=[group.name,String(row.sourceRow)];source.sourceRow=group.name+'!'+row.sourceRow;sourceTable.push(source)}
  const failureSheets=[];
  for(const group of groups){
-  const byRow=new Map();for(const error of errors)if(String(error.row).startsWith(group.name+'!')){const key=String(error.row).slice(group.name.length+1);if(!byRow.has(key))byRow.set(key,[]);byRow.get(key).push((error.field?error.field+'：':'')+error.message)}
-  const rows=group.rows.filter(row=>byRow.has(String(row.sourceRow))).map(row=>({row:row.sourceRow,values:row.raw.map(cecRawCell),reason:[...new Set(byRow.get(String(row.sourceRow)))].join('；')}));
-  for(const [row,reasons]of byRow)if(!group.rows.some(value=>String(value.sourceRow)===row)){const reason=[...new Set(reasons)].join('；');if(rows.length)for(const failed of rows)failed.reason=reason+'；'+failed.reason;else rows.push({row,values:[],reason})}
-  if(rows.length)failureSheets.push({name:group.name,headers:group.headers,rows});
+  if(group.headers.length)failureSheets.push({name:group.name,headers:group.headers,headerRow:group.headerRow||1,rows:group.rows.map(row=>({row:row.sourceRow,values:row.raw.map(cecRawCell)}))});
  }
- const general=errors.filter(error=>!groups.some(group=>String(error.row).startsWith(group.name+'!')));
- if(general.length)failureSheets.push({name:'文件校验',headers:[],rows:general.map(error=>({row:error.row||'—',values:[],reason:error.message}))});
  return {kind,groups,errors,entries,sourceTable,failureSheets,...extra};
 }
 function cecValidateSplitActual(input){
  const errors=[],groups=[],entries=[],seen=new Set();
  for(const sheet of input.sheets){
   const schema=cecDetailSchemas.find(row=>row.name===sheet.name),expected=schema?.headers||[];
-  if(!schema){errors.push({row:sheet.name+'!1',field:'Sheet',message:'Sheet名称须为模板中的责任部门名称'});groups.push({name:sheet.name,headers:sheet.rows[0]||[],rows:[],valid:false});continue}
+  if(!schema){
+   errors.push({row:sheet.name+'!1',field:'Sheet',message:'Sheet名称须为模板中的责任部门名称'});
+   const group=cecSplitSheet(sheet,['月份'],[]);
+   group.rows=group.rows.filter(row=>row.raw.some(cecImportHasContent));
+   groups.push(group);continue;
+  }
   if(seen.has(sheet.name))errors.push({row:sheet.name+'!1',message:'部门Sheet重复'});seen.add(sheet.name);
   const group=cecSplitSheet(sheet,expected,errors);groups.push(group);
   // 模板内预置的公式和空行不算业务记录，也不形成覆盖月份。

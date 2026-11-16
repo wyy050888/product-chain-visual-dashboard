@@ -15,12 +15,12 @@ export async function productStartup(page){
  };
  for(const hash of ['', '#dp-inventory']){
   await page.goto(new URL('产品中心.html'+hash,base).href);await ready();
-  assert.deepEqual(await page.evaluate(()=>window.__productStartup),{inventory:1,cost:0},'初次只挂载一套产品中心模块');
-  assert.equal(await page.locator('#department-view>.section').count(),9);
+  assert.deepEqual(await page.evaluate(()=>window.__productStartup),{inventory:1,cost:1},'初次只挂载一套产品中心模块');
+  assert.equal(await page.locator('#department-view>.section').count(),10);
   assert.equal(await page.locator('#inventory-stale-analysis svg').count(),1);
   assert((await page.evaluate(()=>riskBoardAppearanceSnapshot())).sampleVersion,'风险出现台账仍初始化，供AI诊断读取');
-  assert.equal(await page.locator('#costcards .cc-card,#suppliers .scp-workspace').count(),0,'不初始化隐藏的采购/降本工作区');
-  await page.reload();await ready();assert.deepEqual(await page.evaluate(()=>window.__productStartup),{inventory:1,cost:0},'刷新也不能先渲染总看板');
+  assert.equal(await page.locator('#suppliers .scp-workspace').count(),0,'不初始化隐藏的采购工作区');
+  await page.reload();await ready();assert.deepEqual(await page.evaluate(()=>window.__productStartup),{inventory:1,cost:1},'刷新也不能先渲染总看板');
  }
  await page.locator('#pc-person').selectOption('owner');await ready();
  assert.equal((await page.evaluate(()=>departmentSnapshot().scope)).chain,'2');
@@ -36,6 +36,6 @@ export async function productStartup(page){
  assert.equal(await page.locator('#riskrail .pc-risk-card').count(),0);
  await page.goto(new URL('产品中心.html#system-business-rules',base).href);await ready();
  await page.evaluate(()=>{location.hash=''});await page.locator('#pc-person').waitFor({state:'visible'});
- assert.equal(await page.locator('#department-view>.section').count(),9,'后台返回产品中心保持完整模块');
- console.log('产品中心：首次/刷新仅挂载一次、九模块完整、人员切换/导航、后台与总看板返回通过');
+ assert.equal(await page.locator('#department-view>.section').count(),10,'后台返回产品中心保持完整模块');
+ console.log('产品中心：首次/刷新仅挂载一次、十模块完整、人员切换/导航、后台与总看板返回通过');
 }

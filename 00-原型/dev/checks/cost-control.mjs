@@ -32,7 +32,7 @@ export async function costControl(page){
 await verifyCostCardProgress(page);assert.equal(initial.departments.length,9);assert(initial.totals.year.target>0);
  assert.deepEqual(await root.locator('[data-cc-card] h3').allTextContents(),['10月降本','Q4降本','26年降本']);
  assert.equal(await root.locator('#costtable tbody tr').count(),9);assert.equal(await root.locator('#costtable th').count(),11);
- assert.equal(await root.locator('#costtable tfoot').count(),0);assert.equal(await root.locator('#costtable .cc-money-unit').count(),81);assert(await root.locator('#costtable .cc-money-unit').evaluateAll(nodes=>nodes.every(node=>node.textContent==='w'&&getComputedStyle(node).display==='inline'&&getComputedStyle(node).color===getComputedStyle(node.parentElement).color)));
+ assert.equal(await root.locator('#costtable tfoot').count(),0);assert.equal(await root.locator('#costtable .cc-money-unit').count(),81);assert(await root.locator('#costtable .cc-money-unit').evaluateAll(nodes=>nodes.every(node=>['元','万元'].includes(node.textContent)&&getComputedStyle(node).display==='inline'&&getComputedStyle(node).color===getComputedStyle(node.parentElement).color)));
  assert.equal(await root.locator('.metric-help,[title],[data-metric-rule]').count(),0);
  assert.equal(await root.locator('#costopportunity,#costcallout,.callout').count(),0,'AI建议条与入口已移除');
  assert.equal(await page.evaluate(()=>typeof ccOpenOpportunity),'undefined','清单抽屉实现不再加载');
@@ -57,12 +57,12 @@ await verifyCostCardProgress(page);assert.equal(initial.departments.length,9);as
   assert.equal(await page.locator('.cc-department-table th').count(),5);assert.equal(await page.locator('.cc-department-table th').nth(2).innerText(),'9月实际降本');
   assert.equal(await page.locator('.cc-department-unit').count(),0);
   assert(await page.locator('.cc-department-table .cc-money-unit').count()>0);
-  assert(await page.locator('.cc-department-table .cc-money-unit').evaluateAll(nodes=>nodes.every(node=>node.textContent==='w'&&getComputedStyle(node).display==='inline')));
+  assert(await page.locator('.cc-department-table .cc-money-unit').evaluateAll(nodes=>nodes.every(node=>['元','万元'].includes(node.textContent)&&getComputedStyle(node).display==='inline')));
   assert.equal(await page.locator('.cc-department-table button:not(.ui-column-handle),[data-cc-item],.cc-item-info').count(),0);
   assert.equal(await page.locator('#dialogsub [data-cc-value]').inputValue(),'9');
   assert.equal(await page.locator('.cc-drawer .metric-help,[data-cc-drawer] [title]').count(),0);
   const expected=initial.rows.find(row=>row.id===dept.id).values.month;
-  const money=value=>Number.isFinite(value)?(value/1000000).toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2})+'w':'--';
+  const money=value=>Number.isFinite(value)?(value/(Math.abs(value)>1000000?1000000:100)).toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2})+(Math.abs(value)>1000000?'万元':'元'):'--';
   assert.equal((await page.locator('.cc-department-table tfoot [data-cc-value="month-actual"]').innerText()).replaceAll(' ',''),money(expected.actual));
   await page.locator('#close').click();
  }

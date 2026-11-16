@@ -18,7 +18,7 @@ export async function returnProductType(page){
   assert.equal(await choice(type).getAttribute('aria-checked'),'true');
   for(const value of ['all','new','old']){const count=expected(value,platform).length;assert.equal(Number(await choice(value).locator('.rp-platform-count').innerText()),count,'新老品数量保留平台、忽略自身选择');assert.equal(await choice(value).getAttribute('aria-label'),({all:'全部',new:'新品',old:'老品'})[value]+'，'+count+'条入榜记录')}
   assert.deepEqual(await card.locator('.rp-platform-product').evaluateAll(es=>es.map(e=>e.dataset.rpSpu)),ids,'先筛选新老品再取前六，沿用原顺序');
-  assert.match(await card.locator('[data-risk="6"]').innerText(),new RegExp('查看全部 '+rows.length+' '));
+  assert.equal(await card.locator('[data-risk="6"]').innerText(),'查看全部 '+rows.length);
   for(const p of ['all','抖音','快手','视频号','天猫','京东','拼多多'])assert.equal(Number(await card.locator('[data-rp-platform-option="'+p+'"] .rp-platform-count').innerText()),expected(type,p).length,'平台计数同步新老品 '+p);
  };
  for(const platform of ['all','快手']){

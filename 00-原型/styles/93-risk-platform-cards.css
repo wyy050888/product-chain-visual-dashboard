@@ -1,7 +1,7 @@
 /* 品质三榜各占整行，桌面均为三列六卡；中屏两列、窄屏单列。 */
 #riskrail .rp-board-group-quality .rp-group-grid{grid-template-columns:minmax(0,1fr);gap:20px}
 /* 六卡区域与榜单外框底边保持留白，沿用榜单之间的20px间距。 */
-#riskrail .rp-board-group-quality .riskcard{padding-bottom:16px}
+#riskrail :is(.rp-board-group-quality .riskcard,.pc-risk-card){padding-bottom:16px}
 #riskrail .rp-platform-board>.rp-items,#riskrail .rp-shop-board>.rp-items{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;grid-template-rows:none;grid-auto-rows:auto;align-content:start;flex:none;overflow:visible;padding:4px 0 0;border:0}
 #riskrail :is(.rp-platform-board,.rp-shop-board)>.rp-items>.empty{grid-column:1/-1;grid-row:auto}
 #riskrail :is(.rp-platform-board,.rp-shop-board)>.rp-items>.rp-entry{min-width:0;min-height:0;padding:14px;border:1px solid #e2e9f3;border-radius:8px;background:#fff;margin:0;box-shadow:none}
@@ -92,19 +92,19 @@
 #riskrail .rp-return-type-tags{display:flex;align-items:center;gap:6px;padding:3px 2px 5px;flex:none}
 
 /* 整行榜：标题与平台居左，季品和查看全部靠右，日期独立为紧凑辅助行。 */
-#riskrail .rp-board-group-quality .riskcard>.rp-compact-header{display:grid;grid-template-columns:max-content minmax(0,1fr) max-content;align-items:center;align-content:center;gap:6px 20px;min-height:48px;margin-bottom:0;padding-bottom:4px}
+#riskrail :is(.rp-board-group-quality .riskcard,.pc-risk-card)>.rp-compact-header{display:grid;grid-template-columns:max-content minmax(0,1fr) max-content;align-items:center;align-content:center;gap:6px 20px;min-height:48px;margin-bottom:0;padding-bottom:4px}
 #riskrail .rp-compact-header>.rp-platform-menu{order:1;min-height:0;margin:0;padding:0;min-width:0}
 #riskrail .rp-compact-header>.rp-quality-actions{order:2;flex-wrap:nowrap;margin-left:0;gap:12px}
 #riskrail .rp-compact-header .qr-card-filter{margin:0;min-height:0}
 #riskrail .riskcard>.rp-quality-date{display:block;flex:none;min-height:0;margin:0 0 6px;padding:0;font-size:13px;line-height:20px;color:#8a98aa}
 @media(max-width:1100px){
- #riskrail .rp-board-group-quality .riskcard>.rp-compact-header{grid-template-columns:minmax(0,1fr) max-content;column-gap:12px}
+ #riskrail :is(.rp-board-group-quality .riskcard,.pc-risk-card)>.rp-compact-header{grid-template-columns:minmax(0,1fr) max-content;column-gap:12px}
  #riskrail .rp-compact-header>h3{grid-column:1;grid-row:1}
  #riskrail .rp-compact-header>.rp-quality-actions{grid-column:2;grid-row:1}
  #riskrail .rp-compact-header>.rp-platform-menu{grid-column:1/-1;grid-row:2}
 }
 @media(max-width:600px){
- #riskrail .rp-board-group-quality .riskcard>.rp-compact-header{grid-template-columns:minmax(0,1fr);gap:4px;padding-top:10px}
+ #riskrail :is(.rp-board-group-quality .riskcard,.pc-risk-card)>.rp-compact-header{grid-template-columns:minmax(0,1fr);gap:4px;padding-top:10px}
  #riskrail .rp-compact-header>.rp-quality-actions{grid-column:1;grid-row:2;justify-content:space-between;width:100%}
  #riskrail .rp-compact-header>.rp-platform-menu{grid-column:1;grid-row:3}
 }

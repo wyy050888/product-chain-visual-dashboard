@@ -1,6 +1,6 @@
 // 展示口径只影响左侧分布，沿用同一快照；右侧始终展示货值占比趋势。
 let ipStaleDistributionMetric='valueCents';
-function ipStaleChartValue(value,metric){return metric==='units'?fmt(value)+'件':fmt(value/1000000,1)+'万元'}
+function ipStaleChartValue(value,metric){return metric==='units'?fmt(value)+'件':formatStockValue(value,true)}
 function ipStaleStack(seasons,metric,maximum,total,label){
  return `<div class="ip-stale-stack" role="group" aria-label="${esc(label)}">${seasons.filter(row=>row[metric]>0).map(row=>{
   const value=row[metric],share=total>0?value/total*100:0,hint=`${label}\n${row.label}：${ipStaleChartValue(value,metric)}\n占本组：${fmt(share,1)}%`;
@@ -30,7 +30,7 @@ function ipStaleDistributionPanel(model){
  }).join('');
  const headings=`<div class="ip-stale-age-columns" role="row"><span role="columnheader">库龄</span>${data.seasons.map(row=>`<span role="columnheader"><i class="season-${row.index}"></i>${esc(row.label)}</span>`).join('')}<span role="columnheader">合计占比</span></div>`;
  const total=metric==='units'?data.totalUnits:data.totalValueCents,ratio=total>0?fmt(data[metric]/total*100,1):'—';
- const totals=`<div><span data-metric-help-disabled>${metric==='units'?'呆滞库存':'呆滞货值'}</span><strong data-ip-stale-total="${metric}">${metric==='units'?fmt(data.units):fmt(data.valueCents/1000000,1)}<small>${metric==='units'?'件':'万元'}</small></strong></div><div><span>呆滞占比</span><strong data-ip-stale-total-share>${ratio}${total>0?'<small>%</small>':''}</strong></div>`;
+ const totals=`<div><span data-metric-help-disabled>${metric==='units'?'呆滞库存':'呆滞货值'}</span><strong data-ip-stale-total="${metric}">${ipStaleChartValue(data[metric],metric).replace(/(万元|元|件)$/,'<small>$1</small>')}</strong></div><div><span>呆滞占比</span><strong data-ip-stale-total-share>${ratio}${total>0?'<small>%</small>':''}</strong></div>`;
  const stack=ipStaleStack(data.seasons,metric,data[metric],data[metric],'季品'+label+'分布');
  return `<article class="ip-stale-panel ip-stale-distribution"><header><h3>呆滞库存分布</h3>${controls}</header><div class="ip-stale-distribution-total">${totals}</div><div class="ip-stale-season-distribution"><div class="ip-stale-stacks">${stack}</div><div class="ip-stale-season-summary">${seasons}</div></div><div class="ip-stale-age-heading"><h4>库龄分布</h4></div><div class="ip-stale-age-table" role="table" aria-label="库龄季品${label}分布">${headings}${cells}</div></article>`;
 }

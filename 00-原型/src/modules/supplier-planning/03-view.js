@@ -40,9 +40,9 @@ function scpCategoryCard(){
  return `<article class="scp-card scp-category-card"><header><div class="scp-category-title"><h4 class="scp-panel-title">类目准入储备<button type="button" class="metric-help scp-sourcing-help" data-scp-category-help="true" data-scp-rule-year="${scpState.categoryPeriod.year}" aria-label="查看类目准入储备规则"></button></h4><span class="scp-pane-count">${rows.length}项</span><button type="button" class="link" data-scp-all-categories>查看全部 ${scpCategories.length}</button></div>${scpPeriodControl('category',scpState.categoryPeriod)}</header><div class="scp-card-search ui-business-filters"><label class="ui-search-field unified-input-group"><input type="search" data-scp-query="category" placeholder="搜索三级类目" aria-label="搜索三级类目" value="${esc(scpState.categoryQuery)}"></label></div><div class="scp-card-scroll">${scpTable('<tr><th data-up-basic>三级类目</th>'+headers.map(([key,label])=>scpSortHead(key,label,sort,scpDefaultSort('categories'))).join('')+'</tr>',body,'scp-category-table')}</div></article>`;
 }
 
-// 固定四季卡片，不提供排序；实际数保留原业务跳转，目标保持只读。
+// 核心战略供应商来自导入名单，季度实际与目标均只读。
 function scpResourceQuarterCards(){
- return scpQuarterRows(scpState.resourceYear).map(row=>`<section class="scp-quarter-card" data-scp-resource-quarter="${row.quarter}" aria-label="${scpState.resourceYear}年Q${row.quarter}新增合作"><h5 data-up-basic>Q${row.quarter} 新增合作</h5><div class="scp-quarter-value">${scpReadiness({kind:'resource',quarter:row.quarter},'newCooperation',row.newCooperation,row.range,row.target)}</div><span class="scp-quarter-caption" data-up-basic>实际 / 目标</span></section>`).join('');
+ return scpQuarterRows(scpState.resourceYear).map(row=>`<section class="scp-quarter-card" data-scp-resource-quarter="${row.quarter}" aria-label="${scpState.resourceYear}年Q${row.quarter}新增合作"><h5 data-up-basic>Q${row.quarter} 新增合作</h5><div class="scp-quarter-value">${scpReadiness({kind:'resource'},'newCooperation',row.newCooperation,row.range,row.target)}</div><span class="scp-quarter-caption" data-up-basic>实际 / 目标</span></section>`).join('');
 }
 function scpResourceCard(){
  const annual=scpAnnual(scpState.resourceYear),yearNew=String(scpState.resourceYear).slice(-2)+'年新增合作';

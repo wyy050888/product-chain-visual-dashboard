@@ -7,26 +7,28 @@ async function ssiReadFile(file,tier){
  if(!/\.xlsx$/i.test(file.name))return ssiNormalizeTable(await cwReadFile(file));
  const sheets=await cwReadXlsx(await file.arrayBuffer(),{allSheets:true}),sheet=sheets.find(row=>row.name===ssiTierLabels[tier]+'导入模板')||(sheets.length===1?sheets[0]:null);
  if(!sheet)throw Error('未找到“'+ssiTierLabels[tier]+'导入模板”Sheet，请下载当前Tab模板');
- return ssiNormalizeTable(sheet.rows);
+ return Object.assign(ssiNormalizeTable(sheet.rows),{sheetName:sheet.name});
 }
 function ssiParseImport(table,tier=ssiState.tier){
  table=ssiNormalizeTable(table);const schema=ssiSchemas[tier],errors=[],entries=[],headers=(table[0]||[]).map(ssiHeader),names=schema.fields.map(([,label])=>ssiHeader(label)),seen=new Set(),existingRows=new Map(ssiStore.rows.map(row=>[ssiKey(row),row]));
- const add=(row,message)=>errors.push({row,message});
+ const add=(row,message,field='')=>errors.push({row,message,field});
+ const labelFor=key=>ssiHeader(schema.fields.find(([field])=>field===key)[1]);
  if(headers.length!==names.length||new Set(headers).size!==headers.length||names.some(label=>!headers.includes(label)))add(table[0]?.sourceRow||1,'表头不匹配，请使用“'+ssiTierLabels[tier]+'”模板');
  if(table.length>5001)add(1,'单次最多导入5000条');if(errors.length)return {errors,entries,tier,revision:ssiStore.revision};
  table.slice(1).forEach((cells,index)=>{
   const row=cells.sourceRow||index+2;if(cells.every(value=>!String(value??'').trim()))return;const before=errors.length;
   const record={tier,...Object.fromEntries(schema.fields.map(([key,label])=>[key,String(cells[headers.indexOf(ssiHeader(label))]??'').trim()]))};
   const known=scpCompanies.find(supplier=>ssiNormalize(supplier.name)===ssiNormalize(record.name));record.name=known?.name||ssiNormalize(record.name);if(record.productCode)record.productCode=ssiNormalize(record.productCode);
-  for(const key of schema.required)if(!record[key])add(row,schema.fields.find(([field])=>field===key)[1]+'必填');
-  if(record.cooperation)for(const key of schema.cooperationRequired||[])if(!record[key])add(row,'填写合作日期时，'+schema.fields.find(([field])=>field===key)[1]+'必填');
-  if(cells.some(value=>String(value).startsWith('[公式：')))add(row,'请将公式粘贴为值后导入');if(cells.length>headers.length)add(row,'数据列多于表头');
-  for(const key of ['admitted','cooperation'])if(record[key])try{record[key]=uiImportDate(ssiNormalize(record[key]),key==='admitted'?'准入日期':'合作日期')}catch(error){add(row,error.message)}
+  for(const key of schema.required)if(!record[key])add(row,labelFor(key)+'必填',labelFor(key));
+  if(record.cooperation)for(const key of schema.cooperationRequired||[])if(!record[key])add(row,'填写合作日期时，'+labelFor(key)+'必填',labelFor(key));
+  cells.forEach((value,index)=>{if(String(value).startsWith('[公式：'))add(row,'请将公式粘贴为值后导入',headers[index])});
+  if(cells.length>headers.length)add(row,'数据列多于表头');
+  for(const key of ['admitted','cooperation'])if(record[key])try{record[key]=uiImportDate(ssiNormalize(record[key]),labelFor(key))}catch(error){add(row,error.message,labelFor(key))}
   for(const key of ['categoryPath','admissionCategory'])if(record[key]){const category=ssiCategoryFor(record[key]);if(category)record[key]=category.path}
   for(const key of ['admissionMaterial','cooperationMaterial','availableBrand','brand'])if(record[key])record[key]=ssiNormalize(record[key]);
   if(record.productCode)try{const product=uiImportSpu(record.productCode);if(record.productName&&ssiNormalize(record.productName)!==ssiNormalize(product.name))throw Error('合作产品名称与SPU码对应档案不一致');if(record.brand&&record.brand!==product.brand)throw Error('合作品牌与SPU码对应档案不一致');record.productName=product.name}catch(error){add(row,error.message)}
   const key=ssiKey(record),existing=existingRows.get(key);if(seen.has(key))add(row,'文件内同一年度供应商关系重复，请合并后导入');seen.add(key);
-  try{ssiValidateRow(record)}catch(error){add(row,error.message)}
+  try{ssiValidateRow(record)}catch(error){add(row,error.message,names.find(label=>error.message.startsWith(label)))}
   if(errors.length===before)entries.push({row,record,kind:existing?'更新':'新增'});
  });
  if(!entries.length&&!errors.length)add(2,'文件没有数据行');return {errors,entries,tier,years:[...new Set(entries.map(({record})=>ssiYear(record)).filter(Boolean))].sort(),revision:ssiStore.revision};

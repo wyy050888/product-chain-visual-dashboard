@@ -1,31 +1,30 @@
 // 相同模块移动原DOM，保留ID、监听器及所有当前版本的筛选/抽屉，不复制旧模板。
-const pcSharedIds=['risk','ai','sales','new','projects','lifecycle','matrix','inventory'];
+const pcSharedIds=['risk','ai','sales','new','projects','lifecycle','matrix','inventory','cost'];
+const pcModuleLabels={risk:'风险预警',ai:'AI 总诊断',management:'人员管理',sales:'销售达成',new:'新品专项',projects:'项目进度',lifecycle:'产品生命周期',matrix:'关键产品',inventory:'库存管控',cost:'降本增效'};
+const pcModuleOrder=Object.keys(pcModuleLabels);
 let pcRenderedRole='',pcDirectorNeedsRender=false;
 const pcSharedNodes=new Map(pcSharedIds.map(id=>{
  const node=$('#'+id),home=document.createComment('product-center-home:'+id);node.before(home);return [id,{node,home}];
 }));
 const pcDepartmentRender=renderDepartment;
+const pcNavigationResize=new ResizeObserver(pcQueueNavigation);
 function pcRestoreModules(){
+ pcNavigationResize.disconnect();
  for(const {node,home} of pcSharedNodes.values())home.after(node);
  pcMounted=false;dpView.classList.remove('product-center-view','page');
  $('#risk .sectionhead h2').firstChild.textContent='全局高危预警';$('#ai .sectionhead h2').textContent='全局 AI 总诊断';
  document.body.classList.remove('product-center-active','product-center-manager');pcSyncRoleControl();
 }
-function pcOwnSection(id,title,content){
- const section=document.createElement('section');section.id='dp-'+id;section.className='section pc-own-section';
- section.innerHTML=`<div class="sectionhead"><div class="titlegroup"><h2>${title}</h2></div><div class="module-header-time">${dpPeriodHTML(id)}</div></div><div class="dp-range">${bounds(dpP(id)).start} — ${bounds(dpP(id)).cutoff} · ${dpState.chain==='all'?'全部链群':chains[+dpState.chain]}</div>${content}`;
- return section;
-}
 function pcRenderWorkspace(){
  const refresh=!pcMounted||pcRenderedRole!==dpState.role;
  pcMounted=true;dpView.classList.add('page','product-center-view');document.body.classList.add('product-center-active');
  pcApplyFixedSelections(refresh);pcRenderedRole=dpState.role;
- const managementMarkup=dpWith('management',dpRenderManagement);
+ const management=pcPersonnelSection();
  // 在清空工作区前保留共用节点；原生监听器、输入状态及图表观察器均保留。
  const fragment=document.createDocumentFragment();for(const {node} of pcSharedNodes.values())fragment.append(node);
  dpView.replaceChildren();
  const navigation=document.createElement('div');navigation.className='navigation-toolbar pc-navigation-toolbar';
- navigation.innerHTML=`<nav class="jumpnav" aria-label="产品中心模块导航">${dxModuleOrder.map(id=>`<a href="#dp-${id}">${({risk:'风险预警',ai:'AI 总诊断',management:'人员管理',sales:'销售达成',new:'新品专项',projects:'项目进度',lifecycle:'产品生命周期',matrix:'关键产品',inventory:'库存管控'})[id]}</a>`).join('')}</nav>`;
+ navigation.innerHTML=`<nav class="jumpnav" aria-label="产品中心模块导航">${pcModuleOrder.map(id=>`<a href="#dp-${id}">${pcModuleLabels[id]}</a>`).join('')}</nav>`;
  const actions=document.createElement('div');actions.className='navigation-actions';
  for(const original of navigationActions.children){
   if(getComputedStyle(original).display==='none')continue;
@@ -33,16 +32,19 @@ function pcRenderWorkspace(){
  }
  const rules=brcEntry.cloneNode(true);rules.removeAttribute('id');rules.onclick=()=>brcEntry.click();
  navigation.append(rules,actions);dpView.append(navigation);
- for(const id of dxModuleOrder){
-  if(id==='management')dpView.append(pcOwnSection('management','产品中心人员管理',managementMarkup));
+ pcNavigationResize.disconnect();pcNavigationResize.observe(navigation);
+ management.dataset.moduleSticky='';
+ for(const id of pcModuleOrder){
+  if(id==='management')dpView.append(management);
   else{
    const alias=document.createElement('span');alias.id='dp-'+id;alias.className='pc-module-anchor';alias.setAttribute('aria-hidden','true');
    const {node}=pcSharedNodes.get(id);node.hidden=false;dpView.append(alias,node);
   }
  }
  $('#ai .sectionhead h2').textContent='产品中心 AI 总诊断';
- $('#risk .sectionhead h2').firstChild.textContent='产品中心高危预警';
+ $('#risk .sectionhead h2').firstChild.textContent='产品中心风险预警';
  if(refresh){pcDirectorNeedsRender=true;renderAll(moduleIds.filter(id=>pcSharedNodes.has(id)))}
+ pcPaintPersonnel(management);
  pcTrimScopedModules();pcSyncRoleControl();pcQueueNavigation();
 }
 renderDepartment=function(){
@@ -71,15 +73,21 @@ dpSwitchView=function(view,...args){
 
 // 共用模块日期使用原处理器；专属模块日期保留原部门状态。
 const pcRenderLife=renderLife;
-renderLife=function(...args){const result=pcRenderLife(...args);if(pcIsActive())pcTrimScopedModules();return result};
+renderLife=function(...args){
+ const result=pcRenderLife(...args);
+ if(pcIsActive()){pcTrimScopedModules();pcRenderBrandPlan()}
+ else $('#pc-brand-plan')?.remove();
+ return result;
+};
 function pcMeasureNavigation(){
   if(!pcIsActive())return;
   const toolbar=dpView.querySelector('.pc-navigation-toolbar'),top=toolbar.getBoundingClientRect().bottom+20;
-  const offset=(toolbar.offsetHeight+$('.head').offsetHeight+18)+'px';
-  let current='risk';for(const id of dxModuleOrder){const node=pcSharedNodes.get(id)?.node||$('#dp-'+id);if(node.getBoundingClientRect().top<=top+1)current=id;else break}
+  const stickyTop=sectionStickyOffset(toolbar),offset=(stickyTop+18)+'px';
+  let current='risk';for(const id of pcModuleOrder){const node=pcSharedNodes.get(id)?.node||$('#dp-'+id);if(node.getBoundingClientRect().top<=top+1)current=id;else break}
   const nav=toolbar.querySelector('.jumpnav'),selected=nav.querySelector('a[href="#dp-'+current+'"]'),item=selected.getBoundingClientRect(),viewport=nav.getBoundingClientRect();
   const scroll=item.left<viewport.left?nav.scrollLeft+item.left-viewport.left-8:item.right>viewport.right?nav.scrollLeft+item.right-viewport.right+8:null;
   return ()=>{
+  if(dpView.style.getPropertyValue('--module-sticky-top')!==stickyTop+'px')dpView.style.setProperty('--module-sticky-top',stickyTop+'px');
   if(dpView.style.getPropertyValue('--dashboard-anchor-offset')!==offset)dpView.style.setProperty('--dashboard-anchor-offset',offset);
   for(const link of toolbar.querySelectorAll('.jumpnav a')){
    const active=link.hash==='#dp-'+current;
@@ -97,7 +105,7 @@ function pcScrollToModule(id){
  const node=pcSharedNodes.get(id)?.node||document.getElementById('dp-'+id),toolbar=dpView.querySelector('.pc-navigation-toolbar');
  if(!node||!toolbar)return;
  // 只扣一次导航高度，避免scroll-padding与scroll-margin叠加后仍高亮上一模块。
- window.scrollTo({top:Math.max(0,scrollY+node.getBoundingClientRect().top-toolbar.getBoundingClientRect().bottom-18),behavior:'instant'});
+ window.scrollTo({top:Math.max(0,scrollY+node.getBoundingClientRect().top-sectionStickyOffset(toolbar)-18),behavior:'instant'});
  pcQueueNavigation();
 }
 window.addEventListener('scroll',pcQueueNavigation,{passive:true});window.addEventListener('resize',pcQueueNavigation);

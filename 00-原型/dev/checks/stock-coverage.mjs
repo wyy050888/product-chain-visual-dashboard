@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 
 export function verifyStockCoverage(){
- const ctx=businessRuleContext({fmt:String,upMoney:String,DATA_CUTOFF:'2026-10-10',
+ const ctx=businessRuleContext({fmt:String,upMoney:String,boundedCache:()=>new Map(),DATA_CUTOFF:'2026-10-10',
   upIdentity:p=>p,upSummary:()=>({sales:180,returned:30}),shiftDate:()=> '2026-09-26',newLaunchSamples:new Map(),window:{}});
  vm.runInContext(fs.readFileSync(new URL('../../src/data/filter-catalog.js',import.meta.url),'utf8'),ctx);
  for(const file of ['ui-controls/00-stock-quantity.js','unified-product/06-stock-model.js','inventory-detail/00-ledger.js','inventory-detail/01-coverage-samples.js','new-products/01-model.js'])

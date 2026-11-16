@@ -31,7 +31,7 @@ function smRenderMenu(){
   return `<a href="${page.external||page.route}" ${action} ${current}>${esc(label)}</a>`;
  };
  smHost.querySelector('.lt-sidebar').innerHTML=smMenuGroups.map(([group,items])=>
-  `<details class="lt-menu-group" ${['业务配置','目标管理'].includes(group)?'open':''}><summary>${esc(group)}<span aria-hidden="true">⌃</span></summary>${items.map(itemMarkup).join('')}</details>`
+  `<details class="lt-menu-group" ${['业务配置','目标管理'].includes(group)?'open':''}><summary>${esc(group)}<span class="ui-dropdown-icon" aria-hidden="true"></span></summary>${items.map(itemMarkup).join('')}</details>`
  ).join('');
 }
 function smRegisterPage(page){

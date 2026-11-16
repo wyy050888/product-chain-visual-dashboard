@@ -69,6 +69,12 @@
 
 /* 表头与正文沿同一列起点排版，任务表和分析表保持一致。 */
 .gd-workspace .gd-table-scroll :is(th,td){padding-inline:12px}
+.gd-header-tools[hidden]{display:none}
+.gd-workspace .gd-weekly-reports table{min-width:900px;white-space:nowrap}
+.gd-workspace .gd-weekly-reports :is(th,td){width:auto;text-align:center}
+.gd-workspace .gd-weekly-reports th:first-child{width:190px;text-align:left}
+.gd-workspace .gd-weekly-reports tbody th{font-weight:500;color:#465771;background:transparent}
+.gd-weekly-reports button.link:hover{text-decoration:underline}
 
 /* 各分类主表的操作列固定在本表右侧；空结果的跨列单元格不参与固定。 */
 .gd-workspace .gd-table-scroll table:is([data-gd-table],[data-gd-analysis-table]):not([data-gd-analysis-table="missing"])>thead>tr>th:last-child,

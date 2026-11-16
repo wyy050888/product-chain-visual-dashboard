@@ -3,9 +3,12 @@ import assert from 'node:assert/strict';
 export async function operatingEnhancements(page){
  const panel=page.locator('[data-up-panel="operating"]'),table=panel.locator('.up-platform-performance table');
  const rows=()=>table.locator('tbody tr').evaluateAll(rows=>rows.map(row=>[...row.cells].map(cell=>cell.textContent)));
- const baseline=await rows();assert.equal(await panel.locator('[data-up-channel-sort]').count(),9);
+ const baseline=await rows();
+ const keys=['channel','gsvCents','netSales','expenseCents','profitRate','returnRate','receivedRate'];
+ assert.deepEqual(await table.locator('[data-up-channel-sort]').evaluateAll(buttons=>buttons.map(button=>button.dataset.upChannelSort)),keys);
+ assert.equal(await table.locator('th:has([data-up-channel-sort="netSales"]) .net-sales-help').getAttribute('data-metric-rule'),'此处为去退后销量');
  const numeric=text=>text==='—'?null:parseFloat(text.replaceAll(',',''))*(text.includes('w')?10000:1);
- for(const [index,key] of ['channel','gsvCents','sales','netSales','expenseCents','feeRate','profitRate','returnRate','receivedRate'].entries()){
+ for(const [index,key] of keys.entries()){
   for(let n=0;n<3;n++){
    const button=panel.locator('[data-up-channel-sort="'+key+'"]');await button.click();const direction=await button.getAttribute('data-direction');if(!direction)continue;
    const data=await rows(),values=data.map(row=>index?numeric(row[index]):row[0]);
@@ -18,7 +21,7 @@ export async function operatingEnhancements(page){
  await verifyGradeTrend(page);
  for(const width of [1920,1100,390]){
   await page.setViewportSize({width,height:1080});assert.equal(await page.locator('#dialogbody').evaluate(e=>e.scrollWidth>e.clientWidth+1),false,'正文溢出 '+width);
-  const boxes=await panel.evaluate(panel=>{const table=panel.querySelector('.up-platform-performance table'),host=table.parentElement;return{table:table.getBoundingClientRect().right,host:host.getBoundingClientRect().right,scroll:host.scrollWidth>host.clientWidth+1,borders:[...panel.querySelectorAll('.up-metric,.up-attainment,.up-sales-trend,.up-channel-contribution,.up-platform-performance')].map(e=>getComputedStyle(e).borderLeftWidth)}});
+  const boxes=await panel.evaluate(panel=>{const table=panel.querySelector('.up-platform-performance table'),host=table.parentElement;return{table:table.getBoundingClientRect().right,host:host.getBoundingClientRect().right,scroll:host.scrollWidth>host.clientWidth+1,borders:[...panel.querySelectorAll('.up-metric,.up-sales-trend,.up-channel-contribution,.up-platform-performance')].map(e=>getComputedStyle(e).borderLeftWidth)}});
   assert(boxes.borders.every(value=>value==='0px'));if(width===1920)assert(Math.abs(boxes.table-boxes.host)<2);else if(width===390)assert(boxes.scroll);
  }
  await page.setViewportSize({width:1920,height:1080});

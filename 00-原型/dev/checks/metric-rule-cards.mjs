@@ -9,7 +9,7 @@ export async function metricRuleCards(page){
  const tip=page.locator('#metric-tooltip');
  const cases=[
   ['matrix','#matrix.kpm-main>.sectionhead h2>.metric-help','规模等级与经营标签'],
-  ['new','.nsp-pool-help .metric-help','新品判定与出池'],
+  ['new','[data-nsp-assessment-help]','新品纳入与成功考核'],
   ['inventory','[data-ip-summary-help]','库存指标说明'],
   ['suppliers','[data-scp-resource-help]','核心战略合作供应商认定规则'],
   ['suppliers','[data-scp-category-help]','类目准入储备'],
@@ -49,7 +49,11 @@ export async function metricRuleCards(page){
   }else{
   assert(await tip.evaluate(el=>el.classList.contains('metric-rule-card')));
   assert.equal(await tip.locator('.metric-rule-heading h4').innerText(),title);
-  assert.equal(await help.getAttribute('aria-describedby'),'metric-tooltip');
+  if(section==='new'){
+   assert.equal(await help.getAttribute('aria-controls'),'metric-tooltip');
+   assert.equal(await help.getAttribute('aria-expanded'),'true');
+   assert.equal(await tip.getAttribute('role'),'dialog');
+  }else assert.equal(await help.getAttribute('aria-describedby'),'metric-tooltip');
   const style=await tip.evaluate(el=>{const s=getComputedStyle(el);return [s.width,s.padding,s.borderRadius,s.borderColor,s.boxShadow,s.fontSize]});
   commonStyle??=style;assert.deepEqual(style,commonStyle,'同类提示必须复用相同外框样式：'+title);
   assert.deepEqual(await tip.evaluate(el=>{
@@ -57,19 +61,30 @@ export async function metricRuleCards(page){
    return {body:[body.fontFamily,body.fontSize,body.color],title:[title.fontFamily,title.fontSize,title.fontWeight,title.color]};
   }),typography,'字体字号及字色必须与入榜条件一致：'+title);
   for(const note of await tip.locator('.metric-rule-note').all()){
-   if(section==='new'){
-    assert.deepEqual(await note.evaluate(el=>{
-     const style=getComputedStyle(el),row=el.parentElement,heading=row.querySelector('h5');
-     return [style.backgroundColor,style.padding,getComputedStyle(row).display,heading.getBoundingClientRect().right<el.getBoundingClientRect().left];
-    }),['rgba(0, 0, 0, 0)','0px','grid',true],'新品提示使用无底色的标题与说明分列');
-    continue;
-   }
    assert.deepEqual(await note.evaluate(el=>{
     const s=getComputedStyle(el);return [s.backgroundColor,s.padding,s.borderRadius,s.fontSize,s.color];
    }),noteStyle,'解释说明统一使用灰底说明块：'+title);
   }
   if(section==='matrix')assert.equal(await tip.locator('.metric-rule-badge').innerText(),'所选期间');
-  if(section==='new')assert.equal(await tip.locator('.metric-rule-list>li').count(),4);
+  if(section==='new'){
+   assert.equal(await page.locator('#newtop .nsp-success-kpi .metric-help').count(),0);
+   const headings=['① 新品判定','② 新品业绩计算','③ 新品成功率及判定条件','④ 特殊情况说明','⑤ 出池规则'];
+   const quarter=tip.getByRole('button',{name:'季度考核',exact:true}),year=tip.getByRole('button',{name:'年度考核',exact:true});
+   assert.equal(await quarter.getAttribute('aria-pressed'),'true');
+   assert.deepEqual(await tip.locator('.nsp-assessment-help-list h5').allTextContents(),headings);
+   assert.match(await tip.locator('.nsp-tip-formula').innerText(),/本季首次成功/);
+   assert.match(await tip.innerText(),/后续同简称型号上线即承接成功状态/);
+   assert.match(await tip.locator('.nsp-assessment-help-thresholds dd').first().innerText(),/季度 GSV≥500万元/);
+   await year.click();
+   assert.equal(await year.getAttribute('aria-pressed'),'true');
+   assert.deepEqual(await tip.locator('.nsp-assessment-help-list h5').allTextContents(),headings);
+   assert.match(await tip.locator('.nsp-tip-formula').innerText(),/年度成功/);
+   assert.match(await tip.locator('.nsp-assessment-help-thresholds dd').first().innerText(),/全年 GSV 基准≥2000万元/);
+   assert.match(await tip.innerText(),/跨年滚入按全年门槛/);
+   assert.match(await tip.innerText(),/年度特批单独认定/);
+   await quarter.click();
+   assert.equal(await quarter.getAttribute('aria-pressed'),'true');
+  }
   if(section==='inventory')assert.deepEqual(await tip.locator('.metric-rule-section>h5').allTextContents(),['库存周转率','交付及时率','翻新闭环率']);
   if(selector.includes('resource')){
    assert.equal(await tip.locator('.metric-rule-list>li').count(),6);
@@ -93,8 +108,12 @@ export async function metricRuleCards(page){
   }
   if(process.env.DASHBOARD_RULE_CARD_SHOTS)await tip.screenshot({path:path.join(os.tmpdir(),'metric-rule-'+section+'-'+index+'.png')});
   await page.keyboard.press('Escape');assert(await tip.isHidden());
-  await help.focus();await tip.waitFor({state:'visible'});await page.keyboard.press('Escape');
-  await page.keyboard.press('Enter');await tip.waitFor({state:'visible'});await page.keyboard.press('Escape');
+  if(section==='new')assert(await help.evaluate(element=>element===document.activeElement));
+  else{await help.focus();await tip.waitFor({state:'visible'});await page.keyboard.press('Escape')}
+  await page.keyboard.press('Enter');await tip.waitFor({state:'visible'});
+  if(section==='new')assert.equal(await page.locator(':focus').getAttribute('data-nsp-help-mode'),'quarter');
+  await page.keyboard.press('Escape');
+  if(section==='new')assert.equal(await help.getAttribute('aria-expanded'),'false');
   for(const width of [390,320]){
    await page.setViewportSize({width,height:844});await open(selector);
    const bounds=await tip.boundingBox();assert(bounds.x>=7&&bounds.x+bounds.width<=width-7,'浮层不越界：'+title);

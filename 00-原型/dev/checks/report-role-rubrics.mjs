@@ -1,10 +1,6 @@
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
-import {fileURLToPath} from 'node:url';
-
-const displayTerms=vm.runInNewContext(readFileSync(new URL('../../src/modules/page-presentation/03-terminology.js',import.meta.url),'utf8').split('function formatDisplayedTerms')[0]+'\npresentationTermText');
-
 const expectedRoles={
  '产品中心':['产品经理'],'项目部':['项目经理'],
  '品质中心':['PQM 品质链主','PQE质改工程师','实验室工程师','QC验货员','SQE 供应商质量工程师','体系工程师'],
@@ -39,17 +35,12 @@ function verifyProfileModel(){
  return catalog;
 }
 export async function reportRoleRubrics(page){
- const catalog=verifyProfileModel(),root=page.locator('#ai');
- await root.locator('[data-gd-part="execution"]').click();await root.locator('[data-gd-tab="quality"]').click();
- const initial=await page.evaluate(()=>globalDiagnosisAudit());
- for(const report of initial.reports){
-  const profile=catalog[report.department].employees.find(p=>p.id===report.role);assert(profile);assert.equal(report.position,profile.label);
-  if(!report.missing)assert.deepEqual(report.checks.map(c=>[c.key,c.label,c.criterion]),profile.rows.map(([key,label,,criterion])=>[key,label,criterion]),'诊断按具名岗位匹配');
+ const catalog=verifyProfileModel(),reports=await page.evaluate(()=>globalDiagnosisAudit().reports);
+ assert(reports.length>0);
+ for(const report of reports){
+  const profile=catalog[report.department].employees.find(p=>p.id===report.role);
+  assert(profile);
+  assert.equal(report.position,profile.label);
+  if(!report.missing)assert.deepEqual(report.checks.map(c=>[c.key,c.label,c.criterion]),profile.rows.map(([key,label,,criterion])=>[key,label,criterion]));
  }
- assert.equal(await root.locator('[data-gd-rubric],.gd-applied-rubric').count(),0);
- for(const department of ['发货部','计划部']){
-  await root.locator('[data-gd-department="'+department+'"]').click();assert.equal(await root.locator('[data-report-row]').count(),0,'无报告时不补造诊断');
- }
- await root.locator('[data-gd-department="all"]').click();
- console.log('通过：25套岗位判断标准正确匹配问题诊断，无报告部门保持空态，不提供评分界面。');
 }

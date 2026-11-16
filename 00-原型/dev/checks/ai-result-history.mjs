@@ -37,7 +37,7 @@ export async function aiResultHistory(page){
  assert.equal(first.payload.problem,'原问题');
 
  await page.clock.install({time:new Date('2026-11-05T02:30:00Z')});await page.reload();
- await page.locator('[data-gd-part="execution"]').click();
+ await page.locator('[data-gd-part="coordination"]').click();
  await page.locator('#gd-date-trigger').click();await page.locator('#up-date-popover [data-range-preset="yesterday"]').click();
  const take=()=>page.evaluate(()=>{const d=globalDiagnosisAudit();return {reports:d.reports.map(r=>({id:r.id,date:r.date,content:r.content})),deviations:d.deviations.map(r=>({id:r.id,date:r.date,sources:r.sources})),tasks:d.tasks.map(r=>r.task),versions:aiResultHistoryAudit().streams.global.revisions.length}});
  const before=await take();assert.equal(before.reports.filter(r=>r.type!=='周报').length,5);
@@ -45,7 +45,7 @@ export async function aiResultHistory(page){
  const refreshed=await take();assert.equal(refreshed.versions,before.versions,'重复刷新不追加相同版本');
  assert.deepEqual(refreshed.tasks,before.tasks,'AI刷新不回写手工任务');
  await page.clock.setFixedTime(new Date('2026-11-06T02:30:00Z'));await page.reload();
- await page.locator('[data-gd-part="execution"]').click();await page.locator('#gd-date-trigger').click();
+ await page.locator('[data-gd-part="coordination"]').click();await page.locator('#gd-date-trigger').click();
  const day=page.locator('#up-date-popover [data-range-date="2026-11-04"]').last();await day.click();await day.click();
  const after=await take();assert.deepEqual(after.reports,before.reports,'跨日重载保留原日报及ID');
  assert.deepEqual(after.deviations.map(r=>r.sources),before.deviations.map(r=>r.sources),'历史业务日不混入后来依据');

@@ -24,10 +24,10 @@ export function verifySampleRefresh(){
 
 export function verifyDiagnosisSampleDiversity(audit,stockRecords){
  const work=audit.work,omissions=work.filter(r=>r.kind==='omission');
- assert.equal(omissions.length,2);assert.equal(omissions.filter(r=>r.problem.includes('呆滞库存')).length,1);assert.equal(omissions.filter(r=>r.problem.includes('待检库存')).length,1);
- const inspection=omissions.find(r=>r.problem.includes('待检库存')),stock=stockRecords.find(r=>r.spuId===inspection.object.spuId);
- assert(stock.factoryInspection>0);assert(inspection.sources.some(s=>s.content.replaceAll(',','').includes('工厂待检库存：'+stock.factoryInspection+'件')),'待检数量来自实际库存快照');
- assert(inspection.participants.every(p=>/待检|验货/.test(p.action)),'执行动作对应验货/放行问题');
+ assert.equal(omissions.length,2);assert.equal(omissions.filter(r=>r.problem.includes('呆滞库存')).length,1);assert.equal(omissions.filter(r=>r.problem.includes('未产订单')).length,1);
+ const unproduced=omissions.find(r=>r.problem.includes('未产订单')),stock=stockRecords.find(r=>r.spuId===unproduced.object.spuId);
+ assert(stock.unproducedOrders>0);assert(unproduced.sources.some(s=>s.content.replaceAll(',','').includes('未产订单：'+stock.unproducedOrders+'件')),'未产数量来自库存快照');
+ assert(unproduced.participants.every(p=>/排产|到货/.test(p.action)),'执行动作对应排产和交付问题');
  for(const row of omissions){assert.equal(row.coverage.mentions,0);assert(!audit.focus.some(g=>g.objectKey===row.object.key));assert(row.sources.some(s=>s.source.startsWith('来源扫描清单')))}
  const causes={
   'work-core-delivery':/样机交付与检测/, 'work-core-mold':/样品.*拉伤/, 'work-core-certification':/认证主体/,

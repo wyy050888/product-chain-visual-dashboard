@@ -43,7 +43,7 @@ function rpQualitySummaryMarkup(rows){
   ['drop','链接掉权',totals.dropCount,value=>count(value,'次')]
  ];
  const periodLabel=periodShortText(periodFor('risk')).replace('近30天','近30日').replace('当日','所选期间');
- return `<div class="rp-quality-summary"><div class="rp-quality-summary-period"><span>${esc(periodLabel)}</span> <strong>全平台合计</strong></div><dl class="rp-quality-summary-metrics" aria-label="${esc(periodLabel)}全平台违规汇总">${metrics.map(([key,label,value,format])=>{
+ return `<div class="rp-quality-summary"><div class="rp-quality-summary-period"><span>${esc(periodLabel)}</span> <strong>全平台合计（品质违规）</strong></div><dl class="rp-quality-summary-metrics" aria-label="${esc(periodLabel)}全平台品质违规汇总">${metrics.map(([key,label,value,format])=>{
   const tone=value===0?'muted':key==='products'?'total':'risk';
   return `<div class="rp-quality-summary-metric" data-rp-summary="${key}" data-tone="${tone}"><dt>${label}</dt><dd>${format(value)}</dd></div>`;
  }).join('')}</dl></div>`;

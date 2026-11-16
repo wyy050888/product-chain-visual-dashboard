@@ -18,7 +18,7 @@ export async function coreLinkTemplate(page){
   };
   await page.locator('#klc-import').click();
   for(const values of [[month,'链接名称','123','店铺名称', '不存在的店铺ID'],[month.replace('/','-'),'链接名称','123','店铺名称',known.shopId],[month,'链接名称','','店铺名称',known.shopId]]){
-   await upload(values);await page.locator('#klc-confirm-import').click();await page.locator('.ui-import-feedback button').waitFor();assert.equal((await audit()).revision,before.revision);
+   await upload(values);await page.locator('#klc-confirm-import').click();await page.locator('.ui-import-feedback button:has-text("查看失败明细")').waitFor();assert.equal((await audit()).revision,before.revision);
   }
   // 名称用于展示，ID负责定位；重命名链接不会改变已有产品关联。
   await upload([month,'恢复模板后的商品链接名称',known.linkId,'店铺展示名称',known.shopId]);

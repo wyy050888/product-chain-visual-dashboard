@@ -35,7 +35,8 @@ brcDefine('products','退货恶化触发',[
 ]);
 // 退货恶化条件只供运行时判定，配置页不提供入口。
 for(const rule of brcDefinitions)if(rule.group==='products'&&rule.section==='退货恶化触发')rule.configurable=false;
-for(const [platform,red,yellow] of [['抖音',4.6,4.8],['快手',4.4,4.7],['天猫',4.6,4.8],['京东',4.6,4.8]])brcDefine('shops',platform+'店铺分',[
+const brcShopScoreDefaults=[['抖音',4.6,4.8],['快手',4.4,4.7],['视频号',4.4,4.7],['天猫',4.6,4.8],['京东',4.6,4.8]];
+for(const [platform,red,yellow] of brcShopScoreDefaults)brcDefine('shops',platform+'店铺分',[
  ['shops.'+platform+'.red','红灯上限',red,'分',platform==='天猫'?'＜':'≤',0,5],['shops.'+platform+'.yellow','黄灯上限',yellow,'分','＜',0,5]
 ]);
 brcDefine('shops','处罚与单品退货',[
@@ -52,9 +53,9 @@ brcDefine('stock','历史高危库存参数',[
 ]);
 // 库存预警使用完整条件组；旧天数键沿用，历史数值自动生成对应条件。
 brcDefine('stock','库存预警规则',[
- ['stock.warning.warehouse','可售库存',0,'件','＞',0,1000000000,true],
+ ['stock.warning.warehouse','我司可售库存',0,'件','＞',0,1000000000,true],
  ['stock.warning.netSales','近15日净销量',0,'件','＞',0,1000000000,true],
- ['stock.warning.coverageDays','可售天数',60,'天','≥',1,3650,true],
+ ['stock.warning.coverageDays','我司可售天数',60,'天','≥',1,3650,true],
  ['stock.shortage.excluded','是否清仓或下架',0,'','＝',0,1,true],
  ['stock.shortage.netSales','近15日净销量',0,'件','＞',0,1000000000,true],
  ['stock.shortage.sellableDays','可售天数上限（含）',15,'天','≤',1,3650,true],['stock.shortage.totalDays','总可售天数上限（含）',45,'天','≤',1,3650,true]

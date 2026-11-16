@@ -1,13 +1,16 @@
 // 各指标按自身单位缩放；显式指定左右轴，隐藏轴的销量仍参与曲线和悬浮值展示。
-function upSalesTrend(points,options={}){
- const rows=options.rows||points.map(d=>({date:d.date,gsv:d.gsvCents/1000000,sales:d.sales,margin:d.gsvCents>0?d.profitCents/d.gsvCents*100:null}));
- if(!rows.length)return '<div class="up-empty">暂无销售趋势数据</div>';
- const series=options.series||[{key:'gsv',name:'GSV',unit:'万元',color:'#1677ff',axis:'left'},
-  {key:'sales',name:'销量',unit:'件',color:'#fa803b'},
-  {key:'margin',name:'利润率',unit:'%',color:'#8a6bd1',axis:'right'}].filter(s=>s.key!=='margin'||options.margin!==false);
+const upProductSalesSeries=[{key:'gsv',name:'GSV',unit:'万元',digits:1,color:'#1677ff',axis:'left'},
+ {key:'sales',name:'销量',unit:'件',color:'#fa803b'},
+ {key:'margin',name:'利润率',unit:'%',color:'#8a6bd1',axis:'right'}];
+function upProductSalesRows(points){
+ return points.map(d=>({date:d.date,gsv:d.gsvCents/1000000,sales:d.sales,margin:d.gsvCents>0?d.profitCents/d.gsvCents*100:null}));
+}
+function upSalesTrendCanvas(rows,series,options={}){
  const displayValue=(value,metric)=>metric.unit==='件'?formatSalesQuantity(value,metric.unit)
-  :Number.isFinite(value)?fmt(value,metric.unit==='%'?1:2)+metric.unit:'—';
- const left=76,right=1060,top=38,bottom=options.bottom||186,x=i=>left+i*(right-left)/Math.max(1,rows.length-1);
+  :Number.isFinite(value)?fmt(value,metric.digits??(metric.unit==='%'?1:2))+metric.unit:'—';
+ const fit=options.fit, width=fit?.width??1140,height=fit?.height??((options.bottom||186)+40);
+ const left=fit?48:76,right=width-(fit?58:80),top=fit?14:38,bottom=height-(fit?26:40);
+ const x=i=>left+i*(right-left)/Math.max(1,rows.length-1);
  const ticks=[...new Set(Array.from({length:5},(_,i)=>Math.round((rows.length-1)*i/4)))];
  const grid=[0,.5,1].map(t=>`<line x1="${left}" x2="${right}" y1="${bottom-t*(bottom-top)}" y2="${bottom-t*(bottom-top)}" stroke="#e8edf6"/>`).join('');
  let axis='';
@@ -27,10 +30,41 @@ function upSalesTrend(points,options={}){
  const hitWidth=(right-left)/Math.max(1,rows.length-1);
  const hits=rows.map((row,i)=>{
   const values=series.map(s=>({key:s.key,label:s.name,color:s.color,value:displayValue(row[s.key],s)}));
-  return `<rect x="${Math.max(left,x(i)-hitWidth/2)}" y="${top}" width="${rows.length===1?right-left:Math.min(right,x(i)+hitWidth/2)-Math.max(left,x(i)-hitWidth/2)}" height="${bottom-top}" fill="transparent" data-up-trend-point data-series-values="${esc(JSON.stringify(values))}" data-date="${esc(row.date)}" data-gsv="${esc(fmt(row.gsv,2)+'万元')}" data-sales="${esc(formatSalesQuantity(row.sales,'件'))}" data-margin="${esc(upPercent(row.margin))}" tabindex="0" aria-label="${esc(row.date+'；'+values.map(s=>s.label+' '+s.value).join('；'))}"></rect>`;
+  const gsv=values.find(metric=>metric.key==='gsv')?.value??'—';
+  return `<rect x="${Math.max(left,x(i)-hitWidth/2)}" y="${top}" width="${rows.length===1?right-left:Math.min(right,x(i)+hitWidth/2)-Math.max(left,x(i)-hitWidth/2)}" height="${bottom-top}" fill="transparent" data-up-trend-point data-series-values="${esc(JSON.stringify(values))}" data-date="${esc(row.date)}" data-gsv="${esc(gsv)}" data-sales="${esc(formatSalesQuantity(row.sales,'件'))}" data-margin="${esc(upPercent(row.margin))}" tabindex="0" aria-label="${esc(row.date+'；'+values.map(s=>s.label+' '+s.value).join('；'))}"></rect>`;
  }).join('');
- return `<section class="up-sales-trend up-operating-trend"><div class="up-trend-heading"><h3>${esc(options.title||'销售趋势')}</h3><div class="up-trend-legend" aria-label="销售趋势指标">${series.map(s=>`<span class="up-trend-legend-item"><button type="button" data-up-series-toggle="${s.key}" aria-pressed="true" style="--series-color:${s.color}"><i></i>${esc(s.name)}</button>${netSalesHelp(s.key)}</span>`).join('')}</div></div>
- <div class="up-trend-scroll"><svg viewBox="0 0 1140 ${bottom+40}" role="img" aria-label="${series.map(s=>s.name).join('、')}销售趋势，悬浮查看原值">${grid}${axis}${lines}${hits}${ticks.map(i=>`<text x="${x(i)}" y="${bottom+27}" text-anchor="middle">${esc(options.tick?options.tick(rows[i]):rows[i].date.slice(5,10))}</text>`).join('')}</svg></div></section>`;
+ return `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${series.map(s=>s.name).join('、')}销售趋势，悬浮查看原值">${grid}${axis}${lines}${hits}${ticks.map(i=>`<text x="${x(i)}" y="${bottom+(fit?19:27)}" text-anchor="middle">${esc(options.tick?options.tick(rows[i]):rows[i].date.slice(5,10))}</text>`).join('')}</svg>`;
+}
+function upSalesTrend(points,options={}){
+ const rows=options.rows||upProductSalesRows(points);
+ if(!rows.length)return '<div class="up-empty">暂无销售趋势数据</div>';
+ const series=options.series||upProductSalesSeries.filter(s=>s.key!=='margin'||options.margin!==false);
+ const title=options.title===false?'':`<h3>${esc(options.title||'销售趋势')}</h3>`;
+ return `<section class="up-sales-trend up-operating-trend"><div class="up-trend-heading">${title}<div class="up-trend-legend" aria-label="销售趋势指标">${series.map(s=>`<span class="up-trend-legend-item"><button type="button" data-up-series-toggle="${s.key}" aria-pressed="true" style="--series-color:${s.color}"><i></i>${esc(s.name)}</button>${netSalesHelp(s.key)}</span>`).join('')}</div></div>
+ <div class="up-trend-scroll">${upSalesTrendCanvas(rows,series,options)}</div></section>`;
+}
+const upSalesLayouts=new WeakMap();
+function upMountSalesLayout(root,rows,series=upProductSalesSeries,options={}){
+ upSalesLayouts.get(root)?.disconnect();
+ const host=root.querySelector('.up-operating-trend .up-trend-scroll');
+ if(!host)return;
+ const measure=()=>{
+  if(!host.clientWidth||!host.clientHeight)return;
+  const svg=host.querySelector('svg'),canvas=svg.viewBox.baseVal;
+  const width=Math.max(parseFloat(getComputedStyle(svg).minWidth)||0,host.clientWidth),height=host.clientHeight;
+  if(canvas.width===width&&canvas.height===height)return;
+  return ()=>{
+   host.innerHTML=upSalesTrendCanvas(rows,series,{...options,fit:{width,height}});
+   for(const button of host.parentElement.querySelectorAll('[data-up-series-toggle][aria-pressed="false"]')){
+    host.querySelector('[data-up-series="'+button.dataset.upSeriesToggle+'"]').style.display='none';
+   }
+  };
+ };
+ const observer=new ResizeObserver(()=>{
+  if(host.isConnected)dashboardQueueLayout(host,measure);
+  else observer.disconnect();
+ });
+ upSalesLayouts.set(root,observer);observer.observe(host);dashboardQueueLayout(host,measure);
 }
 document.addEventListener('click',e=>{
  const button=e.target.closest('[data-up-series-toggle]');if(!button)return;

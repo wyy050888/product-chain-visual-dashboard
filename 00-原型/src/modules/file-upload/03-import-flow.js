@@ -22,7 +22,7 @@ function uiBindImportFlow({dialog,input,button,parse,commit,done,read=cwReadFile
  input.addEventListener('change',reset);dialog.addEventListener('close',()=>generation++,{once:true});reset();
  const run=async event=>{
   event.preventDefault();if(busy||!input.files.length)return;
-  const file=input.files[0],ticket=++generation,config=uiUploadOptions(input);let table=[],entry;
+  const file=input.files[0],ticket=++generation,config=uiUploadOptions(input);let table,entry,batch,sheetName,saving=false;
   busy=true;button.disabled=true;button.textContent='导入中…';input.disabled=true;dialog.setAttribute('aria-busy','true');feedback.textContent='';feedback.classList.remove('is-error');
   // 先让按钮和加载态绘制，再读取、校验与保存；重复点击不会生成重复批次。
   await new Promise(resolve=>requestAnimationFrame(()=>setTimeout(resolve,0)));
@@ -31,38 +31,57 @@ function uiBindImportFlow({dialog,input,button,parse,commit,done,read=cwReadFile
    if(file.size>config.limit)throw Error('文件不能超过5MB');
    if(!uiUploadAccepts(input,file))throw Error('请选择 .xlsx 或 .csv 文件');
    table=await read(file);if(!current())return;
-   const batch=await parse(table,file);if(!current())return;
+   batch=await parse(table,file);if(!current())return;
+   sheetName=table.sheetName;
    table=batch.sourceTable||table;
-   if(batch.errors?.length){entry=uiRecordImport(input,{status:'导入失败',errors:batch.errors,table,...historyMeta(batch)});}
+   if(batch.errors?.length){entry=uiRecordImport(input,{status:'导入失败',errors:batch.errors,table,sheetName,...historyMeta(batch)});}
    else{
     if(review&&!await review(batch,file))return;if(!current())return;
-    await commit(batch,file);if(!current())return;
+    saving=true;await commit(batch,file);if(!current())return;
     entry=uiRecordImport(input,{status:'导入成功',table,...historyMeta(batch)});
     done(batch);toast('导入成功，共 '+(entry?.successCount??0)+' 条');return;
    }
-  }catch(error){if(!current())return;table=Array.isArray(table)?table:[];entry=uiRecordImport(input,{status:'导入失败',errors:[{row:'—',message:error.message||'导入失败，请重试'}],table});}
+  }catch(error){
+   if(!current())return;
+   const message=saving?'保存失败，本批数据未导入，请重试':error.message||'导入失败，请重试';
+   entry=uiRecordImport(input,{errors:[{row:'—',message}],table,sheetName,saveFailed:saving,...(batch?historyMeta(batch):{})});
+  }
   finally{busy=false;input.disabled=false;if(document.contains(input))dialog.removeAttribute('aria-busy');if(current()){button.disabled=false;button.textContent='确认导入'}}
   if(!current())return;
   feedback.classList.add('is-error');
-  const text=document.createElement('span');text.textContent='导入失败，未保存数据。移除文件后可重新上传。';feedback.append(text);
-  if(entry){const detail=document.createElement('button');detail.type='button';detail.className='link';detail.textContent='查看失败明细';detail.onclick=()=>uiImportHistory(entry.module,entry.id);feedback.append(detail)}
+  const text=document.createElement('span');text.textContent=saving?'保存失败，本批数据未导入，请重试。':'导入失败，未保存数据。'+(entry?.totalRows>0?(entry.invalidRows?'校验错误 '+entry.invalidRows+' 行，':'')+'本批 '+entry.totalRows+' 行均未导入。':'');feedback.append(text);
+  if(entry){
+   const action=(label,handler)=>{const control=document.createElement('button');control.type='button';control.className='link';control.textContent=label;control.onclick=handler;feedback.append(control)};
+   action('查看失败明细',()=>uiImportHistory(entry.module,entry.id));
+   action('下载失败报告',()=>uiHistoryDownload(entry));
+  }
  };
  button.addEventListener('click',run);
  dialog.querySelector('form')?.addEventListener('submit',run);
 }
 
-// 只存失败行的原始单元格，供明细和下载使用；示例、空行不计入总行数。
 function uiImportSource(table=[]){
  const headers=(table[0]||[]).map(value=>String(value??''));
- const rows=table.slice(1).filter(row=>row.some(value=>String(value??'').trim())).map((row,index)=>({row:row.sourceRow||index+2,values:Array.from({length:Math.max(headers.length,row.length)},(_,column)=>String(row[column]??''))}));
- const skipped=table.slice(1).filter(row=>!row.some(value=>String(value??'').trim())).length;
- return {headers,rows,skipped};
+ const rows=table.slice(1).flatMap((row,index)=>row.some(value=>String(value??'').trim())?[{row:row.sourceRow||index+2,values:Array.from({length:Math.max(headers.length,row.length)},(_,column)=>String(row[column]??''))}]:[]);
+ return {headers,headerRow:table[0]?.sourceRow||1,rows,skipped:table.length?table.length-1-rows.length:0};
 }
-function uiImportFailureRows(source,errors){
- const byRow=new Map(),general=[],rowNumbers=new Set(source.rows.map(row=>String(row.row)));
- for(const error of errors){const message=(error.field?error.field+'：':'')+error.message,key=String(error.row);if(rowNumbers.has(key)){if(!byRow.has(key))byRow.set(key,[]);byRow.get(key).push(message)}else general.push(message)}
- // 公共流程整批失败时没有任何成功行；其他行保留原值并说明未导入，避免失败数少算。
- const failed=source.rows.map(row=>{const reasons=[...(byRow.get(String(row.row))||[]),...general];return {...row,reason:reasons.length?[...new Set(reasons)].join('；'):'同批文件含错误，本行未导入'}});
- if(general.length&&!source.rows.length)failed.push({row:'—',values:[],reason:[...new Set(general)].join('；')});
- return failed;
+function uiImportFailures(source,sheets,errors,saveFailed){
+ const byRow=new Map();
+ for(const error of errors){const key=String(error.row);if(!byRow.has(key))byRow.set(key,[]);byRow.get(key).push(error)}
+ const used=new Set();
+ const annotate=(rows,prefix)=>rows.map(row=>{
+  const key=prefix+row.row,issues=byRow.get(key)||[];
+  if(issues.length)used.add(key);
+  return {...row,issues,result:issues.length?'校验失败':'未导入',reason:issues.length?issues.map(({field,message})=>field?field+'：'+message:message).join('\n'):uiFailurePending};
+ });
+ const failureSheets=sheets?.map(sheet=>({...sheet,rows:annotate(sheet.rows,sheet.name+'!')}));
+ const failedRows=failureSheets?[]:annotate(source.rows,'');
+ const fileIssues=errors.filter(error=>!used.has(String(error.row)));
+ for(const [name,rows]of failureSheets?failureSheets.map(sheet=>[sheet.name,sheet.rows]):[['',failedRows]]){
+  const blocking=fileIssues.filter(error=>!name||String(error.row).startsWith(name+'!')||error.row==='—');
+  if(!blocking.length)continue;
+  const blockedReason=saveFailed?'本行校验通过，因保存失败未导入':'因文件级错误未导入\n'+blocking.map(error=>(error.field?error.field+'：':'')+error.message).join('\n');
+  for(const row of rows)if(!row.issues.length)row.reason=blockedReason;
+ }
+ return {failedRows,failureSheets,fileIssues,invalidRows:used.size};
 }

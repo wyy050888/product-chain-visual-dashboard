@@ -14,7 +14,7 @@ function rules(){
  vm.runInContext(fs.readFileSync(new URL('../../src/modules/sample-reference/04-shop-events.js',import.meta.url),'utf8'),ctx);
  vm.runInContext(fs.readFileSync(new URL('../../src/modules/risk-presentation/01-quality.js',import.meta.url),'utf8'),ctx);
  vm.runInContext(fs.readFileSync(new URL('../../src/modules/risk-presentation/01-shop.js',import.meta.url),'utf8'),ctx);
- for(const [platform,red,normal] of [['抖音',4.6,4.8],['快手',4.4,4.7],['视频号',4,4.5],['天猫',4.6,4.8],['京东',4.6,4.8]]){
+ for(const [platform,red,normal] of [['抖音',4.6,4.8],['快手',4.4,4.7],['视频号',4.4,4.7],['天猫',4.6,4.8],['京东',4.6,4.8]]){
   assert.equal(ctx.rpShopScoreTone(platform,red),platform==='天猫'?'rp-quality-yellow':'rp-quality-red');
   assert.equal(ctx.rpShopScoreTone(platform,(red+normal)/2),'rp-quality-yellow');
   assert.equal(ctx.rpShopScoreTone(platform,normal),'rp-quality-green');
@@ -22,7 +22,7 @@ function rules(){
   assert.equal(ctx.rpShopScoreTone(platform,red-0.01),'rp-quality-red');
   assert.equal(ctx.rpShopScoreTone(platform,null),'rp-quality-gray');
  }
- for(const score of [null,4,4.7,4.8,5])assert.equal(ctx.rpShopScoreTone('拼多多',score),'rp-quality-gray','拼多多不套用店铺分判灯');
+ for(const score of [null,4,4.7,4.8,5])assert.equal(ctx.rpShopScoreTone('拼多多',score),'rp-quality-normal','拼多多不套用店铺分判灯');
  assert.equal(ctx.rpShopScoreBands('拼多多'),null);
  assert.equal(ctx.rpShopProblemHit({target:10,previous:10.5,current:11}),false);
  assert.equal(ctx.rpShopProblemHit({target:10,previous:13.1,current:13.2}),true);

@@ -1,10 +1,6 @@
 // 数字入口通过toast说明目标页面与筛选条件；不打开本地供应商列表。
 function scpCountDestination(scope,metric,range){
- if(scope.kind==='resource'){
-  const dateLabel={newReserved:'意向储备日期',newAdmitted:'准入日期',newCooperation:'合作日期'}[metric];
-  if(!scope.quarter||!dateLabel)return null;
-  return {path:'供应商管理-供应商资源池-全部',filters:[['供应商类型','一级供应商'],['统计指标',scpMetricLabels[metric]],[dateLabel,range.start+' — '+range.cutoff]],note:'按对应阶段日期筛选，包含已进入后续阶段的供应商。'};
- }
+ if(scope.kind==='resource')return null;
  const coreNew=scope.kind==='material'&&metric==='newAdmitted';
  if(!coreNew&&!['reserved','admitted','cooperated','newAdmitted','newCooperation'].includes(metric))return null;
  if(scope.kind==='project'){

@@ -2,7 +2,7 @@ function ppAnalysisButton(department,mode,label,body='',className=''){
  return `<button type="button" class="${className}" data-pp-analysis="${esc(department)}" data-mode="${esc(mode)}" aria-pressed="${ppAnalysisState.department===department&&ppAnalysisState.mode===mode}">${label}${body}</button>`;
 }
 function ppAnalysisMetricValue(count){
- return `<div class="pp-analysis-value"><strong>${count}</strong><i class="pp-analysis-chevron" aria-hidden="true">›</i></div>`;
+ return `<div class="pp-analysis-value"><strong>${count}</strong><i class="pp-analysis-chevron ui-chevron-right" aria-hidden="true"></i></div>`;
 }
 const ppAnalysisHelp={
  scope:'三个指标按当前范围内未闭环风险统计；TOP3共性根因使用全部风险台账。',

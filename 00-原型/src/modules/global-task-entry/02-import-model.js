@@ -3,9 +3,9 @@ const gdTaskImportFields=gdLedgerColumns;
 function gdParseTaskImport(table,file){
  const clean=v=>String(v??'').replace(/^\s*\*\s*/,'').trim(),names=gdLedgerColumns.map(([,label])=>label);
  const headerIndex=table.findIndex(row=>row.map(clean).includes('登记日期')&&row.map(clean).includes('任务'));
- if(headerIndex<0)return {entries:[],errors:[{row:'—',message:'未找到任务表头，请使用下载的模板'}],sourceTable:[]};
+ if(headerIndex<0)return {entries:[],errors:[{row:'—',message:'未找到任务表头，请使用下载的模板'}]};
  const headers=table[headerIndex].map(clean),errors=[],entries=[],records=table.slice(headerIndex+1).map((row,i)=>({row,sourceRow:row.sourceRow||headerIndex+i+2})).filter(({row})=>row.some(v=>String(v??'').trim())&&!row.some(v=>String(v??'').startsWith('【示例】')));
- const sourceTable=[headers,...records.map(({row,sourceRow})=>Object.assign([...row],{sourceRow}))];
+ const sourceTable=[Object.assign(headers,{sourceRow:table[headerIndex].sourceRow||headerIndex+1}),...records.map(({row,sourceRow})=>Object.assign([...row],{sourceRow}))];
  const add=(row,field,message,value='')=>errors.push({row,field,message,value});
  names.forEach(label=>{if(!headers.includes(label))add('—',label,'缺少列')});headers.forEach((h,i)=>{if(!names.includes(h)||headers.indexOf(h)!==i)add('—',h,'表头不匹配或重复')});
  if(!records.length)add('—','','文件没有任务数据');if(records.length>1000)add('—','','单次最多导入1000条任务');

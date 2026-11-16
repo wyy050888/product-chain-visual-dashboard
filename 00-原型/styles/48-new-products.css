@@ -62,15 +62,22 @@
 @media(max-width:1050px){.nsp-unsold-table :is(th,td){padding-inline:10px}}
 #metric-tooltip.metric-tooltip-kpi{max-width:min(440px,calc(100vw - 16px));padding:16px 18px;font-size:13px;line-height:1.8;white-space:pre-line;max-height:calc(100dvh - 24px);overflow-y:auto}
 #metric-tooltip.metric-tooltip-nsp-card{width:440px;box-sizing:border-box;padding:20px;border-radius:12px;white-space:normal;font-size:14px;line-height:1.65;color:#34425b;box-shadow:0 8px 28px #233d6326}
-/* 新品判定提示：标题与说明分列，窄屏仍可自然换行。 */
-#metric-tooltip.metric-rule-card.metric-tooltip-nsp-pool .metric-rule-list{list-style:none;padding:0}
-#metric-tooltip.metric-rule-card.metric-tooltip-nsp-pool .metric-rule-list>li{display:grid;grid-template-columns:4em minmax(0,1fr);align-items:start;gap:12px;margin:0;padding:9px 0;border:0;border-top:1px solid #edf1f7}
-#metric-tooltip.metric-rule-card.metric-tooltip-nsp-pool .metric-rule-list>li:last-child{padding-bottom:0}
-#metric-tooltip.metric-rule-card.metric-tooltip-nsp-pool .metric-rule-body .metric-rule-note{margin:0;padding:0;border-radius:0;background:transparent;color:var(--rule-text-color);font-size:inherit}
-/* 成功率与上市及时率提示。 */
+/* 新品考核共用入口，保留规则卡片的外框。 */
+#new .nsp-assessment-help{padding:0;vertical-align:middle}
+#new .nsp-assessment-help[aria-expanded="true"]{color:#1677ff}
+#metric-tooltip .nsp-assessment-help-modes{display:inline-flex;gap:2px;padding:3px;margin-bottom:2px;border-radius:6px;background:#f3f7fd}
+#metric-tooltip .nsp-assessment-help-modes button{padding:3px 10px;border:1px solid transparent;border-radius:4px;background:transparent;color:#516580;font:inherit;cursor:pointer}
+#metric-tooltip .nsp-assessment-help-modes button[aria-pressed="true"]{border-color:#dbe5f2;background:#fff;color:#176bda;font-weight:600}
+#metric-tooltip .nsp-assessment-help-list{list-style:none;margin:0;padding:0}
+#metric-tooltip .nsp-assessment-help-list>li{padding:8px 0;border-bottom:1px solid #edf1f7}
+#metric-tooltip .nsp-assessment-help-list>li:last-child{padding-bottom:0;border-bottom:0}
+#metric-tooltip .nsp-assessment-help-list p{margin:2px 0 0;color:var(--rule-text-color)}
+#metric-tooltip .nsp-assessment-help-list p.nsp-tip-formula{margin:3px 0 6px;padding:5px 8px;color:#304d88;overflow-wrap:anywhere}
+#metric-tooltip .nsp-assessment-help-thresholds{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:3px 12px;margin:0 0 5px;padding:5px 8px;border-radius:5px;background:#f5f8fc}
+#metric-tooltip .nsp-assessment-help-thresholds dd{margin:0;overflow-wrap:anywhere}
+/* 上市及时率和表格状态提示。 */
 #metric-tooltip .nsp-tip-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
 #metric-tooltip .nsp-tip-heading h4{margin:0;color:#203650;font-size:16px;font-weight:600}
-#metric-tooltip .nsp-tip-target{font-size:12px;color:#5667ad;white-space:nowrap}
 #metric-tooltip .nsp-tip-formula{padding:12px;border-radius:7px;background:#f0f3ff;color:#304d88;font-weight:600;margin-bottom:18px}
 #metric-tooltip .nsp-tip-definitions{display:grid;grid-template-columns:58px minmax(0,1fr);gap:12px 14px;margin:0}
 #metric-tooltip .nsp-tip-definitions dt{color:#73829a}
@@ -137,6 +144,7 @@
 #newtable tbody tr>td{background:var(--nsp-row-bg);border-bottom-color:#edf1f7}
 #newtable tbody tr>td:is(:first-child,:last-child){background:var(--nsp-row-bg)}
 #newtable th{color:#7e8da3;font-size:12px}
+#newtable :is(th,td).nsp-centered{text-align:center}
 #newtable :is(th,td).nsp-num{text-align:right;font-variant-numeric:tabular-nums}
 #newtable td.nsp-num .rp-list-value{align-items:flex-end}
 #newtable .nsp-num .rp-sort-header{justify-content:flex-end}

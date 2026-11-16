@@ -18,16 +18,17 @@ function nspAnnualGsvPeriod(launch,periodStart){
  const days=(nextYear-start)/86400000,yearDays=(nextYear-yearStart)/86400000;
  return {start:new Date(start).toISOString().slice(0,10),end:year+'-12-31',days,yearDays,ratio:days/yearDays};
 }
+function nspSuccessRuleGroup(season,annual){return season!=='四季品'?'success-season':annual?'success-year':'success-quarter'}
 function nspSuccessPass(facts,season,annual,periodStart,actualLaunch=periodStart){
- const key=season==='四季品'?(annual?'new.yearGsv':'new.quarterGsv'):'new.seasonGsv';
  const calendar=annual?nspAnnualGsvPeriod(actualLaunch,periodStart):null;
  if(annual&&!calendar)return false;
  // GSV除以系数与原条件比较，等价于仅将GSV门槛乘该系数；复用条件缓存，不改实际业绩。
  const metrics={gsv:facts.gsvCents/1000000/(calendar?.ratio||1),profitRate:facts.profitRate,returnRate:facts.returnRate};
- const group=key==='new.seasonGsv'?'success-season':annual?'success-year':'success-quarter';
+ const group=nspSuccessRuleGroup(season,annual);
  const conditions=typeof brcSuccessConditions==='function'?brcSuccessConditions(annual,periodStart):undefined;
  return Number.isFinite(facts.gsvCents)&&brcResultMatch(group,metrics,conditions);
 }
+
 function nspAssessmentFacts(product,start,end,includePoints=false){
  const members=product.members||[product];
  if(members.length===1)return upSummary(upIdentity(members[0]),start,end,'all');

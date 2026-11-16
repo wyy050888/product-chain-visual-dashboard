@@ -173,7 +173,8 @@ export async function newProducts(page){
  assert.equal(await page.locator('#newall').isVisible(),false);
  assert.equal(await page.locator('#newtop .newmetric svg').count(),0);
  assert.equal(await page.locator('#newtop .nsp-distribution').count(),0);
- assert.deepEqual(await page.locator('#newtable th').allTextContents(),['SPU系列','产品简称','指导价','Q4GSV','Q4销量','Q4利润率','是否成功','总退','已收退','未收退','我司可售库存','销售状态','上市天数','上市日期','销售渠道','项目类型','操作']);
+ const detailsHeaders=['SPU系列','产品简称','指导价','Q4GSV','Q4销量','Q4利润率','是否成功','总退','已收退','未收退','我司可售库存','销售状态','上市天数','上市日期','销售渠道','项目类型','操作'];
+ assert.deepEqual(await page.locator('#newtable th').allTextContents(),detailsHeaders);
  assert.deepEqual(await page.locator('#newtable tbody tr td:nth-child(7)').allTextContents(),first.visible.slice(0,10).map(p=>p.successQuarters.length?'成功':'不成功'));
  assert.equal(await page.locator('#newtable .nsp-success-status').count(),Math.min(10,first.visible.length),'统一显示二态标签');
  assert(first.rows.filter(p=>!p.successAssessment.included).every(p=>p.successQuarters.includes('2026-Q3')),'往期已成功产品保留成功季度');
@@ -304,7 +305,7 @@ export async function newProducts(page){
  assert.match(await successCard.innerText(),/26年新品销售成功率/);
  assert.deepEqual((await page.locator('#newtable th').allTextContents()).slice(3,7),['26年GSV','26年销量','26年利润率','是否成功']);
  assert.equal(await page.locator('#newtable th').nth(7).innerText(),'年度是否成功');
- assert.equal(await page.locator('#newtable th').count(),16);
+ assert.equal(await page.locator('#newtable th').count(),detailsHeaders.length+1);
  assert.deepEqual(await page.locator('#newtable tbody tr td:nth-child(7)').allTextContents(),annualData.visible.slice(0,10).map(p=>p.successQuarters.length?'成功':'不成功'));assert.deepEqual(await page.locator('#newtable tbody tr td:nth-child(8)').allTextContents(),annualData.visible.slice(0,10).map(p=>p.salesSuccess?'成功':'不成功'));
  const q4Success=new Set(first.rows.filter(p=>p.salesSuccess).map(p=>p.spuId));
  for(const p of annualData.rows){
@@ -317,6 +318,6 @@ export async function newProducts(page){
  await page.locator('[data-nsp-filter="success"][value="all"]').locator('..').click();
  await page.locator('#time-new [data-time-mode="quarter"]').click();
  await page.locator('#time-new [data-time-value]').selectOption('4',{force:true});
- assert.equal(await page.locator('#newtable th').count(),13,'全部期间统一保留是否成功列');
+ assert.deepEqual(await page.locator('#newtable th').allTextContents(),detailsHeaders,'返回季度后恢复季度考核表头');
  await verifyNewProductDetail(page);
 }

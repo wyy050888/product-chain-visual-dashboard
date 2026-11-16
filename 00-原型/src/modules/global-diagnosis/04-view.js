@@ -12,7 +12,10 @@ function gdTimeControls(period=gdState.period){
 function gdMountHeader(section){
  const header=section.querySelector(':scope>.sectionhead');let tools=header.querySelector('[data-gd-header-tools]');
  if(!tools){tools=document.createElement('div');tools.className='gd-header-tools';tools.dataset.gdHeaderTools='';const period=document.createElement('div');period.className='gd-header-period';period.dataset.gdHeaderPeriod='';tools.append(period,$('#refreshai'));header.append(tools)}
+ tools.toggleAttribute('hidden',gdState.part==='execution');
+ if(tools.hidden)return;
  const task=gdState.part==='tasks',period=task?gdTaskCurrentPeriod():gdState.period;
+ tools.querySelector('#refreshai').hidden=task;
  // 纯列表切换保留日期控件，避免重复挂载年份组件及其布局测量。
  const key=JSON.stringify([task,period,!!gdState.taskPeriod,DATA_CUTOFF]);
  if(tools.dataset.gdPeriodKey===key)return;
@@ -24,7 +27,7 @@ function gdMountHeader(section){
  const trigger=host.querySelector('#gd-date-trigger');
  if(trigger&&task){
   trigger.setAttribute('aria-label','选择任务登记日期');
-  if(!gdState.taskPeriod){host.querySelectorAll('[data-gd-mode]').forEach(button=>button.setAttribute('aria-pressed','false'));trigger.innerHTML='<span class="is-placeholder">请选择</span><i class="ui-dropdown-icon" aria-hidden="true"></i>'}
+  if(!gdState.taskPeriod){host.querySelectorAll('[data-gd-mode]').forEach(button=>button.setAttribute('aria-pressed','false'));trigger.innerHTML='<span class="is-placeholder">请选择日期</span><i class="ui-dropdown-icon" aria-hidden="true"></i>'}
   trigger.onclick=()=>openDateRangePicker(trigger,gdTaskRegistrationRange(),(start,end)=>!start&&!end?gdClearTaskRegistration():gdApplyTaskPeriod(drawerPeriodFromRange({start,end})),{id:'gd-task-registration-popover',label:'选择任务登记日期',min:riskDateMin,max:dashboardSyncDate,clearable:true});
  }else if(trigger)trigger.onclick=()=>upOpenCalendar(trigger,gdDayRange,(start,end)=>gdApplyPeriod(drawerPeriodFromRange({start,end})),{min:riskDateMin,max:dashboardSyncDate,label:'选择诊断日期'});
  if(task){

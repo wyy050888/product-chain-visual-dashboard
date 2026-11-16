@@ -6,10 +6,10 @@ function nspUnsoldKpi(count){
 }
 
 function nspOpenUnsold({asOf,rows}){
- const projectHeaders=[['计划上市日期','计划完成日期'],['承接运营','承接运营']].map(([label,field])=>
+ const projectHeaders=[['项目上市日期','计划完成日期'],['承接运营','承接运营']].map(([label,field])=>
   `${label} <span class="metric-help" role="button" tabindex="0" aria-label="查看${label}指标口径" data-metric-rule="取数口径：取自 SPU 关联项目的${field}。"></span>`
  );
- const headers=['产品信息','首批请购单号','首批单状态','我司可售库存',...projectHeaders,'产品经理'];
+ const headers=['SPU信息','首批请购单号','首批单状态','我司可售库存',...projectHeaders,'产品经理'];
  openModal('已提货未销售',`<article class="nsp-unsold-drawer">
   <p class="nsp-unsold-notice" data-preserve-terms>已下首批请购单，并<strong>已完成部分/全部交付后，未检测到渠道首个订单的产品清单</strong></p>
   <div class="nsp-unsold-toolbar">

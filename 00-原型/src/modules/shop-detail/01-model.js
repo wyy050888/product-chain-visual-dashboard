@@ -48,7 +48,12 @@ function sdSuggestions(m,state){
 function sdTodoList(m,state){
  const proposals=sdSuggestions(m,state),base=sdTaskBase(m.shop,state),existing=Object.values(upTodos).filter(t=>t.spuId===base.spuId);
  if(!existing.length){
-  const first=proposals[0]||{...base,title:m.shop.channel==='视频号'?'复核店铺经营表现':m.shop.channel==='拼多多'?'复核核心链接与经营表现':'复核店铺评分与经营表现',description:m.shop.channel==='视频号'?'复核去退后销量及违规变化。':m.shop.channel==='拼多多'?'复核核心链接考核、去退后销量及违规变化。':'复核店铺评分、去退后销量及违规变化。',plan:m.shop.channel==='视频号'?'按相同口径记录业绩与违规复查结果。':m.shop.channel==='拼多多'?'按相同口径记录链接考核、业绩与违规复查结果。':'按相同口径记录评分、业绩与违规复查结果。'},now=aiToday();
+  const pdd=m.shop.channel==='拼多多';
+  const first=proposals[0]||{...base,
+   title:pdd?'复核核心链接与经营表现':'复核店铺评分与经营表现',
+   description:pdd?'复核核心链接考核、去退后销量及违规变化。':'复核店铺评分、去退后销量及违规变化。',
+   plan:pdd?'按相同口径记录链接考核、业绩与违规复查结果。':'按相同口径记录评分、业绩与违规复查结果。'
+  },now=aiToday();
   const sample={...first,id:'history|'+base.spuId,source:'sample',status:'working',assignee:base.assignees[0].name,department:base.assignees[0].department,assignedBy:upTodoCurrentUser,assignedAt:shiftDate(now,-2)+'T09:00:00+08:00',due:shiftDate(now,2),basis:first.basis?.length?first.basis:['店铺全量经营记录复核'],suggestionKey:undefined};
   upPersistTodos({...upTodos,[sample.id]:sample});existing.push(sample);
  }

@@ -39,7 +39,7 @@ function ipRefurbSummary(records,end){
 }
 // 数值悬停/聚焦查看同范围请购单天数分布；问号继续提供指标口径。
 function ipRefurbRateCell(row){
- return `<button type="button" class="ip-refurb-rate" aria-label="查看${esc(row.name)}翻新天数分布" aria-expanded="false" aria-controls="ip-refurb-distribution" data-ip-refurb-name="${esc(row.name)}" data-ip-refurb-summary="${esc(JSON.stringify(row.refurb))}">${Number.isFinite(row.refurbRate)?fmt(row.refurbRate,1)+'%':'—'}<span class="ip-refurb-arrow" aria-hidden="true">›</span></button>`;
+ return `<button type="button" class="ip-refurb-rate" aria-label="查看${esc(row.name)}翻新天数分布" aria-expanded="false" aria-controls="ip-refurb-distribution" data-ip-refurb-name="${esc(row.name)}" data-ip-refurb-summary="${esc(JSON.stringify(row.refurb))}">${Number.isFinite(row.refurbRate)?fmt(row.refurbRate,1)+'%':'—'}<span class="ip-refurb-arrow ui-chevron-right" aria-hidden="true"></span></button>`;
 }
 // 未翻新数沿用原SKU计数，与请购单闭环率分别统计。
 function ipUnrefurbishedSummary(records){

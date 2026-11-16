@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 
 export async function verifyShopMetrics(page){
- const diagnosisContext=vm.createContext({fmt:(n,d=0)=>Number(n).toFixed(d),upPercent:n=>n+'%',pfMoneyYuan:n=>n+'元',rpQualityChange:(a,b)=>b?((a-b)/b*100)+'%':'—',sdRoles:()=>[],rpShopScoreTone:(_,s)=>s>=4.8?'rp-quality-green':'rp-quality-yellow'});
+ const diagnosisContext=vm.createContext({fmt:(n,d=0)=>Number(n).toFixed(d),formatSalesQuantity:String,upPercent:n=>n+'%',pfMoneyYuan:n=>n+'元',rpQualityChange:(a,b)=>b?((a-b)/b*100)+'%':'—',sdRoles:()=>[],rpShopScoreTone:(_,s)=>s>=4.8?'rp-quality-green':'rp-quality-yellow'});
  const scoreTone=diagnosisContext.rpShopScoreTone;
  vm.runInContext(fs.readFileSync(new URL('../../src/modules/risk-presentation/01-shop.js',import.meta.url),'utf8'),diagnosisContext);
  diagnosisContext.rpShopScoreTone=scoreTone;
@@ -14,10 +14,10 @@ export async function verifyShopMetrics(page){
  const stable=diagnosisContext.sdDiagnosis(model,{});
  assert(stable.summary.includes('维持现有经营节奏'));assert(!stable.actions.includes('品质中心'),'无依据时不机械派单');
  const video=diagnosisContext.sdDiagnosis({...model,shop:{...shop,channel:'视频号',score:0,productScore:0,logisticsScore:0,serviceScore:0}},{});
- assert.doesNotMatch(video.summary+video.actions,/评分|店铺分/,'视频号不因评分生成风险与行动');
+ assert.match(video.summary+video.actions,/评分短板/,'视频号异常评分生成复查建议');
  assert.deepEqual(Array.from(video.dimensions,row=>row[0]),['评分','业绩','违规']);
  assert(video.dimensions[0][1].includes('店铺分0.00'));
- assert(!video.dimensions[0][1].includes('绿色区间'),'视频号无红黄绿标准');
+ assert.match(video.dimensions[0][1],/判定为黄灯/);
  const low=diagnosisContext.sdDiagnosis({...model,shop:{...shop,score:4.6}},{});
  assert(!low.dimensions.flat().join('').includes('持续下降'),'单次评分不冒充趋势');
  assert(low.actions.includes('已有违规原因'),'评分低不能直接分配责任');

@@ -13,7 +13,7 @@ export async function globalTasks(page){
  await page.waitForFunction(()=>document.documentElement.dataset.dashboardBoot==='ready',null,{timeout:60000});
  const root=page.locator('#ai'),audit=()=>page.evaluate(()=>globalDiagnosisAudit()),manual=async()=>(await audit()).tasks.filter(row=>row.task.gdManualEntry),dialog=()=>page.locator('.gd-task-entry-dialog');
  await root.locator('[data-gd-part="tasks"]').click();
- assert.deepEqual(await root.locator('#aigrid h3').allTextContents(),['重点工作清单','工作偏差预警','日周报诊断','任务清单']);
+ assert.deepEqual(await root.locator('#aigrid h3').allTextContents(),['重点工作清单','工作偏差预警','部门诊断','任务清单']);
  await verifyTaskDrawer(page);
  const objects=await verifyTaskObjectPicker(page);await verifyTaskAssigneePicker(page);
  const initial=await audit();assert(initial.tasks.length>0);assert.equal(initial.counts.at(-1).count,initial.tasks.length);

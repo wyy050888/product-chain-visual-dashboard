@@ -22,6 +22,8 @@ msDailySeries=function(index,...args){const chain=pcChain();return pcSalesDaily(
 msBreakdown=function(index,view){const chain=pcChain();return pcBreakdown(index<0&&chain!==null?chain:index,view)};
 
 // 生命周期保留完整行索引供详情定位；概览按相同链群及其目标元数据汇总。
+const pcLifeCanFilterChains=ltCanFilterChains;
+ltCanFilterChains=function(){return pcIsActive()?ltDashboardActive()&&pcChain()===null:pcLifeCanFilterChains()};
 const pcLifeTotals=ltDashboardTotals;
 ltDashboardTotals=function(stage,p=periodFor('lifecycle')){
  const chain=pcChain();return chain===null?pcLifeTotals(stage,p):ltDashboardRows(stage,p)[chain];
@@ -40,5 +42,5 @@ gdDataset=function(){
  const focus=gdFocusGroups(data.focus.flatMap(row=>row.sources).filter(source=>pcProductDepartment(source.department)&&(chain===null||(source.categories||[]).includes(pcManagerCategory))).map(scopeDepartment));
  const owners=new Set(pcUnscoped(()=>dpDocuments()).filter(row=>row.chain===chain).map(row=>row.owner));
  const reports=data.reports.filter(row=>gdAnalysisDepartments(row).some(pcProductDepartment)&&(chain===null||owners.has(row.owner)||(row.categories||[]).includes(pcManagerCategory))).map(scopeDepartment);
- return {...data,partLabels:{coordination:'重点工作清单'},work,coordination:work,deviations,improvements,mismatch,resource:deviations,tasks,focus,reports};
+ return {...data,partLabels:{coordination:'重点工作清单',execution:'部门管理'},work,coordination:work,deviations,improvements,mismatch,resource:deviations,tasks,focus,reports};
 };

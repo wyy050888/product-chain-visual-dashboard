@@ -1,8 +1,8 @@
 // 渠道表只改变展示顺序；主值始终来自同一期间台账，缺失值固定置后。
 const upChannelColumns=[
- ['channel','平台',r=>r.channel],['gsvCents','GSV',r=>upMoney(r.gsvCents)],['sales','销量',r=>formatSalesQuantity(r.sales)],
+ ['channel','平台',r=>r.channel],['gsvCents','GSV',r=>upMoney(r.gsvCents)],
  ['netSales','销量',r=>formatSalesQuantity(r.sales-r.returned)],['expenseCents','消耗',r=>upMoney(r.expenseCents)],
- ['feeRate','费率',r=>upPercent(r.feeRate)],['profitRate','利润率',r=>upPercent(r.profitRate)],
+ ['profitRate','利润率',r=>upPercent(r.profitRate)],
  ['returnRate','总退',r=>upPercent(r.returnRate)],['receivedRate','已收退',r=>upPercent(r.receivedRate)]
 ];
 function upChannelSortValue(row,key){return key==='channel'?row.channel:key==='netSales'?row.sales-row.returned:row[key]}
@@ -28,6 +28,7 @@ function upApplyChannelSortAria(panel,state){
 }
 function upMountOperating(root,m,state){
  const panel=root.querySelector('[data-up-panel="operating"]');upApplyChannelSortAria(panel,state);
+ upMountSalesLayout(panel,upProductSalesRows(m.current.points));
  panel.onclick=e=>{
   const sort=e.target.closest('[data-up-channel-sort]');
   if(sort){

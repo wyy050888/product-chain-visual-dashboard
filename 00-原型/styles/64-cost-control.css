@@ -49,6 +49,8 @@
 .cc-drawer .cc-with-context th{height:44px;padding-top:8px;padding-bottom:8px;font-size:12px}
 .cc-drawer .cc-with-context :is(th,td):first-child{width:36%;min-width:0;line-height:22px;white-space:normal;overflow-wrap:anywhere}
 .cc-drawer .cc-with-context :is(thead th,tbody td):nth-child(2){width:20%;text-align:left}
+.cc-drawer[data-cc-drawer="category"] .cc-with-context thead th:first-child{width:23%}
+.cc-drawer[data-cc-drawer="category"] .cc-with-context thead th:nth-child(2){width:26%}
 .cc-drawer .cc-with-context .cc-context{color:#7d8da5;font-size:12px;white-space:normal}
 .cc-drawer .cc-with-context .cc-row-name{display:block;line-height:22px}
 .cc-drawer .cc-with-context tfoot td{height:44px;padding-top:8px;padding-bottom:8px}

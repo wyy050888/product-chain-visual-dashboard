@@ -134,7 +134,7 @@ export async function diagnosisWorkspace(page){
  for(const key of ['date','previousAppearedAt','previousReminderAt'])assert.equal(recurring[key],continuousRisk[key]);
  const root=page.locator('#ai'),audit=()=>page.evaluate(()=>globalDiagnosisAudit());
  await root.locator('[data-gd-part="coordination"]').click();
- assert.deepEqual(await root.locator('#aigrid h3').allTextContents(),['重点工作清单','工作偏差预警','日周报诊断','任务清单']);
+ assert.deepEqual(await root.locator('#aigrid h3').allTextContents(),['重点工作清单','工作偏差预警','部门诊断','任务清单']);
  assert.deepEqual(await root.locator('[data-gd-tab]').evaluateAll(es=>es.map(e=>e.dataset.gdTab)),['project','high-risk']);
  const initial=await audit(),keys=initial.work.map(r=>r.workKey);
  assert.equal(initial.state.tabs.coordination,'project');
@@ -318,10 +318,9 @@ export async function diagnosisWorkspace(page){
  await root.locator('[data-gd-search]').fill('');await root.locator('#refreshai').click();
  assert.equal(JSON.stringify(await store()),tasksBefore,'查看、搜索、刷新偏差诊断不生成或修改执行单');
  await root.locator('[data-gd-part="execution"]').click();
- assert.deepEqual(await root.locator('[data-gd-tab]').evaluateAll(es=>es.map(e=>e.dataset.gdTab)),['quality','missing']);
- assert.equal(await root.locator('[data-gd-tab="quality"]').getAttribute('aria-selected'),'true');
+ assert.equal(await root.locator('[data-gd-tab]').count(),0);
+ assert(await root.getByRole('table',{name:'部门周报下载表'}).isVisible());
  assert(initial.reports.some(r=>!r.missing&&r.findings.length));
- await root.locator('[data-gd-tab="missing"]').click();assert(await root.locator('[data-report-row]').count()>0);
  assert.equal(await root.locator('[data-gd-part="closure"],[data-gd-improvement]').count(),0,'改善建议入口及内容已撤下');
  assert.equal((await audit()).improvements.length,0,'不再生成已撤下模块的数据');
  assert(!(await audit()).classifications.some(row=>row.module==='closure'));

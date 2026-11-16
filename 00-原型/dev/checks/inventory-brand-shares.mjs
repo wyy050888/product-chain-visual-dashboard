@@ -3,6 +3,9 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 import {fileURLToPath} from 'node:url';
 
+const valueNumber=cents=>(cents/(cents>1000000?1000000:100)).toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2});
+const valueUnit=cents=>cents>1000000?'万元':'元';
+
 export async function inventoryBrandShares(page){
  const names=['苏泊尔','美的','创维','海尔','康佳','其他品牌'];
  const ctx=vm.createContext({filterCatalog:{dashboardBrands:names.slice(0,5)},targetSum:values=>values.reduce((a,b)=>a+b,0)});
@@ -19,12 +22,15 @@ export async function inventoryBrandShares(page){
  const sizes=await charts.evaluate(root=>({titles:[...root.querySelectorAll('h3')].map(n=>getComputedStyle(n).fontSize),totals:[...root.querySelectorAll('.ip-brand-share-center>strong')].map(n=>getComputedStyle(n).fontSize),rows:[...root.querySelectorAll('.ip-brand-share-row')].map(n=>[...n.children].map(cell=>getComputedStyle(cell).fontSize)),columns:[...root.querySelectorAll('.ip-brand-share-columns')].map(n=>getComputedStyle(n).fontSize),meta:[...root.querySelectorAll('.ip-brand-share-center>span')].map(n=>getComputedStyle(n).fontSize)}));
  assert(sizes.titles.every(size=>size==='18px'));assert(sizes.totals.every(size=>size==='24px'));assert(sizes.rows.every(row=>row.join(',')==='13px,14px,14px'));assert(sizes.columns.every(size=>size==='13px'));assert(sizes.meta.every(size=>size==='12px'));
  const framing=await page.locator('#inventory').evaluate(root=>({cards:[...root.querySelectorAll('.stock-summary-card')].map(node=>getComputedStyle(node).borderTopWidth),frames:[...root.querySelectorAll('.ip-brand-share-card,.ip-group-panel,.ip-stagnant-panel')].map(node=>getComputedStyle(node).borderTopWidth),tables:[...root.querySelectorAll('.ip-group-scroll,.ip-stagnant-scroll')].map(node=>({shared:node.classList.contains('tablewrap'),border:getComputedStyle(node).borderTopWidth}))}));
- assert.equal(framing.cards.length,7);assert(framing.cards.every(width=>width==='1px'),'库存七项使用独立卡片');assert(framing.frames.every(width=>width==='0px'),'图表/分区不增加重复卡框');assert(framing.tables.every(node=>node.shared&&node.border==='1px'),'表格保留全局tablewrap边界');
+ assert.equal(framing.cards.length,8);assert(framing.cards.every(width=>width==='1px'),'库存八项使用独立卡片');assert(framing.frames.every(width=>width==='0px'),'图表/分区不增加重复卡框');assert(framing.tables.every(node=>node.shared&&node.border==='1px'),'表格保留全局tablewrap边界');
  async function verify(){
   const data=await snapshot();
   for(const [key,model] of [['goodsValueCents',data.brandShares.total],['warehouseValueCents',data.brandShares.warehouse]]){
    const chart=charts.locator('[data-ip-brand-chart="'+key+'"]');
    assert.equal(model.total,data.balance[key],'图表与顶部卡片全量货值守恒');
+   assert.equal(await chart.locator('.ip-brand-share-center>strong').textContent(),valueNumber(model.total));
+   assert.equal(await chart.locator('.ip-brand-share-center>span').last().textContent(),valueUnit(model.total));
+   assert.deepEqual(await chart.locator('[data-ip-share-brand] > span:nth-child(2)').allTextContents(),model.rows.map(row=>valueNumber(row.value)+valueUnit(row.value)));
    assert.equal(model.rows.reduce((sum,row)=>sum+row.value,0),model.total);
    assert.deepEqual(model.rows.map(row=>row.name).sort(),[...names].sort());
    assert(model.rows.every((row,index)=>!index||model.rows[index-1].value>=row.value),'占比按原值降序');
@@ -70,10 +76,11 @@ async function verifyBrandShareHover(page,charts,models){
    const angle=(offset+row.share/2)/100*Math.PI*2-Math.PI/2;
    await page.mouse.move(box.x+(96+74*Math.cos(angle))/192*box.width,box.y+(96+74*Math.sin(angle))/192*box.height);
    await tooltip.waitFor({state:'visible'});
-   const value=(row.value/1000000).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+   const value=valueNumber(row.value);
    assert.equal(await tooltip.locator('.ip-share-tip-brand strong').textContent(),row.name,'实际扇区悬浮品牌匹配');
    assert.deepEqual(await tooltip.locator('dt').allTextContents(),['货值','占比']);
    assert.deepEqual(await tooltip.locator('dd b').allTextContents(),[value,row.share.toFixed(1)+'%'],'悬浮数值与明细同源');
+   assert.equal(await tooltip.locator('dd small').textContent(),valueUnit(row.value));
    const appearance=await tooltip.evaluate(node=>({radius:getComputedStyle(node).borderRadius,shadow:getComputedStyle(node).boxShadow,values:[...node.querySelectorAll('dd b')].map(n=>getComputedStyle(n).fontSize),labels:[...node.querySelectorAll('dt')].map(n=>getComputedStyle(n).fontSize),dot:getComputedStyle(node.querySelector('.ip-share-tip-brand i')).backgroundColor,left:node.getBoundingClientRect().left,right:node.getBoundingClientRect().right}));
    assert.equal(appearance.radius,'10px');assert.notEqual(appearance.shadow,'none');assert(appearance.values.every(size=>size==='14px'));assert(appearance.labels.every(size=>size==='12px'));
    const color='rgb('+[1,3,5].map(start=>parseInt(row.color.slice(start,start+2),16)).join(', ')+')';assert.equal(appearance.dot,color,'品牌色点与扇区一致');

@@ -20,8 +20,8 @@
 #projects.pp-main .pp-analysis-metrics [data-mode="red"] strong{color:#f0546e}
 #projects.pp-main .pp-analysis-metrics [data-mode="yellow"] strong{color:var(--orange)}
 /* 箭头与悬停反馈提示数字可筛选；风险占比保持静态展示。 */
-#projects.pp-main .pp-analysis-value{display:inline-flex;align-items:baseline;gap:6px;white-space:nowrap}
-#projects.pp-main .pp-analysis-chevron{color:#8a9bb2;font-size:18px;font-style:normal;font-weight:400;line-height:1}
+#projects.pp-main .pp-analysis-value{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+#projects.pp-main .pp-analysis-chevron{color:#8a9bb2}
 #projects.pp-main .pp-analysis-metrics>button:focus-visible{outline:2px solid #8ab6f6;outline-offset:2px;background:#edf4ff}
 
 #projects.pp-main .pp-analysis-card h5{margin:12px 0 4px;font-size:12px;color:#6b7d97;font-weight:500}

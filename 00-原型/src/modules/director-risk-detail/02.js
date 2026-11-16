@@ -11,8 +11,8 @@ function rfOpenList(k,reset=true){
   $('#dialog').dataset.rdKind=k;
   function fill(){withPeriod('risk',()=>{
    const rows=rfListRows(k),grouped=k===3&&rfState.dimension!=='spu',data=grouped?irGroups(rows,rfState.dimension):rows,pages=Math.max(1,Math.ceil(data.length/listPageSize('rf-pagination',20)));rfState.page=Math.min(rfState.page,pages);
-   const headers=grouped?[rfState.dimension==='chain'?'链群（链条）':'品牌','高危SPU数','仓内库存','工厂库存','在制物料','高危品货值','操作']:['序号',k===1?'店铺名称 / 平台':'产品名称 / 型号',...rfNames[k],'操作'];
-   const display=data.slice((rfState.page-1)*listPageSize('rf-pagination',20),rfState.page*listPageSize('rf-pagination',20)).map((r,i)=>grouped?[esc(r.name),r.count,fmt(r.warehouse)+'件',fmt(r.factory)+'件',fmt(r.undelivered)+'件',pfMoneyYuan((r.goodsValueCents/1000000)*10000),`<button class="link" data-rf-group="${esc(String(r.key))}">查看明细</button>`]:[(rfState.page-1)*listPageSize('rf-pagination',20)+i+1,rfProduct(k,r,true),...rfFacts(k,r).map(rfCell),`<button class="link" data-riskitem="${k},${r.id}">查看详情</button>`]);
+   const headers=grouped?[rfState.dimension==='chain'?'链群（链条）':'品牌','高危SPU数',...irStockPartHeaders(),'高危品货值','操作']:['序号',k===1?'店铺名称 / 平台':'产品名称 / 型号',...rfNames[k],'操作'];
+   const display=data.slice((rfState.page-1)*listPageSize('rf-pagination',20),rfState.page*listPageSize('rf-pagination',20)).map((r,i)=>grouped?[esc(r.name),r.count,...irStockPartCells(r),formatStockValue(r.goodsValueCents),`<button class="link" data-rf-group="${esc(String(r.key))}">查看明细</button>`]:[(rfState.page-1)*listPageSize('rf-pagination',20)+i+1,rfProduct(k,r,true),...rfFacts(k,r).map(rfCell),`<button class="link" data-riskitem="${k},${r.id}">查看详情</button>`]);
    $('#rf-list-table').innerHTML=data.length?table(headers,display):'<div class="empty">当前筛选下暂无风险记录</div>';
    if(k===3){$('#rf-dimensions').innerHTML=irTabs(rfState.dimension).replaceAll('data-ir-dimension','data-rf-dimension');$('#rf-dimensions').onclick=e=>{const b=e.target.closest('[data-rf-dimension]');if(b){rfState.dimension=b.dataset.rfDimension;rfState.page=1;fill()}}}
    mountListPager($('#rf-pagination'),data.length,rfState.page,next=>{rfState.page=next;fill()});

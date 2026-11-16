@@ -2,7 +2,7 @@ import {verifyShopLinkDetails} from './shop-link-details.mjs';
 import {verifyShopProductSort} from './shop-core-products.mjs';
 import {verifyShopMetrics} from './shop-metrics.mjs';
 import assert from 'node:assert/strict';
-import {readAiPrompts} from '../ai-strategy-prompts.mjs';
+import {readPrototypeAiPrompts as readAiPrompts} from '../prototype-ai-prompts.mjs';
 import {fileURLToPath} from 'node:url';
 export async function shopDetail(page){
  // 固定截图样例的截止日；实时跨日由 dynamicDates 专项验证。
@@ -37,10 +37,13 @@ export async function shopDetail(page){
    for(const key of keys)assert.equal(await scores.locator('[data-rp-field="'+key+'"] strong').innerText(),shop[key].toFixed(2));
    assert.equal(await scores.locator('[data-rp-pdd-shop]').count(),0);
    if(channel==='视频号'){
-    assert.equal(await scores.locator('.rp-quality-red,.rp-quality-yellow,.rp-quality-green').count(),0,'视频号评分使用普通数值样式');
+    const tone=shop.score<=4.4?'red':shop.score<4.7?'yellow':'green';
+    const score=scores.locator('[data-rp-field="score"]');
+    assert.match(await score.locator('strong').getAttribute('class'),new RegExp('rp-quality-'+tone));
+    assert.match(await score.getAttribute('title'),/评分入榜条件为红灯且品质违规处罚/);
     const diagnosis=await root.locator('[data-sd-ai-content]').innerText();
     for(const label of ['店铺分','商品分','物流分','服务分'])assert(diagnosis.includes(label),'诊断保留 '+label+'原值');
-    assert.doesNotMatch(diagnosis,/达到本平台配置的绿色|评分短板|最低为|改善评分|评分红灯|评分黄灯/);
+    assert.match(diagnosis,/按本平台有效规则判定为(?:红灯|黄灯|绿灯)/);
    }
   }
   await page.setViewportSize({width:390,height:900});
@@ -57,7 +60,7 @@ export async function shopDetail(page){
   assert(await root.locator('[data-sd-ai-content]').isVisible());await root.locator('[data-sd-ai-toggle]').click();assert(await root.locator('[data-sd-ai-content]').isHidden());await root.locator('[data-sd-ai-toggle]').click();
   await root.locator('[data-sd-prompt]').click();assert(await root.locator('.up-ai-prompt-dialog:not([data-up-ai-evidence-dialog])').isVisible());const prompt=await root.locator('.up-ai-prompt-dialog pre').innerText();assert.equal(prompt,'当前平台：'+channel+'。仅应用该平台对应条款。\n\n'+readAiPrompts().shop);assert.deepEqual(await root.locator('.sd-diagnosis-dimension>b').allTextContents(),[channel==='拼多多'?'核心链接':'评分','业绩','违规']);assert.deepEqual(await root.locator('.up-ai-section>strong').allTextContents(),['经营结论','问题分析','部门行动']);assert.doesNotMatch(await root.locator('[data-sd-ai-content]').innerText(),/批次|直播场次|首响|私域|客服根因待核实|undefined/);prompts.add(prompt);await page.keyboard.press('Escape');assert(await root.isVisible());
   assert.equal(await root.locator('[data-ai-history]').count(),0,'店铺诊断不外露生成及保存状态');
-  await root.locator('[data-up-ai-evidence]').click();const basis=root.locator('[data-up-ai-evidence-dialog]');assert(await basis.isVisible());assert((await basis.innerText()).includes('店铺ID'));assert((await basis.innerText()).includes(channel));assert.equal(await basis.locator('pre').count(),0);
+  await root.locator('[data-up-ai-evidence]').click();const basis=root.locator('[data-up-ai-evidence-dialog]');assert(await basis.isVisible());assert((await basis.innerText()).includes('店铺ID'));assert((await basis.innerText()).includes(channel));assert.equal(await basis.locator('pre').count(),0);assert.equal(await basis.locator('.up-ai-evidence-note').count(),0);
   const basisBounds=await basis.boundingBox();assert(Math.abs(basisBounds.y)<1&&Math.abs(basisBounds.x+basisBounds.width-page.viewportSize().width)<1,'店铺依据使用右侧抽屉');
   assert.deepEqual(await basis.locator('.up-ai-source-table>thead').first().locator('th').allTextContents(),['来源','内容']);
   assert(await basis.locator('.gd-source-type').first().isVisible(),'店铺来源名称不能被文案整理隐藏');
@@ -71,7 +74,7 @@ export async function shopDetail(page){
   assert(await root.locator('.up-ai-mark.owner').count()>0);
   const coloredRisk=root.locator('.up-ai-mark.risk').first();assert(await coloredRisk.isVisible());
   assert(await coloredRisk.evaluate(e=>getComputedStyle(e).color!==getComputedStyle(e.parentElement).color),'风险字色与正文区分');
-  assert.deepEqual(await root.locator('.sd-kpis small').allTextContents(),['GSV','销量']);assert.equal(await root.locator('.sd-kpis .up-operating-value>span').count(),2);assert.deepEqual(await root.locator('[data-sd-spu-table] th').allTextContents(),['SPU信息','GSV','销量','总退','利润率']);
+  assert.deepEqual(await root.locator('.sd-kpis small').allTextContents(),['GSV','销量']);assert.equal(await root.locator('.sd-kpis .up-operating-value>span').count(),2);assert.deepEqual(await root.locator('[data-sd-spu-table] th').allTextContents(),['SPU名称','GSV','销量']);
   const overview=await root.locator('.sd-operating-overview').evaluate(el=>{const k=el.querySelector('.sd-kpis').getBoundingClientRect(),c=el.querySelector('.up-sales-trend').getBoundingClientRect();return {cards:k.height,chart:c.height,top:Math.abs(k.top-c.top),bottom:Math.abs(k.bottom-c.bottom)}});
   assert(overview.top<=1&&overview.bottom<=1,'折线图与两张卡片上下对齐：'+channel+' '+JSON.stringify(overview));
   assert.equal(await root.locator('[data-up-series="returnRate"],[data-up-series-toggle="returnRate"]').count(),0,'移除总退趋势及图例');

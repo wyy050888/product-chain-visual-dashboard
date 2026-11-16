@@ -1,5 +1,4 @@
 import assert from 'node:assert/strict';
-import {verifySupplierJump} from './supplier-navigation.mjs';
 import {verifyResourceReportedMetrics} from './supplier-resource-metrics.mjs';
 
 export async function supplierQuarterNavigation(page){
@@ -9,7 +8,6 @@ export async function supplierQuarterNavigation(page){
  await page.waitForFunction(()=>document.documentElement.dataset.dashboardBoot==='ready');
  await page.locator('a[href="#suppliers"]').click();
  const root=page.locator('.scp-resource-card'),year=root.locator('[data-scp-year]');
- const fields=[['newCooperation','合作日期']];
  for(const selected of ['2025','2026','2027']){
   await year.selectOption(selected);
   const facts=await page.evaluate(()=>supplierPlanningAudit()),quarters=facts.quarters;
@@ -21,19 +19,19 @@ export async function supplierQuarterNavigation(page){
   if(selected==='2027')assert.equal(facts.annual.rate,null,'未来且无来源的数据仍留空');
   for(const quarter of quarters){
    const row=root.locator(`[data-scp-resource-quarter="${quarter.quarter}"]`);
-   assert.equal(await row.locator('[data-scp-jump]').count(),quarter.range.future?0:1,'季度只保留合作入口，未来季度无入口');
-   if(quarter.range.future)continue;
-   for(const [index,[metric,dateLabel]] of fields.entries()){
-    const button=row.locator('[data-scp-jump]');
-    const destination=JSON.parse(await button.getAttribute('data-scp-jump'));
-    assert.deepEqual(destination.filters,[['供应商类型','一级供应商'],['统计指标',{newReserved:'新增意向储备',newAdmitted:'新增准入',newCooperation:'新增合作'}[metric]],[dateLabel,quarter.range.start+' — '+quarter.range.cutoff]]);
-    assert.equal(await button.getAttribute('title'),null);
-    if(selected==='2026'&&quarter.quarter===4){
-     await button.hover();assert(await page.locator('#metric-tooltip').isHidden());
-     await verifySupplierJump(page,button,'供应商管理-供应商资源池-全部');
-    }
+   assert.equal(await row.locator('button,a,[data-scp-jump],[data-jump-toast]').count(),0,'实际与目标均只读');
+   const actual=row.locator('.scp-count');
+   assert.equal(await actual.innerText(),quarter.range.future?'—':String(quarter.newCooperation));
+   assert.equal(await row.locator('.scp-readiness-standard').innerText(),'/ '+(quarter.target??'—'));
+   if(!quarter.range.future&&Number.isFinite(quarter.target)){
+    const state=quarter.newCooperation<quarter.target?'is-short':'is-ready';
+    assert(await row.locator('.scp-readiness').evaluate((node,state)=>node.classList.contains(state),state));
    }
-   assert.equal(await row.locator('.scp-readiness-standard button').count(),0,'目标不作为跳转入口');
+   if(selected==='2026'&&quarter.quarter===4){
+    await actual.click();
+    assert(await page.locator('#toast').isHidden());
+    assert(await page.locator('#overlay').isHidden());
+   }
   }
   assert.equal(await root.locator('.scp-resource-summary [data-scp-jump]').count(),0,'年度卡片仍保持静态');
  }
@@ -45,5 +43,5 @@ export async function supplierQuarterNavigation(page){
   assert(await root.evaluate(el=>el.scrollWidth<=el.clientWidth+1),'卡片容器不横向溢出 '+width);
   if(width===1920){const tops=await root.locator('.scp-cooperation-cards>section').evaluateAll(nodes=>nodes.map(node=>Math.round(node.getBoundingClientRect().top)));assert.equal(new Set(tops).size,1,'宽屏五卡同排')}
  }
- console.log('通过：季度合作点击、合作日期、年份切换、当前季度截止日、零值入口与未来季度禁用');
+ console.log('通过：季度新增合作只读、实际与目标值、达标样式、年份切换及响应式布局');
 }

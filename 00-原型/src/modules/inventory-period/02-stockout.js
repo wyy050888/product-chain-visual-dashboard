@@ -32,7 +32,7 @@ function ipStockoutModel(records,range,history=ipStockoutDemoSnapshots){
 
 function ipStockoutCard({count}){
  const value=`<strong data-stock-stockout="${count}">${fmt(count)}<span class="unit"> 次</span></strong>`;
- const quantity=count>0?`<button type="button" class="link ip-stockout-entry" data-ip-stockout-open aria-haspopup="dialog" aria-label="爆款断货 ${count} 次，查看明细">${value}<span aria-hidden="true">›</span></button>`:value;
+ const quantity=count>0?`<button type="button" class="link ip-stockout-entry" data-ip-stockout-open aria-haspopup="dialog" aria-label="爆款断货 ${count} 次，查看明细">${value}<span class="ui-chevron-right" aria-hidden="true"></span></button>`:value;
  return ipOverviewCard({key:'stockout',title:'爆款断货次数',help:ipOverviewHelp('stockout'),quantity,className:'stock-summary-single'});
 }
 

@@ -26,13 +26,14 @@ function upStockFacts(r) {
   const p=upIdentity(r), range=upWindow(),s=upSummary(p,range.start,range.end);
   const days=Math.max(1,aiFlowDayDiff(range.start,range.end)+1);
   const index=p.sourceRow-1, warehouse=r.num, factory=r.sampleFactoryUnits??Math.round(r.num*(.12+(index%4)*.04));
-  const undelivered=r.sampleUndeliveredUnits??Math.round(r.num*(.06+(index%3)*.03)), totalUnits=warehouse+factory+undelivered;
+  const undelivered=r.sampleUndeliveredUnits??Math.round(r.num*(.06+(index%3)*.03));
   const financePriceCents=r.num?Math.round(r.amountCents*10000/r.num):0;
   const coverage=s.sales?warehouse/(s.sales/days):null;
-  const {dailyNet15,coverage15:slowCoverage,totalCoverage15}=upSellableStock(p,warehouse,range.end,totalUnits);
-  const balance=upStockBalanceFacts(r,{warehouse,factory,undelivered,totalUnits,financePriceCents}),metrics=brcStockMetrics({...balance,warehouse,dailyNet15,coverage15:slowCoverage,totalCoverage15});
+  const balance=upStockBalanceFacts(r,{warehouse,factory,undelivered,financePriceCents});
+  const {dailyNet15,coverage15:slowCoverage,totalCoverage15}=upSellableStock(p,warehouse,range.end,balance.totalUnits);
+  const metrics=brcStockMetrics({...balance,warehouse,dailyNet15,coverage15:slowCoverage,totalCoverage15});
   const slow=brcStockStagnant({warehouse,dailyNet15,...metrics});
-  return {...balance,warehouse,factory,undelivered,totalUnits,financePriceCents,goodsValueCents:Number.isFinite(r.inventoryBalance?.goodsValueCents)?r.inventoryBalance.goodsValueCents:totalUnits*financePriceCents,
+  return {...balance,warehouse,factory,undelivered,financePriceCents,
     coverage,slowCoverage,slow,dailyNet15,...metrics,sales:s.sales,gsvCents:s.gsvCents,
     staleMaxAgeDays:r.staleOldestReceivedDate?Math.max(0,aiFlowDayDiff(r.staleOldestReceivedDate,range.end)):null,
     staleOldestSellableUnits:r.staleOldestReceivedDate&&Number.isFinite(r.staleOldestSellableUnits)?r.staleOldestSellableUnits:null,
@@ -62,12 +63,11 @@ const upOriginalHighStock=irLedger;
 irLedger=function() {
   const w=upWindow();
   return upOriginalHighStock().map(r=>{
-    const stock=upStockFacts(r), platformMetrics=qrPlatforms.map(platform=>{
+    const platformMetrics=qrPlatforms.map(platform=>{
       const s=upSummary(upIdentity(r),w.start,w.end,platform);
       return {platform,profitRate:s.profitRate,returnRate:s.returnRate,receivedRate:s.receivedRate};
     });
-    const amount=stock.goodsValueCents/1000000;
-    const facts={...r,...stock,amount,staleRatio:amount?r.stale/amount*100:0,platformMetrics};
+    const facts={...r,platformMetrics};
     const reasons=irReasons(facts);
     return {...facts,reasons,level:reasons.some(x=>x.priority===1)?'P1':reasons.some(x=>x.priority<5)?'P2':'P3',
       desc:reasons.map(irReasonText).join('；')};
@@ -81,10 +81,10 @@ rfFacts=function(k,r) {
   if(k===4) {
     const days=Math.max(1,aiFlowDayDiff(w.start,w.end)+1),turnDays=r.turn>0?days/r.turn:null;
     return [rfMetric('库存周转天数',turnDays===null?'—':fmt(turnDays,1)+'天',turnDays!==null&&turnDays>=60,'所选周期天数÷库存周转率；滞销入榜另按近15日均净销量计算可售天数≥60天。'),
-      rfMetric('滞销库存货值',pfMoneyYuan((r.staleValueCents/1000000)*10000),r.staleValueCents>0,'只计算超库龄部分，沿用库存台账超库龄货值。'),
+      rfMetric('滞销库存货值',formatStockValue(r.staleValueCents),r.staleValueCents>0,'只计算超库龄部分，沿用库存台账超库龄货值。'),
       rfMetric('期间销量',formatSalesQuantity(s.sales,'件'),false,'所选周期全平台销量；与经营表现及逐日台账一致。'),
-      rfMetric('滞销金额',pfMoneyYuan((r.staleValueCents/1000000)*10000),r.staleValueCents>0,'与滞销库存货值为同一超库龄金额，不重复相加。'),
-      rfMetric('库存总量',fmt(r.totalUnits)+'件',r.slow,'仓内＋工厂＋新机未交付；近15日净销量＞0且仓内库存÷近15日均净销量≥60天时入滞销榜。'),
+      rfMetric('滞销金额',formatStockValue(r.staleValueCents),r.staleValueCents>0,'与滞销库存货值为同一超库龄金额，不重复相加。'),
+      rfMetric('库存总量',fmt(r.totalUnits)+'件',r.slow,upTotalStockFormula+'；近15日净销量＞0且仓内库存÷近15日均净销量≥60天时入滞销榜。'),
       rfMetric('动销率',upPercent(r.warehouse+s.sales?s.sales/(r.warehouse+s.sales)*100:null),false,'期间销量÷（期间销量＋期末仓内库存）；阈值尚未确认，不单独判灯。')];
   }
   if(k===2) {

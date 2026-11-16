@@ -69,8 +69,8 @@ export async function newSuccessHistoryUI(page){
   if([1920,390].includes(width))await page.locator('#dialog').screenshot({path:path.join(evidence,'assessment-result-tabs-'+width+'.png')});
   await page.locator('#close').click();
   if(![1920,390].includes(width))continue;
-  await page.setViewportSize({width,height:1080});const help=page.locator('#newtop [data-nsp-kpi="新品销售成功率"]');await help.scrollIntoViewIfNeeded();await page.mouse.move(0,0);await page.waitForTimeout(150);await help.hover();await page.waitForFunction(()=>!document.querySelector('#metric-tooltip').hidden);
-  const tooltip=page.locator('#metric-tooltip');assert((await tooltip.getAttribute('class')).includes('metric-tooltip-nsp-card'));assert.match(await tooltip.innerText(),/当季/);assert.match(await tooltip.innerText(),/跨年/);assert(!/90|120|从上线累计/.test(await tooltip.innerText()));
+  await page.setViewportSize({width,height:1080});const help=page.locator('[data-nsp-assessment-help]');await help.scrollIntoViewIfNeeded();await page.mouse.move(0,0);await help.hover();
+  const tooltip=page.locator('#metric-tooltip');await tooltip.waitFor({state:'visible'});assert((await tooltip.getAttribute('class')).includes('metric-tooltip-nsp-assessment'));assert.match(await tooltip.innerText(),/当季/);assert.match(await tooltip.innerText(),/跨年/);assert(!/90|120|从上线累计/.test(await tooltip.innerText()));
   const rect=await tooltip.boundingBox();assert(rect.x>=7&&rect.x+rect.width<=width-7);await page.screenshot({path:path.join(evidence,'success-tooltip-'+width+'.png')});await page.mouse.move(0,0);
  }
  await page.setViewportSize({width:320,height:1080});assert(await page.locator('#new').evaluate(n=>n.scrollWidth<=n.clientWidth+2));

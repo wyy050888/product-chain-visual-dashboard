@@ -61,8 +61,16 @@ export async function verifyGradeTrend(page){
  await platform.selectOption('all',{force:true});assert.equal(await grade.count(),1);assert.deepEqual(await snapshot('month'),before);
  const badge=root.locator('.up-product-heading [data-up-product-grade]'),level=await badge.innerText();
  assert.equal(level,before.at(-1)?.level||'未分级');
- const colors={S:['rgb(234, 247, 242)','rgb(37, 156, 125)'],A:['rgb(255, 245, 228)','rgb(203, 141, 37)'],B:['rgb(238, 241, 255)','rgb(108, 126, 207)'],C:['rgb(255, 240, 242)','rgb(218, 107, 123)']};
- if(colors[level])assert.deepEqual(await badge.evaluate(e=>[getComputedStyle(e).backgroundColor,getComputedStyle(e).color]),colors[level],'头部标签复用SABC配色');
+ if(['S','A','B','C'].includes(level)){
+  const {actual,expected}=await badge.evaluate((e,grade)=>{
+   const palette=document.createElement('span');palette.className='kpm-point-grade '+grade;
+   e.after(palette);
+   const colors=node=>{const style=getComputedStyle(node);return [style.backgroundColor,style.color]};
+   const result={actual:colors(e),expected:colors(palette)};palette.remove();
+   return result;
+  },level);
+  assert.deepEqual(actual,expected,'头部标签复用SABC配色');
+ }
  await page.locator('[data-drawer-tab="quality"]').click();await page.locator('[data-drawer-tab="operating"]').click();assert.equal(await grade.getAttribute('data-grade-mode'),'month');
  assert.equal(await grade.locator('svg').evaluate(e=>e.getBoundingClientRect().height),220,'趋势高度压缩为220px');
  assert.equal(await root.getAttribute('data-up-start'),original.start);assert.equal(await root.getAttribute('data-up-end'),original.end);

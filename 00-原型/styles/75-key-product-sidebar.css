@@ -14,7 +14,7 @@
 #matrix.kpm-main .kpm-zoom-filters>:is(.pf-multi,.kpm-price-filter){flex:0 1 260px;width:260px;min-width:0;max-width:100%}
 @media(max-width:600px){#matrix.kpm-main .kpm-zoom-filters>:is(.pf-multi,.kpm-price-filter){flex:1 1 calc(50% - 4px);width:auto}}
 @media(max-width:1200px){#matrix.kpm-main .kpm-scope-tabs{gap:6px}#matrix.kpm-main .kpm-scope-group+.kpm-scope-group{border-left:0;padding-left:0;flex-basis:100%}}
-#matrix.kpm-main .kpm-sidebar{--kpm-summary-row:40px;display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:20px;min-width:0;align-items:start}
+#matrix.kpm-main .kpm-sidebar{--kpm-summary-row:40px;display:grid;grid-template-columns:minmax(924px,3fr) minmax(0,2fr);gap:20px;min-width:0;align-items:start}
 #matrix.kpm-main .kpm-sidebar>:is(.kpm-management,.kpm-price-distribution){padding:12px 0 0}
 #matrix.kpm-main .kpm-sidebar .matrixplot{display:flex;flex-direction:column;flex:1;min-height:0;padding:0;container-type:inline-size}
 #matrix.kpm-main .kpm-sidebar :is(.kpm-section-heading,.kpm-price-heading){min-height:32px;box-sizing:border-box}
@@ -26,18 +26,20 @@
 #matrix.kpm-main .kpm-sidebar .kpm-chart-legend{grid-column:2;grid-row:1;justify-content:flex-end;gap:10px;font-size:var(--type-meta)}
 #matrix.kpm-main .kpm-sidebar :is(#matrixchart,.kpm-chart-legend),
 #matrix.kpm-main .kpm-chart-zoom .kpm-grade-summary{display:none}
-#matrix.kpm-main .kpm-grade-summary{overflow:auto;border:1px solid #e3eaf4;border-radius:6px}
-#matrix.kpm-main .kpm-grade-summary table{width:100%;min-width:600px;table-layout:fixed;border-collapse:separate;border-spacing:0;font-variant-numeric:tabular-nums}
-#matrix.kpm-main .kpm-grade-summary :is(th,td){box-sizing:border-box;height:var(--kpm-summary-row);padding:4px 10px;border-bottom:1px solid #e9eef5;white-space:nowrap}
-#matrix.kpm-main :is(#matrixtable,.kpm-grade-summary) thead th{padding:0 14px;border-bottom:0;background:#f4f7fc;color:#74839a;font-weight:400}
+#matrix.kpm-main .kpm-grade-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;overflow:auto}
+#matrix.kpm-main .kpm-grade-summary table{width:100%;min-width:456px;table-layout:fixed;border-collapse:separate;border-spacing:0;border:1px solid #e3eaf4;border-radius:6px;font-variant-numeric:tabular-nums}
+@container(max-width:923px){#matrix.kpm-main .kpm-grade-summary{grid-template-columns:minmax(0,1fr)}}
+#matrix.kpm-main .kpm-summary-unrated{grid-column:1/-1;margin:0;font-size:var(--type-meta);color:#74839a}
+#matrix.kpm-main .kpm-grade-summary :is(th,td){box-sizing:border-box;height:var(--kpm-summary-row);padding:4px 8px;border-bottom:1px solid #e9eef5;white-space:nowrap}
+#matrix.kpm-main :is(#matrixtable,.kpm-grade-summary) thead th{border-bottom:0;background:#f4f7fc;color:#74839a;font-weight:400}
+#matrix.kpm-main .kpm-grade-summary thead th{padding:0 8px}
 #matrix.kpm-main .kpm-grade-summary :is(th,td):not(:first-child){text-align:right}
-#matrix.kpm-main .kpm-grade-summary tr>:first-child{position:sticky;left:0;z-index:1;width:152px}
-#matrix.kpm-main .kpm-grade-summary tr>:nth-child(2){width:70px;text-align:center}
-#matrix.kpm-main .kpm-grade-summary tr>:nth-child(3){width:17%}
-#matrix.kpm-main .kpm-grade-summary tr>:nth-child(5){width:15%}
-#matrix.kpm-main .kpm-grade-summary tr>:nth-child(6){width:14%}
+#matrix.kpm-main .kpm-grade-summary tr>:first-child{position:sticky;left:0;z-index:1;width:24%}
+#matrix.kpm-main .kpm-grade-summary tr>:nth-child(2){width:13%;text-align:center}
+#matrix.kpm-main .kpm-grade-summary tr>:nth-child(3),#matrix.kpm-main .kpm-grade-summary tr>:nth-child(5){width:16%}
+#matrix.kpm-main .kpm-grade-summary tr>:nth-child(4){width:18%}
 #matrix.kpm-main .kpm-grade-summary tbody tr{--kpm-summary-bg:#fff}
-#matrix.kpm-main .kpm-grade-summary .kpm-summary-grade{--kpm-summary-bg:#f8fafd;font-weight:600}
+#matrix.kpm-main .kpm-grade-summary .kpm-summary-grade{font-weight:600}
 #matrix.kpm-main .kpm-grade-summary .kpm-summary-operating{color:#526b88}
 #matrix.kpm-main .kpm-grade-summary tbody tr:hover{--kpm-summary-bg:#f2f7ff}
 #matrix.kpm-main .kpm-grade-summary tbody tr[data-selected]{--kpm-summary-bg:#e9f2ff}
@@ -47,15 +49,12 @@
 #matrix.kpm-main .kpm-grade-summary button{padding:0;border:0;background:transparent;color:inherit;font:inherit;text-align:left}
 #matrix.kpm-main .kpm-grade-summary button:hover{text-decoration:underline}
 #matrix.kpm-main .kpm-grade-summary .kpm-grade{padding-block:3px}
-#matrix.kpm-main .kpm-grade-summary .kpm-summary-operating button{padding-left:8px;font-weight:400}
-#matrix.kpm-main .kpm-summary-share-value{display:grid;grid-template-columns:minmax(24px,1fr) 3.5em;align-items:center;gap:8px}
-#matrix.kpm-main .kpm-summary-share-track{display:block;height:12px;background:#e9eef5;border-radius:8px;overflow:hidden}
-#matrix.kpm-main .kpm-summary-share-track i{display:block;height:100%;border-radius:inherit;background:var(--kpm-share-color,#98a5b6)}
-#matrix.kpm-main [data-kpm-summary-level="S"]{--kpm-share-color:var(--green)}
-#matrix.kpm-main [data-kpm-summary-level="A"]{--kpm-share-color:var(--orange-fill)}
-#matrix.kpm-main [data-kpm-summary-level="B"]{--kpm-share-color:#7c8eec}
-#matrix.kpm-main [data-kpm-summary-level="C"]{--kpm-share-color:#e98191}
-#matrix.kpm-main .kpm-summary-operating .kpm-summary-share-track i{opacity:.55}
+#matrix.kpm-main .kpm-grade-summary thead th:first-child{border-top-left-radius:5px}
+#matrix.kpm-main .kpm-grade-summary thead th:last-child{border-top-right-radius:5px}
+#matrix.kpm-main .kpm-grade-summary tbody tr:last-child>:first-child{border-radius:0 0 0 5px}
+#matrix.kpm-main .kpm-grade-summary tbody tr:last-child>:last-child{border-bottom-right-radius:5px}
+#matrix.kpm-main .kpm-summary-share-value{position:relative;isolation:isolate;display:flex;align-items:center;justify-content:flex-end;min-height:28px;padding:0 4px}
+#matrix.kpm-main .kpm-summary-share-value::before{content:"";position:absolute;z-index:-1;inset-block:0;right:0;width:var(--kpm-share-width);border-radius:2px;background:#d5e5ff}
 #matrix.kpm-main .kpm-grade-summary .negative{color:var(--red)}
 #matrix.kpm-main #matrixchart text{font-size:12px}
 #matrix.kpm-main #matrixchart .kpm-axis-title{font-size:12px}
@@ -68,7 +67,7 @@
 #matrix.kpm-main #matrixtable{border:1px solid #e9eef6;border-radius:6px}
 #matrix.kpm-main #matrixtable table{min-width:1860px}
 #matrix.kpm-main #matrixtable :is(th,td){padding-left:14px;padding-right:14px}
-#matrix.kpm-main #matrixtable thead th{height:48px}
+#matrix.kpm-main #matrixtable thead th{height:48px;padding-block:0}
 #matrix.kpm-main #matrixtable td{height:84px;padding-top:14px;padding-bottom:14px}
 #matrix.kpm-main #matrixtable :is(th,td):first-child{width:300px;min-width:300px;max-width:340px}
 #matrix.kpm-main #matrixtable .prodname{gap:10px}
@@ -83,7 +82,13 @@
 #matrix.kpm-main #matrixtable .kpm-metric .rp-list-value{align-items:flex-end}
 #matrix.kpm-main #matrixtable :is(.kpm-grade,.kpm-change-grade){height:24px;min-width:24px;padding:0 7px;align-items:center;border-radius:4px}
 #matrix.kpm-main #matrixtable .kpm-change-grade{display:inline-flex;justify-content:center}
-@media(max-width:1250px){#matrix.kpm-main .kpm-sidebar{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:1420px){#matrix.kpm-main .kpm-sidebar{grid-template-columns:minmax(0,1fr)}}
+@media(width > 1420px){
+ #matrix.kpm-main .kpm-sidebar{align-items:stretch}
+ #matrix.kpm-main .kpm-sidebar [data-kpm-plot-slot]{display:flex;flex:1;min-height:0}
+ #matrix.kpm-main .kpm-sidebar .kpm-grade-summary{flex:1;grid-template-rows:minmax(min-content,1fr)}
+ #matrix.kpm-main .kpm-sidebar .kpm-grade-summary tbody{height:100%}
+}
 @media(max-width:1000px){#matrix.kpm-main .kpm-tools{grid-template-columns:repeat(2,minmax(0,1fr));justify-content:stretch}#matrix.kpm-main .kpm-tools>.kpm-search{grid-column:1/-1}}
 @media(max-width:600px){#matrix.kpm-main .matrixlayout{gap:16px}#matrix.kpm-main .kpm-sidebar{gap:14px}#matrix.kpm-main .matrixlist{padding:0}#matrix.kpm-main .kpm-tools{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}#matrix.kpm-main #matrixtable :is(th,td):first-child{width:180px;min-width:180px;max-width:180px}}
 #matrix.kpm-main .kpm-sidebar .matrixplot{margin:0;border:0;border-radius:0;background:#fff}
@@ -181,7 +186,7 @@
 #matrix.kpm-main .kpm-management-body{display:grid;grid-template-columns:minmax(0,1fr);gap:0;flex:1;min-height:0}
 #matrix.kpm-main .kpm-management-section{display:flex;flex-direction:column;min-width:0;min-height:0;gap:10px}
 #matrix.kpm-main .kpm-management-section h4{margin:0;line-height:20px;color:#526b88}
-#matrix.kpm-main .kpm-structure-heading{margin-inline:0;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:32px;margin-bottom:12px}
+#matrix.kpm-main .kpm-structure-heading{margin-inline:0;display:flex;align-items:center;gap:12px;min-height:32px;margin-bottom:12px}
 #matrix.kpm-main .kpm-grade-overview{grid-column:1/-1;min-width:0;padding:0}
 #matrix.kpm-main .matrixlayout>.kpm-grade-overview{padding-top:20px;border-top:1px solid #e3eaf4}
 /* 经营矩阵、价格带、产品分级使用同级标题，不添加竖线装饰。 */
@@ -199,10 +204,6 @@
 #matrix.kpm-main .kpm-structure-unit{font-size:var(--type-secondary-kpi);font-weight:var(--weight-regular)}
 #matrix.kpm-main .kpm-structure-delta{display:flex;justify-content:flex-end;align-items:baseline;gap:2px;text-align:right;white-space:nowrap;font-size:var(--type-kpi);font-weight:var(--weight-heading);line-height:1.25;font-variant-numeric:tabular-nums;color:#8190a4}
 #matrix.kpm-main .kpm-structure-arrow{font:inherit}
-/* A/B变化用醒目蓝色强调，不赋予好坏含义；S/C沿用经营含义配色。 */
-#matrix.kpm-main .kpm-structure-delta:is([data-direction=up],[data-direction=down]){color:#2563eb}
-#matrix.kpm-main :is([data-kpm-grade=S] .kpm-structure-delta[data-direction=up],[data-kpm-grade=C] .kpm-structure-delta[data-direction=down]){color:var(--green)}
-#matrix.kpm-main :is([data-kpm-grade=S] .kpm-structure-delta[data-direction=down],[data-kpm-grade=C] .kpm-structure-delta[data-direction=up]){color:#e34464}
 #matrix.kpm-main .kpm-structure-item:hover{background:#f1f5fc}
 #matrix.kpm-main .kpm-structure-item.active{background:#f3f5ff;border-color:#b6c3f5}
 #matrix.kpm-main .kpm-structure-item[data-kpm-grade=all]{--kpm-grade-color:#1677ff}

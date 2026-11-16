@@ -1,4 +1,6 @@
 // 模板用原生OOXML导出，避免为表头样式加载整套Excel运行库。
+const uiFailureColumns=['原始行号','校验结果','错误字段','失败原因'];
+const uiFailurePending='本行校验通过，因整批失败未导入';
 function uiImportHeaderName(value){
  return String(value??'').replace(/^\uFEFF/,'').trim().replace(/^[*＊]\s*|\s*[*＊]$/g,'').replace(/（(?:实际降本必填|钉钉名称|填写产品时必填|YYYY\/MM\/DD|YYYY\/MM)）$/,'').trim();
 }
@@ -20,14 +22,15 @@ function uiTemplateHeaderXml(label,required,hint='',color='FF304C70',bold=false)
  }
  return required?`<r><rPr><rFont val="Microsoft YaHei"/><sz val="11"/><color rgb="FFD92848"/></rPr><t>*</t></r><r><rPr><rFont val="Microsoft YaHei"/><sz val="11"/><color rgb="${color}"/></rPr><t>${text}</t></r>`:`<t>${text}</t>`;
 }
+function uiTemplateCrc32(bytes){let value=0xffffffff;for(const byte of bytes){value^=byte;for(let bit=0;bit<8;bit++)value=(value>>>1)^((value&1)?0xedb88320:0)}return (value^0xffffffff)>>>0}
 function uiTemplateZip(parts){
  const encoder=new TextEncoder(),chunks=[],directory=[];let offset=0;
- const crc=bytes=>{let value=0xffffffff;for(const byte of bytes){value^=byte;for(let bit=0;bit<8;bit++)value=(value>>>1)^((value&1)?0xedb88320:0)}return (value^0xffffffff)>>>0};
- for(const [path,xml]of Object.entries(parts)){
-  const name=encoder.encode(path),data=encoder.encode(xml),checksum=crc(data),local=new Uint8Array(30+name.length),view=new DataView(local.buffer);
-  view.setUint32(0,0x04034b50,true);view.setUint16(4,20,true);view.setUint16(12,0x5821,true);view.setUint32(14,checksum,true);view.setUint32(18,data.length,true);view.setUint32(22,data.length,true);view.setUint16(26,name.length,true);local.set(name,30);
+ for(const [path,part]of Object.entries(parts)){
+  const name=encoder.encode(path),raw=typeof part==='string'?encoder.encode(part):part;
+  const data=raw.data??raw,method=raw.method??0,size=raw.size??data.length,checksum=raw.checksum??uiTemplateCrc32(data),local=new Uint8Array(30+name.length),view=new DataView(local.buffer);
+  view.setUint32(0,0x04034b50,true);view.setUint16(4,20,true);view.setUint16(6,0x800,true);view.setUint16(8,method,true);view.setUint16(12,0x5821,true);view.setUint32(14,checksum,true);view.setUint32(18,data.length,true);view.setUint32(22,size,true);view.setUint16(26,name.length,true);local.set(name,30);
   const entry=new Uint8Array(46+name.length),central=new DataView(entry.buffer);
-  central.setUint32(0,0x02014b50,true);central.setUint16(4,20,true);central.setUint16(6,20,true);central.setUint16(14,0x5821,true);central.setUint32(16,checksum,true);central.setUint32(20,data.length,true);central.setUint32(24,data.length,true);central.setUint16(28,name.length,true);central.setUint32(42,offset,true);entry.set(name,46);
+  central.setUint32(0,0x02014b50,true);central.setUint16(4,20,true);central.setUint16(6,20,true);central.setUint16(8,0x800,true);central.setUint16(10,method,true);central.setUint16(14,0x5821,true);central.setUint32(16,checksum,true);central.setUint32(20,data.length,true);central.setUint32(24,size,true);central.setUint16(28,name.length,true);central.setUint32(42,offset,true);entry.set(name,46);
   chunks.push(local,data);directory.push(entry);offset+=local.length+data.length;
  }
  const size=directory.reduce((sum,entry)=>sum+entry.length,0),end=new Uint8Array(22),view=new DataView(end.buffer);

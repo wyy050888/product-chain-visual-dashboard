@@ -58,13 +58,13 @@ function rpLossFields(record,current,previous){
   const hint=Number.isFinite(target)?'偏差＝实际退货率－目标。目标 '+upPercent(target)+'；'+rpReturnDeviationHint(key):'未配置对应退货率目标，不显示偏差。';
   add(key,name,upPercent(actual),actual,rule.tone,rule.target,rule.targetTone,hint);
  }
- add('total','总库存',stockQuantity(stock?.totalUnits),stock?.totalUnits??null,'rp-quality-normal','','','公司最新快照 '+DATA_CUTOFF+'：仓内＋工厂＋新机未交付；不按平台拆分。');
+ add('total','总库存',stockQuantity(stock?.totalUnits),stock?.totalUnits??null,'rp-quality-normal','','','公司最新快照 '+DATA_CUTOFF+'。'+upTotalStockFormula);
  // 卡片与抽屉总库存共用数量/货值两行，货值取同一公司库存快照。
  const total=fields.find(field=>field.key==='total');
- total.cardTarget='货值 '+(Number.isFinite(stock?.goodsValueCents)?rpQualityMoney(stock.goodsValueCents/100):'—');total.cardTargetTone='rp-quality-normal';
+ total.cardTarget='货值 '+formatStockValue(stock?.goodsValueCents);total.cardTargetTone='rp-quality-normal';
  total.target=total.cardTarget;total.targetTone=total.cardTargetTone;
  const totalDays=Number.isFinite(stock?.totalCoverage15)?stock.totalCoverage15:null;
  add('totalCoverage15','总可售天数',totalDays===null?'—':fmt(totalDays,1)+'天',totalDays,'rp-quality-normal','','','公司最新快照 '+DATA_CUTOFF+'：总库存÷近15日均净销量；公司全平台口径，不随经营平台或期间拆分。');
- add('value','货值（总库存）',stock?rpQualityMoney(stock.goodsValueCents/100):'—',stock?.goodsValueCents??null,'rp-quality-normal','','','公司总库存×含税含品牌财务价；快照 '+DATA_CUTOFF+'。');
+ add('value','货值（总库存）',formatStockValue(stock?.goodsValueCents),stock?.goodsValueCents??null,'rp-quality-normal','','','按五项库存对应的SKU货值汇总；快照 '+DATA_CUTOFF+'。');
  return [...fields,...rpQualityProductFields(record)];
 }

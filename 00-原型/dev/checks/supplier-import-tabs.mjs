@@ -6,7 +6,7 @@ export async function supplierImportTabs(page){
  const out=new URL('../../outputs/supplier-revision-20261030/',import.meta.url);fs.mkdirSync(out,{recursive:true});
  const open=async()=>{await page.locator('#ssi-import').click();await page.locator('#ssi-import-dialog').waitFor();assert(await page.locator('.ssi-import-coverage').isVisible());assert.match(await page.locator('.ssi-import-coverage').innerText(),/按(?:合作|准入)年份覆盖[\s\S]*未列记录会删除[\s\S]*其他年份和(?:一级|二级)名单保留/)};
  const upload=async(buffer,name='校验.xlsx')=>{await page.locator('#ssi-file').setInputFiles({name,mimeType:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',buffer});await page.locator('#ssi-confirm').click()};
- const failed=async()=>{await page.locator('.ui-import-feedback button').waitFor();return page.evaluate(()=>JSON.parse(localStorage.getItem('dashboard-import-history-v1'))[0])};
+ const failed=async()=>{await page.locator('.ui-import-feedback button:has-text("查看失败明细")').waitFor();return page.evaluate(()=>JSON.parse(localStorage.getItem('dashboard-import-history-v1'))[0])};
  try{
   await page.evaluate(keys=>keys.forEach(key=>localStorage.removeItem(key)),keys);await page.reload({waitUntil:'domcontentloaded'});await page.waitForFunction(()=>document.documentElement.dataset.dashboardBoot==='ready');await page.evaluate(()=>location.hash='#system-strategic-suppliers');await page.locator('#ssi-template').waitFor();
   assert.deepEqual(await page.locator('[data-ssi-tier]').allTextContents(),['一级核心战略合作供应商','二级核心物料供应商']);

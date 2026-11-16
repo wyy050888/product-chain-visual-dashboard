@@ -9,14 +9,14 @@ function klcParseImport(table){
  table.slice(1).forEach((cells,i)=>{
   if(cells.every(v=>!String(v).trim()))return;
   const rowNumber=cells.sourceRow||i+2,text=label=>String(cells[headers.indexOf(label)]??'').trim(),before=errors.length;
-  if(cells.some(v=>String(v).startsWith('[公式：')))errors.push({row:rowNumber,field:'数据',message:'请将公式粘贴为值后导入'});
+  cells.forEach((value,index)=>{if(String(value).startsWith('[公式：'))errors.push({row:rowNumber,field:headers[index]||'数据',message:'请将公式粘贴为值后导入'})});
   const shop=klcShops().find(s=>String(s.shopId)===text('店铺ID'));
   const linkId=text('链接ID').replace(/^'/,''),previous=currentRows.find(r=>r.shopId===String(shop?.shopId)&&r.linkId===linkId),catalog=klcLookup(String(shop?.shopId),linkId);
   const monitorMonth=/^\d{4}\/\d{2}$/.test(text('月份'))?klcNormalizeMonth(text('月份')):'';
   if(!shop)errors.push({row:rowNumber,field:'店铺ID',message:'店铺ID不存在，请核对店铺档案'});
   // 以店铺ID＋链接ID定位；已有关联自动保留，不要求用户额外填SPU码。
   const row={shopId:String(shop?.shopId||''),linkId,spuId:previous?.spuId||catalog?.spuId||'',name:text('商品链接名称')||previous?.name||catalog?.name||'',shopName:text('店铺名称')||shop?.name||'',monitorMonth};
-  try{klcValidate(row)}catch(e){errors.push({row:rowNumber,field:e.message.startsWith('请选择月份')?'月份':'数据',message:e.message})}
+  try{klcValidate(row)}catch(e){errors.push({row:rowNumber,field:e.field||'数据',message:e.message})}
   if(cells.length>headers.length)errors.push({row:rowNumber,field:'数据',message:'数据列多于表头'});
   if(seen.has(klcKey(row)))errors.push({row:rowNumber,field:'链接ID',message:'文件内同月份、同店铺链接重复'});seen.add(klcKey(row));
   if(errors.length===before)rows.push({row,type:currentRows.some(existing=>klcKey(existing)===klcKey(row))?'edit':'add'});

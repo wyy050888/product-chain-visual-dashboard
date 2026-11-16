@@ -36,7 +36,7 @@
 #riskrail [data-rp-board="0"]>.rp-compact-header>.rp-board-period{grid-area:1/2;justify-self:end}
 #riskrail [data-rp-board="0"]>.rp-compact-header>.rp-platform-menu{grid-area:3/1}
 #riskrail [data-rp-board="0"]>.rp-compact-header>.rp-quality-actions{grid-area:3/2}
-#riskrail .rp-quality-summary{grid-area:2/1/3/-1;display:grid;grid-template-columns:minmax(112px,.12fr) minmax(0,1fr);align-items:start;column-gap:clamp(16px,2vw,36px);min-width:0;padding:6px 12px 8px;border:1px solid #cfdef0;border-radius:8px}
+#riskrail .rp-quality-summary{grid-area:2/1/3/-1;display:grid;grid-template-columns:minmax(max-content,.27fr) minmax(0,1fr);align-items:start;column-gap:clamp(16px,2vw,36px);min-width:0;padding:6px 12px 8px;border:1px solid #cfdef0;border-radius:8px}
 #riskrail .rp-quality-summary-period{display:grid;gap:2px;white-space:nowrap}
 #riskrail .rp-quality-summary-period span,#riskrail .rp-quality-summary dt{color:#546a82;font-size:12px;line-height:18px}
 #riskrail .rp-quality-summary-period strong{color:#233d59;font-size:15px;font-weight:650;line-height:26px}

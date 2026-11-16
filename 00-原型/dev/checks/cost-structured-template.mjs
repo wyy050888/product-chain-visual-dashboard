@@ -55,12 +55,12 @@ export async function costStructuredTemplate(page){
   lastActual[15]='bad';
   const invalidBook=fillImportWorkbook(buffer,headerRow,lastActual,{sheet:books.length});
   await page.locator('#cec-file').setInputFiles({name:'最后部门错误.xlsx',mimeType:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',buffer:invalidBook});
-  await page.locator('#cec-confirm-import').click();await page.locator('.ui-import-feedback button').waitFor();
+  await page.locator('#cec-confirm-import').click();await page.locator('.ui-import-feedback button:has-text("查看失败明细")').waitFor();
   assert.deepEqual((await audit()).store,before.store,'末尾Sheet失败时前面部门也不保存');
   let record=await page.evaluate(()=>JSON.parse(localStorage.getItem('dashboard-import-history-v1'))[0]);
   assert(record.errors.some(error=>String(error.row)===last.name+'!'+(headerRow+1)),'错误保留工作表和原始行号');
   assert(record.failedRows.find(row=>row.row===last.name+'!'+(headerRow+1)).reason.includes('金额'),'同一行号跨Sheet不串错误');
-  await page.locator('.ui-import-feedback button').click();await page.locator('#ui-import-failure-pages select').selectOption('50');assert.match(await page.locator('#ui-import-history').innerText(),new RegExp('产品中心!'+(headerRow+1)));
+  await page.locator('.ui-import-feedback button:has-text("查看失败明细")').click();await page.locator('#ui-import-failure-pages select').selectOption('50');assert.match(await page.locator('#ui-import-history').innerText(),new RegExp('产品中心!'+(headerRow+1)));
   await page.locator('#ui-import-history [data-ui-history-close]').first().click();
   lastActual[15]='123.45';
   const filledBook=fillImportWorkbook(buffer,headerRow,lastActual,{sheet:books.length});
@@ -76,7 +76,7 @@ export async function costStructuredTemplate(page){
    await page.locator('#cec-file').setInputFiles({name:'层级模板.csv',mimeType:'text/csv',buffer:Buffer.from(csv)});
   };
   target[5]=(Number(target[5])+1).toFixed(2);actual[15]='45.12';
-  await upload([target,actual]);await page.locator('#cec-confirm-import').click();await page.locator('.ui-import-feedback button').waitFor();const failure=await page.evaluate(()=>JSON.parse(localStorage.getItem('dashboard-import-history-v1'))[0]);assert(failure.errors.some(row=>/年度目标须等于12个月/.test(row.message)));assert.deepEqual((await audit()).store,allSaved.store);
+  await upload([target,actual]);await page.locator('#cec-confirm-import').click();await page.locator('.ui-import-feedback button:has-text("查看失败明细")').waitFor();const failure=await page.evaluate(()=>JSON.parse(localStorage.getItem('dashboard-import-history-v1'))[0]);assert(failure.errors.some(row=>/年度目标须等于12个月/.test(row.message)));assert.deepEqual((await audit()).store,allSaved.store);
   target[15]=(Number(target[15])+1).toFixed(2);await upload([target,actual]);await page.locator('#cec-confirm-import').click();await page.locator('#cec-import-dialog').waitFor({state:'hidden'});
   const saved=await audit(),item=saved.metrics.find(item=>item.department==='warehouse'&&item.metric===actual[2]);
   assert.equal(saved.store.departmentTargets['warehouse|'+target[4]+'-10'].targetCents,Math.round(Number(target[15])*100));

@@ -1,8 +1,8 @@
 // 普通三榜复用现有抽屉日/月/季/年控件，不注册第二套日期选择器。
-let rpViolationDayRange=null;
+const rpBoardDayRanges={};
 function rpApplyBoardPeriod(kind,period){
  if(!rpTimedBoards.includes(kind))return;
- if(kind===0&&period.mode==='day')rpViolationDayRange=periodShortText(period)==='近30天'?null:{start:period.start,end:period.end};
+ if(![6,8].includes(kind)&&period.mode==='day')rpBoardDayRanges[kind]=periodShortText(period)==='近30天'?null:{start:period.start,end:period.end};
  rpBoardPeriods[kind]={...period};renderRisks([kind]);
 }
 function rpMountBoardDateControls(root){
@@ -19,7 +19,7 @@ function rpMountBoardDateControls(root){
   const period=rpBoardPeriod(kind),apply=next=>rpApplyBoardPeriod(kind,next);
   if([6,8].includes(kind))rpMountReturnPeriod(host,period,apply,kind);
   else{
-   const dayRange=kind===0&&period.mode!=='day'?(rpViolationDayRange||rpDefaultBoardPeriod(kind)):undefined;
+   const dayRange=period.mode==='day'?undefined:rpBoardDayRanges[kind]||rpDefaultBoardPeriod(kind);
    drawerMountPeriod(host,period,apply,'rp-board-date-'+kind,'risk',dayRange);
   }
  }

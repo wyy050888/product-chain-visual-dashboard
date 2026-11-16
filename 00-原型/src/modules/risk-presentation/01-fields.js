@@ -47,13 +47,13 @@ function rpFieldMap(k,r,qualityOnly=true,violationPlatform='all'){
   }
   if(k===3||k===4){const stock=k===3?r:upPlatformStockFacts(r,platform),recent=upSummary(p,shiftDate(w.end,-14),w.end,platform);const ratio=stock.goodsValueCents?stock.staleValueCents/stock.goodsValueCents*100:null;
     Object.assign(raw,{total:stock.totalUnits,value:stock.goodsValueCents,turn:r.turn,coverage:stock.coverage,coverage15:stock.slowCoverage,staleRatio:ratio,staleValue:stock.staleValueCents,
-      staleUnits:stock.staleUnits,warehouse:stock.warehouse,factory:stock.factory,undelivered:stock.undelivered,price:stock.financePriceCents/100,sales15:recent.sales,age:null});
+      staleUnits:stock.staleUnits,...Object.fromEntries(upTotalStockParts.map(([key])=>[key,stock[key]])),price:stock.financePriceCents/100,sales15:recent.sales,age:null});
 
-    put('total',k===3?'高危品总库存':'总库存',rpCount(stock.totalUnits),'','仓内＋工厂＋新机未交付，三类库存互不重复。');put('value','高危品货值',upMoney(stock.goodsValueCents),'','总库存×含税含品牌财务价。');
+    put('total',k===3?'高危品总库存':'总库存',rpCount(stock.totalUnits),'',upTotalStockFormula);put('value','高危品货值',formatStockValue(stock.goodsValueCents),'','按对应库存组成的SKU货值加总。');
     put('turn','库存周转率',r.turn===null?'—':fmt(r.turn,2)+(k===3?'次/30日':'次/期间'),'','期间出库成本÷期间平均库存成本。');put('coverage','可售天数',stock.coverage===null?'无动销':fmt(stock.coverage,1)+'天','','公司仓内库存÷所选平台在当前周期的日均销量；未分配平台专属库存。');
     put('coverage15','可售天数（近15天）',stock.slowCoverage===null?'无动销':fmt(stock.slowCoverage,1)+'天',stock.slow?'red':'','公司仓内库存÷所选平台近15日日均销量；只判断有动销产品，可售天数'+brcDescribe('stock.slowDays')+'时纳入滞销，不作为平台专属库存。');
-    put('staleRatio','呆滞占比',upPercent(ratio),'','超库龄货值÷总库存货值。');put('staleValue','滞销金额',upMoney(stock.staleValueCents),'red','只计算超库龄部分。');put('staleUnits','超库龄库存数',rpCount(stock.staleUnits),'','按原超库龄货值比例折算的样例数量，实际数量需批次库龄台账。');
-    put('warehouse','仓内库存',rpCount(stock.warehouse));put('factory','工厂库存',rpCount(stock.factory));put('undelivered','新机未交付',rpCount(stock.undelivered));put('price','财务价',pfMoneyYuan(stock.financePriceCents/100)+'/件');put('sales15','近15天销量',formatSalesQuantity(recent.sales,'件'));put('attribute','产品属性',r.attribute);put('age','最大库龄','待接入','','未提供真实批次及库龄，不用低动销天数代替库龄。');put('causes','命中风险',k===3?r.reasons.map(irReasonText).join('、'):'动销产品可售天数'+brcDescribe('stock.slowDays')+'','');
+    put('staleRatio','呆滞占比',upPercent(ratio),'','超库龄货值÷总库存货值。');put('staleValue','滞销金额',formatStockValue(stock.staleValueCents),'red','只计算超库龄部分。');put('staleUnits','超库龄库存数',rpCount(stock.staleUnits),'','按原超库龄货值比例折算的样例数量，实际数量需批次库龄台账。');
+    for(const [key,label] of upTotalStockParts)put(key,label,stockQuantity(stock[key]));put('price','财务价',pfMoneyYuan(stock.financePriceCents/100)+'/件');put('sales15','近15天销量',formatSalesQuantity(recent.sales,'件'));put('attribute','产品属性',r.attribute);put('age','最大库龄','待接入','','未提供真实批次及库龄，不用低动销天数代替库龄。');put('causes','命中风险',k===3?r.reasons.map(irReasonText).join('、'):'动销产品可售天数'+brcDescribe('stock.slowDays')+'','');
   }
   const fields=rows.map(f=>({...f,sortValue:raw[f.key],...(k===6&&['returnGrowth','receivedGrowth','contactGrowth'].includes(f.key)?{tone:rpComparisonTone(raw[f.key]),hint:f.hint+rpComparisonRuleText()}:{})}));
   return k===0?rpQualityFields(r,fields,s,prev,qualityOnly,violationPlatform):fields;

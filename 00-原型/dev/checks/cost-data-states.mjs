@@ -3,12 +3,16 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 export function verifyCostDataStates(){
  const ledger=[],sandbox={ccItems:[{id:'a'},{id:'b'}],ccLedger:ledger,DATA_CUTOFF:'2026-10-10',window:{},bounds:()=>({end:'2026-10-31'}),fmt:(v,d)=>v.toLocaleString('zh-CN',{minimumFractionDigits:d,maximumFractionDigits:d})};
- vm.createContext(sandbox);vm.runInContext(fs.readFileSync(new URL('../../src/modules/cost-control/01-model.js',import.meta.url),'utf8'),sandbox);
+ vm.createContext(sandbox);vm.runInContext(fs.readFileSync(new URL('../../src/modules/product-filters/04-display.js',import.meta.url),'utf8'),sandbox);
+ vm.runInContext(fs.readFileSync(new URL('../../src/modules/cost-control/01-model.js',import.meta.url),'utf8'),sandbox);
  const totals=(mode='month')=>JSON.parse(JSON.stringify(sandbox.ccTotals([{id:'a'},{id:'b'}],{year:2026,mode:'month',value:10},mode))),empty={target:null,actual:null,gap:null,rate:null};
  const row=(target,actual,date='2026-10-10')=>({itemId:'a',month:'2026-10',targetCents:target,actualMissing:actual===null,confirmations:actual===null?[]:[{date,cents:actual}]});
  assert.deepEqual(totals(),empty,'没有记录不产生0');assert.equal(sandbox.ccMoney(null),'--');assert.equal(sandbox.ccRate(null),'--');assert.equal(sandbox.ccAmount(null),'--');
  ledger.push(row(10000,null));assert.deepEqual(totals(),{target:10000,actual:null,gap:null,rate:null});
- ledger.splice(0,ledger.length,row(10000,0));assert.deepEqual(totals(),{target:10000,actual:0,gap:-10000,rate:0},'明确填报0正常计算');assert.match(sandbox.ccAmount(0),/^0[.]00<span/);
+ ledger.splice(0,ledger.length,row(10000,0));assert.deepEqual(totals(),{target:10000,actual:0,gap:-10000,rate:0},'明确填报0正常计算');assert.equal(sandbox.ccAmount(0),'0.00<span class="cc-money-unit">元</span>');
+ assert.equal(sandbox.ccAmount(1000000),'10,000.00<span class="cc-money-unit">元</span>');
+ assert.equal(sandbox.ccAmount(1234567),'1.23<span class="cc-money-unit">万元</span>');
+ assert.match(sandbox.ccGap(-1234567),/>-1\.23<span class="cc-money-unit">万元<\/span>/);
  ledger.splice(0,ledger.length,row(-10000,0));assert.equal(sandbox.ccRate(totals().rate),'0.0%');assert.equal(Object.is(totals().rate,-0),false,'负目标不能产生负零达成');
  ledger.splice(0,ledger.length,row(null,5000));assert.deepEqual(totals(),{target:null,actual:5000,gap:null,rate:null},'缺少目标不计算差额');
  ledger.splice(0,ledger.length,row(0,0));assert.deepEqual(totals(),{target:0,actual:0,gap:0,rate:null},'目标为零保留金额但不除零');

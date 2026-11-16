@@ -13,6 +13,7 @@ const metricHover=createTooltipHover(metricTooltip,()=>activeMetricHelp,hideMetr
 function hideMetricTooltip() {
   metricHover.keep();
   activeMetricHelp?.removeAttribute('aria-describedby');
+  if(activeMetricHelp?.hasAttribute('data-nsp-assessment-help'))activeMetricHelp.setAttribute('aria-expanded','false');
   activeMetricHelp = null;
   metricTooltip.hidden = true;
 }
@@ -39,9 +40,8 @@ function renderBrandShareTooltip(host,name,color,values){
   if(unit)append(data,'small',unit);
  }
 }
-// 两张新品指标卡：公式、统计口径、判定条件分别排版。
+// 新品上市及时率卡片：公式、统计口径、判定条件分别排版。
 function renderNewKpiTooltip(help){
- if(help.dataset.nspKpi==='新品销售成功率'){nspRenderSuccessTooltip(metricTooltip,help.dataset.nspAnnual==='true');return}
  const append=(parent,tag,text,cls='')=>{const n=document.createElement(tag);n.textContent=text;if(cls)n.className=cls;parent.append(n);return n};
  const header=append(metricTooltip,'div','','nsp-tip-heading');append(header,'h4',help.dataset.nspKpi.replace('上线及时率','上市及时率'));
  append(metricTooltip,'div','实际上市项目数 ÷ 应上市项目数 × 100%','nsp-tip-formula');
@@ -68,7 +68,7 @@ function renderMetricTooltipContent(help){
  if(help.dataset.scpMaterialHelp){scpRenderMaterialHelp(metricTooltip,Number(help.dataset.scpRuleYear)||+DATA_CUTOFF.slice(0,4));return}
  if(help.dataset.scpSourcingHelp||help.dataset.scpCategoryHelp){scpRenderSourcingHelp(metricTooltip,Boolean(help.dataset.scpCategoryHelp),Number(help.dataset.scpRuleYear)||+DATA_CUTOFF.slice(0,4));return}
  if(help.dataset.ipRule){renderInventoryMetricTooltip(metricTooltip,help.dataset.ipRule);return}
- if(help.closest('.nsp-pool-help')){nspRenderPoolTooltip(metricTooltip,text);return}
+ if(help.hasAttribute('data-nsp-assessment-help')){nspRenderAssessmentHelp(metricTooltip,nspSuccessPeriod());return}
  if(help.dataset.nspStatus){nspRenderStatusTooltip(metricTooltip,help.dataset.nspStatus==='annual');return}
  if(help.dataset.nspKpi){renderNewKpiTooltip(help);return}
  if(help.classList.contains('pp-analysis-help')){renderProjectAnalysisTooltip(metricTooltip);return}
@@ -120,17 +120,28 @@ function renderMetricTooltipContent(help){
 function showMetricTooltip(help) {
   metricHover.keep();
   if (!help?.matches(metricHelpSelector)||(!help.dataset.metricRule&&!metricHasRuleCard(help))) return;
+  const assessmentHelp=help.hasAttribute('data-nsp-assessment-help');
+  if(assessmentHelp&&activeMetricHelp===help&&!metricTooltip.hidden)return;
   activeMetricHelp?.removeAttribute('aria-describedby');
+  if(activeMetricHelp?.hasAttribute('data-nsp-assessment-help'))activeMetricHelp.setAttribute('aria-expanded','false');
   activeMetricHelp = help;
   metricTooltip.classList.toggle('metric-tooltip-gd-core',Boolean(help.dataset.gdCoreHelp));
   metricTooltip.classList.toggle('metric-tooltip-brand-share',help.matches(brandShareArcSelector));
   metricTooltip.classList.toggle('metric-tooltip-ip-stale-trend',Boolean(help.dataset.ipTrendPoint));
-  help.setAttribute('aria-describedby', 'metric-tooltip');
+  if(assessmentHelp){
+    help.setAttribute('aria-expanded','true');
+    metricTooltip.setAttribute('role','dialog');
+    metricTooltip.setAttribute('aria-labelledby','nsp-assessment-help-title');
+  }else{
+    help.setAttribute('aria-describedby','metric-tooltip');
+    metricTooltip.setAttribute('role','tooltip');
+    metricTooltip.removeAttribute('aria-labelledby');
+  }
   metricTooltip.classList.toggle('metric-tooltip-card', help.classList.contains('card-metric-help'));
   metricTooltip.classList.toggle('metric-tooltip-kpi', help.classList.contains('nsp-kpi-help'));
   metricTooltip.classList.toggle('metric-tooltip-kpm-grade',kpmIsGradeHelp(help));
   metricTooltip.classList.toggle('metric-tooltip-nsp-card', Boolean(help.dataset.nspKpi||help.dataset.nspStatus));
-  metricTooltip.classList.toggle('metric-tooltip-nsp-pool', Boolean(help.closest('.nsp-pool-help')));
+  metricTooltip.classList.toggle('metric-tooltip-nsp-assessment',assessmentHelp);
   metricTooltip.classList.toggle('metric-tooltip-period', help.classList.contains('nsp-period-help'));
   metricTooltip.classList.toggle('metric-tooltip-project-analysis', help.classList.contains('pp-analysis-help'));
   metricTooltip.classList.toggle('metric-tooltip-inventory',Boolean(help.dataset.ipRule));
@@ -144,8 +155,12 @@ function showMetricTooltip(help) {
   metricTooltip.toggleAttribute('data-preserve-terms',help.hasAttribute('data-preserve-terms'));
   renderMetricTooltipContent(help);
   cleanDemoPresentation(metricTooltip);
-  metricTooltip.style.removeProperty('max-height');
   metricTooltip.hidden = false;
+  positionMetricTooltip(help);
+}
+function positionMetricTooltip(help){
+  if(!help||metricTooltip.hidden)return;
+  metricTooltip.style.removeProperty('max-height');
   const anchor = help.getBoundingClientRect();let box = metricTooltip.getBoundingClientRect();
   // 规则卡片在触发点上方或下方展开，长内容内部滚动，不覆盖问号。
   if(metricTooltip.classList.contains('metric-rule-card')){
@@ -201,10 +216,14 @@ document.addEventListener('click', event => {
   else if (!metricTooltip.contains(event.target)) hideMetricTooltip();
 }, true);
 document.addEventListener('keydown', event => {
-  if (event.target.matches?.(metricHelpSelector) && ['Enter', ' '].includes(event.key)) handleMetricHelp(event);
+  if (event.target.matches?.(metricHelpSelector) && ['Enter', ' '].includes(event.key)){
+    handleMetricHelp(event);
+    if(event.target.hasAttribute('data-nsp-assessment-help'))metricTooltip.querySelector('[data-nsp-help-mode][aria-pressed="true"]')?.focus({preventScroll:true});
+  }
   if (event.key === 'Escape' && !metricTooltip.hidden) {
     event.preventDefault();
     event.stopImmediatePropagation();
+    if(activeMetricHelp?.hasAttribute('data-nsp-assessment-help')&&metricTooltip.contains(document.activeElement))activeMetricHelp.focus({preventScroll:true});
     hideMetricTooltip();
   }
 }, true);

@@ -38,7 +38,10 @@ export async function shopPlatformMetrics(page){
   for(const card of await cards.all()){
    if(platform==='视频号'){
     assert.equal(await card.locator('.rp-shop-scores [data-rp-field]').count(),4,'视频号卡片保留四项评分');
-    assert.equal(await card.locator('.rp-shop-scores .rp-quality-red,.rp-shop-scores .rp-quality-yellow,.rp-shop-scores .rp-quality-green').count(),0,'视频号评分不判灯');
+    const score=card.locator('.rp-shop-scores [data-rp-field="score"] strong');
+    const value=Number(await score.innerText());
+    const tone=!Number.isFinite(value)?'gray':value<=4.4?'red':value<4.7?'yellow':'green';
+    assert.match(await score.getAttribute('class'),new RegExp('rp-quality-'+tone),'视频号店铺分按自身数值判灯');
    }
    assert.deepEqual(await card.locator('.rp-shop-values [data-rp-field]').evaluateAll(nodes=>nodes.map(node=>node.dataset.rpField)),keys,platform+'卡片字段及顺序');
    for(const key of keys){

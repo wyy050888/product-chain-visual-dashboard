@@ -4,6 +4,44 @@ import vm from 'node:vm';
 import {fileURLToPath} from 'node:url';
 import {businessRuleContext} from './business-rules-context.mjs';
 
+async function verifyOperatingGuide(page,root,snapshot){
+ const open=root.getByRole('button',{name:'查看经营指引'});
+ const drawer=page.getByRole('dialog',{name:'经营动作指引'});
+ const tabs=drawer.getByRole('tab');
+ const cards=root.locator('.kpm-structure-summary');
+ const content=drawer.locator('[data-kpm-guide-grade]:visible');
+ const selection=async()=>{
+  const {change,grade,operating,visible}=await snapshot();
+  return {change,grade,operating,products:visible.map(product=>product.spuId)};
+ };
+ const before=await selection();
+ for(const width of [1920,390]){
+  await page.setViewportSize({width,height:1080});
+  await open.focus();
+  assert(await open.evaluate(el=>{
+   const title=el.parentElement.querySelector('h3').getBoundingClientRect();
+   return Math.abs(el.getBoundingClientRect().left-title.right-12)<1;
+  }),'经营指引入口在标题右侧，间隔 12px');
+  const cardsBefore=await cards.boundingBox();
+  await open.press('Enter');await drawer.waitFor();
+  const bounds=await drawer.boundingBox();
+  assert(Math.abs(bounds.x+bounds.width-width)<1&&bounds.width<=520,'指引从右侧覆盖展示');
+  assert.equal((await cards.boundingBox()).width,cardsBefore.width,'打开指引不重新排布六卡');
+  assert.deepEqual(await tabs.allTextContents(),['S级','A级','B级','C级']);
+  assert.equal(await tabs.first().getAttribute('aria-selected'),'true');
+  assert.match(await content.innerText(),/BOM 成本年度下降 5–8%/);
+  await tabs.nth(1).click();assert.match(await content.innerText(),/半年无法升级/);
+  await page.keyboard.press('ArrowRight');assert.match(await content.innerText(),/月销突破 300 万元/);
+  await page.keyboard.press('End');assert.match(await content.innerText(),/3 个月无改善则下市/);
+  if(width===1920)await page.keyboard.press('Escape');
+  else await drawer.getByRole('button',{name:'关闭抽屉'}).click();
+  await drawer.waitFor({state:'hidden'});
+  assert(await open.evaluate(el=>el===document.activeElement));
+  assert.deepEqual(await selection(),before,'切换经营指引不影响明细筛选');
+ }
+ await page.setViewportSize({width:1920,height:1080});
+}
+
 async function verifyNewPoolScope(page){
  await page.clock.setFixedTime(new Date('2026-11-12T04:00:00Z'));
  await page.reload({waitUntil:'domcontentloaded'});
@@ -60,6 +98,7 @@ export async function keyProductDualCards(page){
  await page.locator('a[href="#matrix"]').click();await page.locator('#matrix .kpm-dual-card').first().waitFor();
  const root=page.locator('#matrix'),snap=()=>page.evaluate(()=>dashboardKeyProductsSnapshot());
  await root.locator('.kpm-dual-card').first().waitFor();
+ await verifyOperatingGuide(page,root,snap);
  const verify=async()=>{
   const data=await snap();assert.equal(await root.locator('.kpm-structure-item').count(),6);
   assert.equal(await root.locator('[data-kpm-summary-change]').count(),2);
@@ -90,10 +129,14 @@ export async function keyProductDualCards(page){
  await verify();
  const summary=root.locator('.kpm-grade-summary');
  assert(await summary.isVisible());assert(await root.locator('#matrixchart').isHidden());
- const headers=summary.locator('thead th');
- assert.deepEqual(await headers.allTextContents(),['等级 / 经营标签','产品数','GSV','GSV占比','销量','利润率']);
- const salesHelp=headers.nth(4).locator('.net-sales-help');
- assert.equal(await salesHelp.getAttribute('data-metric-rule'),'此处为去退后销量');
+ assert.equal(await summary.getByRole('table').count(),2);
+ for(const [name,labels] of [['等级',['S级','A级','B级','C级']],['经营标签',['头部利润支柱','高销低利','潜力利润品','尾部无竞争力']]]){
+  const table=summary.getByRole('table',{name,exact:true});
+  assert.deepEqual(await table.locator('thead th').allTextContents(),[name,'产品数','GSV','GSV占比','销量','利润率']);
+  assert.deepEqual(await table.locator('tbody th').allTextContents(),labels);
+  assert.equal(await table.getByRole('row').count(),5);
+  assert.equal(await table.locator('.net-sales-help').getAttribute('data-metric-rule'),'此处为去退后销量');
+ }
  const initial=await snap(),totalGsv=initial.base.reduce((sum,p)=>sum+p.facts.gsvCents,0);
  const percent=value=>value===null?'—':value.toLocaleString('zh-CN',{minimumFractionDigits:1,maximumFractionDigits:1})+'%';
  const number=(value,digits)=>value.toLocaleString('zh-CN',{minimumFractionDigits:digits,maximumFractionDigits:digits});
@@ -108,9 +151,12 @@ export async function keyProductDualCards(page){
    const share=gsv/totalGsv*100;
    const gsvLabel=Math.abs(gsv)>1000000?number(gsv/1000000,1)+'w':number(gsv/100,1)+'元';
    const salesLabel=sales>10000?number(sales/10000,1).replaceAll(',','')+'w':number(sales,0);
-   assert.deepEqual(cells,[String(products.length),gsvLabel.replaceAll(',',''),percent(share),salesLabel,percent(gsv?profit/gsv*100:null)]);
-   const bar=await row.locator('.kpm-summary-share-track').evaluate(track=>({track:track.clientWidth,fill:track.firstElementChild.getBoundingClientRect().width}));
-   assert(bar.track>0&&Math.abs(bar.fill-bar.track*share/100)<1,'横条按总 GSV 占比绘制');
+   assert.deepEqual(cells,[number(products.length,0)+' 个',gsvLabel.replaceAll(',',''),percent(share),salesLabel,percent(gsv?profit/gsv*100:null)]);
+   const fill=await row.locator('.kpm-summary-share-value').evaluate(node=>{
+    const style=getComputedStyle(node,'::before');
+    return {width:node.clientWidth,fill:parseFloat(style.width),right:style.right};
+   });
+   assert(fill.width>0&&Math.abs(fill.fill-fill.width*share/100)<1&&fill.right==='0px','占比底纹按总 GSV 占比从右侧绘制');
    await button.click();
    assert.deepEqual((await snap()).visible.map(p=>p.spuId).sort(),products.map(p=>p.spuId).sort());
    assert.equal(await button.getAttribute('aria-pressed'),'true');
@@ -180,7 +226,13 @@ export async function keyProductDualCards(page){
  const sample=(level,profit)=>({level,profitRate:profit,gsvCents:700000000,sales:1});
  const rows=[{spuId:'sample',level:'S',facts:{gsvCents:700000000,profitCents:100},assessment:{current:sample('S',16),previous:sample('S',10)}}];
  const independent=ctx.kpmManagementStructure(rows).find(row=>row.level==='S');assert.equal(independent.count,independent.before);assert.equal(independent.operating.count,1);assert.equal(independent.operating.before,0);
- for(const width of [1920,1440,1000,700,390]){await page.setViewportSize({width,height:1080});await verify()}
+ for(const width of [1920,1440,1100,700,390]){
+  await page.setViewportSize({width,height:1080});await verify();
+  const [grade,operating]=await summary.getByRole('table').evaluateAll(tables=>tables.map(table=>table.getBoundingClientRect().toJSON()));
+  if(width>=1100)assert(Math.abs(grade.top-operating.top)<1&&grade.right<=operating.left,'宽屏两张矩阵表左右对齐');
+  else assert(grade.bottom<=operating.top,'窄屏两张矩阵表上下排列');
+  assert(await root.locator('.kpm-sidebar').evaluate(node=>node.scrollWidth<=node.clientWidth+1),'横向滚动限制在表格区域');
+ }
  await page.setViewportSize({width:1920,height:1080});
  fs.mkdirSync(new URL('../../outputs/',import.meta.url),{recursive:true});
  assert(await summary.isVisible());

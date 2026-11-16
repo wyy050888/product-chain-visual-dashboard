@@ -26,6 +26,10 @@ function verifyStaleModels(){
  const second={...row,spuId:'b',season:'冬季品',totalValueCents:9000,staleValueCents:90,batches:[]};
  const history=[snapshot,ctx.ipNormalizeSnapshot({date:'2026-09-30',rows:[{...row,batches:[]},second]})];
  const trend=ctx.ipStaleTrend(history,'month','2026-10-27','all'),september=trend.find(item=>item.date==='2026-09-30');assert.equal(september.ratio,990/10000*100,'按分子分母汇总，不平均单品占比');assert.equal(trend.filter(item=>item.date).length,2);assert.equal(trend[0].ratio,null,'缺失历史不是0');
+ const updated=ctx.ipNormalizeSnapshot({date:snapshot.date,scope:'five-parts',rows:[{...row,totalValueCents:950}]});
+ const mixed=ctx.ipStaleTrend([...history,updated],'month','2026-10-27','all').filter(item=>item.date);
+ assert.deepEqual(Array.from(mixed,item=>item.scope),['legacy','five-parts']);
+ assert.equal(mixed[1].totalValueCents,950,'同日快照优先用新口径');
  assert.equal(ctx.ipStaleTrend(history,'quarter','2026-10-27','all').filter(item=>item.date).length,2);
  assert.equal(ctx.ipStaleTrend(history,'year','2026-10-27',['冬季品']).at(-1).totalValueCents,0,'当期最新快照无该季品时保留零，不回填旧快照');
  assert.equal(ctx.ipStaleTrend(history,'month','2026-09-29','all').some(item=>item.date==='2026-09-30'),false,'不读取截止日之后的快照');
@@ -33,7 +37,9 @@ function verifyStaleModels(){
 export async function inventoryStaleAnalysis(page){
  verifyStaleModels();
  await page.locator('a[href="#inventory"]').click();
- const host=page.locator('#inventory-stale-analysis'),audit=()=>page.evaluate(()=>inventoryStaleAnalysisAudit()),original=await audit(),overview=await page.evaluate(()=>inventoryControlAudit().overview);
+ const host=page.locator('#inventory-stale-analysis'),audit=()=>page.evaluate(()=>inventoryStaleAnalysisAudit()),original=await audit(),{overview,balance}=await page.evaluate(()=>inventoryControlAudit());
+ assert.equal(original.distribution.totalUnits,balance.totalUnits);
+ assert.equal(original.distribution.totalValueCents,balance.goodsValueCents);
  assert.equal(original.distribution.units,overview.staleUnits);assert.equal(original.distribution.valueCents,overview.staleValueCents);assert(original.snapshots.length>=12,'补齐月度样例快照');assert(original.snapshots.every(snapshot=>snapshot.source==='local-sample'),'样例保留来源标记');
  assert.equal(original.distribution.unknown.units,0);assert.equal(original.distribution.unknown.valueCents,0);
  for(const band of original.distribution.bands){assert(band.units>0&&band.valueCents>0);assert(band.seasons.every(season=>season.units>0&&season.valueCents>0),'四区间各季品都有可对比样例');}
@@ -51,7 +57,7 @@ export async function inventoryStaleAnalysis(page){
  assert.deepEqual(original.metrics,['units','valueCents']);
  assert.equal(await host.locator('.ip-stale-age-heading h4').innerText(),'库龄分布');assert.equal(await host.locator('.ip-stale-age-heading>span').count(),0,'移除标题右侧重复单位');
  assert.equal(await host.locator('.ip-stale-cell-track').count(),0,'库龄格内不再重复进度条');
- const format=(value,metric)=>metric==='units'?value.toLocaleString('en-US')+'件':(value/1000000).toLocaleString('en-US',{minimumFractionDigits:1,maximumFractionDigits:1})+'万元';
+ const format=(value,metric)=>metric==='units'?value.toLocaleString('en-US')+'件':(value/(value>1000000?1000000:100)).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})+(value>1000000?'万元':'元');
  for(const metric of ['valueCents','units','valueCents']){
   await host.locator('[data-ip-stale-metric="'+metric+'"]').click();
   assert.equal(await host.locator('[data-ip-stale-metric="'+metric+'"]').getAttribute('aria-pressed'),'true');
@@ -106,7 +112,13 @@ export async function inventoryStaleAnalysis(page){
   const track=await host.locator('.ip-stale-stacks').boundingBox(),legend=await host.locator('.ip-stale-season-summary').boundingBox();assert(legend.y>=track.y+track.height+10,'季品说明在条形下方 '+width);assert(Math.abs(track.width-legend.width)<1,'条形占满上方宽度 '+width);
   if(width>600){const groups=await host.locator('.ip-stale-season-summary>div').evaluateAll(nodes=>nodes.map(node=>node.getBoundingClientRect().top));assert(groups.every(top=>Math.abs(top-groups[0])<1),'桌面三组季品并排 '+width);}
  }
- await page.setViewportSize({width:1920,height:1080});await host.screenshot({path:'outputs/inventory-stale-simplified-1920.png'});await page.setViewportSize({width:390,height:1080});await host.screenshot({path:'outputs/inventory-stale-simplified-390.png'});await page.setViewportSize({width:1920,height:1080});const mark=host.locator('.ip-stale-mark[data-ip-trend-date]').last();await mark.focus();await page.keyboard.press('Enter');await page.locator('#metric-tooltip').waitFor({state:'visible'});assert.match(await page.locator('#metric-tooltip').innerText(),/快照日期/);await page.keyboard.press('Escape');
+ await page.setViewportSize({width:1920,height:1080});await host.screenshot({path:'outputs/inventory-stale-simplified-1920.png'});await page.setViewportSize({width:390,height:1080});await host.screenshot({path:'outputs/inventory-stale-simplified-390.png'});await page.setViewportSize({width:1920,height:1080});
+ const mark=host.locator('.ip-stale-mark[data-ip-trend-date]').last(),point=JSON.parse(await mark.getAttribute('data-ip-trend-point'));
+ assert.deepEqual(await host.locator('.ip-stale-trend-stats strong').allTextContents().then(values=>values.slice(0,2)),[format(point.staleValueCents,'valueCents'),format(point.totalValueCents,'valueCents')]);
+ await mark.focus();await page.keyboard.press('Enter');
+ const tooltip=page.locator('#metric-tooltip');await tooltip.waitFor({state:'visible'});assert.match(await tooltip.innerText(),/快照日期/);
+ for(const [key,value] of [['stale',point.staleValueCents],['total',point.totalValueCents]])assert.equal(await tooltip.locator('dd[data-trend-key="'+key+'"]').textContent(),format(value,'valueCents'));
+ await page.keyboard.press('Escape');
  await page.evaluate(()=>localStorage.removeItem('dashboard.inventory-snapshots.v1'));await page.reload({waitUntil:'domcontentloaded'});await page.waitForFunction(()=>document.documentElement.dataset.dashboardBoot==='ready');
  console.log('通过：批次60/90/120/150边界、守恒、缺失与零、月季年期末快照、持久化、季品筛选、悬浮及宽窄屏；无冗余说明。');
 }

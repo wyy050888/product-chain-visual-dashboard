@@ -1,0 +1,58 @@
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+import {weeklyReportSampleFiles} from '../prototype-ai-prompts.mjs';
+
+export async function departmentWeeklyReports(page){
+ await page.clock.setFixedTime(new Date('2026-11-14T04:00:00Z'));
+ await page.reload();
+ const root=page.locator('#ai'),card=root.locator('[data-gd-part="execution"]');
+ const columns=['产品链','产品中心','品质中心','研发中心','项目部','采购部','发货部','计划部'];
+ await card.click();
+ const table=root.getByRole('table',{name:'部门周报下载表'});
+ assert.equal(await card.locator('h3').innerText(),'部门诊断');
+ assert.equal(await card.locator('.gd-card-number').innerText(),'8');
+ assert.equal(await card.locator('.gd-card-stats').innerText(),'已生成第43周（10/19-10/25）周报');
+ assert.deepEqual(await table.getByRole('columnheader').allTextContents(),['统计周',...columns]);
+ assert.equal(await root.getByRole('tablist').count(),0);
+ assert(await root.locator('[data-gd-header-tools]').isHidden());
+ const week43=table.getByRole('row').filter({has:page.getByRole('rowheader',{name:'26年第43周（10/19-10/25）',exact:true})});
+ const week42=table.getByRole('row').filter({has:page.getByRole('rowheader',{name:'26年第42周（10/12-10/18）',exact:true})});
+ const weeks=table.getByRole('rowheader'),pager=root.locator('#gd-weekly-pager');
+ assert.equal(await weeks.count(),10);
+ assert.equal(await weeks.first().innerText(),'26年第46周（11/09-11/15）');
+ assert.equal(await weeks.last().innerText(),'26年第37周（09/07-09/13）');
+ assert.equal(await pager.getByRole('combobox').count(),0,'固定每页 10 条');
+ assert(await pager.getByRole('button',{name:'上一页'}).isDisabled());
+ await pager.getByRole('button',{name:'下一页'}).click();
+ assert.equal(await weeks.count(),6);
+ assert.equal(await card.locator('.gd-card-stats').innerText(),'已生成第43周（10/19-10/25）周报');
+ assert.equal(await weeks.first().innerText(),'26年第36周（08/31-09/06）');
+ assert.equal(await weeks.last().innerText(),'26年第31周（07/27-08/02）');
+ assert(await pager.getByRole('button',{name:'下一页'}).isDisabled());
+ await pager.getByRole('button',{name:'上一页'}).click();
+ assert.equal(await weeks.count(),10);
+ assert.deepEqual(await week42.getByRole('cell').allTextContents(),columns.map(()=> '未生成'));
+ assert.equal(await week42.getByRole('button').count(),0);
+ const initialUrl=page.url();
+ const samples=weeklyReportSampleFiles();
+ for(const [index,scope] of columns.entries()){
+  const button=week43.getByRole('cell').nth(index).getByRole('button');
+  assert.equal(await button.innerText(),'下载周报');
+  const [download]=await Promise.all([page.waitForEvent('download'),button.click()]);
+  const title=scope+(index===0?'第43周总周报':'第43周周报');
+  const filename=title+'.pdf';
+  assert.equal(download.suggestedFilename(),filename);
+  assert.equal(await download.failure(),null);
+  const report=await readFile(await download.path());
+  assert.equal(report.subarray(0,5).toString(),'%PDF-');
+  assert(report.equals(await readFile(samples.get(filename))),'下载文件与交付的 PDF 一致');
+ }
+ assert.equal(page.url(),initialUrl,'下载不跳转原型');
+ await page.setViewportSize({width:390,height:900});
+ const scroller=table.locator('..');
+ assert(await scroller.evaluate(el=>el.scrollWidth>el.clientWidth));
+ const box=await scroller.boundingBox();
+ assert(box.x>=0&&box.x+box.width<=391);
+ await root.locator('[data-gd-part="coordination"]').click();
+ assert(await root.locator('[data-gd-header-tools]').isVisible());
+}

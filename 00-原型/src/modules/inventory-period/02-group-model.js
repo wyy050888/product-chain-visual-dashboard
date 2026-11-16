@@ -13,7 +13,7 @@ function ipStockRecords(ledger){
  }));
 }
 function ipStockSum(records){
- const fields=['warehouse','warehouseValueCents','factory','factoryValueCents','totalUnits','goodsValueCents','staleUnits','staleValueCents','cost','avg','deliveryOn','deliveryDue'];
+ const fields=['warehouse','warehouseValueCents','factory','factoryValueCents','factoryAvailable','transit','totalUnits','goodsValueCents','staleUnits','staleValueCents','cost','avg','deliveryOn','deliveryDue'];
  const total=Object.fromEntries(fields.map(key=>[key,targetSum(records.map(row=>row[key]||0))]));
  // 天数先汇总近15日均净销量，再用库存相除；缺失分母不补零。
  const dailyNet15=records.length&&records.every(row=>Number.isFinite(row.dailyNet15))?targetSum(records.map(row=>row.dailyNet15)):null;

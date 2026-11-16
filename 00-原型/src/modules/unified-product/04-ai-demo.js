@@ -9,7 +9,7 @@ function upAiDemoContext(m,state){
  const seed=upIdentity(m.product).sourceRow,key=String(seed).padStart(3,'0')+'-'+state.end.replaceAll('-','').slice(2);
  const netUnits=Math.max(0,monthly.sales-monthly.returned),unitCost=netUnits>0?Math.round(monthly.costCents/netUnits):0;
  const mold=Math.round(unitCost*.015),factory=Math.round(unitCost*.78),brand=Math.round(unitCost*.07),refurb=Math.round(unitCost*.03),management=unitCost-factory-brand-refurb;
- const discount=Math.round(factory*.03),warehouse=m.stock?.warehouse||0,pipeline=m.stock?.undelivered||0;
+ const discount=Math.round(factory*.03),warehouse=m.stock?.warehouse||0,pipeline=(m.stock?.transit||0)+(m.stock?.factoryAvailable||0);
  const recent=upSummary(m.product,shiftDate(state.end,-14),state.end,'all'),demand=Math.max(0,Math.ceil((recent.sales-recent.returned)/15*30));
  const gap=Math.max(0,demand-warehouse-pipeline),extra=seed%2===0;
  const offerQty=extra?Math.max(300,Math.ceil(demand*1.5/100)*100):Math.max(100,Math.ceil(gap/100)*100);

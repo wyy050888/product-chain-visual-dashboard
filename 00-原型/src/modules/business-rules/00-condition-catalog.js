@@ -11,7 +11,7 @@ for(const [name,key] of [['总退偏差','return'],['已收退偏差','received'
 for(const [mode,label] of [['month','月度'],['quarter','季度'],['year','年度']])brcAddBand('turn.'+mode,'stock',label+'库存周转率判灯','次',['lights.turn.'+mode+'.green','lights.turn.'+mode+'.yellow','lights.turn.'+mode+'.red'],'higher',0,1000000);
 brcAddBand('delivery','stock','交付及时率判灯','%',['lights.delivery.green','lights.delivery.yellow','lights.delivery.red'],'higher',0,100);
 brcAddBand('decline','common','环比涨跌判色','%',['lights.decline','lights.decline.red'],'decline',0,1000000);
-for(const platform of ['抖音','快手','天猫','京东'])brcAddBand('score.'+platform,'shops',platform+'店铺分','分',['shops.'+platform+'.red','shops.'+platform+'.yellow','shops.'+platform+'.green'],'score',0,5);
+for(const [platform] of brcShopScoreDefaults)brcAddBand('score.'+platform,'shops',platform+'店铺分','分',['shops.'+platform+'.red','shops.'+platform+'.yellow','shops.'+platform+'.green'],'score',0,5);
 const brcBandKeys=new Set(brcBands.flatMap(b=>b.keys));
 const brcEditorItems=[];
 for(const band of brcBands)for(const [index,key] of band.keys.entries()){
@@ -47,7 +47,7 @@ function brcMetricConfig(key){
  const choices=entries=>entries.map(([id,label,source])=>{const field=brcEditorByKey.get(source);return {id,label,unit:field.unit,min:field.min,max:field.max,integer:field.integer,valueType:field.valueType||'number'}});
  if(item.band?.startsWith('score.'))return {default:'value',choices:[['value','店铺分'],['productScore','商品分'],['logisticsScore','物流分'],['serviceScore','服务分']].map(([id,label])=>({id,label,unit:'分',min:0,max:5,integer:false}))};
  if(key.startsWith('stock.warning.')||key.startsWith('stock.shortage.'))return {
-  default:({'stock.warning.warehouse':'sellableUnits','stock.warning.netSales':'netSales15','stock.warning.coverageDays':'sellableCoverage15','stock.shortage.excluded':'excluded','stock.shortage.netSales':'netSales15','stock.shortage.sellableDays':'sellableCoverage15','stock.shortage.totalDays':'totalCoverage15'})[key],
+  default:({'stock.warning.warehouse':'warehouse','stock.warning.netSales':'netSales15','stock.warning.coverageDays':'coverage15','stock.shortage.excluded':'excluded','stock.shortage.netSales':'netSales15','stock.shortage.sellableDays':'sellableCoverage15','stock.shortage.totalDays':'totalCoverage15'})[key],
   choices:choices([['sellableUnits','可售库存','stock.warning.warehouse'],['warehouse','我司可售库存','stock.warning.warehouse'],['netSales15','近15日净销量','stock.warning.netSales'],['coverage15','我司可售天数','stock.warning.coverageDays'],['sellableCoverage15','可售天数','stock.shortage.sellableDays'],['totalCoverage15','总可售天数','stock.shortage.totalDays'],...(key.startsWith('stock.shortage.')?[['excluded','是否清仓或下架','stock.shortage.excluded']]:[])])
  };
  if(brcRefurbCycleKeys.includes(key))return {default:'value',choices:[{id:'value',label:'翻新耗时',unit:'天',min:0,max:365,integer:true}]};

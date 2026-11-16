@@ -33,14 +33,14 @@ function ipStaleTrendPeriods(mode,end){
 }
 function ipStaleTrend(snapshots,mode,end,selection=ipSeasonSelection){
  return ipStaleTrendPeriods(mode,end).map(period=>{
-  const snapshot=snapshots.filter(item=>item.date>=period.start&&item.date<=period.end).sort((a,b)=>b.date.localeCompare(a.date))[0];
+  const snapshot=snapshots.filter(item=>item.date>=period.start&&item.date<=period.end).sort((a,b)=>b.date.localeCompare(a.date)||Number(b.scope===ipTotalStockScope)-Number(a.scope===ipTotalStockScope))[0];
   if(!snapshot)return {...period,date:null,totalValueCents:null,staleValueCents:null,ratio:null};
   const rows=ipSnapshotRows(snapshot,selection),totalValueCents=targetSum(rows.map(row=>row.totalValueCents)),staleValueCents=targetSum(rows.map(row=>row.staleValueCents));
-  return {...period,date:snapshot.date,totalValueCents,staleValueCents,ratio:totalValueCents>0?staleValueCents/totalValueCents*100:null};
+  return {...period,date:snapshot.date,scope:snapshot.scope,totalValueCents,staleValueCents,ratio:totalValueCents>0?staleValueCents/totalValueCents*100:null};
  });
 }
 function ipStaleAnalysisModel(){
- const latest=ipStaleSnapshots.filter(item=>item.date<=DATA_CUTOFF).sort((a,b)=>b.date.localeCompare(a.date))[0];
+ const latest=ipStaleSnapshots.filter(item=>item.date<=DATA_CUTOFF&&item.scope===ipTotalStockScope).sort((a,b)=>b.date.localeCompare(a.date))[0];
  return {distribution:ipStaleDistribution(latest),trend:ipStaleTrend(ipStaleSnapshots,ipMetricPeriod.mode,bounds(ipMetricPeriod).cutoff),metrics:['units','valueCents'],mode:ipMetricPeriod.mode};
 }
 window.inventoryStaleAnalysisAudit=()=>JSON.parse(JSON.stringify({...ipStaleAnalysisModel(),snapshots:ipStaleSnapshots,saveFailed:ipSnapshotSaveFailed}));

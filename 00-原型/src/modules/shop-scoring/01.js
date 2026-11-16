@@ -4,7 +4,6 @@
 const sbRawShops=brShopRows;
 const sbRuleConfig={douyinRedMax:4.5,pddConfirmed:true,pddBasis:'raw'};
 function sbScoreRisk(s){
- if(s.channel==='视频号')return null;
  // 拼多多不使用店铺分，任一核心链接达到六项异常数门槛即视同评分红灯。
  if(s.channel==='拼多多')return sbRuleConfig.pddConfirmed&&sbPddLinks(s,s.end).some(link=>link.assessment==='red')?'red':null;
  const tone=rpShopScoreTone(s.channel,s.score,s);return tone==='rp-quality-red'?'red':tone==='rp-quality-yellow'?'yellow':null;
@@ -13,12 +12,11 @@ function sbReturnRisk(p){return p.current>p.target+5&&p.previous>p.target+5&&p.c
 function sbPddHitCount(values){return values.filter(v=>Number.isFinite(v)&&brcMatch('shops.pddValue',v)).length}
 function sbPddLinks(s,end){return klcAssessedLinks(s,end)}
 function sbDecide(s){const score=sbScoreRisk(s),signals=[];if(score)signals.push({color:score,label:'店铺分命中评分异常区间'});if(brcMatch('shops.penalties',s.qualityPenaltyCount,s))signals.push({color:'red',label:'期间品质处罚 '+s.qualityPenaltyCount+' 次'});if(brcMatch('shops.fine',s.qualityFine,s))signals.push({color:'red',label:'品质罚款 '+fmt(s.qualityFine)+' 元'});if(s.returnProducts.some(sbReturnRisk))signals.push({color:'red',label:rpShopReturnRule()});if(s.frozenAmount>0)signals.push({color:'red',label:'资金冻结 '+fmt(s.frozenAmount)+' 元'});if(s.channel==='拼多多'&&sbRuleConfig.pddConfirmed){const count=sbPddLinks(s).filter(l=>l.assessment==='red').length;if(count)signals.push({color:'red',label:'核心链接中 '+count+' 条满足六项考核异常规则'})}return{signals,color:signals.some(r=>r.color==='red')?'red':signals.some(r=>r.color==='yellow')?'yellow':'green'}}
-// 视频号分数只作展示，不用作风险排序的兜底比较。
 function sbShopScoreCompare(a,b){
- const av=a.channel!=='视频号'&&Number.isFinite(a.score),bv=b.channel!=='视频号'&&Number.isFinite(b.score);
+ const av=Number.isFinite(a.score),bv=Number.isFinite(b.score);
  return av&&bv?a.score-b.score:av?-1:bv?1:0;
 }
-function sbAllShops(){return sbRawShops().map(s=>{const i=s.id%6,snapshot=sbShopScoreAt(s,bounds().cutoff),score=snapshot.scoreSource==='dated-snapshot'?snapshot.score:snapshot.score??(s.channel==='京东'?[4.3,4.6,4.85,4.5,4.9,4.7]:[4.4,4.65,4.85,s.channel==='抖音'?4.5:4.6,4.9,4.7])[i],core=i!==2||s.name.includes('旗舰店'),shopType=s.shopCategory,start=bounds().cutoff.slice(0,7)+'-01',end=bounds().cutoff;
+function sbAllShops(){return sbRawShops().map(s=>{const i=s.id%6,snapshot=sbShopScoreAt(s,bounds().cutoff),score=s.channel==='视频号'||snapshot.scoreSource==='dated-snapshot'?snapshot.score:snapshot.score??(s.channel==='京东'?[4.3,4.6,4.85,4.5,4.9,4.7]:[4.4,4.65,4.85,s.channel==='抖音'?4.5:4.6,4.9,4.7])[i],core=i!==2||s.name.includes('旗舰店'),shopType=s.shopCategory,start=bounds().cutoff.slice(0,7)+'-01',end=bounds().cutoff;
  const r={...s,...snapshot,name:s.name,score,core,shopType,start,end,qualityPenaltyCount:i===2||i===5&&['快手','视频号'].includes(s.channel)?2:1,qualityFine:i===1?5000:i===2?1800:0,frozenAmount:i===4?12000+s.id*100:i===0?3000+s.id*50:0,returnProducts:rpShopReturnProducts(s,end)};if(!rpShopMetricAllowed('fine',r.channel))r.qualityFine=0;if(!rpShopMetricAllowed('frozen',r.channel))r.frozenAmount=0;r.sourceQualityFine=r.qualityFine;const period=riskShopPeriod(r);r.start=period.start;r.qualityFine=period.fine;const days=[5,9];r.qualityPenaltyCount=riskDailyRows(period.start,period.end,date=>({count:days.slice(0,r.qualityPenaltyCount).includes(Number(date.slice(8)))?1:0})).reduce((sum,d)=>sum+d.count,0);const d=sbDecide(r);return{...r,...d,level:d.color==='red'?'P1':d.color==='yellow'?'P2':'P3',risks:d.signals.map(x=>x.label),desc:d.signals.map(x=>x.label).join('；')||'未命中已配置规则',value:Number.isFinite(score)?score.toFixed(2)+' 分':'—',metric:score};}).sort((a,b)=>b.frozenAmount-a.frozenAmount||({red:0,yellow:1,green:2}[a.color]-{red:0,yellow:1,green:2}[b.color])||(sbScoreRisk(a)&&sbScoreRisk(b)?Number(b.core)-Number(a.core)||shcRules.rank(a.shopCategory)-shcRules.rank(b.shopCategory):0)||sbShopScoreCompare(a,b)||a.id-b.id)}
 brShopRows=function(){return sbAllShops().filter(s=>s.color!=='green')};
 function sbBadge(s){return `<span class="tag">优先级 ${s.level}</span>`}

@@ -20,6 +20,8 @@ export async function riskCardClick(page){
  await row.locator('.rp-identity b').evaluate(node=>{const range=document.createRange();range.selectNodeContents(node);const selected=window.getSelection();selected.removeAllRanges();selected.addRange(range)});
  await row.dispatchEvent('click');assert(await page.locator('#overlay').isHidden(),'选择文字不意外打开详情');await page.evaluate(()=>window.getSelection().removeAllRanges());
  await page.locator('#riskrail img.risk-thumb').first().click();assert(await page.locator('#product-image-viewer').isVisible());assert(await page.locator('#overlay').isHidden(),'图片继续独立预览');await page.locator('#product-image-viewer .rp-image-close').click();
- const help=page.locator('#riskrail .rp-shop-assessed').first();if(await help.count()){await help.click();assert(await page.locator('#metric-tooltip').isVisible());assert(await page.locator('#overlay').isHidden());await page.keyboard.press('Escape')}
+ const help=page.locator('#riskrail .rhead .metric-help[data-metric-rule]').first();
+ await help.click();await page.locator('#metric-tooltip').waitFor({state:'visible'});
+ assert(await page.locator('#overlay').isHidden(),'规则问号独立于详情入口');await page.keyboard.press('Escape');
  await page.setViewportSize({width:390,height:900});await row.locator('[data-rp-field] strong').first().click();await page.locator('.up-detail').waitFor();assert.equal(await page.locator('#dialog').getAttribute('data-drawer-depth'),'0');await close();await page.setViewportSize({width:1920,height:1080});
 }

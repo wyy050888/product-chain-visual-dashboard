@@ -3,7 +3,8 @@ export async function verifyInventorySeasonFilter(page){
  const root=page.locator('#inventory'),control=root.locator('>.sectionhead .ip-season-filter'),tabs=control.locator('.ip-season-tabs');
  const get=()=>page.evaluate(()=>inventoryControlAudit()),initial=await get();
  await root.locator('[data-ip-stale-metric="units"]').click();
- const seasons=new Map((await page.evaluate(()=>dashboardKeyProductsSnapshot().rows)).map(row=>[row.spuId,row.season]));
+ const rows=await page.evaluate(()=>inventoryStaleAnalysisAudit().snapshots.at(-1).rows);
+ const seasons=new Map(rows.map(row=>[row.spuId,row.season]));
  assert.equal(await control.locator('select[multiple][hidden]').count(),1,'保留公共季品多选取值协议');
  assert.equal(await control.locator('.pf-multi').count(),0,'取消下拉面板');
  assert.deepEqual(await tabs.locator('button').allTextContents(),['全部','夏季品','冬季品','四季品']);
@@ -18,7 +19,7 @@ export async function verifyInventorySeasonFilter(page){
   assert.deepEqual((await root.locator('.ip-group-panel[data-ip-dimension="brand"] tbody tr>td:first-child').allTextContents()).sort(),['苏泊尔','美的','创维','海尔','康佳'].sort(),'季品切换不改变固定品牌集合');
   assert.deepEqual(data.stockRecords.map(row=>row.spuId),expected.map(row=>row.spuId),'按主数据季品筛选SPU，同字段取并集');
   assert(expected.length>0&&(!selected.length||expected.length<initial.stockRecords.length));
-  for(const key of ['warehouse','factory','totalUnits','goodsValueCents','staleUnits','staleValueCents','cost','avg','deliveryOn','deliveryDue']){
+  for(const key of ['warehouse','factory','factoryAvailable','transit','totalUnits','goodsValueCents','staleUnits','staleValueCents','cost','avg','deliveryOn','deliveryDue']){
    const sum=expected.reduce((n,row)=>n+row[key],0);
    assert(Math.abs(data.stockTotal[key]-sum)<1e-5,'底层记录先筛选再汇总 '+key);
    for(const groups of [data.category,data.brand])assert(Math.abs(groups.reduce((n,row)=>n+row[key],0)-sum)<1e-5,'两表同源 '+key);

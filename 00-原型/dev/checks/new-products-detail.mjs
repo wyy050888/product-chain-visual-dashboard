@@ -70,29 +70,52 @@ export async function verifyNewProductDetail(page){
   if(sum('gsvCents'))assert(Math.abs(p.current.profitRate-sum('profitCents')/sum('gsvCents')*100)<1e-8,'利润率按公司总额计算');
  }
  const row=page.locator('#newtable tbody tr').first();
- assert.equal(await row.locator('.rp-list-value').count(),7);
- assert.equal(await row.locator('.rp-list-value em').count(),5);
- const values=await row.locator('.rp-value').allTextContents();
- assert.match(values[6],/^[\d,]+$/,'库存上行只展示数量，不带单位');
- const warehouseValueLabel=await row.locator('.rp-list-value em').last().innerText();
+ const headers=await page.locator('#newtable [data-nsp-sort]').evaluateAll(nodes=>Object.fromEntries(nodes.map(node=>[node.dataset.nspSort,node.closest('th').cellIndex])));
+ const column=key=>row.locator('td').nth(headers[key]);
+ const warehouse=column('warehouse');
+ assert.match(await warehouse.locator('.rp-value').textContent(),/^[\d,]+件$/,'库存上行展示数量与单位');
+ const warehouseValueLabel=await warehouse.locator('em').innerText();
  assert.match(warehouseValueLabel,/^货值 /);
  await openNewProductSpu(row.locator('[data-nsp-view]'));
  await page.locator('.up-detail').waitFor({state:'visible'});
+ const detail=page.locator('.up-detail'),summary=detail.locator('.up-ai-summary');
+ assert.equal(await detail.locator('[data-up-product-grade],.up-grade-trend').count(),0,'新品详情和业绩页隐藏规模等级');
+ assert.doesNotMatch(await summary.innerText(),/[SABC]级|评级|升降级|一次挽救|淘汰评估/);
+ const productId=await detail.getAttribute('data-up-spu');
+ const diagnosis=await page.evaluate(id=>aiResultHistoryAudit().streams['product|'+id].revisions.at(-1).payload,productId);
+ assert.equal(diagnosis.analysis.assessment.kind,'new');
+ assert.equal(diagnosis.analysis.assessment.shortName,data.visible[0].shortName,'按当前SPU关联的产品简称进行考核');
+ assert.equal(diagnosis.analysis.assessment.firstSuccess?.date??null,data.visible[0].successAssessment.firstSuccess?.date??null,'与新品专项使用同一首次成功记录');
+ if(diagnosis.analysis.assessment.facts&&diagnosis.analysis.assessment.periodKey===data.visible[0].successAssessment.periodKey){
+  assert.deepEqual(diagnosis.analysis.assessment.facts,data.visible[0].successAssessment.facts,'使用新品专项全渠道考核业绩');
+ }
+ await summary.locator('[data-up-ai-prompt]').click();
+ assert.match(await detail.locator('#up-ai-prompt pre').innerText(),/^当前产品按新品销售成功考核分析。/);
+ await page.keyboard.press('Escape');
+ await summary.locator('[data-up-ai-evidence]').click();
+ const basis=await detail.locator('[data-up-ai-evidence-body]').innerText();
+ assert.match(basis,/新品销售成功考核/);assert.doesNotMatch(basis,/规模等级|评级规则|[SABC]级/);
+ await page.keyboard.press('Escape');
  assert.equal(await page.locator('#up-platform').inputValue(),'all','查看默认进入全平台详情');
  assert.match(await page.locator('#dialogbody').innerText(),new RegExp(data.visible[0].name));
- const detailValues=await page.locator('.up-operating-kpis .up-metric strong').allTextContents();
- if(data.visible[0].members.length===1)assert.deepEqual([detailValues[0],detailValues[2],detailValues[5],detailValues[6],detailValues[7]],values.slice(0,5),'单 SPU 明细与全平台详情数值一致');
+ if(data.visible[0].members.length===1){
+  const metrics=page.locator('.up-operating-kpis');
+  const detailValues=await Promise.all(['gsv','netSales','margin','returned','received'].map(key=>metrics.locator(`[data-up-metric="${key}"] strong`).textContent()));
+  const listValues=await Promise.all(['gsv','netSales','profit','returns','received'].map(key=>column(key).locator('.rp-value').textContent()));
+  assert.deepEqual(detailValues,listValues,'单 SPU 明细与全平台详情数值一致');
+ }
  const ownStock=await page.locator('#up-stock-skus [data-stock-metric="warehouse"]').evaluateAll(cells=>cells.reduce((total,cell)=>total+Number(cell.dataset.stockRaw),0));
  if(data.visible[0].members.length===1)assert.equal(ownStock,data.visible[0].sellableStock.warehouse,'新品库存和详情SKU明细汇总一致');
  if(data.visible[0].state==='滞销')assert.equal(await page.locator('[data-stock-risk="stagnant"]').count(),1,'明细滞销与产品详情风险一致');
  if(data.visible[0].state==='缺货')assert.equal(await page.locator('[data-stock-risk="shortage"]').count(),1,'明细缺货与产品详情风险一致');
  const launchInfo=()=>page.locator('[data-up-identity]').evaluate(dl=>Object.fromEntries([...dl.children].map(item=>[item.querySelector('dt').textContent,item.querySelector('dd').textContent])));
  let info=await launchInfo();
- assert.equal(info['新品上市日期'],data.visible[0].actualLaunch.slice(2).replaceAll('-','/'));
+ assert.equal(info['上市日期'],data.visible[0].actualLaunch.slice(2).replaceAll('-','/'));
  assert.equal(info['已上市天数'],data.visible[0].days+' 天');
  await page.locator('.up-detail-period [data-drawer-time-value]').selectOption('3',{force:true});
+ assert.equal(await detail.locator('[data-up-product-grade],.up-grade-trend').count(),0,'切换时间后保持新品诊断口径');
  info=await launchInfo();
- assert.equal(info['新品上市日期'],data.visible[0].actualLaunch.slice(2).replaceAll('-','/'),'切换统计日期不改变上市日期');
+ assert.equal(info['上市日期'],data.visible[0].actualLaunch.slice(2).replaceAll('-','/'),'切换统计日期不改变上市日期');
  assert.equal(info['已上市天数'],String(Math.max(0,Math.round((Date.parse('2026-09-30')-Date.parse(data.visible[0].actualLaunch))/86400000)+1))+' 天','上市天数随统计截止日更新');
  await page.locator('#close').click();
 }

@@ -11,14 +11,16 @@ function upOpenDetail(context) {
   const state={platform:'all',tab:'operating',channelSort:{key:'gsvCents',direction:'desc'},...context}, base=upProduct(product);
   if(!upTabs.some(tab=>tab.key===state.tab))state.tab='operating';
   const inheritedPlatforms=Array.isArray(state.platform)?[...state.platform]:null;
-  const identity=pfIdentity(base),attributeTags=rpQualityProductFields(base).find(field=>field.key==='productType').tags;
+  const identity=pfIdentity(base),showGrade=!upUsesNewProductAssessment(base,DATA_CUTOFF,state.module);
+  const attributeTags=rpQualityProductFields(base).find(field=>field.key==='productType').tags
+   .map(tag=>tag.kind==='new'&&showGrade?{kind:'old',label:'老品'}:tag);
   if(!state.period||upWindow(state.period).start!==state.start||upWindow(state.period).end!==state.end)state.period=drawerPeriodFromRange(state);
   // 品质退货独立记忆单渠道，不改变业绩表现的汇总/渠道选择。
   const qualityPlatforms=Array.isArray(state.platform)?state.platform:qrPlatforms;
   const qualityPlatform=qrPlatforms.includes(state.platform)?state.platform:qualityPlatforms.find(name=>qrPlatforms.includes(name)&&upSummary(product,state.start,state.end,name).sales>0)||qualityPlatforms[0];
   const qualityState={...state,tab:'quality',platform:qualityPlatform};
   openModal('产品详情',`<article class="up-detail" data-up-spu="${esc(state.spuId)}" data-up-tab="${state.tab}">
-    <header class="up-hero" data-product-summary>${riskThumbnail(base.name)}<div><div class="up-product-heading"><h2>${esc(base.name)}</h2>${upProductGradeBadge(null)}${attributeTags.length?rpProductTagMarkup(attributeTags):''}<button type="button" class="link up-project-link" data-up-project>查看项目</button></div>
+    <header class="up-hero" data-product-summary>${riskThumbnail(base.name)}<div><div class="up-product-heading"><h2>${esc(base.name)}</h2>${showGrade?upProductGradeBadge(null):''}${attributeTags.length?rpProductTagMarkup(attributeTags):''}<button type="button" class="link up-project-link" data-up-project>查看项目</button></div>
       <div class="up-identity-row"><dl data-up-identity></dl><div class="up-guide-price"><span>指导价：</span><strong data-up-guide-price>${Number.isFinite(base.guidePriceCents)?(base.guidePriceCents/100).toFixed(2):'—'}</strong>${Number.isFinite(base.guidePriceCents)?'<small>元</small>':''}</div></div></div>
       <section class="up-ai-summary" aria-label="产品AI总结"></section></header>
     <div class="up-toolbar"><label>平台<select id="up-platform">${inheritedPlatforms?`<option value="selected">所选平台：${esc(inheritedPlatforms.join('、'))}</option>`:''}<option value="all">全平台</option>${qrPlatforms.map(p=>`<option ${p===state.platform?'selected':''}>${p}</option>`).join('')}</select></label></div>
@@ -30,14 +32,18 @@ function upOpenDetail(context) {
   function paint() {
     Object.assign(qualityState,{start:state.start,end:state.end,period:state.period});
     const [model,qualityModel]=pfWithCompanyStockBatch(()=>[upDetailModel(state),upDetailModel(qualityState)]);
-    const gradeMode=state.period?.mode==='recent30'?'recent30':upGradeTrendPeriod(state).mode,gradeStart=state.period?.mode==='day'?kpmGradeWindow(state.end,'month').start:state.start;
-    root.querySelector('[data-up-product-grade]').outerHTML=upProductGradeBadge(kpmGradeAssessment(product,state.end,'all',gradeMode,gradeStart).level);
+    if(showGrade){
+      const gradeMode=state.period?.mode==='recent30'?'recent30':upGradeTrendPeriod(state).mode;
+      const gradeStart=state.period?.mode==='day'?kpmGradeWindow(state.end,'month').start:state.start;
+      root.querySelector('.up-product-heading [data-up-product-grade]').outerHTML=upProductGradeBadge(kpmGradeAssessment(product,state.end,'all',gradeMode,gradeStart).level);
+    }
     const fields=[['SPU码',base.spuCode],['型号',base.model],['品牌',base.brand],['链群',identity.category],['季品',identity.attribute]];
-    // 上线当天计为第1天，随详情统计截止日更新，与新品列表保持一致。
-    if(product.cohort==='new')fields.push(['新品上线日期',base.actualLaunch],['已上线天数',Math.max(0,aiFlowDayDiff(base.actualLaunch,state.end)+1)+' 天']);
+    // 上市当天计为第1天，天数随详情统计截止日更新。
+    const launch=base.actualLaunch,daysSinceLaunch=uiPeriodValidDate(launch)?Math.max(0,aiFlowDayDiff(launch,state.end)+1)+' 天':null;
+    fields.push(['上市日期',daysSinceLaunch===null?null:launch],['已上市天数',daysSinceLaunch]);
     root.querySelector('[data-up-identity]').innerHTML=fields.map(([k,v])=>`<div><dt>${k}${k==='SPU码'?'：':''}</dt><dd>${esc(v||'暂无数据')}</dd></div>`).join('');
     upMountAiSummary(root,model,state);
-    root.querySelector('[data-up-panel="operating"]').innerHTML=upOperatingView(model,state);
+    root.querySelector('[data-up-panel="operating"]').innerHTML=upOperatingView(model,state,showGrade);
     root.querySelector('[data-up-panel="quality"]').innerHTML=upQualityView(qualityModel,qualityState);
     root.querySelector('[data-up-panel="stock"]').innerHTML=upStockView(model,state);
     root.dataset.upStart=state.start;root.dataset.upEnd=state.end;

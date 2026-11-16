@@ -4,7 +4,7 @@ const frames=page=>page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(
 async function scroll(page,top){await page.evaluate(top=>window.scrollTo({top,behavior:'instant'}),top);await frames(page)}
 async function measure(page,id){return page.evaluate(id=>{
  const section=document.getElementById(id),head=section.querySelector(':scope>.sectionhead'),rect=node=>node.getBoundingClientRect();
- const content=[...section.children].find(node=>node!==head&&rect(node).height>0),s=rect(section),h=rect(head),nav=rect(document.querySelector('.navigation-toolbar'));
+ const content=[...section.children].find(node=>node!==head&&rect(node).height>0),s=rect(section),h=rect(head),nav=rect(section.parentElement.querySelector(':scope>.navigation-toolbar'));
  return {top:h.top,bottom:h.bottom,height:h.height,width:h.width,nav:nav.bottom,documentTop:s.top+scrollY,sectionHeight:s.height,contentTop:rect(content).top+scrollY,position:getComputedStyle(head).position,
  controls:[...head.querySelectorAll('button,select,input')].filter(node=>!node.closest('.pf-multi-menu,[popover],[role="dialog"]')&&rect(node).height>0&&getComputedStyle(node).visibility==='visible').every(node=>rect(node).top>=h.top-1&&rect(node).bottom<=h.bottom+1)};
  },id)}
@@ -45,4 +45,41 @@ export async function sectionSticky(page){
  await page.evaluate(()=>document.documentElement.classList.remove('dashboard-fullscreen'));await frames(page);
  await scroll(page,0);await page.setViewportSize({width:1920,height:1080});
  console.log('通过：十模块锚点、原标题保留、期间切换及模拟全屏');
+}
+
+export async function productSectionSticky(page){
+ const productIds=['risk','ai','dp-management','sales','new','projects','lifecycle','matrix','inventory','cost'];
+ await page.goto(new URL('产品中心.html',page.url()).href);
+ await page.waitForFunction(()=>document.documentElement.dataset.dashboardBoot==='ready');
+ const heads=page.locator('.product-center-view>[data-module-sticky]>.sectionhead');
+ assert.deepEqual(await heads.evaluateAll(nodes=>nodes.map(node=>node.parentElement.id)),productIds);
+ for(const width of [1920,390]){
+  await page.setViewportSize({width,height:560});await scroll(page,0);
+  for(const [i,id] of productIds.entries()){
+   const before=await measure(page,id);
+   await scroll(page,before.documentTop-before.nav+44);
+   const stuck=await measure(page,id);
+   assert.equal(stuck.position,'sticky',id+'开启吸顶');
+   assert(Math.abs(stuck.top-stuck.nav)<1.5,id+'贴合产品中心导航 '+width+': '+JSON.stringify(stuck));
+   assert(stuck.controls,id+'原控件随标题栏吸顶');
+   assert.equal(stuck.contentTop,before.contentTop,id+'吸顶不改变内容位置');
+   if(i===productIds.length-1)continue;
+   const next=await measure(page,productIds[i+1]);
+   await scroll(page,next.documentTop-stuck.nav+8);
+   const released=await measure(page,id);
+   assert(released.bottom<=released.nav+1,id+'离开模块后释放标题栏');
+  }
+ }
+ await page.setViewportSize({width:1920,height:800});await scroll(page,0);
+ await page.locator('.pc-navigation-toolbar a[href="#dp-management"]').click();await frames(page);
+ const personnel=await measure(page,'dp-management');
+ assert(personnel.top>=personnel.nav-1&&personnel.top<personnel.nav+50,'人员管理锚点不被导航遮挡');
+ await scroll(page,personnel.documentTop-personnel.nav+60);
+ await page.locator('#dp-management [data-pc-people-mode="week"]').click();await frames(page);
+ const filtered=await measure(page,'dp-management');
+ assert(Math.abs(filtered.top-filtered.nav)<1.5,'人员日期切换后保持吸顶');
+ await page.evaluate(()=>document.documentElement.classList.add('dashboard-fullscreen'));await frames(page);
+ const full=await measure(page,'dp-management');
+ assert(Math.abs(full.top-full.nav)<1.5&&Math.abs(full.nav-52)<2,'全屏时按实际导航位置吸顶');
+ console.log('通过：产品中心十模块吸顶与交接（桌面/手机）、人员日期切换、锚点及全屏');
 }

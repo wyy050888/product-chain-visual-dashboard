@@ -24,25 +24,40 @@ export async function inventoryStagnantTop(page){
  await page.locator('#toast').waitFor({state:'visible'});
  assert.equal(await page.locator('#toast').innerText(),'跳转现有产品库存详情页');
  assert(await page.locator('#overlay').isHidden(),'查看仅提示跳转，不打开原型详情');
+ const warningChannels=new Map(await page.evaluate(()=>stagnantRankingSnapshot().rows.map(row=>[row.skuCode,row.responsibleChannel??'—'])));
+ const oneDecimal=new Intl.NumberFormat('zh-CN',{minimumFractionDigits:1,maximumFractionDigits:1});
+ const twoDecimals=new Intl.NumberFormat('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2,useGrouping:false});
  async function verifyPresentation(){
   const model=await snapshot(),records=new Map(model.rows.map(row=>[row.skuCode,row]));
   for(const tr of await host.locator('tbody tr').all()){
-   const record=records.get(await tr.locator('[data-sku-code]').getAttribute('data-sku-code')),tone=Number.isFinite(record.coverage15)?'rp-quality-normal':'rp-quality-gray';
+   const code=await tr.locator('[data-sku-code]').getAttribute('data-sku-code'),record=records.get(code);
+   const tone=Number.isFinite(record.sellableCoverage15)?'rp-quality-normal':'rp-quality-gray';
    for(const index of [2,3]){
     const cell=tr.locator('td').nth(index),nodes=cell.locator('strong,em');assert.equal(await nodes.count(),2);
     assert(await cell.locator('strong').evaluate(el=>el.classList.contains('rp-quality-normal')),'左侧数量与金额恢复普通数值色');
     assert(await cell.locator('em').evaluate(el=>el.classList.contains('rp-quality-gray')),'占比保持普通辅助色');
     assert.equal(await cell.locator('.rp-quality-red,.rp-quality-yellow').count(),0,'左侧不再展示预警色');
    }
-   const days=tr.locator('td').nth(6).locator('strong');
+   if(warningChannels.has(code)){
+    assert.equal(await tr.locator('td').nth(5).locator('strong').innerText(),warningChannels.get(code));
+   }
+   const sellable=tr.locator('td').nth(6);
+   assert.equal(await sellable.locator('strong').innerText(),record.sellableUnits.toLocaleString('zh-CN')+'件');
+   const yuan=record.sellableValueCents/100,inWan=Math.abs(yuan)>10000;
+   const worth=Number.isFinite(record.sellableValueCents)?twoDecimals.format(inWan?yuan/10000:yuan)+(inWan?'万元':'元'):'—';
+   assert.equal(await sellable.locator('em').innerText(),'货值 '+worth);
+   const days=tr.locator('td').nth(7).locator('strong');
    assert(await days.evaluate((el,tone)=>el.classList.contains(tone),tone),'已发生呆滞不按可售天数另判红黄');
-   if(!Number.isFinite(record.coverage15))assert.equal(await days.innerText(),'—','无净销量时不补0天');
+   assert.equal(await days.innerText(),Number.isFinite(record.sellableCoverage15)?oneDecimal.format(record.sellableCoverage15)+'天':'—');
   }
   assert.equal(await page.locator('#inventorytable .rp-quality-red,#inventorytable .rp-quality-yellow').count(),0,'品牌类目不使用产品Top10判色');
   assert.equal((await host.locator('th').allTextContents()).at(-1),'操作');
-  assert.equal(await host.locator('[data-ip-stagnant-detail]').count(),model.rows.length);
+  assert.equal(await host.locator('[data-ip-stagnant-detail]').count(),records.size);
   assert((await host.locator('[data-ip-stagnant-detail]').allTextContents()).every(text=>text==='查看'));
-  assert.equal(await host.locator('th:has([data-rp-sort="staleValue"]) .metric-help').count(),0,'金额问号不会自动补回');
+  const helpRules=await host.locator('th .metric-help').evaluateAll(nodes=>nodes.map(node=>node.dataset.metricRule));
+  assert.deepEqual(helpRules.slice(0,3),['呆滞库存','呆滞货值','呆滞最高库龄']);
+  assert.equal(helpRules.length,4);
+  assert.equal(helpRules[3],'用我司可售库存判定责任渠道，当出现产品呆滞时，判断当前我司可售天数最高的虚拟仓');
   assert.equal(await host.locator('.rp-product-tag').count(),0,'Top10移除属性列及新老品标签');
  }
  await verifyPresentation();await titleHelp.evaluate(node=>node.scrollIntoView({behavior:'instant',block:'center'}));await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));await page.mouse.move(0,0);await titleHelp.hover();await titleHelp.evaluate(node=>node.focus({preventScroll:true}));
@@ -55,14 +70,15 @@ export async function inventoryStagnantTop(page){
  const ownHeaders=await host.locator('th').allTextContents();
  await page.locator('#riskrail [data-risk="4"]').click();
  const referenceHeaders=await page.locator('#rf-list-table th').allTextContents();
- const originalNames={库存:'呆滞库存',货值:'呆滞货值',最高库龄:'呆滞最高库龄',可售库存:'我司可售库存',可售天数:'我司可售天数'};
- assert.deepEqual(ownHeaders,referenceHeaders.filter(name=>!['属性','责任渠道'].includes(name)).map(name=>originalNames[name]??name),'Top10保留原指标全名，不展示预警责任渠道');
+ assert.deepEqual(ownHeaders,referenceHeaders.filter(name=>name!=='属性'),'Top10指标顺序与呆滞预警榜一致');
  await page.keyboard.press('Escape');
  const select=page.locator('#inventory .ip-season-filter select');
  for(const seasons of [['夏季品'],['冬季品'],['夏季品','四季品']]){await select.selectOption(seasons,{force:true});await verify(seasons);await verifyPresentation()}
  await select.selectOption('all',{force:true});await verify();
- await host.locator('[data-rp-sort="coverage15"]').click();
- let text=await host.locator('tbody tr td:nth-child(7) strong').allTextContents();let values=text.map(value=>{const number=parseFloat(value.replaceAll(',',''));return Number.isFinite(number)?number:-Infinity});assert(values.every((value,index)=>!index||values[index-1]>=value),'列排序');
+ await host.locator('[data-rp-sort="sellableCoverage15"]').click();
+ const text=await host.locator('tbody tr td:nth-child(8) strong').allTextContents();
+ const values=text.map(value=>{const number=parseFloat(value.replaceAll(',',''));return Number.isFinite(number)?number:-Infinity});
+ assert(values.every((value,index)=>!index||values[index-1]>=value),'可售天数列排序');
  await verifyPresentation();
  for(const width of [1920,1440,1024,390]){
   await page.setViewportSize({width,height:1080});

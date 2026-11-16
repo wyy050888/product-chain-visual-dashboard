@@ -1,16 +1,6 @@
 // 查询模型不依赖页面当前榜单筛选；跨入口只传 SPU、范围、平台和默认标签。
 const upTabs=[{key:'operating',label:'业绩表现'},{key:'quality',label:'品质退货'},
   {key:'stock',label:'产品库存'}];
-// 日筛选的达成锚定结束日所在月：实际累计至结束日，目标取完整月份。
-// 左侧经营指标和趋势仍使用原筛选范围；月/季/年延续各自口径。
-function upAttainmentModel(p,state,current) {
-  if(state.period?.mode!=='day')return {actual:current,targets:current,prefix:periodShortText(state.period),progress:msProgress(state.period)};
-  const start=state.end.slice(0,7)+'-01';
-  const monthEnd=new Date(Date.UTC(+state.end.slice(0,4),+state.end.slice(5,7),0)).toISOString().slice(0,10);
-  return {actual:upSummary(p,start,state.end,state.platform),
-    targets:upSummary(p,start,monthEnd,state.platform),prefix:Number(state.end.slice(5,7))+'月',
-    progress:(aiFlowDayDiff(start,state.end)+1)/(aiFlowDayDiff(start,monthEnd)+1)*100};
-}
 function upDetailModel(state) {
   const p=upSpus.get(state.spuId),product=upProduct(p);
   const current=upSummary(p,state.start,state.end,state.platform),days=aiFlowDayDiff(state.start,state.end)+1;
@@ -35,7 +25,7 @@ function upDetailModel(state) {
       name:reason.label,value:fmt(highStock.totalUnits)+'件',rule:irReasonText(reason)});
     if(stock?.slow) signals.push({kind:'滞销',platform:state.platform==='all'?'全公司':state.platform,name:'可售天数'+brcDescribe('stock.slowDays')+'',value:fmt(stock.slowCoverage,1)+'天',
       rule:'只判断有动销产品：我司可售库存＞0且近15日净销量＞0，可售天数按我司可售库存÷近15日均净销量判断；滞销金额只计算超库龄部分。'});
-    return {product,current,attainment:upAttainmentModel(p,state,current),previous,company,quality,stock,highStock,stockSummary,stockEnd,platformRows,signals,days,previousStart,previousEnd};
+    return {product,current,previous,company,quality,stock,highStock,stockSummary,stockEnd,platformRows,signals,days,previousStart,previousEnd};
   });
 }
 function upPercent(value){return value===null||!Number.isFinite(value)?'—':fmt(value,1)+'%'}

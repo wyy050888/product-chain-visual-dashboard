@@ -1,29 +1,50 @@
 /* 相同模块使用.page直属section，与总看板共用全部布局与字号规则。 */
 #department-view.product-center-view{padding:0;margin:0;max-width:none;width:auto;min-width:0}
-.product-center-view>.pc-navigation-toolbar{position:sticky;top:60px;z-index:22}
+.product-center-view>.pc-navigation-toolbar{top:60px}
 .product-center-view>.pc-module-anchor{display:block;height:0;scroll-margin-top:var(--dashboard-anchor-offset,130px)}
 .product-center-view>.section{scroll-margin-top:var(--dashboard-anchor-offset,130px)}
-/* 专属五榜共用风险卡片视觉层，仅补充原业务字段的容器样式。 */
-#riskrail .pc-risk-entry{width:100%;text-align:left}
-#riskrail .pc-risk-entry>.rp-entry-main{width:100%}
-#riskrail .pc-risk-entry .rp-identity small{display:block;margin-top:4px}
-#riskrail .pc-risk-metric{display:block;font-size:16px;line-height:26px;font-weight:600;color:#c33d56;font-variant-numeric:tabular-nums}
-.product-center-view>.pc-own-section .dp-range{font-size:var(--type-meta);color:#7b8aa0}
-.product-center-view>.pc-own-section .dp-table{margin-top:16px;border-color:#e5edf4}
-.product-center-view>.pc-own-section .dp-table th{background:#f5f8fc;color:#62758a;font-weight:500}
-.product-center-view>.pc-own-section .dp-table :is(th,td){font-size:var(--type-data);padding:12px;vertical-align:middle}
-.product-center-view>.pc-own-section .dp-metric{background:#f8faff;border-color:#e5edf4}
-.product-center-view>.pc-own-section .dp-metric strong{font-size:var(--type-kpi);font-weight:var(--weight-heading)}
-.product-center-view>.pc-own-section .dp-metric small{font-size:var(--type-meta)}
-.product-center-view>.pc-own-section .module-header-time{max-width:100%;min-width:0}
-.product-center-view>.pc-own-section .dp-period{gap:8px;flex-wrap:wrap;justify-content:flex-end}
-.product-center-view>.pc-own-section .dp-period>.link{flex:none;white-space:nowrap}
+/* 空榜复用总看板标题和边框，缩短没有记录时的卡片高度。 */
+.product-center-view #riskrail .pc-risk-card .rp-items{display:grid;grid-template-rows:1fr;min-height:104px;align-items:center}
+.product-center-view #riskrail .pc-risk-card .empty{background:none;color:#7b8da4}
+.pc-panel{min-width:0;padding:16px;border:1px solid #e0e8f2;border-radius:9px;background:#fff}
+.pc-people-toolbar,.pc-data-context,.pc-brand-filters,.pc-people-period{display:flex;align-items:center;justify-content:space-between;gap:10px 16px;flex-wrap:wrap}
+.pc-people-toolbar .tabs{display:flex;gap:5px;flex-wrap:wrap}
+.pc-people-toolbar .tabs button{white-space:nowrap}
+.pc-data-context{margin:12px 0;font-size:12px;color:#516782}
+.pc-people-period label,.pc-brand-filters label{display:inline-flex;align-items:center;gap:7px}
+.pc-people-period input,.pc-brand-filters select{max-width:100%}
+.pc-data-scroll{max-width:100%;max-height:460px;overflow:auto;border:1px solid #e6edf5;border-radius:7px}
+.pc-data-table{width:100%;min-width:max-content;border-collapse:separate;border-spacing:0;text-align:left;font-variant-numeric:tabular-nums}
+.pc-data-table :is(td,th){padding:10px 13px;border-bottom:1px solid #edf1f6}
+.pc-data-table thead th{position:sticky;top:0;z-index:1;background:#f4f7fb;color:#516782;font-weight:600;max-width:255px}
+.pc-data-table th small{display:block;margin-top:4px;font-weight:400;color:#73849a;font-size:11px;line-height:1.4}
+.pc-data-table tbody th{font-weight:500;color:#284360}
+.pc-data-table tbody td{white-space:nowrap}
+.pc-data-total :is(td,th){background:#edf5ff;font-weight:650;color:#244e80}
+.pc-data-pending{color:#8796a8}
+.pc-chain-metrics,.pc-brand-plan{margin-top:16px}
+.pc-chain-metrics>p,.pc-brand-plan .muted{margin:4px 0 10px}
+.pc-brand-counts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:10px 0 14px}
+.pc-brand-counts div{background:#f5f8fd;border-radius:6px;padding:10px 12px;color:#516782}
+.pc-brand-counts strong{display:block;margin-top:3px;color:#203d63;font-size:20px}
+.pc-weekly{padding:0 0 4px}
+.pc-weekly-feature{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:16px;border:1px solid #dce8f8;border-radius:8px;background:linear-gradient(120deg,#eef5ff,#fbfdff)}
+.pc-weekly-feature>div{flex:1;min-width:185px}
+.pc-weekly-icon{display:grid;place-items:center;width:43px;height:48px;border-radius:6px;background:#e0edff;color:#2462a7;font-size:11px;font-weight:700}
+.pc-eyebrow,.pc-weekly-caption{font-size:12px;color:#60758c}
+.pc-weekly-feature h3{margin-top:3px;font-size:16px;color:#244467}
+.pc-weekly-caption{margin:14px 0 5px}
+.pc-weekly-archive{margin:0;padding:0;list-style:none}
+.pc-weekly-archive li{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid #edf1f6}
+.pc-weekly-archive small{display:block;font-size:11px;color:#74869c;overflow-wrap:anywhere}
+.pc-weekly-archive button{flex:none}
+@media(max-width:700px){.pc-panel{padding:10px}.pc-people-period,.pc-personnel .sectionhead{flex-wrap:wrap}.pc-brand-counts{gap:5px}.pc-brand-counts div{padding:8px}}
 .pc-role-control{display:inline-flex;align-items:center;gap:8px;margin-right:20px;white-space:nowrap;color:#66738a;font-size:13px}
 .pc-role-control[hidden]{display:none!important}
 .lt-system-active .pc-role-control{display:none!important}
 .pc-role-control select{height:32px;width:108px;border:1px solid #d5e1f4;border-radius:5px;padding:4px 8px;background:#fff;color:#34425b;font-size:13px}
 /* 部门固定产品中心；产品经理固定环境类。展示字段与业务类型不隐藏。 */
-body.product-center-active :is(.pp-dept-options,.pp-analysis-tabs,.gd-rubric-selector:has([data-gd-rubric-dept])){display:none!important}
+body.product-center-active :is(.pp-dept-options,.pp-analysis-tabs,.gd-ledger-departments,.gd-rubric-selector:has([data-gd-rubric-dept])){display:none!important}
 body.product-center-manager :is(#nsp-category-tabs,#pp-category-tabs,[data-pp-distribution="category"],[data-pp-dept-dimension="category"]){display:none!important}
 /* 数值灯色与总看板一致；其他部门继续沿用原展示规则。 */
 body.product-center-active .number-signal{display:inline-flex;align-items:baseline;justify-content:center;box-sizing:border-box;padding:1px 4px;border:0!important;border-radius:4px;box-shadow:none!important;line-height:inherit;white-space:nowrap;vertical-align:baseline}

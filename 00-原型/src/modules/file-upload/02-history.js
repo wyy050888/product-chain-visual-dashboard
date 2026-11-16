@@ -1,4 +1,4 @@
-// 历史只保存批次信息及失败行单元格，不保存原文件或成功行内容。
+// 成功批次只记录摘要；失败批次保留生成失败报告所需的数据及原工作簿。
 const UI_IMPORT_HISTORY='dashboard-import-history-v1';
 let uiImportMemory=[];
 function uiImportSaved(){try{const rows=JSON.parse(localStorage.getItem(UI_IMPORT_HISTORY));return Array.isArray(rows)?rows.filter(row=>row&&typeof row.id==='string'&&typeof row.module==='string'&&typeof row.file==='string'&&Number.isFinite(Date.parse(row.at))):[]}catch(_){return []}}
@@ -6,15 +6,21 @@ function uiRecordImport(inputId,result={}){
  const input=typeof inputId==='string'?document.getElementById(inputId):inputId;
  const file=input?.files?.[0],module=result.module||input?.dataset.uploadModule||uiUploadModules[input?.id]||(input?.hasAttribute('data-gd-task-file')?'任务':'');
  if(!module||!file)return;
- const source=uiImportSource(result.table),errors=(result.errors||[]).map(row=>({row:row.row??'—',field:row.field||'',message:row.message||String(row)}));
- const failed=errors.length>0,total=result.table?source.rows.length:result.rows||0,failedRows=failed?uiImportFailureRows(source,errors):[];
+ const source=uiImportSource(Array.isArray(result.table)?result.table:[]),errors=(result.errors||[]).map(row=>({row:row.row??'—',field:row.field||'',message:row.message||String(row)}));
+ const failed=errors.length>0,total=Array.isArray(result.table)?source.rows.length:result.rows??(failed?null:0);
+ const failure=failed?uiImportFailures(source,result.failureSheets,errors,result.saveFailed):{};
  const entry={id:crypto.randomUUID(),module,file:file.name,at:new Date().toISOString(),actor:'管理员',status:failed?'导入失败':'导入成功',rows:total,
-  totalRows:total,successCount:failed?0:total,failureCount:result.failureSheets?.length?result.failureSheets.reduce((sum,sheet)=>sum+sheet.rows.length,0):failedRows.length,skippedCount:source.skipped,
-  errors,headers:source.headers,failedRows,changes:[],...(Array.isArray(result.failureSheets)?{failureSheets:result.failureSheets}:{}),...(Array.isArray(result.coverageMonths)?{coverageMonths:result.coverageMonths}:{}),...(Array.isArray(result.coverageYears)?{coverageYears:result.coverageYears.filter(year=>/^\d{4}$/.test(year))}:{})};
+  totalRows:total,successCount:failed?0:total,failureCount:failed?total:0,skippedCount:source.skipped,
+  errors,headers:source.headers,headerRow:source.headerRow,sheetName:result.sheetName||result.table?.sheetName,...failure,changes:[],...(Array.isArray(result.coverageMonths)?{coverageMonths:result.coverageMonths}:{}),...(Array.isArray(result.coverageYears)?{coverageYears:result.coverageYears.filter(year=>/^\d{4}$/.test(year))}:{})};
+ if(failed&&/\.xlsx$/i.test(file.name)&&uiHasFailureData(entry))uiKeepFailedWorkbook(entry.id,file);
  const previous=new Map([...uiImportSaved(),...uiImportMemory].map(row=>[row.id,row]));
  const saved=[entry,...previous.values()].slice(0,500);uiImportMemory=saved;
  // 保留最新批次的完整失败数据；空间不足时先淘汰最早记录，不截断当前失败行。
- while(saved.length){try{localStorage.setItem(UI_IMPORT_HISTORY,JSON.stringify(saved));uiImportMemory=saved;return entry}catch(_){if(saved.length===1)break;saved.pop()}}
+ while(saved.length){try{
+  localStorage.setItem(UI_IMPORT_HISTORY,JSON.stringify(saved));uiImportMemory=saved;
+  const retained=new Set(saved.map(row=>row.id));uiDropFailedWorkbooks([...previous.keys()].filter(id=>!retained.has(id)));
+  return entry;
+ }catch(_){if(saved.length===1)break;saved.pop()}}
  setTimeout(()=>toast('导入记录暂存于当前页面，刷新后可能丢失'),0);return entry;
 }
 function uiImportHistoryRows(module){

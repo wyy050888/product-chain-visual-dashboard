@@ -1,17 +1,20 @@
 // 明细统一展示是否成功；历史季度仍保留在模型中用于出池和考核。
 const nspHeaders=['SPU系列','产品简称','指导价','GSV','销量','利润率','是否成功','总退','已收退','未收退','我司可售库存','销售状态','上线天数','上线日期','销售渠道','项目类型','操作'];
 const nspSalesChannelRule='销售渠道：截至统计截止日已有销售记录的平台；当期无销量的历史平台仍保留。\n识别局限：历史销售记录缺失时，老品在新平台销售可能被识别为新品。';
-let nspPoolRule='新品判定：按产品简称归集 SPU，上市日期取成员中最早的上市日期。\n季度考核：按产品简称合计当季业绩；未成功跨季度、跨年滚入，首次成功后不再重复考核。\n新品出池：首次成功季度末＋30个自然日；未成功继续保留。\n历史查询：按考核季度查看全部、成功、不成功，包含已出池产品。';
 // 平台复用已有图标；内部大区保留真实渠道名称，不映射为平台。
 function nspChannelIcon(name){return drawerPlatformLogos[name]?rpPlatformMark(name):esc(name)}
 function nspSalesChannelIcons(names){
  return '<div class="nsp-channels-list" aria-label="'+esc(names.join('、')||'暂无已采集的销售渠道')+'">'+(names.length?names.map(nspChannelIcon).join(''):'—')+'</div>';
 }
-function nspTableHeaders(){
+function nspTableColumnNames(period){
+ const names=[...nspHeaders];
+ if(period.mode==='year')names.splice(names.indexOf('是否成功')+1,0,'年度是否成功');
+ return names;
+}
+function nspTableHeaders(columnNames,period){
  const keys={'上线天数':'days','GSV':'gsv','销量':'netSales','利润率':'profit','总退':'returns','已收退':'received','未收退':'unreceived','我司可售库存':'warehouse','上线日期':'launch','指导价':'guidePrice'};
- const period=periodFor('new'),prefix=periodShortText(period);
- const headers=[...nspHeaders];if(period.mode==='year')headers.splice(headers.indexOf('是否成功')+1,0,'年度是否成功');
- return headers.map(name=>{
+ const prefix=periodShortText(period);
+ return columnNames.map(name=>{
   const label=['GSV','销量','利润率'].includes(name)?prefix+name:name;
   const key=keys[name];if(!key)return label+(name==='销售渠道'?nspKpiHelp('销售渠道',nspSalesChannelRule):name==='是否成功'||name==='年度是否成功'?nspKpiHelp(name,nspStatusRule(name==='年度是否成功')):'');
   const active=nspSort.key===key,direction=active?nspSort.direction:'',next=active?(direction==='asc'?'降序':'升序'):(key==='launch'?'升序':'降序');
@@ -90,15 +93,8 @@ function nspRefreshResults(){return withPeriod('new',()=>{
  const rows=nspScopeRows();nspRenderOverview(rows);nspTable(rows);
 });}
 function nspKpiHelp(title,rule,annual=false){
- const card=['新品销售成功率','新品上线及时率'].includes(title)?` data-nsp-kpi="${esc(title)}"`:['是否成功','年度是否成功'].includes(title)?` data-nsp-status="${title==='年度是否成功'?'annual':'quarter'}"`:'';
+ const card=title==='新品上线及时率'?` data-nsp-kpi="${esc(title)}"`:['是否成功','年度是否成功'].includes(title)?` data-nsp-status="${title==='年度是否成功'?'annual':'quarter'}"`:'';
  return `<span class="metric-help nsp-kpi-help" role="button" tabindex="0" aria-label="查看${esc(title.replace('上线及时率','上市及时率'))}指标口径" data-metric-rule="${esc(rule)}"${annual?' data-nsp-annual="true"':''}${card}></span>`;
-}
-// 标题提示直接复用规则原文，样式分组不另维护一份业务口径。
-function nspRenderPoolTooltip(host,rule){
- const body=metricRuleCard(host,'新品判定与出池');
- metricRuleList(body,rule.split('\n').filter(Boolean).map(line=>{
-  const split=line.indexOf('：');return {title:split<0?line:line.slice(0,split),description:split<0?'':line.slice(split+1)};
- }));
 }
 function nspDeliveryKpi({label,annual,rate,ontime,planned}){
  const title='新品上线及时率';
@@ -109,21 +105,18 @@ function nspDeliveryKpi({label,annual,rate,ontime,planned}){
  </div>`;
 }
 function nspSuccessKpi(summary){
- const conditions=brcSuccessConditions(summary.annual,summary.start);
- const threshold=(summary.annual?'年度全年基准：四季品':'季度标准：四季品')+brcResultText(summary.annual?'success-year':'success-quarter',conditions)+'；夏季品、冬季品'+brcResultText('success-season',conditions);
- const rule=metricDefinitions['新品销售成功率']+'\n'+threshold+(summary.annual?'\n年度GSV门槛＝全年GSV门槛×当年上市日至12月31日的自然天数÷当年总天数；利润率、总退率门槛不折算。':'');
- return '<div class="newmetric nsp-success-kpi" data-nsp-metric="sold"><span class="nsp-success-heading"><span class="nsp-kpi-title">'+summary.label+'新品销售成功率'+nspKpiHelp('新品销售成功率',rule,summary.annual)+'</span><button type="button" class="nsp-assessment-entry" data-nsp-assessment-entry>查看'+(summary.annual?'年度':'季度')+'考核</button></span><div class="nsp-success-value"><strong class="num">'+(summary.rate===null?'—':fmt(summary.rate,1)+'<span class="unit">%</span>')+'</strong><span class="nsp-success-target">目标 ≥'+summary.target+'%</span></div><small><button type="button" data-nsp-assessment="success">成功 <b>'+summary.success+'个</b></button> / <button type="button" data-nsp-assessment="all">纳入统计 <b>'+summary.total+'个</b></button></small></div>';
+ return '<div class="newmetric nsp-success-kpi" data-nsp-metric="sold" data-metric-help-disabled><span class="nsp-success-heading"><span class="nsp-kpi-title">'+summary.label+'新品销售成功率</span><button type="button" class="nsp-assessment-entry" data-nsp-assessment-entry>查看'+(summary.annual?'年度':'季度')+'考核</button></span><div class="nsp-success-value"><strong class="num">'+(summary.rate===null?'—':fmt(summary.rate,1)+'<span class="unit">%</span>')+'</strong><span class="nsp-success-target">目标 ≥'+summary.target+'%</span></div><small><button type="button" data-nsp-assessment="success">成功 <b>'+summary.success+'个</b></button> / <button type="button" data-nsp-assessment="all">纳入统计 <b>'+summary.total+'个</b></button></small></div>';
 }
 function nspOperatingKpis(rows,period=periodFor('new')){
  const {gsvCents,profitRate}=nspOperatingTotals(rows);
  const short=periodShortText(period);
  const prefix=short==='近30天'?'近30日':period.mode==='day'?'所选期间':short;
  const metrics=[
-  ['sales','新品总销售额',gsvCents,gsvCents===null?'—':upMoney(gsvCents)],
-  ['margin','新品总利润率',profitRate,profitRate===null?'—':fmt(profitRate,1)+'%']
+  ['sales','新品GSV',gsvCents,gsvCents===null?'—':upMoney(gsvCents)],
+  ['margin','新品利润率',profitRate,profitRate===null?'—':fmt(profitRate,1)+'%']
  ];
  return '<div class="nsp-kpis nsp-operating-kpis">'+metrics.map(([key,label,value,display])=>
-  `<div class="newmetric" data-nsp-operating="${key}" data-value="${value??''}"><span>${esc(prefix+label)}</span><strong class="num">${esc(display)}</strong></div>`
+  `<div class="newmetric" data-nsp-operating="${key}" data-value="${value??''}"><span>${esc(prefix+' '+label)}</span><strong class="num">${esc(display)}</strong></div>`
  ).join('')+'</div>';
 }
 // 悬浮底色止于柱形基线下4个绘图单位，横坐标按钮保留独立点击区域。
@@ -141,7 +134,9 @@ function nspPlatformChart(rows){
  return `<div class="nsp-channels"><h3>各平台新品GSV <small>万元</small></h3><div class="nsp-channel-scroll"><div class="nsp-channel-canvas" style="--nsp-channel-count:${names.length};--nsp-channel-step:${step}px"><svg class="new-channel-chart" preserveAspectRatio="xMidYMax meet" viewBox="0 0 ${names.length*step} 132" role="group" aria-label="各平台新品GSV，暂无平台业绩显示—">${bars}</svg><div class="nsp-channel-labels">${labels}</div></div></div></div>`;
 }
 function nspTable(rows){
- const visible=nspVisibleRows(rows),state=newProductSelection,headers=nspTableHeaders(),host=$('#newtable'),pager=$('#newcount');
+ const period=periodFor('new');
+ const columnNames=nspTableColumnNames(period),headers=nspTableHeaders(columnNames,period);
+ const visible=nspVisibleRows(rows),state=newProductSelection,host=$('#newtable'),pager=$('#newcount');
  state.page=Math.max(1,Math.min(state.page,Math.max(1,Math.ceil(visible.length/nspPageSize()))));
  host.classList.remove('ns-sales-success');
  const markup=table(headers,visible.slice((state.page-1)*nspPageSize(),state.page*nspPageSize()).map(p=>{
@@ -150,8 +145,8 @@ function nspTable(rows){
   return [
   nspSpuCell(p),esc(p.shortName),
   rpListCell({value:nspGuidePriceText(p),tone:''}),...metrics.slice(0,3),
-  nspAssessmentBadge(successful,true,nspFirstQuarterSuccess(p,bounds().cutoff)?.approval),...(periodFor('new').mode==='year'?[nspAssessmentBadge(p.salesSuccess,p.successAssessment.included,p.successAssessment.approval)]:[]),...metrics.slice(3),
-  rpListCell({value:stockQuantity(p.sellableStock.warehouse),tone:'',target:'货值 '+(Number.isFinite(p.sellableStock.warehouseValueCents)?upMoney(p.sellableStock.warehouseValueCents):'—')}),
+  nspAssessmentBadge(successful,true,nspFirstQuarterSuccess(p,bounds().cutoff)?.approval),...(period.mode==='year'?[nspAssessmentBadge(p.salesSuccess,p.successAssessment.included,p.successAssessment.approval)]:[]),...metrics.slice(3),
+  rpListCell({value:stockQuantity(p.sellableStock.warehouse),tone:'',target:'货值 '+formatStockValue(p.sellableStock.warehouseValueCents)}),
   p.salesStates.map(status=>`<span class="tag nsp-sales-status" data-sales-status="${esc(status)}">${esc(nspSalesStatusLabel(status))}</span>`).join(' '),
   `${p.days}天`,
   `${p.actualLaunch}${p.launchDelayDays>0?`<small class="nsp-launch-delay">延期${p.launchDelayDays}天</small>`:''}`,
@@ -160,14 +155,17 @@ function nspTable(rows){
   nspSpuPicker(p)
  ]}));
  if(dashboardRenderMarkup(host,markup)){
-  // 年度考核增加列时，按字段同步定位列宽和数字列。
+  // 年度考核增加列时，按字段同步定位列宽和对齐方式。
   const columnWidths={'SPU系列':320,'产品简称':184,'指导价':156,'GSV':144,'销量':152,'利润率':156,'是否成功':120,'年度是否成功':160,'总退':112,'已收退':112,'未收退':112,'我司可售库存':164,'销售状态':144,'上线天数':120,'上线日期':152,'销售渠道':152,'项目类型':112,'操作':88};
-  const columnNames=[...nspHeaders];
-  if(periodFor('new').mode==='year')columnNames.splice(columnNames.indexOf('是否成功')+1,0,'年度是否成功');
   const columnWidthsJson=JSON.stringify(Object.fromEntries(columnNames.map((name,i)=>[i,columnWidths[name]])));
   const grid=host.querySelector('table'),body=grid.tBodies[0];
   grid.dataset.columnDefaults=columnWidthsJson;
   grid.dataset.columnMinimums=columnWidthsJson;
+  for(const name of ['销售状态','上线日期','项目类型']){
+   const index=columnNames.indexOf(name);
+   grid.tHead.rows[0].cells[index].classList.add('nsp-centered');
+   for(const row of body.rows)row.cells[index]?.classList.add('nsp-centered');
+  }
   const numericKeys=['days','gsv','netSales','profit','returns','received','unreceived','warehouse','guidePrice'];
   for(const button of grid.querySelectorAll('[data-nsp-sort]')){
    const header=button.closest('th');header.setAttribute('aria-sort',button.dataset.nspSort!==nspSort.key?'none':nspSort.direction==='asc'?'ascending':'descending');
@@ -197,7 +195,7 @@ function nspTable(rows){
 }
 function nspRender(){
  const heading=$('#new .titlegroup h2');
- if(heading&&!heading.querySelector('.nsp-pool-help'))heading.insertAdjacentHTML('beforeend','<span class="nsp-pool-help"> '+nspKpiHelp('新品判定及出池',nspPoolRule)+'</span>');
+ if(heading&&!heading.querySelector('[data-nsp-assessment-help]'))heading.insertAdjacentHTML('beforeend',' <button type="button" class="metric-help nsp-assessment-help" data-nsp-assessment-help data-preserve-terms aria-label="查看新品纳入与成功考核" aria-haspopup="dialog" aria-controls="metric-tooltip" aria-expanded="false"></button>');
  const state=newProductSelection,key=periodKey()+':'+JSON.stringify(pfControlValue($('#newchain')))+':'+JSON.stringify(nspFilters.season);
  if(state.key!==key){state.key=key;state.page=1}
  const rows=nspScopeRows();nspRenderOverview(rows);

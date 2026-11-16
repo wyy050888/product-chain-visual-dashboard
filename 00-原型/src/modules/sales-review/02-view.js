@@ -2,9 +2,6 @@
 function msDeltaContent(label,value,tone=''){
  return '<span class="ms-delta-label">'+esc(label)+'</span> <span class="'+tone+'">'+esc(value)+'</span>';
 }
-function msInlineDeviation(value){
- return '<span class="ms-inline-deviation">'+msDeltaContent('偏差',msDeviation(value),msTone(value))+'</span>';
-}
 function msScaleProgress(r){
  const width=Number.isFinite(r.scaleRate)?Math.max(0,Math.min(100,r.scaleRate)):0;
  const hint='时间进度 '+msPercent(r.progress)+'；规模达成 '+msPercent(r.scaleRate)+'；偏差 '+msDeviation(r.scaleDeviation);

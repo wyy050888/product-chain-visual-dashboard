@@ -85,6 +85,7 @@
 
 /* 登记日期与计划日期保持一致：框内末尾悬浮清空。 */
 .gd-registration-field{position:relative;display:inline-flex;align-items:center;min-width:0;max-width:100%}
+.gd-registration-field>.risk-date-trigger{min-width:120px}
 .gd-registration-field .is-placeholder{color:#9ca3af}
 .gd-registration-field:has(.gd-registration-clear) .risk-date-trigger{padding-right:32px}
 .gd-registration-field:has(.gd-registration-clear):is(:hover,:focus-within) .risk-date-trigger>:last-child{visibility:hidden}

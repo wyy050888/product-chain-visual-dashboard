@@ -69,14 +69,14 @@ function rpCardRuleSummary(kind){
   },
   1:{
    note:'按店铺统计，以下条件满足任意一项即可入榜',
-   pool:['店铺评分红灯，且品质违规处罚'+brcDescribe('shops.penalties')+'\n  • 抖音、快手、天猫、京东：按本平台店铺分红灯规则判定\n  • 拼多多：任一核心链接的六项监控指标中，异常项数'+brcDescribe('shops.pddCount')+'，等同于店铺评分红灯\n    六项监控指标：三级分类、主营链群下的品质退款率、品质求助平台率、品质文本情感分；单项异常条件：指标原值'+brcDescribe('shops.pddValue'),'品质违规罚款金额'+brcDescribe('shops.fine')+'',rpShopReturnRule(),'存在资金冻结'],
+   pool:['店铺评分红灯，且品质违规处罚'+brcDescribe('shops.penalties')+'\n  • '+filterCatalog.platforms.filter(rpShopScoreMonitored).join('、')+'：按本平台店铺分红灯规则判定\n  • 拼多多：任一核心链接的六项监控指标中，异常项数'+brcDescribe('shops.pddCount')+'，等同于店铺评分红灯\n    六项监控指标：三级分类、主营链群下的品质退款率、品质求助平台率、品质文本情感分；单项异常条件：指标原值'+brcDescribe('shops.pddValue'),'品质违规罚款金额'+brcDescribe('shops.fine')+'',rpShopReturnRule(),'存在资金冻结'],
    sort:['风险优先级：资金冻结 → 平台罚款 → 产品退货率超标 → 评分红灯 → 评分黄灯，命中多项取最高优先级','同优先级，风险命中数量从多到少','评分风险店铺中，核心店铺优先，再按旗舰店／POP旗舰店 → 专卖店／POP专卖店 → 自营 → 无分类排序','再按对应风险数值排序：冻结及罚款金额从高到低、评分从低到高']
   },
   2:{
    note:'按所选期间、平台统计，选择全平台时按公司整体口径计算',
    pool:['净利润率＜0'],
    detail:'利润率取数智罗盘产品业绩，净利润率＝利润率－'+brcNumber('finance.deduction')+'%',
-   sort:['亏损金额从低到高，亏损越大越靠前，例如－10万排在－5万前','亏损金额相同，净利润率从高到低']
+   sort:['亏损金额从低到高，亏损越大越靠前，例如－10万排在－5万前','亏损金额相同，净利润率从低到高排序']
   },
   6:{
    note:'按SPU、平台统计，按以下条件组入榜。卡片仅展开所选平台中命中退货恶化的平台。',
@@ -86,7 +86,7 @@ function rpCardRuleSummary(kind){
   },
   8:{
    note:'按SPU和平台判定，偏差＝所选成熟期间的实际退货率－目标退货率。',
-   pool:[`同期原始销量＞${rpDeviationMinSales}件，且总退或已收退存在偏差
+   pool:[`销量＞${rpDeviationMinSales}件，且总退或已收退存在偏差
   • 总退偏差：＞${rpReturnDeviationLimits.return}；已收偏差：＞${rpReturnDeviationLimits.received}`],
    sort:['按SPU的总退、已收退偏差最大值从高到低排序','偏差相同，按该SPU近30天销售额从高到低排序']
   }

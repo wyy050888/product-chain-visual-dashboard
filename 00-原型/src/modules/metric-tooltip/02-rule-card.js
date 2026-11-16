@@ -30,6 +30,6 @@ function metricRuleTable(host,headers,rows,className=''){
 }
 // 已有专用渲染器的问号可直接触发，不依赖额外的文字占位字段。
 function metricHasRuleCard(help){
- return kpmIsGradeHelp(help)||!!help.closest('.nsp-pool-help')||!!help.dataset.ipSummaryHelp||
+ return kpmIsGradeHelp(help)||help.hasAttribute('data-nsp-assessment-help')||!!help.dataset.ipSummaryHelp||
   !!help.dataset.scpResourceHelp||!!help.dataset.scpMaterialHelp||!!help.dataset.scpCategoryHelp||!!help.dataset.scpSourcingHelp;
 }

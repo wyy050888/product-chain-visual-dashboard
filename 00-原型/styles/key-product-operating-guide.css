@@ -1,0 +1,24 @@
+#matrix.kpm-main [data-kpm-guide-open]{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.kpm-guide-icon{
+ flex:none;width:24px;height:24px;padding:3px;border-radius:6px;color:#fff;
+ background:linear-gradient(140deg,#39a4ff 0%,#6164ef 52%,#a25be6 100%);box-shadow:0 2px 6px #7165e52b;
+}
+
+#dialog.drawer.business-drawer:has(>#dialogbody>.kpm-operating-guide){width:min(520px,100vw)}
+#dialog.business-drawer:has(>#dialogbody>.kpm-operating-guide) .drawer-tabs:not([hidden]){
+ display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;
+ min-height:0;margin:16px 24px 0;padding:0;border:1px solid #dbe3ef;border-radius:6px;
+}
+#dialog.business-drawer:has(>#dialogbody>.kpm-operating-guide) .drawer-tabs button{padding:8px 0}
+#dialog.business-drawer:has(>#dialogbody>.kpm-operating-guide) .drawer-tabs button+button{border-inline-start:1px solid #dbe3ef}
+#dialog.business-drawer:has(>#dialogbody>.kpm-operating-guide) .drawer-tabs button.selected{background:#edf5ff}
+
+.kpm-operating-guide h3{padding:10px 12px;border-radius:6px;background:#f4f7fc;font-size:var(--type-section);color:#203951}
+.kpm-operating-guide dl{margin:8px 0 0}
+.kpm-operating-guide dl>div{padding:14px 12px;border-bottom:1px solid var(--line)}
+.kpm-operating-guide dl>div:last-child{border-bottom:0}
+.kpm-operating-guide dt{color:#203951;font-size:var(--type-body);font-weight:600}
+.kpm-operating-guide dd{margin:4px 0 0;color:#526680;font-size:var(--type-body);line-height:1.7}
+@media(max-width:700px){
+ #dialog.business-drawer:has(>#dialogbody>.kpm-operating-guide) .drawer-tabs:not([hidden]){margin-inline:16px}
+}

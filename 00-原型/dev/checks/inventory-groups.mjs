@@ -8,7 +8,7 @@ export async function verifyInventoryGroups(page,initial){
  assert.deepEqual(await panels.nth(1).locator('tbody tr>td:first-child').allTextContents(),initial.brand.filter(row=>['苏泊尔','美的','创维','海尔','康佳'].includes(row.name)).sort((a,b)=>b.warehouse-a.warehouse).map(row=>row.name));
  assert(initial.brand.every((row,i)=>!i||initial.brand[i-1].warehouseValueCents>=row.warehouseValueCents));
  for(const groups of [initial.category,initial.brand]){
-  for(const key of ['warehouse','warehouseValueCents','factory','factoryValueCents','staleUnits','staleValueCents','totalUnits','goodsValueCents','cost','avg','deliveryOn','deliveryDue'])assert(Math.abs(groups.reduce((n,row)=>n+row[key],0)-initial.stockTotal[key])<1e-5,'库存维度守恒 '+key);
+  for(const key of ['warehouse','warehouseValueCents','factory','factoryValueCents','factoryAvailable','transit','staleUnits','staleValueCents','totalUnits','goodsValueCents','cost','avg','deliveryOn','deliveryDue'])assert(Math.abs(groups.reduce((n,row)=>n+row[key],0)-initial.stockTotal[key])<1e-5,'库存维度守恒 '+key);
   for(const row of groups){
    assert.equal(row.staleRatio,row.totalUnits?row.staleUnits/row.totalUnits*100:null);
    assert.equal(row.staleValueRatio,row.goodsValueCents?row.staleValueCents/row.goodsValueCents*100:null);
@@ -23,8 +23,9 @@ export async function verifyInventoryGroups(page,initial){
   assert.equal(row.staleValueRatio,row.goodsValueCents?row.staleValueCents/row.goodsValueCents*100:null,'SPU呆滞金额占比有实际分母');
   assert.equal(row.delivery,row.deliveryDue?(row.deliveryOn+row.importedStock)/row.deliveryDue*100:null);
  }
- const metrics=['totalUnits','goodsValueCents','warehouse','warehouseValueCents','factory','factoryValueCents','staleUnits','staleRatio','staleValueCents','staleValueRatio','turn','delivery','refurbRate'];
+ const metrics=['totalUnits','goodsValueCents','warehouse','warehouseValueCents','factoryAvailable','transit','staleUnits','staleRatio','staleValueCents','staleValueRatio','turn','delivery','refurbRate'];
  for(const panel of await panels.all()){
+  const groups=(await panel.getAttribute('data-ip-dimension'))==='category'?initial.category:initial.brand;
   assert.equal(await panel.locator('thead th').count(),14);
   assert.deepEqual(await panel.locator('tbody tr').first().locator('[data-ip-metric]').evaluateAll(es=>es.map(e=>e.dataset.ipMetric)),metrics);
   assert.equal(await panel.locator('thead .metric-help,[data-ip-rule]').count(),0,'两表指标不提供问号提示');
@@ -32,6 +33,14 @@ export async function verifyInventoryGroups(page,initial){
   assert.equal(await panel.locator('[data-ip-stock],[data-ip-spu]').count(),0);
   assert(!(await panel.locator('thead th').allTextContents()).includes('操作'));
   assert((await panel.locator('tbody tr').evaluateAll(es=>es.map(e=>e.cells.length))).every(n=>n===14));
+  for(const key of ['factoryAvailable','transit']){
+   assert.equal(initial.stockTotal[key],initial.balance[key],'表格与概览卡片使用同一库存 '+key);
+   const cells=await panel.locator('[data-ip-metric="'+key+'"]').evaluateAll(nodes=>nodes.map(cell=>({index:Number(cell.parentElement.dataset.ipRow),value:Number(cell.dataset.value),text:cell.textContent.trim()})));
+   for(const cell of cells){
+    assert.equal(cell.value,groups.find(row=>row.index===cell.index)[key]);
+    assert.equal(cell.text,cell.value.toLocaleString('zh-CN')+'件');
+   }
+  }
  }
  await page.evaluate(()=>{const button=document.createElement('button');button.dataset.ipStock='0';button.dataset.ipDimension='category';document.querySelector('#inventory').append(button);button.click();button.remove()});
  assert.equal(await page.locator('.ip-stock-detail').count(),0,'旧入口不再打开抽屉');

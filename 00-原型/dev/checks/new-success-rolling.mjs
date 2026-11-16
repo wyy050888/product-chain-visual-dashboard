@@ -74,7 +74,15 @@ export async function newSuccessRolling(page){
  const entry=page.locator('#newtop [data-nsp-assessment-entry]');assert.equal(await entry.innerText(),'查看年度考核');
  const annualBefore=await page.evaluate(()=>dashboardNewProductsSnapshot());await entry.click();data=await page.evaluate(()=>dashboardNewProductAssessmentSnapshot());
  assert.equal(data.period.mode,'year');assert.equal(data.period.year,annualBefore.period.year);assert.equal(data.summary.total,annualBefore.success.total);assert.equal(data.summary.success,annualBefore.success.success);assert.equal(await page.locator('[data-nsp-assess-quarter]').count(),0);await page.locator('#close').click();
- const annualHelp=page.locator('#newtop [data-nsp-kpi="新品销售成功率"]');assert.equal(await annualHelp.getAttribute('data-nsp-annual'),'true');await annualHelp.scrollIntoViewIfNeeded();await page.mouse.move(0,0);await page.waitForTimeout(120);await annualHelp.hover();await page.waitForFunction(()=>!document.querySelector('#metric-tooltip').hidden);assert.match(await page.locator('#metric-tooltip .nsp-tip-heading h4').innerText(),/年度/);assert.match(await page.locator('#metric-tooltip .nsp-tip-formula').innerText(),/年度成功数/);assert.match(await page.locator('#metric-tooltip').innerText(),/全年GSV门槛×当年上市日至12月31日/);await page.mouse.move(0,0);
+ const annualHelp=page.locator('[data-nsp-assessment-help]');
+ await annualHelp.scrollIntoViewIfNeeded();
+ await annualHelp.hover();
+ const tip=page.locator('#metric-tooltip');
+ await tip.waitFor({state:'visible'});
+ assert.equal(await tip.getByRole('button',{name:'年度考核',exact:true}).getAttribute('aria-pressed'),'true');
+ assert.match(await tip.locator('.nsp-tip-formula').innerText(),/年度成功的简称数/);
+ assert.match(await tip.innerText(),/全年 GSV 基准 × 自上市日至年末的自然天数 ÷ 全年自然天数/);
+ await page.keyboard.press('Escape');
  const annualRows=await page.evaluate(()=>dashboardNewProductsSnapshot());for(const row of annualRows.visible.slice(0,10)){const cells=page.locator('#newtable tbody tr').filter({has:page.locator('[data-nsp-view="'+row.spuId+'"]')}).locator('td');assert.equal(await cells.nth(6).innerText(),row.successQuarters.length?'成功':'不成功');assert.equal(await cells.nth(7).innerText(),!row.successAssessment.included?'未纳入':row.salesSuccess?'成功':'不成功')}
  for(const mode of ['month','day']){await page.locator('#time-new [data-time-mode="'+mode+'"]').click();assert.equal(await entry.innerText(),'查看季度考核');await entry.click();assert.equal((await page.evaluate(()=>dashboardNewProductAssessmentSnapshot())).period.mode,'quarter');await page.locator('#close').click()}
  // 跨年后上一年Q4成功但尚未到30天出池日的产品，主表可见但不参加新年度考核。

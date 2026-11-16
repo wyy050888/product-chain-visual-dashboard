@@ -1,14 +1,10 @@
 // 先生成完整范围快照，再按视图日期筛选。筛选和翻页绝不参与状态归档。
 let gdHistoryShowHandled=false;
-function gdHistoryReport(row){
- const id=row.id+'|'+row.date;
- return {...row,id,sources:(row.sources||[]).map(s=>({...s,id:s.id+'|'+row.date})),historyKey:'report|'+row.owner+'|'+row.type+'|'+row.date};
-}
-function gdHistoryRows(snapshot){return [...snapshot.work,...snapshot.deviations,...snapshot.reports]}
+function gdHistoryRows(snapshot){return [...snapshot.work,...snapshot.deviations]}
 function gdHistoryIdentity(row){return row.historyKey||row.eventKey||row.workKey||row.id}
 function gdHistoryObserve(row,current){
  const next=gdHistoryRows(current).find(r=>gdHistoryIdentity(r)===gdHistoryIdentity(row));
- if(next)return {kind:next.missing?(next.latestSubmittedAt?'resolved':'active'):'active',complete:true,evidence:(next.sources||[]).map(s=>s.id),reason:next.latestSubmittedAt?'原日报已补交':'本轮仍有对应诊断依据'};
+ if(next)return {kind:'active',complete:true,evidence:(next.sources||[]).map(s=>s.id),reason:'本轮仍有对应诊断依据'};
  if(row.kind==='key-work'&&row.keyType==='project'){
   const p=current.sources.find(s=>s.id==='projects')?.rows.find(p=>String(p.id)===String(row.projectId));
   const evidence=p?['project|'+p.id+'|'+DATA_CUTOFF]:[];
@@ -33,10 +29,10 @@ function gdHistoryDataset(){
   const retained=new Map(),revisions=aiHistoryStream('global').revisions.filter(r=>r.date<=shiftDate(selected.end,1)),followIndex=gdFollowIndex(revisions);
   for(const revision of revisions)for(const row of gdHistoryRows(revision.payload))if(row.date>=selected.start&&row.date<=selected.end){const key=gdHistoryIdentity(row);retained.set(key,{...row,historyKey:key,followUp:followIndex.get(key),lifecycle:{...(revision.payload.findingStates?.[key]||row.lifecycle||{}),verificationPending:true,reason:'更新失败，沿用原处理状态、原日期和原始依据'}})}
   const rows=[...retained.values()];
-  return {...base,work:rows.filter(r=>r.kind==='key-work'),deviations:rows.filter(r=>['omission','blocker','solution','focus-shift'].includes(r.kind)),reports:rows.filter(r=>r.kind==='report-analysis'),historyStatus:aiHistoryStatus('global')};
+  return {...base,work:rows.filter(r=>r.kind==='key-work'),deviations:rows.filter(r=>['omission','blocker','solution','focus-shift'].includes(r.kind)),reports:[],historyStatus:aiHistoryStatus('global')};
  }
  finally{gdState.period=period}
- const normalized={work:current.work,deviations:current.deviations.map(row=>({...row,date:row.date||(row.sources||[]).reduce((date,s)=>date>s.date?date:s.date,'')})),reports:current.reports.map(gdHistoryReport)};
+ const normalized={work:current.work,deviations:current.deviations.map(row=>({...row,date:row.date||(row.sources||[]).reduce((date,s)=>date>s.date?date:s.date,'')})),reports:[]};
  const prior=aiHistoryStream('global').revisions.at(-1)?.payload.findingStates||{},known=new Map();
  for(const revision of aiHistoryStream('global').revisions)for(const row of [...revision.payload.work,...revision.payload.deviations])known.set(gdHistoryIdentity(row),row);
  for(const row of [...normalized.work,...normalized.deviations])known.set(gdHistoryIdentity(row),row);
@@ -54,21 +50,23 @@ function gdHistoryDataset(){
  for(const row of merged.values())if(row.date<=selected.end){const old=asOf.get(row.historyKey);if(!old||row.date>=old.date)asOf.set(row.historyKey,row)}
  const followIndex=gdFollowIndex(all.filter(r=>r.date<=historyCutoff));
  const dated=[...asOf.values()].filter(row=>row.date>=selected.start).map(row=>{
-  const historicalReport=row.kind==='report-analysis';
-  const transition=historicalReport?{status:row.missing?(row.latestSubmittedAt?'已补交':'未提交'):'已诊断',reason:'原报告日期与原文快照保留'}:normalized.findingStates[row.historyKey];
+  const transition=normalized.findingStates[row.historyKey];
   const project=selected.end>=DATA_CUTOFF&&row.keyType==='project'?current.sources.find(s=>s.id==='projects')?.rows.find(p=>String(p.id)===String(row.projectId)):null;
   const projectLight=project?ppProjectDisplayLight(project):ppNormalizeProjectLight(row.projectLight||row.light);
   return {...row,...(row.keyType==='project'?{projectLight}:{}),lifecycle:transition,followUp:followIndex.get(row.historyKey),isCurrent:activeKeys.has(gdHistoryIdentity(row))};
  });
  const visible=[...dated,...gdFollowDemoRows(selected)];
  const tasks=Object.values(upTodos).filter(t=>t.gdLedger&&!t.deletedAt&&gdTaskDatesMatch(t)).map(gdLedgerRow);
- return {...current,work:visible.filter(r=>r.kind==='key-work'),deviations:visible.filter(r=>['omission','blocker','solution','focus-shift'].includes(r.kind)),reports:visible.filter(r=>r.kind==='report-analysis'),tasks,historyStatus:aiHistoryStatus('global'),historyRows:dated};
+ return {...current,work:visible.filter(r=>r.kind==='key-work'),deviations:visible.filter(r=>['omission','blocker','solution','focus-shift'].includes(r.kind)),tasks,historyStatus:aiHistoryStatus('global'),historyRows:dated};
 }
 function gdHistoryBadge(row){return ''}
 function gdHistoryEvidence(row){
  if(!row.historyKey&&row.kind!=='report-analysis')return '';
  if(row.followUp)return gdWorkFollowEvidence(row);
- const versions=row.historyKey?aiHistoryStream('global').revisions.flatMap(r=>gdHistoryRows(r.payload).filter(x=>gdHistoryIdentity(x)===row.historyKey).map(x=>({revision:r,row:x,state:r.payload.findingStates?.[row.historyKey]}))):[];
+ const versions=row.historyKey?aiHistoryStream('global').revisions.flatMap(r=>{
+  const rows=row.kind==='report-analysis'?(r.payload.reports||[]):gdHistoryRows(r.payload);
+  return rows.filter(x=>gdHistoryIdentity(x)===row.historyKey).map(x=>({revision:r,row:x,state:r.payload.findingStates?.[row.historyKey]}));
+ }):[];
  const changes=[];let previous='';
  for(const version of versions){const x=version.row,fingerprint=JSON.stringify([version.state?.status,x.problem,x.findings,x.suggestion,x.participants,(x.sources||[]).map(s=>[s.sourceName,s.date,s.content])]);if(fingerprint!==previous)changes.push(version);previous=fingerprint}
  // 无历史的报告也保留本次来源；旧记录始终读取当次快照，不借用最新原文。

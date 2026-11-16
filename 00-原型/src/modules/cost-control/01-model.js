@@ -66,7 +66,11 @@ function ccSortedDepartmentRows(rows,sort){
 function ccMoney(cents){return Number.isFinite(cents)?fmt(cents===0?0:cents/1000000,2):'--'}
 function ccRate(rate){return Number.isFinite(rate)?fmt(rate===0?0:rate,1)+'%':'--'}
 // 降本金额统一使用w；未导入显示--，显式零值正常显示，卡片和内外表格共用。
-function ccAmount(value){return ccMoney(value)+(Number.isFinite(value)?'<span class="cc-money-unit">w</span>':'')}
+function ccAmount(cents){
+ if(!Number.isFinite(cents))return '--';
+ const [amount,unit]=yuanAmountParts(cents,true);
+ return amount+'<span class="cc-money-unit">'+unit+'</span>';
+}
 function ccGap(value){return `<span class="${value<0?'red':value>0?'green':'muted'}">${value>0?'+':''}${ccAmount(value)}</span>`}
 function ccLegacyCosts(){return ccRows(periodFor('cost')).map(row=>{const current=row.values[periodFor('cost').mode],annual=row.values.year;const wan=value=>Number.isFinite(value)?value/1000000:null;return {name:row.name,t:wan(current.target),a:wan(current.actual),yt:wan(annual.target),ya:wan(annual.actual)}})}
 window.costControlAudit=period=>{period||=periodFor('cost');return {departmentTargets:typeof cecStore==='undefined'?{}:cecStore.departmentTargets,period,departments:ccDepartments,categories:ccCategories,metrics:ccMetrics,items:ccItems,ledger:ccLedger,rows:ccRows(period),categoryRows:ccCategoryRows(period),totals:Object.fromEntries(ccGroups(period).map(({mode})=>[mode,ccTotals(ccMetrics,period,mode)]))}};

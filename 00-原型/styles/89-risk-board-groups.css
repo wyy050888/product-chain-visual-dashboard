@@ -67,9 +67,9 @@ main.page>#risk>.sectionhead{margin-bottom:8px}
 
 /* 快速定位与总标题共用吸顶栏，窄屏换到下一行。 */
 #risk>.sectionhead .titlegroup:has(.rp-group-navigation){flex-wrap:wrap;min-width:0;gap:10px 24px}
-.rp-group-navigation{display:flex;align-items:center;gap:20px;min-width:0}
+.rp-group-navigation{display:flex;flex-wrap:wrap;align-items:center;gap:2px 20px;min-width:0}
 .rp-group-navigation button{padding:7px 0;border:0;border-bottom:2px solid transparent;background:transparent;color:#75849d;font:inherit;font-size:13px;white-space:nowrap;cursor:pointer}
 .rp-group-navigation button:is(:hover,.is-current){color:#1677ff}
 .rp-group-navigation button.is-current{border-bottom-color:#1677ff}
 .rp-group-navigation button:focus-visible{outline:2px solid #1677ff;outline-offset:3px;border-radius:2px}
-@media(max-width:600px){.rp-group-navigation{flex-basis:100%;gap:18px}.rp-group-navigation button{font-size:12px}}
+@media(max-width:600px){.rp-group-navigation{flex-basis:100%;column-gap:14px}.rp-group-navigation button{font-size:12px}}

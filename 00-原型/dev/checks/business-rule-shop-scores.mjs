@@ -35,8 +35,9 @@ export async function shopScoreRules(page){
  verifyScoreConditions();
  await page.getByRole('button',{name:'配置全局规则',exact:true}).click();await page.locator('[data-brc-tab="shops"]').click();await page.locator('[data-brc-section-tab="scores"]').click();
  const expected=['店铺分','商品分','物流分','服务分'],selects=page.locator('[data-brc-metric]');
- assert.equal(await selects.count(),16);
- assert.equal(await page.locator('[data-brc-metric^="shops.视频号."]').count(),0,'视频号不提供评分配置');
+ const videoFields=page.locator('[data-brc-metric^="shops.视频号."]');
+ assert.equal(await videoFields.count(),4,'视频号独立配置评分');
+ assert.equal(await selects.count(),20);
  for(const select of await selects.all())assert.deepEqual(await select.locator('option').allTextContents(),expected);
  for(const metric of['productScore','logisticsScore','serviceScore']){
   const fields=page.locator('[data-brc-metric^="shops.抖音."]');
@@ -50,11 +51,16 @@ export async function shopScoreRules(page){
   const rows=await page.locator('#riskrail .rp-shop-entry').evaluateAll(nodes=>nodes.map(node=>({id:Number(node.dataset.rpRow.split(':')[1]),tone:node.querySelector('[data-rp-field="score"] strong')?.className})));
   const shops=await page.evaluate(()=>shopRiskAudit());
   assert(rows.length>0);
-  for(const row of rows){const score=shops.find(shop=>shop.id===row.id)[metric],tone=!Number.isFinite(score)?'gray':score<=4.6?'red':score<4.8?'yellow':'green';assert.equal(row.tone,'rp-quality-'+tone,'首页判灯读取 '+metric)}
+  for(const row of rows){
+   const shop=shops.find(shop=>shop.id===row.id);
+   if(shop.channel!=='抖音')continue;
+   const score=shop[metric],tone=!Number.isFinite(score)?'gray':score<=4.6?'red':score<4.8?'yellow':'green';
+   assert.equal(row.tone,'rp-quality-'+tone,'首页判灯读取 '+metric);
+  }
   await page.evaluate(()=>location.hash='#system-business-rules');await page.locator('[data-brc-tab="shops"]').click();await page.locator('[data-brc-section-tab="scores"]').click();
  }
  // 新增条件也只提供四项评分；拼多多条件目录不受影响。
  await page.locator('[data-brc-add="shops.抖音.red"]').click();assert.deepEqual(await page.locator('[data-brc-metric="shops.抖音.red"]').last().locator('option').allTextContents(),expected);await page.locator('[data-brc-remove="shops.抖音.red"]').last().click();
  await page.setViewportSize({width:390,height:1000});assert(await page.locator('#business-rule-page').evaluate(node=>node.scrollWidth<=node.clientWidth+1));
- console.log('通过：四平台评分下拉四选项、新增条件、三项切换保存刷新、首页真实评分判灯、缺失与边界、四维且或条件、重叠/空档及跨评分不联动。');
+ console.log('通过：五平台评分下拉四选项、新增条件、三项切换保存刷新、首页真实评分判灯、缺失与边界、四维且或条件、重叠/空档及跨评分不联动。');
 }

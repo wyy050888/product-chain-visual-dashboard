@@ -9,7 +9,7 @@ export async function supplierAnnualImport(page){
  const open=async tier=>{await page.locator('[data-ssi-tier="'+tier+'"]').click();await page.locator('#ssi-import').click()};
  const choose=async(tier,rows)=>{const before=await page.evaluate(k=>localStorage.getItem(k),storage),file=files[tier],data=rows.map(r=>fields[tier].map(k=>['admitted','cooperation'].includes(k)?String(r[k]||'').replaceAll('-','/'):r[k]||''));await page.locator('#ssi-file').setInputFiles({name:'年度覆盖.xlsx',mimeType:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',buffer:fillImportWorkbookRows(file.buffer,file.header.row,data)});await page.waitForFunction(()=>!document.querySelector('#ssi-confirm').disabled);assert.equal(await page.evaluate(k=>localStorage.getItem(k),storage),before,'选文件仅预览，确认前不写入')};
  const commit=async()=>{await page.locator('#ssi-confirm').click();await page.locator('#ssi-import-dialog').waitFor({state:'hidden'})};
- const failed=async()=>{await page.locator('#ssi-confirm').click();await page.locator('.ui-import-feedback button').waitFor();return page.evaluate(k=>JSON.parse(localStorage.getItem(k))[0],history)};
+ const failed=async()=>{await page.locator('#ssi-confirm').click();await page.locator('.ui-import-feedback button:has-text("查看失败明细")').waitFor();return page.evaluate(k=>JSON.parse(localStorage.getItem(k))[0],history)};
  const close=()=>page.locator('[data-ssi-close]').first().click();
  try{
   await page.evaluate(keys=>keys.forEach(k=>localStorage.removeItem(k)),keys);await reload();

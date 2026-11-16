@@ -28,10 +28,10 @@ function klcRows(end=null){return klcStore.records.flatMap(r=>r.versions.filter(
 function klcLookup(shopId,linkId){return klcCatalog.find(r=>r.shopId===shopId&&r.linkId===linkId)}
 function klcValidate(row){
  const shop=klcShops().find(s=>String(s.shopId)===row.shopId);
- if(!shop)throw Error('请选择所属店铺');
- if(!/^\d{1,64}$/.test(row.linkId))throw Error('链接ID须为1—64位数字');
- if(row.name.length>100)throw Error('商品名称不能超过100字');
- if(!klcValidMonth(row.monitorMonth))throw Error('请选择月份，格式为YYYY/MM');
+ if(!shop)throw Object.assign(Error('请选择所属店铺'),{field:'店铺ID'});
+ if(!/^\d{1,64}$/.test(row.linkId))throw Object.assign(Error('链接ID须为1—64位数字'),{field:'链接ID'});
+ if(row.name.length>100)throw Object.assign(Error('商品名称不能超过100字'),{field:'商品链接名称'});
+ if(!klcValidMonth(row.monitorMonth))throw Object.assign(Error('请选择月份，格式为YYYY/MM'),{field:'月份'});
 }
 function klcCommit(changes,revision=klcStore.revision){
  const saved=localStorage.getItem(KLC_STORAGE);if(saved){let v;try{v=JSON.parse(saved)}catch(_){}if(v?.revision!==klcStore.revision)throw Error('配置已更新，请刷新后重试')}

@@ -3,7 +3,7 @@ export async function verifyInventoryMetricPeriod(page){
  const category=page.locator('#inventory .ip-group-panel[data-ip-dimension="category"]'),brand=page.locator('#inventory .ip-group-panel[data-ip-dimension="brand"]');
  const time=page.locator('#inventory>.sectionhead [data-ip-period-host]');
  const get=()=>page.evaluate(()=>window.inventoryControlAudit());
- const initial=await get(),stable=['warehouse','warehouseValueCents','factory','factoryValueCents','totalUnits','goodsValueCents','staleUnits','staleValueCents','staleRatio','staleValueRatio'];
+ const initial=await get(),stable=['warehouse','warehouseValueCents','factory','factoryValueCents','factoryAvailable','transit','totalUnits','goodsValueCents','staleUnits','staleValueCents','staleRatio','staleValueRatio'];
  const stockView=data=>data.stockRecords.map(row=>Object.fromEntries(['spuId',...stable].map(key=>[key,row[key]])));
  const rates=data=>data.stockRecords.map(row=>[row.turn,row.delivery,row.refurbRate]);
  assert.equal(await time.count(),1,'右上角仅一份时间控件');
@@ -15,7 +15,7 @@ export async function verifyInventoryMetricPeriod(page){
  assert.equal(await time.locator('.follow-time').count(),0);
  for(const panel of [category,brand]){
   const labels=await panel.locator('thead th').allTextContents();
-  assert.equal(labels[2],'货值（总库存）');assert.equal(labels[4],'货值（我司可售）');assert.equal(labels[6],'货值（工厂总库存）');assert.equal(labels[9],'呆滞金额');assert(!labels.includes('总可售天数')&&!labels.includes('我司可售天数'));
+  assert.deepEqual(labels.slice(1,7),['总库存','货值（总库存）','我司可售库存','货值（我司可售）','工厂可售库存','在途库存']);assert.equal(labels[9],'呆滞金额');assert(!labels.includes('总可售天数')&&!labels.includes('我司可售天数'));
   assert.equal(labels.indexOf('库存周转率'),labels.indexOf('交付及时率')-1);
   assert.equal(await panel.locator('[data-ip-rule="warehouseValue"],[data-ip-rule="factoryValue"]').count(),0);
   assert.equal(await panel.locator('.ip-signal small').count(),0);

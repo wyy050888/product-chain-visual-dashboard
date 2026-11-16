@@ -14,7 +14,7 @@ function kpmTableMetrics(p){
   kpmMetricCell('returns',{value:upPercent(c.returnRate),...rpQualityReturnRule(c.returnRate,p.returnTarget)}),
   kpmMetricCell('received',{value:upPercent(c.receivedRate),...rpQualityReturnRule(c.receivedRate,p.receivedTarget,'received')}),
   kpmMetricCell('unreceived',{value:upPercent(upUnreceivedRate(c)),...rpRiskRateComparison(upUnreceivedRate(c),upUnreceivedRate(b))}),
-  kpmMetricCell('warehouse',{value:stockQuantity(p.stock?.warehouse),target:'货值 '+(Number.isFinite(p.stock?.warehouseValueCents)?upMoney(p.stock.warehouseValueCents):'—')}),
+  kpmMetricCell('warehouse',{value:stockQuantity(p.stock?.warehouse),target:'货值 '+formatStockValue(p.stock?.warehouseValueCents)}),
   kpmMetricCell('total',{value:stockQuantity(p.stock?.totalUnits),target:'总可售天数 '+(Number.isFinite(p.stock?.totalCoverage15)?fmt(p.stock.totalCoverage15,1)+'天':'—')})
  ];
 }

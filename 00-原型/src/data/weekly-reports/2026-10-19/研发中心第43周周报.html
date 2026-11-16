@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>研发中心第43周周报</title><style>
+:root{--ink:#17293c;--muted:#4c6175;--edge:#dce5ed;--light:#edf3f8;--link:#15588d;font-family:"Microsoft YaHei","PingFang SC",sans-serif;color:var(--ink);color-scheme:light}
+*{box-sizing:border-box}body{margin:0;background:#f6f8fb;font-size:15px;line-height:1.66}main{max-width:1160px;padding:42px 42px 64px;margin:auto}
+header{padding-bottom:18px}h1,h2,h3,h4,h5{margin:0;line-height:1.35}h1{font-size:34px;letter-spacing:.01em}header p{max-width:88ch}p{margin:10px 0}a{color:var(--link);text-underline-offset:3px}
+nav{display:flex;flex-wrap:wrap;gap:8px 16px;margin:18px 0}nav a{background:white;border:1px solid var(--edge);border-radius:6px;padding:5px 13px;font-weight:600;text-decoration:none}
+.department{background:white;border:1px solid var(--edge);border-radius:9px;padding:28px;margin-bottom:24px;scroll-margin-top:16px}h2{font-size:27px}h3{font-size:21px;margin:31px 0 11px}h4{font-size:16px;margin:15px 0 8px}.scope{color:var(--muted)}
+.table-wrap{overflow-x:auto;margin:8px 0 12px}table{width:100%;border-collapse:collapse;font-size:14px;line-height:1.56;min-width:590px}table.risks{min-width:820px}table.daily{min-width:490px}
+th,td{border:1px solid var(--edge);padding:8px 10px;text-align:left;vertical-align:top;overflow-wrap:anywhere}th{background:var(--light);font-weight:650}td:first-child{font-weight:600}.work td:first-child{width:16%}.work td:nth-child(2){width:42%}.plan td:nth-child(1){width:31%}.plan td:nth-child(2){width:20%}.plan td:nth-child(3){width:16%}
+.risks td:nth-child(1){width:6%}.risks td:nth-child(2){width:15%}.risks td:nth-child(3){width:24%}.risks td:nth-child(4){width:17%}.risks td:nth-child(5){width:13%}.risk{display:inline-block;min-width:24px;text-align:center;border-radius:4px}.high{background:#ffebe7;color:#9e2e21}.medium{background:#fff2d8;color:#764200}.low{background:#e7f3ed;color:#206445}
+.daily td:first-child{width:38%}.daily td:not(:first-child){color:var(--muted)}.evidence{font-size:12px;line-height:1.5;color:var(--muted);display:block;margin-top:6px}.role{margin-top:21px}.people-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 14px}
+.person{border:1px solid var(--edge);border-radius:6px;padding:12px 14px}.person h5{font-size:16px}.person p{margin:6px 0}.person .evidence{margin-top:5px}.person-label{font-weight:650}.deviations ul{padding-left:20px;margin:4px 0 7px}.deviations li+li{margin-top:5px}
+@media(max-width:720px){main{padding:24px 14px 38px}h1{font-size:26px}.department{padding:17px}.people-grid{grid-template-columns:1fr}.table-wrap{border-right:1px solid var(--edge)}}
+@media print{body,.department{background:white}.department{break-before:page;border:0;padding:0}.department:first-of-type{break-before:auto}main{max-width:none;padding:0}nav{display:none}.table-wrap{overflow:visible}table,table.risks,table.daily{min-width:0}thead{display:table-header-group}tr,.person{break-inside:avoid}h2,h3,h4{break-after:avoid}}
+@page{size:A4;margin:14mm 13mm 15mm}
+@page launch{size:A4 landscape;margin:13mm 13mm 15mm}
+body{font-size:14px;line-height:1.55}
+h1{font-size:28px}
+img{max-width:100%;vertical-align:middle}
+.weekly-table{table-layout:fixed}
+.weekly-table td{width:auto}
+.weekly-table td:first-child{font-weight:600}
+.weekly-section{margin-bottom:21px}
+.people-list{display:block}
+.person-entry{border:0;border-radius:0;padding:0;margin:0 0 10px;break-inside:avoid}
+.person-entry h5{font-size:14px;color:#1a4268;break-after:avoid;margin-bottom:2px}
+.person-entry p{margin:3px 0}
+.launch-photo{text-align:center}
+.launch-photo img{width:50px;height:35px;object-fit:contain}
+.launch-photo small{display:block;font-size:9px;color:var(--muted)}
+.launch-table td:nth-child(4),.launch-table td:nth-child(n+7){text-align:center}
+.register-detail td:first-child,.launch-table td:first-child{font-weight:400}
+@media print {
+ body{font-size:12px;line-height:1.53}
+ main{padding:0;max-width:none}
+ header{padding:0 0 9px;border-bottom:1px solid var(--edge);margin-bottom:14px;break-inside:avoid}
+ h1{font-size:25px}
+ header p{margin:6px 0 0}
+ h2,.department h2{font-size:19px;margin:0 0 9px}
+ h3{font-size:16px;margin:16px 0 7px}
+ h4{font-size:13px;margin:10px 0 5px}
+ h5{break-after:avoid}
+ section.department{break-before:auto;margin:0 0 15px;padding:0;border:0}
+ .launch-section{page:launch;break-before:page}
+ p{orphans:2;widows:2}
+ table{font-size:11px;line-height:1.5}
+ th,td{padding:5px 6px}
+ th{overflow-wrap:normal;word-break:keep-all}
+ .table-wrap,.weekly-table{min-width:0;overflow:visible}
+ table.risks td:first-child{width:7%}
+ .person-entry h5{font-size:12px}
+ .person-entry p{margin:2px 0}
+ .person-entry{margin-bottom:9px}
+ .launch-table th,.launch-table td{padding:4px 6px}
+ .launch-table td{vertical-align:middle}
+ .launch-table td:nth-child(n+7){white-space:nowrap}
+}
+@media print {
+ .people-list .person-entry{margin-bottom:6px}
+ .people-list .person-entry p{margin:1px 0}
+ .people-list .deviations ul{margin:2px 0 4px}
+ .people-list .deviations li+li{margin-top:3px}
+ .role{margin-top:14px;break-after:avoid}
+}
+
+@media print {
+ .department h2{font-size:21px;font-weight:700;color:#123251;margin:0 0 11px}
+ .department h3,.department h4:not(.role){font-weight:650;color:#254d70}
+ .department h4:not(.role){font-size:14px;margin:12px 0 6px}
+ .department h4.role{font-size:14px;font-weight:700;color:#123b60;background:#eaf2f8;border-left:3px solid #527da1;padding:4px 8px;margin:13px 0 5px;break-after:avoid}
+ .people-list .person-entry{margin:0 0 7px;padding:0 0 0 11px}
+ .people-list .person-entry h5{font-size:13px;font-weight:700;line-height:1.35;color:#192c40;margin:0 0 2px}
+ .people-list .person-entry p>strong,.people-list .person-entry .person-label{font-size:11px;font-weight:500;color:#455d73}
+ .people-list .person-entry .deviations li>strong{color:#754314;font-weight:600}
+ .department .launch-table{font-size:11px}
+ .launch-table td:nth-child(n+7){white-space:normal}
+}
+</style></head><body>
+<main><header><h1>研发中心第43周周报</h1><p><strong>2026年10月19–25日</strong>　下周安排为10月26日–11月1日</p></header>
+<section class="department"><div class="weekly-section"><h2>1．需决策事项</h2><div class="table-wrap" tabindex="0" role="region" aria-label="待决策事项明细"><table class="decisions"><thead><tr><th scope="col">事项</th><th scope="col">待决策内容</th><th scope="col">提报／跟进人</th><th scope="col">时间</th></tr></thead><tbody>
+<tr><td>丰夏、吉佳关联项目供方</td><td>S300和布艺清洗机清洁液款分别决定换厂，或保留原厂限期整改并调整交付。</td><td>蒋腾达、张金辉，霍雪静、鲁松协同</td><td>10月26日</td></tr>
+<tr><td>A955／A956批次放行</td><td>依据整改板版本、涉及批次和耐压复测结论，决定对应批次能否放行。</td><td>张茗淳跟进，研发整改主责待确认</td><td>10月26日先确认复测安排，放行日期待核</td></tr>
+<tr><td>K3提前量产放行</td><td>10月27日汇总试产销项。10月30日确认验证通过后，由内部及苏泊尔负责人决定是否提前放行大货。</td><td>蒋腾达、张金辉</td><td>10月31日</td></tr>
+</tbody></table></div>
+
+</div><div class="weekly-section"><h2>2．本周（10/19-10/25）工作总结</h2><p>K3部分技术方案已有样机验证，但仍需完成刮条试模与ABR循环验证。康佳无刷车载完成T1试产后，认证及上线日仍有风险。环境链已有投模、样机和首批产出，取暖器的安规问题需独立验收。</p><div class="table-wrap" tabindex="0" role="region" aria-label="重点事项明细"><table class="work"><thead><tr><th scope="col">重点事项</th><th scope="col">本周结果</th><th scope="col">偏差及原因</th></tr></thead><tbody><tr><td>苏泊尔K3问题收敛</td><td>24日日志记录未关闭30项、已解决待确认16项、已关闭243项。25日水路改善样在记录的一轮测试中未堵。</td><td>刮条试模延期、ABR循环结果待核。运营罗盘为开模试产期留存记录，经营月报列为Q4新品。</td></tr><tr><td>康佳无刷车载T1</td><td>10月21日完成T1试产，已输出问题清单。</td><td>原上线日10月19日，周报目标改为29日，依赖预计28日完成的认证。10月无刷2628 GSV 189.38万元，用于评估相关业务影响。</td></tr><tr><td>环境链改善</td><td>俯仰取暖器包装降本10月21日投模，同日材料改善后跌落测试通过。A243、Q578、Q604样机已寄郑州。</td><td>A955/A956耐压与单位批次放行独立核对。研发周报记录首批上线阶段，具体合格批次需查品质记录。</td></tr><tr><td>厨电与健康</td><td>封口机进入模具制作，GS70完成结构调整交ID，护眼仪完成三方评审。</td><td>封口机T0试模安排在11月24日，GS70成本边界待产品确认，护眼仪评审问题计划30日闭环。</td></tr><tr><td>供应商项目验证</td><td>TT5S的25项LUP问题全部落实到责任人及节点，联鑫多个项目完成样机、试产跟进。</td><td>要求逐条保留实测、复测以及下一阶段准入依据，月报已指出成本与上市时间应随变更同步评估。</td></tr></tbody></table></div>
+
+</div><div class="weekly-section"><h2>3．下周（10/26-11/01）工作安排</h2><h4>部门事项</h4><div class="table-wrap" tabindex="0" role="region" aria-label="事项明细"><table class="plan"><thead><tr><th scope="col">事项</th><th scope="col">责任人</th><th scope="col">截止时间</th><th scope="col">交付要求</th></tr></thead><tbody><tr><td>K3试产验证</td><td>张金辉、马良、曹智惟，蒋腾达跟进</td><td>10月27日</td><td>形成ABR循环、刮条试模和问题销项清单。</td></tr><tr><td>完成环境链样机</td><td>唐小飞、周鹏翔</td><td>10月30日</td><td>喷雾风扇、商用扇、无叶风扇按各项目交付手板和测试数据。</td></tr><tr><td>电热水瓶与护眼仪评审收尾</td><td>许教聪、郭林洋</td><td>10月29日及30日</td><td>分别交付T1程序测试结论和三方评审销项。</td></tr></tbody></table></div>
+<h4>跨部门协同</h4><div class="table-wrap" tabindex="0" role="region" aria-label="事项明细"><table class="plan"><thead><tr><th scope="col">事项</th><th scope="col">责任人</th><th scope="col">截止时间</th><th scope="col">交付要求</th></tr></thead><tbody><tr><td>与项目、苏泊尔确认K3量产放行</td><td>张金辉、蒋腾达</td><td>10月31日</td><td>提交试产复测结论和正式放行意见。</td></tr><tr><td>与产品、采购确认丰夏和吉佳项目路径</td><td>张金辉、蒋腾达</td><td>10月26日</td><td>确定换厂或限期整改，更新技术和认证计划。</td></tr><tr><td>与品质、工厂复测A955/A956</td><td>熊鸿强、王雄、李开放，张茗淳协同</td><td>10月30日前推进整改方案</td><td>核对板版本、耐压结果与对应放行批次。</td></tr></tbody></table></div>
+</div><div class="weekly-section"><h2>4．风险总览</h2><p>可核重点风险 8 项。高 4 项，中 4 项，低 0 项。<strong>优先处理K3试产问题未收敛、康佳无刷车载上线推迟。</strong> 此处等级为周报建议，风险全量和本周闭环数待同期台账确认。</p>
+<h4>Top10 风险清单</h4><div class="table-wrap" tabindex="0" role="region" aria-label="等级明细"><table class="risks"><thead><tr><th scope="col">等级</th><th scope="col">风险事项</th><th scope="col">问题</th><th scope="col">影响</th><th scope="col">责任人</th><th scope="col">建议</th></tr></thead><tbody><tr><td><span class="risk high">高</span></td><td>K3试产问题未收敛</td><td>ABR泥沙堵塞改样单轮有改善，刮条试模延期。</td><td>影响试产验收和大货决策。</td><td>张金辉、马良、曹智惟</td><td>27日前汇总复测和剩余待验证问题，提交放行评审。</td></tr><tr><td><span class="risk high">高</span></td><td>康佳无刷车载上线推迟</td><td>已完成T1，仍受认证及工厂整改进度制约。</td><td>可能再次延后上线。</td><td>张金辉、蒋腾达</td><td>核对试产销项和正式认证回执，再确认上线日期。</td></tr><tr><td><span class="risk high">高</span></td><td>取暖器耐压异常</td><td>A955/A956耐压击穿，初步定位电源板爬电距离不足。</td><td>影响安规与批次放行。</td><td>熊鸿强、王雄、李开放</td><td>整改板版本冻结后与品质验证耐压，形成签署结论。</td></tr><tr><td><span class="risk high">高</span></td><td>S300和布艺清洗机供方约束</td><td>相关工厂内部审厂未通过。</td><td>研发验证和认证计划可能重排。</td><td>张金辉、蒋腾达</td><td>依据换厂或整改决策，重排手板、认证和试产。</td></tr><tr><td><span class="risk medium">中</span></td><td>大蒸汽洗地机手板确认</td><td>产品端尚需汇报确认外观手板。</td><td>结构设计启动受阻。</td><td>何志雄、潘东跃</td><td>先确认手板意见及生效版本，再启动结构设计。</td></tr><tr><td><span class="risk medium">中</span></td><td>TT5S试产问题待验证</td><td>25项已定责和节点，仍处于T1问题跟进。</td><td>影响试产与后续量产进度。</td><td>曹智惟、马良、孙瑞</td><td>按清单逐条验收整改，评估联鑫交付承诺。</td></tr><tr><td><span class="risk medium">中</span></td><td>V8 E7客诉复现</td><td>测试验证方案已提出，故障根因仍未确认。</td><td>同批电池包售后处置需等待验证。</td><td>古昌林、魏涛</td><td>联动板厂和芯片商输出原因及验证结果。</td></tr><tr><td><span class="risk medium">中</span></td><td>GS70外观优化边界</td><td>结构及排期已有更新，ID方向受成本约束待确认。</td><td>可能增加方案变更和评审往返。</td><td>姜宝坤、侯佳莉</td><td>先锁成本及配置，再交付效果图提案。</td></tr></tbody></table></div>
+
+</div><div class="weekly-section"><h2>5．人员日报</h2><p class="scope">研发中心归档可见28人、152份日志，其中3名PMO人员的周度事项见项目部。以下覆盖其余25名研发人员。提交表按研发归档的28人统计。</p>
+<h4>日报提交总结</h4><p>以下按提交日期和人员去重，记录原工作日期待核。 每日应交名册及能用于判定按时或补交的工作日期资料待核。</p><div class="table-wrap" tabindex="0" role="region" aria-label="日期明细"><table class="daily"><thead><tr><th scope="col">日期</th><th scope="col">应交</th><th scope="col">按时交</th><th scope="col">补交</th><th scope="col">未交</th></tr></thead><tbody><tr><td>10/19 周一 · 可见 27 人</td><td>待核</td><td>待核</td><td>待核</td><td>待核</td></tr><tr><td>10/20 周二 · 可见 25 人</td><td>待核</td><td>待核</td><td>待核</td><td>待核</td></tr><tr><td>10/21 周三 · 可见 27 人</td><td>待核</td><td>待核</td><td>待核</td><td>待核</td></tr><tr><td>10/22 周四 · 可见 27 人</td><td>待核</td><td>待核</td><td>待核</td><td>待核</td></tr><tr><td>10/23 周五 · 可见 25 人</td><td>待核</td><td>待核</td><td>待核</td><td>待核</td></tr><tr><td>10/24 周六 · 可见 16 人</td><td>待核</td><td>待核</td><td>待核</td><td>待核</td></tr><tr><td>10/25 周日 · 可见 3 人</td><td>待核</td><td>待核</td><td>待核</td><td>待核</td></tr></tbody></table></div>
+
+<h4>人员工作总结与计划</h4><h4 class="role">研发管理</h4><div class="people-list"><article class="person-entry"><h5>张金辉</h5><p><strong>重点工作总结</strong>　组织K3试产问题收敛，协调取暖器安规整改、厨电报价和GS70重排。</p><p><strong>下周工作计划</strong>　10月26日组织丰夏、吉佳项目供方决策，27日确认联鑫交付承诺，31日推进K3放行决策。</p></article></div><h4 class="role">结构工程师</h4><div class="people-list"><article class="person-entry"><h5>何志雄</h5><p><strong>重点工作总结</strong>　完成飞利浦布艺清洗机两款ID评审、暴力吹T1问题清单，启动K9堆叠设计。</p><div class="deviations"><p class="person-label">本周工作偏差</p><ul><li><strong>【协同卡点】</strong>大蒸汽洗地机外观手板已寄到郑州，原预计10月23日确认。24日仍待产品经理汇报确认，结构设计尚未启动。</li></ul></div><p><strong>下周工作计划</strong>　跟踪联鑫二合一测试及暴力吹整改，推进K9堆叠。</p></article><article class="person-entry"><h5>唐小飞</h5><p><strong>重点工作总结</strong>　完成广交会总结、两款自研风扇结构设计任务分工。</p><p><strong>下周工作计划</strong>　10月30日推进12寸喷雾风扇、商用扇和无叶风扇交样，补齐对应样机测试数据。</p></article><article class="person-entry"><h5>孙瑞</h5><p><strong>重点工作总结</strong>　输出2630结构质改答复方案，完成康佳501001竞品初步拆解，跟进TT5S试产。</p><p><strong>下周工作计划</strong>　10月27日输出501001竞品分析报告，收到退货样机后与品质验证2630问题。</p></article><article class="person-entry"><h5>曹智惟</h5><p><strong>重点工作总结</strong>　将TT5S的25项LUP问题落实到人和节点，输出并评审康佳车载吸尘器T1问题清单。</p><p><strong>下周工作计划</strong>　建议与DQE按10月27日节点回查TT5S和K3的整改证据，确认K9供应商重新承诺的堆叠日期。</p></article><article class="person-entry"><h5>朱万宸</h5><p><strong>重点工作总结</strong>　启动12寸鹅蛋脸平面扇结构设计，日志记录推进至15%。</p><p><strong>下周工作计划</strong>　10月31日输出主体3D模型，校核外观与内部装配。</p></article><article class="person-entry"><h5>熊亚军</h5><p><strong>重点工作总结</strong>　确认挂腰风扇和两款台扇的风速、喷雾改进方向，完成冷雾闪拆风扇前出风网设计。</p><p><strong>下周工作计划</strong>　建议安排前出风网强度与风量验证，回收三款风扇改善样机的数据。</p></article><article class="person-entry"><h5>王友青</h5><p><strong>重点工作总结</strong>　推进12寸喷雾落地扇手板装配整改，修改14寸闪拆落地扇结构。</p><div class="deviations"><p class="person-label">本周工作偏差</p><ul><li><strong>【协同卡点】</strong>供应商更改轴心后样机无法装配，已安排水箱位置减胶后再验证。</li></ul></div><p><strong>下周工作计划</strong>　10月31日完成14寸闪拆落地扇结构设计和开模前验证。</p></article><article class="person-entry"><h5>王辉杰</h5><p><strong>重点工作总结</strong>　输出履带洗地机手板适配的地刷下盖和电机、水泵装配3D图。</p><p><strong>下周工作计划</strong>　10月26日交付蒸汽机震动刷方案或3D图，以及适配履带手板的地刷组件图。</p></article><article class="person-entry"><h5>许教聪</h5><p><strong>重点工作总结</strong>　完成升降煮饭锅专利排查、GS70结构图调整和九阳空气炸锅测试。</p><p><strong>下周工作计划</strong>　10月26日评估优厨面条机三种模具方案、对比GS60板厂成本，29日完成电热水瓶T1程序确认及测试。</p></article><article class="person-entry"><h5>郭林洋</h5><p><strong>重点工作总结</strong>　跟进海尔律动按摩仪贴膜打样，完成苏泊尔J15样机测试和问题清单更新。</p><p><strong>下周工作计划</strong>　10月30日前关闭护眼仪三方评审问题，建议同步回查J15按键造型的品牌方反馈。</p></article></div><h4 class="role">硬件及电子</h4><div class="people-list"><article class="person-entry"><h5>古昌林</h5><p><strong>重点工作总结</strong>　确认K3滚筒温升与塑胶摩擦有关，输出V8芯片测试验证方案，定位家车两用吸尘器EMC整改方向。</p><p><strong>下周工作计划</strong>　10月26日与品质、板厂和芯片商回查V8原因及方案，输出喷雾气泵样件参数数据。</p></article><article class="person-entry"><h5>熊鸿强</h5><p><strong>重点工作总结</strong>　协调净诺无叶风扇电控PCB方案，联合品质及工厂评审取暖器爬电距离整改。</p><p><strong>下周工作计划</strong>　跟进无叶风扇PCB打样和K3温升验证，输出铅笔吸Air电池容量选型依据。</p></article><article class="person-entry"><h5>王雄</h5><p><strong>重点工作总结</strong>　完成JL-17T语音模块配置优化，实现与美的桌面除醛净化器主控的控制反馈。</p><p><strong>下周工作计划</strong>　10月30日与李开放及欧轮诗工程师确认取暖器安规问题，输出电控整改方案。</p></article></div><h4 class="role">工业设计</h4><div class="people-list"><article class="person-entry"><h5>张文韬</h5><p><strong>重点工作总结</strong>　完成礼品展调研，确认美的绞肉和面机最终配色，推进众文挂烫机概念。</p><p><strong>下周工作计划</strong>　建议评审众文挂烫机3D方案，协调产品确认GS70成本边界，并配合专利组冻结外观。</p></article><article class="person-entry"><h5>姜宝坤</h5><p><strong>重点工作总结</strong>　完成GS70外观创意构思，整理待选优化方向。</p><p><strong>下周工作计划</strong>　10月30日与侯佳莉明确成本边界并输出GS70效果图提案。</p></article><article class="person-entry"><h5>晋泽超</h5><p><strong>重点工作总结</strong>　完成众文挂烫机方案选择并开始3D建模。</p><p><strong>下周工作计划</strong>　10月29日完成众文挂烫机3D设计。</p></article><article class="person-entry"><h5>梁义滨</h5><p><strong>重点工作总结</strong>　更新苏泊尔挂烫机配色。</p><p><strong>下周工作计划</strong>　建议跟进配色评审反馈及后续版本确认，日报未列下周交付日期。</p></article><article class="person-entry"><h5>罗法强</h5><p><strong>重点工作总结</strong>　完成创维28直流空气循环扇水箱外观修改，冰雾手持风扇外观优化至70%。</p><p><strong>下周工作计划</strong>　10月26日与张文韬复核创维冰雾手持风扇调整方案，回收吸烫机项目反馈。</p></article><article class="person-entry"><h5>胡惠敏</h5><p><strong>重点工作总结</strong>　完成12寸鹅蛋脸落地扇模型调整及效果图，参与擦窗机工厂配色。</p><p><strong>下周工作计划</strong>　10月26日输出14寸冰雾落地扇调整后的渲染模型和效果图。</p></article></div><h4 class="role">专利工程师</h4><div class="people-list"><article class="person-entry"><h5>孟珂玮</h5><p><strong>重点工作总结</strong>　排查蒸汽清洁机及配件外观风险，撰写S300整机和喷头外观专利。</p><p><strong>下周工作计划</strong>　10月26日推进已冻结ID外观专利撰写与申报，27日输出洗地机折叠伸缩手柄检索报告。</p></article></div><h4 class="role">DQE工程师</h4><div class="people-list"><article class="person-entry"><h5>马良</h5><p><strong>重点工作总结</strong>　完成K3水路改进样机单轮对比，新样未堵、旧样出现堵塞。</p><div class="deviations"><p class="person-label">本周工作偏差</p><ul><li><strong>【协同卡点】</strong>K3刮条试模延期，10月25日仍无法确认试模物料，影响试产问题验证。</li></ul></div><p><strong>下周工作计划</strong>　10月27日前协同结构完成K3试产问题验证，补齐ABR循环结果和刮条试模确认。</p></article><article class="person-entry"><h5>李开放</h5><p><strong>重点工作总结</strong>　推进A882破损整改，排查A954语音配置与首件确认问题，发现风扇前网罩干涉。</p><p><strong>下周工作计划</strong>　10月30日跟进水暖毯第三方合格报告，与硬件组核对取暖器安规复测。</p></article></div><h4 class="role">模具工艺</h4><div class="people-list"><article class="person-entry"><h5>叶洪辉</h5><p><strong>重点工作总结</strong>　跟进K3现场改模，增加硅胶干涉量后水箱连接复测通过，验证水路调整样件。</p><p><strong>下周工作计划</strong>　验证K3新试模刮条和ABR循环数据，跟进轮子改模和明泰取暖器外壳变形方案。</p></article></div><h4 class="role">研发BOM文员</h4><div class="people-list"><article class="person-entry"><h5>陈婷婷</h5><p><strong>重点工作总结</strong>　汇总研发日志及项目卡点，协调寄件、耗材与培训资料。</p><p><strong>下周工作计划</strong>　建议持续汇总项目卡点及相关资料，按负责人更新跟进记录。</p></article></div>
+</div></section>
+</main></body></html>

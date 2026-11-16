@@ -11,7 +11,7 @@ export function assertRankingOrder(rows,tuple){
  }
 }
 export const shortageTuple=r=>[r.shortageType,r.shortageType===1?r.sellableCoverage15:r.totalCoverage15,-r.dailyNet15,-r.goodsValueCents].map(v=>Number.isFinite(v)?v:Infinity);
-export const warningTuple=r=>[-r.sellableCoverage15,-r.staleValueCents,r.dailyNet15].map(v=>Number.isFinite(v)?v:Infinity);
+export const warningTuple=r=>[-r.coverage15,-r.staleValueCents,r.dailyNet15].map(v=>Number.isFinite(v)?v:Infinity);
 export const agedTuple=r=>[-r.staleValueCents,-r.staleMaxAgeDays,-r.staleUnits/r.totalUnits].map(v=>Number.isFinite(v)?v:Infinity);
 
 export function verifyStockRankingModel(){
@@ -24,9 +24,9 @@ export function verifyStockRankingModel(){
  assert.equal(ctx.rpShortageType(short(10,40,{transit:60})),2,'在途库存必须参与可售天数');
  for(const [a,b] of [[short(15,100),short(16,20)],[short(1,100),short(2,20)],[short(20,30),short(16,40)],[short(10,30,{dailyNet15:20,warehouse:200}),short(10,30)],[short(10,30,{goodsValueCents:101}),short(10,20)],[short(20,40,{dailyNet15:20,warehouse:400}),short(16,40)]])assert(ctx.rpShortageCompare(a,b)<0,'缺货逐级排序不插入另一种天数');
  const ranked=ctx.rpShortageRankSeasons([short(16,30,{skuCode:'a',attribute:'夏季品'}),short(1,100,{skuCode:'b',attribute:'冬季品'})]);assert.deepEqual(Array.from(ranked,r=>r.skuCode),['b','a'],'风险类型优先于季品');
- const warning=(days,patch={})=>({skuCode:'SKU',warehouse:0,transit:days*10,factoryAvailable:0,dailyNet15:10,coverage15:0,sellableCoverage15:days,staleValueCents:100,...patch});
- for(const [r,hit] of [[warning(59.9999),false],[warning(60),true],[warning(10000),true],[warning(60,{sellableUnits:0}),false],[warning(60,{dailyNet15:0}),false],[warning(60,{sellableCoverage15:null}),false],[warning(60,{clearance:true,state:'下架'}),true]])assert.equal(ctx.rpStagnantEligible(r),hit);
- assert(ctx.rpStagnantCompare(warning(61,{staleValueCents:0}),warning(60,{staleValueCents:999999}))<0);
+ const warning=(days,patch={})=>({skuCode:'SKU',warehouse:days*10,transit:200,factoryAvailable:200,dailyNet15:10,coverage15:days,sellableCoverage15:days+40,staleValueCents:100,...patch});
+ for(const [r,hit] of [[warning(59.9999),false],[warning(60),true],[warning(10000),true],[warning(60,{warehouse:0}),false],[warning(60,{dailyNet15:0}),false],[warning(60,{dailyNet15:-1}),false],[warning(60,{coverage15:null}),false],[warning(60,{clearance:true,state:'下架'}),true]])assert.equal(ctx.rpStagnantEligible(r),hit,JSON.stringify(r));
+ assert(ctx.rpStagnantCompare(warning(61,{staleValueCents:0}),warning(60,{sellableCoverage15:999,staleValueCents:999999}))<0);
  assert(ctx.rpStagnantCompare(warning(60,{staleValueCents:101}),warning(60))<0);
  assert(ctx.rpStagnantCompare(warning(60,{dailyNet15:9}),warning(60))<0);
  const warehouse=(name,units,netSales15)=>({name,warehouse:units,netSales15});
@@ -53,8 +53,12 @@ export function verifyStockRankingModel(){
  assert(ctx.ipStagnantCompare(aged({staleUnits:11}),aged())<0,'同金额同库龄按数量占比');
  const fixture=Array.from({length:24},(_,i)=>aged({...common,skuId:String(i),skuCode:String(i),staleValueCents:i,attribute:i<12?'夏季品':'冬季品'})),top=ctx.ipStagnantTopModel(fixture);
  assert.equal(top.count,12);assert.equal(top.rows.length,10);assert.equal(top.rows[0].staleValueCents,11);
- Object.assign(ctx,{boundedCache:()=>new Map(),rpField:(key,name,value,tone,hint,target)=>({key,name,value,tone,hint,target}),stockQuantity:n=>Number.isFinite(n)?n+'件':'—',rpQualityMoney:String,fmt:(n,d=0)=>n.toFixed(d),upPercent:n=>n+'%',rpQualityProductFields:()=>[]});
- vm.runInContext(fs.readFileSync(new URL('../../src/modules/risk-presentation/01-stock.js',import.meta.url),'utf8'),ctx);
+ Object.assign(ctx,{boundedCache:()=>new Map(),rpField:(key,name,value,tone,hint,target)=>({key,name,value,tone,hint,target}),stockQuantity:n=>Number.isFinite(n)?n+'件':'—',fmt:(n,d=0)=>n.toFixed(d)});
+ for(const file of ['product-filters/04-display.js','risk-presentation/01-quality.js','unified-product/03-stock-balances.js','risk-presentation/01-stock.js'])vm.runInContext(fs.readFileSync(new URL('../../src/modules/'+file,import.meta.url),'utf8'),ctx);
+ ctx.rpQualityProductFields=()=>[];
+ for(const [cents,expected] of [[0,'0.00元'],[12345,'123.45元'],[1000000,'10000.00元'],[1000001,'1.00万元'],[-1000001,'-1.00万元'],[1234567,'1.23万元'],[null,'—']])assert.equal(ctx.formatStockValue(cents),expected);
+ assert.equal(ctx.pfMoneyYuan(12000),'1.2w','其他经营金额仍按原精度展示');
+ assert.equal(ctx.rpStagnantSkuFields(aged({staleValueCents:1234567})).find(f=>f.key==='staleValue').value,'1.23万元');
  assert.equal(ctx.rpStagnantSkuFields(aged()).find(f=>f.key==='coverage15').value,'—','已发生老库存无净销量时不伪造0天');
  // 旧库存阈值不覆盖新语义参数，其他业务配置仍保留。
  const rules=businessRuleContext(),values=vm.runInContext('({...brcDefaults})',rules);values['finance.deduction']=7;
@@ -64,12 +68,15 @@ export function verifyStockRankingModel(){
  vm.runInContext(fs.readFileSync(new URL('../../src/modules/business-rules/01-store.js',import.meta.url),'utf8'),rules);
  const migrated=rules.brcRead();assert(migrated);assert.equal(migrated.values['stock.shortage.totalDays'],45);assert.equal(migrated.values['stock.warning.coverageDays'],60);assert.equal(migrated.values['stock.top.minAgeDays'],60);assert.equal(migrated.values['finance.deduction'],7);
  saved.conditions={
-  'stock.warning.warehouse':{op:'gt',a:0,metric:'warehouse'},
-  'stock.warning.coverageDays':{op:'gte',a:75,metric:'coverage15'}
+  'stock.warning.warehouse':{op:'gt',a:0,metric:'sellableUnits',groupOp:'any'},
+  'stock.warning.coverageDays':{op:'gte',a:75,metric:'sellableCoverage15'}
  };
  const upgraded=rules.brcRead();assert(upgraded);
- assert.equal(upgraded.conditions['stock.warning.warehouse'].metric,'sellableUnits');
- assert.equal(upgraded.conditions['stock.warning.coverageDays'].metric,'sellableCoverage15');
- assert.equal(upgraded.conditions['stock.warning.coverageDays'].a,75,'旧我司口径切换后沿用原阈值');
+ assert.equal(rules.brcMetricConfig('stock.warning.warehouse').default,'warehouse');
+ assert.equal(rules.brcMetricConfig('stock.warning.coverageDays').default,'coverage15');
+ assert.equal(rules.brcResultOp('stock-stagnant-warning',upgraded.conditions),'all');
+ assert.equal(upgraded.conditions['stock.warning.coverageDays'].a,60,'使用当前固定阈值');
+ assert(!rules.brcResultMatch('stock-stagnant-warning',rules.brcStockWarningMetrics(warning(59)),upgraded.conditions),'旧合算条件不再放行');
+ assert(rules.brcResultMatch('stock-stagnant-warning',rules.brcStockWarningMetrics(warning(60)),upgraded.conditions));
  console.log('通过：缺货及预警边界、Top10独立库龄条件、金额/库龄/占比排序、季品及旧配置兼容');
 }

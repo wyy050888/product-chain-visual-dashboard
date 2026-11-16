@@ -26,12 +26,12 @@ function verifyShopScoreRed(){
  catalog.splice(0,catalog.length,link(2),link(2,1));assert.equal(ratingHit(shop),false,'不同链接的异常项数不能累加');
  catalog.length=0;assert.equal(ratingHit(shop),false,'未配置链接不根据拼多多评分猜测');
  for(const [score,expected] of [[4.5,true],[4.7,false],[4.9,false]])assert.equal(ratingHit({...shop,channel:'抖音',score}),expected,'仅红灯与处罚共同触发');
- for(const score of [0,3,5]){
+ for(const [score,tone] of [[null,null],[4.4,'red'],[4.41,'yellow'],[4.69,'yellow'],[4.7,null]]){
   const video={...shop,channel:'视频号',score};
-  assert.equal(ctx.sbScoreRisk(video),null,'视频号评分不判灯');
-  assert.equal(ctx.sbShopScoreCompare(video,{...shop,channel:'抖音',score:5}),1,'同风险条件下视频号评分按不适用处理，与原始分值无关');
-  assert.equal(ctx.sbShopScoreCompare({...shop,channel:'抖音',score:5},video),-1,'跨平台比较不使用视频号分数');
-  assert.equal(ctx.sbDecide(video).color,'green','视频号不因低分和处罚次数入榜');
+  assert.equal(ctx.sbScoreRisk(video),tone,'视频号评分按自身规则判灯');
+  assert.equal(ratingHit(video),tone==='red','红灯与两次处罚同时满足才触发评分入榜');
+  assert.equal(ratingHit({...video,qualityPenaltyCount:1}),false,'一次处罚未达到入榜门槛');
+  assert.equal(Math.sign(ctx.sbShopScoreCompare(video,{...shop,channel:'抖音',score:5})),score===null?1:-1,'按分数排序，缺分靠后');
   assert.equal(ctx.sbDecide({...video,qualityFine:6000}).color,'red','视频号罚款条件仍有效');
  }
  catalog.push(link(0));
@@ -44,13 +44,15 @@ export async function shopScoreRed(page){
  await help.scrollIntoViewIfNeeded();await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
  await help.focus();const pop=page.locator('#metric-tooltip');await pop.waitFor({state:'visible'});
  const text=await pop.innerText();assert.match(text,/店铺评分红灯，且品质违规处罚/);assert.match(text,/异常项数≥3项，等同于店铺评分红灯/);assert(!text.includes('店铺评分异常'));
- assert.match(text,/视频号：暂不监控店铺分/);
- assert.deepEqual(await pop.locator('.rp-shop-score-rules tbody th').allTextContents(),['抖音','快手','天猫','京东']);
+ assert.match(text,/抖音、快手、视频号、天猫、京东/);
+ assert.deepEqual(await pop.locator('.rp-shop-score-rules tbody th').allTextContents(),['抖音','快手','视频号','天猫','京东']);
+ const scoreRules=pop.locator('.rp-shop-score-rules tbody tr');
+ assert.deepEqual(await scoreRules.filter({hasText:'视频号'}).locator('td').allTextContents(),await scoreRules.filter({hasText:'快手'}).locator('td').allTextContents());
  await page.keyboard.press('Escape');
  const rows=await page.evaluate(()=>shopRiskAudit());
  for(const shop of rows){
   const hit=shop.signals.some(signal=>signal.label.startsWith('店铺评分红灯'));
-  if(shop.channel==='视频号')assert.equal(hit,false,'视频号无评分风险');
+  if(shop.channel==='视频号')assert.equal(hit,Number.isFinite(shop.score)&&shop.score<=4.4&&shop.qualityPenaltyCount>=2);
   if(shop.channel==='拼多多'){
    const links=await page.evaluate(id=>pddShopLinksSnapshot(id).all,shop.id);
    assert.equal(hit,links.some(link=>link.assessment==='red')&&shop.qualityPenaltyCount>=2);

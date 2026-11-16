@@ -1,5 +1,5 @@
 // 已有明确数值口径的榜单显式显示默认列；复合风险榜仍保留原业务顺序。
-function rpRankingDefaultSort(kind){return kind===2?{key:'loss',direction:'asc'}:kind===4?{key:'sellableCoverage15',direction:'desc'}:{key:'',direction:''}}
+function rpRankingDefaultSort(kind){return kind===2?{key:'loss',direction:'asc'}:kind===4?{key:'coverage15',direction:'desc'}:{key:'',direction:''}}
 // 六榜固定表头；业务筛选按Tab保存，分组明细使用独立副本，返回保留父层状态。
 function rpOpenList(k,reset=false,scopeRows=null,restore=null){
  const first=$('#overlay').hidden,priorKind=Number($('#dialogbody').dataset.riskRankingKind);
@@ -8,7 +8,7 @@ function rpOpenList(k,reset=false,scopeRows=null,restore=null){
  // 退货榜支持全平台及六个平台，兼容旧的无效状态。
  if(k===1&&!qrPlatforms.includes(rfState.listPlatforms[k]))rfState.listPlatforms[k]=rpCardPlatform(k);
  if([6,8].includes(k)&&!pfSelected(rfState.listPlatforms[k]).every(platform=>qrPlatforms.includes(platform)))rfState.listPlatforms[k]=rpCardPlatform(k);
- if(first&&!restore){rpListState.period={...rpBoardPeriod(k)};rpListState.periods={};rpListState.sorts={};rpListState.filters={};rpSavedFilters(k)};
+ if(first&&!restore){rpListState.period={...rpBoardPeriod(k)};rpListState.periods={};rpListState.dayRanges={};rpListState.sorts={};rpListState.filters={};rpSavedFilters(k)};
  if((first||reset)&&!restore){if(k===0){qrState.listPlatform=rpCardPlatform(0);qrState.listPage=1}else{rfState.kind=k;rfState.page=1;rfState.dimension='spu';rfState.listPlatforms[k]=rpCardPlatform(k)}}
  if(restore&&k===1){rfState.kind=1;rfState.dimension='spu';rpListState.period={...restore.period};rpListState.filters[1]=restore.filters;rpListState.sorts[1]=restore.sorts;rfState.listPlatforms[1]=restore.platform;rfState.page=restore.page}
  const filters=scopeRows?{...rpSavedFilters(k)}:rpSavedFilters(k);
@@ -64,10 +64,14 @@ function rpOpenList(k,reset=false,scopeRows=null,restore=null){
   if(k===1){$('#rp-shop-type-config').onclick=shcOpenFromRanking;$('#rp-core-link-config').onclick=()=>smNavigate(klcRoute)}
   fill();if(!scopeRows)riskRankingAttach(k);uiArrangeBusinessFilters($('#dialogbody'));pfMultiMount($('#dialogbody'));
   const setPeriod=()=>{$('#dialogbody').dataset.rankingPeriod=JSON.stringify(rpListState.period)};setPeriod();
-  const changePeriod=period=>{rpListState.period=period;setPeriod();setPage(1);fill()};
+  const changePeriod=period=>{rpListState.period=period;if(!period.comparisonMode&&period.mode==='day')(rpListState.dayRanges||={})[k]={start:period.start,end:period.end};setPeriod();setPage(1);fill()};
   if([3,4].includes(k))$('#dialogsub').replaceChildren();
   else if([6,8].includes(k))rpMountReturnPeriod($('#dialogsub'),rpListState.period,changePeriod,k);
-  else drawerMountPeriod($('#dialogsub'),rpListState.period,changePeriod,'ranking-date-trigger');
+  else{
+   const priorDay=rpListState.period.mode==='day'?rpListState.period:rpListState.dayRanges?.[k]||rpBoardDayRanges[k]||rpDefaultBoardPeriod(k);
+   (rpListState.dayRanges||={})[k]={start:priorDay.start,end:priorDay.end};
+   drawerMountPeriod($('#dialogsub'),rpListState.period,changePeriod,'ranking-date-trigger','risk',priorDay);
+  }
  });
 }
 qrOpenList=function(){return rpOpenList(0)};

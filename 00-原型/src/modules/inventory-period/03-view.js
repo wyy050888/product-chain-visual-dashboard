@@ -1,6 +1,6 @@
 function ipGroups(ledger,dimension){return(dimension==='chain'?chains:brands).map((name,index)=>({name,index,...inventoryProductSum(ledger.filter(r=>dimension==='chain'?r.chain===index:r.brand===index))}))}
 function ipSummaryCards(total,klass='ipd-metrics'){
- const fields=[['num',fmt(total.num)+' 件'],['amount',fmt(total.amountCents/100,2)+' 万元'],['turn',ipIndicator('turn',total.turn)],['stale',fmt(total.staleCents/100,2)+' 万元'],['delivery',ipIndicator('delivery',total.delivery)]];
+ const fields=[['num',fmt(total.num)+' 件'],['amount',formatStockValue(total.amountCents*10000,true)],['turn',ipIndicator('turn',total.turn)],['stale',formatStockValue(total.staleCents*10000,true)],['delivery',ipIndicator('delivery',total.delivery)]];
  return `<div class="${klass}">${fields.map(([key,value])=>`<div><small>${ipHeading(key)}</small><strong>${value}</strong></div>`).join('')}</div>`;
 }
 // 首页两表独立保存排序；品牌固定复用销售达成的五个品牌，不参与TOP筛选。

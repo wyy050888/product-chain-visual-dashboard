@@ -34,7 +34,7 @@ export async function detailStockPeriod(page){
   await setOverview(initialInventoryPeriod);
   const rate=stock.locator('[data-stock-card="refurbRate"] .ip-refurb-rate');
   assert.equal(await rate.evaluate(el=>getComputedStyle(el).color),'rgb(22, 119, 255)');
-  assert.equal(await rate.locator('.ip-refurb-arrow').innerText(),'›');
+  assert.equal(await rate.locator('.ip-refurb-arrow.ui-chevron-right').count(),1);
   await verifyRefurbDistribution(page,rate,facts.refurb);
   assert((await page.locator('#ip-refurb-distribution h4').innerText()).startsWith(await rate.getAttribute('data-ip-refurb-name')));
   const now=await read();
@@ -45,7 +45,9 @@ export async function detailStockPeriod(page){
   assert.equal(facts.delivery,facts.due>0?(facts.on+facts.importedStock)/facts.due*100:null);
   assert.equal(facts.refurbRate,facts.refurb.total&&!facts.refurb.unknown?facts.refurb.onTime/facts.refurb.total*100:null);
   for(const order of facts.orders)assert(order.orderedAt>=facts.range.start&&order.orderedAt<=facts.range.cutoff,'翻新按采购单下单日归期');
-  const skuRates=await stock.locator('[data-stock-metric="turn"]').evaluateAll(nodes=>nodes.map(n=>n.dataset.stockRaw));
+  const skuCells=stock.locator('[data-stock-metric="turn"]');
+  const skuRates=await skuCells.evaluateAll(nodes=>nodes.map(n=>n.dataset.stockRaw));
+  assert.deepEqual(await skuCells.allTextContents(),skuRates.map(raw=>raw==='null'||raw===''?'—':Number(raw).toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2})+'次'));
   if(previous&&previous.period.mode!==period.mode)assert.notDeepEqual(skuRates,previous.skuRates,'SKU周转率随期间重算');
   previous={period,skuRates};
   assert.equal(await stock.locator('[data-rp-sort="delivery"],[data-rp-sort="refurbRate"]').count(),0,'SKU不增加交付/翻新列');

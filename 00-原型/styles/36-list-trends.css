@@ -17,6 +17,7 @@
 
 /* 完整榜单：排序入口与现有表头同排；勾选筛选不套字段名分栏。 */
 .rp-sort-header {display:inline-flex;align-items:center;gap:6px;padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:nowrap;vertical-align:middle;cursor:pointer}
+.rp-sort-header+.metric-help{vertical-align:middle}
 .rp-sort-header:focus-visible {outline:2px solid #1677ff;outline-offset:3px}
 .rp-sort-header[data-direction]:not([data-direction=""]) {color:#1677ff}
 /* 全局排序图标：固定6×10px，上下三角各4px，所有表头共享方向色。 */

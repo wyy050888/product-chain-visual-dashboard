@@ -5,7 +5,7 @@
 #inventory .ip-stagnant-heading h3{display:inline-flex;align-items:center;gap:7px;margin:0;font-size:var(--type-section);font-weight:var(--weight-heading);color:#163854}
 #inventory .ip-stagnant-heading .metric-help{flex:none;margin:0}
 #inventory .ip-stagnant-scroll{overflow-x:auto}
-#inventory .ip-stagnant-table{width:100%;min-width:1160px;table-layout:fixed;border-collapse:separate;border-spacing:0}
+#inventory .ip-stagnant-table{width:100%;min-width:1300px;table-layout:fixed;border-collapse:separate;border-spacing:0}
 #inventory .ip-stagnant-table :is(th,td){padding:12px;box-sizing:border-box;vertical-align:middle;white-space:nowrap;font-size:var(--type-data);border-bottom:1px solid #edf1f8}
 #inventory .ip-stagnant-table th{height:48px;background:#f5f8fd;color:#7d8da5;font-weight:var(--weight-medium);text-align:left}
 #inventory .ip-stagnant-table td{height:80px;background:#fff}

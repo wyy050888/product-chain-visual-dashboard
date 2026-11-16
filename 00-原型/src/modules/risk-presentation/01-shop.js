@@ -8,8 +8,8 @@ function rpShopMetricAllowed(key,platform){
  return !['fine','frozen','offShelf','drop','limited'].includes(type)||rpShopMetricKeys(platform).includes(type);
 }
 const rpShopListKeys=['mainSpu','gsv','netSales','problemSpus','violations','fine','frozen','offShelf','drop','limited','score','productScore','logisticsScore','serviceScore'];
-// 店铺分监控仅适用四平台；视频号保留原值，拼多多使用核心链接。
-function rpShopScoreMonitored(platform){return ['抖音','快手','天猫','京东'].includes(platform)}
+// 支持店铺分的平台由评分规则目录定义；拼多多使用核心链接。
+function rpShopScoreMonitored(platform){return brcShopScoreDefaults.some(([name])=>name===platform)}
 function rpShopScoreRule(platform){
  if(!rpShopScoreMonitored(platform))return undefined;
  const red=brcNumber('shops.'+platform+'.red'),yellow=brcNumber('shops.'+platform+'.yellow');
@@ -24,7 +24,6 @@ function rpShopScoreBands(platform){
  const rows=brcBandRows('score.'+platform);return rows.length?Object.fromEntries(rows.map(r=>[r.tone,r.text])):null;
 }
 function rpShopScoreHint(platform){
- if(platform==='视频号')return '视频号：暂不监控店铺分，目前店铺经常更换。';
  const bands=rpShopScoreBands(platform);
  return bands?platform+'店铺分：红灯 '+bands.red+'；黄灯 '+bands.yellow+'；绿灯 '+bands.green+'。':'暂无评分规则。';
 }
@@ -38,7 +37,6 @@ function rpRenderShopScoreRules(host){
   const bands=rpShopScoreBands(platform),row=append(body,'tr');append(row,'th',platform).scope='row';
   for(const key of ['red','yellow','green']){const cell=append(row,'td',bands[key]);cell.dataset.tone=key;}
  }
- append(host,'p',rpShopScoreHint('视频号'));
 }
 
 function rpShopProblemHit(product){

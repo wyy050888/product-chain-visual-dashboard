@@ -11,7 +11,7 @@ function upStockBadges(model){
 function upStockView(m,state){
  const model=upStockModel(m,state,upStockPeriodMetrics(m,state));if(!model)return '<div class="up-empty">暂无库存台账</div>';
  return `<div class="up-stock-heading"><h3>库存指标</h3>${upStockBadges(model)}<button type="button" class="link up-stock-more" data-stock-more data-jump-toast="跳转spu库存详情页">查看更多</button></div>
- ${upStockBalanceCards(model,true)}
+ ${upStockBalanceCards(model)}
  <section class="up-stock-sku-section"><h3>SKU库存明细</h3><div id="up-stock-skus" class="up-table"></div></section>`;
 }
 function upMountStock(root,m,state){

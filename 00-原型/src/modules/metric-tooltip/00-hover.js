@@ -3,7 +3,16 @@ function createTooltipHover(tooltip,anchor,hide,delay=250){
  const tip=typeof tooltip==='function'?tooltip:()=>tooltip,getAnchor=typeof anchor==='function'?anchor:()=>anchor;let timer=null;
  const inside=target=>target instanceof Node&&Boolean(tip()?.contains(target)||getAnchor()?.contains(target));
  const keep=()=>{clearTimeout(timer);timer=null};
- const schedule=()=>{keep();timer=setTimeout(()=>{timer=null;const panel=tip(),source=getAnchor();if(panel?.matches(':hover')||source?.matches(':hover'))return;hide()},delay)};
+ const schedule=()=>{
+  keep();
+  timer=setTimeout(()=>{
+   timer=null;
+   const panel=tip(),source=getAnchor();
+   if(panel?.matches(':hover')||source?.matches(':hover'))return;
+   if(panel?.getAttribute('role')==='dialog'&&panel.contains(document.activeElement))return;
+   hide();
+  },delay);
+ };
  document.addEventListener('pointerover',event=>{if(inside(event.target))keep()});
  document.addEventListener('pointerout',event=>{if(inside(event.target)&&!inside(event.relatedTarget))schedule()});
  document.addEventListener('focusout',event=>{if(inside(event.target)&&!inside(event.relatedTarget))schedule()});

@@ -30,22 +30,22 @@ function ipOverviewHelp(key){
  return `<span class="metric-help" tabindex="0" role="button" aria-label="查看${title}口径" data-ip-overview-help="${key}" data-metric-rule="${esc(text)}"${emphasis?` data-metric-emphasis="${esc(emphasis)}"`:''}></span>`;
 }
 // 总览使用独立紧凑布局；库存快照、期间指标和产品详情仍共用原模型。
-function ipOverviewCard({key,title,help='',quantity,value='',valueLabel='货值',foot='',className=''}){
- return `<article class="up-stock-card stock-balance-card stock-summary-card ${className}" data-stock-card="${key}"><div class="stock-card-head"><h4>${title}${help}</h4>${value?`<span class="stock-summary-label" data-up-basic>${valueLabel}</span>`:''}</div><div class="stock-summary-body"><div class="up-stock-card-value primary">${quantity}</div>${value?`<div class="stock-summary-worth"><div>${value}</div></div>`:''}</div>${foot?`<div class="stock-card-foot">${foot}</div>`:''}</article>`;
+function ipOverviewCard({key,title,help='',quantity,value='',valueLabel='货值',className=''}){
+ return `<article class="up-stock-card stock-balance-card stock-summary-card ${className}" data-stock-card="${key}"><div class="stock-card-head"><h4>${title}${help}</h4>${value?`<span class="stock-summary-label" data-up-basic>${valueLabel}</span>`:''}</div><div class="stock-summary-body"><div class="up-stock-card-value primary">${quantity}</div>${value?`<div class="stock-summary-worth"><div>${value}</div></div>`:''}</div></article>`;
 }
 function ipOverviewCards(model,balance){
  const share=value=>`<small class="stock-card-share">（${Number.isFinite(value)?fmt(value,1)+'%':'—'}）</small>`;
  const quantity=(key,value,ratio)=>`<strong data-stock-quantity="${key}" data-stock-raw="${value??''}">${stockQuantityMarkup(value)}</strong>${ratio===undefined?'':share(ratio)}`;
  // 同行数量和金额共用主数字样式；件、元、万元均作为辅助单位展示。
- const money=(key,value)=>!Number.isFinite(value)?'—':(key==='sellableValueCents'?(value/1000000).toFixed(1)+'万元':upMoney(value).replace(/w$/,'万元')).replace(/(万元|元)$/,'<span class="unit stock-money-unit">$1</span>');
- const worth=(key,value,ratio)=>`<strong data-stock-value="${key}" data-stock-raw="${value??''}">${money(key,value)}</strong>${ratio===undefined?'':share(ratio)}`;
+ const money=value=>formatStockValue(value).replace(/(万元|元)$/,'<span class="unit stock-money-unit">$1</span>');
+ const worth=(key,value,ratio)=>`<strong data-stock-value="${key}" data-stock-raw="${value??''}">${money(value)}</strong>${ratio===undefined?'':share(ratio)}`;
  const definitions=[
   ['total','总库存','total','totalUnits','goodsValueCents'],
   ['warehouse','我司可售库存','warehouse','warehouse','warehouseValueCents'],
-  ['factory','工厂可售库存','factoryAvailable','factoryAvailable','factoryAvailableValueCents','工厂总库存',stockQuantityMarkup(balance.factory)],
+  ['factory','工厂可售库存','factoryAvailable','factoryAvailable','factoryAvailableValueCents'],
   ['transit','在途库存','transit','transit','transitValueCents']
  ];
- const stock=definitions.map(([key,title,rule,countKey,valueKey,footLabel,footValue])=>ipOverviewCard({key,title,help:upBalanceHelp(rule,title),quantity:quantity(countKey,balance[countKey]),value:worth(valueKey,balance[valueKey]),foot:footLabel?`<span data-up-basic>${footLabel}</span><strong>${footValue}</strong>`:''})).join('');
+ const stock=definitions.map(([key,title,rule,countKey,valueKey])=>ipOverviewCard({key,title,help:upBalanceHelp(rule,title),quantity:quantity(countKey,balance[countKey]),value:worth(valueKey,balance[valueKey])})).join('');
  const turnTone=ipSignal('turn',model.turn,model.metricPeriod.mode);
  const turn=ipOverviewCard({key:'turn',title:'库存周转率',quantity:`<strong class="ip-signal ${turnTone==='none'?'muted':turnTone}" data-stock-turn="${model.turn??''}">${numberSignal(Number.isFinite(model.turn)?fmt(model.turn,2)+'次':'—',turnTone)}</strong>`,className:'stock-summary-single'});
  const deliveryTone=ipSignal('delivery',model.delivery,model.metricPeriod.mode);

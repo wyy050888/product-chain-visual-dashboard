@@ -68,7 +68,6 @@
 @media(max-width:1100px){#sales .ms-workspace{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:600px){#sales .ms-pane-header,#sales .ms-detail-header{padding:0 12px}#sales .ms-detail-header{height:auto;min-height:60px;flex-wrap:wrap;padding-top:12px;padding-bottom:12px}#sales .ms-detail-header .si-switch{width:150px}}
 /* 产品详情继续复用目标/达成同行布局。 */
-#dialogbody .up-attainment-values{display:inline-flex;align-items:baseline;justify-content:flex-end;flex-wrap:wrap;gap:3px 10px}
 .rp-platform-mark{width:16px;height:16px;vertical-align:middle;object-fit:contain}
 .rp-identity b.rp-platform-name{display:flex;align-items:center;gap:5px}.rp-platform-name>span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}.rp-platform-name>.rp-platform-mark{flex:none;margin:0}
 @media(max-width:600px){.pf-attribute{max-width:100%;width:100%}.pf-attribute-menu{width:min(400px,calc(100vw - 64px))}.pf-attribute-row{grid-template-columns:80px 1fr}.ms-common-help{margin-left:0}}

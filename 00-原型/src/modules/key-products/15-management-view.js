@@ -1,23 +1,24 @@
-function kpmGradeSummaryTable(rows){
+function kpmGradeSummaryTables(rows){
+ const structure=kpmManagementStructure(rows),groups=structure.filter(group=>group.level!=='unrated');
  const row=(level,facts,operating=false)=>{
-  const kind=operating?'operating':'grade',unrated=level==='unrated';
+  const kind=operating?'operating':'grade';
   const selected=kpmSelectedGrade===level&&(operating?kpmSelectedOperating===level:!kpmSelectedOperating);
-  const label=operating?`<span aria-hidden="true">↳</span> ${esc(kpmGrades[level])}`:`<span class="kpm-grade ${level}">${level}级</span>`;
-  const name=unrated?'未分级':`<button type="button" data-kpm-summary-select="${kind}" value="${level}" aria-pressed="${selected}">${label}</button>`;
+  const label=operating?esc(kpmGrades[level]):`<span class="kpm-grade ${level}">${level}级</span>`;
   const shareWidth=Number.isFinite(facts.share)?Math.max(0,Math.min(100,facts.share)):0;
   return `<tr class="${operating?'kpm-summary-operating':'kpm-summary-grade'}" data-kpm-summary-level="${level}"${selected?' data-selected':''}>
-   <th scope="row">${name}</th><td>${fmt(facts.count)}</td><td>${upMoney(facts.gsv)}</td>
-   <td class="kpm-summary-share"><div class="kpm-summary-share-value"><span class="kpm-summary-share-track" aria-hidden="true"><i style="width:${shareWidth}%"></i></span><span>${upPercent(facts.share)}</span></div></td>
+   <th scope="row"><button type="button" data-kpm-summary-select="${kind}" value="${level}" aria-pressed="${selected}">${label}</button></th><td>${fmt(facts.count)} 个</td><td>${upMoney(facts.gsv)}</td>
+   <td><span class="kpm-summary-share-value" style="--kpm-share-width:${shareWidth}%">${upPercent(facts.share)}</span></td>
    <td>${formatSalesQuantity(facts.netSales)}</td>
    <td${facts.margin<0?' class="negative"':''}>${upPercent(facts.margin)}</td></tr>`;
  };
- const body=kpmManagementStructure(rows).map(group=>group.level==='unrated'
-  ?group.count?row(group.level,group):''
-  :row(group.level,group)+row(group.level,group.operating,true)).join('');
- return `<table aria-labelledby="kpm-structure-heading" data-up-basic>
-  <thead><tr><th scope="col">等级 / 经营标签</th><th scope="col">产品数</th><th scope="col" data-up-basic>GSV</th>
-  <th scope="col" class="kpm-summary-share">GSV占比</th><th scope="col" data-up-basic>${netSalesLabel('销量','netSales')}</th><th scope="col" data-up-basic>利润率</th></tr></thead>
+ const table=(heading,body)=>`<table aria-label="${heading}" data-up-basic>
+  <thead><tr><th scope="col">${heading}</th><th scope="col">产品数</th><th scope="col" data-up-basic>GSV</th>
+  <th scope="col">GSV占比</th><th scope="col" data-up-basic>${netSalesLabel('销量','netSales')}</th><th scope="col" data-up-basic>利润率</th></tr></thead>
   <tbody>${body}</tbody></table>`;
+ const unrated=structure.find(group=>group.level==='unrated');
+ const note=unrated?.count?`<p class="kpm-summary-unrated">未分级 ${fmt(unrated.count)} 个</p>`:'';
+ return table('等级',groups.map(group=>row(group.level,group)).join(''))
+  +table('经营标签',groups.map(group=>row(group.level,group.operating,true)).join(''))+note;
 }
 
 // 六卡共用基础范围，计数忽略自身等级和异动筛选。
@@ -35,7 +36,16 @@ function kpmManagementStructureView(rows){
 }
 // 明细上方的六卡独立于两个图表，重绘数量不会移动原矩阵节点。
 function kpmManagementStructureSection(rows){
- return '<header class="kpm-structure-heading"><h3>产品分级经营</h3></header>'+kpmManagementStructureView(rows);
+ return `<header class="kpm-structure-heading"><h3>产品分级经营</h3>
+  <button type="button" class="link" data-kpm-guide-open aria-haspopup="dialog" aria-controls="dialog">
+   <svg class="kpm-guide-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+    <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+    <rect x="9" y="3" width="6" height="4" rx="1"/>
+    <path d="m8 11 1 1 2-2m2 1h3m-8 5 1 1 2-2m2 1h3"/>
+   </svg>
+   查看经营指引
+  </button>
+ </header>`+kpmManagementStructureView(rows);
 }
 function kpmManagementView(rows){
  return '<section class="kpm-management" data-management-view="matrix" aria-label="产品经营矩阵"><div class="kpm-management-body"><section class="kpm-management-section" data-kpm-management-section="structure" aria-labelledby="kpm-structure-heading"><div data-kpm-plot-slot></div></section></div></section>';

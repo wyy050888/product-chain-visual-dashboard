@@ -8,7 +8,7 @@
 :is(.risk-thumb,.product-thumb,.pp-placeholder,.prodname>.thumb,
  .pp-product>img,.pb-rank-product>img,.dp-product img,.sw-project img,
  .cw-product img,.ns-product img,.wf-product img,.kpm-point-product img,
- .scp-project-link img,.sd-spu-identity img){
+ .scp-project-link img){
  width:var(--product-thumbnail-size)!important;
  height:var(--product-thumbnail-size)!important;
  min-width:var(--product-thumbnail-size)!important;

@@ -16,7 +16,7 @@ export async function lifecycleTargetZeroImport(page){
   await open();await upload([row(30,0),row(-1)]);await page.locator('#lt-import-confirm').click();
   await page.locator('.ui-import-feedback.is-error').waitFor();
   assert.deepEqual(await snapshot(),before,'失败整批不修改目标');
-  await page.locator('.ui-import-feedback button').click();
+  await page.locator('.ui-import-feedback button:has-text("查看失败明细")').click();
   assert.match(await page.locator('[data-ui-history-content]').innerText(),/整数/);
   await page.locator('[data-ui-history-close]').first().click();
   await upload([row(30,0)]);await commit();

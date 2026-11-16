@@ -937,6 +937,10 @@
       "module": "单品SABC评级、成本和行动规则"
     },
     {
+      "file": "src/modules/unified-product/04-ai-new-assessment.js",
+      "module": "新品销售成功诊断和行动规则"
+    },
+    {
       "file": "src/modules/unified-product/04-ai-analysis.js",
       "module": "产品全平台经营问题分析"
     },
@@ -1618,6 +1622,10 @@
       "purpose": "产品分级经营预警与榜单分级"
     },
     {
+      "file": "src/modules/key-products/16-operating-guide.js",
+      "purpose": "SABC分级经营动作指引"
+    },
+    {
       "file": "src/modules/key-products/18-zoom-filters.js",
       "module": "矩阵放大品牌类目价格季品筛选"
     },
@@ -2019,34 +2027,6 @@
       "module": "四模块诊断与来源分析"
     },
     {
-      "file": "src/modules/global-diagnosis/03-report-content.js",
-      "module": "部门报告原文与独立问题样例"
-    },
-    {
-      "file": "src/modules/global-diagnosis/03-report-employee-rubrics.js",
-      "module": "员工岗位来源与独立报告判断标准"
-    },
-    {
-      "file": "src/modules/global-diagnosis/03-report-rubrics.js",
-      "module": "部门层级岗位评分与业务对象5分标准"
-    },
-    {
-      "file": "src/modules/global-diagnosis/03-report-deduction-rules.js",
-      "module": "报告扣分细项字典"
-    },
-    {
-      "file": "src/modules/global-diagnosis/03-report-scoring.js",
-      "module": "报告细项评分计算"
-    },
-    {
-      "file": "src/modules/global-diagnosis/03-report-low-score-samples.js",
-      "module": "报告多细项低分样例"
-    },
-    {
-      "file": "src/modules/global-diagnosis/03-report-diagnosis.js",
-      "module": "四模块诊断与来源分析"
-    },
-    {
       "file": "src/modules/global-diagnosis/03-analysis-model.js",
       "module": "四模块诊断与来源分析"
     },
@@ -2113,6 +2093,10 @@
       "module": "四模块诊断与来源分析"
     },
     {
+      "file": "src/modules/global-diagnosis/04-weekly-reports.js",
+      "module": "部门周报下载表"
+    },
+    {
       "file": "src/modules/global-diagnosis/05-evidence.js",
       "module": "全局AI总诊断四部分重构"
     },
@@ -2123,10 +2107,6 @@
     {
       "file": "src/modules/global-diagnosis/05-todo-basis.js",
       "module": "待办判定依据的来源及原始内容"
-    },
-    {
-      "file": "src/modules/global-diagnosis/05-report-score-view.js",
-      "module": "报告问题与原文诊断视图"
     },
     {
       "file": "src/modules/global-diagnosis/05-analysis-details.js",
@@ -2293,11 +2273,27 @@
     },
     {
       "file": "src/modules/product-center/04-risk.js",
-      "module": "产品中心原五榜与共用品质榜、环境类范围"
+      "module": "产品中心三个预警占位榜"
     },
     {
       "file": "src/modules/product-center/05-fixed-filters.js",
       "module": "产品中心固定部门与类目过滤边界"
+    },
+    {
+      "file": "src/modules/product-center/06-reports.js",
+      "module": "产品中心周报专页与共用PDF下载"
+    },
+    {
+      "file": "src/modules/product-center/07-metrics-model.js",
+      "module": "产品中心人员指标字典与台账汇总"
+    },
+    {
+      "file": "src/modules/product-center/08-metrics-view.js",
+      "module": "产品中心人员管理周期与指标视图"
+    },
+    {
+      "file": "src/modules/product-center/09-brand-plan.js",
+      "module": "产品中心生命周期链群品牌上品计划"
     },
     {
       "file": "src/modules/page-entries/01.js",
@@ -2350,6 +2346,10 @@
     {
       "file": "src/modules/file-upload/04-history-view.js",
       "module": "统一导入记录与失败明细展示"
+    },
+    {
+      "file": "src/modules/file-upload/05-failure-download.js",
+      "module": "失败文件原格式下载与重传"
     },
     {
       "file": "src/modules/startup/02-render.js",
@@ -2773,6 +2773,9 @@
     },
     {
       "file": "styles/88-key-product-dual-cards.css"
+    },
+    {
+      "file": "styles/key-product-operating-guide.css"
     },
     {
       "file": "styles/102-ai-result-history.css",

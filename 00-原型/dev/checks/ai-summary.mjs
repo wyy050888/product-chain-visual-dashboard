@@ -1,6 +1,6 @@
 import {businessRuleContext} from './business-rules-context.mjs';
 import assert from 'node:assert/strict';
-import {readAiPrompts} from '../ai-strategy-prompts.mjs';
+import {readPrototypeAiPrompts} from '../prototype-ai-prompts.mjs';
 import fs from 'node:fs';
 import vm from 'node:vm';
 
@@ -25,35 +25,39 @@ function verifyDecisions(){
  const context=businessRuleContext({
   fmt:(n,d=0)=>Number(n).toFixed(d),upPercent:n=>Number.isFinite(n)?n.toFixed(1)+'%':'—',upMoney:n=>(n/1000000).toFixed(1)+'w',
   aiToday:()=> '2026-10-15',shiftDate:(s,n)=>{const d=new Date(s+'T00:00:00Z');d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10)},
-  upStockModel:()=>({rows:[{code:'DEMO-SKU01'}]}),upIdentity:()=>({sourceRow:2}),
+  upStockModel:()=>({rows:[{code:'DEMO-SKU01'}]}),upIdentity:()=>({sourceRow:2}),pfIdentity:p=>({isNew:p.cohort==='new'}),
   rpLossReturnTarget:()=>15,qrPlatforms:['天猫','抖音'],qrObservation:()=>({}),upViolationRows:()=>[],
   rpQualityChangeValue:(a,b)=>b?(a-b)/b*100:null,rpComparisonText:n=>n===null?'环比—':'环比'+n.toFixed(1)+'%',
   ccOpportunityRows:()=>[],upTodoId:(s,d)=>s.start+'|'+d,upTodos:{}
  });
  const costModel=fs.readFileSync(new URL('../../src/modules/cost-control/04-opportunity-model.js',import.meta.url),'utf8');
+ vm.runInContext(fs.readFileSync(new URL('../../src/modules/product-filters/04-display.js',import.meta.url),'utf8'),context);
  vm.runInContext(costModel.split('\n').find(line=>line.startsWith('function ccAppendCostProposal(')),context);
  const todoModel=fs.readFileSync(new URL('../../src/modules/unified-product/07-todo-model.js',import.meta.url),'utf8');
  vm.runInContext(todoModel.slice(todoModel.indexOf('const upTodoTypes='),todoModel.indexOf('function upTodoAssignable(')),context);
- for(const name of ['04-ai-demo','04-ai-policy','04-ai-analysis','07-todo-diagnosis'])vm.runInContext(fs.readFileSync(new URL('../../src/modules/unified-product/'+name+'.js',import.meta.url),'utf8'),context);
+ for(const name of ['04-ai-demo','04-ai-policy','04-ai-new-assessment','04-ai-analysis','07-todo-diagnosis'])vm.runInContext(fs.readFileSync(new URL('../../src/modules/unified-product/'+name+'.js',import.meta.url),'utf8'),context);
  const classify=(wan,margin)=>context.upAiClassify(wan*1000000,margin);
  assert.equal(classify(700,13).grade,'S');assert.equal(classify(420,9).grade,'A');assert.equal(classify(200,16).grade,'B');assert.equal(classify(50,9).grade,'C');
  for(const [wan,margin,grade]of [[600,13,'A'],[300,16,'B'],[60,16,'B'],[420,16,'A'],[50,20,'C'],[700,12,'S'],[200,15,'B']])assert.equal(classify(wan,margin).grade,grade,'规模等级只按GSV，利润单独评价');
  const state={start:'2026-01-01',end:'2026-10-10',platform:'all',spuId:'DEMO'};
- const assess=(wan,margin,returnRate=10,staleUnits=0)=>{
+ const assess=(wan,margin,returnRate=10,staleUnits=0,newAssessment=null)=>{
   const company={gsvCents:Math.round(wan*1000000),sales:wan?3000:0,returned:wan?300:0,profitRate:wan?margin:null,feeRate:5};
   company.profitCents=Math.round(company.gsvCents*margin/100);company.costCents=company.gsvCents-company.profitCents;
   context.upSummary=()=>company;
   const rows=['天猫','抖音'].map(platform=>({...company,platform,gsvCents:company.gsvCents/2,profitCents:company.profitCents/2,returned:wan?returnRate*15:0,returnRate}));
-  const model={product:{name:'演示产品',spuId:'DEMO',spuCode:'DEMO',cohort:'old',chain:0,attribute:'四季品'},company,recent:company,previous:company,months:[],platformRows:rows,
-   stock:{warehouse:1800,undelivered:1200,staleUnits,staleValueCents:1000000,totalUnits:3000},stockEnd:state.end};
+  const model={product:{name:'演示产品',spuId:'DEMO',spuCode:'DEMO',cohort:newAssessment?'new':'old',chain:0,attribute:'四季品'},company,recent:company,previous:company,months:[],platformRows:rows,
+   stock:{warehouse:1800,transit:500,factoryAvailable:400,unproducedOrders:200,unrefurbishedUnits:100,staleUnits,staleValueCents:1000000,totalUnits:3000},stockEnd:state.end};
   context.upAiFullContext=()=>({model,state});
-  const analysis=context.upAiAnalysis(model,state),brief=context.upAiBrief(analysis),text=analysis.summary+Object.values(brief).join('');
+  context.nspSuccessQuarterLabel=key=>key.replace('-Q','年Q');
+  context.upAiNewAssessment=()=>newAssessment;
+  const scope={...state,module:newAssessment?'new':'matrix'};
+  const analysis=context.upAiAnalysis(model,scope),brief=context.upAiBrief(analysis),text=analysis.summary+Object.values(brief).join('');
   assert(text.length<=600,'摘要长度：'+text.length);
   assert(!/净利润率|批次|未接入|PR1015|甲厂/.test(text),'仅用已标识模拟资料和页面利润率：'+text);
   const d=analysis.demo,c=d.cost;
   assert.equal(c.factory,c.base+c.mold);assert.equal(c.brandSupply,c.factory+c.brand);assert.equal(c.companySupply,c.brandSupply+c.refurb);assert.equal(c.channel,c.companySupply+c.management);
   if(wan)assert(Math.abs(c.projectedMargin-(margin+c.discount*(company.sales-company.returned)/company.gsvCents*100))<1e-8);
-  const todos=context.upDiagnoseTodos(model,state);
+  const todos=context.upDiagnoseTodos(model,scope);
   assert.equal(new Set(todos.map(t=>t.id)).size,todos.length);
   for(const t of todos){assert(t.plan.includes('DEMO-SKU01'));assert(t.description.includes('方案演示'));assert(!/问题批次|按批次|产品中心先决定价格|决定底价/.test(t.plan+t.description));}
   return {analysis,brief,todos,text};
@@ -70,6 +74,12 @@ function verifyDecisions(){
  const loss=assess(420,-15,25,300);assert(loss.analysis.direction.overallLoss);assert(loss.analysis.summary.includes('恢复盈利'));
  assert.equal(loss.analysis.assessment.grade,'A','不得擅自改变已确认的A级负利润门槛');assert(loss.brief.problems.includes('不能视为经营健康'));
  const empty=assess(0,0);assert.equal(empty.analysis.assessment.grade,null);assert(empty.analysis.summary.includes('有效数据不足'));
+ const newFacts={kind:'new',periodKey:'2026-Q4',facts:{gsvCents:50000000,profitRate:16,returnRate:10},status:'截至目前未达标',rule:'GSV≥500万元 且 利润率≥12%',gaps:['gsv']};
+ const launch=assess(50,16,10,0,newFacts);
+ assert.equal(launch.analysis.assessment.grade,undefined);
+ assert.match(launch.text,/新品考核截至目前未达标/);
+ assert.match(launch.text,/曝光、转化/);
+ for(const task of launch.todos)assert.doesNotMatch(task.title+task.description+task.plan,/[SABC]级|评级|一次挽救|淘汰/);
 }
 
 export async function aiSummary(page){
@@ -95,7 +105,9 @@ export async function aiSummary(page){
  const scope=await summary.locator('.up-ai-scope').innerText();assert.match(scope,/^截至\d{2}\/\d{2}\/\d{2}$/);
  await summary.locator('[data-up-ai-prompt]').click();
  const prompt=await page.locator('#up-ai-prompt pre').innerText();
- assert.equal(prompt,readAiPrompts().product,'展示当前交付策略的完整正式指令');
+ assert.equal(prompt,'当前产品按老品月度经营规模规则分析。\n\n'+readPrototypeAiPrompts().product,'展示老品口径及完整正式指令');
+ assert.match(prompt,/总库存另加未产订单和未翻新件数/);
+ assert.doesNotMatch(prompt,/工厂待检库存|工厂不良品库存/);
  await page.keyboard.press('Escape');assert(await summary.isVisible());
  const text=await summary.locator('.up-ai-section p').allTextContents();
  await page.locator('#up-platform').evaluate(e=>{e.value='天猫';e.dispatchEvent(new Event('change',{bubbles:true}))});

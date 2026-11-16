@@ -11,7 +11,7 @@ function sdOpenDetail(id){
    host.classList.toggle('sd-hero-link-counts',current.channel==='拼多多');
    host.innerHTML=rpShopScoreMarkup(current,rpShopFields(current));
   });
-  const m=sdModel(shop,state);sdMountDiagnosis(root,m,state);root.querySelector('[data-up-panel="operating"]').innerHTML=sdOperating(m,state);sdMountProducts(root,m,state);sdMountViolations(root,m,state);
+  const m=sdModel(shop,state);sdMountDiagnosis(root,m,state);sdMountOperating(root.querySelector('[data-up-panel="operating"]'),m,state);sdMountProducts(root,m,state);sdMountViolations(root,m,state);
   root.dataset.start=state.start;root.dataset.end=state.end;drawerQueueRefresh();
  };
  drawerMountDetailPeriod(root,state.period,(period,range)=>{Object.assign(state,range,{period});paint()},'sd-date-trigger',['operating','violations']);paint();

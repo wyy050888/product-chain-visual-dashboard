@@ -25,6 +25,7 @@
 #metric-tooltip.metric-rule-card .metric-rule-table .yellow{color:var(--orange);background:var(--orange-soft)}
 #metric-tooltip.metric-rule-card .metric-rule-table .red{color:var(--red);background:#fff3f4}
 #metric-tooltip.metric-rule-card .metric-rule-table .is-current>:first-child{background:#edf4ff;color:#3475d9}
+#metric-tooltip.metric-rule-card .metric-rule-note+.metric-rule-grade-table{margin-block-start:8px}
 #metric-tooltip.metric-rule-card .metric-rule-grade-table th:first-child{width:56px}
 #metric-tooltip.metric-rule-card .metric-rule-grade-table th:nth-child(2){width:42%}
 #metric-tooltip.metric-rule-card .metric-rule-band-table :is(th,td){text-align:center}

@@ -23,16 +23,6 @@ function gdMismatchTable(rows){
 function gdReportFindingsContent(report){
  return report.findings.length?report.findings.map(f=>`<div class="gd-report-finding"><span class="gd-readable-text">${gdReadableMarkup(f.problem)}</span></div>`).join(''):'<span class="gd-analysis-muted">未发现内容问题</span>';
 }
-function gdReportFindingsMarkup(report){return gdCellPreview(gdReportFindingsContent(report))}
-function gdReportMakeupStatus(row){
- const submitted=row.latestSubmittedAt||row.submitted;
- if(submitted)return Number.isFinite(Date.parse(submitted))?'是':'待核实';
- return row.syncComplete===true?'否':'待核实';
-}
-function gdReportsTable(rows,missing){
- const headers=missing?['人员 / 部门','报告类型','工作日期','应交时间','是否已补交']:['人员 / 部门','报告类型','工作日期','问题说明','操作'];
- return gdAnalysisTable(headers,rows.map(r=>`<tr data-report-row="${r.id}"><td>${gdPersonMarkup(r.owner,r.department)}</td><td>${esc(r.type)}</td><td>${r.date}</td>${missing?`<td>${r.deadline.slice(0,19).replace('T',' ')}</td><td data-label="是否已补交">${gdReportMakeupStatus(r)}</td>`:`<td data-label="问题说明">${gdReportFindingsMarkup(r)}</td>`}${missing?'':`<td>${gdButton('analysis',r.id,'查看依据')}</td>`}</tr>`).join(''),missing?'missing':'quality');
-}
 function gdCoreHelpMarkup(){return `<span class="metric-help gd-core-help" role="button" tabindex="0" data-gd-core-help="true" data-metric-rule="${esc('核心事项标准\n满足任一项\n'+gdCoreStandards.map(([label,value])=>label+'：'+value).join('\n'))}" aria-label="查看核心事项标准"></span>`}
 // 复用公共浮层的定位、悬浮停留与键盘关闭，仅提供核心标准的结构化内容。
 function gdRenderCoreTooltip(target){

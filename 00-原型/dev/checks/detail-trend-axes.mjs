@@ -7,6 +7,23 @@ export async function detailTrendAxes(page){
  await page.setViewportSize({width:1920,height:1080});
  await page.evaluate(()=>{const b=document.createElement('button');b.dataset.riskitem='1,4';document.body.append(b);b.click();b.remove()});
  const shop=page.locator('.sd-detail');await shop.waitFor();
+ const chart=shop.locator('.up-operating-trend'),canvas=chart.locator('svg');
+ assert.equal(await chart.locator('h3').count(),0,'店铺趋势图移除可见标题');
+ const salesToggle=chart.locator('[data-up-series-toggle="netSales"]');await salesToggle.click();
+ for(const width of [1920,1100,390,1920]){
+  await page.setViewportSize({width,height:1080});
+  await page.waitForFunction(()=>{
+   const svg=document.querySelector('.sd-operating-overview .up-trend-scroll svg'),host=svg.parentElement;
+   return svg.viewBox.baseVal.width===host.clientWidth&&svg.viewBox.baseVal.height===host.clientHeight;
+  });
+  const bounds=await canvas.evaluate(svg=>{
+   const area=svg.getBoundingClientRect(),grid=svg.querySelector('line').getBoundingClientRect();
+   return {fits:[...svg.querySelectorAll('text')].every(text=>{const box=text.getBoundingClientRect();return box.left>=area.left&&box.right<=area.right}),left:grid.left-area.left,right:area.right-grid.right};
+  });
+  assert(bounds.fits&&bounds.left<=50&&bounds.right<=60,'绘图区随容器宽度伸缩并留出刻度空间：'+width);
+  assert.equal(await chart.locator('[data-up-series="netSales"]').evaluate(n=>getComputedStyle(n).display),'none','自适应重绘保留图例开关');
+ }
+ await salesToggle.click();
  assert.deepEqual(await shop.locator('[data-up-axis]').evaluateAll(ns=>ns.map(n=>[n.dataset.upAxis,n.dataset.axisSide])),[['gsv','left'],['netSales','right']]);
  assert.doesNotMatch(await shop.locator('[data-up-axis]').allTextContents().then(v=>v.join('')),/GSV|销量|万元|件/);
  const legend=shop.locator('.up-trend-legend-item').filter({has:page.locator('[data-up-series-toggle="netSales"]')});
@@ -40,7 +57,7 @@ export async function detailTrendAxes(page){
  },salesQuantityFormatter+'\n'+renderSource);
  assert.match(sample.axis,/-/);assert(!sample.paths.join('').match(/NaN|Infinity/));
  assert.notEqual(sample.paths[0],sample.paths[1],'金额和件数用各自刻度');
- assert.deepEqual(sample.points[0].map(v=>v.value),['1.40万元','92件','-10.0%']);
+ assert.deepEqual(sample.points[0].map(v=>v.value),['1.4万元','92件','-10.0%']);
  assert.equal(sample.points[1].find(v=>v.key==='sales').value,'1.3w件');
  console.log('通过：店铺左右轴、产品金额/利润率双轴、销量隐藏轴及图例提示、负利润与缺失数据。');
 }

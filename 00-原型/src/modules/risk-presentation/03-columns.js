@@ -1,7 +1,7 @@
 // 各榜单固定字段与卡片共用模型，库存分组使用对应汇总表头。
 const rpExtraKeys={0:['returnTarget','sales','returned','receivedUnits','contacts','previousReturn','previousReceived','previousContact','returnGrowth','receivedGrowth','contactGrowth','returnGap'],
-  1:['core','worsening'],2:['profit','returned','receivedUnits','refund'],3:['warehouse','factory','undelivered','price','staleUnits','staleValue'],
-  4:['warehouse','factory','undelivered','price','turn','age'],6:['returnTarget','sales','returned','receivedUnits','returnGap','contact','down','fineCount','fineAmount','previousReturn','previousReceived']};
+  1:['core','worsening'],2:['profit','returned','receivedUnits','refund'],3:['warehouse','transit','factoryAvailable','unproducedOrders','unrefurbishedUnits','price','staleUnits','staleValue'],
+  4:['warehouse','transit','factoryAvailable','unproducedOrders','unrefurbishedUnits','price','turn','age'],6:['returnTarget','sales','returned','receivedUnits','returnGap','contact','down','fineCount','fineAmount','previousReturn','previousReceived']};
 const rpListState={filters:{},sorts:{},period:null,periods:{},kind:null};
 // 库存抽屉不继承首页季品筛选；临时读取全量，立即还原首页状态。
 function rpListRows(k){const platform=[3,4].includes(k)?'all':k===0?qrState.listPlatform:(rfState.listPlatforms[k]||rpCardPlatform(k));if(k===0){const range=qrWindow();return qfViolationPlatformRows(platform,range.start,range.end)}if(![3,4].includes(k))return rpRowsForPlatform(k,platform);const previous=riskSeasonState[k];riskSeasonState[k]='all';try{return rpRowsForPlatform(k,platform)}finally{riskSeasonState[k]=previous}}
@@ -38,7 +38,7 @@ function rpListCell(f,showHint=true){
  return `<div class="rp-list-value"${warehouseName}><strong class="rp-value ${f.tone}">${numberSignalMain(f)}</strong>${f.target?'<em class="'+esc(f.targetTone||'')+'">'+rpTargetText(f)+'</em>':''}</div>`;
 }
 function rpGroups(rows,dimension,k){return irGroups(rows,dimension).map(g=>({...g,staleUnits:g.rows.reduce((n,r)=>n+upStockFacts(r).staleUnits,0),staleValueCents:g.rows.reduce((n,r)=>n+upStockFacts(r).staleValueCents,0)})).sort((a,b)=>k===4?b.staleValueCents-a.staleValueCents:b.goodsValueCents-a.goodsValueCents)}
-function rpGroupHeaders(k,dimension){return['序号',dimension==='chain'?'产品链':'品牌',k===3?'高危SPU数':'滞销SPU数','仓内库存','工厂库存','新机未交付','总库存',k===3?'高危品货值':'滞销金额','超库龄库存数','操作']}
-function rpGroupValues(k,g,i){return[i+1,esc(g.name),g.count,rpCount(g.warehouse),rpCount(g.factory),rpCount(g.undelivered),rpCount(g.totalUnits),upMoney(k===3?g.goodsValueCents:g.staleValueCents),rpCount(g.staleUnits),`<button class="link" data-rp-group="${esc(String(g.key))}">查看明细</button>`]}
+function rpGroupHeaders(k,dimension){return['序号',dimension==='chain'?'产品链':'品牌',k===3?'高危SPU数':'滞销SPU数',...irStockPartHeaders(),'总库存',k===3?'高危品货值':'滞销金额','超库龄库存数','操作']}
+function rpGroupValues(k,g,i){return[i+1,esc(g.name),g.count,...irStockPartCells(g),rpCount(g.totalUnits),formatStockValue(k===3?g.goodsValueCents:g.staleValueCents),rpCount(g.staleUnits),`<button class="link" data-rp-group="${esc(String(g.key))}">查看明细</button>`]}
 
 function rpWithListPeriod(run){const kind=rpListState.kind??0;return rpWithBoardPeriod(kind,run,rpListState.period||rpBoardPeriod(kind))}

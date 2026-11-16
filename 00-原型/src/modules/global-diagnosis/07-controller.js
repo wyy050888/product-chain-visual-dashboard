@@ -3,6 +3,8 @@ function gdRefreshFilters(all=false){if(all)gdState.pages={};else gdState.pages[
 document.addEventListener('click',event=>{
  if(event.target.closest('[data-gd-generated]'))return gdOpenGeneratedTasks();
  const target=event.target,part=target.closest('[data-gd-part]'),tab=target.closest('[data-gd-tab]'),status=target.closest('[data-gd-status]');
+ const weeklyDownload=target.closest('[data-gd-weekly-download]');
+ if(weeklyDownload){gdDownloadWeeklyReport(weeklyDownload);return}
  if(part){if(!gdParts.some(([key])=>key===part.dataset.gdPart)||gdState.part===part.dataset.gdPart)return;gdState.part=part.dataset.gdPart;gdRender({reuseData:true});return}
  if(tab){
   const part=gdState.part,key=tab.dataset.gdTab;
@@ -10,8 +12,8 @@ document.addEventListener('click',event=>{
   gdState.tabs[part]=key;gdRender({reuseData:true});
   requestAnimationFrame(()=>{if(gdState.part===part&&gdState.tabs[part]===key)$('[data-gd-tab="'+key+'"]')?.focus({preventScroll:true})});return;
  }
- const departments=gdState.part==='tasks'?[...new Set([...upTodoDepartments,...gdLedgerValues('department')])]:gdState.part==='execution'?Object.keys(gdReportProfileCatalog):upTodoDepartments;
- for(const [attribute,field,allowed] of [['category','category',gdState.part==='execution'?[]:['all',...(gdState.part==='tasks'?gdLedgerChains:pfCategories)]],['department','department',['all',...departments]],['priority','priority',['all',...Object.keys(upTodoPriorities)]],['report-type','reportType',['all','日报','周报','月报']]]){
+ const departments=gdState.part==='tasks'?[...new Set([...upTodoDepartments,...gdLedgerValues('department')])]:upTodoDepartments;
+ for(const [attribute,field,allowed] of [['category','category',['all',...(gdState.part==='tasks'?gdLedgerChains:pfCategories)]],['department','department',['all',...departments]],['priority','priority',['all',...Object.keys(upTodoPriorities)]]]){
   const button=target.closest('[data-gd-'+attribute+']');if(!button)continue;const key=button.getAttribute('data-gd-'+attribute);if(!allowed.includes(key))return;
   gdTableFilters()[field]=key;gdRefreshFilters();$('[data-gd-'+attribute+'="'+key+'"]')?.focus({preventScroll:true});return;
  }
@@ -40,4 +42,4 @@ document.addEventListener('change',event=>{const input=event.target;if(input.mat
 document.addEventListener('keydown',event=>{
  const button=event.target.closest('.gd-workspace [role="tab"],.gd-dialog [role="tab"]');if(!button||!['ArrowRight','ArrowLeft','Home','End'].includes(event.key))return;const buttons=[...button.closest('[role="tablist"]').querySelectorAll('[role="tab"]')],current=buttons.indexOf(button),index=event.key==='Home'?0:event.key==='End'?buttons.length-1:(current+(event.key==='ArrowRight'?1:-1)+buttons.length)%buttons.length;event.preventDefault();buttons[index].click();
 });
-window.globalDiagnosisAudit=()=>{const data=gdRenderedData||gdDataset();return {state:JSON.parse(JSON.stringify(gdState)),range:gdRange(),counts:gdCardCounts(data),sources:data.sources.map(s=>({id:s.id,name:s.name,total:s.rows.length})),work:data.work,deviations:data.deviations,improvements:data.improvements,mismatch:data.mismatch,reports:data.reports,focus:data.focus,tasks:data.tasks,classifications:data.classifications,visible:gdSectionRows(data),tableRows:[],rubrics:gdReportRubrics,rubricProfiles:gdReportProfileCatalog,standards:gdKeyWorkStandards,catalog:{sourceTypes:diagnosisSourceTypes,objectTypes:diagnosisObjectTypes}}};
+window.globalDiagnosisAudit=()=>{const data=gdRenderedData||gdDataset();return {state:JSON.parse(JSON.stringify(gdState)),range:gdRange(),counts:gdCardCounts(data),sources:data.sources.map(s=>({id:s.id,name:s.name,total:s.rows.length})),work:data.work,deviations:data.deviations,improvements:data.improvements,mismatch:data.mismatch,reports:data.reports,focus:data.focus,tasks:data.tasks,classifications:data.classifications,visible:gdSectionRows(data),tableRows:[],standards:gdKeyWorkStandards,catalog:{sourceTypes:diagnosisSourceTypes,objectTypes:diagnosisObjectTypes}}};

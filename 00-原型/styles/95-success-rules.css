@@ -10,11 +10,10 @@
 .brcs-selector{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:0 0 16px}
 .brcs-selector label{display:flex;align-items:center;gap:12px;white-space:nowrap}
 .brcs-choice{position:relative;display:inline-flex;width:190px;height:36px}
-.brcs-selector select{width:100%;height:36px;border:1px solid #d7e2f2;border-radius:4px;padding:6px 30px 6px 10px;color:transparent;background:#fff;appearance:none;font:inherit}
+.brcs-selector select{width:100%;height:36px;border:1px solid #d7e2f2;border-radius:4px;padding:6px 30px 6px 10px;color:transparent;background:#fff var(--filter-chevron) right 11px center/12px no-repeat;appearance:none;font:inherit}
 .brcs-selector select :is(option,optgroup){color:#345371;background:#fff}
 .brcs-choice-display{position:absolute;left:11px;right:27px;top:0;height:36px;display:flex;align-items:center;gap:5px;color:#345371;pointer-events:none;white-space:nowrap}
 .brcs-choice-display .brcs-status{padding:0;background:none}
-.brcs-choice-arrow{position:absolute;right:11px;top:8px;color:#8292aa;pointer-events:none}
 .brcs-status{border-radius:4px;padding:4px 9px;background:#eef2f6;color:#738397}
 .brcs-status.current{background:#eaf7ef;color:#16854a}.brcs-status.pending{background:#fff5e7;color:#b26a12}
 .brcs-readonly-table{table-layout:fixed;border:1px solid #e3eaf5}

@@ -167,6 +167,10 @@
     "file": "./checks/diagnosis-rebuild.mjs",
     "export": "diagnosisRebuild"
   },
+  "departmentWeeklyReports": {
+    "file": "./checks/department-weekly-reports.mjs",
+    "export": "departmentWeeklyReports"
+  },
   "taskDateFilters": {
     "file": "./checks/task-date-filters.mjs",
     "export": "taskDateFilters"
@@ -563,6 +567,10 @@
     "file": "./checks/section-sticky.mjs",
     "export": "sectionSticky"
   },
+  "productSectionSticky": {
+    "file": "./checks/section-sticky.mjs",
+    "export": "productSectionSticky"
+  },
   "returnPlatformSamples": {
     "file": "./checks/return-platform-samples.mjs",
     "export": "returnPlatformSamples"
@@ -692,10 +700,6 @@
   "reportScoring": {
     "file": "./checks/report-scoring.mjs",
     "export": "reportScoring"
-  },
-  "reportProblemPreview": {
-    "file": "./checks/report-problem-preview.mjs",
-    "export": "reportProblemPreview"
   },
   "todoOrigins": {
     "file": "./checks/todo-origins.mjs",

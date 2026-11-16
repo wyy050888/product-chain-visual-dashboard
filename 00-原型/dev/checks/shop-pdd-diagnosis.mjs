@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {readAiPrompts} from '../ai-strategy-prompts.mjs';
+import {readPrototypeAiPrompts as readAiPrompts} from '../prototype-ai-prompts.mjs';
 // 仅检查店铺诊断口径，处罚筛选与经营指标另有专项覆盖。
 export async function shopPddDiagnosis(page){
  await page.clock.setFixedTime(new Date('2026-10-31T04:00:00Z'));await page.reload({waitUntil:'domcontentloaded'});

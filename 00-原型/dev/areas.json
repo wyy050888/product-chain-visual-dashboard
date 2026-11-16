@@ -15,7 +15,7 @@
       "src/modules/ui-controls/05-column-resize.js",
       "src/modules/global-diagnosis/04-task-preview.js"
     ],
-    "checks": ["startupLayout", "smoke", "yearPicker", "columnResize", "riskGroupNavigation", "inventoryStaleAnalysis", "sectionSticky", "pageEntries", "reportProblemPreview", "taskLedgerDetailLayout", "diagnosisColumnLayout"]
+    "checks": ["startupLayout", "smoke", "yearPicker", "columnResize", "riskGroupNavigation", "inventoryStaleAnalysis", "sectionSticky", "pageEntries", "taskLedgerDetailLayout", "diagnosisColumnLayout"]
   },
   "diagnosisColumnLayout": {
     "label": "重点工作及工作偏差的字段列宽和偏好隔离",
@@ -547,7 +547,11 @@
       "src/modules/product-center/02-workspace.js",
       "src/modules/product-center/03-role.js",
       "src/modules/product-center/04-risk.js",
-      "src/modules/product-center/05-fixed-filters.js"
+      "src/modules/product-center/05-fixed-filters.js",
+      "src/modules/product-center/06-reports.js",
+      "src/modules/product-center/07-metrics-model.js",
+      "src/modules/product-center/08-metrics-view.js",
+      "src/modules/product-center/09-brand-plan.js"
     ],
     "styles": [
       "styles/88-product-center.css",
@@ -607,28 +611,6 @@
       "reportScoring",
       "reportTabs",
       "reportRoleRubrics"
-    ]
-  },
-  "reportProblemPreview": {
-    "label": "报告问题说明三行展开收起",
-    "keywords": [
-      "问题说明",
-      "报告三行",
-      "报告展开收起"
-    ],
-    "sources": [
-      "src/modules/global-diagnosis/04-analysis-tables.js",
-      "src/modules/global-diagnosis/04-task-preview.js",
-      "src/modules/global-diagnosis/04-action-table.js"
-    ],
-    "styles": [
-      "styles/78-global-action-table.css",
-      "styles/81-diagnosis-analysis.css"
-    ],
-    "checks": [
-      "reportProblemPreview",
-      "todoRowHeight",
-      "reportScoring"
     ]
   },
   "pageEntries": {
@@ -845,9 +827,10 @@
     ]
   },
   "sectionSticky": {
-    "label": "全局十模块标题与控件吸顶",
+    "label": "总看板与产品中心的模块标题吸顶",
     "sources": [
       "src/modules/section-sticky/01.js",
+      "src/modules/product-center/02-workspace.js",
       "src/modules/navigation/01.js"
     ],
     "styles": [
@@ -855,6 +838,7 @@
     ],
     "checks": [
       "sectionSticky",
+      "productSectionSticky",
       "riskSticky",
       "smoke"
     ]
@@ -1285,6 +1269,7 @@
       "src/modules/unified-product/04-ai-analysis.js",
       "src/modules/unified-product/04-ai-summary.js",
       "src/modules/unified-product/04-ai-policy.js",
+      "src/modules/unified-product/04-ai-new-assessment.js",
       "src/modules/unified-product/07-todo-diagnosis.js",
       "src/modules/unified-product/04-ai-demo.js",
       "src/modules/unified-product/04-ai-context.js",
@@ -1974,7 +1959,6 @@
       "reportRoleRubrics",
       "reportScoring",
       "reportTabs",
-      "reportProblemPreview",
       "diagnosisReadableText"
     ],
     "manual": []
@@ -3353,6 +3337,16 @@
       "diagnosisRebuild"
     ]
   },
+  "departmentWeeklyReports": {
+    "label": "部门诊断周报下载表",
+    "keywords": ["部门诊断", "统计周", "下载周报", "未生成"],
+    "sources": [
+      "src/modules/global-diagnosis/04-weekly-reports.js",
+      "src/modules/global-diagnosis/04-analysis-view.js"
+    ],
+    "styles": ["styles/81-diagnosis-analysis.css"],
+    "checks": ["departmentWeeklyReports", "diagnosisRebuild"]
+  },
   "costUpdater": {
     "label": "降本目标更新人",
     "keywords": [
@@ -3475,8 +3469,7 @@
       "src/modules/global-diagnosis/04-task-preview.js"
     ],
     "checks": [
-      "taskRowExpansion",
-      "reportProblemPreview"
+      "taskRowExpansion"
     ]
   },
   "taskCreateNext": {

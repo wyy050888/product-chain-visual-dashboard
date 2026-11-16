@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import {readPrototypeAiPrompts} from './dev/prototype-ai-prompts.mjs';
+import {readPrototypeAiPrompts,weeklyReportSampleFiles} from './dev/prototype-ai-prompts.mjs';
 import path from 'node:path';
 import vm from 'node:vm';
 import { createHash, randomUUID } from 'node:crypto';
@@ -23,13 +23,23 @@ function writeIfChanged(relative,content){
 }
 const version=content=>createHash('sha256').update(content).digest('hex').slice(0,12);
 
+function readWeeklyReports(){
+ const reports=[...weeklyReportSampleFiles()].map(([name,file])=>[name,fs.readFileSync(file,'base64')]);
+ return reports.length?{'2026-10-19':Object.fromEntries(reports)}:{};
+}
+
 // 仍按原manifest次序拼接共享闭包；开发工具复用同一个构建器。
 export function buildPrototype({quiet=false}={}){
  const started=performance.now(),manifest=JSON.parse(read('manifest.json'));
  const previewStyles=manifest.styles.map(item=>read(item.file)).join('\n');
+ const weeklyReports=readWeeklyReports();
+ const weeklyReportBundle='window.dashboardWeeklyReportFiles = '+JSON.stringify(weeklyReports)+';\n';
+ const weeklyReportIndex=Object.fromEntries(Object.entries(weeklyReports).map(([week,files])=>[week,Object.keys(files)]));
  const app=read('src/runtime/open.js')+'const drawerPreviewCss = '+JSON.stringify(previewStyles)+';\n'
   +'const dashboardPages = '+JSON.stringify(manifest.pages)+';\n'
   +'const dashboardAiPrompts = '+JSON.stringify(readPrototypeAiPrompts())+';\n'
+  +'const dashboardWeeklyReports = '+JSON.stringify(weeklyReportIndex)+';\n'
+  +'const dashboardWeeklyReportBundle = "assets/weekly-reports.js?v='+version(weeklyReportBundle)+'";\n'
   +manifest.scripts.map(item=>read(item.file)).join('')+read('src/runtime/close.js');
  new vm.Script(app,{filename:'assets/app.js'});
  for(const file of manifest.images)if(!fs.existsSync(path.join(root,file)))throw new Error('图片缺失：'+file);
@@ -42,7 +52,7 @@ export function buildPrototype({quiet=false}={}){
  for(const marker of ['<!-- DASHBOARD_STYLES -->','<!-- DASHBOARD_SCRIPT -->','<!-- DASHBOARD_BOOT_HEAD -->','<!-- DASHBOARD_BOOT_BODY -->'])if(page.split(marker).length!==2)throw new Error('页面模板标记异常：'+marker);
  page=page.replace('<!-- DASHBOARD_BOOT_HEAD -->',bootHead).replace('<!-- DASHBOARD_BOOT_BODY -->',bootBody).replace('<!-- DASHBOARD_STYLES -->',styles)
   .replace('<!-- DASHBOARD_SCRIPT -->','<script defer src="assets/app.js?v='+version(app)+'"></script>');
- let written=writeIfChanged('assets/app.js',app);
+ let written=writeIfChanged('assets/app.js',app)+writeIfChanged('assets/weekly-reports.js',weeklyReportBundle);
  for(const entry of manifest.pages){
   const html=page.replace('data-dashboard-view="director"','data-dashboard-view="'+entry.view+'"')
    .replace('<!-- DASHBOARD_BOOT_TITLE -->','正在加载'+(entry.view==='director'?'产品链看板':entry.title))

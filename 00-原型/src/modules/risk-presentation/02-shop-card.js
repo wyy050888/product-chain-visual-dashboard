@@ -3,7 +3,7 @@
 function rpShopAssessment(shop){return shop.assessed?'<span class="rp-shop-assessed" role="img" aria-label="考核店铺"><svg viewBox="0 0 24 26" aria-hidden="true" focusable="false"><path d="M5 17 3.5 25 9 22.5 12 25 15 22.5 20.5 25 19 17Z" fill="#b6cbe5"/><path d="m12 1 9 3.5v8c0 5-4.2 8.5-9 11-4.8-2.5-9-6-9-11v-8Z" fill="#527cae"/><path d="m12 3 7 2.8v6.7c0 3.8-3.1 6.8-7 9-3.9-2.2-7-5.2-7-9V5.8Z" fill="#769ac5" stroke="#dce9f7" stroke-width=".8"/><path d="M12 3v18.5c3.9-2.2 7-5.2 7-9V5.8Z" fill="#6086b5"/><path d="m8 12 2.5 2.5 5.5-6" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg></span>':''}
 function rpShopIdentity(shop,detail=false){
  const sub='ID：'+shop.shopId+' · '+(shop.shopCategory||shcRules.pending);
- const link=detail?'<button type="button" class="link rp-detail-link" '+rpDetailAttr(1,shop)+' aria-label="查看'+esc(shop.name)+'详情">详情 ›</button>':'';
+ const link=detail?'<button type="button" class="link rp-detail-link ui-icon-label" '+rpDetailAttr(1,shop)+' aria-label="查看'+esc(shop.name)+'详情"><span>详情</span><span class="ui-chevron-right" aria-hidden="true"></span></button>':'';
  return '<div class="rp-identity rp-shop-identity">'+riskThumbnail(shop.name,true)+'<div class="rp-shop-identity-text"><div class="rp-identity-title"><b class="rp-platform-name" title="'+esc(shop.name)+'"><span>'+esc(shop.name)+'</span>'+rpPlatformMark(shop.channel)+'</b>'+rpShopAssessment(shop)+'</div><small title="'+esc(sub)+'">'+esc(sub)+'</small></div>'+link+'</div>';
 }
 // 单元格仅展示前两个名称；全部名称复用公共浮层。
@@ -25,7 +25,10 @@ function rpShopScoreMarkup(shop,fields,layout='tags'){
    const label=f.linkTone==='red'?'红灯链接':'黄灯链接',count=Number.isFinite(f.sortValue)?f.sortValue:'--';
    return `<div class="rp-pdd-count rp-pdd-count--${f.linkTone} rp-pdd-count--card rp-shop-link-summary" data-rp-field="${key}" aria-label="${label} ${count}条"><span class="rp-shop-link-label">${label}</span><span class="rp-shop-link-value"><strong class="rp-quality-${f.linkTone}">${count}</strong><small>条</small></span></div>`;
   }
-  return `<div data-rp-field="${key}"><small>${netSalesLabel(f.name,f.key)}</small><strong class="${f.tone}">${numberSignalMain(f)}</strong></div>`;
+  const scoreHelp=layout!=='summary'&&key==='score'&&rpShopScoreMonitored(shop.channel)
+   ?f.hint+' 品质违规处罚 '+fmt(shop.qualityPenaltyCount)+' 次。评分入榜条件为红灯且品质违规处罚'+brcDescribe('shops.penalties')+'。'
+   :'';
+  return `<div data-rp-field="${key}"${scoreHelp?' title="'+esc(scoreHelp)+'"':''}><small>${netSalesLabel(f.name,f.key)}</small><strong class="${f.tone}">${numberSignalMain(f)}</strong></div>`;
  }).join('');
 }
 function rpShopCardEntry(shop,index){

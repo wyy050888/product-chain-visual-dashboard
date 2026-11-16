@@ -7,15 +7,14 @@
 #dialogbody .sd-detail .sd-kpis .up-operating-value{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-top:9px}
 #dialogbody .sd-detail .sd-kpis .up-operating-value>span{font-size:11px}
 #dialogbody .sd-detail .sd-kpis .rp-quality-green{color:var(--green)}#dialogbody .sd-detail .sd-kpis .rp-quality-red{color:var(--red)}#dialogbody .sd-detail .sd-kpis .rp-quality-gray{color:#8693a4}
-#dialogbody .sd-detail [data-up-panel="operating"] .sd-operating-overview .up-sales-trend{display:flex;flex-direction:column;margin:0;padding:0 10px;border:0;min-width:0;min-height:0;align-self:stretch}
+#dialogbody .sd-detail [data-up-panel="operating"] .sd-operating-overview .up-sales-trend{display:flex;flex-direction:column;margin:0;padding:0;border:0;min-width:0;min-height:0;align-self:stretch}
 /* 图表高度由左侧两张卡片决定，SVG不撑高整行；窄屏改为上下布局。 */
-#dialogbody .sd-operating-overview .up-trend-heading{flex:none}
+#dialogbody .sd-operating-overview .up-trend-heading{flex:none;justify-content:flex-end}
 #dialogbody .sd-operating-overview .up-trend-scroll{position:relative;flex:1;min-height:0}
-#dialogbody .sd-operating-overview .up-sales-trend svg{position:absolute;inset:0;min-width:560px;width:100%;height:100%}
+#dialogbody .sd-operating-overview .up-sales-trend svg{position:absolute;inset:0;min-width:0;width:100%;height:100%}
 @media(max-width:700px){#dialogbody .sd-operating-overview .up-trend-scroll{flex:none;height:200px}}
 .sd-diagnosis-dimension{display:block;margin-bottom:9px}.sd-diagnosis-dimension>b{display:inline-block;margin-right:10px;font-weight:500;color:#435d7c}
 .sd-detail .up-ai-actions p{white-space:pre-line}
-.sd-spu-identity{display:flex;align-items:center;gap:12px}.sd-spu-identity>div{min-width:0}.sd-spu-identity small{display:block;margin-top:4px;color:#8390a5}.sd-spu-identity img{object-fit:contain}
 .sd-detail .sd-violation-stats{display:grid;grid-template-columns:repeat(var(--sd-violation-metrics,6),minmax(0,1fr));background:#f8faff;border-radius:6px;margin:18px 0 22px;padding:16px 0}
 #dialogbody .sd-violation-stats .up-quality-metric{border-radius:0;background:transparent;padding:0 16px;border-right:1px solid #e8edf5}
 #dialogbody .sd-violation-stats .up-quality-metric:last-child{border:0}
@@ -57,7 +56,7 @@
 .sd-detail .sd-core-links>h3{margin:0 0 16px}
 .sd-detail .sd-core-links>.sd-pdd-links:first-of-type{margin-top:0}
 
-/* SPU表头和内容均左对齐，四个经营指标使用统一排序控件。 */
-#dialogbody .sd-detail [data-sd-spu-table] table{min-width:900px;table-layout:fixed}
+/* 为名称保留主要空间，窄屏允许名称换行。 */
+#dialogbody .sd-detail [data-sd-spu-table] table{min-width:360px;table-layout:fixed}
 #dialogbody .sd-detail [data-sd-spu-table] :is(th,td){text-align:left}
-#dialogbody .sd-detail [data-sd-spu-table] :is(th,td):first-child{width:32%}
+#dialogbody .sd-detail [data-sd-spu-table] :is(th,td):first-child{width:58%;overflow-wrap:anywhere}

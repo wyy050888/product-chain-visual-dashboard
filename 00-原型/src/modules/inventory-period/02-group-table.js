@@ -2,7 +2,7 @@
 const ipStockColumns=[
  ['totalUnits','总库存',112],['goodsValueCents','货值（总库存）',140],
  ['warehouse','我司可售库存',132],['warehouseValueCents','货值（我司可售）',152],
- ['factory','工厂总库存',116],['factoryValueCents','货值（工厂总库存）',172],
+ ['factoryAvailable','工厂可售库存',132],['transit','在途库存',116],
  ['staleUnits','呆滞库存',136],['staleRatio','呆滞库存占比',160],
  ['staleValueCents','呆滞金额',136],['staleValueRatio','呆滞金额占比',160],
  ['turn','库存周转率',120],['delivery','交付及时率',120],['refurbRate','翻新闭环率',120]
@@ -11,7 +11,7 @@ function ipStockCell(row,key){
  if(key==='refurbRate')return ipRefurbRateCell(row);
  const value=row[key];if(!Number.isFinite(value))return '<span class="muted">—</span>';
  if(key==='turn'||key==='delivery')return ipIndicator(key,value);
- if(key.endsWith('Cents'))return fmt(value/1000000,2);
+ if(key.endsWith('Cents'))return formatStockValue(value,true);
  if(key.endsWith('Ratio'))return fmt(value,1)+'%';
  return stockQuantity(value);
 }
