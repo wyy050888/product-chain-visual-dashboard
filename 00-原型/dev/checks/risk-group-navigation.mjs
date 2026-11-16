@@ -3,7 +3,7 @@ export async function riskGroupNavigation(page){
  await page.waitForFunction(()=>document.documentElement.dataset.dashboardBoot==='ready');
  const nav=page.locator('#rp-group-navigation'),buttons=nav.locator('button');
  const kinds=['0','6','8','1','4','3','2'];
- assert.deepEqual(await buttons.allTextContents(),['产品违规榜','退货恶化榜','退货偏差榜','店铺风险榜','呆滞预警榜（实时）','缺货预警榜（实时）','亏损产品榜']);
+ assert.deepEqual(await buttons.allTextContents(),['产品违规榜','退货恶化榜','退货偏差榜','店铺风险榜','呆滞预警榜','缺货预警榜','亏损产品榜']);
  const jump=kind=>nav.locator('[data-rp-group-jump="'+kind+'"]');
  const board=kind=>page.locator('#riskrail [data-rp-board="'+kind+'"]');
  const initial=await page.locator('#riskrail').innerText();

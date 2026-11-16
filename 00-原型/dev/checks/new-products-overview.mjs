@@ -11,9 +11,9 @@ export async function verifyNewProductUnsoldDrawer(page){
  assert.deepEqual((await drawer.locator('th').allTextContents()).map(text=>text.trim()),['SPU信息','首批请购单号','首批单状态','我司可售库存','项目上市日期','承接运营','产品经理']);
  assert.deepEqual(await drawer.locator('tbody td:nth-child(3)').allTextContents(),['交付完成','交付完成','交付完成','交付中']);
  assert.deepEqual(await drawer.locator('tbody td:nth-child(4)').allTextContents(),['360 件','240 件','120 件','60 件']);
- assert.deepEqual(await drawer.locator('tbody td:nth-child(5)').allTextContents(),['26/11/18','26/11/20','26/11/24','—']);
+ assert.deepEqual(await drawer.locator('tbody td:nth-child(5)').allTextContents(),['26/11/01','26/11/03','26/11/05','—']);
  await drawer.getByRole('button',{name:'查看项目上市日期指标口径'}).hover();
- assert.match(await page.locator('#metric-tooltip').innerText(),/取自 SPU 关联项目的计划完成日期/);
+ assert.match(await page.locator('#metric-tooltip').innerText(),/取自 SPU 关联项目的实际量产日期/);
  assert.deepEqual(await drawer.locator('tbody td:nth-child(6)').allTextContents(),['周晓_兴趣电商','许晨_一类电商','—','—']);
  await drawer.getByRole('button',{name:'查看承接运营指标口径'}).hover();
  assert.equal(await page.locator('#metric-tooltip').innerText(),'取数口径：取自 SPU 关联项目的承接运营。');

@@ -32,7 +32,7 @@ function rpMountGroupNavigation(){
  let nav=$('#rp-group-navigation');
  if(!nav){
   nav=document.createElement('nav');nav.id='rp-group-navigation';nav.className='rp-group-navigation';nav.setAttribute('aria-label','风险榜快速定位');
-  nav.innerHTML=rpNavigationBoards().map(({dataset:{rpBoard:kind}})=>`<button type="button" data-rp-group-jump="${kind}">${esc(rpTitles[kind])}</button>`).join('');
+  nav.innerHTML=rpNavigationBoards().map(({dataset:{rpBoard:kind}})=>`<button type="button" data-rp-group-jump="${kind}">${esc(rpRankingTabLabel(kind))}</button>`).join('');
   $('#risk>.sectionhead .titlegroup').append(nav);
   nav.addEventListener('click',event=>{
    const button=event.target.closest('[data-rp-group-jump]');if(!button)return;

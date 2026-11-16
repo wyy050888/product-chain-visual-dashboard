@@ -6,7 +6,7 @@ function nspUnsoldKpi(count){
 }
 
 function nspOpenUnsold({asOf,rows}){
- const projectHeaders=[['项目上市日期','计划完成日期'],['承接运营','承接运营']].map(([label,field])=>
+ const projectHeaders=[['项目上市日期','实际量产日期'],['承接运营','承接运营']].map(([label,field])=>
   `${label} <span class="metric-help" role="button" tabindex="0" aria-label="查看${label}指标口径" data-metric-rule="取数口径：取自 SPU 关联项目的${field}。"></span>`
  );
  const headers=['SPU信息','首批请购单号','首批单状态','我司可售库存',...projectHeaders,'产品经理'];
@@ -33,7 +33,7 @@ function nspOpenUnsold({asOf,rows}){
    esc(product.requisitionNo),
    `<span class="nsp-requisition-status" data-status="${esc(product.firstRequisitionStatus)}">${esc(product.firstRequisitionStatus)}</span>`,
    `${product.stock.toLocaleString('zh-CN')} 件`,
-   esc(product.plannedLaunch||'—'),
+   esc(product.actualProductionDate||'—'),
    esc(product.operationsOwner||'—'),
    esc(product.manager||'—')
   ]));

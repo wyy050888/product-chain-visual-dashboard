@@ -19,9 +19,9 @@ const nspUnsoldRequisitions={
  'DEMO-QG-261021-06':{complete:false,deliveryTimes:['2026-11-07T10:00:00']}
 };
 const nspUnsoldProjects={
- 'DEMO-PROJECT-025':{plannedCompletionDate:'2026-11-18',operationsOwner:'周晓_兴趣电商'},
- 'DEMO-PROJECT-026':{plannedCompletionDate:'2026-11-20',operationsOwner:'许晨_一类电商'},
- 'DEMO-PROJECT-027':{plannedCompletionDate:'2026-11-24'}
+ 'DEMO-PROJECT-025':{actualProductionDate:'2026-11-01',operationsOwner:'周晓_兴趣电商'},
+ 'DEMO-PROJECT-026':{actualProductionDate:'2026-11-03',operationsOwner:'许晨_一类电商'},
+ 'DEMO-PROJECT-027':{actualProductionDate:'2026-11-05'}
 };
 
 function nspUnsoldSummary(){
@@ -36,9 +36,10 @@ function nspUnsoldSummary(){
   if(!deliveryDates.some(date=>date<=asOf))continue;
   const firstRequisitionStatus=requisition.complete&&deliveryDates.every(date=>date<=asOf)?'交付完成':'交付中';
   const project=nspUnsoldProjects[product.projectId];
+  const actualProductionDate=project?.actualProductionDate;
   bySpu.set(product.spuCode,{
    ...product,firstRequisitionStatus,
-   plannedLaunch:project?.plannedCompletionDate,
+   actualProductionDate:actualProductionDate&&actualProductionDate<=asOf?actualProductionDate:null,
    operationsOwner:project?.operationsOwner
   });
  }

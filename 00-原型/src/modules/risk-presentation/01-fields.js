@@ -1,6 +1,7 @@
 // 展示字段只读取统一台账；不改各榜入池、排序和业务阈值。
 const rpState={shopType:'all'};
 const rpTitles={0:'产品违规榜',1:'店铺风险榜',2:'亏损产品榜',3:'缺货预警榜（实时）',4:'呆滞预警榜（实时）',6:'退货恶化榜',8:'退货偏差榜'};
+function rpRankingTabLabel(kind){return rpTitles[kind]?.replace(/（实时）$/,'')}
 const rpCardKeys={0:['return','received','sanctions','offShelf','contact'],1:['gsv','netSales','sanctions','limited','score'],
   2:['gsv','margin','loss','return','total'],3:['gsv','margin','return','total','turn'],
   4:['staleUnits','staleValue','age','dailyNet15'],6:['gsv','netSales','margin','return','received']};

@@ -1,8 +1,5 @@
-const riskRankingTabs=[
- {kind:0,label:'产品违规榜'}, {kind:6,label:'退货恶化榜'}, {kind:8,label:'退货偏差榜'},
- {kind:1,label:'店铺风险榜'}, {kind:4,label:'呆滞预警榜（实时）'},
- {kind:3,label:'缺货预警榜（实时）'}, {kind:2,label:'亏损产品榜'}
-];
+const riskRankingKinds=[0,6,8,1,4,3,2];
+function rpAvailableRankingTabs(){return riskRankingKinds.map(kind=>({kind,label:rpRankingTabLabel(kind)}))}
 const riskRankingPages=new Map();
 function riskRankingAttach(kind){
  const body=$('#dialogbody');
@@ -20,7 +17,7 @@ function riskRankingRemember(kind){
  else riskRankingPages.set(kind,{page:rfState.page,dimension:rfState.dimension});
 }
 function riskRankingSwitch(kind,focus=false){
- if(!riskRankingTabs.some(t=>t.kind===kind))return;
+ if(!rpAvailableRankingTabs().some(t=>t.kind===kind))return;
  const current=Number($('#dialogbody').dataset.riskRankingKind);
  if(current!==kind){
   riskRankingRemember(current);
@@ -50,10 +47,10 @@ drawerProfile=function(body,title){
  const profile=riskRankingPreviousProfile(body,title);
  if(!body.hasAttribute('data-risk-ranking-kind'))return profile;
  const kind=Number(body.dataset.riskRankingKind);
- if(!riskRankingTabs.some(t=>t.kind===kind))return profile;
+ if(!rpAvailableRankingTabs().some(t=>t.kind===kind))return profile;
  // 标签只切换榜单；各榜原内容整体展示，避免与详情分组标签混用。
  return {...profile,entries:profile.entries.map(entry=>({...entry,key:'shared'})),
-  tabs:riskRankingTabs.map(t=>({key:'ranking-'+t.kind,label:t.label})),
+  tabs:rpAvailableRankingTabs().map(t=>({key:'ranking-'+t.kind,label:t.label})),
   activeKey:'ranking-'+kind,
   onSelect:(key,focus)=>riskRankingSwitch(Number(key.replace('ranking-','')),focus)
  };
