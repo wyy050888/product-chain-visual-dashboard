@@ -9,11 +9,14 @@
 .up-ai-evidence-nav{display:flex;gap:24px}
 .up-ai-evidence-nav button{padding:8px 0 10px;border:0;border-bottom:2px solid transparent;background:transparent;color:#708198;font:inherit;cursor:pointer}
 .up-ai-evidence-nav button[aria-current]{border-color:#1677ff;color:#1677ff;font-weight:600}
-.up-ai-evidence-section{margin:24px 0}.up-ai-evidence-section>h5{margin:0 0 12px;padding-left:10px;border-left:3px solid #1677ff;color:#243e5c;font-size:15px;line-height:1.4}
+.up-ai-evidence-section{margin:24px 0}
+.up-ai-evidence-section+.up-ai-evidence-section{padding-top:20px;border-top:1px solid #e8edf5}
+#dialogbody .up-ai-evidence-section>h5{margin:0 0 12px;padding-left:10px;border-left:3px solid #1677ff;color:#243e5c;font-size:18px!important;font-weight:var(--weight-semibold,600)!important;line-height:1.4}
 .up-ai-evidence-item{padding:0 0 20px;margin:16px 0 20px;border-bottom:1px solid #e8edf5;min-width:0}
 .up-ai-evidence-item:last-child{border-bottom:0;margin-bottom:0}
-.up-ai-evidence-nature{color:#708198;font-size:12px}
-.up-ai-evidence-statement{margin:4px 0 12px;color:#2c405c;white-space:pre-line;overflow-wrap:anywhere}
+.up-ai-evidence-highlight{margin:4px 0 12px;padding:12px 14px;border:1px solid #dbe8fb;border-radius:6px;background:#eef5ff;color:#243e5c}
+.up-ai-evidence-nature{display:block;margin-bottom:4px;color:#526985;font-size:12px}
+.up-ai-evidence-statement{margin:0;font-size:14px;white-space:pre-line;overflow-wrap:anywhere}
 .up-ai-evidence-item h6{font-size:12px;color:#708198;margin:12px 0 6px}
 /* 来源表直接沿用总诊断的两列样式；业务期间保留在来源信息中。 */
 .up-ai-evidence-body .up-ai-sources>table{min-width:0}
