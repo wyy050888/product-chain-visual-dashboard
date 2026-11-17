@@ -1,7 +1,7 @@
 // 图标徽标复用统一浮层，避免浏览器原生title的延迟提示。
 // 指标说明仅由问号触发；名称补全和图表数据点继续使用各自入口。
 const brandShareArcSelector='.ip-brand-share-arc,.ms-brand-share-arc';
-const metricHelpSelector='.metric-help,.rp-shop-core[data-rp-core-names],.ip-stale-mark[data-metric-rule],:is('+brandShareArcSelector+')[data-metric-rule]';
+const metricHelpSelector='.metric-help,[data-metric-text-label],.rp-shop-core[data-rp-core-names],.ip-stale-mark[data-metric-rule],:is('+brandShareArcSelector+')[data-metric-rule]';
 const metricTooltip = document.createElement('div');
 metricTooltip.id = 'metric-tooltip';
 metricTooltip.className = 'metric-tooltip';
@@ -56,6 +56,11 @@ function renderMetricTooltipContent(help){
  const text=help.dataset.metricRule;
  metricTooltip.replaceChildren();
  metricTooltip.classList.remove('metric-rule-card');
+ if(help.dataset.metricTextLabel){
+  const body=metricRuleCard(metricTooltip,help.dataset.metricTextLabel);
+  metricRuleNode(body,'div',help.textContent,'metric-tooltip-text-body');
+  return;
+ }
  if(help.matches('.ip-brand-share-arc')){ipRenderBrandShareTooltip(metricTooltip,help);return}
  if(help.matches('.ms-brand-share-arc')){msRenderBrandShareTooltip(metricTooltip,help);return}
  if(help.dataset.ipTrendPoint){ipRenderStaleTrendTooltip(metricTooltip,help);return}
@@ -119,7 +124,8 @@ function renderMetricTooltipContent(help){
 }
 function showMetricTooltip(help) {
   metricHover.keep();
-  if (!help?.matches(metricHelpSelector)||(!help.dataset.metricRule&&!metricHasRuleCard(help))) return;
+  if (!help?.matches(metricHelpSelector)||(!help.dataset.metricRule&&!help.dataset.metricTextLabel&&!metricHasRuleCard(help))) return;
+  if(help.dataset.metricTextLabel&&help.scrollWidth<=help.clientWidth){hideMetricTooltip();return}
   const assessmentHelp=help.hasAttribute('data-nsp-assessment-help');
   if(assessmentHelp&&activeMetricHelp===help&&!metricTooltip.hidden)return;
   activeMetricHelp?.removeAttribute('aria-describedby');
@@ -138,6 +144,7 @@ function showMetricTooltip(help) {
     metricTooltip.removeAttribute('aria-labelledby');
   }
   metricTooltip.classList.toggle('metric-tooltip-card', help.classList.contains('card-metric-help'));
+  metricTooltip.classList.toggle('metric-tooltip-text',Boolean(help.dataset.metricTextLabel));
   metricTooltip.classList.toggle('metric-tooltip-kpi', help.classList.contains('nsp-kpi-help'));
   metricTooltip.classList.toggle('metric-tooltip-kpm-grade',kpmIsGradeHelp(help));
   metricTooltip.classList.toggle('metric-tooltip-nsp-card', Boolean(help.dataset.nspKpi||help.dataset.nspStatus));
@@ -154,7 +161,7 @@ function showMetricTooltip(help) {
   metricTooltip.classList.toggle('metric-tooltip-shop-core-names',Boolean(help.dataset.rpCoreNames));
   metricTooltip.toggleAttribute('data-preserve-terms',help.hasAttribute('data-preserve-terms'));
   renderMetricTooltipContent(help);
-  cleanDemoPresentation(metricTooltip);
+  if(!help.dataset.metricTextLabel)cleanDemoPresentation(metricTooltip);
   metricTooltip.hidden = false;
   positionMetricTooltip(help);
 }

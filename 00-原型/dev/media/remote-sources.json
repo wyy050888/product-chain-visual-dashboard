@@ -121,6 +121,15 @@
         470,
         625
       ]
+    },
+    {
+      "id": "midea-warming-board",
+      "brand": "美的",
+      "category": "暖菜板",
+      "page": "https://www.midea.cn/detail/index?id=569983&itemid=1000000000400702569983",
+      "url": "https://oss-accelerate-ga.midea.com/vision-material-634-public-prd-g5-cdn/material_gpim/20260426/c036708ce5c1a75153586fba8dfc7efb.jpg?x-oss-process=image%2Fresize%2Climit_0%2Cw_530%2Ch_530",
+      "file": "assets/reference-images/pc-initiation-warming-board.jpg",
+      "kind": "same-brand-category-illustration"
     }
   ]
 }

@@ -551,13 +551,16 @@
       "src/modules/product-center/06-reports.js",
       "src/modules/product-center/07-metrics-model.js",
       "src/modules/product-center/08-metrics-view.js",
-      "src/modules/product-center/09-brand-plan.js"
+      "src/modules/product-center/09-brand-plan.js",
+      "src/modules/product-center/10-risk-model.js",
+      "src/modules/product-center/11-risk-view.js"
     ],
     "styles": [
       "styles/88-product-center.css",
       "styles/35-risk-reading.css",
       "styles/40-quality-preview.css",
-      "styles/44-risk-card-alignment.css"
+      "styles/44-risk-card-alignment.css",
+      "styles/89-risk-board-groups.css"
     ],
     "checks": [
       "productCenter"

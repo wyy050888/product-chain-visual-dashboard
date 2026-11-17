@@ -1,14 +1,23 @@
 // 已有明确数值口径的榜单显式显示默认列；复合风险榜仍保留原业务顺序。
 function rpRankingDefaultSort(kind){return kind===2?{key:'loss',direction:'asc'}:kind===4?{key:'coverage15',direction:'desc'}:{key:'',direction:''}}
+function rpResetListSession(){
+ Object.assign(rpListState,{periods:{},dayRanges:{},sorts:{},filters:{}});
+}
 // 六榜固定表头；业务筛选按Tab保存，分组明细使用独立副本，返回保留父层状态。
 function rpOpenList(k,reset=false,scopeRows=null,restore=null){
- const first=$('#overlay').hidden,priorKind=Number($('#dialogbody').dataset.riskRankingKind);
- if(!first&&!restore&&Number.isInteger(priorKind)&&priorKind!==k){rpListState.periods[priorKind]={...rpListState.period};rpListState.period={...(rpListState.periods[k]||rpBoardPeriod(k))}}
+ const first=$('#overlay').hidden,priorKind=$('#dialogbody').dataset.riskRankingKind;
+ if(!first&&!restore&&priorKind!==undefined&&priorKind!==String(k)){
+  if(Number.isInteger(Number(priorKind)))rpListState.periods[priorKind]={...rpListState.period};
+  rpListState.period={...(rpListState.periods[k]||rpBoardPeriod(k))};
+ }
  rpListState.kind=k;
  // 退货榜支持全平台及六个平台，兼容旧的无效状态。
  if(k===1&&!qrPlatforms.includes(rfState.listPlatforms[k]))rfState.listPlatforms[k]=rpCardPlatform(k);
  if([6,8].includes(k)&&!pfSelected(rfState.listPlatforms[k]).every(platform=>qrPlatforms.includes(platform)))rfState.listPlatforms[k]=rpCardPlatform(k);
- if(first&&!restore){rpListState.period={...rpBoardPeriod(k)};rpListState.periods={};rpListState.dayRanges={};rpListState.sorts={};rpListState.filters={};rpSavedFilters(k)};
+ if(first&&!restore){
+  if(pcIsActive())riskRankingPages.clear();
+  rpResetListSession();rpListState.period={...rpBoardPeriod(k)};rpSavedFilters(k);
+ }
  if((first||reset)&&!restore){if(k===0){qrState.listPlatform=rpCardPlatform(0);qrState.listPage=1}else{rfState.kind=k;rfState.page=1;rfState.dimension='spu';rfState.listPlatforms[k]=rpCardPlatform(k)}}
  if(restore&&k===1){rfState.kind=1;rfState.dimension='spu';rpListState.period={...restore.period};rpListState.filters[1]=restore.filters;rpListState.sorts[1]=restore.sorts;rfState.listPlatforms[1]=restore.platform;rfState.page=restore.page}
  const filters=scopeRows?{...rpSavedFilters(k)}:rpSavedFilters(k);

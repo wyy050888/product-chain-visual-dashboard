@@ -20,7 +20,7 @@
 #riskrail :is(.rp-quality-entry,.pc-risk-entry) .rp-entry-main>header {margin-bottom:7px;min-height:28px}
 #riskrail .rp-quality-entry .rp-identity small {display:none}
 /* 卡片中的产品名与店铺名共用身份样式；亏损明细表由表格规范管理。 */
-#riskrail .riskcard:not(.rp-loss-wide) .rp-entry-main .rp-identity b {font-size:16px;font-weight:400;line-height:22px;color:#203650}
+#riskrail .riskcard:not(.rp-loss-wide,.rp-wide-fields) .rp-entry-main .rp-identity b {font-size:16px;font-weight:400;line-height:22px;color:#203650}
 #riskrail .rp-quality-entry .rp-detail-link {font-size:11px;font-weight:400;color:#7b8ea6}
 #riskrail .rp-quality-metric {min-width:0;font-variant-numeric:tabular-nums}
 #riskrail .rp-quality-metric strong {display:block;font-size:16px;font-weight:600;line-height:26px;white-space:nowrap;color:#52657d}

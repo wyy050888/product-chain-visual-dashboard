@@ -19,14 +19,17 @@ function rpCardSeasonControl(k,hidden=false){
 
 
 // 违规、退货和库存季品标签用radio，联动范围仍仅限库存两榜。
+function rpSeasonTagMarkup({value,label},count,selected,attribute,single=false){
+ const state=single?'role="radio" aria-checked="'+selected+'" tabindex="'+(selected?'0':'-1')+'"':'aria-pressed="'+selected+'"';
+ return `<button type="button" class="rp-season-tag" ${attribute}="${esc(value)}" ${state} aria-label="${esc(label+'，'+count+'条入榜记录')}" title="${esc(label+' · '+count+'条入榜记录')}">${esc(label)}<b class="rp-platform-count rp-season-count">${count}</b></button>`;
+}
 function rpCardSeasonTags(k){
  const value=rpCardSeasons[k],label=rpTitles[k]+'季品',rows=rpRowsForPlatform(k,rpCardPlatform(k)),single=rpCardSeasonSingle(k);
  const choices=[{value:'all',label:'全部'},...rpSeasonChoices.map(value=>({value,label:value}))];
  const buttons=choices.map(option=>{
   // 忽略标签自身已选季品，以完整入榜集合统计，保持各选项数量稳定。
   const count=rows.filter(row=>pfMatches(row,{...rpCardProductFilters(k),attribute:option.value})).length;
-  const selected=pfOptionSelected(value,option.value),state=single?'role="radio" aria-checked="'+selected+'" tabindex="'+(selected?'0':'-1')+'"':'aria-pressed="'+selected+'"';
-  return '<button type="button" class="rp-season-tag" data-rp-season-option="'+option.value+'" '+state+' aria-label="'+esc(option.label+'，'+count+'条入榜记录')+'" title="'+esc(option.label+' · '+count+'条入榜记录')+'">'+option.label+'<b class="rp-platform-count rp-season-count">'+count+'</b></button>';
+  return rpSeasonTagMarkup(option,count,pfOptionSelected(value,option.value),'data-rp-season-option',single);
  }).join('');
  return '<div class="rp-season-menu rp-card-facets" data-rp-season-menu="'+k+'">'+rpCardSeasonControl(k,true)+'<div class="rp-season-tags" role="'+(single?'radiogroup':'group')+'" aria-label="'+esc(label)+'">'+buttons+'</div></div>';
 }
@@ -38,6 +41,12 @@ function rpFocusSeasonTag(button){
  if(item.left<box.left)strip.scrollLeft-=box.left-item.left+2;
  else if(item.right>box.right)strip.scrollLeft+=item.right-box.right+2;
 }
+function rpSeasonTagInDirection(button,key){
+ if(!['ArrowLeft','ArrowRight','Home','End'].includes(key))return null;
+ const buttons=[...button.parentElement.querySelectorAll('.rp-season-tag')],index=buttons.indexOf(button);
+ const next=key==='Home'?0:key==='End'?buttons.length-1:(index+(key==='ArrowRight'?1:-1)+buttons.length)%buttons.length;
+ return buttons[next];
+}
 document.addEventListener('click',event=>{
  const button=event.target.closest('#riskrail [data-rp-season-option]');if(!button)return;
  const menu=button.closest('[data-rp-season-menu]'),k=menu.dataset.rpSeasonMenu,value=button.dataset.rpSeasonOption,select=menu.querySelector('select');
@@ -47,12 +56,11 @@ document.addEventListener('click',event=>{
  rpFocusSeasonTag(document.querySelector('#riskrail [data-rp-season-menu="'+k+'"] [data-rp-season-option="'+value+'"]'));
 });
 document.addEventListener('keydown',event=>{
- const button=event.target.closest('#riskrail [data-rp-season-option]');if(!button||!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;
+ const button=event.target.closest('#riskrail [data-rp-season-option]');
+ const next=button&&rpSeasonTagInDirection(button,event.key);if(!next)return;
  event.preventDefault();
- const buttons=[...button.parentElement.querySelectorAll('button')],index=buttons.indexOf(button);
- const next=event.key==='Home'?0:event.key==='End'?buttons.length-1:(index+(event.key==='ArrowRight'?1:-1)+buttons.length)%buttons.length;
- if(rpCardSeasonSingle(Number(button.closest('[data-rp-season-menu]').dataset.rpSeasonMenu)))buttons[next].click();
- else rpFocusSeasonTag(buttons[next]);
+ if(rpCardSeasonSingle(Number(button.closest('[data-rp-season-menu]').dataset.rpSeasonMenu)))next.click();
+ else rpFocusSeasonTag(next);
 });
 
 const rpQualityPlatformKinds=[0,6,8],rpQualityDefaultPlatforms=['抖音','天猫'];

@@ -7,7 +7,7 @@ const nspUnsoldSamples=[
  {spuCode:'DEMO-NEW-028',category:'清洁',season:'四季品',requisitionNo:'DEMO-QG-261012-04',stock:80,firstChannelOrderAt:'2026-10-24T09:00:00'},
  {spuCode:'DEMO-NEW-029',category:'环境',season:'冬季品',requisitionNo:'DEMO-QG-261012-05',stock:0,firstChannelOrderAt:null},
  {spuCode:'DEMO-NEW-030',category:'环境',season:'冬季品',requisitionNo:null,stock:60,firstChannelOrderAt:null},
- {spuCode:'DEMO-NEW-031',name:'创维语音取暖器 H26',imageFrom:'创维语音款取暖器A831',category:'环境',season:'冬季品',requisitionNo:'DEMO-QG-261021-06',stock:60,firstChannelOrderAt:null,manager:'陈宁'}
+ {spuCode:'DEMO-NEW-031',name:'创维语音取暖器 H26',imageFrom:'创维语音款取暖器A831',category:'环境',season:'冬季品',requisitionNo:'DEMO-QG-261021-06',projectId:'DEMO-PROJECT-031',stock:60,firstChannelOrderAt:null,manager:'陈宁'}
 ];
 // 一张请购单可分批交付，入池要求截至统计日已有至少一批交付。
 const nspUnsoldRequisitions={
@@ -19,18 +19,30 @@ const nspUnsoldRequisitions={
  'DEMO-QG-261021-06':{complete:false,deliveryTimes:['2026-11-07T10:00:00']}
 };
 const nspUnsoldProjects={
- 'DEMO-PROJECT-025':{actualProductionDate:'2026-11-01',operationsOwner:'周晓_兴趣电商'},
- 'DEMO-PROJECT-026':{actualProductionDate:'2026-11-03',operationsOwner:'许晨_一类电商'},
- 'DEMO-PROJECT-027':{actualProductionDate:'2026-11-05'}
+ 'DEMO-PROJECT-025':{type:'自选开发',actualProductionDate:'2026-11-01',salesChannel:'兴趣电商',operationsOwner:'周晓_兴趣电商'},
+ 'DEMO-PROJECT-026':{type:'自研开发',actualProductionDate:'2026-11-03',salesChannel:'一类电商',operationsOwner:'许晨_一类电商'},
+ 'DEMO-PROJECT-027':{type:'产品迭代',actualProductionDate:'2026-11-05',salesChannel:'线上渠道',operationsOwner:'李欣_线上渠道'},
+ 'DEMO-PROJECT-031':{type:'自选开发',actualProductionDate:null,salesChannel:'线下渠道',operationsOwner:'张妍_线下渠道'}
 };
 
-function nspUnsoldSummary(){
- const asOf=nspUnsoldSampleDate;
- const category=pfControlValue($('#newchain'));
+function nspCompareUnsoldRows(a,b){
+ const stockDifference=b.stock-a.stock;
+ if(stockDifference)return stockDifference;
+ const first=a.actualProductionDate||'',second=b.actualProductionDate||'';
+ if(first!==second){
+  if(!first)return 1;
+  if(!second)return -1;
+  return first.localeCompare(second);
+ }
+ return a.spuCode.localeCompare(b.spuCode);
+}
+
+function nspUnsoldSummary({category=pfControlValue($('#newchain')),season=nspFilters.season,asOf=nspUnsoldSampleDate}={}){
  const bySpu=new Map();
  for(const product of nspUnsoldSamples){
-  if(!pfIncludes(category,product.category)||!pfIncludes(nspFilters.season,product.season))continue;
-  if(!(product.stock>0)||product.firstChannelOrderAt!==null)continue;
+  if(!pfIncludes(category,product.category)||!pfIncludes(season,product.season))continue;
+  const firstOrderDate=product.firstChannelOrderAt?.slice(0,10);
+  if(!(product.stock>0)||(firstOrderDate&&firstOrderDate<=asOf))continue;
   const requisition=nspUnsoldRequisitions[product.requisitionNo];
   const deliveryDates=requisition?.deliveryTimes.map(time=>time.slice(0,10)).filter(Boolean)||[];
   if(!deliveryDates.some(date=>date<=asOf))continue;
@@ -38,11 +50,11 @@ function nspUnsoldSummary(){
   const project=nspUnsoldProjects[product.projectId];
   const actualProductionDate=project?.actualProductionDate;
   bySpu.set(product.spuCode,{
-   ...product,firstRequisitionStatus,
+   ...product,firstRequisitionStatus,projectType:project?.type,
    actualProductionDate:actualProductionDate&&actualProductionDate<=asOf?actualProductionDate:null,
-   operationsOwner:project?.operationsOwner
+   salesChannel:project?.salesChannel,operationsOwner:project?.operationsOwner
   });
  }
- const rows=[...bySpu.values()].sort((a,b)=>b.stock-a.stock||a.spuCode.localeCompare(b.spuCode));
+ const rows=[...bySpu.values()].sort(nspCompareUnsoldRows);
  return {asOf,rows};
 }

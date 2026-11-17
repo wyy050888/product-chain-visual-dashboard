@@ -3,16 +3,13 @@
 .product-center-view>.pc-navigation-toolbar{top:60px}
 .product-center-view>.pc-module-anchor{display:block;height:0;scroll-margin-top:var(--dashboard-anchor-offset,130px)}
 .product-center-view>.section{scroll-margin-top:var(--dashboard-anchor-offset,130px)}
-/* 空榜复用总看板标题和边框，缩短没有记录时的卡片高度。 */
-.product-center-view #riskrail .pc-risk-card .rp-items{display:grid;grid-template-rows:1fr;min-height:104px;align-items:center}
-.product-center-view #riskrail .pc-risk-card .empty{background:none;color:#7b8da4}
 .pc-panel{min-width:0;padding:16px;border:1px solid #e0e8f2;border-radius:9px;background:#fff}
-.pc-people-toolbar,.pc-data-context,.pc-brand-filters,.pc-people-period{display:flex;align-items:center;justify-content:space-between;gap:10px 16px;flex-wrap:wrap}
+.pc-people-toolbar,.pc-data-context,.pc-brand-filters{display:flex;align-items:center;justify-content:space-between;gap:10px 16px;flex-wrap:wrap}
 .pc-people-toolbar .tabs{display:flex;gap:5px;flex-wrap:wrap}
 .pc-people-toolbar .tabs button{white-space:nowrap}
 .pc-data-context{margin:12px 0;font-size:12px;color:#516782}
-.pc-people-period label,.pc-brand-filters label{display:inline-flex;align-items:center;gap:7px}
-.pc-people-period input,.pc-brand-filters select{max-width:100%}
+.pc-brand-filters label{display:inline-flex;align-items:center;gap:7px}
+.pc-brand-filters select{max-width:100%}
 .pc-data-scroll{max-width:100%;max-height:460px;overflow:auto;border:1px solid #e6edf5;border-radius:7px}
 .pc-data-table{width:100%;min-width:max-content;border-collapse:separate;border-spacing:0;text-align:left;font-variant-numeric:tabular-nums}
 .pc-data-table :is(td,th){padding:10px 13px;border-bottom:1px solid #edf1f6}
@@ -27,18 +24,8 @@
 .pc-brand-counts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:10px 0 14px}
 .pc-brand-counts div{background:#f5f8fd;border-radius:6px;padding:10px 12px;color:#516782}
 .pc-brand-counts strong{display:block;margin-top:3px;color:#203d63;font-size:20px}
-.pc-weekly{padding:0 0 4px}
-.pc-weekly-feature{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:16px;border:1px solid #dce8f8;border-radius:8px;background:linear-gradient(120deg,#eef5ff,#fbfdff)}
-.pc-weekly-feature>div{flex:1;min-width:185px}
-.pc-weekly-icon{display:grid;place-items:center;width:43px;height:48px;border-radius:6px;background:#e0edff;color:#2462a7;font-size:11px;font-weight:700}
-.pc-eyebrow,.pc-weekly-caption{font-size:12px;color:#60758c}
-.pc-weekly-feature h3{margin-top:3px;font-size:16px;color:#244467}
-.pc-weekly-caption{margin:14px 0 5px}
-.pc-weekly-archive{margin:0;padding:0;list-style:none}
-.pc-weekly-archive li{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid #edf1f6}
-.pc-weekly-archive small{display:block;font-size:11px;color:#74869c;overflow-wrap:anywhere}
-.pc-weekly-archive button{flex:none}
-@media(max-width:700px){.pc-panel{padding:10px}.pc-people-period,.pc-personnel .sectionhead{flex-wrap:wrap}.pc-brand-counts{gap:5px}.pc-brand-counts div{padding:8px}}
+.pc-risk-heading{display:flex;align-items:baseline;gap:2px 12px;flex-wrap:wrap;min-width:0}
+@media(max-width:700px){.pc-panel{padding:10px}.pc-brand-counts{gap:5px}.pc-brand-counts div{padding:8px}}
 .pc-role-control{display:inline-flex;align-items:center;gap:8px;margin-right:20px;white-space:nowrap;color:#66738a;font-size:13px}
 .pc-role-control[hidden]{display:none!important}
 .lt-system-active .pc-role-control{display:none!important}

@@ -23,10 +23,10 @@ function gdWeeklyReportRows(){
  return rows;
 }
 
-function gdWeeklyReportTable(weeks){
- const headers=gdWeeklyReportScopes.map(([,name])=>`<th scope="col">${name}</th>`).join('');
+function gdWeeklyReportTable(weeks,scopes=gdWeeklyReportScopes){
+ const headers=scopes.map(([,name])=>`<th scope="col">${name}</th>`).join('');
  const rows=weeks.map(({monday,label,reports})=>{
-  const cells=gdWeeklyReportScopes.map(([key,name])=>{
+  const cells=scopes.map(([key,name])=>{
    const file=reports[key];
    return file
     ? `<td><button type="button" class="link" data-gd-weekly-download="${monday}" data-gd-weekly-file="${esc(file)}" aria-label="下载周报 · ${label} · ${name}">下载周报</button></td>`
@@ -34,7 +34,10 @@ function gdWeeklyReportTable(weeks){
   }).join('');
   return `<tr><th scope="row">${label}</th>${cells}</tr>`;
  }).join('');
- return `<div class="gd-table-scroll gd-weekly-reports" tabindex="0" role="region" aria-label="部门周报"><table aria-label="部门周报下载表"><thead><tr><th scope="col">统计周</th>${headers}</tr></thead><tbody>${rows||'<tr><td colspan="9" class="gd-empty">暂无统计周</td></tr>'}</tbody></table></div>`;
+ const singleScope=scopes.length===1;
+ const emptyMessage=singleScope?'暂无已生成的'+scopes[0][1]+'周报':'暂无统计周';
+ const empty=`<tr><td colspan="${scopes.length+1}" class="gd-empty">${emptyMessage}</td></tr>`;
+ return `<div class="gd-table-scroll gd-weekly-reports${singleScope?' gd-weekly-single-scope':''}" tabindex="0" role="region" aria-label="部门周报"><table aria-label="部门周报下载表"><thead><tr><th scope="col">统计周</th>${headers}</tr></thead><tbody>${rows||empty}</tbody></table></div>`;
 }
 
 let gdWeeklyReportLoad;

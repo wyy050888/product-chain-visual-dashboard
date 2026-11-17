@@ -44,6 +44,18 @@ function rpPlatformCardGsvLabel(){
 function rpPlatformDetailAttr(spuId,platform){
  return `data-rp-platform-detail="${esc(JSON.stringify({spuId,platform}))}"`;
 }
+function rpProductMetrics(labels,rows,description,hasPlatform=true){
+ const leading=hasPlatform?'<span aria-hidden="true"></span>':'';
+ const mode=hasPlatform?'':' data-no-platform';
+ const heading=`<div role="group" aria-label="指标名称" class="rp-platform-card-head">${leading}${labels.join('')}</div>`;
+ return `<div class="rp-platform-card-scroll"><div class="rp-platform-card-table" role="group" aria-label="${esc(description)}" style="--rp-platform-metrics:${labels.length}"${mode}>${heading}${rows}</div></div>`;
+}
+function rpProductMetricLabel(key,label,help=''){
+ return `<span class="rp-platform-metric-label" data-rp-metric-label="${esc(key)}" title="${esc(label)}">${esc(label)}${help}</span>`;
+}
+function rpProductMetricCard(index,identity,metrics,{classes='',attributes=''}={}){
+ return `<article class="rp-entry rp-quality-entry rp-platform-product${classes?' '+classes:''}"${attributes?' '+attributes:''}><div class="rp-entry-main"><header><span class="rank">${String(index+1).padStart(2,'0')}</span>${identity}</header>${metrics}</div></article>`;
+}
 function rpPlatformProductCard(kind,record,index,rankedRows){
  const keys=kind===0?rpQualityCardKeys:kind===8?rpDeviationCardKeys:rpReturnCardKeys;
  const labels={fine:'平台罚款',frozen:'资金冻结',offShelf:'链接下架',drop:'链接掉权',gsv:rpPlatformCardGsvLabel(),return:'总退',received:'已收退',unreceived:'未收退'};
@@ -51,12 +63,14 @@ function rpPlatformProductCard(kind,record,index,rankedRows){
  if(kind===8){labels.return+='偏差';labels.received+='偏差';}
  const platformRows=kind===0?null:new Map(rankedRows.filter(row=>row.spuId===record.spuId).map(row=>[row.channel,row]));
  const platforms=rpCardDisplayPlatforms(kind).filter(platform=>platformRows?platformRows.has(platform):record.violatedPlatforms.includes(platform));
- const heading=`<div role="group" aria-label="指标名称" class="rp-platform-card-head"><span aria-hidden="true"></span>${keys.map(key=>`<span class="rp-platform-metric-label" data-rp-metric-label="${key}">${esc(labels[key])}</span>`).join('')}</div>`;
+ const heading=keys.map(key=>rpProductMetricLabel(key,labels[key]));
  const rows=platforms.map(platform=>{
   const fields=rpPlatformCardFields(kind,platformRows?platformRows.get(platform):record,platform);
   return `<div role="group" aria-label="${esc(platform)}" class="rp-platform-card-row" data-rp-platform-row="${esc(platform)}"><div class="rp-platform-card-logo"><button type="button" ${rpPlatformDetailAttr(record.spuId,platform)} aria-label="查看${esc(record.name)} · ${platform}详情">${rpPlatformMark(platform)}</button></div>${fields.map(field=>rpPlatformMetricCell(field,field.cardComparisonFirst?labels[field.key]:null)).join('')}</div>`;
  }).join('');
- return `<article class="rp-entry rp-quality-entry rp-platform-product ${kind===6?'rp-return-entry':''}" data-rp-kind="${kind}" data-rp-row="${kind}:${record.id}" data-rp-spu="${esc(record.spuId)}"><div class="rp-entry-main"><header><span class="rank">${String(index+1).padStart(2,'0')}</span>${rpIdentityMarkup(kind,record,false,true,false)}</header><div class="rp-platform-card-scroll"><div class="rp-platform-card-table" role="group" aria-label="${esc(record.name)}平台指标" style="--rp-platform-metrics:${keys.length}">${heading}${rows}</div></div></div></article>`;
+ return rpProductMetricCard(index,rpIdentityMarkup(kind,record,false,true,false),
+  rpProductMetrics(heading,rows,record.name+'平台指标'),
+  {classes:kind===6?'rp-return-entry':'',attributes:`data-rp-kind="${kind}" data-rp-row="${kind}:${record.id}" data-rp-spu="${esc(record.spuId)}"`});
 }
 document.addEventListener('click',event=>{
  const button=event.target.closest('#riskrail [data-rp-platform-detail],#dialogbody [data-rp-platform-detail]');if(!button)return;

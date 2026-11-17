@@ -2273,7 +2273,7 @@
     },
     {
       "file": "src/modules/product-center/04-risk.js",
-      "module": "产品中心三个预警占位榜"
+      "module": "产品中心风险分组与总看板榜单适配"
     },
     {
       "file": "src/modules/product-center/05-fixed-filters.js",
@@ -2294,6 +2294,14 @@
     {
       "file": "src/modules/product-center/09-brand-plan.js",
       "module": "产品中心生命周期链群品牌上品计划"
+    },
+    {
+      "file": "src/modules/product-center/10-risk-model.js",
+      "module": "产品中心专属风险口径与来源适配"
+    },
+    {
+      "file": "src/modules/product-center/11-risk-view.js",
+      "module": "产品中心专属风险卡片与详情表"
     },
     {
       "file": "src/modules/page-entries/01.js",
@@ -2916,6 +2924,13 @@
     "assets/reference-images/image125.png",
     "assets/reference-images/image126.png",
     "assets/reference-images/image127.png",
+    "assets/reference-images/pc-initiation-juicer.png",
+    "assets/reference-images/pc-initiation-meat-grinder.png",
+    "assets/reference-images/pc-initiation-mist-fan.png",
+    "assets/reference-images/pc-initiation-mite-vacuum.png",
+    "assets/reference-images/pc-initiation-steam-oven-pro.png",
+    "assets/reference-images/pc-initiation-steam-oven.png",
+    "assets/reference-images/pc-initiation-warming-board.jpg",
     "assets/spu-images/spu-01.png",
     "assets/spu-images/spu-02.png",
     "assets/spu-images/spu-03.png",
@@ -2968,6 +2983,11 @@
     "assets/risk-decorations/stagnant.svg",
     "assets/risk-decorations/return.svg",
     "assets/risk-decorations/global-warning.svg",
+    "assets/shop-avatars/konka.svg",
+    "assets/shop-avatars/skyworth.svg",
+    "assets/shop-avatars/supor.svg",
+    "assets/shop-avatars/haier.svg",
+    "assets/shop-avatars/default.svg",
     "assets/product-media/01f528bc6d53724c-112.webp",
     "assets/product-media/01f528bc6d53724c-224.webp",
     "assets/product-media/01f528bc6d53724c-full.webp",
@@ -3034,9 +3054,15 @@
     "assets/product-media/208797667c45f46c-112.webp",
     "assets/product-media/208797667c45f46c-224.webp",
     "assets/product-media/208797667c45f46c-full.webp",
+    "assets/product-media/20948431d872e0eb-112.webp",
+    "assets/product-media/20948431d872e0eb-224.webp",
+    "assets/product-media/20948431d872e0eb-full.webp",
     "assets/product-media/243048a38dc7522d-112.webp",
     "assets/product-media/243048a38dc7522d-224.webp",
     "assets/product-media/243048a38dc7522d-full.webp",
+    "assets/product-media/24974656ba40ddce-112.webp",
+    "assets/product-media/24974656ba40ddce-224.webp",
+    "assets/product-media/24974656ba40ddce-full.webp",
     "assets/product-media/24d242157661600e-112.webp",
     "assets/product-media/24d242157661600e-224.webp",
     "assets/product-media/24d242157661600e-full.webp",
@@ -3085,6 +3111,9 @@
     "assets/product-media/2fd6f5e64fe2ac18-112.webp",
     "assets/product-media/2fd6f5e64fe2ac18-224.webp",
     "assets/product-media/2fd6f5e64fe2ac18-full.webp",
+    "assets/product-media/3484fbf293afa044-112.webp",
+    "assets/product-media/3484fbf293afa044-224.webp",
+    "assets/product-media/3484fbf293afa044-full.webp",
     "assets/product-media/364bdfff34ced31f-112.webp",
     "assets/product-media/364bdfff34ced31f-224.webp",
     "assets/product-media/364bdfff34ced31f-full.webp",
@@ -3094,6 +3123,9 @@
     "assets/product-media/3a9bc4f17cbee369-112.webp",
     "assets/product-media/3a9bc4f17cbee369-224.webp",
     "assets/product-media/3a9bc4f17cbee369-full.webp",
+    "assets/product-media/3b41af498c33c014-112.webp",
+    "assets/product-media/3b41af498c33c014-224.webp",
+    "assets/product-media/3b41af498c33c014-full.webp",
     "assets/product-media/3ddee69c5da00e4c-112.webp",
     "assets/product-media/3ddee69c5da00e4c-224.webp",
     "assets/product-media/3ddee69c5da00e4c-full.webp",
@@ -3208,6 +3240,9 @@
     "assets/product-media/913d700722bbdd50-112.webp",
     "assets/product-media/913d700722bbdd50-224.webp",
     "assets/product-media/913d700722bbdd50-full.webp",
+    "assets/product-media/9170c7b4e802450e-112.webp",
+    "assets/product-media/9170c7b4e802450e-224.webp",
+    "assets/product-media/9170c7b4e802450e-full.webp",
     "assets/product-media/942f5818ebd4bf1d-112.webp",
     "assets/product-media/942f5818ebd4bf1d-224.webp",
     "assets/product-media/942f5818ebd4bf1d-full.webp",
@@ -3343,6 +3378,9 @@
     "assets/product-media/e285180ac79ccdcf-112.webp",
     "assets/product-media/e285180ac79ccdcf-224.webp",
     "assets/product-media/e285180ac79ccdcf-full.webp",
+    "assets/product-media/e4e8819d6418a5a4-112.webp",
+    "assets/product-media/e4e8819d6418a5a4-224.webp",
+    "assets/product-media/e4e8819d6418a5a4-full.webp",
     "assets/product-media/e6eec4e6f29e569e-112.webp",
     "assets/product-media/e6eec4e6f29e569e-224.webp",
     "assets/product-media/e6eec4e6f29e569e-full.webp",
@@ -3355,6 +3393,9 @@
     "assets/product-media/eae418dd9463490e-112.webp",
     "assets/product-media/eae418dd9463490e-224.webp",
     "assets/product-media/eae418dd9463490e-full.webp",
+    "assets/product-media/eb50ce27623ca9b7-112.webp",
+    "assets/product-media/eb50ce27623ca9b7-224.webp",
+    "assets/product-media/eb50ce27623ca9b7-full.webp",
     "assets/product-media/ed86f49178ba2324-112.webp",
     "assets/product-media/ed86f49178ba2324-224.webp",
     "assets/product-media/ed86f49178ba2324-full.webp",
@@ -3372,12 +3413,7 @@
     "assets/product-media/f8a3e0233ea97f97-full.webp",
     "assets/product-media/fee9858fe4102db2-112.webp",
     "assets/product-media/fee9858fe4102db2-224.webp",
-    "assets/product-media/fee9858fe4102db2-full.webp",
-    "assets/shop-avatars/konka.svg",
-    "assets/shop-avatars/skyworth.svg",
-    "assets/shop-avatars/supor.svg",
-    "assets/shop-avatars/haier.svg",
-    "assets/shop-avatars/default.svg"
+    "assets/product-media/fee9858fe4102db2-full.webp"
   ],
   "originalSha256": "ee64a8161727a016eb644c668739fcaf853751fa7756e004029e0dee79361004"
 }

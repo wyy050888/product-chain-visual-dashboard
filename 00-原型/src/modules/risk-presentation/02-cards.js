@@ -60,7 +60,7 @@ groupRiskCardMetricHelp=function(root){
  const cards=[...root.querySelectorAll('#riskrail .riskcard')];
  if(root.matches?.('#riskrail .riskcard'))cards.unshift(root);
  for(const card of cards){
-  card.querySelectorAll('.metric-help:not(.card-metric-help,.net-sales-help,.rp-stagnant-metric-help)').forEach(help=>help.remove());
+  card.querySelectorAll('.metric-help:not(.card-metric-help,.net-sales-help,.rp-stagnant-metric-help,.nsp-unsold-project-help)').forEach(help=>help.remove());
   const rule=rpRenderedCardRules.get(card),title=card.querySelector('.rhead h3');
   if(!rule||!title)continue;
   addMetricHelp(title,rule);

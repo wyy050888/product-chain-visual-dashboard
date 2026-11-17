@@ -29,7 +29,10 @@ function ppProjectStateTag(value){
  return tone?`<span class="pp-project-state pp-project-state-${tone}">${esc(value)}</span>`:esc(value||'—');
 }
 function ppProductCell(p){return `<button type="button" class="pp-product" data-pp-project="${p.id}">${p.image?`<img src="${esc(p.image)}" alt="">`:'<span class="pp-placeholder" role="img" aria-label="暂无产品图片" title="暂无产品图片"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m3 17 5-5 4 4 3-3 6 6"/></svg></span>'}<span><b title="${esc(p.name)}">${esc(p.name)}</b><small>${esc(p.type)}</small></span></button>`}
-function ppPlanDates(p){return `<span class="pp-plan-dates"><span>${esc(p.plan||'—')}</span>${p.revisedPlan?`<small class="muted">延期至 <span class="pp-revised-date pp-traffic-${ppTrafficTone(ppProjectDisplayLight(p))}">${esc(p.revisedPlan)}</span></small>`:''}</span>`}
+function ppPlanDates(p,format=value=>value){
+ const revised=p.revisedPlan?`<small class="muted">延期至 <span class="pp-revised-date pp-traffic-${ppTrafficTone(ppProjectDisplayLight(p))}">${esc(format(p.revisedPlan))}</span></small>`:'';
+ return `<span class="pp-plan-dates"><span>${p.plan?esc(format(p.plan)):'—'}</span>${revised}</span>`;
+}
 function ppDelayText(p){return p.delay==null?'—':`<span class="pp-delay-days pp-traffic-${ppTrafficTone(ppProjectDisplayLight(p))}">${p.delay}天</span>`}
 // 同一风险单提供部门与责任人的对应关系；同部门聚合去重，不按姓名推测归属。
 function ppResponsibilityText(ledger){

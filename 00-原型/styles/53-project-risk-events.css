@@ -64,8 +64,8 @@
 #projects.pp-main .pp-table td{height:72px;padding:12px 14px;line-height:20px}
 #projects.pp-main #pp-table-scroll :is(.pp-wrap,.pp-cell-lines,.pp-product b){display:block;-webkit-line-clamp:none;max-height:none;line-height:20px;overflow:visible;overflow-wrap:anywhere;white-space:normal}
 #projects.pp-main #pp-table-scroll :is(.pp-product small,.pp-root-cause small){margin-top:4px;line-height:18px;white-space:nowrap}
-#projects.pp-main #pp-table-scroll .pp-plan-dates{gap:4px;line-height:20px}
-#projects.pp-main #pp-table-scroll .pp-plan-dates small{margin:0;line-height:18px}
+#projects.pp-main #pp-table-scroll .pp-plan-dates{display:flex;flex-direction:column;align-items:flex-start;gap:4px;line-height:20px}
+#projects.pp-main #pp-table-scroll .pp-plan-dates small{margin:0;line-height:18px;white-space:nowrap}
 #projects.pp-main .pp-table>tbody>tr:nth-child(even)>td{background:#fafcff}
 #projects.pp-main .pp-table>tbody>tr:hover>td{background:#f3f8ff}
 #projects.pp-main .pp-table .pp-product{gap:10px}
@@ -88,16 +88,15 @@
 }
 
 /* 类型与类目筛选位于图表上方，灯色卡归入项目明细标题下方。 */
-#projects.pp-main .pp-scope-tabs{display:flex;align-items:center;flex-wrap:wrap;gap:12px 16px;margin:0 0 12px;min-width:0}
-#projects.pp-main .pp-scope-tabs #pp-category-tabs{border-left:1px solid #e3eaf4;padding-left:16px}
-#projects.pp-main .pp-scope-tabs .pp-scope-group{display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin:0;min-width:0;max-width:100%}
-#projects.pp-main .pp-scope-tabs #pp-type-tabs{border:0;padding:0}
-#projects.pp-main .pp-scope-label{padding:2px 6px;margin-right:4px;border-radius:4px;background:#f5f7fa;color:#72839a;font-size:11px;line-height:18px;white-space:nowrap}
-#projects.pp-main .pp-scope-tabs .pp-scope-group button{display:inline-flex;align-items:center;min-height:32px;padding:4px 8px;border:1px solid transparent;border-radius:6px;font-size:12px;line-height:22px;white-space:nowrap}
-#projects.pp-main .pp-scope-tabs .pp-scope-group button.active{background:#eff5ff;border-color:#dce9fb;color:#2169ce}
-#projects.pp-main .pp-scope-tabs .pp-scope-group button>span{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:18px;margin-left:6px;padding:0 5px;border-radius:9px;background:#f0f3f7;color:#8190a4;font-size:11px;line-height:18px;font-variant-numeric:tabular-nums}
-#projects.pp-main .pp-scope-tabs .pp-scope-group button.active>span{background:#dfeaff;color:#2169ce}
-@media(max-width:1400px){#projects.pp-main .pp-scope-tabs #pp-category-tabs{flex-basis:100%;border-left:0;padding-left:0}}
+:is(#projects.pp-main,#riskrail) .pp-scope-tabs{display:flex;align-items:center;flex-wrap:wrap;gap:12px 16px;margin:0 0 12px;min-width:0}
+:is(#projects.pp-main,#riskrail) .pp-scope-tabs>.pp-scope-group{display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin:0;min-width:0;max-width:100%;border:0;padding:0}
+:is(#projects.pp-main,#riskrail) .pp-scope-tabs>.pp-scope-group+.pp-scope-group{border-left:1px solid #e3eaf4;padding-left:16px}
+:is(#projects.pp-main,#riskrail) .pp-scope-label{padding:2px 6px;margin-right:4px;border-radius:4px;background:#f5f7fa;color:#72839a;font-size:11px;line-height:18px;white-space:nowrap}
+:is(#projects.pp-main,#riskrail) .pp-scope-tabs .pp-scope-group button{display:inline-flex;align-items:center;min-height:32px;padding:4px 8px;border:1px solid transparent;border-radius:6px;font-size:12px;line-height:22px;white-space:nowrap}
+:is(#projects.pp-main,#riskrail) .pp-scope-tabs .pp-scope-group button.active{background:#eff5ff;border-color:#dce9fb;color:#2169ce}
+:is(#projects.pp-main,#riskrail) .pp-scope-tabs .pp-scope-group button>span{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:18px;margin-left:6px;padding:0 5px;border-radius:9px;background:#f0f3f7;color:#8190a4;font-size:11px;line-height:18px;font-variant-numeric:tabular-nums}
+:is(#projects.pp-main,#riskrail) .pp-scope-tabs .pp-scope-group button.active>span{background:#dfeaff;color:#2169ce}
+@media(max-width:1400px){:is(#projects.pp-main,#riskrail) .pp-scope-tabs>.pp-scope-group+.pp-scope-group{flex-basis:100%;border-left:0;padding-left:0}}
 
 #projects.pp-main .pp-summary-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;min-width:0;margin-bottom:10px}
 #projects.pp-main .pp-summary-card{--pp-summary-color:#314c70;--pp-summary-line:#b6c3f5;display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:22px 36px;align-content:center;align-items:center;gap:10px 14px;min-width:0;min-height:112px;padding:16px 18px;text-align:left;border:1px solid transparent;border-radius:8px;background:#f7f9fd;color:#314c70;cursor:pointer}

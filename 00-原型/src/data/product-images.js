@@ -122,5 +122,12 @@ const productImages = {
   "美的加湿制冷冰雾台扇ADJ05CH": "assets/reference-images/image42.jpeg",
   "苏泊尔桌面除甲醛小魔盒FGJ-F10": "assets/reference-images/image33.png",
   "创维火焰语音中塔A951": "assets/reference-images/image14.png",
-  "创维取暖器A873": "assets/reference-images/image25.png"
+  "创维取暖器A873": "assets/reference-images/image25.png",
+  "大口径原汁机": "assets/reference-images/pc-initiation-juicer.png",
+  "创维冰雾台扇": "assets/reference-images/pc-initiation-mist-fan.png",
+  "苏泊尔无线除螨仪": "assets/reference-images/pc-initiation-mite-vacuum.png",
+  "美的蒸汽炸烤箱PRO": "assets/reference-images/pc-initiation-steam-oven-pro.png",
+  "苏泊尔2.5L玻璃方杯绞肉机": "assets/reference-images/pc-initiation-meat-grinder.png",
+  "美的暖菜板": "assets/reference-images/pc-initiation-warming-board.jpg",
+  "美的真蒸汽炸烤箱": "assets/reference-images/pc-initiation-steam-oven.png"
 };

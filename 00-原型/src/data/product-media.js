@@ -636,6 +636,41 @@ const productMediaAssets = {
   3840,
   1944
  ],
+ "assets/reference-images/pc-initiation-juicer.png": [
+  "20948431d872e0eb",
+  60,
+  60
+ ],
+ "assets/reference-images/pc-initiation-meat-grinder.png": [
+  "24974656ba40ddce",
+  27,
+  36
+ ],
+ "assets/reference-images/pc-initiation-mist-fan.png": [
+  "3b41af498c33c014",
+  60,
+  60
+ ],
+ "assets/reference-images/pc-initiation-mite-vacuum.png": [
+  "3484fbf293afa044",
+  60,
+  60
+ ],
+ "assets/reference-images/pc-initiation-steam-oven-pro.png": [
+  "e4e8819d6418a5a4",
+  60,
+  60
+ ],
+ "assets/reference-images/pc-initiation-steam-oven.png": [
+  "eb50ce27623ca9b7",
+  60,
+  60
+ ],
+ "assets/reference-images/pc-initiation-warming-board.jpg": [
+  "9170c7b4e802450e",
+  1200,
+  1200
+ ],
  "assets/spu-images/spu-01.png": [
   "5f548539d805be5c",
   1279,

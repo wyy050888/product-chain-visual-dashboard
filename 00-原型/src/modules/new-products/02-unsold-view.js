@@ -5,10 +5,15 @@ function nspUnsoldKpi(count){
  </div>`;
 }
 
+const nspUnsoldProductionDateLabel='项目上市日期';
+
+function nspUnsoldProjectHelp(label){
+ const sourceField=label===nspUnsoldProductionDateLabel?'实际量产日期':label;
+ return `<span class="metric-help nsp-unsold-project-help" role="button" tabindex="0" aria-label="查看${label}指标口径" data-metric-rule="取数口径：取自 SPU 关联项目的${sourceField}。"></span>`;
+}
+
 function nspOpenUnsold({asOf,rows}){
- const projectHeaders=[['项目上市日期','实际量产日期'],['承接运营','承接运营']].map(([label,field])=>
-  `${label} <span class="metric-help" role="button" tabindex="0" aria-label="查看${label}指标口径" data-metric-rule="取数口径：取自 SPU 关联项目的${field}。"></span>`
- );
+ const projectHeaders=[nspUnsoldProductionDateLabel,'承接运营'].map(label=>`${label} ${nspUnsoldProjectHelp(label)}`);
  const headers=['SPU信息','首批请购单号','首批单状态','我司可售库存',...projectHeaders,'产品经理'];
  openModal('已提货未销售',`<article class="nsp-unsold-drawer">
   <p class="nsp-unsold-notice" data-preserve-terms>已下首批请购单，并<strong>已完成部分/全部交付后，未检测到渠道首个订单的产品清单</strong></p>
@@ -34,7 +39,7 @@ function nspOpenUnsold({asOf,rows}){
    `<span class="nsp-requisition-status" data-status="${esc(product.firstRequisitionStatus)}">${esc(product.firstRequisitionStatus)}</span>`,
    `${product.stock.toLocaleString('zh-CN')} 件`,
    esc(product.actualProductionDate||'—'),
-   esc(product.operationsOwner||'—'),
+   `<span data-preserve-terms>${esc(product.operationsOwner||'—')}</span>`,
    esc(product.manager||'—')
   ]));
   for(const help of tableHost.querySelectorAll('th > .metric-help')){

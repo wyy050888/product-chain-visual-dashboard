@@ -1,7 +1,7 @@
 /* 总看板三分区：品质三卡、库存两卡、亏损整行；部门专属榜保持原布局。 */
 #riskrail:has(>.rp-board-group){display:flex;flex-direction:column;gap:16px}
 #riskrail>.rp-board-group{width:100%;min-width:0}
-main.page>#risk>.sectionhead{margin-bottom:8px}
+main.page>#risk>.sectionhead,main.page #department-view>#risk>.sectionhead{margin-bottom:8px}
 /* 居中叠层铭牌：切角白色面板、错层浅蓝底片、渐隐细线与菱点。 */
 #riskrail .rp-group-heading{display:grid;grid-template-columns:minmax(12px,1fr) auto minmax(12px,1fr);align-items:center;gap:16px;width:100%;min-height:54px;margin:0 auto 8px;position:relative;isolation:isolate}
 #riskrail .rp-group-heading::before{content:"";position:absolute;z-index:-1;inset:0 auto;left:50%;width:min(420px,100%);transform:translateX(-50%);background:radial-gradient(ellipse at center,#edf4ffb3,transparent 70%);pointer-events:none}
@@ -24,37 +24,37 @@ main.page>#risk>.sectionhead{margin-bottom:8px}
 #riskrail>.rp-loss-wide .rhead .rp-group-heading{margin:0 auto}
 
 /* 表头与正文共用七列；小屏只在表格内部横向滚动。 */
-#riskrail>.rp-loss-wide{--rp-loss-table-columns:minmax(260px,2fr) repeat(6,minmax(120px,1fr))}
-#riskrail>.rp-loss-wide .rp-loss-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px 20px;flex-wrap:wrap;margin:4px 0 14px;min-width:0}
-#riskrail>.rp-loss-wide .rp-loss-filter-groups{display:flex;align-items:center;gap:14px;flex:1;min-width:0}
-#riskrail>.rp-loss-wide .rp-loss-filter-groups>.rp-card-facets{flex:0 1 auto;min-width:0;min-height:0;margin:0}
-#riskrail>.rp-loss-wide .rp-loss-filter-separator{display:block;width:1px;height:22px;flex:none;background:#dbe4f0}
+#riskrail :is(.rp-loss-wide,.rp-wide-fields){--rp-loss-table-columns:minmax(260px,2fr) repeat(6,minmax(120px,1fr))}
+#riskrail :is(.rp-loss-wide,.rp-wide-fields) .rp-loss-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px 20px;flex-wrap:wrap;margin:4px 0 14px;min-width:0}
+#riskrail :is(.rp-loss-wide,.rp-wide-fields) .rp-loss-filter-groups{display:flex;align-items:center;gap:14px;flex:1;min-width:0}
+#riskrail :is(.rp-loss-wide,.rp-wide-fields) .rp-loss-filter-groups>.rp-card-facets{flex:0 1 auto;min-width:0;min-height:0;margin:0}
+#riskrail :is(.rp-loss-wide,.rp-wide-fields) .rp-loss-filter-separator{display:block;width:1px;height:22px;flex:none;background:#dbe4f0}
 @media(max-width:1100px){
- #riskrail>.rp-loss-wide .rp-loss-filter-groups{display:grid;grid-template-columns:minmax(0,1fr);gap:7px;flex-basis:100%}
- #riskrail>.rp-loss-wide .rp-loss-filter-separator{width:100%;height:1px}
+ #riskrail :is(.rp-loss-wide,.rp-wide-fields) .rp-loss-filter-groups{display:grid;grid-template-columns:minmax(0,1fr);gap:7px;flex-basis:100%}
+ #riskrail :is(.rp-loss-wide,.rp-wide-fields) .rp-loss-filter-separator{width:100%;height:1px}
 }
-#riskrail>.rp-loss-wide .rp-loss-toolbar>.rp-quality-actions{display:flex;align-items:center;gap:12px;flex:none;margin-left:auto}
-#riskrail>.rp-loss-wide .rp-items{display:block;flex:none;overflow-x:auto;border:1px solid #e5ebf4;border-radius:6px;scrollbar-width:thin}
-#riskrail>.rp-loss-wide .rp-loss-columns,
-#riskrail>.rp-loss-wide .rp-entry-main{display:grid;grid-template-columns:var(--rp-loss-table-columns);gap:20px;align-items:center}
-#riskrail>.rp-loss-wide .rp-loss-columns{min-width:1180px;padding:12px 14px;border-bottom:1px solid #e5ebf4;border-radius:0;background:#f5f8fc;font-size:var(--table-body-size);font-weight:500;line-height:20px}
-#riskrail>.rp-loss-wide .rp-loss-product-label{display:block}
-#riskrail>.rp-loss-wide .rp-entry{display:block;min-width:1180px;min-height:80px;padding:12px 14px}
-#riskrail>.rp-loss-wide .rp-entry:last-child{border-bottom:0}
-#riskrail>.rp-loss-wide .rp-entry-main>header{grid-column:1;margin:0;min-width:0}
-#riskrail>.rp-loss-wide .rp-loss-values{display:contents}
-#riskrail>.rp-loss-wide .rp-loss-values .rp-quality-mobile-label{display:none}
-#riskrail>.rp-loss-wide .rp-quality-metric{display:grid;grid-template-rows:22px 18px;row-gap:6px}
-#riskrail>.rp-loss-wide .rp-quality-metric>strong{grid-row:1;display:flex;align-items:center;line-height:20px}
-#riskrail>.rp-loss-wide .rp-quality-metric>small{grid-row:2;display:flex;align-items:center;gap:3px;margin-top:0;line-height:16px}
+#riskrail :is(.rp-loss-wide,.rp-wide-fields) .rp-loss-toolbar>.rp-quality-actions{display:flex;align-items:center;gap:12px;flex:none;margin-left:auto}
+#riskrail :is(.rp-loss-wide,.rp-wide-fields) .rp-items{display:block;flex:none;overflow-x:auto;border:1px solid #e5ebf4;border-radius:6px;scrollbar-width:thin}
+#riskrail :is(.rp-loss-wide,.rp-wide-fields) .rp-loss-columns,
+#riskrail :is(.rp-loss-wide,.rp-wide-fields) .rp-entry-main{display:grid;grid-template-columns:var(--rp-loss-table-columns);gap:20px;align-items:center}
+#riskrail :is(.rp-loss-wide,.rp-wide-fields) .rp-loss-columns{min-width:1180px;padding:12px 14px;border-bottom:1px solid #e5ebf4;border-radius:0;background:#f5f8fc;font-size:var(--table-body-size);font-weight:500;line-height:20px}
+#riskrail :is(.rp-loss-wide,.rp-wide-fields) .rp-loss-product-label{display:block}
+#riskrail :is(.rp-loss-wide,.rp-wide-fields) .rp-entry{display:block;min-width:1180px;min-height:80px;padding:12px 14px}
+#riskrail :is(.rp-loss-wide,.rp-wide-fields) .rp-entry:last-child{border-bottom:0}
+#riskrail :is(.rp-loss-wide,.rp-wide-fields) .rp-entry-main>header{grid-column:1;margin:0;min-width:0}
+#riskrail :is(.rp-loss-wide,.rp-wide-fields) .rp-loss-values{display:contents}
+#riskrail :is(.rp-loss-wide,.rp-wide-fields) .rp-loss-values .rp-quality-mobile-label{display:none}
+#riskrail :is(.rp-loss-wide,.rp-wide-fields) .rp-quality-metric{display:grid;grid-template-rows:22px 18px;row-gap:6px}
+#riskrail :is(.rp-loss-wide,.rp-wide-fields) .rp-quality-metric>strong{grid-row:1;display:flex;align-items:center;line-height:20px}
+#riskrail :is(.rp-loss-wide,.rp-wide-fields) .rp-quality-metric>small{grid-row:2;display:flex;align-items:center;gap:3px;margin-top:0;line-height:16px}
 /* 首页亏损明细与完整榜单共用表格字号、行内节奏；仅保留风险指标自身颜色。 */
-#riskrail>.rp-loss-wide .rp-loss-columns>span{font-size:var(--table-body-size)!important}
-#riskrail>.rp-loss-wide .rp-entry-main .rp-identity b{font-size:var(--type-primary-data);font-weight:500;line-height:22px}
-#riskrail>.rp-loss-wide .rp-entry:nth-of-type(n) .rp-entry-main>header>.rank{height:auto;padding:0;flex:0 0 24px;font-size:var(--table-body-size)!important;font-weight:400;color:var(--color-primary-data)}
-#riskrail>.rp-loss-wide .rank::before{display:none}
-#riskrail>.rp-loss-wide .rp-entry{background:#fff;border-bottom-color:#edf1f6}
-#riskrail>.rp-loss-wide .rp-entry:nth-of-type(even){background:#fafcff}
-#riskrail>.rp-loss-wide .rp-entry:hover,#riskrail>.rp-loss-wide .rp-entry:focus-within{background:#f3f8ff}
+#riskrail :is(.rp-loss-wide,.rp-wide-fields) .rp-loss-columns>span{font-size:var(--table-body-size)!important}
+#riskrail :is(.rp-loss-wide,.rp-wide-fields) .rp-entry-main .rp-identity b{font-size:var(--type-primary-data);font-weight:500;line-height:22px}
+#riskrail .rp-loss-wide .rp-entry:nth-of-type(n) .rp-entry-main>header>.rank{height:auto;padding:0;flex:0 0 24px;font-size:var(--table-body-size)!important;font-weight:400;color:var(--color-primary-data)}
+#riskrail .rp-loss-wide .rank::before{display:none}
+#riskrail :is(.rp-loss-wide,.rp-wide-fields) .rp-entry{background:#fff;border-bottom-color:#edf1f6}
+#riskrail :is(.rp-loss-wide,.rp-wide-fields) .rp-entry:nth-of-type(even){background:#fafcff}
+#riskrail :is(.rp-loss-wide,.rp-wide-fields) .rp-entry:hover,#riskrail :is(.rp-loss-wide,.rp-wide-fields) .rp-entry:focus-within{background:#f3f8ff}
 @media(max-width:480px){
  #riskrail .rp-group-heading{gap:12px;min-height:52px;margin-bottom:8px}
  #riskrail :is(.rp-board-group,.rp-loss-wide) .rp-group-heading>h3.rp-group-title{min-width:164px;padding:8px 20px;font-size:17px;letter-spacing:1px}
@@ -73,3 +73,16 @@ main.page>#risk>.sectionhead{margin-bottom:8px}
 .rp-group-navigation button.is-current{border-bottom-color:#1677ff}
 .rp-group-navigation button:focus-visible{outline:2px solid #1677ff;outline-offset:3px;border-radius:2px}
 @media(max-width:600px){.rp-group-navigation{flex-basis:100%;column-gap:14px}.rp-group-navigation button{font-size:12px}}
+
+/* 产品中心仅声明排布，铭牌、卡片和表格复用已有规则。 */
+#riskrail .rp-board-group-initiation>.rp-group-grid{grid-template-columns:minmax(0,1fr)}
+#riskrail .rp-board-group-launch>.rp-group-grid{align-items:start}
+@media(max-width:1100px){#riskrail .rp-board-group-launch>.rp-group-grid{grid-template-columns:minmax(0,1fr)}}
+
+/* 项目类型和链群用标签分组，空间不足时自动换行。 */
+#riskrail .pc-risk-filters{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;min-width:0}
+#riskrail .rp-board-group-launch>.pc-risk-filters{margin-bottom:12px}
+#riskrail .pc-risk-filters .rp-season-tags{display:inline-flex;flex-wrap:wrap;overflow:visible;padding-block:2px}
+@media(min-width:901px){
+ #riskrail .pc-risk-filters>.rp-season-tags+.rp-season-tags{border-inline-start:1px solid #dbe4f0;padding-inline-start:10px}
+}

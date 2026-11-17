@@ -6,19 +6,53 @@ function pcMetricTable(label,headers,rows,summary=null){
   <tbody>${rows.length?rows.map(row=>`<tr>${cells(row)}</tr>`).join(''):`<tr><td colspan="${headers.length}" class="empty">暂无匹配记录</td></tr>`}</tbody></table></div>`;
 }
 function pcMetricText(value){return Array.isArray(value)?value.map(n=>fmt(n)).join(' / '):Number.isFinite(value)?fmt(value):null}
-function pcPeoplePeriodControls(){
- const {mode,date}=pcPeopleState;
- return `<div class="period-picker pc-people-period"><div class="period-segment" role="group" aria-label="人员指标统计周期">${[['day','日'],['week','周'],['month','月']].map(([key,label])=>`<button type="button" data-pc-people-mode="${key}" aria-pressed="${mode===key}">${label}</button>`).join('')}</div><label>统计日期 <input type="date" id="pc-people-date" min="2025-01-01" max="${DATA_CUTOFF}" value="${date}" required></label></div>`;
+function pcMountPeoplePeriod(host){
+ function paint(focus){
+  const period=pcPeoplePeriod(),weekly=period.mode==='week';
+  // 沿用页面的周期选择器，隔离事件避免回写其他模块的期间。
+  host.innerHTML=periodControls('people',{period,label:'人员指标',follow:false}).replaceAll('data-time-','data-pc-people-');
+  const controls=host.firstElementChild,segment=controls.querySelector('.period-segment');
+  segment.insertAdjacentHTML('afterbegin',`<button type="button" data-pc-people-mode="week" aria-pressed="${weekly}">周</button>`);
+  if(weekly){
+   controls.querySelectorAll('select').forEach(select=>select.remove());
+   const {start,end}=pcPeopleRange();
+   controls.insertAdjacentHTML('beforeend',`<button type="button" class="risk-date-trigger" data-pc-people-week aria-label="选择人员指标所在周" aria-haspopup="dialog" aria-expanded="false" aria-controls="pc-people-week-popover"><span>${start} — ${end}</span><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="4" width="14" height="13" rx="2"/><path d="M6 2v4m8-4v4M3 8h14"/></svg></button>`);
+  }
+  if(focus)host.querySelector(focus)?.focus({preventScroll:true});
+ }
+ function refresh(focus){
+  paint(focus);pcPaintPersonnel(host.closest('.pc-personnel'),{refreshChain:true});pcQueueNavigation();
+ }
+ host.addEventListener('click',event=>{
+  const mode=event.target.closest('[data-pc-people-mode]')?.dataset.pcPeopleMode;
+  if(mode&&mode!==pcPeopleState.mode){
+   pcPeopleState.mode=mode;refresh(`[data-pc-people-mode="${mode}"]`);return;
+  }
+  const trigger=event.target.closest('[data-pc-people-week]');if(!trigger)return;
+  if(trigger.getAttribute('aria-expanded')==='true'){dateRangeActive?.close();return}
+  openDateRangePicker(trigger,pcPeopleRange(),date=>{
+   pcPeopleState.date=date;refresh('[data-pc-people-week]');
+  },{id:'pc-people-week-popover',label:'选择人员指标所在周',single:true,presets:[],min:riskDateMin,max:dashboardSyncDate});
+ });
+ host.addEventListener('change',event=>{
+  const field=event.target,period=pcPeoplePeriod();
+  if(field.matches('[data-pc-people-year]'))period.year=+field.value;
+  else if(field.matches('[data-pc-people-value]'))period.value=+field.value;
+  else return;
+  pcPeopleState.date=bounds(normalizePeriod(period)).cutoff;
+  refresh(field.matches('[data-pc-people-year]')?'[data-pc-people-year]':'[data-pc-people-value]');
+ });
+ paint();
 }
 function pcPersonnelSection(){
  const section=document.createElement('section');section.id='dp-management';section.className='section pc-personnel';
- section.innerHTML=`<div class="sectionhead"><div class="titlegroup"><h2>人员管理</h2></div>${pcPeoplePeriodControls()}</div>
+ section.innerHTML=`<div class="sectionhead"><div class="titlegroup"><h2>人员管理</h2></div><div class="module-header-time pc-people-period"></div></div>
   <div class="pc-panel">
    <div class="pc-people-toolbar"><div class="tabs" role="group" aria-label="人员指标分组">${pcMetricGroups.map(([key,label])=>`<button type="button" data-pc-people-group="${key}" aria-pressed="${key===pcPeopleState.group}" class="${key===pcPeopleState.group?'active':''}">${label}</button>`).join('')}</div>
    <label class="ui-search-field"><input type="search" id="pc-people-search" aria-label="搜索人员" placeholder="搜索人员" value="${esc(pcPeopleState.name)}"></label></div>
    <div class="pc-people-content"></div>
   </div>`;
- return section;
+ pcMountPeoplePeriod(section.querySelector('.pc-people-period'));return section;
 }
 function pcPaintPersonnel(section=$('#dp-management'),{refreshChain=false}={}){
  if(!section||!pcIsActive())return;
@@ -43,19 +77,10 @@ function pcPaintPersonnel(section=$('#dp-management'),{refreshChain=false}={}){
   ${pcMetricTable('链群经营指标',[['链群'],['销售额达成'],['实际 / 目标'],['新品成功率'],['成功 / 参评'],['S / A / B / C 数量']],chainRows.map(chainCells),chainCells(chainTotal))}`;
 }
 dpView.addEventListener('click',event=>{
- const mode=event.target.closest('[data-pc-people-mode]'),group=event.target.closest('[data-pc-people-group]');
- if(!mode&&!group)return;
- if(mode)pcPeopleState.mode=mode.dataset.pcPeopleMode;
- if(group)pcPeopleState.group=group.dataset.pcPeopleGroup;
- const caller=mode||group;
- for(const button of caller.parentElement.children){const active=button===caller;button.setAttribute('aria-pressed',String(active));if(group)button.classList.toggle('active',active)}
+ const group=event.target.closest('[data-pc-people-group]');if(!group)return;
+ pcPeopleState.group=group.dataset.pcPeopleGroup;
+ for(const button of group.parentElement.children){const active=button===group;button.setAttribute('aria-pressed',String(active));button.classList.toggle('active',active)}
  pcPaintPersonnel(undefined,{refreshChain:true});pcQueueNavigation();
-});
-dpView.addEventListener('change',event=>{
- const input=event.target;
- if(input.id!=='pc-people-date')return;
- if(!input.validity.valid){input.value=pcPeopleState.date;return}
- pcPeopleState.date=input.value;pcPaintPersonnel(undefined,{refreshChain:true});pcQueueNavigation();
 });
 dpView.addEventListener('input',event=>{
  if(event.target.id!=='pc-people-search')return;

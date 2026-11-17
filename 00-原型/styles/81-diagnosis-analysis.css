@@ -74,6 +74,8 @@
 .gd-workspace .gd-weekly-reports :is(th,td){width:auto;text-align:center}
 .gd-workspace .gd-weekly-reports th:first-child{width:190px;text-align:left}
 .gd-workspace .gd-weekly-reports tbody th{font-weight:500;color:#465771;background:transparent}
+.gd-workspace .gd-weekly-single-scope table{min-width:0}
+.gd-workspace .gd-weekly-single-scope th:first-child{width:min(190px,65%);white-space:normal}
 .gd-weekly-reports button.link:hover{text-decoration:underline}
 
 /* 各分类主表的操作列固定在本表右侧；空结果的跨列单元格不参与固定。 */

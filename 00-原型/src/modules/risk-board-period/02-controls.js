@@ -11,9 +11,8 @@ function rpMountBoardDateControls(root){
   if(host.dataset.mounted)continue;host.dataset.mounted='true';
   const kind=+host.dataset.rpBoardDate,card=host.closest('[data-rp-board]'),head=card.querySelector('.rhead');
   if(kind===0)head.querySelector('h3').after(host);
-  else if(kind===2)head.append(host);
   else{
-   const actions=head.querySelector('.rp-quality-actions');
+   const actions=kind===2?card.querySelector('.rp-loss-toolbar>.rp-quality-actions'):head.querySelector('.rp-quality-actions');
    if(actions)actions.prepend(host);
   }
   const period=rpBoardPeriod(kind),apply=next=>rpApplyBoardPeriod(kind,next);

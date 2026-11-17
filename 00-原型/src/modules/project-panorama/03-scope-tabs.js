@@ -47,7 +47,7 @@ function ppApplyScopeTab(button,key){
  renderProjects();$('#pp-'+key+'-tabs [data-pp-'+key+'-tab="'+value+'"]')?.focus({preventScroll:true});
 }
 function ppScopeTabKeydown(event){
- const tab=event.target.closest('[data-pp-light-tab],[data-pp-type-tab],[data-pp-category-tab]');if(!tab||!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;
+ const tab=event.target.closest('.pp-scope-group button,[data-pp-light-tab]');if(!tab||!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;
  event.preventDefault();event.stopPropagation();
  const tabs=[...tab.parentElement.querySelectorAll('button')],index=tabs.indexOf(tab),next=tabs[event.key==='Home'?0:event.key==='End'?tabs.length-1:(index+(event.key==='ArrowLeft'?-1:1)+tabs.length)%tabs.length];
  // 多选类型、类目仅移动焦点，Enter/Space确认；灯色方向键直接切换。

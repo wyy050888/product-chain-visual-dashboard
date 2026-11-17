@@ -1,4 +1,4 @@
-/* 各榜日期固定在标题右侧；库存只保留实时快照文字。 */
+/* 各榜复用日期控件，亏损产品榜的日期位于筛选栏右侧。 */
 #risk.rp-independent-dates>.sectionhead #time-risk,#risk.rp-independent-dates>.sectionhead #time-note-risk{display:none}
 .rp-board-period{min-width:0;max-width:100%;flex:none}
 .rp-board-period .period-picker{margin:0;gap:8px;flex-wrap:wrap;justify-content:flex-end}
@@ -7,9 +7,12 @@
 .rp-board-period .risk-date-trigger:hover{border-color:#a8bfdf}
 .rp-board-period .risk-date-trigger[aria-expanded=true]{border-color:#1677ff;box-shadow:0 0 0 3px #1677ff12}
 #riskrail .rp-compact-header>.rp-quality-actions{flex-wrap:wrap;justify-content:flex-end;max-width:100%;min-width:0;gap:8px 12px}
-#riskrail>.rp-loss-wide>.rhead{display:flex;align-items:center;flex-wrap:wrap;gap:12px}
-#riskrail>.rp-loss-wide>.rhead>.rp-group-heading{flex:1;min-width:200px}
-#riskrail>.rp-loss-wide>.rhead>.rp-board-period{margin-left:auto}
+#riskrail>.rp-loss-wide>.rp-loss-toolbar{gap:8px 16px;margin-top:0}
+#riskrail>.rp-loss-wide>.rp-loss-toolbar>.rp-quality-actions{flex:0 1 auto;min-width:0;max-width:100%;flex-wrap:wrap;justify-content:flex-end;gap:8px 12px}
+#riskrail>.rp-loss-wide>.rp-loss-toolbar>.rp-quality-actions>[data-risk]{flex:none;white-space:nowrap}
+@media(min-width:1101px){
+ #riskrail>.rp-loss-wide>.rp-loss-toolbar>.rp-loss-filter-groups{flex-basis:auto}
+}
 @media(max-width:1400px){
  #riskrail .rp-board-group-quality .riskcard>.rp-compact-header{grid-template-columns:minmax(0,1fr) max-content}
  #riskrail .rp-compact-header>h3{grid-column:1;grid-row:1}
@@ -22,7 +25,6 @@
  #riskrail .rp-compact-header>.rp-platform-menu{grid-column:1;grid-row:3}
  #riskrail .rp-compact-header>.rp-quality-actions>.rp-board-period{flex:1 1 100%}
  .rp-board-period .period-picker{justify-content:flex-start}
- #riskrail>.rp-loss-wide>.rhead>.rp-board-period{width:100%;margin:0}
 }
 
 /* 对比日期强调区间，vs使用独立的浅灰标签。 */

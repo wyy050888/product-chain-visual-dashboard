@@ -34,3 +34,5 @@
 
 #metric-tooltip.metric-rule-card h4::before{content:"";width:3px;height:13px;border-radius:2px;background:#1677ff;flex:none}
 #metric-tooltip.metric-rule-card .metric-rule-list>li::marker{color:#6988b4;font-weight:600}
+#metric-tooltip.metric-rule-card.metric-tooltip-text{width:max-content;min-width:min(200px,calc(100vw - 16px));max-width:min(360px,calc(100vw - 16px));padding:12px 14px}
+#metric-tooltip.metric-tooltip-text .metric-tooltip-text-body{padding:8px 10px;border-radius:6px;background:#f5f8fc;white-space:pre-wrap;overflow-wrap:anywhere}

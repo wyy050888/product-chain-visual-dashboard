@@ -12,27 +12,41 @@ function rpMountLossHeading(){
  heading.querySelector('h3').replaceWith(title);head.prepend(heading);
  rpMountLossTable(head.closest('.rp-loss-wide'));
 }
+const rpHomeQualityKinds=[0,6,8,1];
+function rpHomeGroup(key,title,content,toolbar=''){
+ return `<section class="rp-board-group rp-board-group-${key}" aria-labelledby="rp-group-${key}">${rpGroupHeading(title,'rp-group-'+key)}${toolbar}<div class="rp-group-grid">${content}</div></section>`;
+}
+function rpHomeCards(kinds){
+ const rules=new Map(),cards=new Map();
+ const classes={0:'qr-card rp-platform-board',1:'br-shop-card rp-shop-card rp-shop-board rf-card',2:'pr-shared-card rp-loss-card rf-card rp-loss-wide',3:'rp-stock-card rf-card',4:'rp-stock-card rf-card',6:'rp-return-card rp-platform-board rf-card',8:'rp-return-card rp-platform-board rf-card'};
+ for(const k of kinds)rpWithBoardPeriod(k,()=>{
+  const rows=rpCardRows(k),filter=rpCardPlatformControl(k);
+  rules.set(k,rpCardRuleSummary(k));
+  cards.set(k,`<article data-rp-board="${k}" class="riskcard ${classes[k]||'rf-card'}">${rpCard(k,rows,filter)}</article>`);
+ });
+ return {cards,rules};
+}
+function rpFinishHomeCards(rail,kinds,rules){
+ for(const card of rail.querySelectorAll('.riskcard[data-rp-board]')){
+  const key=card.dataset.rpBoard,k=rules.has(key)?key:Number(key);
+  if(rules.has(k))rpRenderedCardRules.set(card,rules.get(k));
+ }
+ rpClearSharedDateControls();decorateModule('risk');alignRiskCardFilters();
+ if(kinds.includes(2))rpMountLossHeading();
+ rpMountBoardDateControls(rail);pfMultiMount(rail);
+}
 renderRisks=function(changedKinds=null){
  return rpWithCardRows(()=>withPeriod('risk',()=>{
   rpObserveWarningBoards();
   const rail=$('#riskrail'),partial=Array.isArray(changedKinds)&&rail.querySelector('.rp-board-group');
-  const qualityKinds=[0,6,8,1];
-  const kinds=partial?[...new Set(changedKinds)]:[...qualityKinds,4,3,2],rules=new Map(),cards=new Map();
-  const classes={0:'qr-card rp-platform-board',1:'br-shop-card rp-shop-card rp-shop-board rf-card',2:'pr-shared-card rp-loss-card rf-card',3:'rp-stock-card rf-card',4:'rp-stock-card rf-card',6:'rp-return-card rp-platform-board rf-card',8:'rp-return-card rp-platform-board rf-card'};
-  for(const k of kinds)rpWithBoardPeriod(k,()=>{
-   const rows=rpCardRows(k),filter=rpCardPlatformControl(k);
-   rules.set(k,rpCardRuleSummary(k));
-   cards.set(k,`<article data-rp-board="${k}" class="riskcard ${classes[k]||'rf-card'}${k===2?' rp-loss-wide':''}">${rpCard(k,rows,filter)}</article>`);
-  });
-  const group=(key,title,kinds)=>`<section class="rp-board-group rp-board-group-${key}" aria-labelledby="rp-group-${key}">${rpGroupHeading(title,'rp-group-'+key)}<div class="rp-group-grid">${kinds.map(k=>cards.get(k)).join('')}</div></section>`;
+  const kinds=partial?[...new Set(changedKinds)]:[...rpHomeQualityKinds,4,3,2],{cards,rules}=rpHomeCards(kinds);
+  const group=(key,title,ids)=>rpHomeGroup(key,title,ids.map(k=>cards.get(k)).join(''));
   if(partial){
    // 季品只更新本榜；品质平台只更新联动三榜，其他榜保留数据、节点和滚动位置。
    for(const k of kinds){const current=rail.querySelector('[data-rp-board="'+k+'"]');if(current)current.outerHTML=cards.get(k)}
-  }else rail.innerHTML=group('quality','品质风险榜',qualityKinds)+group('inventory','库存风险榜',[4,3])+cards.get(2);
-  for(const card of $$('#riskrail .riskcard')){const k=Number(card.querySelector('[data-risk]').dataset.risk);if(rules.has(k))rpRenderedCardRules.set(card,rules.get(k))}
+  }else rail.innerHTML=group('quality','品质风险榜',rpHomeQualityKinds)+group('inventory','库存风险榜',[4,3])+cards.get(2);
   const sub=$('#risk .sectionhead .sub');if(sub)sub.textContent='7 大风险榜单 · TOP 6';
-  rpClearSharedDateControls();decorateModule('risk');
-  rpMountGroupNavigation();alignRiskCardFilters();if(kinds.includes(2))rpMountLossHeading();rpMountBoardDateControls(rail);pfMultiMount(rail);
+  rpMountGroupNavigation();rpFinishHomeCards(rail,kinds,rules);
  }));
 };
 

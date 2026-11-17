@@ -24,10 +24,17 @@ const pcMetricGroups=[
  ]]
 ];
 const pcPeopleState={mode:'month',date:DATA_CUTOFF,group:'projects',name:''};
+function pcPeoplePeriod(mode=pcPeopleState.mode,date=pcPeopleState.date){
+ const month=+date.slice(5,7);
+ return {mode,year:+date.slice(0,4),value:mode==='month'?month:mode==='quarter'?Math.ceil(month/3):1};
+}
 function pcPeopleRange(mode=pcPeopleState.mode,date=pcPeopleState.date){
- const [start]=dateRangePreset(mode==='day'?'today':mode,date);
- const nominalEnd=mode==='month'?iso(new Date(Date.UTC(+date.slice(0,4),+date.slice(5,7),0))):mode==='week'?shiftDate(start,6):date;
- return {start,end:nominalEnd<DATA_CUTOFF?nominalEnd:DATA_CUTOFF,nominalEnd};
+ if(mode==='week'){
+  const [start]=dateRangePreset('week',date),nominalEnd=shiftDate(start,6);
+  return {start,end:nominalEnd<DATA_CUTOFF?nominalEnd:DATA_CUTOFF,nominalEnd};
+ }
+ const {start,end:nominalEnd,cutoff:end}=bounds(pcPeoplePeriod(mode,date));
+ return {start,end,nominalEnd};
 }
 function pcMetricPeriod({start,end}){return {mode:'day',start,end,year:+end.slice(0,4),value:+end.slice(5,7)}}
 function pcWithin(value,start,end){return !!ppDate(value)&&value>=start&&value<=end}

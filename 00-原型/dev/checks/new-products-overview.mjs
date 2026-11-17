@@ -1,6 +1,17 @@
 import {verifyNewProductChannelLayout} from './new-products-channel-layout.mjs';
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {runInNewContext} from 'node:vm';
 export async function verifyNewProductUnsoldDrawer(page){
+ const source=readFileSync(new URL('../../src/modules/new-products/01-unsold-model.js',import.meta.url),'utf8');
+ const tieOrder=runInNewContext(source+`
+  // 令已入榜样例库存相同，并将更晚的样例放在最小 SPU 编码上。
+  const included=new Set(nspUnsoldSummary({category:'all',season:'all'}).rows.map(row=>row.spuCode));
+  for(const row of nspUnsoldSamples)if(included.has(row.spuCode))row.stock=120;
+  nspUnsoldProjects['DEMO-PROJECT-025'].actualProductionDate='2026-11-08';
+  nspUnsoldSummary({category:'all',season:'all'}).rows.map(row=>row.spuCode);
+ `,{pfIncludes:()=>true});
+ assert.deepEqual(Array.from(tieOrder),['DEMO-NEW-026','DEMO-NEW-027','DEMO-NEW-025','DEMO-NEW-031'],'同库存按项目上市日期从早到晚，无日期排最后');
  const entry=page.locator('#newtop [data-nsp-unsold]');
  const drawer=page.locator('#dialog.drawer');
  assert.equal(await entry.innerText(),'4');
@@ -14,7 +25,7 @@ export async function verifyNewProductUnsoldDrawer(page){
  assert.deepEqual(await drawer.locator('tbody td:nth-child(5)').allTextContents(),['26/11/01','26/11/03','26/11/05','—']);
  await drawer.getByRole('button',{name:'查看项目上市日期指标口径'}).hover();
  assert.match(await page.locator('#metric-tooltip').innerText(),/取自 SPU 关联项目的实际量产日期/);
- assert.deepEqual(await drawer.locator('tbody td:nth-child(6)').allTextContents(),['周晓_兴趣电商','许晨_一类电商','—','—']);
+ assert.deepEqual(await drawer.locator('tbody td:nth-child(6)').allTextContents(),['周晓_兴趣电商','许晨_一类电商','李欣_线上渠道','张妍_线下渠道']);
  await drawer.getByRole('button',{name:'查看承接运营指标口径'}).hover();
  assert.equal(await page.locator('#metric-tooltip').innerText(),'取数口径：取自 SPU 关联项目的承接运营。');
  const pager=drawer.getByRole('navigation',{name:'列表分页'});

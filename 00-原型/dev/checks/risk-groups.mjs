@@ -9,7 +9,7 @@ export async function riskGroups(page){
  await page.waitForFunction(()=>document.documentElement.dataset.dashboardBoot==='ready');
  const groups=page.locator('#riskrail>.rp-board-group');
  assert.deepEqual(await groups.locator('.rp-group-title').allTextContents(),['品质风险榜','库存风险榜']);
- assert.deepEqual(await groups.nth(0).locator('.riskcard').evaluateAll(ns=>ns.map(n=>n.dataset.rpBoard)),['0','6','1']);
+ assert.deepEqual(await groups.nth(0).locator('.riskcard').evaluateAll(ns=>ns.map(n=>n.dataset.rpBoard)),['0','6','8','1']);
  assert.deepEqual(await groups.nth(1).locator('.riskcard').evaluateAll(ns=>ns.map(n=>n.dataset.rpBoard)),['4','3']);
  assert.equal(await page.locator('#riskrail>.rp-loss-wide').count(),1);
  const shortage=page.locator('#riskrail [data-rp-board="3"]');
@@ -28,7 +28,7 @@ export async function riskGroups(page){
   assert(geometry.overflow<=1,width+'榜单区域不横向溢出');assert(Math.abs(geometry.lossWidth-geometry.railWidth)<1,'亏损榜占整行');
   assert.equal(geometry.headings.length,3);assert(geometry.headings.every(h=>h.centerDelta<=1&&h.fits),'三个铭牌居中且完整显示');assert(geometry.actionsClear,'亏损筛选与铭牌不重叠');
   assert.deepEqual(geometry.borders,['0px','0px']);assert(!geometry.groupOverlap&&!geometry.lossOverlap,'三个区域不重叠');
-  assert(geometry.qualityTops.every((y,i,rows)=>!i||y>rows[i-1]),'品质三榜独占整行：'+width);
+  assert(geometry.qualityTops.every((y,i,rows)=>!i||y>rows[i-1]),'品质四榜各占整行：'+width);
   if(width>900)assert(Math.abs(geometry.inventoryTops[0]-geometry.inventoryTops[1])<1,'库存两卡同排');
  }
  await page.setViewportSize({width:1920,height:1080});
