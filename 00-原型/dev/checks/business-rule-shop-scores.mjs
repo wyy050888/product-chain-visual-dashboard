@@ -36,8 +36,8 @@ export async function shopScoreRules(page){
  await page.getByRole('button',{name:'配置全局规则',exact:true}).click();await page.locator('[data-brc-tab="shops"]').click();await page.locator('[data-brc-section-tab="scores"]').click();
  const expected=['店铺分','商品分','物流分','服务分'],selects=page.locator('[data-brc-metric]');
  const videoFields=page.locator('[data-brc-metric^="shops.视频号."]');
- assert.equal(await videoFields.count(),4,'视频号独立配置评分');
- assert.equal(await selects.count(),20);
+ assert.equal(await videoFields.count(),0,'视频号使用行业平均水平，不提供分值阈值配置');
+ assert.equal(await selects.count(),16);
  for(const select of await selects.all())assert.deepEqual(await select.locator('option').allTextContents(),expected);
  for(const metric of['productScore','logisticsScore','serviceScore']){
   const fields=page.locator('[data-brc-metric^="shops.抖音."]');

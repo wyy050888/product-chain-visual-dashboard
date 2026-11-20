@@ -40,7 +40,10 @@ function sdSuggestions(m,state){
  const add=(key,title,description,plan,priority)=>items.push({...base,id:[base.spuId,state.start,state.end,key].join('|'),source:'ai',status:'suggested',suggestionKey:key,department:base.assignees[0].department,title,description:upTodoProblem(state,[description],reasons[key]+(['freeze','penalty'].includes(key)?' 平台核查重点：'+book.focus:'')),descriptionVersion:3,plan:plan+(['freeze','penalty'].includes(key)?' '+book.deliverable:''),priority,basis:[state.start+' — '+state.end,description]});
  if(c.frozen)add('freeze','核对冻结事件并补齐解冻材料',`历史累计冻结${c.frozenCount}次，事件金额${pfMoneyYuan(c.frozen)}，不代表当前冻结余额。`,'逐条核对冻结通知、关联订单和解冻条件，提交材料并记录平台回执；核对余额确认是否已解冻。','red');
  if(c.fine||c.offShelf||c.drop||c.limited)add('penalty','完成处罚条目整改与申诉核对',`罚款${pfMoneyYuan(c.fine)}，下架${c.offShelf}次，掉权${c.drop}次，限单${c.limited}次。`,'按违规编号确认对象、申诉截止时间与整改要求，修正对应内容或履约环节，逐项回填结果。','red');
- if(sdScoreFacts(m.shop).low)add('score','复核评分短板并明确整改责任',sdScoreFacts(m.shop).text,'复核店铺总分及商品、物流、服务分的评分口径，标记需关注分项；与已有违规原因交叉核对，原因明确后再协同对应部门，提交整改项和评分复查结果。','yellow');
+ const governance=m.shop.channel==='视频号',score=sdScoreFacts(m.shop);
+ if(governance)reasons.score='治理指标取结束日及以前最新可用记录，逐项对比同记录行业平均水平，高于为红灯、等于为黄灯、低于为绿灯。';
+ if(score.low)add('score',governance?'复核治理指标并明确整改责任':'复核评分短板并明确整改责任',score.text,
+  governance?'复核三项近30天治理指标及对应行业平均水平，优先排查红灯项目，核对相关违规和处置记录，提交整改项和同口径复查结果。':'复核店铺总分及商品、物流、服务分的评分口径，标记需关注分项；与已有违规原因交叉核对，原因明确后再协同对应部门，提交整改项和评分复查结果。','yellow');
  const recent=m.recent,priorRate=m.previousReturnRate,growth=periodRateGrowth(recent.returnRate,priorRate);
  if(recent.returned&&Number.isFinite(priorRate)&&recent.returnRate>priorRate+1e-10)add('returns','复核退货变化及重点关注商品',`近30日（${recent.start} — ${recent.end}）销量${formatSalesQuantity(recent.sales)}，总退${upPercent(recent.returnRate)}，紧邻上期${upPercent(priorRate)}，环比 ${periodRateGrowthText(growth)}；退货数量${fmt(recent.returned)}。`,'按店内SPU业绩复核退货数量、总退及去退后销量，列出重点关注商品；仅对已有违规对象可关联的事项标记共同风险，回填后续同口径业绩变化，不直接认定退货根因。','yellow');
  return items;
@@ -48,11 +51,11 @@ function sdSuggestions(m,state){
 function sdTodoList(m,state){
  const proposals=sdSuggestions(m,state),base=sdTaskBase(m.shop,state),existing=Object.values(upTodos).filter(t=>t.spuId===base.spuId);
  if(!existing.length){
-  const pdd=m.shop.channel==='拼多多';
+  const pdd=m.shop.channel==='拼多多',metric=m.shop.channel==='视频号'?'治理指标':'评分';
   const first=proposals[0]||{...base,
-   title:pdd?'复核核心链接与经营表现':'复核店铺评分与经营表现',
-   description:pdd?'复核核心链接考核、去退后销量及违规变化。':'复核店铺评分、去退后销量及违规变化。',
-   plan:pdd?'按相同口径记录链接考核、业绩与违规复查结果。':'按相同口径记录评分、业绩与违规复查结果。'
+   title:pdd?'复核核心链接与经营表现':'复核店铺'+metric+'与经营表现',
+   description:pdd?'复核核心链接考核、去退后销量及违规变化。':'复核店铺'+metric+'、去退后销量及违规变化。',
+   plan:pdd?'按相同口径记录链接考核、业绩与违规复查结果。':'按相同口径记录'+metric+'、业绩与违规复查结果。'
   },now=aiToday();
   const sample={...first,id:'history|'+base.spuId,source:'sample',status:'working',assignee:base.assignees[0].name,department:base.assignees[0].department,assignedBy:upTodoCurrentUser,assignedAt:shiftDate(now,-2)+'T09:00:00+08:00',due:shiftDate(now,2),basis:first.basis?.length?first.basis:['店铺全量经营记录复核'],suggestionKey:undefined};
   upPersistTodos({...upTodos,[sample.id]:sample});existing.push(sample);

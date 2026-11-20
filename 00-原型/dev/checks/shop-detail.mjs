@@ -30,21 +30,28 @@ export async function shopDetail(page){
    assert(diagnosis.includes(links.filter(link=>link.assessment==='red').length+'条红灯链接'));
    assert(diagnosis.includes(links.filter(link=>link.assessment==='yellow').length+'条黄灯链接'));
 
+  }else if(channel==='视频号'){
+   const keys=['qualityReturnRate30','negativeReviewRate30','disputeRate30'];
+   assert.deepEqual(await scores.locator('[data-rp-field]').evaluateAll(nodes=>nodes.map(node=>node.dataset.rpField)),keys);
+   const shop=await page.evaluate(id=>shopRiskAudit().find(shop=>shop.id===id),id);
+   const targets=['qualityReturnIndustry30','negativeReviewIndustry30','disputeIndustry30'];
+   for(const [index,key] of keys.entries()){
+    const field=scores.locator('[data-rp-field="'+key+'"]');
+    assert.equal(await field.locator('strong').innerText(),shop[key].toFixed(2)+'%');
+    const tone=shop[key]>shop[targets[index]]?'red':shop[key]<shop[targets[index]]?'green':'yellow';
+    assert.match(await field.locator('strong').getAttribute('class'),new RegExp('rp-quality-'+tone));
+    assert.match(await field.locator('.rp-shop-industry').innerText(),/行业平均/);
+   }
+   assert.doesNotMatch(await scores.innerText(),/店铺分|商品分|物流分|服务分/);
+   const diagnosis=await root.locator('[data-sd-ai-content]').innerText();
+   assert.match(diagnosis,/行业平均/);
+   assert.doesNotMatch(diagnosis,/店铺分|商品分|物流分|服务分/);
   }else{
    const keys=['score','productScore','logisticsScore','serviceScore'];
    assert.deepEqual(await scores.locator('[data-rp-field]').evaluateAll(ns=>ns.map(n=>n.dataset.rpField)),keys);
    const shop=await page.evaluate(id=>shopRiskAudit().find(s=>s.id===id),id);
    for(const key of keys)assert.equal(await scores.locator('[data-rp-field="'+key+'"] strong').innerText(),shop[key].toFixed(2));
    assert.equal(await scores.locator('[data-rp-pdd-shop]').count(),0);
-   if(channel==='视频号'){
-    const tone=shop.score<=4.4?'red':shop.score<4.7?'yellow':'green';
-    const score=scores.locator('[data-rp-field="score"]');
-    assert.match(await score.locator('strong').getAttribute('class'),new RegExp('rp-quality-'+tone));
-    assert.match(await score.getAttribute('title'),/评分入榜条件为红灯且品质违规处罚/);
-    const diagnosis=await root.locator('[data-sd-ai-content]').innerText();
-    for(const label of ['店铺分','商品分','物流分','服务分'])assert(diagnosis.includes(label),'诊断保留 '+label+'原值');
-    assert.match(diagnosis,/按本平台有效规则判定为(?:红灯|黄灯|绿灯)/);
-   }
   }
   await page.setViewportSize({width:390,height:900});
   const scoreBox=await scores.boundingBox(),bodyBox=await page.locator('#dialogbody').boundingBox();
@@ -58,7 +65,7 @@ export async function shopDetail(page){
   else{assert.match(heroText,/店铺推广[\s\S]*品牌[一二三]区-/);assert.match(heroText,/店铺策略[\s\S]*品牌[一二三]区-/)}
   const geometry=await root.evaluate(e=>({hero:e.querySelector('.up-hero').getBoundingClientRect().bottom,tabs:e.querySelector('.drawer-tabs').getBoundingClientRect().top}));assert(geometry.hero<=geometry.tabs);
   assert(await root.locator('[data-sd-ai-content]').isVisible());await root.locator('[data-sd-ai-toggle]').click();assert(await root.locator('[data-sd-ai-content]').isHidden());await root.locator('[data-sd-ai-toggle]').click();
-  await root.locator('[data-sd-prompt]').click();assert(await root.locator('.up-ai-prompt-dialog:not([data-up-ai-evidence-dialog])').isVisible());const prompt=await root.locator('.up-ai-prompt-dialog pre').innerText();assert.equal(prompt,'当前平台：'+channel+'。仅应用该平台对应条款。\n\n'+readAiPrompts().shop);assert.deepEqual(await root.locator('.sd-diagnosis-dimension>b').allTextContents(),[channel==='拼多多'?'核心链接':'评分','业绩','违规']);assert.deepEqual(await root.locator('.up-ai-section>strong').allTextContents(),['经营结论','问题分析','部门行动']);assert.doesNotMatch(await root.locator('[data-sd-ai-content]').innerText(),/批次|直播场次|首响|私域|客服根因待核实|undefined/);prompts.add(prompt);await page.keyboard.press('Escape');assert(await root.isVisible());
+  await root.locator('[data-sd-prompt]').click();assert(await root.locator('.up-ai-prompt-dialog:not([data-up-ai-evidence-dialog])').isVisible());const prompt=await root.locator('.up-ai-prompt-dialog pre').innerText();if(channel==='视频号'){assert.match(prompt,/视频号治理指标口径/);assert.match(prompt,/任一项红灯独立入榜/)}else assert.equal(prompt,'当前平台：'+channel+'。仅应用该平台对应条款。\n\n'+readAiPrompts().shop);assert.deepEqual(await root.locator('.sd-diagnosis-dimension>b').allTextContents(),[channel==='拼多多'?'核心链接':channel==='视频号'?'治理指标':'评分','业绩','违规']);assert.deepEqual(await root.locator('.up-ai-section>strong').allTextContents(),['经营结论','问题分析','部门行动']);assert.doesNotMatch(await root.locator('[data-sd-ai-content]').innerText(),/批次|直播场次|首响|私域|客服根因待核实|undefined/);prompts.add(prompt);await page.keyboard.press('Escape');assert(await root.isVisible());
   assert.equal(await root.locator('[data-ai-history]').count(),0,'店铺诊断不外露生成及保存状态');
   await root.locator('[data-up-ai-evidence]').click();const basis=root.locator('[data-up-ai-evidence-dialog]');assert(await basis.isVisible());assert((await basis.innerText()).includes('店铺ID'));assert((await basis.innerText()).includes(channel));assert.equal(await basis.locator('pre').count(),0);assert.equal(await basis.locator('.up-ai-evidence-note').count(),0);
   const basisBounds=await basis.boundingBox();assert(Math.abs(basisBounds.y)<1&&Math.abs(basisBounds.x+basisBounds.width-page.viewportSize().width)<1,'店铺依据使用右侧抽屉');

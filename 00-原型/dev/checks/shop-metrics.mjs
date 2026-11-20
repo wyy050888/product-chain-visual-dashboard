@@ -5,6 +5,7 @@ import vm from 'node:vm';
 export async function verifyShopMetrics(page){
  const diagnosisContext=vm.createContext({fmt:(n,d=0)=>Number(n).toFixed(d),formatSalesQuantity:String,upPercent:n=>n+'%',pfMoneyYuan:n=>n+'元',rpQualityChange:(a,b)=>b?((a-b)/b*100)+'%':'—',sdRoles:()=>[],rpShopScoreTone:(_,s)=>s>=4.8?'rp-quality-green':'rp-quality-yellow'});
  const scoreTone=diagnosisContext.rpShopScoreTone;
+ vm.runInContext(fs.readFileSync(new URL('../../src/modules/shop-scoring/00-score-history.js',import.meta.url),'utf8'),diagnosisContext);
  vm.runInContext(fs.readFileSync(new URL('../../src/modules/risk-presentation/01-shop.js',import.meta.url),'utf8'),diagnosisContext);
  diagnosisContext.rpShopScoreTone=scoreTone;
  vm.runInContext(fs.readFileSync(new URL('../../src/modules/shop-detail/01-diagnosis.js',import.meta.url),'utf8'),diagnosisContext);
@@ -13,11 +14,11 @@ export async function verifyShopMetrics(page){
  const model={shop,current:facts,previous:facts,returnRate:10,previousReturnRate:10,events:[]};
  const stable=diagnosisContext.sdDiagnosis(model,{});
  assert(stable.summary.includes('维持现有经营节奏'));assert(!stable.actions.includes('品质中心'),'无依据时不机械派单');
- const video=diagnosisContext.sdDiagnosis({...model,shop:{...shop,channel:'视频号',score:0,productScore:0,logisticsScore:0,serviceScore:0}},{});
- assert.match(video.summary+video.actions,/评分短板/,'视频号异常评分生成复查建议');
- assert.deepEqual(Array.from(video.dimensions,row=>row[0]),['评分','业绩','违规']);
- assert(video.dimensions[0][1].includes('店铺分0.00'));
- assert.match(video.dimensions[0][1],/判定为黄灯/);
+ const video=diagnosisContext.sdDiagnosis({...model,shop:{...shop,channel:'视频号',governanceDate:'2026-10-01',qualityReturnRate30:.5,qualityReturnIndustry30:.48}},{});
+ assert.match(video.actions,/近30天品质退货率/,'异常治理指标生成复查建议');
+ assert.deepEqual(Array.from(video.dimensions,row=>row[0]),['治理指标','业绩','违规']);
+ assert.doesNotMatch(video.dimensions[0][1],/店铺分|商品分|物流分|服务分/);
+ assert.match(video.dimensions[0][1],/红灯/);
  const low=diagnosisContext.sdDiagnosis({...model,shop:{...shop,score:4.6}},{});
  assert(!low.dimensions.flat().join('').includes('持续下降'),'单次评分不冒充趋势');
  assert(low.actions.includes('已有违规原因'),'评分低不能直接分配责任');

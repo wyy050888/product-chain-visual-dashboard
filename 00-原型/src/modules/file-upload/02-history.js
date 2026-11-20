@@ -26,7 +26,7 @@ function uiRecordImport(inputId,result={}){
 function uiImportHistoryRows(module){
  const records=new Map([...uiImportSaved(),...uiImportMemory].map(row=>[row.id,row]));
  // 生命周期已有完整审计台账，直接读取，不重复写一份。
- if(module==='生命周期目标')for(const row of ltStore.history.filter(row=>row.kind!=='manual'&&row.year===uiHistoryState.year)){if([...records.values()].some(item=>item.module===module&&item.file===row.file&&Math.abs(new Date(item.at)-new Date(row.at))<2000))continue;records.set('lt:'+row.id,{id:'lt:'+row.id,module,file:row.file,at:row.at,actor:row.actor,status:row.status,rows:row.rows,errors:row.errors,changes:row.changes.map(change=>({item:[ltCategories[change.category],ltPlans[change.plan]?.name,'Q'+(change.quarter+1)].join(' / '),before:change.before,after:change.after}))});}
+ if(module==='生命周期目标')for(const row of ltStore.history.filter(row=>row.kind!=='manual'&&row.year===uiHistoryState.year)){if([...records.values()].some(item=>item.module===module&&item.file===row.file&&Math.abs(new Date(item.at)-new Date(row.at))<2000))continue;records.set('lt:'+row.id,{id:'lt:'+row.id,module,file:row.file,at:row.at,actor:row.actor,status:row.status,rows:row.rows,errors:row.errors,changes:row.changes.map(change=>({item:[ltCategories[change.category],change.brand,ltPlans[change.plan]?.name,'Q'+(change.quarter+1)].filter(Boolean).join(' / '),before:change.before,after:change.after}))});}
  // 成本预警原台账继续可查；有新统一记录时不重复显示。
  if(module==='成本预警')for(const row of cwStore.batches){
   if([...records.values()].some(item=>item.module===module&&item.file===row.file&&Math.abs(new Date(item.at)-new Date(row.at))<2000))continue;

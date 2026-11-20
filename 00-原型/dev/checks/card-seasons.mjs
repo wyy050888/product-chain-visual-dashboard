@@ -3,7 +3,7 @@ export async function cardSeasons(page,kinds=[0,2,3,4,6]){
  const choices=['all','夏季品','冬季品','四季品'];
  const control=k=>page.locator('#riskrail [data-rp-card-season="'+k+'"]');
  const card=k=>page.locator('#riskrail .riskcard').filter({has:page.locator('[data-risk="'+k+'"]')});
- assert.equal(await page.locator('#riskrail [data-rp-card-season]').count(),5);
+ assert.equal(await page.locator('#riskrail [data-rp-card-season]').count(),6);
  for(const k of kinds)await control(k).selectOption('all',{force:true});
  const original={};
  for(const k of kinds){
@@ -13,7 +13,9 @@ export async function cardSeasons(page,kinds=[0,2,3,4,6]){
   for(const value of choices.slice(1)){
    await control(k).selectOption(value,{force:true});
    const count=Number((await card(k).locator('[data-risk]').innerText()).match(/\d+/)[0]);sum+=count;
-   assert.equal(await card(k).locator('.rp-entry').count(),Math.min(count,6));
+   const previews=await card(k).locator('.rp-entry').count(),limit=Math.min(count,6);
+   if([6,8].includes(k))assert(previews<=limit,'同一 SPU 的多个平台共用一张卡片');
+   else assert.equal(previews,limit);
    if([0,2,3,4,6].includes(k))assert.equal(Number(await card(k).locator('[data-rp-season-option="'+value+'"] .rp-season-count').innerText()),count,'季品标签数量等于完整入榜数');
    for(const other of kinds.filter(x=>x!==k))assert.equal(await control(other).inputValue(),[3,4].includes(k)&&[3,4].includes(other)?value:'all');
    const names=await card(k).locator('.rp-entry .rp-identity b').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('title')||node.textContent.trim()));
@@ -25,7 +27,8 @@ export async function cardSeasons(page,kinds=[0,2,3,4,6]){
     const seasons=await page.locator('.rp-list-table tbody tr').evaluateAll((rs,i)=>i<0?[]:rs.map(r=>r.children[i].textContent.trim()),index);
     if(index>=0)assert.ok(seasons.every(s=>s===value));
     const listNames=await page.locator('.rp-list-table tbody .rp-identity b').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('title')||node.textContent.trim()));
-    assert.deepEqual((k===6?[...new Set(listNames)]:listNames).slice(0,6),names);
+    const previewNames=[0,6,8].includes(k)?[...new Set(listNames)]:listNames;
+    assert.deepEqual(previewNames.slice(0,6),names);
    }else assert.ok(await page.locator('.rp-list-table .empty').count());
    await page.locator('#close').click();
    assert.equal(await control(k).inputValue(),value);
@@ -44,4 +47,68 @@ export async function cardSeasons(page,kinds=[0,2,3,4,6]){
   }
  }
  await page.setViewportSize({width:1920,height:1080});
+}
+
+export async function riskChainFilters(page){
+ const board=kind=>page.locator(`#riskrail [data-rp-board="${kind}"]`);
+ const chain=kind=>board(kind).getByRole('radiogroup',{name:/链群$/});
+ const chainOption=(kind,value)=>chain(kind).locator(`[data-rp-chain-option="${value}"]`);
+ const total=async kind=>Number((await board(kind).locator(`[data-risk="${kind}"]`).innerText()).match(/\d+/)[0]);
+ const chains=['环境','清洁','厨电','个护&健康'];
+ const chainByIndex=['清洁','厨电','环境','个护&健康'];
+ const products=new Map(await page.evaluate(()=>referenceSampleAudit().spus.map(row=>[row.spuId,row])));
+ const directorKinds=[0,6,8,4,3,2],sharedKinds=[0,6,8,2];
+ async function check(kinds){
+  for(const kind of kinds){
+   const field=chain(kind);
+   assert.equal(await chainOption(kind,'all').getAttribute('aria-checked'),'true');
+   assert.deepEqual(await field.getByRole('radio').evaluateAll(buttons=>buttons.map(button=>button.firstChild.textContent)),['全部',...chains]);
+   const before=await total(kind);
+   let sum=0;
+   for(const value of chains){
+    const option=chainOption(kind,value);
+    await option.click();
+    const count=await total(kind);sum+=count;
+    assert.equal(Number(await option.locator('.rp-platform-count').innerText()),count);
+    assert.equal(await field.locator('[aria-checked="true"]').count(),1);
+   }
+   assert.equal(sum,before,'四个链群覆盖同一榜单的完整范围');
+   await chainOption(kind,'环境').click();
+   const drawer=board(kind).locator(`[data-risk="${kind}"]`);
+   await drawer.click();
+   assert.equal(await page.locator('#dialogbody [data-rp-filter="chain"]').inputValue(),'环境');
+   await page.locator('#close').click();
+  }
+  const audit=await page.evaluate(()=>riskBoardPeriodAudit());
+  for(const kind of kinds){
+   const snapshot=audit.find(row=>row.kind===kind);
+   if(snapshot)assert.equal(snapshot.count,await total(kind));
+   const ids=snapshot?snapshot.records.map(row=>row.spuId):await board(kind).locator('[data-rp-spu]').evaluateAll(rows=>rows.map(row=>row.dataset.rpSpu));
+   assert(ids.every(id=>chainByIndex[products.get(id)?.chain]==='环境'));
+  }
+ }
+ await check(directorKinds);
+ const deviation=board(8);
+ assert.deepEqual(await deviation.locator('.rp-filter-groups > :not(select)').evaluateAll(nodes=>nodes.map(node=>node.className)),['rp-platform-tags','rp-return-type-tags','rp-season-menu','rp-chain-filter']);
+ assert(await deviation.locator('.rp-filter-groups > :is(.rp-return-type-tags,.rp-season-menu,.rp-chain-filter)').evaluateAll(nodes=>nodes.every(node=>getComputedStyle(node,'::before').width==='1px')));
+ const before=await total(8);
+ await deviation.locator('[data-rp-product-type="new"]').click();
+ await deviation.locator('[data-rp-season-option="冬季品"]').click();
+ assert(await total(8)<=before);
+ assert.equal(await chainOption(8,'环境').getAttribute('aria-checked'),'true');
+ assert.equal(await board(6).locator('[data-rp-product-type="all"]').getAttribute('aria-checked'),'true');
+ await deviation.locator('[data-risk="8"]').click();
+ for(const [field,value] of [['chain','环境'],['productType','new'],['attribute','冬季品']]){
+  assert.equal(await page.locator(`#dialogbody [data-rp-filter="${field}"]`).inputValue(),value);
+ }
+ await page.locator('#close').click();
+ await chainOption(8,'环境').focus();await page.keyboard.press('ArrowRight');
+ assert.equal(await chainOption(8,'清洁').getAttribute('aria-checked'),'true');
+ await page.goto(new URL('产品中心.html',page.url()).href);
+ await page.waitForFunction(()=>document.documentElement.dataset.dashboardBoot==='ready');
+ await check(sharedKinds);
+ const inventory=page.locator('#inventory-stagnant-top');
+ await inventory.getByRole('radio',{name:'清洁'}).click();
+ const top=await page.evaluate(()=>inventoryControlAudit().stagnantTop);
+ assert(top.rows.length>0&&top.rows.every(row=>chainByIndex[products.get(row.spuId)?.chain]==='清洁'));
 }

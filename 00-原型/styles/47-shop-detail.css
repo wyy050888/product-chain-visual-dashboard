@@ -36,6 +36,9 @@
 #dialogbody .sd-hero-scores .rp-quality-red{color:var(--red)}
 #dialogbody .sd-hero-scores .rp-quality-gray{color:#8693a4}
 #dialogbody .sd-hero-scores.sd-hero-link-counts{grid-template-columns:repeat(2,minmax(0,1fr));width:240px}
+#dialogbody .sd-hero-scores.rp-shop-governance{grid-template-columns:repeat(3,minmax(0,1fr));width:450px}
+#dialogbody .sd-hero-scores.rp-shop-governance small{white-space:normal}
+#dialogbody .sd-hero-scores.rp-shop-governance .rp-shop-industry{font-size:11px;margin:4px 0 0}
 #dialogbody .sd-hero-scores .rp-pdd-count{min-width:72px;padding:8px;cursor:default}
 #dialogbody .sd-hero-scores .rp-pdd-count>span{font-size:12px;white-space:nowrap}
 @media(max-width:700px){#dialogbody .sd-hero-scores,#dialogbody .sd-hero-scores.sd-hero-link-counts{width:100%;flex-basis:100%;margin-left:0;gap:12px}}

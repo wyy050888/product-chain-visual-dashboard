@@ -22,7 +22,7 @@ function dxWith(module,fn,period=dpP(module),chain=dpState.chain){
  if(module==='ai')Object.assign(aiView,dxAI);
  try{return withPeriod(module,fn)}finally{salesDimension=oldSalesDimension;activeSales=oldActiveSales;salesView=oldSalesView;dxDepth--;productRows=oldProducts;lifeData=oldLifeData;lifeChannelRows=oldChannels;lifeIndex=oldIndex;lifeView=oldView;matrixTab=oldMatrix;Object.assign(newProductSelection,savedNew);Object.assign(matrixProductPage,savedPage);Object.assign(aiView,savedAI);if(oldPeriod)localPeriods[module]=oldPeriod;else delete localPeriods[module];}
 }
-const dxAttrs=['ai-daymode','sales','new-metric','new-channel','new-reset','product-page','page','product','new-trend','matrix','matrix-trend','matrix-diagnosis','rules','life','view','life-completed','ai-kind','ai-period','ai-detail','ai-handle','report-type'];
+const dxAttrs=['ai-daymode','ai-week','sales','new-metric','new-channel','new-reset','product-page','page','product','new-trend','matrix','matrix-trend','matrix-diagnosis','rules','life','view','life-completed','ai-kind','ai-period','ai-detail','ai-handle','report-type'];
 function dxRender(module){dxSyncScope();const original=$('#'+module),clone=original.cloneNode(true);clone.hidden=true;original.replaceWith(clone);dxRendering=true;
  try{return dxWith(module,()=>{
   if(module==='new'){$('#newchain').value=dxStates.new.chain;renderNew();Object.assign(dxStates.new,newProductSelection)}

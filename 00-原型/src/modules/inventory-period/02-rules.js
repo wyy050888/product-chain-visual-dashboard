@@ -10,7 +10,7 @@ function ipIndicator(kind,value){
  return `<span class="ip-signal ${tone}" data-ip-signal="${kind}" data-value="${value}"><b>${numberSignal(fmt(value,digits)+unit,tone,{allTones:true})}</b></span>`;
 }
 const ipMetricRules={
- warehouse:{title:'我司可售库存',formula:'聚量实体仓仓库库存＋京东仓库存',note:'按SPU去重汇总，数量单位为件'},
+ warehouse:{title:'我司可售库存',formula:'聚水潭实体仓＋京东现货库存',note:'按SPU去重汇总，数量单位为件'},
  warehouseValue:{title:'我司可售货值',formula:'Σ（我司可售SKU库存数量 × 财务单价）',note:'只计算我司可售库存对应货值'},
  staleUnits:{title:'呆滞库存',formula:'Σ（库存台账认定的呆滞SKU库存数量）',note:'数量单位为件；沿用底层呆滞认定，不按汇总比率重新判定'},
  staleRatio:{title:'呆滞库存占比',formula:'呆滞库存数量 ÷ 总库存数量 × 100%',note:'总库存按五项库存组成汇总，与呆滞榜一致'},
@@ -19,7 +19,7 @@ const ipMetricRules={
  amount:{title:'库存总金额',formula:'Σ（SKU库存数 × 财务价）',note:'财务价包含税与品牌费用'},
  turn:{title:'库存周转率',formula:'所选期间出库成本 ÷ 同期平均库存成本',note:'成本及平均库存成本沿用统一库存期间台账',groups:[['月度',...ipThresholds.turn.month],['季度',...ipThresholds.turn.quarter],['年度',...ipThresholds.turn.year]]},
  stale:{title:'呆滞库存金额',formula:'Σ（呆滞SKU库存数 × 财务价）',note:'呆滞范围沿用库存台账认定；财务价包含税与品牌费用'},
- delivery:{title:'交付及时率',formula:'所选期间交付良品数量 ÷ 所选期间计划产量 × 100%',note:'按日期汇总交付良品数量和计划产量后计算',groups:[['月度',...ipThresholds.delivery]]}
+ delivery:{title:'新机交付及时率',formula:'按SPU统计：新机交付及时率 = （考核期内的已交付量+考核期内最新良品库存数（人工导入））/ 排产表考核期的计划产量',note:'按SPU汇总分子、分母后计算',groups:[['月度',...ipThresholds.delivery]]}
 };
 function ipHelp(key){const r=ipMetricRules[key];return `<span class="metric-help ip-metric-help" role="button" tabindex="0" aria-label="查看${r.title}规则" data-ip-rule="${key}" data-metric-rule="${esc(r.formula+'；'+r.note)}"></span>`}
 function ipHeading(key,label=ipMetricRules[key].title){return `<span class="ip-field-heading">${label}${ipHelp(key)}</span>`}

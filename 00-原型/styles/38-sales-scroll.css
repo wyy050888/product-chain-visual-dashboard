@@ -59,9 +59,10 @@
 #sales .ms-detail-table th:nth-child(3){width:24%}
 #sales .ms-detail-table th:last-child{width:auto}
 #sales .ms-detail-table :is(th,td){border-bottom-color:#eef2f7}
-#sales :is(.ms-gsv-pair,.ms-margin-pair){display:block;width:auto;max-width:none;text-align:right;white-space:nowrap}
-#sales .ms-detail-table :is(.ms-gsv-actual,.ms-margin-actual){font-weight:600}
-#sales .ms-detail-table :is(.ms-gsv-target,.ms-margin-target){font-weight:400;color:#6f829b}
+:is(#sales,.pc-project-metrics) :is(.ms-gsv-pair,.ms-margin-pair){display:block;width:auto;max-width:none;white-space:nowrap}
+#sales :is(.ms-gsv-pair,.ms-margin-pair){text-align:right}
+:is(#sales .ms-detail-table,.pc-project-metrics) :is(.ms-gsv-actual,.ms-margin-actual){font-weight:600}
+:is(#sales .ms-detail-table,.pc-project-metrics) :is(.ms-gsv-target,.ms-margin-target){font-weight:400;color:#6f829b}
 #sales :is(.ms-brand-label,.ms-platform-label){display:inline-flex;align-items:center;gap:8px;max-width:100%;white-space:nowrap}
 #sales .ms-platform-label>img{width:32px;height:32px;object-fit:contain;flex:none}
 #sales .ms-brand-label>img{width:32px;height:32px;object-fit:contain;flex:none;background:#fff;border-radius:4px}

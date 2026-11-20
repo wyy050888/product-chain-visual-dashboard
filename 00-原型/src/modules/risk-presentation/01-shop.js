@@ -24,6 +24,7 @@ function rpShopScoreBands(platform){
  const rows=brcBandRows('score.'+platform);return rows.length?Object.fromEntries(rows.map(r=>[r.tone,r.text])):null;
 }
 function rpShopScoreHint(platform){
+ if(platform==='视频号')return '视频号三项近30天治理指标取所选结束日及以前最新记录，实际值与该记录的行业平均水平比较：低于为绿灯、等于为黄灯、高于为红灯；任一指标红灯即可入榜。';
  const bands=rpShopScoreBands(platform);
  return bands?platform+'店铺分：红灯 '+bands.red+'；黄灯 '+bands.yellow+'；绿灯 '+bands.green+'。':'暂无评分规则。';
 }
@@ -37,6 +38,8 @@ function rpRenderShopScoreRules(host){
   const bands=rpShopScoreBands(platform),row=append(body,'tr');append(row,'th',platform).scope='row';
   for(const key of ['red','yellow','green']){const cell=append(row,'td',bands[key]);cell.dataset.tone=key;}
  }
+ append(host,'h4','视频号治理指标');
+ append(host,'p',sbWechatIndicators.map(metric=>metric.name).join('、')+'。'+rpShopScoreHint('视频号'));
 }
 
 function rpShopProblemHit(product){
@@ -111,7 +114,13 @@ function rpShopFields(shop,qualityOnly=true){
  for(const [key,name] of [['fine','平台罚款'],['frozen','资金冻结']])add(key,name,rpQualityMoney(now[key]),now[key],rpQualityAmountTone(now[key]),now[key+'Count']+'次','rp-quality-gray',key==='frozen'?'期间冻结事件金额及次数，不作为实时冻结余额。':'期间平台罚款金额及次数。');
  add('sanctions','罚款＆冻结',rpQualityMoney(now.fine+now.frozen),now.fine+now.frozen,rpQualityAmountTone(now.fine+now.frozen),(now.fineCount+now.frozenCount)+'次','rp-quality-gray','平台罚款和冻结事件金额相加；下行是两类事件总次数。');
  fields.push(rpShopProblemField(shop,w.end,w.previousEnd));
- if(shop.channel!=='拼多多'){
+ if(shop.channel==='视频号'){
+  for(const metric of sbWechatFacts(shop)){
+   const hint=rpShopScoreHint('视频号')+' 数据日期：'+(shop.governanceDate||'—')+'。';
+   add(metric.key,metric.name,sbWechatPercent(metric.actual),metric.actual,'rp-quality-'+metric.tone,
+    '行业平均 '+sbWechatPercent(metric.target),'rp-quality-gray',hint);
+  }
+ }else if(shop.channel!=='拼多多'){
   add('score','店铺分',Number.isFinite(shop.score)?fmt(shop.score,2):'—',shop.score,rpShopScoreTone(shop.channel,shop.score,shop),'','','结束日评分。'+rpShopScoreHint(shop.channel));
   for(const [key,name] of [['productScore','商品分'],['logisticsScore','物流分'],['serviceScore','服务分']])add(key,name,Number.isFinite(shop[key])?fmt(shop[key],2):'—',shop[key],'rp-quality-normal','','','结束日评分；未设置额外阈值。');
  }
@@ -132,6 +141,8 @@ function rpPddLinkGroups(shop,end){
 function rpShopColumns(platform){
  const selected=Array.isArray(platform)?platform:[platform];
  const scoreKeys=['score','productScore','logisticsScore','serviceScore'];
- const keys=['mainSpu','gsv','netSales','violations',...rpShopMetricKeys(platform),...(!selected.includes('all')&&selected.some(platform=>platform!=='拼多多')?scoreKeys:[])];
+ const ratings=!selected.includes('all')&&selected.some(platform=>rpShopScoreMonitored(platform))?scoreKeys:[];
+ const governance=selected.includes('all')||selected.includes('视频号')?sbWechatIndicators.map(metric=>metric.key):[];
+ const keys=['mainSpu','gsv','netSales','violations',...rpShopMetricKeys(platform),...ratings,...governance];
  return selected.includes('拼多多')?[...keys,'redLinks','yellowLinks']:keys;
 }

@@ -82,7 +82,7 @@ function rpStockFields(kind,record,current,previous){
   total.target='总可售天数 '+(Number.isFinite(stock.totalCoverage15)?fmt(stock.totalCoverage15,1)+'天':'—');total.targetTone='rp-quality-normal';
   total.cardTarget='货值 '+formatStockValue(stock.goodsValueCents);total.cardTargetTone='rp-quality-normal';
   add('totalCoverage15','总可售天数',Number.isFinite(stock.totalCoverage15)?fmt(stock.totalCoverage15,1)+'天':'—',stock.totalCoverage15,'rp-quality-red','','','总库存÷近15日均净销量；与库存管控缺货规则共用原值，显示保留一位小数。');
-  const warehouse=add('warehouse','我司可售库存',stockQuantity(stock.warehouse),stock.warehouse);
+  const warehouse=add('warehouse','我司可售库存',stockQuantity(stock.warehouse),stock.warehouse,'rp-quality-normal','','',upBalanceRules.warehouse);
   warehouse.cardTarget='货值 '+formatStockValue(stock.warehouseValueCents);warehouse.cardTargetTone='rp-quality-normal';
   warehouse.cardTargetHint='我司可售库存对应货值，使用库存台账原值。';
   add('dailyNet15','近15日均净销量',Number.isFinite(stock.dailyNet15)?formatSalesQuantity(Math.round(stock.dailyNet15),'件'):'—',stock.dailyNet15,'rp-quality-normal','','','近15天（销量－总退件数）÷15；缺货判定使用未取整数值。');
@@ -107,7 +107,7 @@ function rpStockFields(kind,record,current,previous){
   age.cardTargetHint='最高库龄对应的我司可售库存数量；同库龄批次合计，当前为演示批次样例。';
   // 三项二排指标在卡片与完整榜单共用同一数值及颜色。
   for(const field of [stale,staleValue,age]){field.target=field.cardTarget;field.targetTone=field.cardTargetTone}
-  const warehouse=add('warehouse','我司可售库存',stockQuantity(stock.warehouse),stock.warehouse,'rp-quality-normal','','','我司可售＝聚量实体仓仓库库存＋京东仓库存，按公司库存快照统计，不按平台重复累计');
+  const warehouse=add('warehouse','我司可售库存',stockQuantity(stock.warehouse),stock.warehouse,'rp-quality-normal','','',upBalanceRules.warehouse);
   const warehouseValueCents=Number.isFinite(stock.warehouseValueCents)?stock.warehouseValueCents:stock.warehouse*stock.financePriceCents;
   add('warehouseValue','我司可售货值',formatStockValue(warehouseValueCents),warehouseValueCents);
   const coverage=add('coverage15','我司可售天数',dailyNet>0?fmt(stock.warehouse/dailyNet,1)+'天':'—',dailyNet>0?stock.warehouse/dailyNet:null,'rp-quality-normal','','','公司可售库存÷所选平台近15日均净销量。库存保持公司口径。');

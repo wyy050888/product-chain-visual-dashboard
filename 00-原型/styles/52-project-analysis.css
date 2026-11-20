@@ -73,7 +73,7 @@
 :is(#dialogbody .pp-analysis-table,#pp-ai .pp-analysis-ledger) .pp-task-name{display:block}
 :is(#dialogbody .pp-analysis-table,#pp-ai .pp-analysis-ledger) .pp-task-name+.pp-task-name{margin-top:4px}
 
-#projects.pp-main .pp-ai-heading h3>.metric-help{vertical-align:1px;padding:0;margin-left:6px;font-size:10px;background:#fff;color:#8395ae;border-radius:50%}
+#projects.pp-main .pp-ai-heading h3>.metric-help{padding:0;margin-left:6px;font-size:10px;background:#fff;color:#8395ae;border-radius:50%}
 #metric-tooltip.metric-tooltip-project-analysis{box-sizing:border-box;width:440px;max-width:calc(100vw - 16px);max-height:calc(100vh - 16px);overflow:auto;padding:0;border:0;border-radius:12px;background:#fff;box-shadow:0 8px 32px #243f6826,0 1px 5px #243f6814;font-size:13px;line-height:1.65;white-space:normal;color:#52647d}
 #metric-tooltip .pp-analysis-tip-heading{padding:16px 20px 14px;background:#f6f8fc}
 #metric-tooltip .pp-analysis-tip-heading h4{margin:0 0 5px;color:#263e5b;font-size:15px;font-weight:600}

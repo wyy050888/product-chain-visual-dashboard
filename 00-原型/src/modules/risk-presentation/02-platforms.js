@@ -8,30 +8,31 @@ function rpStockDefaultSeason(date=DATA_CUTOFF){
  const quarter=Math.ceil(Number(date.slice(5,7))/3);
  return quarter===4?'冬季品':quarter===2?'夏季品':'all';
 }
-const rpCardSeasons={0:'all',2:'all',3:rpStockDefaultSeason(),4:rpStockDefaultSeason(),6:'all'};
+const rpCardSeasons={0:'all',2:'all',3:rpStockDefaultSeason(),4:rpStockDefaultSeason(),6:'all',8:'all'};
+const rpCardChains={0:'all',2:'all',3:'all',4:'all',6:'all',8:'all'};
 const rpSeasonChoices=filterCatalog.seasons;
 function rpStockSeasonLinked(k){return k===3||k===4}
-function rpCardSeasonSingle(k){return k===0||k===6||rpStockSeasonLinked(k)}
-function rpCardSeasonControl(k,hidden=false){
- if(!(k in rpCardSeasons))return '';
- return `<select ${rpCardSeasonSingle(k)?'':'multiple '}${hidden?'hidden tabindex="-1"':'data-pf-multiple data-pf-label="季品"'} data-rp-card-season="${k}" aria-label="${esc(rpTitles[k])}季品">${pfOptions(rpSeasonChoices,rpCardSeasons[k],'全部')}</select>`;
-}
+function rpCardSeasonSingle(k){return k!==2}
 
-
-// 违规、退货和库存季品标签用radio，联动范围仍仅限库存两榜。
+// 单选维度使用 radio，季品联动范围仍仅限库存两榜。
 function rpSeasonTagMarkup({value,label},count,selected,attribute,single=false){
  const state=single?'role="radio" aria-checked="'+selected+'" tabindex="'+(selected?'0':'-1')+'"':'aria-pressed="'+selected+'"';
  return `<button type="button" class="rp-season-tag" ${attribute}="${esc(value)}" ${state} aria-label="${esc(label+'，'+count+'条入榜记录')}" title="${esc(label+' · '+count+'条入榜记录')}">${esc(label)}<b class="rp-platform-count rp-season-count">${count}</b></button>`;
 }
-function rpCardSeasonTags(k){
- const value=rpCardSeasons[k],label=rpTitles[k]+'季品',rows=rpRowsForPlatform(k,rpCardPlatform(k)),single=rpCardSeasonSingle(k);
- const choices=[{value:'all',label:'全部'},...rpSeasonChoices.map(value=>({value,label:value}))];
- const buttons=choices.map(option=>{
-  // 忽略标签自身已选季品，以完整入榜集合统计，保持各选项数量稳定。
-  const count=rows.filter(row=>pfMatches(row,{...rpCardProductFilters(k),attribute:option.value})).length;
-  return rpSeasonTagMarkup(option,count,pfOptionSelected(value,option.value),'data-rp-season-option',single);
+function rpCardFacetTags(kind,field,choices,selection,attribute,label,single){
+ const rows=rpRowsForPlatform(kind,rpCardPlatform(kind)),filters=rpCardProductFilters(kind);
+ const buttons=['all',...choices].map(value=>{
+  const count=rows.filter(row=>pfMatches(row,{...filters,[field]:value})).length;
+  return rpSeasonTagMarkup({value,label:value==='all'?'全部':value},count,pfOptionSelected(selection,value),attribute,single);
  }).join('');
- return '<div class="rp-season-menu rp-card-facets" data-rp-season-menu="'+k+'">'+rpCardSeasonControl(k,true)+'<div class="rp-season-tags" role="'+(single?'radiogroup':'group')+'" aria-label="'+esc(label)+'">'+buttons+'</div></div>';
+ return `<div class="rp-season-tags" role="${single?'radiogroup':'group'}" aria-label="${esc(label)}">${buttons}</div>`;
+}
+function rpCardSeasonTags(k){
+ const value=rpCardSeasons[k],label=rpTitles[k]+'季品',single=rpCardSeasonSingle(k);
+ return `<div class="rp-season-menu" data-rp-season-menu="${k}"><select ${single?'':'multiple '}hidden tabindex="-1" data-rp-card-season="${k}" aria-label="${esc(label)}">${pfOptions(rpSeasonChoices,value)}</select>${rpCardFacetTags(k,'attribute',rpSeasonChoices,value,'data-rp-season-option',label,single)}</div>`;
+}
+function rpCardChainControl(k){
+ return `<div class="rp-chain-filter" data-rp-chain-menu="${k}">${rpCardFacetTags(k,'chain',pfCategories,rpCardChains[k],'data-rp-chain-option',rpTitles[k]+'链群',true)}</div>`;
 }
 
 // 数量使标签更宽时，仅滚动标签条，保证键盘焦点可见。
@@ -48,6 +49,15 @@ function rpSeasonTagInDirection(button,key){
  return buttons[next];
 }
 document.addEventListener('click',event=>{
+ const chain=event.target.closest('#riskrail [data-rp-chain-option]');
+ if(chain){
+  const k=Number(chain.closest('[data-rp-chain-menu]').dataset.rpChainMenu),value=chain.dataset.rpChainOption;
+  if(rpCardChains[k]!==value){
+   rpCardChains[k]=value;renderRisks([k]);
+   rpFocusSeasonTag(document.querySelector(`#riskrail [data-rp-chain-menu="${k}"] [data-rp-chain-option="${value}"]`));
+  }
+  return;
+ }
  const button=event.target.closest('#riskrail [data-rp-season-option]');if(!button)return;
  const menu=button.closest('[data-rp-season-menu]'),k=menu.dataset.rpSeasonMenu,value=button.dataset.rpSeasonOption,select=menu.querySelector('select');
  if(rpCardSeasonSingle(Number(k))&&select.value===value)return;
@@ -56,10 +66,10 @@ document.addEventListener('click',event=>{
  rpFocusSeasonTag(document.querySelector('#riskrail [data-rp-season-menu="'+k+'"] [data-rp-season-option="'+value+'"]'));
 });
 document.addEventListener('keydown',event=>{
- const button=event.target.closest('#riskrail [data-rp-season-option]');
+ const button=event.target.closest('#riskrail :is([data-rp-season-option],[data-rp-chain-option])');
  const next=button&&rpSeasonTagInDirection(button,event.key);if(!next)return;
  event.preventDefault();
- if(rpCardSeasonSingle(Number(button.closest('[data-rp-season-menu]').dataset.rpSeasonMenu)))next.click();
+ if(button.hasAttribute('data-rp-chain-option')||rpCardSeasonSingle(Number(button.closest('[data-rp-season-menu]').dataset.rpSeasonMenu)))next.click();
  else rpFocusSeasonTag(next);
 });
 
@@ -85,7 +95,6 @@ function rpCardPlatform(k){return k===1?rpShopPlatformState.value:k===0?qrState.
 function rpCardDisplayPlatforms(kind){return qrPlatforms.filter(platform=>pfIncludes(rpCardPlatform(kind),platform))}
 function rpPlatformOptions(value,includeAll=true){return [...(includeAll?['all']:[]),...qrPlatforms].map(p=>`<option value="${p}" ${pfOptionSelected(value,p)?'selected':''}>${p==='all'?'全平台':p}</option>`).join('')}
 function rpPlatformValue(control){const selected=pfSelected(pfControlValue(control));return selected.length===0?'all':selected.length===1?selected[0]:selected}
-function rpCardPlatformControl(k){return [0,6].includes(k)?rpCardSeasonTags(k):[2,3,4].includes(k)?'':rpCardSeasonControl(k)}
 // 一次同步渲染内，榜单、季品数量和平台数量复用同一份入榜结果；结束即释放。
 let rpCardRowBatch=null;
 function rpWithCardRows(read){

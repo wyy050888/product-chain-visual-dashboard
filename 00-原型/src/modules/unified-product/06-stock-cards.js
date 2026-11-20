@@ -1,9 +1,11 @@
 // 库存总览与产品详情复用基础卡片，数量和货值共用库存快照。
 const upBalanceRules={
- get total(){return upTotalStockFormula},
- sellable:'我司可售库存＋工厂可售库存＋在途库存',warehouse:'聚量实体仓仓库库存＋京东仓库存',
- factoryAvailable:'工厂新机良品库存＋已翻新良品库存',
- transit:'采购调拨在途库存＋京东自营仓采购在途库存',value:'对应库存货值＝Σ（SKU库存数量×财务单价）',
+ get total(){return ['总库存＝'+upTotalStockFormula,'未产订单＝'+this.unproducedOrders,this.unrefurbishedUnits].join('\n')},
+ sellable:'我司可售库存＋工厂可售库存＋在途库存',warehouse:'聚水潭实体仓＋京东现货库存',
+ factoryAvailable:'工厂新机良品库存＋工厂已翻新良品库存',
+ transit:'聚水潭采购调拨在途＋京东在途',
+ unproducedOrders:'新机采购总量－新机采购交付量－工厂新机良品库存',unrefurbishedUnits:'未翻新＝翻新请购总量－翻新请购交付量－工厂翻新良品库存',
+ value:'对应库存货值＝Σ（SKU库存数量×财务单价）',
  coverage:'我司可售库存÷近15日均净销量；近15日均净销量＝（销量－总退件数）÷15',
  dailyNet15:'近15日均净销量＝近15天（销量－总退件数）合计÷15，使用公司全平台口径',
  turn:'库存周转率＝所选期间销售成本÷同期平均我司可售库存成本货值',

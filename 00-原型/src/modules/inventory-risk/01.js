@@ -32,7 +32,7 @@ function irSum(rows){
  const keys=[...upTotalStockParts.map(([key])=>key),'totalUnits','goodsValueCents'];
  return {count:rows.length,...Object.fromEntries(keys.map(key=>[key,rows.reduce((sum,row)=>sum+(row[key]??0),0)]))};
 }
-function irStockPartHeaders(){return upTotalStockParts.map(([,label])=>label)}
+function irStockPartHeaders(){return upTotalStockParts.map(([key,label])=>label+upBalanceHelp(key,label))}
 function irStockPartCells(row){return upTotalStockParts.map(([key])=>stockQuantity(row[key]))}
 function irGroups(rows,dimension){const groups=new Map();rows.forEach(r=>{const key=dimension==='chain'?r.chain:dimension==='brand'?r.brand:r.spuId;if(!groups.has(key))groups.set(key,{key,name:dimension==='chain'?chains[r.chain]:dimension==='brand'?r.brand:r.name,rows:[]});groups.get(key).rows.push(r)});return [...groups.values()].map(g=>({...g,...irSum(g.rows)})).sort((a,b)=>b.goodsValueCents-a.goodsValueCents||String(a.key).localeCompare(String(b.key)))}
 function irTabs(active){return `<div class="ir-dimensions" role="group" aria-label="库存汇总维度">${[['spu','按 SPU'],['chain','按链群（链条）'],['brand','按品牌']].map(([key,label])=>`<button class="btn small ${key===active?'primary':''}" data-ir-dimension="${key}" aria-pressed="${key===active}">${label}</button>`).join('')}</div>`}

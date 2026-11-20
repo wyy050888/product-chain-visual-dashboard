@@ -54,7 +54,7 @@
 #inventory .ip-stale-chart-legend>span{display:flex;gap:6px;align-items:center}
 #inventory .ip-stale-chart-legend i{width:10px;height:8px;border-radius:2px;display:block}
 #inventory .ip-stale-chart-legend .is-line{height:2px;width:16px;background:#d39a15}
-#inventory [data-ip-stale-trend-plot]{position:relative;flex:1;min-width:0;min-height:360px}
+#inventory [data-ip-stale-trend-plot]{position:relative;flex:1;min-width:0;min-height:424px}
 #inventory [data-ip-stale-trend-plot] svg{position:absolute;inset:0;display:block;width:100%;height:100%;overflow:visible;font-family:var(--ui-font-family)}
 #inventory .ip-stale-grid{stroke:#e8edf6;stroke-width:1;stroke-dasharray:3 4;fill:none}
 #inventory .ip-stale-axis{fill:#8795a8;font-size:11px}

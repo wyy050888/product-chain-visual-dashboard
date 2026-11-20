@@ -1,6 +1,6 @@
 /* 全宽Top10接在两张分组表后；宽屏直接展示，窄屏仅表内横向滚动。 */
 #inventory .ip-stagnant-panel{margin-top:28px;border:0;border-radius:0;min-width:0;overflow:visible;background:transparent}
-#inventory .ip-stagnant-heading{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 20px;padding:0 0 14px;border:0}
+#inventory .ip-stagnant-heading{display:flex;align-items:center;flex-wrap:wrap;gap:8px 16px;padding:0 0 14px;border:0}
 #inventory .ip-stagnant-heading>[data-ip-stagnant-all]{margin-left:auto;white-space:nowrap}
 #inventory .ip-stagnant-heading h3{display:inline-flex;align-items:center;gap:7px;margin:0;font-size:var(--type-section);font-weight:var(--weight-heading);color:#163854}
 #inventory .ip-stagnant-heading .metric-help{flex:none;margin:0}

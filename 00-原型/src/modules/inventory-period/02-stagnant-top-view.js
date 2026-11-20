@@ -12,7 +12,7 @@ function ipStagnantFields(row){
  });
 }
 function ipStagnantTable(model){
- if(!model.rows.length)return '<div class="empty">当前季品下暂无符合条件的呆滞产品</div>';
+ if(!model.rows.length)return '<div class="empty">当前筛选下暂无符合条件的呆滞产品</div>';
  const keys=rpStockCardKeys[4];
  const fields=new Map(model.rows.map(row=>[row,ipStagnantFields(row)]));
  const ranked=new Map(model.rows.map((row,index)=>[row.skuId,index+1]));
@@ -34,9 +34,24 @@ function ipDecorateStagnantTable(host){
 }
 function ipMountStagnantTop(){
  const host=$('#inventory-stagnant-top'),model=ipStagnantTopModel();
- host.innerHTML=`<div class="ip-stagnant-heading"><h3 data-up-basic>呆滞产品 Top10<span class="metric-help card-metric-help" role="button" tabindex="0" aria-label="查看呆滞产品Top10入榜及排序规则" data-metric-rule="${esc(ipStagnantRule())}"></span></h3><button type="button" class="link ui-icon-label" data-ip-stagnant-all data-count="${model.count}" aria-label="查看全部${model.count}条呆滞产品"><span>查看全部 ${model.count}</span><span class="ui-chevron-right" aria-hidden="true"></span></button></div><div class="ip-stagnant-scroll tablewrap">${ipStagnantTable(model)}</div>`;
+ const tags=['all',...pfCategories].map(value=>rpSeasonTagMarkup({value,label:value==='all'?'全部':value},model.counts[value],ipStagnantChain===value,'data-ip-stagnant-chain',true)).join('');
+ const filter=`<div class="rp-season-tags" role="radiogroup" aria-label="链群">${tags}</div>`;
+ host.innerHTML=`<div class="ip-stagnant-heading"><h3 data-up-basic>呆滞产品 Top10<span class="metric-help card-metric-help" role="button" tabindex="0" aria-label="查看呆滞产品Top10入榜及排序规则" data-metric-rule="${esc(ipStagnantRule())}"></span></h3>${filter}<button type="button" class="link ui-icon-label" data-ip-stagnant-all data-count="${model.count}" aria-label="查看全部${model.count}条呆滞产品"><span>查看全部 ${model.count}</span><span class="ui-chevron-right" aria-hidden="true"></span></button></div><div class="ip-stagnant-scroll tablewrap">${ipStagnantTable(model)}</div>`;
  ipDecorateStagnantTable(host);
+ host.onkeydown=event=>{
+  const button=event.target.closest('[data-ip-stagnant-chain]'),next=button&&rpSeasonTagInDirection(button,event.key);if(!next)return;
+  event.preventDefault();next.click();
+ };
  host.onclick=event=>{
+  const chain=event.target.closest('[data-ip-stagnant-chain]');
+  if(chain){
+   const value=chain.dataset.ipStagnantChain;
+   if(ipStagnantChain!==value){
+    ipStagnantChain=value;ipMountStagnantTop();
+    rpFocusSeasonTag(host.querySelector(`[data-ip-stagnant-chain="${value}"]`));
+   }
+   return;
+  }
   if(event.target.closest('[data-ip-stagnant-all]')){toast('跳转产品库存-滞销品');return}
   const detail=event.target.closest('[data-ip-stagnant-detail]');
   if(detail){toast('跳转现有产品库存详情页');return}

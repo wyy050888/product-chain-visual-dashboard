@@ -42,5 +42,5 @@ gdDataset=function(){
  const focus=gdFocusGroups(data.focus.flatMap(row=>row.sources).filter(source=>pcProductDepartment(source.department)&&(chain===null||(source.categories||[]).includes(pcManagerCategory))).map(scopeDepartment));
  const owners=new Set(pcUnscoped(()=>dpDocuments()).filter(row=>row.chain===chain).map(row=>row.owner));
  const reports=data.reports.filter(row=>gdAnalysisDepartments(row).some(pcProductDepartment)&&(chain===null||owners.has(row.owner)||(row.categories||[]).includes(pcManagerCategory))).map(scopeDepartment);
- return {...data,partLabels:{coordination:'重点工作清单',execution:'部门管理'},work,coordination:work,deviations,improvements,mismatch,resource:deviations,tasks,focus,reports};
+ return {...data,partLabels:{coordination:'重点工作清单'},work,coordination:work,deviations,improvements,mismatch,resource:deviations,tasks,focus,reports};
 };

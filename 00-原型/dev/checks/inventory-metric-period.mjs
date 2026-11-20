@@ -29,7 +29,7 @@ export async function verifyInventoryMetricPeriod(page){
   await time.locator('[data-ip-time-mode="'+mode+'"]').click();const data=await get();
   assert((await category.locator('[data-ip-signal="turn"]').allTextContents()).every(text=>text.trim().endsWith('次')&&!text.includes('/')),'周转率只显示次数 '+mode);
   assert.equal(data.metricPeriod.mode,mode);assert.deepEqual(stockView(data),stockView(initial),'日期不改写库存快照');
-  assert.deepEqual(data.balance,initial.balance);assert.deepEqual(data.overview.unrefurbished,initial.overview.unrefurbished,'未翻新数保持原库存指标，不改为期间未完成请购单');if(data.overview.range.start!==initial.overview.range.start){assert.notDeepEqual(data.brand.map(row=>row.turn),initial.brand.map(row=>row.turn),'品牌表同步重算');assert.notDeepEqual(rates(data),rates(initial),'期间三指标实际重算 '+mode)}
+  assert.deepEqual(data.balance,initial.balance);assert.deepEqual(data.overview.unrefurbishedUnits,initial.overview.unrefurbishedUnits,'未翻新数保持原库存指标，不改为期间未完成请购单');if(data.overview.range.start!==initial.overview.range.start){assert.notDeepEqual(data.brand.map(row=>row.turn),initial.brand.map(row=>row.turn),'品牌表同步重算');assert.notDeepEqual(rates(data),rates(initial),'期间三指标实际重算 '+mode)}
   assert.equal(data.overview.importedStock,initial.overview.importedStock,'人工导入库存不随历史考核期回拨');
   assert.equal(data.overview.turn,data.stockTotal.turn);assert.equal(data.overview.delivery,data.stockTotal.delivery);
   assert.deepEqual(data.overview.refurb,data.stockTotal.refurb,'卡片与两表共用闭环及分布');

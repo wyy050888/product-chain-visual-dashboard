@@ -32,6 +32,11 @@ body.lt-system-active>main.page{display:none}
 #lt-target-page tr>:last-child{width:140px;background:#fafbfd}
 #lt-target-page tbody tr:last-child>:is(th,td){border-bottom:0}
 #lt-target-page tbody tr:hover>:is(th,td){background:#fafcff}
+#lt-target-page .lt-plan-column{display:flex;align-items:center;justify-content:space-between;gap:8px;white-space:nowrap}
+#lt-target-page :is(.lt-plan-bulk,.lt-plan-toggle){min-height:28px;padding:2px 0;border:0;border-radius:4px;background:none;color:inherit;font:inherit;white-space:nowrap;cursor:pointer}
+#lt-target-page .lt-plan-bulk,#lt-target-page .lt-plan-toggle:hover{color:#1677ff}
+#lt-target-page .lt-plan-label{padding-left:16px}
+#lt-target-page [data-lt-brand-row]>th:first-child{padding-left:40px;background:#f8fbff;color:#536b8c}
 #lt-system .lt-target-input{width:112px;max-width:100%;min-height:34px;padding:6px 10px;border:1px solid #dce4ef;border-radius:4px;background:#fff;color:#304c70;font:inherit;text-align:center;font-variant-numeric:tabular-nums}
 #lt-system .lt-input-empty,#lt-system .lt-unconfigured{color:#a1abba}
 #lt-system .lt-target-input[aria-invalid=true]{border-color:#d24b60;background:#fff7f8}

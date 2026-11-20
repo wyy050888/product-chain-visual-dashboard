@@ -1,5 +1,5 @@
 // 分布按批次统计，趋势先汇总分子分母再算金额占比；缺失快照不补零。
-const ipStaleAgeBands=[{label:'60–90天',min:60,max:90},{label:'90–120天',min:90,max:120},{label:'120–150天',min:120,max:150},{label:'150天及以上',min:150,max:Infinity}];
+const ipStaleAgeBands=[{label:'60–90天',min:60,max:90},{label:'90–120天',min:90,max:120},{label:'120–150天',min:120,max:150},{label:'150–450天',min:150,max:450},{label:'450天及以上',min:450,max:Infinity}];
 function ipStaleSeasonRows(){return filterCatalog.seasons.map((label,index)=>({label,index,units:0,valueCents:0}))}
 function ipSnapshotRows(snapshot,selection=ipSeasonSelection){return(snapshot?.rows||[]).filter(row=>pfIncludes(selection,row.season))}
 function ipStaleDistribution(snapshot,selection=ipSeasonSelection){

@@ -30,7 +30,7 @@ export async function verifyInventoryCards(page){
 
 
  const root=page.locator('#inventory'),cards=root.locator('.stock-overview-cards'),data=await page.evaluate(()=>inventoryControlAudit()),b=data.balance;
- assert.deepEqual(await cards.locator('h4').allTextContents(),['总库存','我司可售库存','工厂可售库存','在途库存','库存周转率','交付及时率','爆款断货次数','翻新闭环率']);
+ assert.deepEqual(await cards.locator('h4').allTextContents(),['总库存','我司可售库存','工厂可售库存','在途库存','库存周转率','新机交付及时率','爆款断货次数','翻新闭环率']);
  assert.equal(await cards.getByText('工厂总库存',{exact:true}).count(),0);
  assert.equal(b.sellableUnits,b.warehouse+b.factoryAvailable+b.transit);
  assert.equal(b.totalUnits,b.sellableUnits+b.unproducedOrders+b.unrefurbishedUnits,'完整库存组成互斥且守恒');
@@ -64,7 +64,7 @@ export async function verifyInventoryCards(page){
  await distribution.locator('[data-ip-stale-metric="units"]').click();
  for(const row of data.overview.seasons)assert.equal(await distribution.locator('[data-stock-stale-season="'+row.label+'"]').innerText(),row.units.toLocaleString('en-US')+'件');
  await distribution.locator('[data-ip-stale-metric="valueCents"]').click();
- for(const [key,text] of [['total','未产订单'],['warehouse','聚量实体仓仓库库存＋京东仓库存'],['factoryAvailable','已翻新良品库存'],['transit','采购调拨在途库存']]){
+ for(const [key,text] of [['total','未产订单'],['warehouse','聚水潭实体仓＋京东现货库存'],['factoryAvailable','已翻新良品库存'],['transit','聚水潭采购调拨在途＋京东在途']]){
   const help=cards.locator('[data-stock-rule="'+key+'"]').first();await help.evaluate(e=>e.scrollIntoView({behavior:'instant',block:'center'}));await settle();await help.focus();await page.keyboard.press('Enter');await tip.waitFor({state:'visible'});assert.match(await tip.innerText(),new RegExp(text));await page.keyboard.press('Escape');
  }
  for(const width of [1920,1440,1024,390]){
@@ -106,8 +106,8 @@ async function verifyStockout(page){
  const audit=()=>page.evaluate(()=>inventoryControlAudit().overview);
  const initial=await audit(),tip=page.locator('#metric-tooltip');
  await cards.locator('[data-ip-overview-help="delivery"]').hover();
- assert.equal(await tip.locator('strong').innerText(),'（人工导入）');
- assert.match(await tip.innerText(),/考核期内的已交付量.*考核期内的采购总量/s);
+ assert.equal(await tip.locator('strong').count(),0,'人工导入沿用公式的常规字重');
+ assert.match(await tip.innerText(),/考核期内的已交付量.*（人工导入）.*排产表考核期的计划产量/s);
  assert.equal(initial.delivery,(initial.deliveryOn+initial.importedStock)/initial.deliveryDue*100);
  await cards.locator('[data-ip-overview-help="stockout"]').hover();
  assert.equal(await tip.innerText(),'非C级品、非清仓品、非下市品，近15天日均净销＞0 且 我司可售库存为0的次数');

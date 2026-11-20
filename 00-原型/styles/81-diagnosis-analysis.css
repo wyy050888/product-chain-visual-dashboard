@@ -36,6 +36,9 @@
 @media(max-width:600px){.gd-analysis-dialog :is(.gd-text-section,.gd-detail-roster){grid-template-columns:96px minmax(0,1fr);gap:8px}.gd-analysis-dialog .gd-detail-people{gap:4px 12px}}
 .gd-analysis-departments{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;font-size:12px;color:#7488a3}
 @media(max-width:1400px){.gd-workspace .gd-card{grid-template-columns:1fr auto;padding:12px}.gd-workspace .gd-card-head h3{font-size:14px}.gd-workspace .gd-card-stats{grid-column:1/-1;grid-row:2;gap:5px 11px}.gd-workspace .gd-card-number{grid-row:1}.gd-workspace .gd-card-number span{font-size:10px}.gd-workspace .gd-card-number{font-size:24px}.gd-redesigned-filters .gd-filter-search{flex-basis:330px}}
+.gd-redesigned-filters .gd-filter-groups.gd-has-project-type{flex-wrap:wrap;row-gap:6px}
+.gd-redesigned-filters .gd-has-project-type .gd-tag-filter{flex-shrink:1;max-width:100%}
+.gd-redesigned-filters .gd-has-project-type .gd-filter-options{flex-wrap:wrap}
 @media(max-width:800px){.gd-workspace .gd-card{grid-template-columns:1fr;min-height:118px}.gd-workspace .gd-card-head h3{font-size:14px}.gd-workspace .gd-card-number{grid-column:1;grid-row:2;justify-self:start;flex-direction:row}.gd-workspace .gd-card-stats{grid-column:1;grid-row:3}.gd-redesigned-filters .gd-filter-search{flex-basis:100%;max-width:none}.gd-redesigned-filters .gd-tag-filter{align-items:center;flex-direction:row}.gd-redesigned-filters .gd-filter-options{flex-wrap:nowrap}.gd-analysis-sources table{min-width:520px}.gd-analysis-table.focus .gd-person-list{gap:5px 10px}}
 
 /* 各页签共用姓名-部门；部门仅降低颜色层级，不额外占一行。 */

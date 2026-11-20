@@ -7,6 +7,6 @@ drawerProfile=function(body,title){
 };
 
 // 类目储备沿用五类目；统一物料抽屉支持跨类目的“全部”入口。
-function scpCategoryTabs(category,includeAll=false){
- return `<div class="scp-category-tabs" role="tablist" aria-label="一级类目">${(includeAll?['all',...scpCategoryNames]:scpCategoryNames).map(name=>`<button type="button" role="tab" aria-selected="${name===category}" data-scp-category-tab="${esc(name)}">${name==='all'?'全部':esc(name)}</button>`).join('')}</div>`;
+function scpCategoryTabs(category,includeAll=false,names=scpCategoryNames){
+ return `<div class="scp-category-tabs" role="tablist" aria-label="一级类目">${(includeAll?['all',...names]:names).map(name=>`<button type="button" role="tab" aria-selected="${name===category}" data-scp-category-tab="${esc(name)}">${name==='all'?'全部':esc(name)}</button>`).join('')}</div>`;
 }

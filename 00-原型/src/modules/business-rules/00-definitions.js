@@ -35,7 +35,7 @@ brcDefine('products','退货恶化触发',[
 ]);
 // 退货恶化条件只供运行时判定，配置页不提供入口。
 for(const rule of brcDefinitions)if(rule.group==='products'&&rule.section==='退货恶化触发')rule.configurable=false;
-const brcShopScoreDefaults=[['抖音',4.6,4.8],['快手',4.4,4.7],['视频号',4.4,4.7],['天猫',4.6,4.8],['京东',4.6,4.8]];
+const brcShopScoreDefaults=[['抖音',4.6,4.8],['快手',4.4,4.7],['天猫',4.6,4.8],['京东',4.6,4.8]];
 for(const [platform,red,yellow] of brcShopScoreDefaults)brcDefine('shops',platform+'店铺分',[
  ['shops.'+platform+'.red','红灯上限',red,'分',platform==='天猫'?'＜':'≤',0,5],['shops.'+platform+'.yellow','黄灯上限',yellow,'分','＜',0,5]
 ]);

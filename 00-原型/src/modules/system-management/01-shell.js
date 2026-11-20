@@ -12,7 +12,7 @@ function smDataAction(kind,label,attributes=''){
 // 固定菜单结构与页面注册分离；无本地页面的原有菜单仅置灰展示。
 const smMenuGroups=[
  ['业务配置',[
-  ['规则配置','business-rule-page'],['供应商导入','ssi-page'],['核心链接导入','klc-page'],['产品分类']
+  ['规则配置','business-rule-page'],['供应商导入','ssi-page'],['核心链接导入','klc-page'],['样机提供及时率导入','sample-timeliness-import-page'],['产品分类']
  ]],
  ['目标管理',[
   ['生命周期目标','lt-target-page'],['降本增效','cec-page'],['供应商目标','st-target-page']

@@ -2284,12 +2284,36 @@
       "module": "产品中心周报专页与共用PDF下载"
     },
     {
+      "file": "src/modules/product-center/12-people-weekly-data.js",
+      "module": "产品中心第43周周报人员记录"
+    },
+    {
+      "file": "src/modules/product-center/13-people-score-model.js",
+      "module": "产品中心人员周评分口径"
+    },
+    {
+      "file": "src/modules/product-center/14-people-score-view.js",
+      "module": "产品中心人员周评分与依据"
+    },
+    {
       "file": "src/modules/product-center/07-metrics-model.js",
       "module": "产品中心人员指标字典与台账汇总"
     },
     {
+      "file": "src/modules/product-center/17-project-system-snapshot.js",
+      "module": "产品中心十一月项目系统实绩"
+    },
+    {
+      "file": "src/modules/product-center/15-project-managers.js",
+      "module": "产品中心链群产品经理配置"
+    },
+    {
       "file": "src/modules/product-center/08-metrics-view.js",
       "module": "产品中心人员管理周期与指标视图"
+    },
+    {
+      "file": "src/modules/product-center/16-sample-timeliness-import.js",
+      "module": "业务配置中的直播间样机提供及时率导入入口"
     },
     {
       "file": "src/modules/product-center/09-brand-plan.js",
@@ -2794,6 +2818,9 @@
     },
     {
       "file": "styles/metric-rule-card.css"
+    },
+    {
+      "file": "styles/scrollbars.css"
     }
   ],
   "images": [

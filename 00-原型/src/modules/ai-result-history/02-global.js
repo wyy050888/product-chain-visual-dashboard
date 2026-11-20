@@ -49,11 +49,13 @@ function gdHistoryDataset(){
  const asOf=new Map();
  for(const row of merged.values())if(row.date<=selected.end){const old=asOf.get(row.historyKey);if(!old||row.date>=old.date)asOf.set(row.historyKey,row)}
  const followIndex=gdFollowIndex(all.filter(r=>r.date<=historyCutoff));
+ const projects=new Map((current.sources.find(s=>s.id==='projects')?.rows||[]).map(project=>[String(project.id),project]));
  const dated=[...asOf.values()].filter(row=>row.date>=selected.start).map(row=>{
   const transition=normalized.findingStates[row.historyKey];
-  const project=selected.end>=DATA_CUTOFF&&row.keyType==='project'?current.sources.find(s=>s.id==='projects')?.rows.find(p=>String(p.id)===String(row.projectId)):null;
-  const projectLight=project?ppProjectDisplayLight(project):ppNormalizeProjectLight(row.projectLight||row.light);
-  return {...row,...(row.keyType==='project'?{projectLight}:{}),lifecycle:transition,followUp:followIndex.get(row.historyKey),isCurrent:activeKeys.has(gdHistoryIdentity(row))};
+  const project=projects.get(String(row.projectId));
+  const projectLight=project&&selected.end>=DATA_CUTOFF?ppProjectDisplayLight(project):ppNormalizeProjectLight(row.projectLight||row.light);
+  const projectType=gdProjectFilterType(row.projectType||project?.type);
+  return {...row,...(row.keyType==='project'?{projectLight,projectType}:{}),lifecycle:transition,followUp:followIndex.get(row.historyKey),isCurrent:activeKeys.has(gdHistoryIdentity(row))};
  });
  const visible=[...dated,...gdFollowDemoRows(selected)];
  const tasks=Object.values(upTodos).filter(t=>t.gdLedger&&!t.deletedAt&&gdTaskDatesMatch(t)).map(gdLedgerRow);

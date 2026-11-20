@@ -30,7 +30,8 @@ function gdScopeTabs(data){
 function gdFilterGroup(label,field,options,base,filter){
  const count=key=>base.filter(r=>gdAnalysisMatches(r,{...filter,[field]:key})).length;
  const chosen=key=>field==='status'?(key==='all'?!pfSelected(filter.status).length:pfSelected(filter.status).includes(key)):filter[field]===key;
- return `<div class="gd-tag-filter gd-${field}-filter"><span>${label}</span><div class="gd-filter-options" role="group" aria-label="${label}">${options.map(([key,text])=>`<button type="button" data-gd-${field==='reportType'?'report-type':field}="${esc(key)}" aria-pressed="${chosen(key)}" class="gd-filter-option ${chosen(key)?'active':''}"><span class="gd-filter-label">${field==='priority'&&key!=='all'?gdPriority({priority:key}):esc(text)}</span>${key==='all'?'':`<span class="gd-filter-count">${count(key)}</span>`}</button>`).join('')}</div></div>`;
+ const attribute=field.replace(/[A-Z]/g,letter=>'-'+letter.toLowerCase());
+ return `<div class="gd-tag-filter gd-${field}-filter"><span>${label}</span><div class="gd-filter-options" role="group" aria-label="${label}">${options.map(([key,text])=>`<button type="button" data-gd-${attribute}="${esc(key)}" aria-pressed="${chosen(key)}" class="gd-filter-option ${chosen(key)?'active':''}"><span class="gd-filter-label">${field==='priority'&&key!=='all'?gdPriority({priority:key}):esc(text)}</span>${key==='all'?'':`<span class="gd-filter-count">${count(key)}</span>`}</button>`).join('')}</div></div>`;
 }
 function gdTableControls(data){
  const part=gdState.part,filter=gdTableFilters(),base=gdAnalysisRows(data),work=part==='resource';
@@ -39,7 +40,9 @@ function gdTableControls(data){
  const department=gdFilterGroup('责任部门','department',[['all','全部'],...upTodoDepartments.map(d=>[d,d])],base,filter);
  const priority=work?gdFilterGroup('优先级','priority',[['all','全部'],...Object.keys(upTodoPriorities).map(p=>[p,p])],base,filter):'';
  const category=gdFilterGroup('链群','category',[['all','全部'],...pfCategories.map(value=>[value,value])],base,filter);
- return `<div class="gd-filters gd-redesigned-filters"><div class="gd-filter-toolbar">${gdScopeTabs(data)}<div class="gd-filter-search "><label class="ui-search-field"><input type="search" data-gd-search aria-label="搜索诊断内容" placeholder="${placeholder}" value="${esc(filter.query)}"></label></div>${gdFollowFilterMarkup()}</div><div class="gd-filter-groups gd-panel-navigation gd-has-category">${category}${department}${priority}</div></div>`;
+ const projectType=part==='coordination'&&gdState.tabs[part]==='project'
+  ?gdFilterGroup('项目类型','projectType',[['all','全部'],...gdProjectTypes.map(type=>[type,type])],base,filter):'';
+ return `<div class="gd-filters gd-redesigned-filters"><div class="gd-filter-toolbar">${gdScopeTabs(data)}<div class="gd-filter-search "><label class="ui-search-field"><input type="search" data-gd-search aria-label="搜索诊断内容" placeholder="${placeholder}" value="${esc(filter.query)}"></label></div>${gdFollowFilterMarkup()}</div><div class="gd-filter-groups gd-panel-navigation gd-has-category${projectType?' gd-has-project-type':''}">${category}${department}${priority}${projectType}</div></div>`;
 }
 let gdRenderedData=null;
 // 卡片身份保持不变，点击后无需重新创建焦点节点及其全部子树。
@@ -60,14 +63,16 @@ function gdRender({reuseData=false}={}){
  gdRenderCards(data,counts);
  $('#ai-inline-summary').innerHTML='';$('#ai-inline-summary').hidden=true;$('#ai-inline-foot').textContent='';
  if(part==='execution'){
-  const size=10,page=Math.min(gdState.pages.execution||1,Math.max(1,Math.ceil(weeks.length/size)));
+  const pagerId='gd-weekly-pager',size=listPageSize(pagerId,10);
+  const page=Math.min(gdState.pages.execution||1,Math.max(1,Math.ceil(weeks.length/size)));
   gdState.pages.execution=page;
   const visibleWeeks=weeks.slice((page-1)*size,page*size);
-  dashboardRenderMarkup($('#ai-inline-details'),`<div class="gd-panel">${gdWeeklyReportTable(visibleWeeks)}<div class="gd-pagination" id="gd-weekly-pager">${listPager(weeks.length,page,size,{fixedSize:true})}</div></div>`);
-  bindListPager($('#gd-weekly-pager'),next=>{
+  dashboardRenderMarkup($('#ai-inline-details'),`<div class="gd-panel">${gdWeeklyReportTable(visibleWeeks)}<div class="gd-pagination" id="${pagerId}">${listPager(weeks.length,page,size)}</div></div>`);
+  const pager=$('#'+pagerId);
+  bindListPager(pager,next=>{
    gdState.pages.execution=next;
    gdRender({reuseData:true});
-   $('#gd-weekly-pager [aria-current="page"]')?.focus({preventScroll:true});
+   $('#'+pagerId+' [aria-current="page"]')?.focus({preventScroll:true});
   });
   return;
  }

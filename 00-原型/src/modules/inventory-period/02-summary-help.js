@@ -15,5 +15,5 @@ function ipRenderSummaryHelp(host,help){
  group('交付及时率',[['全部周期',brcBandRows('delivery').map(r=>r.text)]]);
  const closure=metricRuleNode(body,'section','','metric-rule-section');metricRuleNode(closure,'h5','翻新闭环率');
  metricRuleNode(closure,'p',ipOverviewRules.refurb.text,'metric-rule-note');
- metricRuleNode(closure,'p','按采购单下单日期筛选，每单计一次，含未完成单。','metric-rule-note');
+ metricRuleNode(closure,'p','按采购单下单日期筛选，同一采购单每个SKU计一次，含尚未完成交付的条目。','metric-rule-note');
 }

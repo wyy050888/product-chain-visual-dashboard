@@ -53,7 +53,7 @@ document.addEventListener('click',e=>{
  e.preventDefault();e.stopPropagation();
  ppLifecycleCompletionToast('period',+value.closest('[data-life]').dataset.life,ltChainScope());
 },true);
-document.addEventListener('click',e=>{const button=e.target.closest('[data-life-completed]');if(button){if(button.closest('#lifecycle')&&ppLifecycleCompletionToast(button.dataset.lifeCompleted,lifeIndex,button.dataset.lifeDimension==='chain'?button.dataset.lifeRow:ltChainScope()))return;openLifecycleProducts(button.dataset.lifeCompleted,button.dataset.lifeDimension,+button.dataset.lifeRow)}});
+document.addEventListener('click',e=>{const button=e.target.closest('[data-life-completed]');if(button){if(button.closest('#lifecycle')&&ppLifecycleCompletionToast(button.dataset.lifeCompleted,lifeIndex,button.dataset.lifeDimension==='chain'?button.dataset.lifeRow:ltChainScope(),button.dataset.lifeBrand))return;openLifecycleProducts(button.dataset.lifeCompleted,button.dataset.lifeDimension,+button.dataset.lifeRow)}});
 
 const newTrendPlatforms=filterCatalog.platforms.map(name=>({name,color:filterCatalog.platformColors[name]}));
 const newTrendMetrics=[{key:'volume',name:'销量',unit:'件',digits:0},{key:'returnRate',name:'退货率',unit:'%',digits:2},{key:'revenue',name:'销售额',unit:'万元',digits:2},{key:'margin',name:'利润率',unit:'%',digits:2}];

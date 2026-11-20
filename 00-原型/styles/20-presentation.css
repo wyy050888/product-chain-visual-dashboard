@@ -3,30 +3,35 @@
 #rules, #timerules, #dp-rules, #pb-rules, [data-rules] { display: none !important; }
 .lifehead { justify-content: flex-end; }
 .metric-help {
+  --metric-help-size: 14px;
   display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 14px;
-  height: 14px;
+  position: relative;
+  box-sizing: border-box;
+  padding: 0;
+  width: var(--metric-help-size);
+  height: var(--metric-help-size);
   margin-left: 5px;
-  vertical-align: 1px;
-  flex: 0 0 14px;
+  vertical-align: middle;
+  /* 行内问号按文字的字高居中，避免按小写字母高度对齐中文。 */
+  vertical-align: calc(.5cap - var(--metric-help-size) / 2);
+  flex: 0 0 var(--metric-help-size);
   border: 1px solid #a7b7cf;
   border-radius: 50%;
   color: #8395ae;
   background: #fff;
   cursor: help;
 }
-/* 固定问号的绘制范围，避免不同字体的字形基线让图形在圆框内偏移。 */
+/* 在圆框内侧的同一个坐标系绘制问号，避免独立图形的半像素偏移。 */
 .metric-help::before {
   content: '';
-  flex: none;
-  width: 7px;
-  height: 9px;
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
   background: currentColor;
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 9'%3E%3Cpath d='M1.5 2.65a2 2 0 1 1 3.05 1.7C3.8 4.82 3.5 5.16 3.5 5.95' fill='none' stroke='black' stroke-width='1.15' stroke-linecap='round'/%3E%3Ccircle cx='3.5' cy='8.18' r='.65'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M4 4.25a2 2 0 1 1 3.05 1.7C6.3 6.42 6 6.76 6 7.55' fill='none' stroke='black' stroke-width='1.15' stroke-linecap='round'/%3E%3Ccircle cx='6' cy='9.68' r='.65'/%3E%3C/svg%3E") center / contain no-repeat;
 }
 .metric-help:hover, .metric-help:focus-visible { color: #1966ff; border-color: #1966ff; outline: 2px solid #dbe8ff; outline-offset: 2px; }
+.page .titlegroup h2:has(>.metric-help) { display: inline-flex; align-items: center; }
 .metric-tooltip {
   pointer-events: auto;
   position: fixed;
@@ -65,7 +70,7 @@
   overflow-y: auto;
   white-space: normal;
 }
-.rhead h3 > .card-metric-help { margin-left: 7px; vertical-align: 2px; }
+.rhead h3 > .card-metric-help { margin-left: 7px; }
 
 .metric-tooltip-card .metric-rule-section+ .metric-rule-section {margin-top:14px;padding-top:14px;border-top:1px solid #e8eef6}
 .metric-tooltip-card .metric-rule-section h4 {display:flex;align-items:center;gap:7px;margin:0 0 8px;font-size:var(--rule-title-size);font-weight:600;line-height:22px;color:var(--rule-title-color)}

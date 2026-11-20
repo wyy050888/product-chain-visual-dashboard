@@ -16,7 +16,7 @@ export async function importTemplateHeaders(page,backendOnly=false){
  };
  const upload=async(selector,buffer,header,values)=>page.locator(selector).setInputFiles({name:'必填标记回归.xlsx',mimeType,buffer:fillImportWorkbook(buffer,header,values)});
  for(const config of [
-  {route:'#system-lifecycle-targets',open:'[data-lt-import]',dialog:'#lt-import-dialog',template:'[data-lt-template]',input:'#lt-import-file',preview:'#lt-import-result',close:'[data-lt-import-close]',required:['年度','链群','计划'],values:book=>[book.rows.find(row=>row.row>1&&!String(row.values[0]).startsWith('【示例】')).values[0],'环境','自研上品计划','1','','','']},
+  {route:'#system-lifecycle-targets',open:'[data-lt-import]',dialog:'#lt-import-dialog',template:'[data-lt-template]',input:'#lt-import-file',preview:'#lt-import-result',close:'[data-lt-import-close]',required:['年度','链群','计划'],values:book=>[book.rows.find(row=>row.row===importTemplateHeader(book).row+2).values[0],'环境','自研上品计划','','1','','','']},
   {route:'#system-cost-efficiency',tab:'#cec-tab-target',open:'#cec-import',dialog:'#cec-import-dialog',template:'#cec-import-template',input:'#cec-file',preview:'#cec-import-result',close:'[data-cec-import-close]',required:['责任部门','年度','年度目标（元）',...Array.from({length:12},(_,i)=>(i+1)+'月（元）')],values:()=>['仓储部','2026','12',...Array(12).fill('1')]},
   {route:'#system-core-links',open:'#klc-import',dialog:'#klc-import-dialog',template:'[data-ui-upload-template]',input:'#klc-file',preview:'[data-klc-preview]',close:'[data-klc-close]',required:['月份','链接ID','店铺ID'],values:async()=>{const value=await page.evaluate(()=>coreLinkConfigSnapshot().rows[0]);return ['2026/10','模板回归','799999900987','店铺名称',value.shopId]}},
  ]){

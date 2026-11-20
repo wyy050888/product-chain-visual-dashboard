@@ -1,13 +1,22 @@
 // 唯一日期弹层控制器：选区、快捷项、键盘、定位及关闭均由此维护。
 let dateRangeActive=null;
+function dateRangeWeekTrigger(id,label,attribute,text=''){
+ return `<button type="button" class="risk-date-trigger week-date-trigger" ${attribute} aria-label="${label}" aria-haspopup="dialog" aria-expanded="false" aria-controls="${id}"><span>${esc(text)}</span><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="4" width="14" height="13" rx="2"/><path d="M6 2v4m8-4v4M3 8h14"/></svg></button>`;
+}
+function openDateWeekPicker(trigger,range,apply,{min,max}){
+ if(trigger.getAttribute('aria-expanded')==='true'){dateRangeActive?.close();return}
+ return openDateRangePicker(trigger,range,apply,{
+  id:trigger.getAttribute('aria-controls'),label:trigger.getAttribute('aria-label'),week:true,presets:[],min,max
+ });
+}
 function openDateRangePicker(trigger,range,apply,options){
  dateRangeActive?.close(false);
- const {presets=dateRangePresets,id='date-range-popover',label='选择日期范围',clearable=false,single=false,onClose}=options;
+ const {presets=dateRangePresets,id='date-range-popover',label='选择日期范围',clearable=false,week=false,single=week,onClose}=options;
  const resolve=value=>typeof value==='function'?value():value;
  let min,max;
  function refreshBounds(){dashboardSyncDate();min=resolve(options.min);max=resolve(options.max)||DATA_CUTOFF}
  refreshBounds();
- const panel=document.createElement('div');panel.id=id;panel.className='risk-date-popover'+(single?' is-single':'');panel.setAttribute('role','dialog');panel.setAttribute('aria-label',label);
+ const panel=document.createElement('div');panel.id=id;panel.className='risk-date-popover'+(single?' is-single':'')+(week?' is-week':'');panel.setAttribute('role','dialog');panel.setAttribute('aria-label',label);
  const initial=dateRangeClamp(range.end||range.start||dashboardToday(),min,max),state={start:range.start||'',end:range.end||'',anchor:'',focusDate:range.start||initial,month:'',preset:''};
  const count=()=>single||innerWidth<=700?1:2,firstMonth=date=>dateRangeMonthShift(date.slice(0,7),1-count());
  state.month=firstMonth(initial);
@@ -37,7 +46,7 @@ function openDateRangePicker(trigger,range,apply,options){
    const disabled=step<0?(Math.abs(step)===12?state.month.slice(0,4)<=min.slice(0,4):state.month<=min.slice(0,7)):(step===12?state.month.slice(0,4)>=max.slice(0,4):dateRangeMonthShift(state.month,count()-1)>=max.slice(0,7));
    return `<button type="button" data-range-month="${step}" aria-label="${name}" ${disabled?'disabled':''}>${icon}</button>`;
   }).join('');
-  panel.innerHTML=`<div class="risk-calendar-body">${shortcuts}<div class="risk-calendar-months"><div class="risk-calendar-nav">${navigation}</div>${Array.from({length:count()},(_,i)=>dateRangeMonthMarkup(dateRangeMonthShift(state.month,i),state,{min,max})).join('')}</div></div>`;
+  panel.innerHTML=`<div class="risk-calendar-body">${shortcuts}<div class="risk-calendar-months"><div class="risk-calendar-nav">${navigation}</div>${Array.from({length:count()},(_,i)=>dateRangeMonthMarkup(dateRangeMonthShift(state.month,i),state,{min,max,week})).join('')}</div></div>`;
   position();if(focus)panel.querySelector(focus)?.focus({preventScroll:true});
  }
  function commit(start,end){close();apply(start,end)}
@@ -48,6 +57,7 @@ function openDateRangePicker(trigger,range,apply,options){
   if(rangePreset){commit(...presetRange(rangePreset));return}
   if(rangeMonth){const next=dateRangeMonthShift(state.month,Number(rangeMonth));state.month=single?dateRangeClamp(next,min.slice(0,7),max.slice(0,7)):next;render(`[data-range-month="${rangeMonth}"]`);return}
   if(rangeDate){state.focusDate=rangeDate;state.preset='';
+   if(week){commit(rangeDate,shiftDate(rangeDate,6));return}
    if(single){commit(rangeDate,rangeDate);return}
    if(state.anchor){commit(...[state.anchor,rangeDate].sort());return}
    state.start=state.end=state.anchor=rangeDate;render(`[data-range-date="${rangeDate}"]:not(:disabled)`);
@@ -56,10 +66,15 @@ function openDateRangePicker(trigger,range,apply,options){
  window.addEventListener('keydown',event=>{
   if(event.key==='Escape'){event.preventDefault();event.stopImmediatePropagation();close();return}
   if(!panel.contains(event.target))return;
-  const offsets={ArrowLeft:-1,ArrowRight:1,ArrowUp:-7,ArrowDown:7},date=event.target.dataset.rangeDate;
+  const offsets={ArrowLeft:week?-7:-1,ArrowRight:week?7:1,ArrowUp:-7,ArrowDown:7},date=event.target.dataset.rangeDate;
   if(date&&offsets[event.key]!==undefined){
-   event.preventDefault();event.stopImmediatePropagation();const next=shiftDate(date,offsets[event.key]);if(next<min||next>max)return;
-   state.focusDate=next;if(next.slice(0,7)<state.month||next.slice(0,7)>dateRangeMonthShift(state.month,count()-1))state.month=firstMonth(next);
+   event.preventDefault();event.stopImmediatePropagation();const next=shiftDate(date,offsets[event.key]);
+   if((week?shiftDate(next,6):next)<min||next>max)return;
+   state.focusDate=week?dateRangeClamp(next,min,max):next;
+   if(!week||!panel.querySelector(`[data-range-date="${next}"]`)){
+    const focusMonth=state.focusDate.slice(0,7);
+    if(focusMonth<state.month||focusMonth>dateRangeMonthShift(state.month,count()-1))state.month=firstMonth(state.focusDate);
+   }
    render(`[data-range-date="${next}"]:not(:disabled)`);
   }
   if(event.key==='Tab'){

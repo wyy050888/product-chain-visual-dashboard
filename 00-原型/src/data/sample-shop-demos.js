@@ -11,3 +11,13 @@ const sampleDemoShops=(()=>{
    productScore:+(4.1+(index%6)*.13).toFixed(2),logisticsScore:+(4.15+(index%5)*.14).toFixed(2),serviceScore:+(4.05+(index%7)*.12).toFixed(2)};
  });
 })();
+// 视频号治理指标的带日期演示记录，实际值与行业平均水平成对保存。
+function sampleWechatGovernance(shop){
+ const seed=Array.from(shop.shopId).reduce((sum,char)=>sum+char.charCodeAt(0),0)%5;
+ const samples=[[.46,7.25,.13],[.62,7.25,.13],[.46,10.5,.13],[.46,7.25,.7],[.48,9.88,.51]];
+ return ['2026-10-01','2026-10-20','2026-11-18'].map((date,index)=>{
+  const [qualityReturnRate30,negativeReviewRate30,disputeRate30]=samples[(seed+index)%samples.length];
+  return {date,source:'demo',qualityReturnRate30,negativeReviewRate30,disputeRate30,
+   qualityReturnIndustry30:.48,negativeReviewIndustry30:9.88,disputeIndustry30:.51};
+ });
+}

@@ -71,9 +71,10 @@ function gdAnalysisMatches(row,filter,ignore=''){
  const priority=row.kind==='key-work'||ignore==='priority'||filter.priority==='all'||upTodoPriorityKey(row.task?.priority||row.priority)===filter.priority;
  const status=!row.task||ignore==='status'||pfIncludes(filter.status,row.task.status);
  const type=ignore==='reportType'||filter.reportType==='all'||row.type===filter.reportType;
+ const projectType=row.keyType!=='project'||ignore==='projectType'||!filter.projectType||filter.projectType==='all'||row.projectType===filter.projectType;
  const query=ignore==='query'?'':filter.query.trim().toLowerCase();
  const follow=row.kind==='key-work'||['omission','blocker','solution','focus-shift'].includes(row.kind)?gdFollowMatches(row,filter.followStatus):true;
- const matches=category&&department&&priority&&status&&type&&follow;
+ const matches=category&&department&&priority&&status&&type&&projectType&&follow;
  // 计数和空搜索无需逐条拼接正文及全部来源，筛选失败的行也不再整理检索文本。
  if(!matches||!query)return matches;
  const fields=[row.object?.name,row.objectName,row.title,row.problem,row.causalProblem,row.problem?gdProblemText(row):'',row.suggestion,row.content,row.owner,...(row.businessObjects||[]).map(o=>o.name),...(row.people||[]),...(row.topics||[]).map(t=>t.name),...(row.participants||[]).flatMap(r=>[r.assignee,r.action]),...(row.sources||[]).map(s=>s.content)];

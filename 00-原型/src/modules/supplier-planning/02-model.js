@@ -13,7 +13,11 @@ function scpDefaultSort(scope){
  const rules={projects:['admitted','asc'],categories:['newAdmitted','asc'],materials:['',''],materialSummary:['',''],categoryList:['admitted','asc']};
  const [key,direction]=rules[scope];return {key,direction};
 }
-const scpState={projectType:'all',projectQuery:'',categoryQuery:'',categoryPeriod:scpPeriodDefault(),resourceYear:+DATA_CUTOFF.slice(0,4),materialPeriod:scpPeriodDefault(),sorts:Object.fromEntries(['projects','categories','materialSummary'].map(scope=>[scope,scpDefaultSort(scope)]))};
+const scpState={projectType:'all',projectChain:'all',categoryChain:'all',projectQuery:'',categoryQuery:'',categoryPeriod:scpPeriodDefault(),resourceYear:+DATA_CUTOFF.slice(0,4),materialPeriod:scpPeriodDefault(),sorts:Object.fromEntries(['projects','categories','materialSummary'].map(scope=>[scope,scpDefaultSort(scope)]))};
+function scpScopedCategories(){
+ const chain=pcChain();
+ return chain===null?scpCategories:scpCategories.filter(category=>filterCatalog.normalizeChain(category.category)===chains[chain]);
+}
 function scpRange(period){const b=bounds(period);return {...b,future:b.start>DATA_CUTOFF}}
 function scpActive(s,cutoff){return s.reserved<=cutoff&&(!s.disabled||s.disabled>cutoff)}
 function scpScopeRows(scope){

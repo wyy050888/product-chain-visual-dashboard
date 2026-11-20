@@ -3,18 +3,25 @@ const pcRiskDate=value=>value?String(value).slice(2,10).replaceAll('-','/'):'—
 const pcRiskText=value=>esc(value||'—');
 const pcRiskFilterBoards={launch:['delayed','unsold','materials'],initiation:['initiation']};
 const pcRiskOtherBrand='其他品牌';
+const pcRiskSources={demand:'运营提需池',wps:'立项云文档'};
 const pcRiskSelections={launch:{projectType:[],category:[]},initiation:{projectType:[],category:[],brand:[]}};
 const pcRiskScopes=[
- ['projectType','项目类型筛选',[...pcProjectRiskTypes.keys()]],
- ['category','项目链群筛选',pfCategories],
- ['brand','品牌筛选',[...filterCatalog.dashboardBrands,pcRiskOtherBrand]]
+ ['projectType','项目类型',[...pcProjectRiskTypes.keys()]],
+ ['category','链群',pfCategories],
+ ['brand','品牌',[...filterCatalog.dashboardBrands,pcRiskOtherBrand]]
 ];
+function pcRiskGroupScopes(group){
+ return pcRiskScopes.filter(([key])=>Object.hasOwn(pcRiskSelections[group],key)&&(key!=='category'||pcChain()===null));
+}
+function pcRiskFieldValues(value){
+ return ppValues(value).flatMap(item=>String(item).split(/[\/、,，;；\n]+/)).map(item=>item.trim()).filter(Boolean);
+}
 function pcRiskScopeMatches(row,key,selected){
  if(!selected.length)return true;
+ if(['channel','salesChannel'].includes(key))return pcRiskFieldValues(row[key]).some(value=>selected.includes(value));
  if(key!=='brand')return pfIncludes(selected,row[key]);
- const brands=ppValues(row.brand).flatMap(value=>String(value).split(/[\/、,，;；\n]+/)).map(value=>value.trim());
- return brands.some(brand=>{
-  if(!brand||/^(?:[-—–]+|未填写|待补充)$/.test(brand))return false;
+ return pcRiskFieldValues(row.brand).some(brand=>{
+  if(/^(?:[-—–]+|未填写|待补充)$/.test(brand))return false;
   return selected.includes(filterCatalog.dashboardBrands.includes(brand)?brand:pcRiskOtherBrand);
  });
 }
@@ -28,18 +35,22 @@ function pcRiskBoardData(key){
 }
 function pcRiskScopeGroups(group){
  const rows=pcRiskFilterBoards[group].flatMap(key=>pcCurrentRiskData[key].rows),selection=pcRiskSelections[group];
- return pcRiskScopes.filter(([key])=>Object.hasOwn(selection,key)&&(key!=='category'||pcChain()===null)).map(([key,ariaLabel,values])=>{
+ return pcRiskGroupScopes(group).map(([key,label,values])=>{
   const candidates=rows.filter(row=>pcRiskMatches(row,selection,key));
   const options=[{value:'all',label:'全部'},...values.map(value=>({value,label:value}))];
   const tags=options.map(option=>{
    const count=option.value==='all'?candidates.length:candidates.filter(row=>pcRiskScopeMatches(row,key,[option.value])).length;
    return rpSeasonTagMarkup(option,count,pfOptionSelected(selection[key],option.value),'data-pc-risk-option');
   }).join('');
+  const ariaLabel=key==='category'?'项目链群筛选':label+'筛选';
   return `<div class="rp-season-tags" data-pc-risk-scope="${key}" role="group" aria-label="${ariaLabel}">${tags}</div>`;
  }).join('');
 }
 function pcRiskFilterBar(group,label){
  return `<div class="pc-risk-filters" data-pc-risk-filter="${group}" role="group" aria-label="${label}筛选">${pcRiskScopeGroups(group)}</div>`;
+}
+function pcRiskTaskField(label,value){
+ return {label,markup:value?`<button type="button" class="pc-risk-blockers" data-metric-text-label="${label}">${esc(value)}</button>`:'—'};
 }
 function pcRiskFields(key,row={},drawer=false){
  const field=(label,value,note='',tone='')=>({label,value,note,tone});
@@ -48,52 +59,62 @@ function pcRiskFields(key,row={},drawer=false){
   field('我司可售库存',row.stock===undefined?'':fmt(row.stock)+' 件'),
   {label:nspUnsoldProductionDateLabel,value:pcRiskDate(row.actualProductionDate),help:nspUnsoldProjectHelp(nspUnsoldProductionDateLabel)},
   {...field('销售渠道',row.salesChannel),preserveTerms:true},...manager,
-  ...(drawer?[field('首批请购单号',row.requisitionNo),field('首批单状态',row.firstRequisitionStatus)]:[])
+  ...(drawer?[field('首批请购单号',row.requisitionNo),{
+   label:'首批单状态',markup:row.firstRequisitionStatus?nspRequisitionStatusTag(row.firstRequisitionStatus):'—'
+  }]:[])
  ];
  if(key==='initiation')return [
   field('立项日期',pcRiskDate(row.date),row.wait?`延期 ${row.wait}天`:'','pc-risk-initiation-delay'),
   field('目标上市日期',pcRiskDate(row.targetLaunchDate)),
   {...field('销售渠道',row.channel),preserveTerms:true},
   field('提需人',row.requester),
-  field('产品经理',row.manager)
+  {...field('产品经理',row.manager),help:ppHelp('产品经理','如需修改，请前往【产品研发-项目管理-模板管理-配置产品链人员】配置链群相关的产品经理')}
  ];
  if(key==='delayed'){
+  const planned=field('计划上市日期',pcRiskDate(row.planned));
   const date=field('延期上市日期',pcRiskDate(row.revised));
   const delay={label:'延期天数',markup:ppDelayText(row)};
-  const blockers=pcRiskText(row.blockers);
   return [
-   ...(drawer?[date,delay]:[delay,date]),
+   ...(drawer?[planned,date,delay]:[delay,date]),
    {...field('销售渠道',row.channel),preserveTerms:true},...manager,
-   {label:'卡点任务',markup:row.blockers?`<button type="button" class="pc-risk-blockers" data-metric-text-label="卡点任务">${blockers}</button>`:blockers}
+   pcRiskTaskField('卡点任务',row.blockers)
   ];
  }
  return [
-  field(drawer?'计划上市时间':'计划上市日期',pcRiskDate(row.planned)),
-  drawer?field('延期天数',row.delay===undefined?'':row.delay+' 天'):field('延期上市日期',row.revised?pcRiskDate(row.revised):'--',row.revised?'延期'+row.delay+'天':'',row.revised?'rp-quality-red':''),
+  field('计划上市日期',pcRiskDate(row.planned)),
+  ...(drawer?[
+   field('延期上市日期',pcRiskDate(row.revised)),
+   field('延期天数',row.delay>0?row.delay+' 天':'—')
+  ]:[field('延期上市日期',row.revised?pcRiskDate(row.revised):'--',row.revised?'延期'+row.delay+'天':'',row.revised?'rp-quality-red':'')]),
   {...field('销售渠道',row.channel),preserveTerms:true},...manager,
-  ...(drawer?[field('卡点任务',row.blockers||'无卡点')]:[])
+  ...(drawer?[pcRiskTaskField('当前任务',row.currentTask)]:[])
  ];
 }
-function pcRiskAction(key,row){
+function pcRiskAction(key,row,preview=false){
  const target=key==='unsold'?'requisition':key==='initiation'?row.source:'project';
+ if(!preview){
+  const label={project:'查看详情',requisition:'查看请购单',demand:'查看提需详情',wps:'查看立项云文档'}[target];
+  return `<button type="button" class="link" data-pc-risk-action="${esc(target)}">${label}</button>`;
+ }
  const label=key==='unsold'?'请购单':'详情';
  return `<button type="button" class="link rp-detail-link ui-icon-label" data-pc-risk-action="${esc(target)}"><span>${label}</span><span class="ui-chevron-right" aria-hidden="true"></span></button>`;
 }
 function pcRiskIdentity(key,row,preview=false){
  const projectType=pcProjectRiskTypes.get(row.projectType)??row.type;
- let sub=projectType;
+ let sub;
  if(key==='initiation'){
-  const source=row.source==='wps'?'立项云文档':'运营提需池';
+  const source=pcRiskSources[row.source];
   sub=[projectType,row.category,row.brand,'来源：'+source].filter(Boolean).join(' | ');
  }
- else if(preview)sub=[projectType,row.category,row.manager].filter(Boolean).join(' | ');
- return `<div class="rp-identity pc-risk-identity">${riskThumbnail(row.imageFrom||row.name)}<div><div class="rp-identity-title"><b title="${esc(row.name)}">${esc(row.name)}</b>${preview?pcRiskAction(key,row):''}</div>${sub?`<small class="rp-identity-subtitle" title="${esc(sub)}">${esc(sub)}</small>`:''}</div></div>`;
+ else sub=[projectType,row.category,preview?row.manager:null].filter(Boolean).join(' | ');
+ return `<div class="rp-identity pc-risk-identity">${riskThumbnail(row.imageFrom||row.name)}<div><div class="rp-identity-title"><b title="${esc(row.name)}">${esc(row.name)}</b>${preview?pcRiskAction(key,row,true):''}</div>${sub?`<small class="rp-identity-subtitle" title="${esc(sub)}">${esc(sub)}</small>`:''}</div></div>`;
 }
+const pcRiskDelayThreshold='≥ 90 天';
 function pcRiskCardNotice(key){
  const projectTypes=[...pcProjectRiskTypes.keys()].join('、');
  const rules={
   delayed:{
-   pool:[`项目类型为${projectTypes}，截至统计日尚未完成。`,'延期量产日期比原计划量产日期晚至少 90 天。'],
+   pool:[`项目类型为${projectTypes}，截至统计日尚未完成。`,`延期量产日期 - 原计划量产日期 ${pcRiskDelayThreshold}`],
    sort:['延期天数从多到少。','延期天数相同时，延期上市日期从早到晚。']
   },
   unsold:{
@@ -130,36 +151,55 @@ function pcRiskTableEntry(key,row,index,fields){
  return `<article class="rp-entry rp-quality-entry" role="row"><div class="rp-entry-main" role="presentation"><header role="cell"><span class="rank">${String(index+1).padStart(2,'0')}</span>${identity}</header><div class="rp-quality-values rp-loss-values" role="presentation">${values}</div></div></article>`;
 }
 function pcRiskPreview(key,rows,wide){
- const columns=wide?`<div class="rp-quality-columns rp-loss-columns" role="row"><span class="rp-loss-product-label" role="columnheader">产品信息</span>${pcRiskFields(key).map(f=>`<span role="columnheader">${f.label}</span>`).join('')}</div>`:'';
+ const columns=wide?`<div class="rp-quality-columns rp-loss-columns" role="row"><span class="rp-loss-product-label" role="columnheader">产品信息</span>${pcRiskFields(key).map(({label,help})=>`<span role="columnheader"${help?' data-risk-field-help':''}>${esc(label)}${help||''}</span>`).join('')}</div>`:'';
  const entry=wide?pcRiskTableEntry:pcRiskLaunchEntry;
  const preview=rows.slice(0,6).map((row,index)=>entry(key,row,index,pcRiskFields(key,row))).join('');
  return columns+(preview||'<div class="empty">暂无符合规则的预警</div>');
 }
-function pcRiskBoard(key,{asOf,rows}){
+function pcRiskBoard(key,{rows}){
  const wide=key==='initiation';
- const cutoff=`截至 ${pcRiskDate(asOf)}`;
- const heading=wide?pcRiskFilterBar('initiation',pcRiskLabels[key]):`<div class="pc-risk-heading"><h3>${pcRiskLabels[key]}</h3><small class="period-range">${cutoff}</small></div>`;
- const date=wide?`<div class="rp-quality-date"><small>${cutoff} · 演示数据</small></div>`:'';
+ const heading=wide?pcRiskFilterBar('initiation',pcRiskLabels[key]):`<h3>${pcRiskLabels[key]}</h3>`;
  const previewRole=wide?'table':'region';
- return `<article class="riskcard pc-risk-card${wide?' rp-wide-fields':''}" data-rp-board="pc-${key}"${wide?` style="--rp-loss-table-columns:minmax(260px,2fr) repeat(${pcRiskFields(key).length},minmax(120px,1fr))"`:''}>
+ const emphasis=key==='delayed'?` data-rp-rule-emphasis="${esc(pcRiskDelayThreshold)}"`:'';
+ return `<article class="riskcard pc-risk-card${wide?' rp-wide-fields':''}" data-rp-board="pc-${key}"${emphasis}${wide?` style="--rp-loss-table-columns:minmax(260px,2fr) repeat(${pcRiskFields(key).length},minmax(120px,1fr))"`:''}>
   <div class="rhead rp-compact-header">${heading}<div class="rp-quality-actions"><button type="button" class="link ui-icon-label" data-pc-risk-all="${key}"><span>查看全部 ${rows.length}</span><span class="ui-chevron-right" aria-hidden="true"></span></button></div></div>
-  ${date}
   <div class="rp-items" role="${previewRole}" aria-label="${pcRiskLabels[key]}${wide?'':'预览'}"${wide?' tabindex="0"':''}>${pcRiskPreview(key,rows,wide)}</div></article>`;
+}
+const pcRiskSearchFields={
+ delayed:[['name','产品名称'],['blockers','卡点任务']],
+ unsold:[['name','产品名称'],['requisitionNo','首批请购单号']],
+ materials:[['name','产品名称'],['currentTask','当前任务']],
+ initiation:[['name','产品名称'],['requester','提需人']]
+};
+function pcRiskListFilters(key,rows,group){
+ const channel=key==='unsold'?'salesChannel':'channel';
+ const channels=[...new Set(rows.flatMap(row=>pcRiskFieldValues(row[channel])))];
+ const filters=pcRiskGroupScopes(group);
+ filters.push([channel,'销售渠道',channels]);
+ if(key==='initiation'){
+  const sources=Object.entries(pcRiskSources).map(([value,label])=>({value,label}));
+  filters.push(['source','来源',sources]);
+ }
+ if(key==='unsold')filters.push(['firstRequisitionStatus','首批单状态',['交付中','交付完成']]);
+ return filters;
 }
 function pcRiskOpenList(key){
  if($('#overlay').hidden){riskRankingPages.clear();rpResetListSession()}
- const kind='pc-'+key,{rows}=pcRiskBoardData(key);
- const state=riskRankingPages.get(kind)||{query:'',page:1};
+ const kind='pc-'+key,{rows}=pcCurrentRiskData[key];
+ const group=key==='initiation'?'initiation':'launch',homeFilters=pcRiskSelections[group];
+ const state=riskRankingPages.get(kind)||{query:'',page:1,filters:{...homeFilters}};
  riskRankingPages.set(kind,state);
  const headings=[key==='initiation'?'产品信息':'产品名称',...pcRiskFields(key,{},true).map(f=>f.help?`${f.label} ${f.help}`:f.label),'操作'];
- openModal(riskRankingTitle(),`<div class="rp-list-tools"><label class="ui-search-field"><input type="search" aria-label="搜索产品" placeholder="搜索产品名称"></label></div><div class="rp-list-table"></div><div class="pc-risk-pager"></div>`,true);
+ const fields=[...pcRiskSearchFields[key],['manager','产品经理']],placeholder=fields.map(([,label])=>label).join(' / ');
+ const controls=pcRiskListFilters(key,rows,group).map(([field,label,values])=>rpFilterSelect(field,label,values,state.filters)).join('');
+ riskRankingOpenModal(riskRankingTitle(),`<div class="rp-list-tools pc-risk-list-tools"><label class="rp-search-label"><input type="search" aria-label="搜索${esc(placeholder)}" placeholder="${esc(placeholder)}" value="${esc(state.query)}"></label>${controls}<button type="button" class="link" data-rp-reset>重置筛选</button></div><div class="rp-list-table pc-risk-list" data-pc-risk-list="${key}"></div><div class="pc-risk-pager"></div>`,true);
  // 此处无日期控件，清除通用弹窗自动拼入的期间摘要。
  $('#dialogsub').replaceChildren();
  const root=$('#dialogbody'),search=root.querySelector('input'),host=root.querySelector('.rp-list-table'),pager=root.querySelector('.pc-risk-pager');
  const sizeKey='rp-list-'+kind;
- search.value=state.query;
  function paint(){
-  const query=state.query.trim().toLocaleLowerCase(),filtered=rows.filter(row=>row.name.toLocaleLowerCase().includes(query));
+  const query=state.query.trim().toLocaleLowerCase();
+  const filtered=rows.filter(row=>pcRiskMatches(row,state.filters)&&(!query||fields.some(([field])=>String(row[field]??'').toLocaleLowerCase().includes(query))));
   const size=listPageSize(sizeKey);
   state.page=Math.min(state.page,Math.max(1,Math.ceil(filtered.length/size)));
   const offset=(state.page-1)*size;
@@ -168,12 +208,24 @@ function pcRiskOpenList(key){
    const content=field.preserveTerms?`<span data-preserve-terms>${value}</span>`:value;
    return content+pcRiskMetricNote(field);
   };
-  host.innerHTML=filtered.length?table(headings,filtered.slice(offset,offset+size).map(row=>[pcRiskIdentity(key,row),...pcRiskFields(key,row,true).map(cells),pcRiskAction(key,row)]),'rp-data-table'):'<div class="empty">暂无符合规则的预警</div>';
+  host.innerHTML=filtered.length?table(headings,filtered.slice(offset,offset+size).map(row=>[pcRiskIdentity(key,row),...pcRiskFields(key,row,true).map(cells),pcRiskAction(key,row)]),'rp-data-table'):'<div class="empty">当前筛选下暂无风险记录</div>';
+  host.querySelector('table')?.setAttribute('data-column-fill','');
   rpStickListHeader(host);
-  mountListPager(pager,filtered.length,state.page,next=>{state.page=next;paint()},sizeKey);
+  mountListPager(pager,filtered.length,state.page,next=>{state.page=next;paint();root.scrollTop=0},sizeKey);
  }
- search.oninput=()=>{state.query=search.value;state.page=1;paint()};
- paint();riskRankingAttach(kind);
+ const refresh=()=>{state.page=1;paint()};
+ const selects=root.querySelectorAll('select[data-rp-filter]');
+ search.oninput=()=>{state.query=search.value;refresh()};
+ for(const select of selects)select.onchange=()=>{
+  state.filters[select.dataset.rpFilter]=pfSelected(pfControlValue(select));
+  refresh();
+ };
+ root.querySelector('[data-rp-reset]').onclick=()=>{
+  state.query=search.value='';state.filters={};
+  for(const select of selects)pfControlSet(select,'all');
+  refresh();
+ };
+ paint();riskRankingAttach(kind);uiArrangeBusinessFilters(root);
 }
 function pcApplyRiskOption(button){
  const scope=button.closest('[data-pc-risk-scope]'),bar=scope.closest('.pc-risk-filters');

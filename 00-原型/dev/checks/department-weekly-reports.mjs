@@ -21,7 +21,9 @@ export async function departmentWeeklyReports(page){
  assert.equal(await weeks.count(),10);
  assert.equal(await weeks.first().innerText(),'26年第46周（11/09-11/15）');
  assert.equal(await weeks.last().innerText(),'26年第37周（09/07-09/13）');
- assert.equal(await pager.getByRole('combobox').count(),0,'固定每页 10 条');
+ const pageSize=pager.getByRole('combobox',{name:'每页条数'});
+ assert.equal(await pageSize.inputValue(),'10');
+ assert.deepEqual(await pageSize.locator('option').allTextContents(),['10条/页','20条/页','50条/页']);
  assert(await pager.getByRole('button',{name:'上一页'}).isDisabled());
  await pager.getByRole('button',{name:'下一页'}).click();
  assert.equal(await weeks.count(),6);
@@ -30,6 +32,15 @@ export async function departmentWeeklyReports(page){
  assert.equal(await weeks.last().innerText(),'26年第31周（07/27-08/02）');
  assert(await pager.getByRole('button',{name:'下一页'}).isDisabled());
  await pager.getByRole('button',{name:'上一页'}).click();
+ assert.equal(await weeks.count(),10);
+ const jump=pager.getByRole('spinbutton',{name:'跳转页码'});
+ await jump.fill('2');await jump.press('Enter');
+ const selectedPage=pager.locator('[aria-current="page"]');
+ assert.equal(await selectedPage.textContent(),'2');
+ await pageSize.selectOption('20');
+ assert.equal(await selectedPage.textContent(),'1');
+ assert.equal(await weeks.count(),16);
+ await pageSize.selectOption('10');
  assert.equal(await weeks.count(),10);
  assert.deepEqual(await week42.getByRole('cell').allTextContents(),columns.map(()=> '未生成'));
  assert.equal(await week42.getByRole('button').count(),0);

@@ -9,27 +9,27 @@ function verifyStaleModels(){
  vm.runInContext(fs.readFileSync(new URL('../../src/modules/inventory-period/02-stale-samples.js',import.meta.url),'utf8'),ctx);
  const received=days=>new Date(Date.parse('2026-10-27')-days*86400000).toISOString().slice(0,10);
  const batch=days=>({receivedDate:received(days),units:10,valueCents:100});
- const row={spuId:'a',season:'夏季品',totalUnits:100,totalValueCents:1000,staleUnits:90,staleValueCents:900,batches:[59,60,89,90,119,120,149,150].map(batch)};
+ const row={spuId:'a',season:'夏季品',totalUnits:140,totalValueCents:1400,staleUnits:130,staleValueCents:1300,batches:[59,60,89,90,119,120,149,150,449,450,451,600].map(batch)};
  const snapshot=ctx.ipNormalizeSnapshot({date:'2026-10-27',rows:[row]});assert(snapshot);
  const batches=ctx.ipStaleSampleBatches(row,snapshot.date),sample=ctx.ipNormalizeSnapshot({...snapshot,source:'local-sample',rows:[{...row,batches}]});assert(sample);
  assert.equal(batches.reduce((n,batch)=>n+batch.units,0),row.staleUnits);assert.equal(batches.reduce((n,batch)=>n+batch.valueCents,0),row.staleValueCents);assert.equal(JSON.stringify(batches),JSON.stringify(ctx.ipStaleSampleBatches(row,snapshot.date)),'刷新不使用随机值');
  assert.equal(ctx.ipStaleDistribution(sample,'all').unknown.units,0);assert.equal(ctx.ipStaleDistribution(sample,'all').unknown.valueCents,0);
  const generated=ctx.ipStaleSampleHistory(sample,[{...sample,date:'2025-06-18',source:'snapshot'}]);assert.equal(generated.length,20);assert(generated.every(item=>item.source==='local-sample'&&item.date<'2026-10-01'&&!item.date.startsWith('2025-06')),'真实和已存月份不覆盖');
- const data=ctx.ipStaleDistribution(snapshot,'all');assert.deepEqual(Array.from(data.bands,band=>band.units),[20,20,20,10]);assert.deepEqual(Array.from(data.bands,band=>band.valueCents),[200,200,200,100]);assert.equal(data.other.units,10);assert.equal(data.unknown.units,10);assert.equal(data.unknown.valueCents,100);
+ const data=ctx.ipStaleDistribution(snapshot,'all');assert.deepEqual(Array.from(data.bands,band=>band.units),[20,20,20,20,30]);assert.deepEqual(Array.from(data.bands,band=>band.valueCents),[200,200,200,200,300]);assert.equal(data.other.units,10);assert.equal(data.unknown.units,10);assert.equal(data.unknown.valueCents,100);
  assert.equal(data.units,data.bands.reduce((n,band)=>n+band.units,0)+data.other.units+data.unknown.units);
- assert.equal(data.totalUnits,100);assert.equal(data.totalValueCents,1000);
+ assert.equal(data.totalUnits,140);assert.equal(data.totalValueCents,1400);
  const empty=ctx.ipStaleDistribution(snapshot,['冬季品']);assert.equal(empty.totalUnits,0);assert.equal(empty.totalValueCents,0);
  assert.equal(ctx.ipNormalizeSnapshot({date:'2026-02-30',rows:[]}),null);
  assert.equal(ctx.ipNormalizeSnapshot({date:'2026-10-27',rows:[row,row]}),null);
- assert.equal(ctx.ipNormalizeSnapshot({date:'2026-10-27',rows:[{...row,staleUnits:101}]}),null);
+ assert.equal(ctx.ipNormalizeSnapshot({date:'2026-10-27',rows:[{...row,staleUnits:141}]}),null);
  const partial=ctx.ipStaleDistribution(ctx.ipNormalizeSnapshot({date:'2026-10-27',rows:[{...row,batches:[{...batch(150),valueCents:null}]}]}),'all');assert.equal(partial.knownUnits,10);assert.equal(partial.knownValueCents,0,'未知批次货值不能按均价分摊');
  const second={...row,spuId:'b',season:'冬季品',totalValueCents:9000,staleValueCents:90,batches:[]};
  const history=[snapshot,ctx.ipNormalizeSnapshot({date:'2026-09-30',rows:[{...row,batches:[]},second]})];
- const trend=ctx.ipStaleTrend(history,'month','2026-10-27','all'),september=trend.find(item=>item.date==='2026-09-30');assert.equal(september.ratio,990/10000*100,'按分子分母汇总，不平均单品占比');assert.equal(trend.filter(item=>item.date).length,2);assert.equal(trend[0].ratio,null,'缺失历史不是0');
- const updated=ctx.ipNormalizeSnapshot({date:snapshot.date,scope:'five-parts',rows:[{...row,totalValueCents:950}]});
+ const trend=ctx.ipStaleTrend(history,'month','2026-10-27','all'),september=trend.find(item=>item.date==='2026-09-30');assert.equal(september.ratio,1390/10400*100,'按分子分母汇总，不平均单品占比');assert.equal(trend.filter(item=>item.date).length,2);assert.equal(trend[0].ratio,null,'缺失历史不是0');
+ const updated=ctx.ipNormalizeSnapshot({date:snapshot.date,scope:'five-parts',rows:[{...row,totalValueCents:1350}]});
  const mixed=ctx.ipStaleTrend([...history,updated],'month','2026-10-27','all').filter(item=>item.date);
  assert.deepEqual(Array.from(mixed,item=>item.scope),['legacy','five-parts']);
- assert.equal(mixed[1].totalValueCents,950,'同日快照优先用新口径');
+ assert.equal(mixed[1].totalValueCents,1350,'同日快照优先用新口径');
  assert.equal(ctx.ipStaleTrend(history,'quarter','2026-10-27','all').filter(item=>item.date).length,2);
  assert.equal(ctx.ipStaleTrend(history,'year','2026-10-27',['冬季品']).at(-1).totalValueCents,0,'当期最新快照无该季品时保留零，不回填旧快照');
  assert.equal(ctx.ipStaleTrend(history,'month','2026-09-29','all').some(item=>item.date==='2026-09-30'),false,'不读取截止日之后的快照');
@@ -42,11 +42,13 @@ export async function inventoryStaleAnalysis(page){
  assert.equal(original.distribution.totalValueCents,balance.goodsValueCents);
  assert.equal(original.distribution.units,overview.staleUnits);assert.equal(original.distribution.valueCents,overview.staleValueCents);assert(original.snapshots.length>=12,'补齐月度样例快照');assert(original.snapshots.every(snapshot=>snapshot.source==='local-sample'),'样例保留来源标记');
  assert.equal(original.distribution.unknown.units,0);assert.equal(original.distribution.unknown.valueCents,0);
- for(const band of original.distribution.bands){assert(band.units>0&&band.valueCents>0);assert(band.seasons.every(season=>season.units>0&&season.valueCents>0),'四区间各季品都有可对比样例');}
+ assert.deepEqual(original.distribution.bands.map(band=>band.label),['60–90天','90–120天','120–150天','150–450天','450天及以上']);
+ for(const band of original.distribution.bands){assert(band.units>=0&&band.valueCents>=0);assert(band.seasons.every(season=>season.units>=0&&season.valueCents>=0),'库龄区间允许真实零值');}
  assert.equal(original.distribution.bands.reduce((n,band)=>n+band.units,0)+original.distribution.other.units,overview.staleUnits);assert.equal(original.distribution.bands.reduce((n,band)=>n+band.valueCents,0)+original.distribution.other.valueCents,overview.staleValueCents);
  assert.deepEqual(await host.locator('h3').allTextContents(),['呆滞库存分布','呆滞货值占比趋势']);assert.equal(await host.locator('.ip-stale-footnote,.ip-stale-source').count(),0,'不展示冗余实现说明');
  assert.equal(await host.locator('.ip-stale-insight').count(),0,'删除150天以上提示条');
  assert.deepEqual(await host.locator('.ip-stale-age-columns>span').allTextContents(),['库龄','夏季品','冬季品','四季品','合计占比']);
+ assert.deepEqual(await host.locator('.ip-stale-age-label').allTextContents(),original.distribution.bands.map(band=>band.label));
  for(const row of await host.locator('[data-ip-stale-band]').all())assert.equal(await row.locator('.ip-stale-age-cell').count(),3,'每个库龄区间直接列三类季品数据');
  assert((await host.locator('.ip-stale-trend-stats>div+div').evaluateAll(elements=>elements.map(element=>getComputedStyle(element).borderLeftWidth))).every(value=>value==='1px'),'右侧指标用竖线分隔');
  assert.equal(await page.locator('[data-stock-card="staleDistribution"]').count(),0);
@@ -120,5 +122,5 @@ export async function inventoryStaleAnalysis(page){
  for(const [key,value] of [['stale',point.staleValueCents],['total',point.totalValueCents]])assert.equal(await tooltip.locator('dd[data-trend-key="'+key+'"]').textContent(),format(value,'valueCents'));
  await page.keyboard.press('Escape');
  await page.evaluate(()=>localStorage.removeItem('dashboard.inventory-snapshots.v1'));await page.reload({waitUntil:'domcontentloaded'});await page.waitForFunction(()=>document.documentElement.dataset.dashboardBoot==='ready');
- console.log('通过：批次60/90/120/150边界、守恒、缺失与零、月季年期末快照、持久化、季品筛选、悬浮及宽窄屏；无冗余说明。');
+ console.log('通过：批次60/90/120/150/450边界、守恒、缺失与零、月季年期末快照、持久化、季品筛选、悬浮及宽窄屏；无冗余说明。');
 }

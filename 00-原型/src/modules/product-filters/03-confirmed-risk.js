@@ -14,7 +14,11 @@ const rpDecideBeforeConfirmed=sbDecide;
 sbDecide=function(s){
  const base=rpDecideBeforeConfirmed(s),score=sbScoreRisk(s);
  const signals=base.signals.filter(x=>!/店铺分命中|期间品质处罚|核心链接中/.test(x.label));
- if(score==='red'&&brcMatch('shops.penalties',s.qualityPenaltyCount,s))signals.push({color:'red',label:'店铺评分红灯且当月品质处罚'+brcDescribe('shops.penalties')});
+ if(s.channel==='视频号'){
+  for(const metric of sbWechatFacts(s).filter(metric=>metric.tone==='red')){
+   signals.push({color:'red',label:metric.name+'高于行业平均水平'});
+  }
+ }else if(score==='red'&&brcMatch('shops.penalties',s.qualityPenaltyCount,s))signals.push({color:'red',label:'店铺评分红灯且当月品质处罚'+brcDescribe('shops.penalties')});
  return {signals,color:signals.some(x=>x.color==='red')?'red':signals.some(x=>x.color==='yellow')?'yellow':'green'};
 };
 sbReturnRisk=function(p){return rpShopProblemHit(p)};
@@ -43,7 +47,9 @@ qrbMonthly=function(...args){
 sbPanel=function(s){
  const score=sbScoreRisk(s),period=rpShopReturnPeriod(s.end||bounds().cutoff);
  const scoreValue=s.channel==='拼多多'?(score==='red'?'核心链接红灯':'未命中红灯'):fmt(s.score,2)+'分';
- const rows=[['评分红灯与当月品质处罚',scoreValue+' / '+s.qualityPenaltyCount+'次','两者同时满足',score==='red'&&brcMatch('shops.penalties',s.qualityPenaltyCount,s)],['当月纯品质罚款',pfMoneyYuan(s.qualityFine),''+brcDescribe('shops.fine')+'，不含冻结',brcMatch('shops.fine',s.qualityFine,s)],['资金冻结',pfMoneyYuan(s.frozenAmount),'按现有资金冻结规则',s.frozenAmount>0],['单品两周期退货恶化',s.returnProducts.filter(sbReturnRisk).length+'个SPU',rpShopReturnRule(),s.returnProducts.some(sbReturnRisk)]];
+ const ratingRows=s.channel==='视频号'?sbWechatFacts(s).map(metric=>[metric.name,sbWechatPercent(metric.actual)+' / 行业平均 '+sbWechatPercent(metric.target),'实际值高于行业平均水平',metric.tone==='red']):
+  [['评分红灯与当月品质处罚',scoreValue+' / '+s.qualityPenaltyCount+'次','两者同时满足',score==='red'&&brcMatch('shops.penalties',s.qualityPenaltyCount,s)]];
+ const rows=[...ratingRows,['当月纯品质罚款',pfMoneyYuan(s.qualityFine),''+brcDescribe('shops.fine')+'，不含冻结',brcMatch('shops.fine',s.qualityFine,s)],['资金冻结',pfMoneyYuan(s.frozenAmount),'按现有资金冻结规则',s.frozenAmount>0],['单品两周期退货恶化',s.returnProducts.filter(sbReturnRisk).length+'个SPU',rpShopReturnRule(),s.returnProducts.some(sbReturnRisk)]];
  return '<section class="sb-business"><h3>店铺品质风险依据</h3>'+table(['判定项','当前样例数据','执行条件','结果'],rows.map(([a,b,c,hit])=>[a,b,c,hit?'命中':'未命中']))+'<h4>单品退货 · 稳定周对比</h4>'+table(['产品','上期实际总退','本期实际总退','两期目标','判定结果'],s.returnProducts.map(r=>[esc(r.name),upPercent(r.previous),upPercent(r.current),upPercent(r.target),sbReturnRisk(r)?'本期恶化':'未命中']))+`<p class="note">本期：${period.start} ~ ${period.end}；上期：${period.previousStart} ~ ${period.previousEnd}。</p><details><summary>业务规则</summary><p>${sbRules()}</p></details></section>`;
 };
 

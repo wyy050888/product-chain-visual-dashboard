@@ -12,9 +12,9 @@ function rpMountLossTable(card){
  const actions=head.querySelector('.rp-quality-actions')||document.createElement('div');actions.classList.add('rp-quality-actions');
  const more=head.querySelector('[data-risk="2"]');if(more&&!actions.contains(more))actions.append(more);
  const toolbar=document.createElement('div');toolbar.className='rp-loss-toolbar';head.after(toolbar);
- const filters=document.createElement('div');filters.className='rp-loss-filter-groups';toolbar.append(filters);
+ const filters=document.createElement('div');filters.className='rp-loss-filter-groups rp-filter-groups';toolbar.append(filters);
  if(platform)filters.append(platform);
- filters.insertAdjacentHTML('beforeend','<span class="rp-loss-filter-separator" aria-hidden="true"></span>'+rpCardSeasonTags(2));
+ filters.insertAdjacentHTML('beforeend',rpCardSeasonTags(2)+rpCardChainControl(2));
  if(actions)toolbar.append(actions);
  const table=card.querySelector('.rp-items');table.setAttribute('role','table');table.setAttribute('aria-label','亏损产品榜');table.tabIndex=0;
  const columns=table.querySelector('.rp-loss-columns');columns.setAttribute('role','row');

@@ -55,7 +55,7 @@
 .nsp-unsold-table{overflow-x:auto}
 .nsp-unsold-table table{min-width:760px}
 .nsp-unsold-table th{white-space:nowrap}
-.nsp-unsold-table .nsp-requisition-status{display:inline-flex;justify-content:center;align-items:center;min-width:62px;padding:0 7px;border-radius:999px;font-size:var(--table-tag-size)!important;font-weight:400;line-height:20px;white-space:nowrap}
+.nsp-requisition-status{display:inline-flex;justify-content:center;align-items:center;min-width:62px;padding:0 7px;border-radius:999px;font-size:var(--table-tag-size)!important;font-weight:400;line-height:20px;white-space:nowrap}
 .nsp-requisition-status[data-status="交付完成"]{color:#0fc6c2;background:#e8fffb}
 .nsp-requisition-status[data-status="交付中"]{color:#f77234;background:#fff3e8}
 .nsp-unsold-table :is(th,td):nth-child(4){text-align:left;font-variant-numeric:tabular-nums}

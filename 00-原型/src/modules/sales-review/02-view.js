@@ -7,23 +7,31 @@ function msScaleProgress(r){
  const hint='时间进度 '+msPercent(r.progress)+'；规模达成 '+msPercent(r.scaleRate)+'；偏差 '+msDeviation(r.scaleDeviation);
  return '<div class="ms-progress" role="progressbar" aria-label="规模达成率" '+(Number.isFinite(r.scaleRate)?'aria-valuenow="'+width+'"':'')+' aria-valuemin="0" aria-valuemax="100" aria-valuetext="'+hint+'"><i style="width:'+width+'%;background:var(--'+msTone(r.scaleDeviation)+')"></i><b class="ms-time-marker" style="left:'+Math.max(0,Math.min(100,r.progress))+'%" aria-hidden="true"></b></div>';
 }
-function msScaleCell(r){
- return '<td class="ms-scale-cell"><div class="ms-scale-main"><strong class="'+msTone(r.scaleDeviation)+'">'+msPercent(r.scaleRate)+'</strong>'+msScaleProgress(r)+'</div><small>'+msDeltaContent('偏差',msDeviation(r.scaleDeviation),msTone(r.scaleDeviation))+'</small></td>';
+function msScaleCell(r,rowspan=1){
+ return '<td class="ms-scale-cell" rowspan="'+rowspan+'"><div class="ms-scale-main"><strong class="'+msTone(r.scaleDeviation)+'">'+msPercent(r.scaleRate)+'</strong>'+msScaleProgress(r)+'</div><small>'+msDeltaContent('偏差',msDeviation(r.scaleDeviation),msTone(r.scaleDeviation))+'</small></td>';
 }
-function msGsvCell(r){
- return '<td class="ms-gsv-cell"><div class="ms-gsv-pair"><strong class="ms-gsv-actual">'+esc(msMoney(r.sale))+'</strong><span class="ms-value-divider" aria-hidden="true"> / </span><strong class="ms-gsv-target">'+esc(msMoney(r.target))+'</strong></div><small>'+msDeltaContent('差额',msMoney(r.gap,true),msTone(r.gsvDeviation))+'</small></td>';
+function msGsvCell(r,rowspan=1){
+ return '<td class="ms-gsv-cell" rowspan="'+rowspan+'"><div class="ms-gsv-pair"><strong class="ms-gsv-actual">'+esc(msMoney(r.sale))+'</strong><span class="ms-value-divider" aria-hidden="true"> / </span><strong class="ms-gsv-target">'+esc(msMoney(r.target))+'</strong></div><small>'+msDeltaContent('差额',msMoney(r.gap,true),msTone(r.gsvDeviation))+'</small></td>';
 }
-function msMarginCell(r){
- return '<td class="ms-margin-cell"><div class="ms-margin-pair"><strong class="ms-margin-actual">'+esc(msPercent(r.actualMargin))+'</strong><span class="ms-value-divider" aria-hidden="true"> / </span><strong class="ms-margin-target">'+esc(msPercent(r.targetMargin))+'</strong></div><small>'+msDeltaContent('差额',msDeviation(r.marginGap),msTone(r.marginGap))+'</small></td>';
+function msMarginCell(r,rowspan=1){
+ return '<td class="ms-margin-cell" rowspan="'+rowspan+'"><div class="ms-margin-pair"><strong class="ms-margin-actual">'+esc(msPercent(r.actualMargin))+'</strong><span class="ms-value-divider" aria-hidden="true"> / </span><strong class="ms-margin-target">'+esc(msPercent(r.targetMargin))+'</strong></div><small>'+msDeltaContent('差额',msDeviation(r.marginGap),msTone(r.marginGap))+'</small></td>';
+}
+function msSalesMetricHeaders(period){
+ const label=msPeriodText(period);
+ return [label+'实际 / 目标GSV',label+'实际 / 目标利润率','规模达成'];
 }
 function msTable(head,body,label,kind){
  return '<div class="ms-table-scroll" tabindex="0" aria-label="'+label+'，窄屏可横向滚动"><table class="ms-data-table '+kind+'" aria-label="'+label+'"><thead><tr>'+head.map(h=>'<th scope="col">'+h+'</th>').join('')+'</tr></thead><tbody>'+body+'</tbody></table></div>';
 }
-// 方形品牌素材保持原比例；来源见assets/brand-logos/sources.json，仅用于销售明细身份列。
-const msBrandLogos={苏泊尔:'supor-square.png',美的:'midea-square.jpg',创维:'skyworth-square.png',海尔:'haier-square.png',康佳:'konka-square.png'};
+// 方形品牌素材保持原比例，来源见 assets/brand-logos/sources.json。
+const dashboardBrandLogos={苏泊尔:'supor-square.png',美的:'midea-square.jpg',创维:'skyworth-square.png',海尔:'haier-square.png',康佳:'konka-square.png'};
+function dashboardBrandLogo(name,size){
+ const logo=Object.hasOwn(dashboardBrandLogos,name)?dashboardBrandLogos[name]:null;
+ return logo?`<img src="assets/brand-logos/${logo}?v=20261027-square" width="${size}" height="${size}" alt="" aria-hidden="true" decoding="async">`:'';
+}
 function msBrandLabel(name){
- const logo=msBrandLogos[name];
- return logo?'<span class="ms-brand-label" data-ms-brand="'+esc(name)+'"><img src="assets/brand-logos/'+logo+'?v=20261027-square" width="32" height="32" alt="" aria-hidden="true" decoding="async"><span>'+esc(name)+'</span></span>':esc(name);
+ const logo=dashboardBrandLogo(name,32);
+ return logo?`<span class="ms-brand-label" data-ms-brand="${esc(name)}">${logo}<span>${esc(name)}</span></span>`:esc(name);
 }
 function msPlatformLabel(name){
  const logo=drawerPlatformLogos[name];
@@ -37,8 +45,7 @@ function msBreakdownTable(data,view,name){
   if(!r)return '<tr><th scope="row">'+(view==='platform'?msPlatformLabel(name):msBrandLabel(name))+'</th><td colspan="3" class="muted">暂无数据</td></tr>';
   return '<tr><th scope="row">'+(view==='platform'?msPlatformLabel(name):msBrandLabel(name))+'</th>'+msGsvCell(r)+msMarginCell(r)+msScaleCell(r)+'</tr>';
  }).join('');
- const period=msPeriodText();
- return msTable([view==='brand'?'品牌':'平台',period+'实际 / 目标GSV',period+'实际 / 目标利润率','规模达成'],rows,name+' · '+(view==='brand'?'品牌':'平台')+'明细','ms-detail-table');
+ return msTable([view==='brand'?'品牌':'平台',...msSalesMetricHeaders()],rows,name+' · '+(view==='brand'?'品牌':'平台')+'明细','ms-detail-table');
 }
 siTable=function(index,view){return '<section class="ms-detail-panel" data-ms-breakdown-view="'+view+'" id="si-panel-'+index+'" role="tabpanel" aria-labelledby="si-tab-'+index+'-'+view+'">'+msBreakdownTable(msBreakdown(index,view).map(row=>msFacts(row)),view,index<0?'公司整体':chains[index])+'</section>'};
 siCardDetails=function(index){

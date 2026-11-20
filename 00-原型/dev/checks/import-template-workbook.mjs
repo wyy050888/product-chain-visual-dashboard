@@ -21,7 +21,9 @@ with zipfile.ZipFile(io.BytesIO(base64.b64decode(p['workbook']))) as z:
    rich=inline if inline is not None else E.fromstring(z.read('xl/sharedStrings.xml'))[int(c.find(q('v')).text)] if c.get('t')=='s' else []
    runs=[{'text':t.find(q('t')).text or '', 'color':t.find(q('rPr')+'/'+q('color')).get('rgb') if t.find(q('rPr')+'/'+q('color')) is not None else ''} for t in rich if t.tag==q('r')]
    if runs: marks.append({'cell':c.get('r'),'text':text(c),'runs':runs})
-  rows.append({'row':int(r.get('r')),'values':values})
+  row={'row':int(r.get('r')),'values':values}
+  if p.get('outline'):row.update({'level':int(r.get('outlineLevel','0')),'hidden':r.get('hidden')=='1','collapsed':r.get('collapsed')=='1'})
+  rows.append(row)
  styles={}
  if p.get('styles'):
   root=E.fromstring(z.read('xl/styles.xml')); fills=root.find(q('fills')); formats=root.find(q('cellXfs'))
@@ -33,7 +35,16 @@ with zipfile.ZipFile(io.BytesIO(base64.b64decode(p['workbook']))) as z:
    font=fonts[int(formats[int(c.get('s','0'))].get('fontId','0'))]; ink=font.find(q('color'))
    return ink.get('rgb') if ink is not None else None
   styles={'defaultFill':color(int(formats[0].get('fillId','0'))),'cellFills':{c.get('r'):color(int(formats[int(c.get('s','0'))].get('fillId','0'))) for c in sheet.iter(q('c'))},'cellFonts':{c.get('r'):font_color(c) for c in sheet.iter(q('c'))}}
- if p.get('fill') is None:
+ def write_sheet():
+  out=io.BytesIO()
+  with zipfile.ZipFile(out,'w',zipfile.ZIP_DEFLATED) as result:
+   for item in z.infolist():result.writestr(item,E.tostring(sheet,encoding='utf-8',xml_declaration=True) if item.filename==sheetPath else z.read(item.filename))
+  sys.stdout.buffer.write(out.getvalue())
+ if p.get('edits') is not None:
+  cells={c.get('r'):c for c in sheet.iter(q('c'))}
+  for address,value in p['edits'].items():cells[address].find(q('is')+'/'+q('t')).text=str(value)
+  write_sheet()
+ elif p.get('fill') is None:
   print(json.dumps({'rows':rows,'marks':marks,'sheetNames':[n.get('name') for n in E.fromstring(z.read('xl/workbook.xml')).iter(q('sheet'))],**styles},ensure_ascii=False))
  else:
   data=sheet.find(q('sheetData')); header=p['header']
@@ -52,15 +63,13 @@ with zipfile.ZipFile(io.BytesIO(base64.b64decode(p['workbook']))) as z:
      if value.get('cached') is not None: E.SubElement(c,q('v')).text=str(value['cached'])
     else:
      c=E.SubElement(row,q('c'),{'r':col+str(at),'t':'inlineStr'});E.SubElement(E.SubElement(c,q('is')),q('t')).text=str(value)
-  out=io.BytesIO()
-  with zipfile.ZipFile(out,'w',zipfile.ZIP_DEFLATED) as result:
-   for item in z.infolist():result.writestr(item,E.tostring(sheet,encoding='utf-8',xml_declaration=True) if item.filename==sheetPath else z.read(item.filename))
-  sys.stdout.buffer.write(out.getvalue())
+  write_sheet()
 `;
 function run(workbook,extra={}){return execFileSync(python,['-X','utf8','-c',script],{input:JSON.stringify({workbook:workbook.toString('base64'),...extra}),maxBuffer:15*1024*1024})}
 export const inspectImportWorkbook=(buffer,options={})=>JSON.parse(run(buffer,options).toString('utf8'));
 export const fillImportWorkbook=(buffer,header,fill,options={})=>run(buffer,{header,fill,...options});
 export const fillImportWorkbookRows=(buffer,header,rows,options={})=>run(buffer,{header,fill:rows,multipleRows:true,...options});
+export const editImportWorkbookCells=(buffer,edits)=>run(buffer,{edits});
 export const cleanTemplateHeader=value=>String(value).trim().replace(/^[*＊]\s*|\s*[*＊]$/g,'').replace(/（(?:实际降本必填|钉钉名称|填写产品时必填|填报目标时必填|YYYY\/MM\/DD|YYYY\/MM)）$/,'').trim();
 export function importTemplateHeader(book){
  const header=book.rows.find(row=>row.values.some(value=>String(value).startsWith('*')));

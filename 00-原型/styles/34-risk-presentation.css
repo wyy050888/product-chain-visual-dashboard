@@ -45,15 +45,17 @@
 #dialogbody .rp-list-tools>label:not(.unified-input-group) :is(select,input) {font-size:12px;height:32px;min-height:32px}
 #dialogbody .rp-list-tools [data-rp-reset] {margin-left:auto;white-space:nowrap;font-size:12px}
 .rp-group-context {color:#8c99ae;font-size:12px;margin:12px 0}
-#dialogbody :is(#qr-list-table,#rf-list-table).rp-list-table {overflow:auto;max-width:100%;position:relative;border-block:1px solid #e8edf5;border-inline:0;border-radius:6px}
-#dialogbody :is(#qr-list-table,#rf-list-table).rp-list-table table {table-layout:auto!important;min-width:100%!important;max-width:none!important;border-collapse:separate;border-spacing:0;width:100%;font-size:12px}
-#dialogbody :is(#qr-list-table,#rf-list-table).rp-list-table :is(th,td) {width:auto;min-width:115px!important;padding:12px;line-height:1.65;border-bottom:1px solid #eef2f7;vertical-align:middle;text-align:left;box-sizing:border-box}
-#dialogbody :is(#qr-list-table,#rf-list-table).rp-list-table th {background:#f5f8fc;white-space:nowrap;color:#8190a6;font-weight:500}
-#dialogbody :is(#qr-list-table,#rf-list-table).rp-list-table td {background:white}
-#dialogbody :is(#qr-list-table,#rf-list-table).rp-list-table tr:hover td {background:#f9fbff}
+#dialogbody :is(#qr-list-table,#rf-list-table,.pc-risk-list).rp-list-table {overflow:auto;max-width:100%;position:relative;border-block:1px solid #e8edf5;border-inline:0;border-radius:6px}
+#dialogbody :is(#qr-list-table,#rf-list-table,.pc-risk-list).rp-list-table table {max-width:none!important;border-collapse:separate;border-spacing:0;width:100%;font-size:12px}
+#dialogbody :is(#qr-list-table,#rf-list-table).rp-list-table table {table-layout:auto!important;min-width:100%!important}
+#dialogbody :is(#qr-list-table,#rf-list-table,.pc-risk-list).rp-list-table :is(th,td) {min-width:115px!important;padding:12px;line-height:1.65;border-bottom:1px solid #eef2f7;vertical-align:middle;text-align:left;box-sizing:border-box}
+#dialogbody :is(#qr-list-table,#rf-list-table).rp-list-table :is(th,td) {width:auto}
+#dialogbody :is(#qr-list-table,#rf-list-table,.pc-risk-list).rp-list-table th {background:#f5f8fc;white-space:nowrap;color:#8190a6;font-weight:500}
+#dialogbody :is(#qr-list-table,#rf-list-table,.pc-risk-list).rp-list-table td {background:white}
+#dialogbody :is(#qr-list-table,#rf-list-table,.pc-risk-list).rp-list-table tr:hover td {background:#f9fbff}
 #dialogbody :is(#qr-list-table,#rf-list-table).rp-list-table :is(th,td):first-child {min-width:64px!important;width:64px;position:sticky;left:0;z-index:1}
 #dialogbody :is(#qr-list-table,#rf-list-table).rp-list-table :is(th,td):nth-child(2) {min-width:255px!important;width:255px;position:sticky;left:64px;z-index:1;border-right:1px solid #edf1f7}
-#dialogbody :is(#qr-list-table,#rf-list-table).rp-list-table :is(th,td):last-child {min-width:95px!important;position:sticky;right:0;z-index:1;border-left:1px solid #edf1f7}
+#dialogbody :is(#qr-list-table,#rf-list-table,.pc-risk-list).rp-list-table :is(th,td):last-child {min-width:95px!important;position:sticky;right:0;z-index:1;border-left:1px solid #edf1f7}
 #dialogbody :is(#qr-list-table,#rf-list-table).rp-list-table td:has(.rp-list-risks) {min-width:230px;max-width:320px}
 #dialogbody .rp-list-value .rp-value {font-size:13px;font-weight:500;white-space:nowrap}
 #dialogbody .rp-list-risks {display:flex;align-items:flex-start;gap:7px;font-size:11px;color:#8b6670;max-width:280px}
@@ -94,7 +96,7 @@
  #dialogbody .up-metrics,#dialogbody .rp-compact-metrics {grid-template-columns:repeat(2,minmax(0,1fr))}
  #dialogbody .up-metric {padding:9px 11px;min-height:62px}#dialogbody .up-metric strong {font-size:14px}
  #dialogbody :is(#qr-list-table,#rf-list-table).rp-list-table :is(th,td):nth-child(2) {min-width:200px!important;width:200px;position:static}
- #dialogbody :is(#qr-list-table,#rf-list-table).rp-list-table :is(th,td):last-child {position:static}
+ #dialogbody :is(#qr-list-table,#rf-list-table,.pc-risk-list).rp-list-table :is(th,td):last-child {position:static}
  #dialogbody .rp-list-tools [data-rp-reset] {margin-left:0}
  #product-image-viewer .rp-image-canvas {width:calc(100vw - 32px);height:80dvh}
 }

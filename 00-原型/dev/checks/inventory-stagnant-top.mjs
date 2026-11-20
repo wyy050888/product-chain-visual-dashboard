@@ -31,7 +31,8 @@ export async function inventoryStagnantTop(page){
   const model=await snapshot(),records=new Map(model.rows.map(row=>[row.skuCode,row]));
   for(const tr of await host.locator('tbody tr').all()){
    const code=await tr.locator('[data-sku-code]').getAttribute('data-sku-code'),record=records.get(code);
-   const tone=Number.isFinite(record.sellableCoverage15)?'rp-quality-normal':'rp-quality-gray';
+   const coverage=record.dailyNet15>0&&Number.isFinite(record.coverage15)?record.coverage15:null;
+   const tone=record.warehouse>0&&coverage!==null&&coverage>=60?'rp-quality-red':'rp-quality-gray';
    for(const index of [2,3]){
     const cell=tr.locator('td').nth(index),nodes=cell.locator('strong,em');assert.equal(await nodes.count(),2);
     assert(await cell.locator('strong').evaluate(el=>el.classList.contains('rp-quality-normal')),'左侧数量与金额恢复普通数值色');
@@ -42,13 +43,13 @@ export async function inventoryStagnantTop(page){
     assert.equal(await tr.locator('td').nth(5).locator('strong').innerText(),warningChannels.get(code));
    }
    const sellable=tr.locator('td').nth(6);
-   assert.equal(await sellable.locator('strong').innerText(),record.sellableUnits.toLocaleString('zh-CN')+'件');
-   const yuan=record.sellableValueCents/100,inWan=Math.abs(yuan)>10000;
-   const worth=Number.isFinite(record.sellableValueCents)?twoDecimals.format(inWan?yuan/10000:yuan)+(inWan?'万元':'元'):'—';
+   assert.equal(await sellable.locator('strong').innerText(),record.warehouse.toLocaleString('zh-CN')+'件');
+   const yuan=record.warehouseValueCents/100,inWan=Math.abs(yuan)>10000;
+   const worth=Number.isFinite(record.warehouseValueCents)?twoDecimals.format(inWan?yuan/10000:yuan)+(inWan?'万元':'元'):'—';
    assert.equal(await sellable.locator('em').innerText(),'货值 '+worth);
    const days=tr.locator('td').nth(7).locator('strong');
-   assert(await days.evaluate((el,tone)=>el.classList.contains(tone),tone),'已发生呆滞不按可售天数另判红黄');
-   assert.equal(await days.innerText(),Number.isFinite(record.sellableCoverage15)?oneDecimal.format(record.sellableCoverage15)+'天':'—');
+   assert(await days.evaluate((el,tone)=>el.classList.contains(tone),tone),'我司可售天数沿用呆滞预警灯色');
+   assert.equal(await days.innerText(),coverage===null?'—':oneDecimal.format(coverage)+'天');
   }
   assert.equal(await page.locator('#inventorytable .rp-quality-red,#inventorytable .rp-quality-yellow').count(),0,'品牌类目不使用产品Top10判色');
   assert.equal((await host.locator('th').allTextContents()).at(-1),'操作');
@@ -70,12 +71,41 @@ export async function inventoryStagnantTop(page){
  const ownHeaders=await host.locator('th').allTextContents();
  await page.locator('#riskrail [data-risk="4"]').click();
  const referenceHeaders=await page.locator('#rf-list-table th').allTextContents();
- assert.deepEqual(ownHeaders,referenceHeaders.filter(name=>name!=='属性'),'Top10指标顺序与呆滞预警榜一致');
+ assert.deepEqual(ownHeaders,referenceHeaders.filter(name=>!['属性','季品'].includes(name)),'Top10库存指标顺序与呆滞预警榜一致');
  await page.keyboard.press('Escape');
  const select=page.locator('#inventory .ip-season-filter select');
  for(const seasons of [['夏季品'],['冬季品'],['夏季品','四季品']]){await select.selectOption(seasons,{force:true});await verify(seasons);await verifyPresentation()}
  await select.selectOption('all',{force:true});await verify();
- await host.locator('[data-rp-sort="sellableCoverage15"]').click();
+ const chain=host.getByRole('radiogroup',{name:'链群'}),choice=value=>chain.locator(`[data-ip-stagnant-chain="${value}"]`);
+ const tagCount=value=>choice(value).locator('.rp-platform-count').innerText();
+ assert.equal(await choice('all').getAttribute('aria-checked'),'true');
+ assert.deepEqual(await chain.getByRole('radio').evaluateAll(nodes=>nodes.map(node=>node.firstChild.textContent)),['全部','环境','清洁','厨电','个护&健康']);
+ assert.equal(await tagCount('all'),String(initial.count));
+ const tagStyle=locator=>locator.evaluate(tag=>{
+  const {backgroundColor,borderColor,borderRadius,padding,fontSize}=getComputedStyle(tag);
+  return [backgroundColor,borderColor,borderRadius,padding,fontSize];
+ });
+ const riskTag=page.locator('#riskrail [data-rp-chain-menu="4"] [data-rp-chain-option="all"]');
+ assert.deepEqual(await tagStyle(choice('all')),await tagStyle(riskTag),'Top10复用预警榜选中标签样式');
+ const chainBySpu=new Map(await page.evaluate(()=>referenceSampleAudit().spus.map(row=>[row.spuId,row.chain])));
+ const chainNames=['清洁','厨电','环境','个护&健康'];
+ let total=0;
+ for(const name of chainNames){
+  await choice(name).click();
+  const model=await verify();total+=model.count;
+  assert.equal(await tagCount(name),String(model.count));
+  assert.equal(await tagCount('all'),String(initial.count));
+  assert(model.rows.every(row=>chainNames[chainBySpu.get(row.spuId)]===name));
+ }
+ assert.equal(total,initial.count);
+ await choice('all').focus();await page.keyboard.press('ArrowRight');
+ assert.equal(await choice('环境').getAttribute('aria-checked'),'true');
+ await select.selectOption('冬季品',{force:true});
+ const winter=await verify(['冬季品']);assert(winter.count>0);
+ assert.equal(await tagCount('环境'),String(winter.count));
+ assert(winter.rows.every(row=>chainNames[chainBySpu.get(row.spuId)]==='环境'));
+ await choice('all').click();await select.selectOption('all',{force:true});
+ await host.locator('[data-rp-sort="coverage15"]').click();
  const text=await host.locator('tbody tr td:nth-child(8) strong').allTextContents();
  const values=text.map(value=>{const number=parseFloat(value.replaceAll(',',''));return Number.isFinite(number)?number:-Infinity});
  assert(values.every((value,index)=>!index||values[index-1]>=value),'可售天数列排序');

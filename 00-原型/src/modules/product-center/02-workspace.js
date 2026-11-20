@@ -1,6 +1,6 @@
 // 相同模块移动原DOM，保留ID、监听器及所有当前版本的筛选/抽屉，不复制旧模板。
-const pcSharedIds=['risk','ai','sales','new','projects','lifecycle','matrix','inventory','cost'];
-const pcModuleLabels={risk:'风险预警',ai:'AI 总诊断',management:'人员管理',sales:'销售达成',new:'新品专项',projects:'项目进度',lifecycle:'产品生命周期',matrix:'关键产品',inventory:'库存管控',cost:'降本增效'};
+const pcSharedIds=['risk','ai','sales','new','projects','lifecycle','matrix','inventory','suppliers','cost'];
+const pcModuleLabels={risk:'风险预警',ai:'AI 总诊断',management:'人员管理',sales:'销售达成',new:'新品专项',projects:'项目进度',lifecycle:'产品生命周期',matrix:'关键产品',inventory:'库存管控',suppliers:'供应链采购',cost:'降本增效'};
 const pcModuleOrder=Object.keys(pcModuleLabels);
 let pcRenderedRole='',pcDirectorNeedsRender=false;
 const pcSharedNodes=new Map(pcSharedIds.map(id=>{
@@ -75,8 +75,7 @@ dpSwitchView=function(view,...args){
 const pcRenderLife=renderLife;
 renderLife=function(...args){
  const result=pcRenderLife(...args);
- if(pcIsActive()){pcTrimScopedModules();pcRenderBrandPlan()}
- else $('#pc-brand-plan')?.remove();
+ if(pcIsActive()){pcTrimScopedModules();pcRenderLifecycleBrands()}
  return result;
 };
 function pcMeasureNavigation(){

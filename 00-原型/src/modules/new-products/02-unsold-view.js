@@ -12,6 +12,11 @@ function nspUnsoldProjectHelp(label){
  return `<span class="metric-help nsp-unsold-project-help" role="button" tabindex="0" aria-label="查看${label}指标口径" data-metric-rule="取数口径：取自 SPU 关联项目的${sourceField}。"></span>`;
 }
 
+function nspRequisitionStatusTag(status){
+ const value=esc(status);
+ return `<span class="nsp-requisition-status" data-status="${value}">${value}</span>`;
+}
+
 function nspOpenUnsold({asOf,rows}){
  const projectHeaders=[nspUnsoldProductionDateLabel,'承接运营'].map(label=>`${label} ${nspUnsoldProjectHelp(label)}`);
  const headers=['SPU信息','首批请购单号','首批单状态','我司可售库存',...projectHeaders,'产品经理'];
@@ -36,7 +41,7 @@ function nspOpenUnsold({asOf,rows}){
   tableHost.innerHTML=table(headers,visible.slice(start,start+size).map(product=>[
    `<div class="prodname">${riskThumbnail(product.imageFrom)}<div><strong>${esc(product.name)}</strong><small>SPU码：${esc(product.spuCode)}</small></div></div>`,
    esc(product.requisitionNo),
-   `<span class="nsp-requisition-status" data-status="${esc(product.firstRequisitionStatus)}">${esc(product.firstRequisitionStatus)}</span>`,
+   nspRequisitionStatusTag(product.firstRequisitionStatus),
    `${product.stock.toLocaleString('zh-CN')} 件`,
    esc(product.actualProductionDate||'—'),
    `<span data-preserve-terms>${esc(product.operationsOwner||'—')}</span>`,

@@ -63,7 +63,7 @@ function gdBusinessContext(sources){
  return {by,project,product,newProduct,supplier};
 }
 // 各模块分别持有筛选；时间仍为总诊断统一范围。
-const gdFilterDefaults=(part=gdState.part,tab=gdState.tabs[part])=>({query:'',category:'all',priority:'all',department:'all',reportType:'all',sort:part==='coordination'?'listedAt':'priority',sortDirection:part==='coordination'?'desc':'asc',status:part==='tasks'?'working':'all'});
+const gdFilterDefaults=(part=gdState.part,tab=gdState.tabs[part])=>({query:'',category:'all',priority:'all',department:'all',projectType:'all',reportType:'all',sort:part==='coordination'?'listedAt':'priority',sortDirection:part==='coordination'?'desc':'asc',status:part==='tasks'?'working':'all'});
 function gdFilterKey(part=gdState.part,tab=gdState.tabs[part]){return part+'/'+tab}
 function gdTableFilters(part=gdState.part,tab=gdState.tabs[part]){
  const filter=gdState.filters[gdFilterKey(part,tab)]||=(gdFilterDefaults(part,tab));

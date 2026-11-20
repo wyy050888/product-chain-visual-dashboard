@@ -36,7 +36,7 @@ export async function lifecycleTargets(page){
  assert.equal(await page.locator('#lt-system-nav').getAttribute('aria-current'),'page');await verifyTargetHeader(page,'#lt-target-page','生命周期目标',['环境','清洁','厨电','个护&健康']);
  assert.equal(await page.locator('#lt-table tbody tr').count(),9);assert.equal(await page.locator('#lt-table input[type=number]').count(),36);
  assert.equal(await page.locator('#lt-save,#lt-table select,#lt-view,#lt-updated,#lt-dirty,#lt-return,#lt-discard,.lt-breadcrumb,#lt-system h1').count(),0);
- assert.deepEqual(await page.locator('#lt-table thead th').allTextContents(),['计划','Q1','Q2','Q3','Q4','年度目标']);
+ assert.deepEqual(await page.locator('#lt-table thead th').allTextContents(),['计划展开品牌','Q1','Q2','Q3','Q4','年度目标']);
  const input=page.locator('[data-lt-number="0:3"]');
  assert.equal(await input.inputValue(),'18');assert.equal(await page.locator('[data-lt-row-total="0"]').innerText(),'72');
  await input.fill('20');

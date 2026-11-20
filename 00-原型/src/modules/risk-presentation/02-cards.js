@@ -45,27 +45,28 @@ function rpCardEntry(k,r,i){
  const fields=rpFields(k,r,keys).filter(f=>f.key!=='causes'),primaryCount=k===0?4:3;
  return `<article class="rp-entry" style="--rp-primary-columns:${primaryCount}" data-rp-row="${k}:${r.id}" data-rp-kind="${k}"><div class="rp-entry-main"><header><span class="rank ${i<3?'top':''}">${String(i+1).padStart(2,'0')}</span>${rpIdentityMarkup(k,r,false,true)}</header><div class="rp-key-metrics">${fields.slice(0,primaryCount).map(f=>rpMetricMarkup(f,true)).join('')}</div></div><div class="rp-entry-bottom"><div class="rp-support-metrics">${fields.slice(primaryCount).map(f=>rpMetricMarkup(f)).join('')}</div></div></article>`;
 }
-function rpCard(k,rows,filter='',title=rpTitles[k]){
+function rpCard(k,rows){
  const platforms=rpQualityPlatformKinds.includes(k),max=platforms?rpPlatformCardProducts(rows):rows.slice(0,6);
  const columns=platforms?'':k===1?rpShopCardColumns():k===2?rpLossCardColumns():[3,4].includes(k)?rpStockCardColumns(k):'';
  const entries=max.map((r,i)=>platforms?rpPlatformProductCard(k,r,i,rows):rpCardEntry(k,r,i)).join('');
  const summary=k===0?rpQualitySummaryMarkup(rpCardRows(k,'all')):'';
  const date=[6,8].includes(k)?`<div class="qr-card-date">${rpBoardRangeMarkup(k)}</div>`:'';
- return `<div class="rhead"><h3><i class="riskbadge"></i>${title}</h3>${summary}${rpBoardControlSlot(k)}<button class="link ui-icon-label" data-risk="${k}"><span>查看全部 ${rows.length}</span><span class="ui-chevron-right" aria-hidden="true"></span></button></div>${filter?`<div class="qr-card-filter">${filter}</div>`:''}${date}${rpPlatformMenu(k,rows)}<div class="rp-items">${columns}${entries||'<div class="empty">当前筛选下暂无风险记录</div>'}</div>`;
+ return `<div class="rhead"><h3><i class="riskbadge"></i>${rpTitles[k]}</h3>${summary}${rpBoardControlSlot(k)}<button class="link ui-icon-label" data-risk="${k}"><span>查看全部 ${rows.length}</span><span class="ui-chevron-right" aria-hidden="true"></span></button></div>${date}${rpPlatformMenu(k,rows)}<div class="rp-items">${columns}${entries||'<div class="empty">当前筛选下暂无风险记录</div>'}</div>`;
 }
-qrCard=function(){return rpCard(0,rpCardRows(0),rpCardPlatformControl(0))};
-rfCard=function(k){const filter=rpCardPlatformControl(k);return rpCard(k,rpCardRows(k),filter)};
+qrCard=function(){return rpCard(0,rpCardRows(0))};
+rfCard=function(k){return rpCard(k,rpCardRows(k))};
 // 六榜卡片仅保留明确指定的问号；品质比率问号在完整榜单中展示。
 groupRiskCardMetricHelp=function(root){
  const cards=[...root.querySelectorAll('#riskrail .riskcard')];
  if(root.matches?.('#riskrail .riskcard'))cards.unshift(root);
  for(const card of cards){
-  card.querySelectorAll('.metric-help:not(.card-metric-help,.net-sales-help,.rp-stagnant-metric-help,.nsp-unsold-project-help)').forEach(help=>help.remove());
+  card.querySelectorAll('.metric-help:not(.card-metric-help,.net-sales-help,.rp-stagnant-metric-help,.nsp-unsold-project-help,[data-risk-field-help]>.metric-help)').forEach(help=>help.remove());
   const rule=rpRenderedCardRules.get(card),title=card.querySelector('.rhead h3');
   if(!rule||!title)continue;
   addMetricHelp(title,rule);
   const help=title.querySelector('.metric-help');
   help.classList.add('card-metric-help');
+  if(card.dataset.rpRuleEmphasis)help.dataset.metricEmphasis=card.dataset.rpRuleEmphasis;
   help.setAttribute('aria-label','查看'+metricLabelText(title)+'入榜条件与排序规则');
  }
 };

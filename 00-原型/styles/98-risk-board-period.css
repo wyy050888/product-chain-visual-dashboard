@@ -27,6 +27,14 @@
  .rp-board-period .period-picker{justify-content:flex-start}
 }
 
+/* 退货两榜的时间控件跟标题同排，业务筛选使用下一行的整宽。 */
+@media(min-width:701px){
+ #riskrail .rp-board-group-quality .rp-return-card>.rp-compact-header{grid-template-columns:minmax(0,1fr) max-content}
+ #riskrail .rp-return-card>.rp-compact-header>h3{grid-area:1/1}
+ #riskrail .rp-return-card>.rp-compact-header>.rp-quality-actions{grid-area:1/2}
+ #riskrail .rp-return-card>.rp-compact-header>.rp-platform-menu{grid-area:2/1/3/-1}
+}
+
 /* 对比日期强调区间，vs使用独立的浅灰标签。 */
 #riskrail .rp-quality-date:has(.rp-date-period){display:flex;align-items:center;flex-wrap:wrap;gap:8px}
 #riskrail .rp-quality-date .rp-date-period{color:#526881;font-weight:500;white-space:nowrap}
@@ -35,7 +43,7 @@
 /* 产品违规榜按标题、汇总、筛选、卡片排列，筛选继续复用原平台和日期控件。 */
 #riskrail .qr-card[data-rp-board="0"]>.rp-compact-header{grid-template-columns:minmax(0,1fr) max-content;row-gap:10px}
 #riskrail [data-rp-board="0"]>.rp-compact-header>h3{grid-area:1/1}
-#riskrail [data-rp-board="0"]>.rp-compact-header>.rp-board-period{grid-area:1/2;justify-self:end}
+#riskrail [data-rp-board="0"]>.rp-compact-header>.rp-board-period{grid-area:1/1/2/-1;justify-self:end}
 #riskrail [data-rp-board="0"]>.rp-compact-header>.rp-platform-menu{grid-area:3/1}
 #riskrail [data-rp-board="0"]>.rp-compact-header>.rp-quality-actions{grid-area:3/2}
 #riskrail .rp-quality-summary{grid-area:2/1/3/-1;display:grid;grid-template-columns:minmax(max-content,.27fr) minmax(0,1fr);align-items:start;column-gap:clamp(16px,2vw,36px);min-width:0;padding:6px 12px 8px;border:1px solid #cfdef0;border-radius:8px}

@@ -27,7 +27,7 @@ function rpOpenList(k,reset=false,scopeRows=null,restore=null){
  return rpWithListPeriod(()=>{
   const selected=[3,4].includes(k)?'all':quality?qrState.listPlatform:(rfState.listPlatforms[k]||rpCardPlatform(k));
   const platformTools=`${hasPlatformFilter?`<label>平台<select ${rpQualityPlatformKinds.includes(k)?'multiple data-drawer-platform-tabs':''} aria-label="榜单平台" id="${platformId}">${rpPlatformOptions(selected,k!==1)}</select></label>`:''}${quality?'<button class="btn small" id="qrb-list-config">配置总退货率目标</button>':k===1?'<div class="rp-shop-config-actions"><button class="btn small" id="rp-core-link-config">配置核心链接</button><button class="btn small" id="rp-shop-type-config">配置店铺类型</button></div>':''}`;
-  openModal(rpTitles[k]+(scopeRows?' · 分组SPU明细':' · 完整榜单'),`${platformTools?`<div class="qr-list-tools rp-platform-tools">${platformTools}</div>`:''}<div class="rp-list-tools">${rpFilterTools(k,filters,selected)}</div>${[0,1].includes(k)?rpQualityListChecks(filters):''}${scopeRows?'<div class="rp-group-context">当前分组的SPU明细</div>':''}<div id="${tableId}" class="rp-list-table${k===1?' rp-shop-table':k===2?' rp-loss-table':k===6?' rp-return-table':[3,4].includes(k)?' rp-stock-table':''}"></div><div id="rp-list-pagination"></div>`,false,riskRangeText());
+  riskRankingOpenModal(rpTitles[k]+(scopeRows?' · 分组SPU明细':' · 完整榜单'),`${platformTools?`<div class="qr-list-tools rp-platform-tools">${platformTools}</div>`:''}<div class="rp-list-tools">${rpFilterTools(k,filters,selected)}</div>${[0,1].includes(k)?rpQualityListChecks(filters):''}${scopeRows?'<div class="rp-group-context">当前分组的SPU明细</div>':''}<div id="${tableId}" class="rp-list-table${k===1?' rp-shop-table':k===2?' rp-loss-table':k===6?' rp-return-table':[3,4].includes(k)?' rp-stock-table':''}"></div><div id="rp-list-pagination"></div>`,false,riskRangeText());
   const host=$('#'+tableId);host.dataset.rpKind=k;
   const page=()=>quality?qrState.listPage:rfState.page,setPage=n=>{if(quality)qrState.listPage=n;else rfState.page=n};
   const sortState=()=>{const scope='spu';return sorts[scope]||(sorts[scope]=rpRankingDefaultSort(k))};
@@ -53,7 +53,17 @@ function rpOpenList(k,reset=false,scopeRows=null,restore=null){
     const wideIdentity=[0,1,2,6,8].includes(k)&&matchMedia('(min-width: 1101px)').matches;
     rankingTable.dataset.columnFill='';
     rankingTable.dataset.columnDefaults=JSON.stringify({0:64,1:wideIdentity?380:280});
-    rankingTable.dataset.columnMinimums=JSON.stringify(wideIdentity?{0:64,1:360}:{0:64});
+    const minimums=wideIdentity?{0:64,1:360}:{0:64};
+    if(k===1){
+     for(const {key} of sbWechatIndicators){
+      const button=rankingTable.tHead.querySelector('[data-rp-sort="'+key+'"]');
+      if(!button)continue;
+      minimums[button.closest('th').cellIndex]=168;
+      button.dataset.uiCellInline='';
+      button.removeAttribute('title');
+     }
+    }
+    rankingTable.dataset.columnMinimums=JSON.stringify(minimums);
    }
    rpApplySortAria(host,state);
    if(k===1){const header=host.querySelector('thead th:nth-child(3)');if(header){addMetricHelp(header,rpShopCoreRule);header.querySelector('.metric-help').dataset.rpCoreHelp='true'}}

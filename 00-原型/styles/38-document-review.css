@@ -31,7 +31,7 @@
 #sales .ms-data-table :is(th,td):last-child{padding-right:18px}
 #sales .ms-data-table tbody tr:last-child>*{border-bottom:0}
 #sales .ms-data-table td>strong{font-size:var(--type-primary-data)!important;font-weight:var(--weight-medium);font-variant-numeric:tabular-nums}
-#sales .ms-data-table td>small{display:block;margin-top:4px;color:#8a97a9;font-size:12px;line-height:18px}
+#sales .ms-data-table td>small,.pc-project-metrics :is(.ms-gsv-cell,.ms-margin-cell,.ms-scale-cell)>small{display:block;margin-top:4px;color:#8a97a9;font-size:12px;line-height:18px}
 #sales .ms-data-table td>small span{display:inline}
 #sales .ms-summary-table th:nth-child(1){width:19%}
 #sales .ms-summary-table th:nth-child(2){width:17%}
@@ -46,12 +46,13 @@
 #sales .ms-summary-table h3{font-size:14px;margin:0}
 #sales [data-ms-scope]{padding:6px 0;color:#3c506b;font-weight:500;white-space:normal;text-align:left}
 #sales [data-ms-scope][aria-pressed=true]{color:var(--blue);font-weight:600}
-#sales .ms-gsv-pair,#sales .ms-margin-pair,#sales .ms-scale-main{display:flex;align-items:center;justify-content:flex-end;gap:8px;min-width:0;min-height:22px;line-height:22px}
-#sales :is(.ms-gsv-pair,.ms-margin-pair,.ms-scale-main)>strong{font-size:var(--type-primary-data);font-weight:var(--weight-medium);font-variant-numeric:tabular-nums;white-space:nowrap}
-#sales :is(.ms-gsv-pair,.ms-margin-pair)>strong{color:var(--color-primary-data)}
-#sales .ms-value-divider{color:#97a8bf;font-weight:var(--weight-regular)}
-#sales .ms-scale-main .ms-progress{flex:0 1 112px;min-width:42px;max-width:112px;height:6px;margin:0}
-#sales .ms-scale-main .ms-time-marker{height:10px;top:-2px}
+:is(#sales,.pc-project-metrics) :is(.ms-gsv-pair,.ms-margin-pair,.ms-scale-main){display:flex;align-items:center;gap:8px;min-width:0;min-height:22px;line-height:22px}
+#sales :is(.ms-gsv-pair,.ms-margin-pair,.ms-scale-main){justify-content:flex-end}
+:is(#sales,.pc-project-metrics) :is(.ms-gsv-pair,.ms-margin-pair,.ms-scale-main)>strong{font-size:var(--type-primary-data);font-weight:var(--weight-medium);font-variant-numeric:tabular-nums;white-space:nowrap}
+:is(#sales,.pc-project-metrics) :is(.ms-gsv-pair,.ms-margin-pair)>strong{color:var(--color-primary-data)}
+:is(#sales,.pc-project-metrics) .ms-value-divider{color:#97a8bf;font-weight:var(--weight-regular)}
+:is(#sales,.pc-project-metrics) .ms-scale-main .ms-progress{flex:0 1 112px;min-width:42px;max-width:112px;height:6px;margin:0}
+:is(#sales,.pc-project-metrics) .ms-scale-main .ms-time-marker{height:10px;top:-2px}
 .ms-inline-deviation{display:inline-flex;align-items:center;gap:3px;padding:0;border:0;border-radius:0;background:transparent;font-size:12px;line-height:18px;font-weight:400}
 .ms-delta-label{color:#8a97a9}
 .ms-progress{position:relative;height:3px;background:#e9eef5;border-radius:3px;margin-top:7px}

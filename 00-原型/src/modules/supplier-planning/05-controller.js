@@ -1,9 +1,10 @@
-// 只接管总看板供应链模块；原采购工作台、项目详情和抽屉栈继续复用原入口
+// 总看板和产品中心共用供应链采购模块及其下钻入口。
 renderSuppliers=bindRender('suppliers',scpRender);
 function scpRepaint(scope=null){
  const host=$('#suppliergrid'),active=document.activeElement,query=active?.dataset.scpQuery,position=query?active.selectionStart:null;
  let focusSelector='';
  if(active?.hasAttribute('data-scp-project-type'))focusSelector=`[data-scp-project-type="${active.dataset.scpProjectType}"]`;
+ if(active?.dataset.scpChain)focusSelector=`[data-scp-chain="${active.dataset.scpChain}"]`;
  if(active?.dataset.scpSort)focusSelector=`[data-scp-sort="${active.dataset.scpSort}"][data-rp-sort="${active.dataset.rpSort}"]`;
  const period=active?.closest('[data-scp-period]');if(period){const field=active.hasAttribute('data-scp-quarter')?'[data-scp-quarter]':active.hasAttribute('data-scp-mode')?`[data-scp-mode="${active.dataset.scpMode}"]`:'[data-scp-year]';focusSelector=`[data-scp-period="${period.dataset.scpPeriod}"] ${field}`}
  const scrollSelector='.scp-card-scroll,.scp-material-scroll';
@@ -21,6 +22,13 @@ $('#suppliergrid').addEventListener('input',event=>{
  scpState[key==='project'?'projectQuery':'categoryQuery']=event.target.value;scpRepaint(key==='project'?'projects':'categories');
 });
 $('#suppliergrid').addEventListener('change',event=>{
+ const card=event.target.dataset.scpChain;
+ if(card){
+  scpState[`${card}Chain`]=event.target.value;
+  scpRepaint(card==='project'?'projects':'categories');
+  $(`#suppliergrid .scp-${card}-card .scp-card-scroll`).scrollTop=0;
+  return;
+ }
  const container=event.target.closest('[data-scp-period]');if(!container||!event.target.matches('[data-scp-year],[data-scp-quarter]'))return;
  const key=container.dataset.scpPeriod;
  if(key==='resource')scpState.resourceYear=+event.target.value;

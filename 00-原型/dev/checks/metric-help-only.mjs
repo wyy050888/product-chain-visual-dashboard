@@ -27,15 +27,25 @@ export async function verifyMetricHelpOnly(page){
  const stockTooltipClass=await tip.getAttribute('class');
  await page.keyboard.press('Escape');
  for(const [key,text] of [
-  ['delivery','新机交付及时率 =（考核期内的已交付量+当前最新库存数（人工导入））/ 考核期内的采购总量'],
-  ['refurb','翻新闭环率 = 到工厂之后30天完成翻新的采购单量 / 总采购单量'],
+  ['delivery','按SPU统计：新机交付及时率 = （考核期内的已交付量+考核期内最新良品库存数（人工导入））/ 排产表考核期的计划产量'],
+  ['refurb','翻新闭环率＝采购日起33天内完成交付的采购单SKU条数÷考核期内下单的采购单SKU总条数。'],
   ['stockout','非C级品、非清仓品、非下市品，近15天日均净销＞0 且 我司可售库存为0的次数']
  ]){
   const help=page.locator('#inventory [data-ip-overview-help="'+key+'"]');
   await reveal(help);
   assert.equal(await tip.getAttribute('class'),stockTooltipClass);
   assert.equal(await tip.innerText(),text);
-  if(key==='delivery')assert.equal(await tip.locator('strong').innerText(),'（人工导入）');
+  if(key==='delivery'){
+   assert.equal(await tip.locator('strong').count(),0,'人工导入沿用公式的常规字重');
+   const offset=await help.evaluate(icon=>{
+    const label=document.createRange();
+    label.selectNodeContents(icon.parentElement);
+    label.setEndBefore(icon);
+    const center=rect=>rect.top+rect.height/2;
+    return Math.abs(center(label.getBoundingClientRect())-center(icon.getBoundingClientRect()));
+   });
+   assert(offset<1.5,'新机交付及时率与问号垂直居中');
+  }
   await page.keyboard.press('Escape');await help.focus();await tip.waitFor({state:'visible'});await page.keyboard.press('Escape');
  }
  // 旧指标即使遗留data-metric-rule，也不能绕过问号限制触发公共浮层。

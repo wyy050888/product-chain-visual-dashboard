@@ -15,7 +15,7 @@ export const warningTuple=r=>[-r.coverage15,-r.staleValueCents,r.dailyNet15].map
 export const agedTuple=r=>[-r.staleValueCents,-r.staleMaxAgeDays,-r.staleUnits/r.totalUnits].map(v=>Number.isFinite(v)?v:Infinity);
 
 export function verifyStockRankingModel(){
- const ctx=businessRuleContext({window:{},pfIdentity:r=>r,ipSeasonLedger:rows=>rows.filter(r=>r.attribute==='夏季品')});
+ const ctx=businessRuleContext({window:{},pfCategories:['环境','清洁','厨电','个护&健康'],pfIdentity:r=>r,ipSeasonLedger:rows=>rows.filter(r=>r.attribute==='夏季品')});
  for(const file of ['risk-presentation/01-stock-skus.js','risk-presentation/01-shortage.js','risk-presentation/01-stagnant.js','inventory-period/02-stagnant-top-model.js'])vm.runInContext(fs.readFileSync(new URL('../../src/modules/'+file,import.meta.url),'utf8'),ctx);
  const short=(sellable,total,patch={})=>({skuCode:'SKU',warehouse:sellable*10,transit:0,factoryAvailable:0,dailyNet15:10,totalUnits:total*10,totalCoverage15:total,goodsValueCents:100,...patch});
  for(const [r,hit] of [[short(15,100),true],[short(15.00001,45),true],[short(16,45.00001),false],[short(0,0),true],[short(16,100),false],[short(10,10,{dailyNet15:0}),false],[short(10,10,{dailyNet15:-1}),false],[short(10,10,{state:'下架'}),false],[short(10,10,{clearance:true}),false],[short(10,10,{salesState:'清仓品'}),false],[short(10,null,{warehouse:null}),false],[short(10,45,{warehouse:null}),true]])assert.equal(ctx.rpShortageEligible(r),hit,JSON.stringify(r));

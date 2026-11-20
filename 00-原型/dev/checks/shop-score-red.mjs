@@ -10,6 +10,7 @@ function verifyShopScoreRed(){
  ctx.klcRows=()=>catalog.map(row=>({...row,monitorMonth:'2026-10'}));
  ctx.rpShopScoreTone=(platform,score,shop)=>'rp-quality-'+ctx.brcBandTone('score.'+platform,score,shop);
  const scoring=read('shop-scoring/01.js');
+ vm.runInContext(read('shop-scoring/00-score-history.js'),ctx);
  vm.runInContext('const sbRuleConfig={pddConfirmed:true};'+scoring.slice(scoring.indexOf('function sbScoreRisk'),scoring.indexOf('function sbAllShops')),ctx);
  const confirmed=read('product-filters/03-confirmed-risk.js');
  vm.runInContext(confirmed.slice(confirmed.indexOf('const rpDecideBeforeConfirmed'),confirmed.indexOf('sbReturnRisk=function')),ctx);
@@ -26,14 +27,28 @@ function verifyShopScoreRed(){
  catalog.splice(0,catalog.length,link(2),link(2,1));assert.equal(ratingHit(shop),false,'不同链接的异常项数不能累加');
  catalog.length=0;assert.equal(ratingHit(shop),false,'未配置链接不根据拼多多评分猜测');
  for(const [score,expected] of [[4.5,true],[4.7,false],[4.9,false]])assert.equal(ratingHit({...shop,channel:'抖音',score}),expected,'仅红灯与处罚共同触发');
- for(const [score,tone] of [[null,null],[4.4,'red'],[4.41,'yellow'],[4.69,'yellow'],[4.7,null]]){
-  const video={...shop,channel:'视频号',score};
-  assert.equal(ctx.sbScoreRisk(video),tone,'视频号评分按自身规则判灯');
-  assert.equal(ratingHit(video),tone==='red','红灯与两次处罚同时满足才触发评分入榜');
-  assert.equal(ratingHit({...video,qualityPenaltyCount:1}),false,'一次处罚未达到入榜门槛');
-  assert.equal(Math.sign(ctx.sbShopScoreCompare(video,{...shop,channel:'抖音',score:5})),score===null?1:-1,'按分数排序，缺分靠后');
-  assert.equal(ctx.sbDecide({...video,qualityFine:6000}).color,'red','视频号罚款条件仍有效');
+ const video={...shop,channel:'视频号',qualityPenaltyCount:0,score:1,
+  qualityReturnRate30:.46,qualityReturnIndustry30:.48,
+  negativeReviewRate30:7.25,negativeReviewIndustry30:9.88,disputeRate30:.13,disputeIndustry30:.51};
+ for(const [key,target] of [['qualityReturnRate30','qualityReturnIndustry30'],['negativeReviewRate30','negativeReviewIndustry30'],['disputeRate30','disputeIndustry30']]){
+  for(const [value,tone] of [[null,'gray'],[0,'green'],[video[target]-.001,'green'],[video[target],'yellow'],[video[target]+.001,'red']]){
+   const record={...video,[key]:value};
+   assert.equal(ctx.sbWechatFacts(record).find(metric=>metric.key===key).tone,tone,'逐项按原始精度判灯');
+   assert.equal(ctx.sbDecide(record).color,tone==='red'?'red':'green','任一指标红灯独立入榜，黄灯不单独入榜');
+   assert.equal(ratingHit(record),false,'视频号不套用店铺分与处罚共同条件');
+  }
  }
+ const history={...video,governanceHistory:[
+  {date:'2026-10-01',qualityReturnRate30:.4,qualityReturnIndustry30:.48},
+  {date:'2026-10-20',qualityReturnRate30:.6,qualityReturnIndustry30:.5},
+  {date:'2026-11-01',qualityReturnRate30:.2,qualityReturnIndustry30:.3}
+ ]};
+ assert.equal(ctx.sbShopScoreAt(history,'2026-10-28').qualityReturnRate30,.6,'取结束日以前最新记录');
+ assert.equal(ctx.sbShopScoreAt(history,'2026-10-28').qualityReturnIndustry30,.5,'行业值与实际值取同条记录');
+ assert.equal(ctx.sbShopScoreAt(history,'2026-09-30').qualityReturnRate30,null,'无历史记录显示缺失');
+ assert.equal(ctx.sbShopScoreAt(history,'2026-10-28').score,null,'旧分值停止使用');
+ assert.equal(ctx.sbDecide({...video,qualityFine:6000}).color,'red');
+ assert.equal(ctx.sbDecide({...video,frozenAmount:1}).color,'red');
  catalog.push(link(0));
  assert.equal(ctx.sbDecide({...shop,qualityFine:6000}).color,'red','独立罚款条件保持');
  assert.equal(ctx.sbDecide({...shop,frozenAmount:1}).color,'red','独立冻结条件保持');
@@ -44,15 +59,19 @@ export async function shopScoreRed(page){
  await help.scrollIntoViewIfNeeded();await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
  await help.focus();const pop=page.locator('#metric-tooltip');await pop.waitFor({state:'visible'});
  const text=await pop.innerText();assert.match(text,/店铺评分红灯，且品质违规处罚/);assert.match(text,/异常项数≥3项，等同于店铺评分红灯/);assert(!text.includes('店铺评分异常'));
- assert.match(text,/抖音、快手、视频号、天猫、京东/);
- assert.deepEqual(await pop.locator('.rp-shop-score-rules tbody th').allTextContents(),['抖音','快手','视频号','天猫','京东']);
- const scoreRules=pop.locator('.rp-shop-score-rules tbody tr');
- assert.deepEqual(await scoreRules.filter({hasText:'视频号'}).locator('td').allTextContents(),await scoreRules.filter({hasText:'快手'}).locator('td').allTextContents());
+ assert.match(text,/抖音、快手、天猫、京东/);
+ assert.match(text,/视频号.*任一项实际值高于对应行业平均水平/);
+ assert.deepEqual(await pop.locator('.rp-shop-score-rules tbody th').allTextContents(),['抖音','快手','天猫','京东']);
  await page.keyboard.press('Escape');
  const rows=await page.evaluate(()=>shopRiskAudit());
  for(const shop of rows){
   const hit=shop.signals.some(signal=>signal.label.startsWith('店铺评分红灯'));
-  if(shop.channel==='视频号')assert.equal(hit,Number.isFinite(shop.score)&&shop.score<=4.4&&shop.qualityPenaltyCount>=2);
+  if(shop.channel==='视频号'){
+   assert.equal(hit,false);
+   for(const [key,target,label] of [['qualityReturnRate30','qualityReturnIndustry30','近30天品质退货率'],['negativeReviewRate30','negativeReviewIndustry30','近30天差评率'],['disputeRate30','disputeIndustry30','近30天纠纷发起率']]){
+    assert.equal(shop.signals.some(signal=>signal.label===label+'高于行业平均水平'),Number.isFinite(shop[key])&&Number.isFinite(shop[target])&&shop[key]>shop[target]);
+   }
+  }
   if(shop.channel==='拼多多'){
    const links=await page.evaluate(id=>pddShopLinksSnapshot(id).all,shop.id);
    assert.equal(hit,links.some(link=>link.assessment==='red')&&shop.qualityPenaltyCount>=2);

@@ -25,9 +25,12 @@ export async function tooltipHover(page){
  await page.locator('#dialogbody button').filter({hasText:'查看详情'}).first().click();await page.locator('.up-detail').waitFor();await page.locator('[data-drawer-tab="operating"]').click();
  await stayOnTooltip(page,page.locator('.up-detail [data-up-trend-point]').first(),page.locator('#up-sales-tooltip'),'产品经营趋势');
  await page.locator('[data-drawer-tab="quality"]').click();await verifyDetailContact(page);await stayOnTooltip(page,page.locator('.up-detail [data-up-return-point]').first(),page.locator('#up-sales-tooltip'),'产品退货趋势');
- await page.locator('.up-detail .up-contact-bar span').first().hover();assert.equal(await page.locator('#up-contact-tooltip').count(),0,'进线构成不弹额外浮层');for(let depth=0;depth<3&&await page.locator('#overlay').isVisible();depth++)await page.locator('#close').click();await page.locator('#overlay').waitFor({state:'hidden'});
+ for(let depth=0;depth<3&&await page.locator('#overlay').isVisible();depth++)await page.locator('#close').click();await page.locator('#overlay').waitFor({state:'hidden'});
  await page.locator('a[href="#matrix"]').click();const filters=page.locator('#matrix [data-kpm-filter]');for(const select of await filters.all())if(await select.getAttribute('multiple')!==null)await select.evaluate(el=>{for(const option of el.options)option.selected=option.value==='all';el.dispatchEvent(new Event('change',{bubbles:true}))});
- await stayOnTooltip(page,page.locator('#matrix circle[data-kpm-point]').first(),page.locator('#kpm-point-tooltip'),'关键产品圆点');
- await page.getByRole('button',{name:'配置全局规则',exact:true}).click();await page.locator('[data-brc-new-tab="success"]').click();await stayOnTooltip(page,page.locator('#brc-new-panel .metric-help').first(),page.locator('#metric-tooltip'),'规则配置说明');
+ await page.locator('#matrix [data-kpm-expand]').click();
+ const matrixDialog=page.getByRole('dialog',{name:'产品经营矩阵放大'});
+ await stayOnTooltip(page,matrixDialog.locator('circle[data-kpm-point]').first(),page.locator('#kpm-point-tooltip'),'关键产品圆点');
+ await matrixDialog.locator('[data-kpm-expand]').click();
+ await page.getByRole('button',{name:'配置全局规则',exact:true}).click();await page.locator('[data-brc-new-tab="delivery"]').click();await stayOnTooltip(page,page.locator('#brc-new-panel .metric-help').first(),page.locator('#metric-tooltip'),'规则配置说明');
  console.log('通过：指标说明仅问号触发，图表数据提示鼠标移入、停留、内部点击/滚动、移出和键盘关闭');
 }

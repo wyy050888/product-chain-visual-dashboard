@@ -13,7 +13,7 @@ document.addEventListener('click',event=>{
   requestAnimationFrame(()=>{if(gdState.part===part&&gdState.tabs[part]===key)$('[data-gd-tab="'+key+'"]')?.focus({preventScroll:true})});return;
  }
  const departments=gdState.part==='tasks'?[...new Set([...upTodoDepartments,...gdLedgerValues('department')])]:upTodoDepartments;
- for(const [attribute,field,allowed] of [['category','category',['all',...(gdState.part==='tasks'?gdLedgerChains:pfCategories)]],['department','department',['all',...departments]],['priority','priority',['all',...Object.keys(upTodoPriorities)]]]){
+ for(const [attribute,field,allowed] of [['category','category',['all',...(gdState.part==='tasks'?gdLedgerChains:pfCategories)]],['department','department',['all',...departments]],['priority','priority',['all',...Object.keys(upTodoPriorities)]],['project-type','projectType',['all',...gdProjectTypes]]]){
   const button=target.closest('[data-gd-'+attribute+']');if(!button)continue;const key=button.getAttribute('data-gd-'+attribute);if(!allowed.includes(key))return;
   gdTableFilters()[field]=key;gdRefreshFilters();$('[data-gd-'+attribute+'="'+key+'"]')?.focus({preventScroll:true});return;
  }

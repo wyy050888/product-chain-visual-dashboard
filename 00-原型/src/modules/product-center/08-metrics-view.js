@@ -1,11 +1,161 @@
-function pcMetricTable(label,headers,rows,summary=null){
- const cells=row=>`<th scope="row">${esc(row[0])}</th>${row.slice(1).map(value=>`<td>${value===null?'<span class="pc-data-pending">—</span>':esc(value)}</td>`).join('')}`;
+function pcMetricHeading([text,description]){return `<th scope="col">${esc(text)}${description?ppHelp(text,description):''}</th>`}
+function pcMetricTable(label,headers,rows,summary=null,renderHeading=pcMetricHeading){
+ const cell=value=>`<td>${value===null?'<span class="pc-data-pending">—</span>':esc(value)}</td>`;
+ const renderRow=([name,,...values],chainCell)=>`<tr><th scope="row">${esc(name)}</th>${chainCell}${values.map(cell).join('')}</tr>`;
+ const groups=pcMetricRowsByChain(rows,row=>row[1]);
+ const body=[...groups].map(([chain,people])=>{
+  const chainCell=`<th scope="rowgroup" rowspan="${people.length}">${esc(chain)}</th>`;
+  return `<tbody data-pc-metric-chain="${esc(chain)}">${people.map((row,index)=>renderRow(row,index===0?chainCell:'')).join('')}</tbody>`;
+ }).join('');
  return `<div class="pc-data-scroll" tabindex="0" role="region" aria-label="${esc(label)}"><table class="pc-data-table" aria-label="${esc(label)}">
-  <thead><tr>${headers.map(([text,source])=>`<th scope="col">${esc(text)}${source?`<small>${esc(source)}</small>`:''}</th>`).join('')}</tr></thead>
-  ${summary?`<tbody class="pc-data-total"><tr>${cells(summary)}</tr></tbody>`:''}
-  <tbody>${rows.length?rows.map(row=>`<tr>${cells(row)}</tr>`).join(''):`<tr><td colspan="${headers.length}" class="empty">暂无匹配记录</td></tr>`}</tbody></table></div>`;
+  <thead><tr>${headers.map(renderHeading).join('')}</tr></thead>
+  ${summary?`<tbody class="pc-data-total">${renderRow(summary,cell(summary[1]))}</tbody>`:''}
+  ${body||`<tbody><tr><td colspan="${headers.length}" class="empty">暂无匹配记录</td></tr></tbody>`}</table></div>`;
 }
-function pcMetricText(value){return Array.isArray(value)?value.map(n=>fmt(n)).join(' / '):Number.isFinite(value)?fmt(value):null}
+const pcProjectSlash='<span class="ms-value-divider">/</span>';
+function pcProjectMetricValue(value){
+ return Array.isArray(value)?value.map(number=>esc(fmt(number))).join(` ${pcProjectSlash} `):esc(Number.isFinite(value)?fmt(value):null);
+}
+function pcProjectManagementTable({rows,summary,salesPeriod,quarter,gradeRange,riskPeriod}){
+ const labelMarkup=label=>esc(label).replaceAll('/',pcProjectSlash);
+ const date=value=>value.slice(2).replaceAll('-','/'),riskDates=`${date(riskPeriod.start)}-${date(riskPeriod.end)}`;
+ const riskHelp={
+  lights:`统计截至 ${date(riskPeriod.end).slice(3)} 23:59:59 仍在进行的红灯项目数。黄灯、绿灯项目同理。`,
+  newLights:`统计 ${riskDates} 新增的红灯/黄灯风险数`,
+  closedLights:`统计 ${riskDates} 闭环的红灯/黄灯风险数`
+ };
+ const columns=pcMetricHeading(['人员'])+pcMetricHeading(['链群'])+pcProjectMetrics.map(([key,label,description])=>{
+  return riskHelp[key]?`<th scope="col" class="pc-project-risk-head"><span class="pc-project-head-label"><span>${labelMarkup(label)}</span>${ppHelp(label,riskHelp[key])}</span></th>`:pcMetricHeading([label,description]);
+ }).join('');
+ const salesColumns=msSalesMetricHeaders(salesPeriod).map((label,index)=>`<th scope="col" class="pc-project-sales-head${index===2?' pc-project-scale-head':''}">${labelMarkup(label)}</th>`).join('');
+ const help=ppHelp('SABC数量',`统计日期：${date(gradeRange.start)}-${date(gradeRange.end)}`);
+ const renderSharedCells=({sales,success,deliveryRate,grades},span)=>`<td class="pc-project-success" rowspan="${span}"${success.example?' title="含示例考核数据"':''}><strong>${msPercent(success.rate)}</strong></td>
+  <td class="pc-project-delivery" rowspan="${span}">${deliveryRate===null?'<span class="pc-data-pending">—</span>':`<strong title="大货交付样例数据">${msPercent(deliveryRate)}</strong>`}</td>
+  <td rowspan="${span}"><span class="pc-project-grades">${kpmGradeOrder.map((level,index)=>`<span class="kpm-grade ${level}">${level} <b${grades[index]===0?' class="pc-project-grade-zero"':''}>${esc(fmt(grades[index]))}</b></span>`).join(' ')}</span></td>
+  ${msGsvCell(sales,span)}${msMarginCell(sales,span)}${msScaleCell(sales,span)}`;
+ const renderRow=(firstCells,values,shared,span=1)=>`<tr>${firstCells}
+  ${pcProjectMetrics.map(([key])=>{
+   const metric=`data-pc-project-metric="${key}"`;
+   if(pcChainProjectMetrics.has(key))return shared?`<td ${metric} rowspan="${span}">${pcProjectMetricValue(shared.values[key])}</td>`:'';
+   const value=values[key];
+   if(value==null)return `<td ${metric} class="pc-data-pending">—</td>`;
+   if(!riskHelp[key])return `<td ${metric}>${pcProjectMetricValue(value)}</td>`;
+   const [red,yellow]=value;
+   return `<td ${metric}><span class="red">${esc(fmt(red))}</span> ${pcProjectSlash} <span class="orange">${esc(fmt(yellow))}</span></td>`;
+  }).join('')}${shared?renderSharedCells(shared,span):''}</tr>`;
+ const total=renderRow(`<th scope="row">汇总</th><td>${esc(summary.name)}</td>`,summary.values,summary);
+ const body=rows.map(row=>{
+  const span=Math.max(1,row.people.length),chainCell=`<th scope="rowgroup" rowspan="${span}">${esc(row.name)}</th>`;
+  const details=row.people.map(({name,values},index)=>{
+   const person=`<th scope="row">${esc(name)}</th>`;
+   return renderRow(person+(index===0?chainCell:''),values,index===0?row:null,span);
+  }).join('');
+  return `<tbody data-pc-project-chain="${esc(row.name)}">${details||renderRow('<td class="pc-data-pending">—</td>'+chainCell,{},row)}</tbody>`;
+ }).join('');
+ return `<div class="pc-data-scroll" tabindex="0" role="region" aria-label="项目管理指标"><table class="pc-data-table pc-project-metrics" aria-label="项目管理指标">
+  <thead><tr>${columns}<th scope="col" class="pc-project-success-head">${esc(quarter)}新品成功率</th><th scope="col" class="pc-project-delivery-head" data-preserve-terms>${esc(quarter)} 新品上线及时率</th><th scope="col" class="pc-project-grade-head"><span class="pc-project-head-label">SABC数量 ${help}</span></th>${salesColumns}</tr></thead>
+  <tbody class="pc-data-total">${total}</tbody>${body}</table></div>`;
+}
+function pcPersonnelPage(rows,page,key){
+ const size=listPageSize(key,10);
+ const current=Math.min(page,Math.max(1,Math.ceil(rows.length/size)));
+ const start=(current-1)*size;
+ return {current,rows:rows.slice(start,start+size),pager:listPager(rows.length,current,size)};
+}
+function pcBindPersonnelPager(host,key,onPage){
+ bindListPager(host,page=>{
+  onPage(page);
+  pcScrollToModule('management');
+  host.querySelector('.pc-data-scroll').focus({preventScroll:true});
+ },key);
+}
+const pcMetricPersonWidthObserver=new ResizeObserver(([{target,borderBoxSize}])=>{
+ const width=borderBoxSize[0].inlineSize,style=target.closest('table').style;
+ if(width&&style.getPropertyValue('--pc-metric-person-width')!==width+'px')style.setProperty('--pc-metric-person-width',width+'px');
+});
+function pcObserveMetricPersonWidth(table){
+ pcMetricPersonWidthObserver.disconnect();
+ pcMetricPersonWidthObserver.observe(table.tHead.rows[0].cells[0],{box:'border-box'});
+}
+function pcMeasureProjectColumnMinimums(table){
+ const minimums=[...table.tHead.rows[0].cells].map(cell=>parseFloat(getComputedStyle(cell).getPropertyValue('--pc-project-column-min')));
+ return ()=>{table.dataset.columnMinimums=JSON.stringify(minimums)};
+}
+function pcBindMetricRowHover(table){
+ let activeRow=null;
+ function clear(){
+  activeRow?.classList.remove('pc-metric-row-hover');
+  activeRow=null;
+ }
+ function highlight(event){
+  if(event.pointerType==='touch')return;
+  const cell=event.target.closest('td,th'),body=cell?.closest('tbody');
+  if(!body||body.classList.contains('pc-data-total')||cell.colSpan>1){clear();return}
+  // 合并单元格在 DOM 中属于首行，按指针实际位置确认人员行。
+  const row=cell.rowSpan===1?cell.parentElement:[...body.rows].find(candidate=>{
+   const {top,bottom}=candidate.getBoundingClientRect();
+   return event.clientY>=top&&event.clientY<bottom;
+  });
+  if(row===activeRow)return;
+  clear();
+  if(!row)return;
+  row.classList.add('pc-metric-row-hover');
+  activeRow=row;
+ }
+ table.addEventListener('pointerover',highlight);
+ table.addEventListener('pointermove',highlight);
+ table.addEventListener('pointerleave',clear);
+}
+function pcPaintMetricGroup(group,key,rows,renderTable){
+ const host=group.querySelector('.pc-people-content');
+ const pagerKey=key==='projects'?'pc-people-metrics-pager':`pc-people-${key}-pager`;
+ const page=pcPersonnelPage(rows,pcPeopleState.pages[key]??1,pagerKey);
+ pcPeopleState.pages[key]=page.current;
+ host.innerHTML=renderTable(page.rows)+page.pager;
+ const table=host.querySelector('.pc-data-table');
+ if(key==='projects')dashboardQueueLayout(table,pcMeasureProjectColumnMinimums);
+ if(group.classList.contains('pc-metric-active'))pcObserveMetricPersonWidth(table);
+ pcBindMetricRowHover(table);
+ bindListPager(host,next=>{
+  pcPeopleState.pages[key]=next;
+  pcPaintMetricGroup(group,key,rows,renderTable);
+  pcScrollToModule('management');
+  host.querySelector('.pc-data-scroll').focus({preventScroll:true});
+ },pagerKey);
+}
+function pcPaintProjectMetrics(group){
+ const scrollLeft=group.querySelector('.pc-data-scroll')?.scrollLeft??0;
+ const project=pcProjectDashboard();
+ pcPaintMetricGroup(group,'projects',project.rows,rows=>pcProjectManagementTable({...project,rows}));
+ if(scrollLeft)group.querySelector('.pc-data-scroll').scrollLeft=scrollLeft;
+}
+function pcPaintSampleMetrics(group,[key,label,metrics],{rows,summary}){
+ const columns=[['name','人员'],['chain','链群'],...metrics];
+ const {defaultSort}=pcPersonnelSamples[key];
+ const sort=pcPeopleState.sorts[key]??={key:'',direction:'',...defaultSort};
+ const display=row=>columns.map(([field,,,format])=>{
+  const value=row[field];
+  if(!Number.isFinite(value))return value;
+  return format==='percent'?fmt(value,1)+'%':fmt(value);
+ });
+ const heading=([field,text,description])=>{
+  const direction=sort.key!==field?'none':sort.direction==='desc'?'descending':'ascending';
+  const button=rpSortHeader(field,text,sort,undefined,defaultSort).replaceAll('恢复榜单排序','恢复默认排序');
+  return `<th scope="col" aria-sort="${direction}">${button}${description?ppHelp(text,description):''}</th>`;
+ };
+ const scrollLeft=group.querySelector('.pc-data-scroll')?.scrollLeft??0;
+ pcPaintMetricGroup(group,key,pcOrderPersonnelMetricRows(rows,sort),pageRows=>
+  pcMetricTable(label+'人员指标',columns,pageRows.map(display),display(summary),heading));
+ if(scrollLeft)group.querySelector('.pc-data-scroll').scrollLeft=scrollLeft;
+ group.querySelector('.pc-people-content').onclick=event=>{
+  const button=event.target.closest('[data-rp-sort]');if(!button)return;
+  const field=button.dataset.rpSort;
+  rpSortCycle(sort,field,defaultSort);
+  pcPeopleState.pages[key]=1;
+  pcPaintSampleMetrics(group,[key,label,metrics],{rows,summary});
+  group.querySelector(`[data-rp-sort="${field}"]`).focus({preventScroll:true});
+ };
+}
 function pcMountPeoplePeriod(host){
  function paint(focus){
   const period=pcPeoplePeriod(),weekly=period.mode==='week';
@@ -16,12 +166,13 @@ function pcMountPeoplePeriod(host){
   if(weekly){
    controls.querySelectorAll('select').forEach(select=>select.remove());
    const {start,end}=pcPeopleRange();
-   controls.insertAdjacentHTML('beforeend',`<button type="button" class="risk-date-trigger" data-pc-people-week aria-label="选择人员指标所在周" aria-haspopup="dialog" aria-expanded="false" aria-controls="pc-people-week-popover"><span>${start} — ${end}</span><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="4" width="14" height="13" rx="2"/><path d="M6 2v4m8-4v4M3 8h14"/></svg></button>`);
+   controls.insertAdjacentHTML('beforeend',dateRangeWeekTrigger('pc-people-week-popover','选择人员指标所在周','data-pc-people-week',start+' — '+end));
   }
   if(focus)host.querySelector(focus)?.focus({preventScroll:true});
  }
  function refresh(focus){
-  paint(focus);pcPaintPersonnel(host.closest('.pc-personnel'),{refreshChain:true});pcQueueNavigation();
+  pcPeopleState.pages={};
+  paint(focus);pcPaintPersonnel(host.closest('.pc-personnel'));pcQueueNavigation();
  }
  host.addEventListener('click',event=>{
   const mode=event.target.closest('[data-pc-people-mode]')?.dataset.pcPeopleMode;
@@ -29,10 +180,9 @@ function pcMountPeoplePeriod(host){
    pcPeopleState.mode=mode;refresh(`[data-pc-people-mode="${mode}"]`);return;
   }
   const trigger=event.target.closest('[data-pc-people-week]');if(!trigger)return;
-  if(trigger.getAttribute('aria-expanded')==='true'){dateRangeActive?.close();return}
-  openDateRangePicker(trigger,pcPeopleRange(),date=>{
-   pcPeopleState.date=date;refresh('[data-pc-people-week]');
-  },{id:'pc-people-week-popover',label:'选择人员指标所在周',single:true,presets:[],min:riskDateMin,max:dashboardSyncDate});
+  openDateWeekPicker(trigger,pcPeopleRange(),(start,end)=>{
+   pcPeopleState.date=dateRangeClamp(end,riskDateMin,dashboardSyncDate());refresh('[data-pc-people-week]');
+  },{min:riskDateMin,max:dashboardSyncDate});
  });
  host.addEventListener('change',event=>{
   const field=event.target,period=pcPeoplePeriod();
@@ -46,43 +196,85 @@ function pcMountPeoplePeriod(host){
 }
 function pcPersonnelSection(){
  const section=document.createElement('section');section.id='dp-management';section.className='section pc-personnel';
- section.innerHTML=`<div class="sectionhead"><div class="titlegroup"><h2>人员管理</h2></div><div class="module-header-time pc-people-period"></div></div>
-  <div class="pc-panel">
-   <div class="pc-people-toolbar"><div class="tabs" role="group" aria-label="人员指标分组">${pcMetricGroups.map(([key,label])=>`<button type="button" data-pc-people-group="${key}" aria-pressed="${key===pcPeopleState.group}" class="${key===pcPeopleState.group?'active':''}">${label}</button>`).join('')}</div>
-   <label class="ui-search-field"><input type="search" id="pc-people-search" aria-label="搜索人员" placeholder="搜索人员" value="${esc(pcPeopleState.name)}"></label></div>
-   <div class="pc-people-content"></div>
+ section.innerHTML=`<div class="sectionhead"><div class="titlegroup"><h2>人员管理</h2>
+  <div class="pc-people-view-tools">
+   <div class="rp-group-navigation pc-people-tabs" role="tablist" aria-label="人员管理">
+    <button type="button" role="tab" id="pc-people-tab-ratings" data-pc-people-view="ratings" aria-controls="pc-people-ratings"><span class="ai-logo ai-logo--icon" aria-hidden="true"></span>人员评分</button>
+    <button type="button" role="tab" id="pc-people-tab-metrics" data-pc-people-view="metrics" aria-controls="pc-people-metrics">关键指标大盘</button>
+   </div>
+  </div></div>
+  <div class="module-header-time pc-rating-period">${dateRangeWeekTrigger('pc-rating-week-popover','选择人员评分所在周','data-pc-rating-week')}</div>
+  <div class="module-header-time pc-people-period"></div></div>
+  <div id="pc-people-ratings" class="pc-people-ratings" role="tabpanel" aria-labelledby="pc-people-tab-ratings"></div>
+  <div id="pc-people-metrics" role="tabpanel" aria-labelledby="pc-people-tab-metrics">
+   <div class="pc-people-toolbar">
+    <div class="rp-group-navigation" role="tablist" aria-label="人员指标分组">${pcMetricGroups.map(([key,label])=>
+     `<button type="button" role="tab" id="pc-metrics-tab-${key}" data-pc-people-group="${key}" aria-controls="pc-metrics-${key}">${esc(label)}</button>`).join('')}</div>
+   </div>
+   ${pcMetricGroups.map(([key])=>`<section id="pc-metrics-${key}" role="tabpanel" aria-labelledby="pc-metrics-tab-${key}">
+    <div class="pc-people-content"></div>
+   </section>`).join('')}
   </div>`;
  pcMountPeoplePeriod(section.querySelector('.pc-people-period'));return section;
 }
-function pcPaintPersonnel(section=$('#dp-management'),{refreshChain=false}={}){
+function pcSetPersonnelTab(button,active){
+ const selected=String(active);
+ if(button.getAttribute('aria-selected')===selected)return;
+ button.setAttribute('aria-selected',selected);button.classList.toggle('is-current',active);button.tabIndex=active?0:-1;
+}
+const pcMetricGroupInputs=new WeakMap();
+function pcPaintPeopleMetrics(panel){
+ const activeKey=pcPeopleState.group,chain=pcChain();
+ for(const button of panel.querySelectorAll('[data-pc-people-group]')){
+  const active=button.dataset.pcPeopleGroup===activeKey;
+  pcSetPersonnelTab(button,active);
+  panel.querySelector('#'+button.getAttribute('aria-controls')).classList.toggle('pc-metric-active',active);
+ }
+ const commonInputs=[pcPeopleState.mode,pcPeopleState.date,pcPeopleState.pages,DATA_CUTOFF,chain];
+ let roster,range;
+ // 同一范围在一批里更新四张表，切换时保留表格、分页、列宽和滚动位置。
+ for(const definition of pcMetricGroups){
+  const [key]=definition,group=panel.querySelector(`#pc-metrics-${key}`);
+  const inputs=key==='projects'?[...commonInputs,dpStore,salesTargetStore,brcSaved,upRuleRevision,nspApprovalRevision]:commonInputs;
+  const previous=pcMetricGroupInputs.get(group);
+  if(previous&&inputs.every((value,index)=>value===previous[index])){
+   if(key===activeKey)pcObserveMetricPersonWidth(group.querySelector('.pc-data-table'));
+   continue;
+  }
+  if(key==='projects')pcPaintProjectMetrics(group);
+  else pcPaintSampleMetrics(group,definition,pcPersonnelSampleData(roster??=pcRoster(chain),chain,range??=pcPeopleRange(),pcPersonnelSamples[key]));
+  pcMetricGroupInputs.set(group,inputs);
+ }
+}
+function pcPaintPersonnel(section=$('#dp-management')){
  if(!section||!pcIsActive())return;
- const group=pcMetricGroups.find(([key])=>key===pcPeopleState.group),isProject=group[0]==='projects';
- const range=pcPeopleRange(),chain=pcChain(),snapshot=isProject?pcPeopleSnapshot():{roster:pcRoster(sampleProjectSource,chain)};
- const sourceRows=isProject?snapshot.rows:snapshot.roster.map(person=>({...person,values:{}}));
- const makeRow=person=>[person.name,person.chains.map(i=>chains[i]).join('、')||'—',...group[2].map(([key])=>pcMetricText(person.values[key]))];
- const summary=['范围汇总',chain===null?'产品中心':chains[chain],...group[2].map(([key])=>pcMetricText(snapshot.summary?.[key]))];
- const rows=sourceRows.filter(person=>person.name.includes(pcPeopleState.name.trim())).map(makeRow);
- const host=section.querySelector('.pc-people-content'),existing=host.querySelector('.pc-chain-metrics');
- host.innerHTML=`<p class="pc-data-context"><span>${range.start} 至 ${range.end} · ${snapshot.roster.length} 人</span><span class="muted">${isProject?'项目及经营指标来自现有原型台账；未明确归属的项目或产品仅计入汇总。':'— 表示来源待接入，未按零值统计。'}</span></p>
-  ${pcMetricTable(group[1]+'人员指标',[['人员'],['链群'],...group[2].map(([key,title,source])=>[title,source])],rows,summary)}
-  ${isProject?'<div class="pc-chain-metrics"></div>':''}`;
- if(!isProject)return;
- if(existing?.childNodes.length&&!refreshChain){host.querySelector('.pc-chain-metrics').replaceWith(existing);return}
- const chainRows=pcChainMetrics(range,chain);
- const percent=(actual,target)=>target?fmt(actual/target*100,1)+'%':'—';
- const chainCells=r=>[r.name,msPercent(msAchievementRatio(r.sales,r.target)),msMoney(r.sales)+' / '+msMoney(r.target),percent(r.success,r.total),r.success+' / '+r.total,pcMetricText(r.grades)];
- const sum=key=>chainRows.reduce((n,r)=>n+r[key],0);
- const chainTotal={name:'范围汇总',sales:sum('sales'),target:sum('target'),success:sum('success'),total:sum('total'),grades:[0,1,2,3].map(i=>chainRows.reduce((n,r)=>n+r.grades[i],0))};
- host.querySelector('.pc-chain-metrics').innerHTML=`<h3>链群经营指标</h3><p class="muted">销售目标按所选日期折算；新品成功率沿用总看板季度规则，统计至所选截止日；SABC 按所选期间分级。</p>
-  ${pcMetricTable('链群经营指标',[['链群'],['销售额达成'],['实际 / 目标'],['新品成功率'],['成功 / 参评'],['S / A / B / C 数量']],chainRows.map(chainCells),chainCells(chainTotal))}`;
+ const showRatings=pcPeopleState.view==='ratings';
+ for(const button of section.querySelectorAll('[data-pc-people-view]'))pcSetPersonnelTab(button,button.dataset.pcPeopleView===pcPeopleState.view);
+ section.querySelector('.pc-rating-period').hidden=!showRatings;
+ section.querySelector('.pc-people-ratings').hidden=!showRatings;
+ section.querySelector('.pc-people-period').hidden=showRatings;
+ const panel=section.querySelector('#pc-people-metrics');
+ panel.hidden=showRatings;
+ if(showRatings){pcPaintPeopleRatings(section);return}
+ pcPaintPeopleMetrics(panel);
 }
 dpView.addEventListener('click',event=>{
- const group=event.target.closest('[data-pc-people-group]');if(!group)return;
- pcPeopleState.group=group.dataset.pcPeopleGroup;
- for(const button of group.parentElement.children){const active=button===group;button.setAttribute('aria-pressed',String(active));button.classList.toggle('active',active)}
- pcPaintPersonnel(undefined,{refreshChain:true});pcQueueNavigation();
+ const tab=event.target.closest('[data-pc-people-view]');
+ if(tab&&tab.dataset.pcPeopleView!==pcPeopleState.view){
+  pcPeopleState.view=tab.dataset.pcPeopleView;pcPaintPersonnel();pcQueueNavigation();return;
+ }
+ const group=event.target.closest('[data-pc-people-group]');
+ if(group&&group.dataset.pcPeopleGroup!==pcPeopleState.group){
+  pcPeopleState.group=group.dataset.pcPeopleGroup;pcPaintPeopleMetrics(group.closest('#pc-people-metrics'));pcQueueNavigation();return;
+ }
+ const rating=event.target.closest('[data-pc-rating-person]');
+ if(rating)pcOpenPeopleScore(rating.dataset.pcRatingPerson);
 });
-dpView.addEventListener('input',event=>{
- if(event.target.id!=='pc-people-search')return;
- pcPeopleState.name=event.target.value;pcPaintPersonnel();
+dpView.addEventListener('keydown',event=>{
+ const tab=event.target.closest('[data-pc-people-view],[data-pc-people-group]');
+ if(!tab||!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;
+ const tabs=[...tab.parentElement.children];
+ const offset=event.key==='ArrowRight'?1:-1;
+ const target=event.key==='Home'?tabs[0]:event.key==='End'?tabs.at(-1):tabs[(tabs.indexOf(tab)+offset+tabs.length)%tabs.length];
+ event.preventDefault();target.click();target.focus();
 });

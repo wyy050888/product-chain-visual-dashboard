@@ -6,19 +6,18 @@ function ipOverviewSummary(records,balance){
   return {label,units:targetSum(rows.map(row=>row.staleUnits||0)),valueCents:targetSum(rows.map(row=>row.staleValueCents||0))};
  });
  const range=bounds(ipMetricPeriod);
- return {...metrics,seasons,unrefurbished:ipUnrefurbishedSummary(records),stockout:ipStockoutModel(records,range),metricPeriod:{...ipMetricPeriod},range,totalUnits:balance.totalUnits,goodsValueCents:balance.goodsValueCents,
+ return {...metrics,seasons,unrefurbishedUnits:balance.unrefurbishedUnits,stockout:ipStockoutModel(records,range),metricPeriod:{...ipMetricPeriod},range,totalUnits:balance.totalUnits,goodsValueCents:balance.goodsValueCents,
   staleRatio:balance.totalUnits?metrics.staleUnits/balance.totalUnits*100:null,
   staleValueRatio:balance.goodsValueCents?metrics.staleValueCents/balance.goodsValueCents*100:null};
 }
 const ipOverviewRules={
  delivery:{
   title:'新机交付及时率',
-  text:'新机交付及时率 =（考核期内的已交付量+当前最新库存数（人工导入））/ 考核期内的采购总量',
-  emphasis:'（人工导入）'
+  text:'按SPU统计：新机交付及时率 = （考核期内的已交付量+考核期内最新良品库存数（人工导入））/ 排产表考核期的计划产量'
  },
  refurb:{
   title:'翻新闭环率',
-  text:'翻新闭环率 = 到工厂之后30天完成翻新的采购单量 / 总采购单量'
+  text:'翻新闭环率＝采购日起33天内完成交付的采购单SKU条数÷考核期内下单的采购单SKU总条数。'
  },
  stockout:{
   title:'爆款断货次数',
@@ -26,8 +25,8 @@ const ipOverviewRules={
  }
 };
 function ipOverviewHelp(key){
- const {title,text,emphasis}=ipOverviewRules[key];
- return `<span class="metric-help" tabindex="0" role="button" aria-label="查看${title}口径" data-ip-overview-help="${key}" data-metric-rule="${esc(text)}"${emphasis?` data-metric-emphasis="${esc(emphasis)}"`:''}></span>`;
+ const {title,text}=ipOverviewRules[key];
+ return `<span class="metric-help" tabindex="0" role="button" aria-label="查看${title}口径" data-ip-overview-help="${key}" data-metric-rule="${esc(text)}"></span>`;
 }
 // 总览使用独立紧凑布局；库存快照、期间指标和产品详情仍共用原模型。
 function ipOverviewCard({key,title,help='',quantity,value='',valueLabel='货值',className=''}){
@@ -47,8 +46,8 @@ function ipOverviewCards(model,balance){
  ];
  const stock=definitions.map(([key,title,rule,countKey,valueKey])=>ipOverviewCard({key,title,help:upBalanceHelp(rule,title),quantity:quantity(countKey,balance[countKey]),value:worth(valueKey,balance[valueKey])})).join('');
  const turnTone=ipSignal('turn',model.turn,model.metricPeriod.mode);
- const turn=ipOverviewCard({key:'turn',title:'库存周转率',quantity:`<strong class="ip-signal ${turnTone==='none'?'muted':turnTone}" data-stock-turn="${model.turn??''}">${numberSignal(Number.isFinite(model.turn)?fmt(model.turn,2)+'次':'—',turnTone)}</strong>`,className:'stock-summary-single'});
+ const turn=ipOverviewCard({key:'turn',title:'库存周转率',quantity:`<strong class="ip-signal ${turnTone==='none'?'muted':turnTone}" data-stock-turn="${model.turn??''}">${numberSignal(Number.isFinite(model.turn)?fmt(model.turn,2):'—',turnTone)}${Number.isFinite(model.turn)?'<span class="unit">次</span>':''}</strong>`,className:'stock-summary-single'});
  const deliveryTone=ipSignal('delivery',model.delivery,model.metricPeriod.mode);
- const delivery=ipOverviewCard({key:'delivery',title:'交付及时率',help:ipOverviewHelp('delivery'),quantity:`<strong class="ip-signal ${deliveryTone==='none'?'muted':deliveryTone}" data-stock-delivery="${model.delivery??''}">${numberSignal(Number.isFinite(model.delivery)?fmt(model.delivery,1)+'%':'—',deliveryTone)}</strong>`,className:'stock-summary-single'});
- return `<div class="stock-overview-cards">${stock}<div class="stock-period-cards">${turn}${delivery}${ipStockoutCard(model.stockout)}</div>${ipRefurbCard(model.refurb,model.unrefurbished)}</div>`;
+ const delivery=ipOverviewCard({key:'delivery',title:ipOverviewRules.delivery.title,help:ipOverviewHelp('delivery'),quantity:`<strong class="ip-signal ${deliveryTone==='none'?'muted':deliveryTone}" data-stock-delivery="${model.delivery??''}">${numberSignal(Number.isFinite(model.delivery)?fmt(model.delivery,1)+'%':'—',deliveryTone)}</strong>`,className:'stock-summary-single'});
+ return `<div class="stock-overview-cards">${stock}<div class="stock-period-cards">${turn}${delivery}${ipStockoutCard(model.stockout)}</div>${ipRefurbCard(model.refurb,model.unrefurbishedUnits)}</div>`;
 }

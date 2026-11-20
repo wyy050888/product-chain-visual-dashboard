@@ -10,7 +10,7 @@
 .stock-overview-cards .primary strong,#dialogbody .stock-overview-cards .primary strong{font-size:22px;line-height:30px;font-weight:600;white-space:nowrap;font-variant-numeric:tabular-nums}
 .stock-overview-cards .stock-card-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:11px;color:#8390a5}
 .stock-overview-cards .stock-card-foot strong{font-size:12px;font-weight:500;color:#526b85;white-space:nowrap}
-.stock-overview-cards .metric-help{width:13px;height:13px;flex-basis:13px;margin-left:3px}
+.stock-overview-cards .metric-help{--metric-help-size:13px;margin-left:3px}
 .stock-season-bar{display:flex;gap:1px;width:94px;height:7px;flex:none;border-radius:4px;overflow:hidden;background:#e7ecf6}
 .stock-season-segment{display:block;min-width:0;flex-basis:0}.stock-season-segment:focus-visible{outline:2px solid #193f68;outline-offset:-2px}
 .stock-season-legend{display:flex;align-items:center;flex-wrap:wrap;gap:4px 9px;font-size:10px;color:#8390a5}
@@ -50,6 +50,7 @@
 #inventory .stock-summary-card .stock-card-head{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:baseline;min-height:22px;gap:14px;margin:0 0 4px}
 #inventory .stock-summary-card .stock-card-head>.stock-summary-label{min-width:0;padding-left:14px;line-height:22px}
 #inventory .stock-summary-card .stock-card-head h4{font-size:13px;font-weight:600;color:#526b85;line-height:22px}
+#inventory .stock-summary-card .stock-card-head :is(h4,.stock-summary-label):has(>.metric-help){display:flex;align-items:center}
 #inventory .stock-summary-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:baseline;align-content:end;gap:14px;min-height:36px}
 #inventory .stock-summary-card .primary{display:flex;align-items:baseline;gap:4px;min-width:0;margin:0;line-height:32px}
 #inventory .stock-summary-card .primary strong{font-size:24px;line-height:32px;font-weight:600}
@@ -131,3 +132,8 @@
 #dialogbody .up-stock-period{flex:none;max-width:100%;min-width:0;padding:5px 0}
 #dialogbody .up-stock-period[hidden]{display:none!important}
 @media(max-width:1200px){#dialogbody .up-detail:has(>.up-detail-tabs .up-stock-period:not([hidden]))>.up-detail-tabs{flex-wrap:wrap;gap:0}#dialogbody .up-stock-period{margin-left:auto}}
+.metric-tooltip.metric-tooltip-stock-total {
+  max-width: calc(100vw - 16px);
+  white-space: pre-line;
+  line-height: 1.9;
+}

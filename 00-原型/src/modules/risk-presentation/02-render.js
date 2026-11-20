@@ -1,8 +1,9 @@
 // 最终六榜直接生成一次；旧版渲染链仍供原模块引用，不再逐层覆盖首页。
 const rpRenderedCardRules=new WeakMap();
 // 分区共用铭牌结构；装饰不进入标题文本或无障碍名称。
-function rpGroupHeading(title,id=''){
- return `<div class="rp-group-heading"><span class="rp-group-wing" aria-hidden="true"></span><h3 class="rp-group-title"${id?' id="'+id+'"':''}><span class="rp-group-title-text">${esc(title)}</span></h3><span class="rp-group-wing rp-group-wing-right" aria-hidden="true"></span></div>`;
+function rpGroupHeading(title,id='',caption=''){
+ const subtitle=caption?` <small class="rp-group-caption period-range">${esc(caption)}</small>`:'';
+ return `<div class="rp-group-heading"><span class="rp-group-wing" aria-hidden="true"></span><h3 class="rp-group-title"${id?' id="'+id+'"':''}><span class="rp-group-title-text">${esc(title)}</span>${subtitle}</h3><span class="rp-group-wing rp-group-wing-right" aria-hidden="true"></span></div>`;
 }
 function rpMountLossHeading(){
  const head=$('#riskrail>.rp-loss-wide .rhead'),title=head.querySelector('h3'),template=document.createElement('template');
@@ -13,16 +14,16 @@ function rpMountLossHeading(){
  rpMountLossTable(head.closest('.rp-loss-wide'));
 }
 const rpHomeQualityKinds=[0,6,8,1];
-function rpHomeGroup(key,title,content,toolbar=''){
- return `<section class="rp-board-group rp-board-group-${key}" aria-labelledby="rp-group-${key}">${rpGroupHeading(title,'rp-group-'+key)}${toolbar}<div class="rp-group-grid">${content}</div></section>`;
+function rpHomeGroup(key,title,content,{toolbar='',caption=''}={}){
+ return `<section class="rp-board-group rp-board-group-${key}" aria-labelledby="rp-group-${key}">${rpGroupHeading(title,'rp-group-'+key,caption)}${toolbar}<div class="rp-group-grid">${content}</div></section>`;
 }
 function rpHomeCards(kinds){
  const rules=new Map(),cards=new Map();
  const classes={0:'qr-card rp-platform-board',1:'br-shop-card rp-shop-card rp-shop-board rf-card',2:'pr-shared-card rp-loss-card rf-card rp-loss-wide',3:'rp-stock-card rf-card',4:'rp-stock-card rf-card',6:'rp-return-card rp-platform-board rf-card',8:'rp-return-card rp-platform-board rf-card'};
  for(const k of kinds)rpWithBoardPeriod(k,()=>{
-  const rows=rpCardRows(k),filter=rpCardPlatformControl(k);
+  const rows=rpCardRows(k);
   rules.set(k,rpCardRuleSummary(k));
-  cards.set(k,`<article data-rp-board="${k}" class="riskcard ${classes[k]||'rf-card'}">${rpCard(k,rows,filter)}</article>`);
+  cards.set(k,`<article data-rp-board="${k}" class="riskcard ${classes[k]||'rf-card'}">${rpCard(k,rows)}</article>`);
  });
  return {cards,rules};
 }
@@ -83,8 +84,8 @@ function rpCardRuleSummary(kind){
   },
   1:{
    note:'按店铺统计，以下条件满足任意一项即可入榜',
-   pool:['店铺评分红灯，且品质违规处罚'+brcDescribe('shops.penalties')+'\n  • '+filterCatalog.platforms.filter(rpShopScoreMonitored).join('、')+'：按本平台店铺分红灯规则判定\n  • 拼多多：任一核心链接的六项监控指标中，异常项数'+brcDescribe('shops.pddCount')+'，等同于店铺评分红灯\n    六项监控指标：三级分类、主营链群下的品质退款率、品质求助平台率、品质文本情感分；单项异常条件：指标原值'+brcDescribe('shops.pddValue'),'品质违规罚款金额'+brcDescribe('shops.fine')+'',rpShopReturnRule(),'存在资金冻结'],
-   sort:['风险优先级：资金冻结 → 平台罚款 → 产品退货率超标 → 评分红灯 → 评分黄灯，命中多项取最高优先级','同优先级，风险命中数量从多到少','评分风险店铺中，核心店铺优先，再按旗舰店／POP旗舰店 → 专卖店／POP专卖店 → 自营 → 无分类排序','再按对应风险数值排序：冻结及罚款金额从高到低、评分从低到高']
+   pool:['店铺评分红灯，且品质违规处罚'+brcDescribe('shops.penalties')+'\n  • '+filterCatalog.platforms.filter(rpShopScoreMonitored).join('、')+'：按本平台店铺分红灯规则判定\n  • 拼多多：任一核心链接的六项监控指标中，异常项数'+brcDescribe('shops.pddCount')+'，等同于店铺评分红灯\n    六项监控指标：三级分类、主营链群下的品质退款率、品质求助平台率、品质文本情感分；单项异常条件：指标原值'+brcDescribe('shops.pddValue'),'视频号：近30天品质退货率、近30天差评率、近30天纠纷发起率中，任一项实际值高于对应行业平均水平即可入榜。','品质违规罚款金额'+brcDescribe('shops.fine')+'',rpShopReturnRule(),'存在资金冻结'],
+   sort:['风险优先级：资金冻结 → 平台罚款 → 产品退货率超标 → 评分或治理指标红灯 → 评分黄灯，命中多项取最高优先级','同优先级，风险命中数量从多到少','评分或治理指标风险店铺中，核心店铺优先，再按旗舰店／POP旗舰店 → 专卖店／POP专卖店 → 自营 → 无分类排序','再按对应风险数值排序：冻结及罚款金额从高到低、评分从低到高；视频号同平台内按最大超行业平均百分点从高到低']
   },
   2:{
    note:'按所选期间、平台统计，选择全平台时按公司整体口径计算',

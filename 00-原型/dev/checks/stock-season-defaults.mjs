@@ -23,7 +23,7 @@ export async function stockSeasonDefaults(page){
  const raw=await page.evaluate(()=>({3:shortageRankingSnapshot().rows,4:stagnantRankingSnapshot().rows}));
  const verifyLinked=async season=>{for(const kind of [3,4]){
   assert.deepEqual(await values(kind),[season]);assert.equal(await control(kind).evaluate(node=>node.multiple),false);
-  assert.equal(await card(kind).locator('.rp-season-tags').getAttribute('role'),'radiogroup');assert.equal(await card(kind).locator('[data-rp-season-option][aria-checked="true"]').count(),1);
+  assert.equal(await card(kind).locator('.rp-season-menu .rp-season-tags').getAttribute('role'),'radiogroup');assert.equal(await card(kind).locator('[data-rp-season-option][aria-checked="true"]').count(),1);
   const tag=card(kind).locator('[data-rp-season-option="'+season+'"]');assert.equal(await tag.getAttribute('aria-checked'),'true');assert.equal(await tag.evaluate(node=>getComputedStyle(node).backgroundColor),'rgb(230, 240, 255)');
   const expected=raw[kind].filter(row=>season==='all'||row.attribute===season);assert.equal(Number((await card(kind).locator('[data-risk]').innerText()).match(/\d+/)[0]),expected.length);assert.deepEqual(await card(kind).locator('.rp-stock-entry .rp-identity b').allTextContents(),expected.slice(0,6).map(row=>row.name));
  }};

@@ -86,13 +86,13 @@ export async function riskPlatformCards(page){
  assert.equal(await board(0).locator('.rp-quality-actions [data-rp-card-season],.rp-quality-actions .pf-multi').count(),0,'右侧不再显示季品下拉框');
  assert.equal(await board(0).locator('.rp-platform-menu [data-rp-season-menu="0"]').count(),1,'季品与平台放在同一筛选区');
  const originalTotal=await board(0).locator('[data-risk]').innerText();
- assert.equal(await board(0).locator('.rp-season-tags').getAttribute('role'),'radiogroup');assert.equal(await board(0).locator('[data-rp-card-season]').evaluate(node=>node.multiple),false);
+ assert.equal(await board(0).locator('.rp-season-menu .rp-season-tags').getAttribute('role'),'radiogroup');assert.equal(await board(0).locator('[data-rp-card-season]').evaluate(node=>node.multiple),false);
  await season('夏季品').click();assert.equal(await season('夏季品').getAttribute('aria-checked'),'true');
  assert((await checkSummary()).products<initialSummary.products,'汇总响应季品筛选');
  const seasonTotal=Number((await board(0).locator('[data-risk]').innerText()).match(/\d+/)[0]);
  assert.equal(Number(await season('夏季品').locator('b').innerText()),seasonTotal);assert.equal(await board(0).locator('.rp-platform-product').count(),Math.min(seasonTotal,6));
  await board(0).locator('[data-risk]').click();assert.deepEqual(await page.locator('[data-rp-filter="attribute"]').evaluate(e=>[...e.selectedOptions].map(option=>option.value)),['夏季品']);await page.locator('#close').click();
- await season('冬季品').click();assert.deepEqual(await board(0).locator('[data-rp-card-season]').evaluate(e=>[...e.selectedOptions].map(option=>option.value)),['冬季品'],'冬季品替换夏季品');assert.equal(await board(0).locator('.rp-season-tags [aria-checked="true"]').count(),1);await season('冬季品').click();assert.equal(await season('冬季品').getAttribute('aria-checked'),'true','重复点击已选项不清空');assert.equal(await board(6).locator('[data-rp-card-season]').inputValue(),'all','两榜季品独立');
+ await season('冬季品').click();assert.deepEqual(await board(0).locator('[data-rp-card-season]').evaluate(e=>[...e.selectedOptions].map(option=>option.value)),['冬季品'],'冬季品替换夏季品');assert.equal(await board(0).locator('.rp-season-menu .rp-season-tags [aria-checked="true"]').count(),1);await season('冬季品').click();assert.equal(await season('冬季品').getAttribute('aria-checked'),'true','重复点击已选项不清空');assert.equal(await board(6).locator('[data-rp-card-season]').inputValue(),'all','两榜季品独立');
  await season('all').click();await season('all').focus();await page.keyboard.press('End');await page.keyboard.press('Enter');assert.equal(await season('四季品').getAttribute('aria-checked'),'true','标签支持键盘切换');
  await season('all').click();assert.equal(await board(0).locator('[data-risk]').innerText(),originalTotal);await checkSelection(['抖音','天猫']);
  const counts=await board(0).locator('[data-rp-platform-option]').allTextContents();
@@ -141,6 +141,10 @@ export async function riskPlatformCards(page){
     }
     assert(layout.itemsTop>=Math.max(layout.menu.bottom,layout.actions.bottom),'筛选区在卡片上方');
     if(width>1100)assert(layout.actions.left>=layout.menu.right+10,'平台与右侧操作不重叠');
+   }else if([6,8].includes(kind)){
+    assert(layout.menu.top>=Math.max(layout.title.bottom,layout.actions.bottom),'退货筛选独占标题和时间下方一行');
+    assert(Math.abs(layout.menu.left-layout.contentLeft)<1&&Math.abs(layout.menu.right-layout.contentRight)<1,'筛选行使用整宽');
+    if(width>700)assert(Math.abs(layout.title.top+layout.title.height/2-layout.actions.top-layout.actions.height/2)<2,'退货标题与时间操作同排');
    }else if(width>1100){assert(Math.abs(layout.title.top+layout.title.height/2-layout.menu.top-layout.menu.height/2)<2,'标题平台垂直居中');assert(layout.menu.left>=layout.title.right+10&&layout.actions.left>=layout.menu.right+10,'平台与右侧操作不重叠');}
    assert(await host.evaluate(e=>e.scrollWidth<=e.clientWidth+1),'榜单外框不横向溢出 '+width);
    const cards=host.locator('.rp-items>.rp-entry'),rects=await cards.evaluateAll(es=>es.map(e=>e.getBoundingClientRect().toJSON()));

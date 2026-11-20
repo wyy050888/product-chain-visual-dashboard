@@ -6,9 +6,9 @@
 .page .unified-filter-extras .ui-search-field>input {width:100%!important}
 #dialogbody .rp-list-table {margin-top:10px}
 /* 浅灰列头和轻分隔；操作固定在右侧，横向浏览也能读到。 */
-#dialogbody :is(#qr-list-table,#rf-list-table).rp-list-table th {white-space:nowrap!important;height:44px;padding:10px 12px;background:#f5f6f8;color:#778397;font-weight:400;border-bottom:1px solid #e8ecf1}
-#dialogbody :is(#qr-list-table,#rf-list-table).rp-list-table tr:nth-child(even)>td {background:#fafbfc}
-#dialogbody :is(#qr-list-table,#rf-list-table).rp-list-table tr:hover>td {background:#f2f7ff}
+#dialogbody :is(#qr-list-table,#rf-list-table,.pc-risk-list).rp-list-table th {white-space:nowrap!important;height:44px;padding:10px 12px;background:#f5f6f8;color:#778397;font-weight:400;border-bottom:1px solid #e8ecf1}
+#dialogbody :is(#qr-list-table,#rf-list-table,.pc-risk-list).rp-list-table tr:nth-child(even)>td {background:#fafbfc}
+#dialogbody :is(#qr-list-table,#rf-list-table,.pc-risk-list).rp-list-table tr:hover>td {background:#f2f7ff}
 #dialogbody :is(#qr-list-table,#rf-list-table).rp-list-table :is(th,td):first-child {padding-left:8px;padding-right:8px;white-space:nowrap}
 @media(max-width:700px){
  .ui-business-filters .unified-input-group.ui-business-search,.page .unified-filter-extras .ui-search-field {flex:1 1 100%;width:100%;min-width:0}

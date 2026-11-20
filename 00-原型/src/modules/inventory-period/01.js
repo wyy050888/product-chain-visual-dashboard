@@ -1,12 +1,13 @@
 // 采购单样例按下单月份归档；到厂和翻新完成可跨月。
 function ipRefurbSampleOrders(record,index,month){
  const spuId=String(record.spuId||record.model||record.id),start=month+'-01';
+ const skus=upStockSkus(record);
  return Array.from({length:2+index%2},(_,i)=>{
-  const orderedAt=shiftDate(start,(index+i*7)%18);
+  const orderedAt=shiftDate(start,(index+Math.floor(i/2)*7)%18);
   const arrivedAt=(index+i)%11===0?null:shiftDate(orderedAt,2+(index+i)%5);
   const days=[5,12,20,29,30,35,45,59,60,72][(index+i)%10];
   const completedAt=arrivedAt&&(index+i)%7!==0?shiftDate(arrivedAt,days):null;
-  return {requisitionId:'REF-'+spuId+'-'+month+'-'+(i+1),spuId,orderedAt,arrivedAt,completedAt};
+  return {requisitionId:'REF-'+spuId+'-'+month+'-'+(1+Math.floor(i/2)),skuId:skus[i].skuId,spuId,orderedAt,arrivedAt,completedAt};
  });
 }
 
@@ -20,11 +21,9 @@ inventoryProductLedger=function(){
  const monthlyMap=new Map(monthly.map(r=>[r.id,r]));
  return rows.map((r,i)=>{const month=monthlyMap.get(r.id),active=scope.start<=scope.cutoff&&r.refDue>0;
   const refurbOrders=active?ipRefurbSampleOrders(r,i,scope.monthLabel):[];
-  // 保留原未翻新SKU样例及占比，不能用未完成请购单数量替代。
-  const unrefurbishedSkus=active?upStockSkus(r).map((sku,j)=>({skuId:sku.skuId,pending:(i*4+j)%11===10})):[];
   // 本地样例模拟人工导入的新机库存；不随历史考核期间回拨。
   const latestNewMachineInventory=Object.hasOwn(r,'latestNewMachineInventory')?r.latestNewMachineInventory:20+r.sourceRow%5*15;
-  return{...r,refurbOrders,unrefurbishedSkus,latestNewMachineInventory,monthOn:month?.on||0,monthDue:month?.due||0,monthlyDelivery:month?.due?month.on/month.due*100:null};
+  return{...r,refurbOrders,latestNewMachineInventory,monthOn:month?.on||0,monthDue:month?.due||0,monthlyDelivery:month?.due?month.on/month.due*100:null};
  });
 };
 const ipBaseSum=inventoryProductSum;

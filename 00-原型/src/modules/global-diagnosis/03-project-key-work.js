@@ -45,6 +45,8 @@ function gdProjectDiscoveryDate(workKey){
  return DATA_CUTOFF;
 }
 function gdProjectRectificationDue(discoveredAt){return discoveredAt?shiftDate(discoveredAt,3):''}
+const gdProjectTypes=['自研开发','自选开发','品质整改','产品迭代','创新开发'];
+function gdProjectFilterType(type){return type==='研发创新'?'创新开发':type||''}
 function gdProjectKeyWork(context){
  const dispatches=gdProjectDispatchRows();
  return withPeriod('projects',()=>context.by('projects').rows.flatMap(project=>{
@@ -62,7 +64,7 @@ function gdProjectKeyWork(context){
    const source={id:workKey,objectKey:object.key,objectName:object.name,date:DATA_CUTOFF,capturedDate:DATA_CUTOFF,source:'项目进度\n'+project.name+'\n'+DATA_CUTOFF,content};
    const action='核实「'+task.name+'」的卡点，明确处置方案、责任人与完成日期，关联项目风险台账及执行单。';
    return {id:'key|'+workKey,kind:'key-work',keyType:'project',workKey,projectTaskId:task.id,projectTaskName:task.name,projectStageId:stageId,projectId:project.id,
-    object,objectName:object.name,projectDelay:project.delay,source:'projects',sourceName:'项目进度',category:project.category,department,owner:person,
+    object,objectName:object.name,projectType:gdProjectFilterType(project.type),projectDelay:project.delay,source:'projects',sourceName:'项目进度',category:project.category,department,owner:person,
     date:DATA_CUTOFF,discoveredAt,due,light:project.status,projectLight:typeof ppProjectDisplayLight==='function'?ppProjectDisplayLight(project):project.status,title:stage.name+'：'+task.name,problem,summary:action,action,
     problemSource:{sourceId:source.id,quote:taskProblem?.slice(0,48)},sources:[{...source,...diagnosisNormalizeSource(source)}],
     decisionParticipants:[{assignee:person,department,action,completionCriteria:'处置方案明确，已关联风险台账和执行单。'}],

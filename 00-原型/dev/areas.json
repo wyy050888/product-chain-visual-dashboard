@@ -550,6 +550,8 @@
       "src/modules/product-center/05-fixed-filters.js",
       "src/modules/product-center/06-reports.js",
       "src/modules/product-center/07-metrics-model.js",
+      "src/modules/product-center/17-project-system-snapshot.js",
+      "src/modules/product-center/15-project-managers.js",
       "src/modules/product-center/08-metrics-view.js",
       "src/modules/product-center/09-brand-plan.js",
       "src/modules/product-center/10-risk-model.js",
@@ -563,7 +565,8 @@
       "styles/89-risk-board-groups.css"
     ],
     "checks": [
-      "productCenter"
+      "productCenter",
+      "lifecycleBrandPlanning"
     ]
   },
   "reportTabs": {
@@ -1512,7 +1515,8 @@
     ],
     "checks": [
       "lifecycleTargets",
-      "lifecycleTargetData"
+      "lifecycleTargetData",
+      "lifecycleBrandPlanning"
     ],
     "manual": [
       "配置保存在当前浏览器；跨用户权限、服务端保存和多人冲突控制未接入。"
@@ -3006,7 +3010,7 @@
     ]
   },
   "riskSeasonTabs": {
-    "label": "违规及退货榜季品外露标签与原筛选联动",
+    "label": "风险榜季品标签、链群范围与抽屉联动",
     "sources": [
       "src/modules/risk-presentation/02-platforms.js",
       "src/modules/risk-card-filters/01.js"
@@ -3015,7 +3019,8 @@
       "styles/93-risk-platform-cards.css"
     ],
     "checks": [
-      "riskSeasonTabs"
+      "riskSeasonTabs",
+      "riskChainFilters"
     ],
     "manual": []
   },
@@ -3220,13 +3225,15 @@
       "权限管理",
       "系统运维",
       "菜单置灰",
-      "规则配置更名"
+      "规则配置更名",
+      "样机提供及时率导入"
     ],
     "sources": [
       "src/modules/system-management/01-shell.js",
       "src/modules/business-rules/03-view.js",
       "src/modules/core-link-config/03-view.js",
-      "src/modules/strategic-supplier-import/03-view.js"
+      "src/modules/strategic-supplier-import/03-view.js",
+      "src/modules/product-center/16-sample-timeliness-import.js"
     ],
     "styles": [
       "styles/55-lifecycle-targets.css"

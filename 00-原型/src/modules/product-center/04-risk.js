@@ -31,7 +31,7 @@ function pcRiskNavigation(){
   const key=node.dataset.rpBoard;
   return {node,key,label:pcRiskLabels[key.slice(3)]||rpTitles[key]};
  });
- if(launch)boards.unshift({node:launch,key:'pc-launch',label:launch.querySelector('.rp-group-title').textContent});
+ if(launch)boards.unshift({node:launch,key:'pc-launch',label:launch.querySelector('.rp-group-title-text').textContent});
  return boards;
 }
 renderRisks=function(changedKinds,...args){
@@ -45,8 +45,10 @@ renderRisks=function(changedKinds,...args){
    pcCurrentRiskData=pcRiskData();
    for(const key of Object.keys(pcCurrentRiskData))rules.set('pc-'+key,pcRiskCardNotice(key));
    const own=key=>pcRiskBoard(key,pcRiskBoardData(key));
-   rail.innerHTML=rpHomeGroup('launch','上品计划预警',pcRiskFilterBoards.launch.map(own).join(''),pcRiskFilterBar('launch','上品计划预警'))+
-    rpHomeGroup('initiation','立项规划预警',own('initiation'))+
+   rail.innerHTML=rpHomeGroup('launch','上品计划预警',pcRiskFilterBoards.launch.map(own).join(''),{
+    toolbar:pcRiskFilterBar('launch','上品计划预警'),caption:'截至 '+pcRiskDate(pcCurrentRiskData.delayed.asOf)
+   })+
+    rpHomeGroup('initiation','立项规划预警',own('initiation'),{caption:'截至 '+pcRiskDate(pcCurrentRiskData.initiation.asOf)})+
     rpHomeGroup('quality','品质风险榜',rpHomeQualityKinds.map(kind=>cards.get(kind)).join(''))+cards.get(2);
   }
   $('#risk .sectionhead h2').firstChild.textContent='产品中心风险预警';

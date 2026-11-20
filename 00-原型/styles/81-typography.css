@@ -16,9 +16,10 @@ button,input,select,textarea,.num,.cec-dialog{font-family:var(--ui-font-family)}
 .page :is(h3,h4),.dp-view :is(h3,h4),#dialogbody :is(h3,h4){
  font-size:var(--type-card)!important;font-weight:var(--weight-heading)!important;line-height:1.5;
 }
-.page>.section>.sectionhead h2,.dp-view .sectionhead h2,#dialog>.dialoghead h2{
- font-size:var(--type-module)!important;font-weight:var(--weight-heading)!important;line-height:1.4;
+.page>.section>.sectionhead h2,.dp-view .sectionhead h2,#dialog>.dialoghead h2,.dialog>form>.dialoghead h2{
+ font-size:var(--type-module)!important;font-weight:var(--weight-heading)!important;
 }
+.page>.section>.sectionhead h2,.dp-view .sectionhead h2,#dialog>.dialoghead h2{line-height:1.4}
 .page :is(.nsp-details-title,.kpm-details-title,.kpm-structure-heading h3,.pp-section-title),
 .page #matrix.kpm-main .kpm-sidebar :is(.kpm-chart-head h3,.kpm-price-heading h3),
 .page .pp-ai-heading h3,.page .scp-section-heading h3,.page .ms-scope-heading h3,

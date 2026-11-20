@@ -9,6 +9,7 @@ function sdOpenDetail(id){
   drawerWithPeriod(state.period,()=>{
    const current=sbAllShops().find(s=>s.id===shop.id)||shop,host=root.querySelector('[data-sd-scores]');
    host.classList.toggle('sd-hero-link-counts',current.channel==='拼多多');
+   host.classList.toggle('rp-shop-governance',current.channel==='视频号');
    host.innerHTML=rpShopScoreMarkup(current,rpShopFields(current));
   });
   const m=sdModel(shop,state);sdMountDiagnosis(root,m,state);sdMountOperating(root.querySelector('[data-up-panel="operating"]'),m,state);sdMountProducts(root,m,state);sdMountViolations(root,m,state);

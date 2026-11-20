@@ -3,11 +3,22 @@ let ipSeasonSelection='all';
 function ipSeasonLedger(records){
  return records.filter(row=>pfIncludes(ipSeasonSelection,pfIdentity(row).attribute));
 }
+function ipFilterTabs(label,choices,selection,attribute){
+ const buttons=['all',...choices].map(value=>{
+  return `<button type="button" ${attribute}="${esc(value)}" aria-pressed="${pfOptionSelected(selection,value)}">${value==='all'?'全部':esc(value)}</button>`;
+ }).join('');
+ return `<span class="ip-season-tabs" role="group" aria-label="${esc(label)}">${buttons}</span>`;
+}
+function ipFilterTabInDirection(button,key){
+ if(!button||!['ArrowLeft','ArrowRight','Home','End'].includes(key))return null;
+ const buttons=[...button.parentElement.children],index=buttons.indexOf(button);
+ const next=key==='Home'?0:key==='End'?buttons.length-1:(index+(key==='ArrowLeft'?-1:1)+buttons.length)%buttons.length;
+ return buttons[next];
+}
 function ipMountSeasonFilter(){
  const title=$('#inventory>.sectionhead>.titlegroup');let host=title.querySelector('.ip-season-filter');
  if(!host){host=document.createElement('span');host.className='ip-season-filter';title.append(host)}
- const choices=[['all','全部'],...filterCatalog.seasons.map(value=>[value,value])];
- host.innerHTML=`<select id="ip-season" multiple hidden tabindex="-1" aria-label="库存季品">${pfOptions(filterCatalog.seasons,ipSeasonSelection,'全部')}</select><span class="ip-season-tabs" role="group" aria-label="库存季品">${choices.map(([value,label])=>`<button type="button" data-ip-season="${value}" aria-pressed="${pfOptionSelected(ipSeasonSelection,value)}">${label}</button>`).join('')}</span>`;
+ host.innerHTML=`<select id="ip-season" multiple hidden tabindex="-1" aria-label="库存季品">${pfOptions(filterCatalog.seasons,ipSeasonSelection,'全部')}</select>${ipFilterTabs('库存季品',filterCatalog.seasons,ipSeasonSelection,'data-ip-season')}`;
  host.onclick=event=>{
   const button=event.target.closest('[data-ip-season]');if(!button)return;
   const value=button.dataset.ipSeason,select=host.querySelector('#ip-season');
@@ -15,9 +26,8 @@ function ipMountSeasonFilter(){
   host.querySelector('[data-ip-season="'+value+'"]').focus({preventScroll:true});
  };
  host.onkeydown=event=>{
-  const button=event.target.closest('[data-ip-season]');if(!button||!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;
-  event.preventDefault();const buttons=[...host.querySelectorAll('[data-ip-season]')],index=buttons.indexOf(button),next=event.key==='Home'?0:event.key==='End'?buttons.length-1:(index+(event.key==='ArrowLeft'?-1:1)+buttons.length)%buttons.length;
-  buttons[next].focus({preventScroll:true});
+  const next=ipFilterTabInDirection(event.target.closest('[data-ip-season]'),event.key);if(!next)return;
+  event.preventDefault();next.focus({preventScroll:true});
  };
  host.onchange=event=>{
   if(event.target.id!=='ip-season')return;

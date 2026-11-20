@@ -20,3 +20,18 @@ const ltSampleMonthly=[
  [9,13,10,14,8,5,3,7,6]
 ];
 const ltReference2026=ltSampleMonthly.map(plans=>plans.map(monthly=>[monthly*3-1,monthly*3+1,monthly*3,monthly*3]));
+const ltInnovationStage=6;
+const ltDefaultBrands=filterCatalog.dashboardBrands;
+// 保留样例项目与 SPU 使用的品牌，以及原有演示目标的分配顺序。
+const ltSampleCategoryBrands=[
+ ['创维','美的','苏泊尔','康佳'],
+ ['康佳','创维','苏泊尔','MR.EGO'],
+ ['苏泊尔','海尔','创维','美的','康豆豆','康佳'],
+ ['海尔','康佳','创维','苏泊尔','玖通圣康','金正','爱视健','蕉雅']
+];
+function ltSampleBrandTargets(category,brand){
+ const index=ltSampleCategoryBrands[category].indexOf(brand);
+ const values=category===3?ltReference2026[2].map((row,p)=>row.map((v,q)=>v+ltReference2026[3][p][q])):ltReference2026[category===2?4:category];
+ // 每个链群提供两组演示目标，其他品牌可按需配置。
+ return ltPlans.map((plan,p)=>values[p].map(value=>plan.stage===ltInnovationStage||index<0||index>1?null:Math.floor(value/(index===0?2:3))));
+}

@@ -42,8 +42,8 @@
 .kpm-main #matrixtable th:first-child{z-index:3}
 .kpm-main #matrixtable th:last-child,.kpm-main #matrixtable td:last-child{position:sticky;right:0;width:64px;min-width:64px;z-index:2;background:white;box-shadow:-1px 0 #e4ecfa}
 .kpm-main #matrixtable th:last-child{z-index:3}
-.kpm-main .kpm-grade{display:inline-flex;align-items:center;gap:6px;border-radius:5px;padding:5px 7px;font-size:11px;background:#f0f3f8;color:#71849b}
-.kpm-main .kpm-grade b{font-size:14px}
+:is(.kpm-main,.pc-project-metrics) .kpm-grade{display:inline-flex;align-items:center;gap:6px;border-radius:5px;padding:5px 7px;font-size:11px;background:#f0f3f8;color:#71849b}
+:is(.kpm-main,.pc-project-metrics) .kpm-grade b{font-size:14px}
 .kpm-main .kpm-empty{padding:60px 15px;text-align:center;font-size:13px;color:#8393ad}
 #matrix.kpm-main #matrix-product-pager{margin-top:16px;min-width:0}
 #matrix.kpm-main #matrix-product-pager .list-pagination{flex-wrap:wrap;gap:10px}
@@ -97,10 +97,10 @@ html.kpm-zoom-open{overflow:hidden}
 .kpm-point-values>:is([data-kpm-metric="gsv"],[data-kpm-metric="profit"])>strong{font-weight:650}
 
 /* 图表分区、圆点、图例与明细共用SABC等级和颜色。 */
-.metric-tooltip-kpm-grade .kpm-rule-grade.S,.kpm-main .kpm-change-grade.S,.kpm-main .kpm-grade.S,.kpm-point-grade.S,#dialogbody .up-product-grade.S{background:var(--green-soft);color:var(--green)}
-.metric-tooltip-kpm-grade .kpm-rule-grade.A,.kpm-main .kpm-change-grade.A,.kpm-main .kpm-grade.A,.kpm-point-grade.A,#dialogbody .up-product-grade.A{background:var(--orange-soft);color:var(--orange)}
-.metric-tooltip-kpm-grade .kpm-rule-grade.B,.kpm-main .kpm-change-grade.B,.kpm-main .kpm-grade.B,.kpm-point-grade.B,#dialogbody .up-product-grade.B{background:#eef1ff;color:#6c7ecf}
-.metric-tooltip-kpm-grade .kpm-rule-grade.C,.kpm-main .kpm-change-grade.C,.kpm-main .kpm-grade.C,.kpm-point-grade.C,#dialogbody .up-product-grade.C{background:#fff0f2;color:#da6b7b}
+.metric-tooltip-kpm-grade .kpm-rule-grade.S,.kpm-main .kpm-change-grade.S,:is(.kpm-main,.pc-project-metrics) .kpm-grade.S,.kpm-point-grade.S,#dialogbody .up-product-grade.S{background:var(--green-soft);color:var(--green)}
+.metric-tooltip-kpm-grade .kpm-rule-grade.A,.kpm-main .kpm-change-grade.A,:is(.kpm-main,.pc-project-metrics) .kpm-grade.A,.kpm-point-grade.A,#dialogbody .up-product-grade.A{background:var(--orange-soft);color:var(--orange)}
+.metric-tooltip-kpm-grade .kpm-rule-grade.B,.kpm-main .kpm-change-grade.B,:is(.kpm-main,.pc-project-metrics) .kpm-grade.B,.kpm-point-grade.B,#dialogbody .up-product-grade.B{background:#eef1ff;color:#6c7ecf}
+.metric-tooltip-kpm-grade .kpm-rule-grade.C,.kpm-main .kpm-change-grade.C,:is(.kpm-main,.pc-project-metrics) .kpm-grade.C,.kpm-point-grade.C,#dialogbody .up-product-grade.C{background:#fff0f2;color:#da6b7b}
 .kpm-main .kpm-chart-legend .S i{background:var(--green)}.kpm-main .kpm-chart-legend .A i{background:var(--orange)}.kpm-main .kpm-chart-legend .B i{background:#7c8eec}.kpm-main .kpm-chart-legend .C i{background:#e98191}
 #matrix.kpm-main .kpm-chart-zoom .kpm-expand{border:0;background:transparent;color:#7b8ba3;font-size:26px;width:32px;height:32px;padding:0;line-height:1}
 #matrix.kpm-main .kpm-chart-zoom .kpm-expand:hover{background:#f2f5fa;color:#294561}

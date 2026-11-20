@@ -2,7 +2,12 @@
 function gdTaskPreviewRow(button){
  const row=button.closest('tr[data-gd-task]');return row?.closest('table')?.dataset.columnKey==='gd-ledger-columns-v3'?row:null;
 }
-function gdCellPreview(markup){return '<div class="gd-task-cell" data-ui-cell-inline><div class="gd-task-preview" data-ui-cell-content>'+markup+'</div><button type="button" class="gd-task-more" data-gd-cell-more aria-expanded="false" hidden>展开</button></div>'}
+function gdCellPreview(markup,label=''){
+ return `<div class="gd-task-cell" data-ui-cell-inline><div class="gd-task-preview" data-ui-cell-content>${markup}</div><button type="button" class="gd-task-more" data-gd-cell-more${label?` data-gd-preview-label="${esc(label)}"`:''} aria-expanded="false" hidden>展开</button></div>`;
+}
+function gdTaskPreviewLabel(button){
+ return gdTaskPreviewRow(button)?'本行':button.dataset.gdPreviewLabel||button.closest('td').dataset.label;
+}
 let gdTaskPreviewObserver=null,gdTaskPreviewSequence=0;
 const gdTaskPreviewAnimations=new WeakMap();
 // 读取最后一个可见文字行的真实末端，避免把入口钉在宽单元格的最右侧。
@@ -35,11 +40,14 @@ function gdApplyCellTail(state){
 }
 function gdMountTaskPreviews(root){
  gdTaskPreviewObserver?.disconnect();
- const previews=[...root.querySelectorAll('.gd-table-scroll .gd-task-preview')];
+ gdTaskPreviewObserver=gdObserveTaskPreviews(root,[...root.querySelectorAll('.gd-table-scroll .gd-task-preview')]);
+}
+function gdObserveTaskPreviews(root,previews){
+ if(!previews.length)return null;
  const measure=()=>{
    const states=previews.filter(el=>el.isConnected&&!el.parentElement.classList.contains('is-transitioning')).map(el=>{
     const button=el.parentElement.querySelector('[data-gd-cell-more]'),expanded=button.getAttribute('aria-expanded')==='true',clipped=uiCellClipped(el);
-    return {button,expanded,clipped,label:gdTaskPreviewRow(button)?'本行':el.closest('td').dataset.label,tail:expanded||clipped?gdReadCellTail(el,expanded):null};
+    return {button,expanded,clipped,label:gdTaskPreviewLabel(button),tail:expanded||clipped?gdReadCellTail(el,expanded):null};
    });
    return ()=>{for(const {button,expanded,clipped,label,tail} of states){
     if(tail)gdApplyCellTail(tail);
@@ -49,15 +57,16 @@ function gdMountTaskPreviews(root){
    }};
  };
  const refresh=()=>dashboardQueueLayout(root,measure);
- gdTaskPreviewObserver=new ResizeObserver(refresh);
+ const observer=new ResizeObserver(refresh);
  for(const preview of previews){
   preview.id='gd-task-preview-'+(++gdTaskPreviewSequence);
   preview.parentElement.querySelector('[data-gd-cell-more]').setAttribute('aria-controls',preview.id);
-  gdTaskPreviewObserver.observe(preview);
+  observer.observe(preview);
  }
  // 行联动按钮同时声明所控制的文本，普通说明保留原单元格关系。
  for(const preview of previews){const button=preview.parentElement.querySelector('[data-gd-cell-more]'),row=gdTaskPreviewRow(button);if(row)button.setAttribute('aria-controls',[...row.querySelectorAll('.gd-task-preview')].map(el=>el.id).join(' '))}
  refresh();
+ return observer;
 }
 function gdToggleTaskPreview(button){
  const expanded=button.getAttribute('aria-expanded')!=='true',row=gdTaskPreviewRow(button);
@@ -71,7 +80,7 @@ function gdSetTaskPreview(button,expanded){
  if(previous){gdTaskPreviewAnimations.delete(cell);previous.cancel()}
  cell.classList.remove('is-transitioning');cell.classList.toggle('is-expanded',expanded);
  button.setAttribute('aria-expanded',String(expanded));button.textContent=expanded?'收起':'展开';
- button.setAttribute('aria-label',(expanded?'收起':'展开')+(gdTaskPreviewRow(button)?'本行':button.closest('td').dataset.label)+'完整内容');
+ button.setAttribute('aria-label',(expanded?'收起':'展开')+gdTaskPreviewLabel(button)+'完整内容');
  uiHideCellTooltip();
  gdApplyCellTail(gdReadCellTail(cell.querySelector('.gd-task-preview'),expanded));
  const to=cell.getBoundingClientRect().height;

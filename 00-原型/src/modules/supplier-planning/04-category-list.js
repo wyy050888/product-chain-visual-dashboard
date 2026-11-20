@@ -1,6 +1,7 @@
 // 完整三级类目列表与预警卡片共用统计口径；抽屉期间和筛选独立保存。
 function scpOpenCategories(){
- const state={period:{...scpState.categoryPeriod},query:'',category:scpCategoryNames[0],status:'all',page:1,sort:scpDefaultSort('categoryList')};
+ const categories=scpScopedCategories(),names=[...new Set(categories.map(category=>category.category))];
+ const state={period:{...scpState.categoryPeriod},query:'',category:names[0],status:'all',page:1,sort:scpDefaultSort('categoryList')};
  openModal('三级类目列表','<article class="scp-drawer" data-scp-drawer="categories"><div class="scp-category-list-tabs"></div><div class="scp-category-list-controls"></div><div class="scp-member-results"></div><div class="scp-member-pages"></div></article>',false,'');
  const root=$('#dialogbody>.scp-drawer'),controls=root.querySelector('.scp-category-list-controls'),result=root.querySelector('.scp-member-results');
  const periodHost=document.createElement('span');periodHost.className='scp-category-period-host';periodHost.innerHTML=scpPeriodControl('category-list',state.period);$('#dialogsub').replaceChildren(periodHost);
@@ -17,9 +18,9 @@ function scpOpenCategories(){
   for(const field of controls.querySelectorAll('label'))groupFilterField(field);
  }
  function paint(){
-  root.querySelector('.scp-category-list-tabs').innerHTML=scpCategoryTabs(state.category);
+  root.querySelector('.scp-category-list-tabs').innerHTML=scpCategoryTabs(state.category,false,names);
   const range=scpRange(state.period),targets=stStandards(state.period.year),q=state.query.trim().toLocaleLowerCase();
-  let rows=scpCategories.filter(c=>c.category===state.category&&c.path.toLocaleLowerCase().includes(q)).map(category=>({category,stats:scpStats({kind:'machine',categoryId:category.id},range)}));
+  let rows=categories.filter(c=>c.category===state.category&&c.path.toLocaleLowerCase().includes(q)).map(category=>({category,stats:scpStats({kind:'machine',categoryId:category.id},range)}));
   if(state.status!=='all')rows=rows.filter(row=>!range.future&&(state.status==='warning'?row.stats.newAdmitted<targets.categoryAdmitted||row.stats.newCooperation<targets.categoryCooperation:row.stats.newAdmitted>=targets.categoryAdmitted&&row.stats.newCooperation>=targets.categoryCooperation));
   rows=scpSort(rows,state.sort,(row,key)=>row.stats[key]);
   state.page=Math.min(state.page,Math.max(1,Math.ceil(rows.length/listPageSize(root.querySelector('.scp-member-pages')))));

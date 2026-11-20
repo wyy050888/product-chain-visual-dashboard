@@ -7,7 +7,7 @@ export async function shopPddDiagnosis(page){
  for(const [id,channel] of [[6,'拼多多'],[4,'抖音'],[3,'快手'],[5,'视频号'],[2,'天猫'],[1,'京东']]){
   await page.evaluate(id=>{const b=document.createElement('button');b.dataset.riskitem='1,'+id;document.body.append(b);b.click();b.remove()},id);await root.waitFor();
   const body=await root.locator('[data-sd-ai-content]').innerText(),labels=await root.locator('.sd-diagnosis-dimension>b').allTextContents();
-  assert.deepEqual(labels,[channel==='拼多多'?'核心链接':'评分','业绩','违规']);
+  assert.deepEqual(labels,[channel==='拼多多'?'核心链接':channel==='视频号'?'治理指标':'评分','业绩','违规']);
   await root.locator('[data-sd-prompt]').click();const prompt=await root.locator('.up-ai-prompt-dialog pre').innerText();
   if(channel==='拼多多'){
    assert.doesNotMatch(body,/店铺分|商品分|物流分|服务分|评分/);
@@ -17,7 +17,7 @@ export async function shopPddDiagnosis(page){
    assert(body.includes(links.filter(l=>l.assessment==='yellow').length+'条黄灯链接'));
    assert.match(body,/近30日（(?:2026|26)[/-]10[/-]02 — (?:2026|26)[/-]10[/-]31）/);
    assert.equal((body.match(/店铺负责人：/g)||[]).length,1);
-  }else{assert(prompt.endsWith(readAiPrompts().shop));assert(body.includes('最新可用评分'))}
+  }else{assert(prompt.includes(readAiPrompts().shop));assert(body.includes(channel==='视频号'?'结束日最新可用记录':'最新可用评分'))}
   await page.keyboard.press('Escape');await page.locator('#close').click();
  }
 }

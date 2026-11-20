@@ -51,7 +51,14 @@ function renderNewKpiTooltip(help){
  const criteria=append(metricTooltip,'section','','nsp-tip-criteria');append(criteria,'h5','按期完成条件');append(criteria,'strong','实际完成时间 ≤ 计划完成时间＋'+brcNumber('new.deliveryDays')+'天');
  append(metricTooltip,'p','未完成或超期不计入分子。','nsp-tip-note');
 }
-// 六榜规则按语义分组；所有文案使用textContent，避免把内容当作HTML执行。
+function renderMetricEmphasis(target,text,emphasis){
+ const position=emphasis?text.indexOf(emphasis):-1;
+ if(position<0){target.textContent=text;return}
+ target.append(text.slice(0,position));
+ metricRuleNode(target,'strong',emphasis);
+ target.append(text.slice(position+emphasis.length));
+}
+// 六榜规则按语义分组；规则文本以文本节点渲染。
 function renderMetricTooltipContent(help){
  const text=help.dataset.metricRule;
  metricTooltip.replaceChildren();
@@ -84,13 +91,7 @@ function renderMetricTooltipContent(help){
  }
  if(help.dataset.gdTabHelp){gdRenderScopeTooltip(metricTooltip,help);return}
  if(!help.classList.contains('card-metric-help')||!text.startsWith('入榜条件\n')){
-  const emphasis=help.dataset.metricEmphasis,position=emphasis?text.indexOf(emphasis):-1;
-  if(position<0)metricTooltip.textContent=text;
-  else{
-   metricTooltip.append(text.slice(0,position));
-   metricRuleNode(metricTooltip,'strong',emphasis);
-   metricTooltip.append(text.slice(position+emphasis.length));
-  }
+  renderMetricEmphasis(metricTooltip,text,help.dataset.metricEmphasis);
   return;
  }
  for(const block of text.split('\n\n')){
@@ -116,7 +117,7 @@ function renderMetricTooltipContent(help){
    formulas=null;
    if(/^(?:• |\d+\. )/.test(line)){
     if(!list){list=document.createElement(heading==='排序规则'?'ol':'ul');section.append(list)}
-    const item=document.createElement('li');item.textContent=line.replace(/^(?:• |\d+\. )/,'');list.append(item);
+    const item=document.createElement('li');renderMetricEmphasis(item,line.replace(/^(?:• |\d+\. )/,''),help.dataset.metricEmphasis);list.append(item);
    }else if(line){list=null;const note=document.createElement('p');note.textContent=line;section.append(note);}
   }
   metricTooltip.append(section);
@@ -152,6 +153,7 @@ function showMetricTooltip(help) {
   metricTooltip.classList.toggle('metric-tooltip-period', help.classList.contains('nsp-period-help'));
   metricTooltip.classList.toggle('metric-tooltip-project-analysis', help.classList.contains('pp-analysis-help'));
   metricTooltip.classList.toggle('metric-tooltip-inventory',Boolean(help.dataset.ipRule));
+  metricTooltip.classList.toggle('metric-tooltip-stock-total',help.dataset.stockRule==='total');
   metricTooltip.classList.toggle('metric-tooltip-inventory-summary',Boolean(help.dataset.ipSummaryHelp));
   metricTooltip.classList.toggle('metric-tooltip-quality-rates',Boolean(help.dataset.qualityRates));
   metricTooltip.classList.toggle('metric-tooltip-scp-sourcing',Boolean(help.dataset.scpSourcingHelp||help.dataset.scpCategoryHelp||help.dataset.scpMaterialHelp||help.dataset.scpResourceHelp));

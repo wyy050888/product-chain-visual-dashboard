@@ -44,7 +44,8 @@ function scpProjectCategory(p){
 let scpProjectCache=null;
 function scpProjectFacts(){
  if(scpProjectCache)return scpProjectCache;
- scpProjectCache=projects().filter(p=>/^(自研|自选)/.test(p.type)).map((project,i)=>{
+ // 缓存完整供应关系，视角和链群筛选由看板应用。
+ scpProjectCache=sampleProjectRows().filter(p=>/^(自研|自选)/.test(p.type)).map((project,i)=>{
   const category=scpProjectCategory(project),alias=scpProjectSupplierAliases.find(name=>project.name.includes(name)),pool=scpCapabilities.filter(row=>row.kind==='machine'&&row.categoryId===category.id).sort((a,b)=>Number(!!alias&&scpCompanyMap.get(b.supplierId).name.includes(alias))-Number(!!alias&&scpCompanyMap.get(a.supplierId).name.includes(alias))),links=pool.filter((_,j)=>j<3+i%5).map(row=>({...row,projectId:project.id}));
   // 沿用采购工作台的品类采购映射，不以项目经理或产品链主代替。
   return {project,category,links,procurementLead:pbOwner(project.chain)||null};

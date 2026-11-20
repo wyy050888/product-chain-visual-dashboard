@@ -17,9 +17,10 @@ function rpShopCardColumns(platform){const labels={fine:'平台罚款',frozen:'�
 // 卡片与店铺详情顶部共用评分及链接风险展示。
 function rpShopScoreMarkup(shop,fields,layout='tags'){
  if(shop.channel==='拼多多'&&fields.find(f=>f.key==='redLinks')?.unconfigured)return '<span class="muted">未配置核心链接</span>';
- const keys=shop.channel==='拼多多'?['redLinks','yellowLinks']:['score','productScore','logisticsScore','serviceScore'];
+ const keys=shop.channel==='拼多多'?['redLinks','yellowLinks']:shop.channel==='视频号'?sbWechatIndicators.map(metric=>metric.key):['score','productScore','logisticsScore','serviceScore'];
  return keys.map(key=>{
   const f=fields.find(field=>field.key===key);
+  if(shop.channel==='视频号')return `<div data-rp-field="${key}" title="${esc(f.hint)}"><small>${esc(f.name)}</small><strong class="${f.tone}">${esc(f.value)}</strong><small class="rp-shop-industry">${esc(f.target)}</small></div>`;
   if(shop.channel==='拼多多'){
    if(layout!=='summary')return rpPddLinkCount(f,true);
    const label=f.linkTone==='red'?'红灯链接':'黄灯链接',count=Number.isFinite(f.sortValue)?f.sortValue:'--';
@@ -35,7 +36,7 @@ function rpShopCardEntry(shop,index){
  const fields=rpShopFields(shop),field=key=>fields.find(f=>f.key===key);
  const scores=rpShopScoreMarkup(shop,fields,'summary');
  const keys=rpShopMetricKeys(shop.channel),metrics=keys.map(key=>{const f=field(key);return '<div class="rp-shop-metric" data-rp-field="'+key+'"><span class="rp-shop-mobile-label">'+netSalesLabel(f.name,key)+'</span><strong class="'+f.tone+'">'+numberSignalMain(f)+'</strong><small class="'+f.targetTone+'">'+(f.target?rpTargetText(f):'&nbsp;')+'</small></div>'}).join('');
- return '<article class="rp-entry rp-shop-entry" data-rp-row="1:'+shop.id+'" data-rp-kind="1"><div class="rp-entry-main"><header><span class="rank">'+String(index+1).padStart(2,'0')+'</span>'+rpShopIdentity(shop,true)+(scores?'<div class="rp-shop-scores'+(shop.channel==='拼多多'?' rp-shop-link-counts':'')+'">'+scores+'</div>':'')+'</header><div class="rp-shop-values" style="--rp-shop-metrics:'+keys.length+'">'+metrics+'</div></div></article>';
+ return '<article class="rp-entry rp-shop-entry" data-rp-row="1:'+shop.id+'" data-rp-kind="1"><div class="rp-entry-main"><header><span class="rank">'+String(index+1).padStart(2,'0')+'</span>'+rpShopIdentity(shop,true)+(scores?'<div class="rp-shop-scores'+(shop.channel==='拼多多'?' rp-shop-link-counts':shop.channel==='视频号'?' rp-shop-governance':'')+'">'+scores+'</div>':'')+'</header><div class="rp-shop-values" style="--rp-shop-metrics:'+keys.length+'">'+metrics+'</div></div></article>';
 }
 
 // 复用公共问号浮层；判定门槛与列表模型共用同一个常量。

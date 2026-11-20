@@ -34,9 +34,10 @@ function pcRiskWorkdays(from,to,isWorkingDay=date=>![0,6].includes(new Date(date
  return days;
 }
 // 提需池按「需求状态」判定，approvedAt 取最终审批通过时间；两处日期均转为业务时区的 ISO 日期。
-// 样例以两份截图的产品为原型；审批与立项字段、提需人及负责人使用演示值。
+// 审批、立项及提需人使用样例；产品经理统一取模板管理的产品链人员配置样例。
 // 云文档只选名称、链群、项目类型、品牌及目标价格和成本齐备的产品行。
 const pcInitiationDemo={
+ managers:{环境:'张晓阳',厨电:'刘萱',清洁:'潘东跃','个护&健康':'姚栋'},
  demand:[
   {id:'DEMO-DEMAND-01',name:'大口径原汁机',category:'厨电',type:'自研',brand:'苏泊尔、海尔',approvedAt:'2026-11-02',status:'待立项',targetLaunchDate:'2027-02-15',channel:'兴趣电商',requester:'周晓'},
   {id:'DEMO-DEMAND-02',name:'创维冰雾台扇',category:'环境',type:'自选',brand:'创维',approvedAt:'2026-11-03',status:'待立项',targetLaunchDate:'2027-03-25',channel:'天猫',requester:'许晨'},
@@ -44,20 +45,22 @@ const pcInitiationDemo={
   {id:'DEMO-DEMAND-05',name:'美的蒸汽炸烤箱PRO',category:'厨电',type:'迭代',brand:'美的',approvedAt:'2026-11-09',status:'待立项',targetLaunchDate:'2027-06-30',channel:'兴趣电商',requester:'张妍'}
  ],
  wps:[
-  {id:'DEMO-WPS-04',name:'苏泊尔2.5L玻璃方杯绞肉机',category:'厨电',type:'自选',brand:'苏泊尔',initiatedAt:'2026-11-04',oaNo:'',channel:'一类电商',manager:'侯佳莉'},
-  {id:'DEMO-WPS-05',name:'美的暖菜板',category:'厨电',type:'自选',brand:'美的',initiatedAt:'2026-11-06',oaNo:'',channel:'一类电商',manager:'侯佳莉'},
-  {id:'DEMO-WPS-06',name:'美的真蒸汽炸烤箱',category:'厨电',type:'自选',brand:'美的',initiatedAt:'2026-11-09',oaNo:'',channel:'二类电商',manager:'侯佳莉'}
+  {id:'DEMO-WPS-04',name:'苏泊尔2.5L玻璃方杯绞肉机',category:'厨电',type:'自选',brand:'苏泊尔',initiatedAt:'2026-11-04',oaNo:'',channel:'一类电商'},
+  {id:'DEMO-WPS-05',name:'美的暖菜板',category:'厨电',type:'自选',brand:'美的',initiatedAt:'2026-11-06',oaNo:'',channel:'一类电商'},
+  {id:'DEMO-WPS-06',name:'美的真蒸汽炸烤箱',category:'厨电',type:'自选',brand:'美的',initiatedAt:'2026-11-09',oaNo:'',channel:'二类电商'}
  ]
 };
-function pcRiskInitiationRows({demand=[],wps=[]},asOf,category=null,isWorkingDay){
+function pcRiskInitiationRows({demand=[],wps=[],managers={}},asOf,category=null,isWorkingDay){
  const bySource=(rows,source,condition,dateField)=>rows.flatMap(row=>{
   const date=ppDate(row[dateField]?.slice(0,10));
-  if(!date||date>asOf||!condition(row)||(category!==null&&row.category!==category))return [];
+  const chain=filterCatalog.normalizeChain(row.category)??row.category;
+  if(!date||date>asOf||!condition(row)||(category!==null&&chain!==category))return [];
   const wait=pcRiskWorkdays(date,asOf,isWorkingDay);
   if(wait<5)return [];
   const type=row.projectType??row.type;
   const projectType=[...pcProjectRiskTypes].find(([key,label])=>key===type||label===type)?.[0];
-  return [{...row,projectType,date,wait,source}];
+  const manager=Object.hasOwn(managers,chain)?managers[chain]:'';
+  return [{...row,category:chain,projectType,date,wait,source,manager}];
  });
  return [
   ...bySource(demand,'demand',row=>row.status==='待立项','approvedAt'),
@@ -79,10 +82,21 @@ function pcRiskData(asOf=dashboardToday(),initiationSources=pcInitiationDemo){
  const comparable=pcRiskProjectRows(projects,asOf),byId=(a,b)=>String(a.id).localeCompare(String(b.id),undefined,{numeric:true});
  const demoDelayed=pcRiskProjectRows(pcDelayedDemoProjects.filter(row=>category===null||row.category===category),asOf);
  const unsold=nspUnsoldSummary({category:category||'all',season:'all',asOf});
+ const materials=pcWithModulePeriod('projects',period,()=>{
+  const projectsById=new Map(projects.map(project=>[project.id,project]));
+  return comparable.filter(row=>row.daysUntil>=0&&row.daysUntil<=60)
+   .sort((a,b)=>a.daysUntil-b.daysUntil||b.delay-a.delay||byId(a,b))
+   .map((row,index)=>{
+    const {stageData}=projectControlModel(projectsById.get(row.id));
+    const names=stageData.flatMap(stage=>(stage.tasks||[])
+     .filter(task=>!task.done&&(task.target||task.state==='进行中')).map(task=>task.name));
+    return {...pcLaunchDemoFields(row,index),currentTask:ppValues(names).join('、')};
+   });
+ });
  return {
   delayed:{asOf,rows:[...comparable,...demoDelayed].filter(row=>row.delay>=90).sort((a,b)=>b.delay-a.delay||a.launch.localeCompare(b.launch)||byId(a,b)).map(pcLaunchDemoFields)},
   unsold,
-  materials:{asOf,rows:comparable.filter(row=>row.daysUntil>=0&&row.daysUntil<=60).sort((a,b)=>a.daysUntil-b.daysUntil||b.delay-a.delay||byId(a,b)).map(pcLaunchDemoFields)},
+  materials:{asOf,rows:materials},
   initiation:{asOf,rows:pcRiskInitiationRows(initiationSources,asOf,category)}
  };
 }

@@ -31,6 +31,7 @@ function sampleShopRows() {
     // 无后台配置的演示店铺才从明确名称初始化，考核与核心店铺保持独立。
     const shopCategory=shcRules.infer(channel,s.name);
     return shcApplyConfig({...s,...sampleShopDemoMetrics(s),id,shopCategory,assessed:id%3!==1,channel,owner:people[id%people.length],model:s.shopId,score,
+      ...(channel==='视频号'?{governanceHistory:s.governanceHistory??sampleWechatGovernance(s)}:{}),
       productScore:s.productScore??[4.3,4.8,4.9,4.4,4.2,3.1,3.3,3.2,4.9,3.5][id]??4.4,logisticsScore:s.logisticsScore??[4.4,4.8,4.9,4.2,4.3,3.4,3.6,3.5,4.9,3.6][id]??4.5,
       serviceScore:s.serviceScore??[4.2,4.9,4.8,4.1,4.4,3.2,3.5,3.4,4.8,3.5][id]??4.3,
       mainProducts:(products.length?products:sampleSpus.filter(p=>p.brand===s.brand)).slice(0,2).map(p=>p.name).join('、')||'—',

@@ -14,7 +14,7 @@ function rules(){
  vm.runInContext(fs.readFileSync(new URL('../../src/modules/sample-reference/04-shop-events.js',import.meta.url),'utf8'),ctx);
  vm.runInContext(fs.readFileSync(new URL('../../src/modules/risk-presentation/01-quality.js',import.meta.url),'utf8'),ctx);
  vm.runInContext(fs.readFileSync(new URL('../../src/modules/risk-presentation/01-shop.js',import.meta.url),'utf8'),ctx);
- for(const [platform,red,normal] of [['抖音',4.6,4.8],['快手',4.4,4.7],['视频号',4.4,4.7],['天猫',4.6,4.8],['京东',4.6,4.8]]){
+ for(const [platform,red,normal] of [['抖音',4.6,4.8],['快手',4.4,4.7],['天猫',4.6,4.8],['京东',4.6,4.8]]){
   assert.equal(ctx.rpShopScoreTone(platform,red),platform==='天猫'?'rp-quality-yellow':'rp-quality-red');
   assert.equal(ctx.rpShopScoreTone(platform,(red+normal)/2),'rp-quality-yellow');
   assert.equal(ctx.rpShopScoreTone(platform,normal),'rp-quality-green');
@@ -68,7 +68,8 @@ export async function shopPreview(page){
   const overflow=await card.evaluate(c=>[...c.querySelectorAll('.rp-shop-metric,.rp-shop-scores')].filter(el=>el.scrollWidth>el.clientWidth+1).length);
   assert.equal(overflow,0,'店铺卡片指标不能溢出 '+width);
  }
- assert.equal(await card.locator('.rp-shop-scores>div').count(),4*await card.locator('.rp-shop-scores:not(.rp-shop-link-counts)').count());
+ assert.equal(await card.locator('.rp-shop-scores:not(.rp-shop-link-counts):not(.rp-shop-governance)>div').count(),4*await card.locator('.rp-shop-scores:not(.rp-shop-link-counts):not(.rp-shop-governance)').count());
+ assert.equal(await card.locator('.rp-shop-governance>div').count(),3*await card.locator('.rp-shop-governance').count());
  assert.equal(await card.locator('.rp-shop-link-counts .rp-pdd-count--card').count(),2*await card.locator('.rp-shop-link-counts').count());
  assert.equal(await card.locator('[data-rp-pdd-shop]').count(),0);
  assert.equal(await card.locator('.rp-shop-values [data-rp-field="score"]').count(),0);

@@ -391,6 +391,10 @@
     "file": "./checks/lifecycle-targets.mjs",
     "export": "lifecycleTargets"
   },
+  "lifecycleBrandPlanning": {
+    "file": "./checks/lifecycle-brand-planning.mjs",
+    "export": "lifecycleBrandPlanning"
+  },
   "lifecycleProjectLinks": {
     "file": "./checks/lifecycle-project-links.mjs",
     "export": "lifecycleProjectLinks"
@@ -596,6 +600,10 @@
         6
       ]
     ]
+  },
+  "riskChainFilters": {
+    "file": "./checks/card-seasons.mjs",
+    "export": "riskChainFilters"
   },
   "newAssessmentMatrix": {
     "file": "./checks/new-assessment-matrix.mjs",

@@ -1,5 +1,6 @@
 const riskRankingKinds=[0,6,8,1,4,3,2];
 const riskRankingPages=new Map();
+let riskRankingSwitching=false;
 function rpAvailableRankingTabs(){return riskRankingKinds.map(kind=>({kind,label:rpRankingTabLabel(kind)}))}
 function riskRankingTitle(){return (pcIsActive()?'产品中心风险预警':'全局高危预警')+' · 完整榜单'}
 function riskRankingAttach(kind){
@@ -12,11 +13,58 @@ function riskRankingAttach(kind){
  $('#dialogtitle').textContent=riskRankingTitle();
  if(!tab.open&&!$('#dialogsub .period-picker'))$('#dialogsub').textContent=withPeriod('risk',riskRangeText);
  drawerNav.setAttribute('aria-label','风险榜单');
+ if(pcIsActive()&&!riskRankingBackground.size)dashboardQueueLayout($('#risk'),riskRankingMeasureBackground);
  drawerQueueRefresh();
 }
+// 抽屉打开时保留屏外模块的原高度，跳过这些模块内部的样式和布局计算。
+const riskRankingBackground=new Map();
+function riskRankingMeasureBackground(risk){
+ if(!pcIsActive()||$('#overlay').hidden||!$('#dialog').classList.contains('risk-ranking-drawer'))return;
+ const sections=risk.parentElement.querySelectorAll(':scope > .section:not(#risk)');
+ const boards=risk.querySelectorAll('#riskrail [data-rp-board]');
+ const offscreen=[];
+ for(const node of [...sections,...boards]){
+  const rect=node.getBoundingClientRect();
+  if(!rect.height||(rect.bottom>0&&rect.top<window.innerHeight))continue;
+  const css=getComputedStyle(node);
+  const insets=['paddingTop','paddingBottom','borderTopWidth','borderBottomWidth'].reduce((sum,key)=>sum+(parseFloat(css[key])||0),0);
+  offscreen.push({node,contentHeight:Math.max(0,rect.height-insets)});
+ }
+ return ()=>{
+  for(const {node,contentHeight} of offscreen){
+   const style=node.style;
+   riskRankingBackground.set(node,[style.contentVisibility,style.containIntrinsicBlockSize]);
+   style.containIntrinsicBlockSize=contentHeight+'px';
+   style.contentVisibility='hidden';
+  }
+ };
+}
+function riskRankingResumeBackground(){
+ for(const [node,[visibility,size]] of riskRankingBackground){
+  node.style.contentVisibility=visibility;
+  node.style.containIntrinsicBlockSize=size;
+ }
+ riskRankingBackground.clear();
+}
+new MutationObserver(()=>{if($('#overlay').hidden)riskRankingResumeBackground()})
+ .observe($('#overlay'),{attributes:true,attributeFilter:['hidden']});
+window.addEventListener('resize',()=>{
+ if(!riskRankingBackground.size)return;
+ riskRankingResumeBackground();
+ dashboardQueueLayout($('#risk'),riskRankingMeasureBackground);
+});
 function riskRankingRemember(kind){
  if(kind===0)riskRankingPages.set(kind,{page:qrState.listPage});
  else riskRankingPages.set(kind,{page:rfState.page,dimension:rfState.dimension});
+}
+function riskRankingOpenModal(title,markup,drawer=false,subtitle=''){
+ if(!riskRankingSwitching)return openModal(title,markup,drawer,subtitle);
+ // 同一层只换榜单内容，保留标签节点，并在下一次布局时重置滚动。
+ const body=$('#dialogbody');
+ delete body.dataset.rankingPeriod;
+ $('#dialogsub').textContent=subtitle;
+ body.innerHTML=markup;
+ dashboardQueueLayout(body,dashboardMeasureResetScroll);
 }
 function riskRankingSwitch(kind,focus=false){
  const tab=rpAvailableRankingTabs().find(t=>t.kind===kind);
@@ -25,17 +73,20 @@ function riskRankingSwitch(kind,focus=false){
  if(current!==String(kind)){
   const native=Number(current);
   if(Number.isInteger(native))riskRankingRemember(native);
-  if(tab.open){
-   if(Number.isInteger(native))rpListState.periods[native]={...rpListState.period};
-   tab.open();
-  }else{
-   const saved=riskRankingPages.get(kind);
-   withPeriod('risk',()=>{
-    if(pcIsActive()&&!saved)return rpOpenList(kind,true);
-    if(kind===0){qrState.listPage=saved?.page||1;qrOpenList();}
-    else{rfState.kind=kind;rfState.page=saved?.page||1;rfState.dimension=saved?.dimension||'spu';rfOpenList(kind,false);}
-   });
-  }
+  riskRankingSwitching=pcIsActive();
+  try{
+   if(tab.open){
+    if(Number.isInteger(native))rpListState.periods[native]={...rpListState.period};
+    tab.open();
+   }else{
+    const saved=riskRankingPages.get(kind);
+    withPeriod('risk',()=>{
+     if(pcIsActive()&&!saved)return rpOpenList(kind,true);
+     if(kind===0){qrState.listPage=saved?.page||1;qrOpenList();}
+     else{rfState.kind=kind;rfState.page=saved?.page||1;rfState.dimension=saved?.dimension||'spu';rfOpenList(kind,false);}
+    });
+   }
+  }finally{riskRankingSwitching=false}
  }
  if(focus)queueMicrotask(()=>drawerNav.querySelector(`[data-drawer-tab="ranking-${kind}"]`)?.focus({preventScroll:true}));
 }

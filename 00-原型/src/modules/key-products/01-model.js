@@ -6,8 +6,8 @@ const kpmDefaultSort=Object.freeze({key:'sales',direction:'desc'});
 const kpmSort={...kpmDefaultSort};
 const kpmPage={value:1,key:''};
 function kpmPageSize(){return listPageSize('matrix-product-pager',10)}
-function kpmRows(){
- const platform=kpmBusinessPlatforms(),range=upWindow(),previousEnd=shiftDate(range.start,-1),previousStart=shiftDate(range.start,-aiFlowDayDiff(range.start,range.end)-1);
+function kpmRows(platform=kpmBusinessPlatforms()){
+ const range=upWindow(),previousEnd=shiftDate(range.start,-1),previousStart=shiftDate(range.start,-aiFlowDayDiff(range.start,range.end)-1);
  const stockBySpu=upWithRange({start:shiftDate(DATA_CUTOFF,-29),end:DATA_CUTOFF},()=>new Map(inventoryProductLedger().map(r=>[r.spuId,upStockFacts(r)])));
  return productRows(false).flatMap(p=>{
   const identity=upIdentity(p),pool=identity.cohort==='new'?nspPoolStatus(p,range.end):null;

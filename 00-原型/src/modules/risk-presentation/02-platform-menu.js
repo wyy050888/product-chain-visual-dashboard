@@ -13,14 +13,15 @@ function rpPlatformCounts(kind,currentRows){
  }));
 }
 function rpPlatformMenu(kind,rows){
- if([3,4].includes(kind))return rpCardSeasonTags(kind);
+ if([3,4].includes(kind))return `<div class="rp-filter-groups rp-card-facets">${rpCardSeasonTags(kind)}${rpCardChainControl(kind)}</div>`;
  const value=rpCardPlatform(kind),multiple=rpQualityPlatformKinds.includes(kind),counts=rpPlatformCounts(kind,rows),label=rpTitles[kind]+'平台';
- const includeAll=kind!==1,hint='入榜记录数随期间和季品更新'+(kind===0?'；同一SPU全平台去重，各平台筛选该平台有品质处罚的SPU，排序仍按全平台违规总次数及近30天GSV':[6,8].includes(kind)?'；按SPU×平台逐条统计，同一SPU跨平台分别入榜':kind===1?'；按店铺所属平台统计':'；全平台沿用整体统计口径，不将各平台数量相加');
+ const includeAll=kind!==1,hint='入榜记录数随期间和筛选条件更新'+(kind===0?'；同一SPU全平台去重，各平台筛选该平台有品质处罚的SPU，排序仍按全平台违规总次数及近30天GSV':[6,8].includes(kind)?'；按SPU×平台逐条统计，同一SPU跨平台分别入榜':kind===1?'；按店铺所属平台统计':'；全平台沿用整体统计口径，不将各平台数量相加');
  const buttons=[...(includeAll?['all']:[]),...qrPlatforms].map(platform=>{
   const selected=pfOptionSelected(value,platform),name=platform==='all'?'全平台':platform,count=counts.get(platform);
   return '<button type="button" class="rp-platform-tag" role="'+(multiple?'checkbox':'radio')+'" tabindex="'+(multiple||selected?'0':'-1')+'" aria-checked="'+selected+'" aria-label="'+esc(name+'，'+count+'条入榜记录')+'" title="'+esc(name+' · '+count+'条入榜记录')+'" data-rp-platform-option="'+platform+'">'+rpPlatformMenuLabel(platform)+'<b class="rp-platform-count">'+count+'</b></button>';
  }).join('');
- return '<div class="rp-platform-menu rp-card-facets" data-rp-platform-menu="'+kind+'"><div class="rp-platform-tags" role="'+(multiple?'group':'radiogroup')+'" aria-label="'+esc(label)+'" title="'+esc(hint)+'">'+buttons+'</div><select '+(multiple?'multiple ':'')+'hidden tabindex="-1" data-rp-card-platform="'+kind+'" aria-label="'+esc(label)+'">'+rpPlatformOptions(value,includeAll)+'</select>'+rpReturnProductTypeControl(kind)+'</div>';
+ const facets=multiple?rpReturnProductTypeControl(kind)+rpCardSeasonTags(kind)+rpCardChainControl(kind):'';
+ return `<div class="rp-platform-menu rp-card-facets${facets?' rp-filter-groups':''}" data-rp-platform-menu="${kind}"><div class="rp-platform-tags" role="${multiple?'group':'radiogroup'}" aria-label="${esc(label)}" title="${esc(hint)}">${buttons}</div><select ${multiple?'multiple ':''}hidden tabindex="-1" data-rp-card-platform="${kind}" aria-label="${esc(label)}">${rpPlatformOptions(value,includeAll)}</select>${facets}</div>`;
 }
 // 多选方向键只移动焦点；焦点移出可见区域时只滚动标签条。
 function rpFocusPlatformOption(button){

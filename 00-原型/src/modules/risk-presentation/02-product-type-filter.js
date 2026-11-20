@@ -1,8 +1,8 @@
-// 产品违规/退货恶化各自保存新老品选择；缺失标记只在全部中显示。
-const rpCardProductTypes={0:'all',6:'all'};
+// 违规与两张退货榜各自保存新老品选择；缺失标记只在全部中显示。
+const rpCardProductTypes={0:'all',6:'all',8:'all'};
 const rpReturnTypeChoices=[{value:'all',label:'全部'},{value:'new',label:'新品'},{value:'old',label:'老品'}];
 function rpCardProductFilters(kind){
- return {attribute:rpCardSeasons[kind]||'all',productType:rpCardProductTypes[kind]||'all'};
+ return {attribute:rpCardSeasons[kind]||'all',productType:rpCardProductTypes[kind]||'all',chain:rpCardChains[kind]||'all'};
 }
 function rpReturnProductTypeControl(kind){
  if(!Object.hasOwn(rpCardProductTypes,kind))return '';

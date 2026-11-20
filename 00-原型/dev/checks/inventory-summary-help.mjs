@@ -11,7 +11,7 @@ export async function verifyInventorySummaryHelp(page){
   assert.equal(await help.getAttribute('aria-describedby'),'metric-tooltip');
   assert.deepEqual(await tooltip.locator('h5').allTextContents(),['库存周转率','交付及时率','翻新闭环率']);
   assert.equal(await tooltip.locator('.metric-rule-band-table').count(),2);
-  const text=await tooltip.innerText();for(const value of ['0.85','0.3','2.5','0.9','10','3.6','98%','97.5%','30天','总采购单量'])assert(text.includes(value),value);
+  const text=await tooltip.innerText();for(const value of ['0.85','0.3','2.5','0.9','10','3.6','98%','97.5%','33天','采购单SKU总条数'])assert(text.includes(value),value);
   assert.equal(await tooltip.locator('.is-current>td:first-child').innerText(),'季度');
   assert(await tooltip.evaluate(e=>e.classList.contains('metric-tooltip-inventory-summary')&&!e.classList.contains('metric-tooltip-inventory')));
   await page.keyboard.press('Escape');assert(await tooltip.isHidden());assert.equal(await help.getAttribute('aria-describedby'),null);
@@ -25,6 +25,6 @@ export async function verifyInventorySummaryHelp(page){
   assert(await tooltip.evaluate(e=>{const b=e.getBoundingClientRect();return b.left>=0&&b.right<=innerWidth&&b.top>=0&&b.bottom<=innerHeight&&e.scrollWidth<=e.clientWidth+1}),'规则卡不越界');await page.keyboard.press('Escape');
  }
  await page.setViewportSize({width:1920,height:1080});
- await reveal(page.locator('#inventory [data-stock-card="warehouse"] [data-stock-rule="warehouse"]'));assert(!await tooltip.evaluate(e=>e.classList.contains('metric-tooltip-inventory-summary')));assert((await tooltip.innerText()).includes('聚量实体仓仓库库存'));await page.keyboard.press('Escape');
+ await reveal(page.locator('#inventory [data-stock-card="warehouse"] [data-stock-rule="warehouse"]'));assert(!await tooltip.evaluate(e=>e.classList.contains('metric-tooltip-inventory-summary')));assert((await tooltip.innerText()).includes('聚水潭实体仓'));await page.keyboard.press('Escape');
  console.log('通过：模块标题合并规则卡、两项同源阈值与闭环口径、统一期间、键盘关闭及窄/短屏边界');
 }

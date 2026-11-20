@@ -168,3 +168,4 @@
 .ui-chevron-right{display:block;flex:none;width:12px;height:12px;background:currentColor;mask:var(--filter-chevron) center/contain no-repeat;transform:rotate(-90deg);pointer-events:none}
 .ui-icon-label>.ui-dropdown-icon{background:currentColor;mask:var(--filter-chevron) center/contain no-repeat}
 .ui-icon-label[aria-expanded=true]>.ui-dropdown-icon{background-image:none;mask-image:var(--filter-chevron-up)}
+.ui-disclosure[aria-expanded=false]>.ui-dropdown-icon{transform:rotate(-90deg)}

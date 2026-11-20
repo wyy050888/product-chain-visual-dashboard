@@ -32,18 +32,20 @@ lifeChainMonthFacts=function(stage,month,p=periodFor()){
 // 缓存仅在单次生命周期重绘中复用，避免跨次查询沿用旧项目事实。
 const ppLifecycleRender=renderLife;
 renderLife=function(...args){const previous=ppLifecycleReadCache;ppLifecycleReadCache=new Map();try{return ppLifecycleRender(...args)}finally{ppLifecycleReadCache=previous}};
-function ppLifecycleCompletionToast(scope,stage=lifeIndex,chain='all'){
+function ppLifecycleCompletionToast(scope,stage=lifeIndex,chain='all',brand=''){
  if(!['period','year'].includes(scope))return false;
+ if(stage===ltInnovationStage&&pcIsActive())chain=pcChain()??'all';
  const p=periodFor('lifecycle'),annual=scope==='year'||p.mode==='year';
  const period=p.year+'年'+(annual?'':p.mode==='quarter'?'第'+p.value+'季度':p.value+'月');
  const chainCondition=chain!=='all'&&chains[Number(chain)]?'\n链群 = '+chains[Number(chain)]:'';
+ const brandCondition=brand?'\n品牌 = '+brand:'';
  if(stage===7){
-  toast('点击跳转产品中心-预下市，筛选条件为：\n下市时间 = '+period+chainCondition);
+  toast('点击跳转产品中心-预下市，筛选条件为：\n下市时间 = '+period+chainCondition+brandCondition);
  }else{
   const plan=ppLifecyclePlans[stage];if(!plan)return false;
   const type=['自研','自选','自研','自选','产品迭代','品质整改','研发创新'][stage];
   const date=stage<2?'计划量产/完成日期':'立项日期';
-  toast('点击跳转项目列表，筛选条件为：\n项目类型 = '+type+'\n'+date+' = '+period+'\n项目状态 ≠ 已取消、已暂停'+chainCondition);
+  toast('点击跳转项目列表，筛选条件为：\n项目类型 = '+type+'\n'+date+' = '+period+'\n项目状态 ≠ 已取消、已暂停'+chainCondition+brandCondition);
  }
  return true;
 }

@@ -324,10 +324,11 @@ button.scp-count:focus-visible,.scp-project-link:focus-visible{outline:2px solid
 /* 分类、三级类目、品牌独立展示；物料六列均为期间实际/目标。 */
 .scp-material-detail-table .scp-material-category-cell{overflow-wrap:anywhere}
 
-/* 寻源项目类型在前，搜索在后；窄屏可换行。 */
-.scp-project-card .scp-project-tools{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+/* 链群位于搜索左侧，窄屏允许搜索换行。 */
+.scp-machine-grid .scp-card-search{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .scp-project-tools .scp-project-types{flex:none;white-space:nowrap}
-#suppliergrid .scp-project-tools>.ui-search-field.unified-input-group{flex:1 1 160px;width:auto;max-width:none;min-width:0}
+#suppliergrid .scp-card-search>.scp-chain-filter{flex:none}
+#suppliergrid .scp-card-search>.ui-search-field.unified-input-group{flex:1 1 160px;width:auto;max-width:none;min-width:0}
 
 .scp-material-summary-table .scp-summary-count-unit{margin-left:3px;color:#8292aa;font-size:12px;font-weight:400}
 
