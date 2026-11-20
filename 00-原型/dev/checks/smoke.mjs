@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 
 export async function smoke(page){
  await navigationPerformance(page);
- assert.equal(await page.locator('#riskrail .riskcard').count(),6);
+ assert.equal(await page.locator('#riskrail .riskcard').count(),7);
  await page.locator('#riskrail [data-risk="0"]').click();
  const table=page.locator('#dialogbody .rp-list-table');
  assert.ok(await table.locator('tbody tr').count()>0);

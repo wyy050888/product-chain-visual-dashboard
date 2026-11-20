@@ -673,9 +673,9 @@ export async function productCenter(page){
  const riskLabels=['项目红/黄灯数','新增红/黄灯风险数','闭环红/黄灯风险数'];
  const riskHelp=label=>projectTable.getByRole('button',{name:label+'说明'});
  const checkRiskTips=async(end,dates)=>{
-  assert.equal(await riskHelp(riskLabels[0]).getAttribute('data-metric-rule'),`统计截至${end} 23:59:59的红灯项目；黄灯、绿灯项目同理。`);
-  assert.equal(await riskHelp(riskLabels[1]).getAttribute('data-metric-rule'),`统计${dates}新增的红灯/黄灯风险数。`);
-  assert.equal(await riskHelp(riskLabels[2]).getAttribute('data-metric-rule'),`统计${dates}闭环的红灯/黄灯风险数。`);
+  assert.equal(await riskHelp(riskLabels[0]).getAttribute('data-metric-rule'),`统计截至 ${end} 23:59:59 仍在进行的红灯项目数。黄灯、绿灯项目同理。`);
+  assert.equal(await riskHelp(riskLabels[1]).getAttribute('data-metric-rule'),`统计 ${dates} 新增的红灯/黄灯风险数`);
+  assert.equal(await riskHelp(riskLabels[2]).getAttribute('data-metric-rule'),`统计 ${dates} 闭环的红灯/黄灯风险数`);
  };
  assert.deepEqual((await projectTable.locator('thead th').allTextContents()).slice(5,9).map(label=>label.trim()),['产品下市数',...riskLabels]);
  assert.equal(await projectTable.locator('thead th:nth-child(n+6):nth-child(-n+9) small').count(),0);
@@ -692,7 +692,7 @@ export async function productCenter(page){
  await checkPersonnelTotals();
  const sampleManager=chainBodies.locator('tr').filter({has:page.getByRole('rowheader',{name:'张晓阳',exact:true})});
  assert.equal(await sampleManager.locator('[data-pc-project-metric="launched"]').textContent(),'0 / 1 / 0','A944 上市数按产品样例归入张晓阳');
- await riskHelp(riskLabels[2]).hover();assert.match(await page.locator('#metric-tooltip').innerText(),/26\/10\/01-26\/10\/31闭环/);
+ await riskHelp(riskLabels[2]).hover();assert.match(await page.locator('#metric-tooltip').innerText(),/26\/10\/01-26\/10\/31 闭环/);
  await page.keyboard.press('Escape');
  const monthTotals=await projectCounts(),monthSales=await salesCells();
  assert(monthTotals.flat().some(value=>/[1-9]/.test(value)),'月份展示实际项目指标');
