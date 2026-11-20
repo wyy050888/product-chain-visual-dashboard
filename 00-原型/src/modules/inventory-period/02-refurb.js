@@ -9,30 +9,26 @@ function ipRefurbDate(value){return typeof value==='string'&&/^\d{4}-\d{2}-\d{2}
 function ipRefurbPeriodOrders(records,start,end){
  const selected=new Map();
  for(const row of records){
-  if(!row.requisitionId||!row.skuId||!ipRefurbDate(row.orderedAt)||row.orderedAt<start||row.orderedAt>end)continue;
+  if(!row.requisitionId||!row.skuId||!ipRefurbDate(row.completedAt)||row.completedAt<start||row.completedAt>end)continue;
   const key=JSON.stringify([row.requisitionId,row.skuId]);
   if(!selected.has(key))selected.set(key,row);
  }
  return [...selected.values()];
 }
 function ipRefurbCycleDays(row){
- if(row.completedAt<row.orderedAt)return null;
+ if(!ipRefurbDate(row.orderedAt)||row.completedAt<row.orderedAt)return null;
  return aiFlowDayDiff(row.orderedAt,row.completedAt);
 }
 function ipRefurbSummary(records,end){
  const orders=ipRefurbPeriodOrders(records.flatMap(record=>record.refurbOrders||[]),'',end);
- const buckets=ipRefurbBuckets.map(({key,label})=>({key,label,count:0}));let completed=0,unknown=0;
+ const buckets=ipRefurbBuckets.map(({key,label})=>({key,label,count:0}));let unknown=0;
  for(const row of orders){
-  if(!row.completedAt)continue;
-  if(!ipRefurbDate(row.completedAt)){unknown++;continue}
-  if(row.completedAt>end)continue;
-  completed++;
   const days=ipRefurbCycleDays(row);
   if(!Number.isFinite(days)){unknown++;continue}
   buckets[ipRefurbBuckets.findIndex(bucket=>bucket.hit(days))].count++;
  }
  const total=orders.length,onTime=buckets[0].count;
- return {total,onTime,completed,unknown,buckets,rate:total&&!unknown?onTime/total*100:null,end};
+ return {total,onTime,completed:total,unknown,buckets,rate:total&&!unknown?onTime/total*100:null,end};
 }
 // 数值悬停/聚焦查看同范围请购单天数分布；问号继续提供指标口径。
 function ipRefurbRateCell(row){

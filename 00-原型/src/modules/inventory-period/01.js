@@ -1,11 +1,12 @@
 // 采购单样例按下单月份归档；到厂和翻新完成可跨月。
+const ipSampleTransitDays=[2,3,4,5,6],ipSampleRefurbDays=[5,12,20,29,30,35,45,59,60,72];
 function ipRefurbSampleOrders(record,index,month){
  const spuId=String(record.spuId||record.model||record.id),start=month+'-01';
  const skus=upStockSkus(record);
  return Array.from({length:2+index%2},(_,i)=>{
   const orderedAt=shiftDate(start,(index+Math.floor(i/2)*7)%18);
-  const arrivedAt=(index+i)%11===0?null:shiftDate(orderedAt,2+(index+i)%5);
-  const days=[5,12,20,29,30,35,45,59,60,72][(index+i)%10];
+  const arrivedAt=(index+i)%11===0?null:shiftDate(orderedAt,ipSampleTransitDays[(index+i)%ipSampleTransitDays.length]);
+  const days=ipSampleRefurbDays[(index+i)%ipSampleRefurbDays.length];
   const completedAt=arrivedAt&&(index+i)%7!==0?shiftDate(arrivedAt,days):null;
   return {requisitionId:'REF-'+spuId+'-'+month+'-'+(1+Math.floor(i/2)),skuId:skus[i].skuId,spuId,orderedAt,arrivedAt,completedAt};
  });

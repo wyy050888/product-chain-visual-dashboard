@@ -17,6 +17,10 @@ function ipMetricMonth(month){
 }
 function ipMetricRecords(records,period){
  const range=bounds(period),months=ipMetricMonths(range.start,range.cutoff).map(ipMetricMonth);
+ // 样例按采购月归档，用样例最长交付周期找齐来源月份，再按实际完成日筛选。
+ const earliestOrder=shiftDate(range.start,-(Math.max(...ipSampleTransitDays)+Math.max(...ipSampleRefurbDays)));
+ const priorMonths=months.length?ipMetricMonths(earliestOrder,shiftDate(range.start.slice(0,7)+'-01',-1)).map(ipMetricMonth):[];
+ const refurbMonths=priorMonths.concat(months);
  const key=range.start+'|'+range.cutoff;let costs=ipMetricCostCache.get(key);
  if(!costs){costs=new Map(upWithRange({start:range.start,end:range.cutoff},()=>inventoryProductLedger()).map(row=>[row.spuId,{cost:row.cost,avg:row.avg}]));ipMetricCostCache.set(key,costs)}
  return records.map(record=>{
@@ -27,7 +31,7 @@ function ipMetricRecords(records,period){
    const first=aiFlowDayDiff(month.start,start),last=aiFlowDayDiff(month.start,end);
    deliveryDue+=targetSum(row.planned.slice(first,last+1));deliveryOn+=targetSum(row.delivered.slice(first,last+1));
   }
-  const refurbOrders=ipRefurbPeriodOrders(months.flatMap(month=>month.rows.get(record.spuId)?.refurbOrders||[]),range.start,range.cutoff);
+  const refurbOrders=ipRefurbPeriodOrders(refurbMonths.flatMap(month=>month.rows.get(record.spuId)?.refurbOrders||[]),range.start,range.cutoff);
   const {cost=0,avg=0}=costs.get(record.spuId)||{};
   const row={...record,cost,avg,deliveryOn,deliveryDue,refurbOrders,refurbEnd:range.cutoff};
   return {...row,...ipStockSum([row])};

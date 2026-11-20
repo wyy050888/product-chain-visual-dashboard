@@ -11,7 +11,7 @@ export async function verifyInventorySummaryHelp(page){
   assert.equal(await help.getAttribute('aria-describedby'),'metric-tooltip');
   assert.deepEqual(await tooltip.locator('h5').allTextContents(),['库存周转率','交付及时率','翻新闭环率']);
   assert.equal(await tooltip.locator('.metric-rule-band-table').count(),2);
-  const text=await tooltip.innerText();for(const value of ['0.85','0.3','2.5','0.9','10','3.6','98%','97.5%','33天','采购单SKU总条数'])assert(text.includes(value),value);
+  const text=await tooltip.innerText();for(const value of ['0.85','0.3','2.5','0.9','10','3.6','98%','97.5%','33天','本期完成交付的总单数'])assert(text.includes(value),value);
   assert.equal(await tooltip.locator('.is-current>td:first-child').innerText(),'季度');
   assert(await tooltip.evaluate(e=>e.classList.contains('metric-tooltip-inventory-summary')&&!e.classList.contains('metric-tooltip-inventory')));
   await page.keyboard.press('Escape');assert(await tooltip.isHidden());assert.equal(await help.getAttribute('aria-describedby'),null);

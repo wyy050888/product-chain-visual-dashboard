@@ -5228,13 +5228,14 @@ function openMatrixDiagnosis(id){withPeriod('matrix',()=>{
  $('#md-open-trend').onclick=()=>{const old=localPeriods.matrix;localPeriods.matrix=period;try{openNewProductTrends(p.id,false,'matrix')}finally{if(old)localPeriods.matrix=old;else delete localPeriods.matrix}};
  });}
 document.addEventListener('click',e=>{const button=e.target.closest('[data-matrix-diagnosis],[data-dp-matrix-diagnosis]');if(!button)return;if(button.dataset.dpMatrixDiagnosis!==undefined)dpLegacy('matrix','matrix',()=>openMatrixDiagnosis(button.dataset.dpMatrixDiagnosis));else openMatrixDiagnosis(button.dataset.matrixDiagnosis)});// 采购单样例按下单月份归档；到厂和翻新完成可跨月。
+const ipSampleTransitDays=[2,3,4,5,6],ipSampleRefurbDays=[5,12,20,29,30,35,45,59,60,72];
 function ipRefurbSampleOrders(record,index,month){
  const spuId=String(record.spuId||record.model||record.id),start=month+'-01';
  const skus=upStockSkus(record);
  return Array.from({length:2+index%2},(_,i)=>{
   const orderedAt=shiftDate(start,(index+Math.floor(i/2)*7)%18);
-  const arrivedAt=(index+i)%11===0?null:shiftDate(orderedAt,2+(index+i)%5);
-  const days=[5,12,20,29,30,35,45,59,60,72][(index+i)%10];
+  const arrivedAt=(index+i)%11===0?null:shiftDate(orderedAt,ipSampleTransitDays[(index+i)%ipSampleTransitDays.length]);
+  const days=ipSampleRefurbDays[(index+i)%ipSampleRefurbDays.length];
   const completedAt=arrivedAt&&(index+i)%7!==0?shiftDate(arrivedAt,days):null;
   return {requisitionId:'REF-'+spuId+'-'+month+'-'+(1+Math.floor(i/2)),skuId:skus[i].skuId,spuId,orderedAt,arrivedAt,completedAt};
  });
@@ -5300,6 +5301,10 @@ function ipMetricMonth(month){
 }
 function ipMetricRecords(records,period){
  const range=bounds(period),months=ipMetricMonths(range.start,range.cutoff).map(ipMetricMonth);
+ // 样例按采购月归档，用样例最长交付周期找齐来源月份，再按实际完成日筛选。
+ const earliestOrder=shiftDate(range.start,-(Math.max(...ipSampleTransitDays)+Math.max(...ipSampleRefurbDays)));
+ const priorMonths=months.length?ipMetricMonths(earliestOrder,shiftDate(range.start.slice(0,7)+'-01',-1)).map(ipMetricMonth):[];
+ const refurbMonths=priorMonths.concat(months);
  const key=range.start+'|'+range.cutoff;let costs=ipMetricCostCache.get(key);
  if(!costs){costs=new Map(upWithRange({start:range.start,end:range.cutoff},()=>inventoryProductLedger()).map(row=>[row.spuId,{cost:row.cost,avg:row.avg}]));ipMetricCostCache.set(key,costs)}
  return records.map(record=>{
@@ -5310,7 +5315,7 @@ function ipMetricRecords(records,period){
    const first=aiFlowDayDiff(month.start,start),last=aiFlowDayDiff(month.start,end);
    deliveryDue+=targetSum(row.planned.slice(first,last+1));deliveryOn+=targetSum(row.delivered.slice(first,last+1));
   }
-  const refurbOrders=ipRefurbPeriodOrders(months.flatMap(month=>month.rows.get(record.spuId)?.refurbOrders||[]),range.start,range.cutoff);
+  const refurbOrders=ipRefurbPeriodOrders(refurbMonths.flatMap(month=>month.rows.get(record.spuId)?.refurbOrders||[]),range.start,range.cutoff);
   const {cost=0,avg=0}=costs.get(record.spuId)||{};
   const row={...record,cost,avg,deliveryOn,deliveryDue,refurbOrders,refurbEnd:range.cutoff};
   return {...row,...ipStockSum([row])};
@@ -5372,7 +5377,7 @@ function ipRenderSummaryHelp(host,help){
  group('交付及时率',[['全部周期',brcBandRows('delivery').map(r=>r.text)]]);
  const closure=metricRuleNode(body,'section','','metric-rule-section');metricRuleNode(closure,'h5','翻新闭环率');
  metricRuleNode(closure,'p',ipOverviewRules.refurb.text,'metric-rule-note');
- metricRuleNode(closure,'p','按采购单下单日期筛选，同一采购单每个SKU计一次，含尚未完成交付的条目。','metric-rule-note');
+ metricRuleNode(closure,'p','按交付完成日期归入考核期。同一SKU对应两张采购单，分别计为两单。','metric-rule-note');
 }
 // 类目、品牌和SPU列表共用库存快照；数量、金额先汇总，再计算比率。
 // 库存独立保留五类；沿用原五类样例映射，正式分类以产品主数据为准。
@@ -5456,30 +5461,26 @@ function ipRefurbDate(value){return typeof value==='string'&&/^\d{4}-\d{2}-\d{2}
 function ipRefurbPeriodOrders(records,start,end){
  const selected=new Map();
  for(const row of records){
-  if(!row.requisitionId||!row.skuId||!ipRefurbDate(row.orderedAt)||row.orderedAt<start||row.orderedAt>end)continue;
+  if(!row.requisitionId||!row.skuId||!ipRefurbDate(row.completedAt)||row.completedAt<start||row.completedAt>end)continue;
   const key=JSON.stringify([row.requisitionId,row.skuId]);
   if(!selected.has(key))selected.set(key,row);
  }
  return [...selected.values()];
 }
 function ipRefurbCycleDays(row){
- if(row.completedAt<row.orderedAt)return null;
+ if(!ipRefurbDate(row.orderedAt)||row.completedAt<row.orderedAt)return null;
  return aiFlowDayDiff(row.orderedAt,row.completedAt);
 }
 function ipRefurbSummary(records,end){
  const orders=ipRefurbPeriodOrders(records.flatMap(record=>record.refurbOrders||[]),'',end);
- const buckets=ipRefurbBuckets.map(({key,label})=>({key,label,count:0}));let completed=0,unknown=0;
+ const buckets=ipRefurbBuckets.map(({key,label})=>({key,label,count:0}));let unknown=0;
  for(const row of orders){
-  if(!row.completedAt)continue;
-  if(!ipRefurbDate(row.completedAt)){unknown++;continue}
-  if(row.completedAt>end)continue;
-  completed++;
   const days=ipRefurbCycleDays(row);
   if(!Number.isFinite(days)){unknown++;continue}
   buckets[ipRefurbBuckets.findIndex(bucket=>bucket.hit(days))].count++;
  }
  const total=orders.length,onTime=buckets[0].count;
- return {total,onTime,completed,unknown,buckets,rate:total&&!unknown?onTime/total*100:null,end};
+ return {total,onTime,completed:total,unknown,buckets,rate:total&&!unknown?onTime/total*100:null,end};
 }
 // 数值悬停/聚焦查看同范围请购单天数分布；问号继续提供指标口径。
 function ipRefurbRateCell(row){
@@ -5516,9 +5517,9 @@ function ipShowRefurbDistribution(anchor){
   bar.style.width=(model.completed?Math.min(100,Math.max(0,bucket.count/model.completed*100)):0)+'%';track.setAttribute('aria-hidden','true');
   append(row,'b',fmt(bucket.count));
  }
- append(panel,'p','达标 '+fmt(model.onTime)+' / 采购单SKU总计 '+fmt(model.total)+' 条','stock-refurb-tip-summary');
+ append(panel,'p','达标 '+fmt(model.onTime)+' 单 / 本期完成 '+fmt(model.total)+' 单','stock-refurb-tip-summary');
  if(model.unknown)append(panel,'p','周期数据缺失 '+fmt(model.unknown)+' 条，闭环率暂不可计算','stock-refurb-tip-summary');
- if(!model.total)append(panel,'p','当前范围暂无翻新采购单','stock-refurb-tip-summary');
+ if(!model.total)append(panel,'p','本期暂无完成交付的翻新采购单','stock-refurb-tip-summary');
  ipRefurbDistributionAnchor=anchor;anchor.setAttribute('aria-expanded','true');anchor.setAttribute('aria-describedby',panel.id);panel.showPopover();
  const rect=anchor.getBoundingClientRect(),box=panel.getBoundingClientRect();
  ipRefurbDistributionPosition={left:rect.left,top:rect.top};
@@ -5640,7 +5641,7 @@ const ipOverviewRules={
  },
  refurb:{
   title:'翻新闭环率',
-  text:'翻新闭环率＝采购日起33天内完成交付的采购单SKU条数÷考核期内下单的采购单SKU总条数。'
+  text:'翻新闭环率＝本期完成交付且距采购下单日不超过33天的单数÷本期完成交付的总单数。按采购单＋SKU分别计数。'
  },
  stockout:{
   title:'爆款断货次数',

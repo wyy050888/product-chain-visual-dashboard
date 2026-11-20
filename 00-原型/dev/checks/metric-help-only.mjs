@@ -28,7 +28,7 @@ export async function verifyMetricHelpOnly(page){
  await page.keyboard.press('Escape');
  for(const [key,text] of [
   ['delivery','按SPU统计：新机交付及时率 = （考核期内的已交付量+考核期内最新良品库存数（人工导入））/ 排产表考核期的计划产量'],
-  ['refurb','翻新闭环率＝采购日起33天内完成交付的采购单SKU条数÷考核期内下单的采购单SKU总条数。'],
+  ['refurb','翻新闭环率＝本期完成交付且距采购下单日不超过33天的单数÷本期完成交付的总单数。按采购单＋SKU分别计数。'],
   ['stockout','非C级品、非清仓品、非下市品，近15天日均净销＞0 且 我司可售库存为0的次数']
  ]){
   const help=page.locator('#inventory [data-ip-overview-help="'+key+'"]');

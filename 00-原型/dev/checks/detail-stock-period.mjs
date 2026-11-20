@@ -44,7 +44,7 @@ export async function detailStockPeriod(page){
   assert.equal(facts.turn,facts.avg>0?facts.cost/facts.avg:null);
   assert.equal(facts.delivery,facts.due>0?(facts.on+facts.importedStock)/facts.due*100:null);
   assert.equal(facts.refurbRate,facts.refurb.total&&!facts.refurb.unknown?facts.refurb.onTime/facts.refurb.total*100:null);
-  for(const order of facts.orders)assert(order.orderedAt>=facts.range.start&&order.orderedAt<=facts.range.cutoff,'翻新按采购单下单日归期');
+  for(const order of facts.orders)assert(order.completedAt>=facts.range.start&&order.completedAt<=facts.range.cutoff,'翻新按交付完成日归期');
   const skuCells=stock.locator('[data-stock-metric="turn"]');
   const skuRates=await skuCells.evaluateAll(nodes=>nodes.map(n=>n.dataset.stockRaw));
   assert.deepEqual(await skuCells.allTextContents(),skuRates.map(raw=>raw==='null'||raw===''?'—':Number(raw).toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2})+'次'));

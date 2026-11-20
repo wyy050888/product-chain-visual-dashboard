@@ -17,7 +17,7 @@ const ipOverviewRules={
  },
  refurb:{
   title:'翻新闭环率',
-  text:'翻新闭环率＝采购日起33天内完成交付的采购单SKU条数÷考核期内下单的采购单SKU总条数。'
+  text:'翻新闭环率＝本期完成交付且距采购下单日不超过33天的单数÷本期完成交付的总单数。按采购单＋SKU分别计数。'
  },
  stockout:{
   title:'爆款断货次数',

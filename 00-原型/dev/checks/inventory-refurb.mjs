@@ -14,27 +14,31 @@ export async function verifyInventoryRefurb(page){
  const later={...pending,requisitionId:'F',arrivedAt,completedAt:'2026-10-21'};
  const summary=items=>context.ipRefurbSummary([{refurbOrders:items}],end);
  const result=summary([...rows,rows[0],pending,later]);
- assert.equal(result.total,10,'分母含未完成单，按采购单去重');
+ assert.equal(result.total,8,'仅计已完成交付，按采购单＋SKU去重');
  assert.equal(result.completed,8);
  assert.equal(result.onTime,2,'下单后第33天计入达标，34天不计入');
- assert.equal(result.rate,20);
- assert.equal(summary([pending,later]).rate,0,'所选期间尚未完成的订单进入分母');
+ assert.equal(result.rate,25);
+ assert.equal(summary([pending,later]).rate,null,'本期无完成交付的采购单');
  assert.equal(summary([]).rate,null,'无采购单时不造0%');
  assert.equal(summary([{...rows[0],arrivedAt:null}]).rate,100);
  assert.equal(summary([rows[0],{...rows[0],skuId:'SKU-B'},rows[0]]).total,2,'同单不同SKU分别计，同单同SKU去重');
  assert.deepEqual(Array.from(result.buckets,row=>row.count),[2,2,2,2],'33/45/60天边界互斥');
+ assert.equal(summary([rows[1],rows[2]]).rate,50,'同SKU两单分别在第33天和第34天完成');
+ assert.equal(summary([{...rows[0],orderedAt:null}]).rate,null,'已完成但缺少下单日时无法判断是否达标');
  const ordered=[
+  {...pending,requisitionId:'OLD',orderedAt:'2025-12-31',completedAt:'2026-10-01'},
+  {...pending,requisitionId:'LAST',orderedAt:'2026-09-23',completedAt:'2026-10-31'},
   {...pending,requisitionId:'SEP',orderedAt:'2026-09-30',arrivedAt:'2026-10-03',completedAt:'2026-10-05'},
   {...pending,requisitionId:'OCT-A',orderedAt:'2026-10-01',arrivedAt:'2026-10-15',completedAt:'2026-11-10'},
   {...pending,requisitionId:'OCT-B',orderedAt:'2026-10-31',arrivedAt:'2026-11-02'},
   {...pending,requisitionId:'NOV',orderedAt:'2026-11-01'}
  ];
  const october=context.ipRefurbPeriodOrders([...ordered,ordered[1]],'2026-10-01','2026-10-31');
- assert.deepEqual(Array.from(october,row=>row.requisitionId),['OCT-A','OCT-B'],'按下单日归期且含边界，跨期完成仍归原下单期');
- assert.equal(context.ipRefurbSummary([{refurbOrders:october}],'2026-10-31').onTime,0);
- assert.equal(context.ipRefurbSummary([{refurbOrders:october}],'2026-11-30').onTime,0);
+ assert.deepEqual(Array.from(october,row=>row.requisitionId),['OLD','LAST','SEP'],'按完成日归期，含首尾日期和跨年采购单');
+ assert.equal(context.ipRefurbSummary([{refurbOrders:october}],'2026-10-31').onTime,1);
+ assert.equal(context.ipRefurbSummary([{refurbOrders:october}],'2026-10-31').total,3);
  const card=page.locator('#inventory [data-stock-card="refurb"]'),data=await page.evaluate(()=>inventoryControlAudit().overview.refurb);
- assert(data.completed<data.total,'样例包含未完成单');
+ assert.equal(data.completed,data.total,'分母只含本期完成交付的单');
  assert.equal(data.buckets.reduce((n,row)=>n+row.count,0),data.completed);
  assert.equal(data.onTime,data.buckets[0].count);assert.equal(data.rate,data.total?data.onTime/data.total*100:null);
  assert(data.completed>0&&data.onTime<data.completed,'样例同时包含达标和超期完成');
@@ -48,13 +52,14 @@ export async function verifyInventoryRefurb(page){
  await help.evaluate(e=>e.scrollIntoView({block:'center',behavior:'instant'}));
  await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
  await help.hover();await tip.waitFor({state:'visible'});
- assert.equal(await tip.innerText(),'翻新闭环率＝采购日起33天内完成交付的采购单SKU条数÷考核期内下单的采购单SKU总条数。');
+ assert.equal(await tip.innerText(),'翻新闭环率＝本期完成交付且距采购下单日不超过33天的单数÷本期完成交付的总单数。按采购单＋SKU分别计数。');
  assert(!(await tip.innerText()).includes('数据截止'));assert(!(await tip.innerText()).includes('汇总方式'));
  assert(await tip.evaluate(e=>{const box=e.getBoundingClientRect();return box.left>=0&&box.right<=innerWidth&&box.top>=0&&box.bottom<=innerHeight}));
  await page.keyboard.press('Escape');
  // 类目、品牌及其下钻同用该行的统计，而非全局卡片分布。
  const all=await page.evaluate(()=>inventoryControlAudit());
  const selectedOrders=all.stockRecords.flatMap(row=>row.refurbOrders);
+ assert(selectedOrders.some(row=>row.orderedAt<all.overview.range.start),'取到前期下单、本期完成的样例');
  assert.equal(data.total,new Set(selectedOrders.map(row=>JSON.stringify([row.requisitionId,row.skuId]))).size,'卡片总数来自请购单事实');
  assert(data.total>new Set(all.stockRecords.filter(row=>row.refurbOrders.length).map(row=>row.spuId)).size,'同SPU多张请购单分别纳入');
  assert((await card.innerText()).includes('未翻新件数'));assert(!(await card.innerText()).includes('未完成请购单数'));assert(!(await card.innerText()).includes('SKU'));
@@ -80,7 +85,7 @@ export async function verifyInventoryRefurb(page){
  for(const width of [390,320]){await page.setViewportSize({width,height:800});await verifyRefurbDistribution(page,card.locator('.ip-refurb-rate'),(await page.evaluate(()=>inventoryControlAudit())).overview.refurb)}
  await page.setViewportSize({width:1920,height:1080});
  await page.locator('#inventory .ip-group-scroll').evaluateAll(es=>es.forEach(e=>e.scrollLeft=0));
- console.log('通过：翻新采购单去重与下单月份归属、33/45/60天边界、卡片/类目/品牌悬浮分布、鼠标/键盘/窄屏、保留问号公式');
+ console.log('通过：翻新采购单去重与完成月份归属、33/45/60天边界、卡片/类目/品牌悬浮分布、鼠标/键盘/窄屏、保留问号公式');
 }
 
 export async function verifyRefurbDistribution(page,trigger,model){
@@ -88,7 +93,7 @@ export async function verifyRefurbDistribution(page,trigger,model){
  await trigger.evaluate(node=>node.scrollIntoView({block:'center',behavior:'instant'}));await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
  await trigger.hover();await panel.waitFor({state:'visible'});assert.equal(await trigger.getAttribute('aria-expanded'),'true');assert.equal(await panel.locator('button').count(),0,'浮层不保留关闭按钮');
  assert.deepEqual(await panel.locator('[data-refurb-bucket]').evaluateAll(nodes=>nodes.map(node=>({key:node.dataset.refurbBucket,label:node.querySelector('span').textContent,count:Number(node.querySelector('b').textContent.replaceAll(',',''))}))),model.buckets);
- assert.match(await panel.locator('.stock-refurb-tip-summary').first().innerText(),new RegExp('达标 '+model.onTime+' / 采购单SKU总计 '+model.total+' 条'));
+ assert.match(await panel.locator('.stock-refurb-tip-summary').first().innerText(),new RegExp('达标 '+model.onTime+' 单 / 本期完成 '+model.total+' 单'));
  assert(await panel.evaluate(node=>{const box=node.getBoundingClientRect();return box.left>=0&&box.right<=innerWidth&&box.top>=0&&box.bottom<=innerHeight}));
  await panel.hover();await page.waitForTimeout(350);assert(await panel.isVisible(),'移入浮层继续阅读');await page.mouse.move(0,0);await panel.waitFor({state:'hidden'});assert.equal(await trigger.getAttribute('aria-expanded'),'false');
  await trigger.focus();await panel.waitFor({state:'visible'});await page.keyboard.press('Escape');await panel.waitFor({state:'hidden'});

@@ -26,9 +26,9 @@ function ipShowRefurbDistribution(anchor){
   bar.style.width=(model.completed?Math.min(100,Math.max(0,bucket.count/model.completed*100)):0)+'%';track.setAttribute('aria-hidden','true');
   append(row,'b',fmt(bucket.count));
  }
- append(panel,'p','达标 '+fmt(model.onTime)+' / 采购单SKU总计 '+fmt(model.total)+' 条','stock-refurb-tip-summary');
+ append(panel,'p','达标 '+fmt(model.onTime)+' 单 / 本期完成 '+fmt(model.total)+' 单','stock-refurb-tip-summary');
  if(model.unknown)append(panel,'p','周期数据缺失 '+fmt(model.unknown)+' 条，闭环率暂不可计算','stock-refurb-tip-summary');
- if(!model.total)append(panel,'p','当前范围暂无翻新采购单','stock-refurb-tip-summary');
+ if(!model.total)append(panel,'p','本期暂无完成交付的翻新采购单','stock-refurb-tip-summary');
  ipRefurbDistributionAnchor=anchor;anchor.setAttribute('aria-expanded','true');anchor.setAttribute('aria-describedby',panel.id);panel.showPopover();
  const rect=anchor.getBoundingClientRect(),box=panel.getBoundingClientRect();
  ipRefurbDistributionPosition={left:rect.left,top:rect.top};
