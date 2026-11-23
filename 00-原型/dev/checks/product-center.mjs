@@ -1,4 +1,27 @@
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {createContext,runInContext} from 'node:vm';
+function verifyInitiationWarningDates(){
+ const validDate=value=>/^\d{4}-\d{2}-\d{2}$/.test(value||'')&&Number.isFinite(Date.parse(value))&&new Date(value).toISOString().slice(0,10)===value;
+ const context=createContext({riskValidDate:validDate,ppDate:value=>validDate(value)?value:null,
+  shiftDate:(date,days)=>new Date(Date.parse(date)+days*86400000).toISOString().slice(0,10),filterCatalog:{normalizeChain:value=>value}});
+ runInContext(readFileSync(new URL('../../src/modules/product-center/10-risk-model.js',import.meta.url),'utf8'),context);
+ const cloud={id:'cloud',category:'环境',initiatedAt:'2026-11-01',targetCompletionDate:'2026-11-30',oaNo:''};
+ const rows=(date,wps=[cloud],demand=[],calendar)=>context.pcRiskInitiationRows({wps,demand},date,null,calendar);
+ assert.equal(rows('2026-11-22').length,0,'早于预警首日不入榜');
+ assert.equal(rows('2026-11-23')[0].remaining,5,'距目标完成时间第 5 个工作日开始预警');
+ assert.equal(rows('2026-11-30')[0].daysToTarget,0,'目标日期仍入榜');
+ assert.equal(rows('2026-12-01')[0].wait,1,'逾期未填单号继续入榜');
+ assert.equal(rows('2026-12-01',[{...cloud,oaNo:' OA-001 '}]).length,0,'填入 OA 单号后退出');
+ assert.equal(rows('2026-12-01',[{...cloud,targetCompletionDate:''},{...cloud,targetCompletionDate:'2026-11-31'}]).length,0,'无有效日期不入榜');
+ assert.equal(rows('2026-11-23',[{...cloud,targetCompletionDate:'2026-11-29'}])[0].remaining,5,'目标为周日仍从倒推第 5 个工作日起预警');
+ const calendar=date=>date!=='2026-11-23'&&![0,6].includes(new Date(date).getUTCDay());
+ assert.equal(rows('2026-11-20',[cloud],[],calendar)[0].remaining,5,'使用提供的工作日历倒推');
+ const demand={id:'demand',status:'待立项',approvedAt:'2026-11-16'};
+ assert.equal(rows('2026-11-22',[],[demand]).length,0,'运营提需保持审批满 5 个工作日才预警');
+ assert.deepEqual(Array.from(rows('2026-11-23',[cloud,{...cloud,id:'late',targetCompletionDate:'2026-11-12'},
+  {...cloud,id:'sooner',targetCompletionDate:'2026-11-25'}],[demand]),row=>row.id),['late','demand','sooner','cloud']);
+}
 const common=['#ai .gd-card','#sales .ms-summary-card','#new .nsp-layout','#projects .pp-layout','#matrix .matrixlayout','#inventorymetrics>:first-child','#cost .cc-card'];
 async function ready(page){await page.waitForFunction(()=>document.documentElement.dataset.dashboardBoot==='ready');await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))))}
 async function styles(page){return page.evaluate(selectors=>Object.fromEntries(selectors.map(selector=>{
@@ -40,6 +63,7 @@ async function costContent(page){
  return {cards,categories,departments,tabs,details};
 }
 export async function productCenter(page){
+ verifyInitiationWarningDates();
  const base=page.url(),baseline={},riskBaseline={},rowBaseline={};
  let original,costBaseline,wideRowBaseline;
  for(const width of [1920,1280,390]){
@@ -126,8 +150,8 @@ export async function productCenter(page){
  assert.ok(business.delayed.rows.every(row=>row.delay>=90));
  assert.ok(business.delayed.rows.every((row,index,rows)=>!index||row.delay<=rows[index-1].delay));
  assert.ok(business.materials.rows.every(row=>row.daysUntil>=0&&row.daysUntil<=60));
- assert.ok(business.initiation.rows.every(row=>row.wait>=5));
- assert.deepEqual(business.initiation.rows.map(row=>row.source),['demand','demand','wps','demand','wps','demand','wps'],'立项预警按等待时间混排两个来源');
+ assert.ok(business.initiation.rows.filter(row=>row.source==='demand').every(row=>row.wait>=5));
+ assert.ok(business.initiation.rows.filter(row=>row.source==='wps').every(row=>row.targetDate&&!row.oaNo&&row.remaining<=5));
  for(const [key,data] of Object.entries(business))assert.equal(await page.locator(`#riskrail [data-rp-board="pc-${key}"] .rp-entry`).count(),Math.min(6,data.rows.length));
  const delayBoard=page.locator('[data-rp-board="pc-delayed"]');
  const delayedRows=delayBoard.locator('.rp-entry');
@@ -136,6 +160,14 @@ export async function productCenter(page){
  const initiationCutoff=page.locator('#rp-group-initiation .rp-group-caption');
  assert(await initiationCutoff.isVisible());
  assert.equal(await initiationCutoff.innerText(),'截至 '+dateText(business.initiation.asOf));
+ const initiationHelp=page.locator('#rp-group-initiation > .card-metric-help');
+ assert.equal(await initiationHelp.evaluate(node=>node.previousElementSibling.textContent),'立项规划预警');
+ assert.equal(await initiationHelp.evaluate(node=>node.nextElementSibling.classList.contains('rp-group-caption')),true);
+ await initiationHelp.hover();
+ const initiationTooltip=page.locator('#metric-tooltip.metric-tooltip-card');
+ assert.deepEqual(await initiationTooltip.locator('.metric-rule-section h4').allTextContents(),['入榜条件','排序规则']);
+ assert.match(await initiationTooltip.innerText(),/距立项目标完成时间 5 个工作日起，立项 OA 单号为空即预警，填单号后解除。/);
+ await page.keyboard.press('Escape');
  const launchCutoff=page.locator('#rp-group-launch .rp-group-caption');
  assert.equal(await launchCutoff.innerText(),'截至 '+dateText(today));
  for(const key of ['delayed','unsold','materials']){
@@ -144,7 +176,7 @@ export async function productCenter(page){
  }
  const sample=business.delayed.rows[0];
  assert(sample,'原型提供延期样例');
- assert.deepEqual(await delayedRows.first().locator('.rp-quality-mobile-label').allTextContents(),['延期天数','延期上市日期','销售渠道','卡点任务']);
+ assert.deepEqual(await delayedRows.first().locator('.rp-quality-mobile-label').allTextContents(),['延期天数','延期上市日期','销售渠道','当前任务']);
  assert.equal(await delayedRows.first().locator('.rp-identity-subtitle').textContent(),[sample.type,sample.category,sample.manager].join(' | '));
  assert.equal(await delayedRows.first().locator('[aria-label="延期上市日期"] .rp-metric-text').textContent(),dateText(sample.revised));
  const blocker=delayedRows.first().locator('.pc-risk-blockers');
@@ -157,7 +189,7 @@ export async function productCenter(page){
  const longBlocker=delayedRows.getByRole('button',{name:/2D外观设计/}).first();
  assert(await longBlocker.evaluate(node=>node.scrollWidth>node.clientWidth),'长任务被截断');
  await longBlocker.hover();
- assert.equal(await tooltip.locator('h4').innerText(),'卡点任务');
+ assert.equal(await tooltip.locator('h4').innerText(),'当前任务');
  assert.equal(await tooltip.locator('.metric-tooltip-text-body').textContent(),await longBlocker.textContent());
  await page.keyboard.press('Escape');
  assert(await tooltip.isHidden());
@@ -175,7 +207,7 @@ export async function productCenter(page){
  assert.match(await more.innerText(),new RegExp('查看全部 '+matched.length));
  await more.click();
  assert.deepEqual(await page.locator('#dialogbody .rp-list-table tbody .rp-identity b').allTextContents(),matched.slice(0,20).map(row=>row.name));
- const scheduleHeadings=['产品名称','计划上市日期','延期上市日期','延期天数','销售渠道','产品经理','卡点任务','操作'];
+ const scheduleHeadings=['产品名称','计划上市日期','延期上市日期','延期天数','销售渠道','产品经理','当前任务','操作'];
  assert.deepEqual(await page.locator('#dialogbody .rp-list-table th').allTextContents(),scheduleHeadings);
  assert.deepEqual((await page.locator('#dialogbody .rp-list-table tbody tr').first().locator('td').allTextContents()).slice(1,4),
   [dateText(sample.planned),dateText(sample.revised),sample.delay+'天']);
@@ -238,7 +270,7 @@ export async function productCenter(page){
  await search.fill(longTask.blockers.split('、').at(-1));
  const taskRow=page.locator('#dialogbody .pc-risk-list tbody tr').filter({hasText:longTask.name});
  assert.equal(await taskRow.getByRole('button',{name:'查看详情',exact:true}).count(),1);
- assert(await taskRow.locator('.pc-risk-blockers').evaluate(node=>node.scrollWidth<=node.clientWidth),'卡点任务使用实际列宽');
+ assert(await taskRow.locator('.pc-risk-blockers').evaluate(node=>node.scrollWidth<=node.clientWidth),'当前任务使用实际列宽');
  await page.locator('#close').click();
  assert.equal(await type.getAttribute('aria-pressed'),'true','抽屉重置不修改首页筛选');
  await filter('category','all').click();await filter('projectType','all').click();
@@ -320,7 +352,8 @@ export async function productCenter(page){
  const initiation=page.locator('[data-rp-board="pc-initiation"]');
  const initiationHeaders=['产品信息','立项日期','目标上市日期','销售渠道','提需人','产品经理'];
  assert.deepEqual(await initiation.getByRole('columnheader').allTextContents(),initiationHeaders);
- const initiationManagers=['刘萱','张晓阳','刘萱','潘东跃','刘萱','刘萱','刘萱'];
+ const managerByChain={厨电:'刘萱',环境:'张晓阳',清洁:'潘东跃'};
+ const initiationManagers=business.initiation.rows.map(row=>managerByChain[row.category]);
  assert.deepEqual(business.initiation.rows.map(row=>row.manager),initiationManagers);
  assert.deepEqual(await initiation.locator('[aria-label="产品经理"] .rp-metric-text').allTextContents(),initiationManagers.slice(0,6));
  const managerHelp=panel=>panel.getByRole('columnheader',{name:/^产品经理/}).getByRole('button',{name:'产品经理说明'});
@@ -340,7 +373,7 @@ export async function productCenter(page){
  await brandFilter('海尔').click();
  assert.deepEqual(await initiation.locator('.rp-entry .rp-identity b').allTextContents(),['大口径原汁机']);
  await brandFilter('苏泊尔').click();
- assert.deepEqual(await initiation.locator('.rp-entry .rp-identity b').allTextContents(),['大口径原汁机','苏泊尔2.5L玻璃方杯绞肉机','苏泊尔无线除螨仪']);
+ assert.deepEqual((await initiation.locator('.rp-entry .rp-identity b').allTextContents()).sort(),['大口径原汁机','苏泊尔2.5L玻璃方杯绞肉机','苏泊尔无线除螨仪'].sort());
  await brandFilter('all').click();
  await initiationFilter('projectType','自选开发').click();
  await initiationFilter('category','个护&健康').click();
@@ -365,7 +398,7 @@ export async function productCenter(page){
  assert.equal(await page.locator('#metric-tooltip').innerText(),managerHelpText);
  await page.locator('#dialogbody input[type="search"]').hover();
  await page.locator('#metric-tooltip').waitFor({state:'hidden'});
- assert.equal(await page.locator('#dialogbody .pc-risk-initiation-delay').first().textContent(),`延期 ${business.initiation.rows.find(row=>row.name===initiationMatches[0]).wait}天`);
+ assert.equal(await page.locator('#dialogbody .pc-risk-initiation-delay').first().textContent(),`延期 ${business.initiation.rows.find(row=>row.name===initiationMatches[0]).wait} 个工作日`);
  assert.equal(await page.locator('#dialogbody .rp-list-table .rp-identity-subtitle').first().textContent(),'自选 | 厨电 | 苏泊尔 | 来源：立项云文档');
  await page.locator('#dialogbody').getByRole('button',{name:'查看立项云文档',exact:true}).click();
  assert.match(await page.locator('#toast').textContent(),/打开立项云文档在线地址：待定/);await page.locator('#close').click();

@@ -43,4 +43,4 @@ function ipStaleAnalysisModel(){
  const latest=ipStaleSnapshots.filter(item=>item.date<=DATA_CUTOFF&&item.scope===ipTotalStockScope).sort((a,b)=>b.date.localeCompare(a.date))[0];
  return {distribution:ipStaleDistribution(latest),trend:ipStaleTrend(ipStaleSnapshots,ipMetricPeriod.mode,bounds(ipMetricPeriod).cutoff),metrics:['units','valueCents'],mode:ipMetricPeriod.mode};
 }
-window.inventoryStaleAnalysisAudit=()=>JSON.parse(JSON.stringify({...ipStaleAnalysisModel(),snapshots:ipStaleSnapshots,saveFailed:ipSnapshotSaveFailed}));
+window.inventoryStaleAnalysisAudit=()=>JSON.parse(JSON.stringify({...ipStaleAnalysisModel(),snapshots:ipStaleSnapshots}));

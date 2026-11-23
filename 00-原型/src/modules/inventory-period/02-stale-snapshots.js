@@ -20,7 +20,27 @@ function ipNormalizeSnapshot(snapshot){
 function ipReadSnapshots(){
  try{const data=JSON.parse(localStorage.getItem(IP_STALE_SNAPSHOTS_KEY)||'null');return data?.version===1&&Array.isArray(data.snapshots)?data.snapshots.map(ipNormalizeSnapshot).filter(Boolean):[]}catch(_){return []}
 }
-let ipStaleSnapshots=ipReadSnapshots(),ipSnapshotSaveFailed=false;
+let ipStaleSnapshots=ipReadSnapshots();
+function ipSnapshotsForStorage(snapshots,current){
+ return snapshots.map(snapshot=>{
+  if(snapshot===current||snapshot.source!=='local-sample'||snapshot.rows.every(row=>row.spuId==='sample:'+row.season&&!row.batches.length))return snapshot;
+  // 历史样例仅供货值趋势按季品汇总，当前分布和真实快照保留批次明细。
+  const seasons=new Map();
+  for(const {season,totalUnits,totalValueCents,staleUnits,staleValueCents} of snapshot.rows){
+   if(!seasons.has(season))seasons.set(season,{spuId:'sample:'+season,season,totalUnits:0,totalValueCents:0,staleUnits:0,staleValueCents:0,batches:[]});
+   const totals=seasons.get(season);
+   totals.totalUnits+=totalUnits;totals.totalValueCents+=totalValueCents;
+   totals.staleUnits+=staleUnits;totals.staleValueCents+=staleValueCents;
+  }
+  return {...snapshot,rows:[...seasons.values()]};
+ });
+}
+function ipCacheSnapshots(snapshots){
+ ipStaleSnapshots=snapshots;
+ try{localStorage.setItem(IP_STALE_SNAPSHOTS_KEY,JSON.stringify({version:1,snapshots:ipStaleSnapshots}))}catch{
+  // 样例缓存写入受限时，图表仍使用本次页面生成的快照。
+ }
+}
 function ipCaptureSnapshot(records,date=DATA_CUTOFF){
  const actual=ipStaleSnapshots.filter(item=>item.source==='snapshot'&&item.scope===ipTotalStockScope&&item.date.slice(0,7)===date.slice(0,7)&&item.date<=date).sort((a,b)=>b.date.localeCompare(a.date))[0];
  if(actual)return actual;
@@ -35,10 +55,13 @@ function ipCaptureSnapshot(records,date=DATA_CUTOFF){
  const existing=ipStaleSnapshots.filter(item=>item.source==='snapshot'||item.scope===ipTotalStockScope);
  const previous=existing.find(item=>item.date===date&&item.scope===ipTotalStockScope);
  const history=ipStaleSampleHistory(snapshot,existing);
- if(previous&&!history.length&&existing.length===ipStaleSnapshots.length&&JSON.stringify(previous)===JSON.stringify(snapshot))return previous;
+ if(previous&&!history.length&&existing.length===ipStaleSnapshots.length&&JSON.stringify(previous)===JSON.stringify(snapshot)){
+  const compact=ipSnapshotsForStorage(existing,previous);
+  if(compact.some((item,index)=>item!==existing[index]))ipCacheSnapshots(compact);
+  return previous;
+ }
  // 每月保留最后一份快照，最多十年；不受季品和页面期间筛选影响。
  const monthly=new Map();for(const item of [...history,...existing.filter(item=>item.date!==date||item.scope!==ipTotalStockScope),snapshot].sort((a,b)=>a.date.localeCompare(b.date)))monthly.set(item.date.slice(0,7)+'|'+item.scope,item);
- ipStaleSnapshots=[...monthly.values()].slice(-120);
- try{localStorage.setItem(IP_STALE_SNAPSHOTS_KEY,JSON.stringify({version:1,snapshots:ipStaleSnapshots}));ipSnapshotSaveFailed=false}catch(_){ipSnapshotSaveFailed=true}
+ ipCacheSnapshots(ipSnapshotsForStorage([...monthly.values()].slice(-120),snapshot));
  return snapshot;
 }

@@ -44,7 +44,7 @@ function ipMeasureStaleTrend(plot){
 function ipRenderStaleAnalysis(){
  const host=$('#inventory-stale-analysis');if(!host)return;
  const model=ipStaleAnalysisModel();
- host.innerHTML=ipStaleDistributionPanel(model)+ipStaleTrendPanel(model)+(ipSnapshotSaveFailed?'<p class="ip-stale-save-error" role="status">快照保存失败，请释放浏览器存储空间后重试。</p>':'');
+ host.innerHTML=ipStaleDistributionPanel(model)+ipStaleTrendPanel(model);
  if(!host.dataset.ipStaleMetricBound){host.dataset.ipStaleMetricBound='true';host.addEventListener('click',event=>{
   const button=event.target.closest('[data-ip-stale-metric]'),next=button?.dataset.ipStaleMetric;if(!['valueCents','units'].includes(next)||next===ipStaleDistributionMetric)return;
   ipStaleDistributionMetric=next;host.querySelector('.ip-stale-distribution').outerHTML=ipStaleDistributionPanel(ipStaleAnalysisModel());host.querySelector('[data-ip-stale-metric="'+next+'"]').focus({preventScroll:true});

@@ -26,6 +26,15 @@ function verifyStaleModels(){
  const second={...row,spuId:'b',season:'冬季品',totalValueCents:9000,staleValueCents:90,batches:[]};
  const history=[snapshot,ctx.ipNormalizeSnapshot({date:'2026-09-30',rows:[{...row,batches:[]},second]})];
  const trend=ctx.ipStaleTrend(history,'month','2026-10-27','all'),september=trend.find(item=>item.date==='2026-09-30');assert.equal(september.ratio,1390/10400*100,'按分子分母汇总，不平均单品占比');assert.equal(trend.filter(item=>item.date).length,2);assert.equal(trend[0].ratio,null,'缺失历史不是0');
+ const stored=ctx.ipSnapshotsForStorage([...generated,sample,snapshot],sample);
+ assert.equal(stored.at(-2),sample,'当前样例保留批次');
+ assert.equal(stored.at(-1),snapshot,'真实快照完整保留');
+ const restored=stored.map(ctx.ipNormalizeSnapshot);
+ for(const selection of ['all',['夏季品'],['冬季品']]){
+  const before=ctx.ipStaleTrend([...generated,sample],'month',sample.date,selection);
+  const after=ctx.ipStaleTrend(restored.slice(0,-1),'month',sample.date,selection);
+  assert.equal(JSON.stringify(after),JSON.stringify(before),'压缩历史样例后的各季品趋势一致');
+ }
  const updated=ctx.ipNormalizeSnapshot({date:snapshot.date,scope:'five-parts',rows:[{...row,totalValueCents:1350}]});
  const mixed=ctx.ipStaleTrend([...history,updated],'month','2026-10-27','all').filter(item=>item.date);
  assert.deepEqual(Array.from(mixed,item=>item.scope),['legacy','five-parts']);

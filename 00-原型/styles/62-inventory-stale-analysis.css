@@ -75,7 +75,6 @@
 .metric-tooltip-ip-stale-trend dd small{font-size:12px;font-weight:400;color:#8795a8}
 .metric-tooltip-ip-stale-trend [data-trend-key="ratio"]{border-top:1px solid #edf1f7;padding-top:10px}
 .metric-tooltip-ip-stale-trend dd[data-trend-key="ratio"] strong{color:#a77810}
-#inventory .ip-stale-save-error{grid-column:1/-1;font-size:12px!important;color:var(--red);margin:0;line-height:18px}
 @media(max-width:1200px){#inventory .ip-stale-analysis{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:700px){#inventory .ip-stale-analysis{margin-inline:0}}
 @media(max-width:1100px){#inventory .stock-overview-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}

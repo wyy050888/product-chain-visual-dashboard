@@ -52,6 +52,12 @@ function pcRiskFilterBar(group,label){
 function pcRiskTaskField(label,value){
  return {label,markup:value?`<button type="button" class="pc-risk-blockers" data-metric-text-label="${label}">${esc(value)}</button>`:'—'};
 }
+function pcRiskInitiationNote(row){
+ if(row.source!=='wps')return row.wait?`延期 ${row.wait}天`:'';
+ if(row.daysToTarget>0)return row.remaining?`距目标完成还有 ${row.remaining} 个工作日`:'即将到期';
+ if(row.daysToTarget===0)return '今日到期';
+ return row.wait?`延期 ${row.wait} 个工作日`:'已超过目标日期';
+}
 function pcRiskFields(key,row={},drawer=false){
  const field=(label,value,note='',tone='')=>({label,value,note,tone});
  const manager=drawer?[field('产品经理',row.manager)]:[];
@@ -64,7 +70,7 @@ function pcRiskFields(key,row={},drawer=false){
   }]:[])
  ];
  if(key==='initiation')return [
-  field('立项日期',pcRiskDate(row.date),row.wait?`延期 ${row.wait}天`:'','pc-risk-initiation-delay'),
+  field('立项日期',pcRiskDate(row.date),pcRiskInitiationNote(row),row.source==='wps'&&row.daysToTarget>=0?'orange':'pc-risk-initiation-delay'),
   field('目标上市日期',pcRiskDate(row.targetLaunchDate)),
   {...field('销售渠道',row.channel),preserveTerms:true},
   field('提需人',row.requester),
@@ -77,7 +83,7 @@ function pcRiskFields(key,row={},drawer=false){
   return [
    ...(drawer?[planned,date,delay]:[delay,date]),
    {...field('销售渠道',row.channel),preserveTerms:true},...manager,
-   pcRiskTaskField('卡点任务',row.blockers)
+   pcRiskTaskField('当前任务',row.blockers)
   ];
  }
  return [
@@ -124,10 +130,13 @@ function pcRiskCardNotice(key){
   materials:{
    pool:[`项目类型为${projectTypes}，截至统计日尚未完成。`,'预计在 60 天内上市（含统计日当天），提醒产品经理向设计中心提交上市资料。','已有延期上市日期时按延期日期计算，其余按原计划日期计算。'],
    sort:['按距预计上市的天数从少到多。','距上市天数相同时，延期天数从多到少。']
+  },
+  initiation:{
+   pool:[`运营提需池：最终审批通过后满 ${pcRiskInitiationDays} 个工作日，且截至统计日仍为「待立项」。`,`立项云文档：距立项目标完成时间 ${pcRiskInitiationDays} 个工作日起，立项 OA 单号为空即预警，填单号后解除。`],
+   sort:['待立项及已到目标日期的记录优先，按等待或延期工作日从多到少排列。','尚未到期的记录，按立项目标完成时间从早到晚排列。']
   }
  };
  const rule=rules[key];
- if(!rule)return '演示数据 · 审批通过后仍待立项 / 立项后缺 OA 单号满 5 个工作日，等待越久越靠前。原型暂按周一至周五；运营提需池待接入，立项云文档：待定。';
  return ['入榜条件',...rule.pool.map(line=>'• '+line),'','排序规则',...rule.sort.map((line,index)=>`${index+1}. ${line}`)].join('\n');
 }
 function pcRiskMetricNote(field,keepSpace=false){
@@ -166,7 +175,7 @@ function pcRiskBoard(key,{rows}){
   <div class="rp-items" role="${previewRole}" aria-label="${pcRiskLabels[key]}${wide?'':'预览'}"${wide?' tabindex="0"':''}>${pcRiskPreview(key,rows,wide)}</div></article>`;
 }
 const pcRiskSearchFields={
- delayed:[['name','产品名称'],['blockers','卡点任务']],
+ delayed:[['name','产品名称'],['blockers','当前任务']],
  unsold:[['name','产品名称'],['requisitionNo','首批请购单号']],
  materials:[['name','产品名称'],['currentTask','当前任务']],
  initiation:[['name','产品名称'],['requester','提需人']]

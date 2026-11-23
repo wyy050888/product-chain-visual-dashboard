@@ -28,10 +28,20 @@ function pcRiskProjectRows(rows,asOf){
    daysUntil:pcRiskDays(asOf,launch),channel:ppValues(project.salesChannels??project.salesChannel??project.launchChannel??project.channel).join('、'),manager:project.productOwner,blockers:blockers.join('、')}];
  });
 }
-function pcRiskWorkdays(from,to,isWorkingDay=date=>![0,6].includes(new Date(date+'T00:00:00Z').getUTCDay())){
+const pcRiskInitiationDays=5;
+const pcRiskWorkingDay=date=>![0,6].includes(new Date(date+'T00:00:00Z').getUTCDay());
+function pcRiskWorkdays(from,to,isWorkingDay){
  if(!ppDate(from)||!ppDate(to)||from>=to)return 0;
  let days=0;for(let date=shiftDate(from,1);date<=to;date=shiftDate(date,1))if(isWorkingDay(date))days++;
  return days;
+}
+function pcRiskInitiationWarningStart(target,isWorkingDay){
+ let start=target;
+ for(let remaining=pcRiskInitiationDays;remaining>0;){
+  start=shiftDate(start,-1);
+  if(isWorkingDay(start))remaining--;
+ }
+ return start;
 }
 // 提需池按「需求状态」判定，approvedAt 取最终审批通过时间；两处日期均转为业务时区的 ISO 日期。
 // 审批、立项及提需人使用样例；产品经理统一取模板管理的产品链人员配置样例。
@@ -45,27 +55,34 @@ const pcInitiationDemo={
   {id:'DEMO-DEMAND-05',name:'美的蒸汽炸烤箱PRO',category:'厨电',type:'迭代',brand:'美的',approvedAt:'2026-11-09',status:'待立项',targetLaunchDate:'2027-06-30',channel:'兴趣电商',requester:'张妍'}
  ],
  wps:[
-  {id:'DEMO-WPS-04',name:'苏泊尔2.5L玻璃方杯绞肉机',category:'厨电',type:'自选',brand:'苏泊尔',initiatedAt:'2026-11-04',oaNo:'',channel:'一类电商'},
-  {id:'DEMO-WPS-05',name:'美的暖菜板',category:'厨电',type:'自选',brand:'美的',initiatedAt:'2026-11-06',oaNo:'',channel:'一类电商'},
-  {id:'DEMO-WPS-06',name:'美的真蒸汽炸烤箱',category:'厨电',type:'自选',brand:'美的',initiatedAt:'2026-11-09',oaNo:'',channel:'二类电商'}
+  {id:'DEMO-WPS-04',name:'苏泊尔2.5L玻璃方杯绞肉机',category:'厨电',type:'自选',brand:'苏泊尔',initiatedAt:'2026-11-04',targetCompletionDate:'2026-11-13',oaNo:'',channel:'一类电商'},
+  {id:'DEMO-WPS-05',name:'美的暖菜板',category:'厨电',type:'自选',brand:'美的',initiatedAt:'2026-11-06',targetCompletionDate:'2026-11-25',oaNo:'',channel:'一类电商'},
+  {id:'DEMO-WPS-06',name:'美的真蒸汽炸烤箱',category:'厨电',type:'自选',brand:'美的',initiatedAt:'2026-11-09',targetCompletionDate:'2026-11-26',oaNo:'',channel:'二类电商'}
  ]
 };
-function pcRiskInitiationRows({demand=[],wps=[],managers={}},asOf,category=null,isWorkingDay){
- const bySource=(rows,source,condition,dateField)=>rows.flatMap(row=>{
-  const date=ppDate(row[dateField]?.slice(0,10));
+function pcRiskInitiationRows({demand=[],wps=[],managers={}},asOf,category=null,isWorkingDay=pcRiskWorkingDay){
+ const bySource=(rows,source)=>rows.flatMap(row=>{
+  const fromDemand=source==='demand';
+  const date=ppDate(row[fromDemand?'approvedAt':'initiatedAt']?.slice(0,10));
+  const targetDate=fromDemand?null:String(row.targetCompletionDate??'').slice(0,10);
   const chain=filterCatalog.normalizeChain(row.category)??row.category;
-  if(!date||date>asOf||!condition(row)||(category!==null&&chain!==category))return [];
-  const wait=pcRiskWorkdays(date,asOf,isWorkingDay);
-  if(wait<5)return [];
+  if(category!==null&&chain!==category)return [];
+  if(fromDemand){
+   if(row.status!=='待立项'||!date||date>asOf)return [];
+  }else if(String(row.oaNo??'').trim()||!riskValidDate(targetDate)||asOf<pcRiskInitiationWarningStart(targetDate,isWorkingDay))return [];
+  const wait=pcRiskWorkdays(targetDate??date,asOf,isWorkingDay);
+  if(fromDemand&&wait<pcRiskInitiationDays)return [];
   const type=row.projectType??row.type;
   const projectType=[...pcProjectRiskTypes].find(([key,label])=>key===type||label===type)?.[0];
   const manager=Object.hasOwn(managers,chain)?managers[chain]:'';
-  return [{...row,category:chain,projectType,date,wait,source,manager}];
+  const daysToTarget=fromDemand?null:pcRiskDays(asOf,targetDate);
+  const remaining=daysToTarget>0?pcRiskWorkdays(shiftDate(asOf,-1),shiftDate(targetDate,-1),isWorkingDay):0;
+  return [{...row,category:chain,projectType,date,targetDate,wait,daysToTarget,remaining,source,manager}];
  });
- return [
-  ...bySource(demand,'demand',row=>row.status==='待立项','approvedAt'),
-  ...bySource(wps,'wps',row=>!String(row.oaNo??'').trim(),'initiatedAt')
- ].sort((a,b)=>b.wait-a.wait||a.date.localeCompare(b.date)||String(a.id).localeCompare(String(b.id)));
+ return [...bySource(demand,'demand'),...bySource(wps,'wps')].sort((a,b)=>{
+  const upcomingOrder=Number(a.daysToTarget>0)-Number(b.daysToTarget>0);
+  return upcomingOrder||b.wait-a.wait||(a.targetDate??a.date).localeCompare(b.targetDate??b.date)||String(a.id).localeCompare(String(b.id));
+ });
 }
 // 补齐项目预警的展示字段，入榜和排序仍只使用项目日期等业务字段。
 function pcLaunchDemoFields(row,index){

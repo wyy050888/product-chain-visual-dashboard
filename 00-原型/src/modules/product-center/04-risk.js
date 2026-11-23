@@ -43,13 +43,19 @@ renderRisks=function(changedKinds,...args){
    for(const [kind,markup] of cards){const board=rail.querySelector('[data-rp-board="'+kind+'"]');if(board)board.outerHTML=markup}
   }else{
    pcCurrentRiskData=pcRiskData();
-   for(const key of Object.keys(pcCurrentRiskData))rules.set('pc-'+key,pcRiskCardNotice(key));
+   for(const key of pcRiskFilterBoards.launch)rules.set('pc-'+key,pcRiskCardNotice(key));
    const own=key=>pcRiskBoard(key,pcRiskBoardData(key));
    rail.innerHTML=rpHomeGroup('launch','上品计划预警',pcRiskFilterBoards.launch.map(own).join(''),{
     toolbar:pcRiskFilterBar('launch','上品计划预警'),caption:'截至 '+pcRiskDate(pcCurrentRiskData.delayed.asOf)
    })+
     rpHomeGroup('initiation','立项规划预警',own('initiation'),{caption:'截至 '+pcRiskDate(pcCurrentRiskData.initiation.asOf)})+
     rpHomeGroup('quality','品质风险榜',rpHomeQualityKinds.map(kind=>cards.get(kind)).join(''))+cards.get(2);
+   const title=rail.querySelector('#rp-group-initiation');
+   addMetricHelp(title,pcRiskCardNotice('initiation'));
+   const help=title.querySelector('.metric-help');
+   help.classList.add('card-metric-help');
+   help.setAttribute('aria-label','查看立项规划预警入榜条件与排序规则');
+   title.querySelector('.rp-group-caption').before(help);
   }
   $('#risk .sectionhead h2').firstChild.textContent='产品中心风险预警';
   const sub=$('#risk .sectionhead .sub');if(sub)sub.textContent='9 个预警榜单 · TOP 6';
