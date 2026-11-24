@@ -2292,10 +2292,6 @@
       "module": "产品中心复用总看板原模块DOM"
     },
     {
-      "file": "src/modules/product-center/03-role.js",
-      "module": "产品中心顶栏演示人员切换"
-    },
-    {
       "file": "src/modules/product-center/04-risk.js",
       "module": "产品中心风险分组与总看板榜单适配"
     },

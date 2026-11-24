@@ -131,10 +131,6 @@
 #lifetable .pc-life-brand-name>img,#lifetable .pc-life-brand-initial{width:24px;height:24px;flex:none;border-radius:4px}
 #lifetable .pc-life-brand-name>img{object-fit:contain;background:#fff}
 #lifetable .pc-life-brand-initial{display:grid;place-items:center;background:#eaf0f8;color:#4b6280;font-size:12px;font-weight:600}
-.pc-role-control{display:inline-flex;align-items:center;gap:8px;margin-right:20px;white-space:nowrap;color:#66738a;font-size:13px}
-.pc-role-control[hidden]{display:none!important}
-.lt-system-active .pc-role-control{display:none!important}
-.pc-role-control select{height:32px;width:108px;border:1px solid #d5e1f4;border-radius:5px;padding:4px 8px;background:#fff;color:#34425b;font-size:13px}
 /* 部门固定产品中心；产品经理固定环境类。展示字段与业务类型不隐藏。 */
 body.product-center-active :is(.pp-dept-options,.pp-analysis-tabs,.gd-ledger-departments,.gd-rubric-selector:has([data-gd-rubric-dept])){display:none!important}
 body.product-center-manager :is(#nsp-category-tabs,#pp-category-tabs,[data-pp-distribution="category"],[data-pp-dept-dimension="category"]){display:none!important}
@@ -147,5 +143,4 @@ body.product-center-active .rp-pdd-count{background:var(--rp-pdd-count-backgroun
 body.product-center-active .rp-pdd-count--red>strong{color:#b4233f!important}
 body.product-center-active .rp-pdd-count--yellow>strong{color:var(--orange)!important}
 body.product-center-active .rp-pdd-count>span{color:#7d8da6!important}
-@media(max-width:1100px){.pc-role-control{margin-right:12px;gap:5px}}
-@media(max-width:700px){.pc-role-control{margin-right:8px}.pc-role-control>span{display:none}.pc-role-control select{width:88px}.product-center-active .head.portal-header .headright>.admin-account{display:none}.product-center-active .head.portal-header .inventory-screen-button{min-width:68px;padding:0 8px;margin-right:0}.product-center-active .head.portal-header .brand{flex-basis:42px}.product-center-active .brand-name{display:none}}
+@media(max-width:700px){.product-center-active .head.portal-header .headright>.admin-account{display:none}.product-center-active .head.portal-header .inventory-screen-button{min-width:68px;padding:0 8px;margin-right:0}.product-center-active .head.portal-header .brand{flex-basis:42px}.product-center-active .brand-name{display:none}}

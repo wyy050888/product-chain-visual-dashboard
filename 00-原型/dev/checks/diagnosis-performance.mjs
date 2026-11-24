@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import {setProductCenterRole} from './product-center-role-fixture.mjs';
 
 export async function diagnosisPerformance(page){
  await page.addInitScript(()=>{
@@ -53,7 +54,7 @@ export async function diagnosisPerformance(page){
   await page.goto(new URL('产品中心.html',page.url()).href,{waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>document.documentElement.dataset.dashboardBoot==='ready');
   for(const role of ['manager','owner']){
-   await page.locator('#pc-person').selectOption(role);
+   await setProductCenterRole(page,role);
    for(const part of ['coordination','resource','execution','tasks']){
     await page.locator('[data-gd-part="'+part+'"]').click();
     const scope=await page.evaluate(()=>globalDiagnosisAudit());

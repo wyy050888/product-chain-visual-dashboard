@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import {managementScoreBatch} from './management-score-batch.mjs';
+import {setProductCenterRole} from './product-center-role-fixture.mjs';
 
 export async function productStartup(page){
  managementScoreBatch();
@@ -22,20 +23,20 @@ export async function productStartup(page){
   assert.equal(await page.locator('#suppliers .scp-workspace').count(),0,'不初始化隐藏的采购工作区');
   await page.reload();await ready();assert.deepEqual(await page.evaluate(()=>window.__productStartup),{inventory:1,cost:1},'刷新也不能先渲染总看板');
  }
- await page.locator('#pc-person').selectOption('owner');await ready();
+ await setProductCenterRole(page,'owner');await ready();
  assert.equal((await page.evaluate(()=>departmentSnapshot().scope)).chain,'2');
  await page.locator('.pc-navigation-toolbar a[href="#dp-sales"]').click();
  await page.waitForFunction(()=>document.querySelector('.pc-navigation-toolbar [aria-current=location]')?.hash==='#dp-sales');
  const current=await page.locator('#sales').evaluate(node=>({top:node.getBoundingClientRect().top,bottom:document.querySelector('.pc-navigation-toolbar').getBoundingClientRect().bottom}));
  assert(current.top>=current.bottom-1&&current.top<=current.bottom+60,'导航及时定位且不遮挡标题');
  // 后台返回总看板时补齐之前省略的模块；恢复总监再进入后台，保证人员范围一致。
- await page.locator('#pc-person').selectOption('manager');await ready();
+ await setProductCenterRole(page,'manager');await ready();
  await page.evaluate(()=>{location.hash='#system-business-rules'});await page.locator('#lt-system').waitFor({state:'visible'});
  await page.evaluate(()=>{location.hash='#dashboard'});await page.locator('#department-view').waitFor({state:'hidden'});
  assert(await page.locator('#costcards .cc-card').count()>0);assert(await page.locator('#suppliers .scp-workspace').count()>0);
  assert.equal(await page.locator('#riskrail .pc-risk-card').count(),0);
  await page.goto(new URL('产品中心.html#system-business-rules',base).href);await ready();
- await page.evaluate(()=>{location.hash=''});await page.locator('#pc-person').waitFor({state:'visible'});
+ await page.evaluate(()=>{location.hash=''});await page.locator('#department-view.product-center-view').waitFor({state:'visible'});
  assert.equal(await page.locator('#department-view>.section').count(),10,'后台返回产品中心保持完整模块');
- console.log('产品中心：首次/刷新仅挂载一次、十模块完整、人员切换/导航、后台与总看板返回通过');
+ console.log('产品中心：首次/刷新仅挂载一次、十模块完整、链群范围/导航、后台与总看板返回通过');
 }

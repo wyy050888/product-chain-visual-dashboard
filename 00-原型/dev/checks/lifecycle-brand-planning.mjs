@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import {setProductCenterRole} from './product-center-role-fixture.mjs';
 
 export async function lifecycleBrandPlanning(page){
  const url=new URL('产品中心.html',page.url()).href;
@@ -123,6 +124,6 @@ export async function lifecycleBrandPlanning(page){
  assert.equal(await brand.locator('td').nth(1).innerText(),'13');
  const added=table.locator('[data-pc-life-brand-row][data-chain="2"][data-brand="新增品牌"]');
  assert.equal(await added.locator('td').nth(1).innerText(),'4','新增品牌在看板的对应链群显示目标');
- await page.locator('#pc-person').selectOption('owner');
+ await setProductCenterRole(page,'owner');
  assert.deepEqual(await brands.evaluateAll(rows=>[...new Set(rows.map(row=>row.dataset.chain))]),['2']);
 }

@@ -545,7 +545,6 @@
     "sources": [
       "src/modules/product-center/01-scope.js",
       "src/modules/product-center/02-workspace.js",
-      "src/modules/product-center/03-role.js",
       "src/modules/product-center/04-risk.js",
       "src/modules/product-center/05-fixed-filters.js",
       "src/modules/product-center/06-reports.js",

@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 import {randomUUID} from 'node:crypto';
 import {verifySupplierCategoryTargets} from './supplier-category-isolation.mjs';
+import {setProductCenterRole} from './product-center-role-fixture.mjs';
 const read=file=>fs.readFileSync(new URL('../../'+file,import.meta.url),'utf8');
 const names=['环境','清洁','厨电','个护&健康'];
 const plain=value=>JSON.parse(JSON.stringify(value));
@@ -96,7 +97,7 @@ export async function chainTaxonomy(page){
  await page.setViewportSize({width:1920,height:1080});
  await page.goto(new URL('../../产品中心.html',import.meta.url).href);
  await page.waitForFunction(()=>document.documentElement.dataset.dashboardBoot==='ready',null,{timeout:60000});
- await page.locator('#pc-person').selectOption('owner');
+ await setProductCenterRole(page,'owner');
  const department=await page.evaluate(()=>({products:dashboardNewProductsSnapshot().rows,projects:projectPanoramaAudit().scope,work:globalDiagnosisAudit().work}));
  assert(department.products.length&&department.products.every(row=>row.category==='环境'));
  assert(department.projects.every(row=>row.category==='环境'));

@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {createContext,runInContext} from 'node:vm';
+import {setProductCenterRole} from './product-center-role-fixture.mjs';
 function verifyInitiationWarningDates(){
  const validDate=value=>/^\d{4}-\d{2}-\d{2}$/.test(value||'')&&Number.isFinite(Date.parse(value))&&new Date(value).toISOString().slice(0,10)===value;
  const context=createContext({riskValidDate:validDate,ppDate:value=>validDate(value)?value:null,
@@ -76,9 +77,8 @@ export async function productCenter(page){
  for(const width of [1920,1280,390]){
   await page.setViewportSize({width,height:1080});await page.goto(new URL('产品中心.html',base).href);await ready(page);
   assert.deepEqual(await styles(page),baseline[width],width+'宽度下相同模块使用同一样式');
-  assert.deepEqual(await page.locator('#pc-person option').allTextContents(),['总监','产品经理']);
+  assert.equal(await page.locator('.head #pc-person, .head .pc-role-control').count(),0,'顶栏不显示人员切换');
   assert.equal(await page.locator('#department-view #dp-role,#department-view #dp-scope-chain').count(),0);
-  const box=await page.locator('#pc-person').boundingBox();assert(box.y>=0&&box.y+box.height<=60&&box.x+box.width>width*.65&&box.x+box.width<=width,'人员切换位于右上角顶栏：'+JSON.stringify({width,box}));
   assert.equal(await page.locator('#department-view>.section').count(),11);
   assert.deepEqual(await page.locator('#riskrail>.rp-board-group .rp-group-title-text').allTextContents(),['上品计划预警','立项规划预警','品质风险榜']);
   assert.deepEqual(await page.locator('#rp-group-navigation [data-rp-group-jump]').evaluateAll(nodes=>nodes.map(node=>node.dataset.rpGroupJump)),['pc-launch','pc-initiation','0','6','8','1','2']);
@@ -127,7 +127,6 @@ export async function productCenter(page){
   assert.equal(await page.locator('#ai [data-gd-department],#projects [data-pp-filter="department"]').count(),0);
   assert.equal(await page.locator('.pp-dept-options:visible,.pp-analysis-tabs:visible').count(),0);
   assert.equal(await page.locator('#department-view [id]').evaluateAll(nodes=>{const ids=nodes.map(n=>n.id);return ids.length-new Set(ids).size}),0);
-  assert.ok(await page.locator('#pc-person').isVisible());
   assert.ok(await page.locator('.pc-navigation-toolbar .brc-entry').isVisible(),'复用配置入口');
   assert.ok(await page.locator('[data-pc-action="dashboard-fullscreen"]').isVisible(),'复用全屏入口');
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,'页面无横向溢出');
@@ -781,7 +780,7 @@ export async function productCenter(page){
  assert.deepEqual(await page.locator('[data-pc-life-brand-row]').evaluateAll(rows=>[...new Set(rows.map(row=>row.dataset.chain))]),['0'],'品牌计划跟随生命周期已选链群');
  await page.locator('#lt-chain-tabs [data-lt-chain="all"]').click();
  assert.deepEqual(await costContent(page),costBaseline,'总监视角的降本与总看板一致');
- await page.locator('#pc-person').selectOption('owner');await ready(page);
+ await setProductCenterRole(page,'owner');await ready(page);
  const scoped=await facts(page),scope=await page.evaluate(()=>departmentSnapshot().scope);
  assert.equal(scope.chain,'2');
  for(const key of ['products','newProducts','projects','inventory'])assert.deepEqual(scoped[key],original[key].filter(row=>row.chain===2&&(key!=='projects'||row.productDepartment)),key+'保持原事实且只显示环境');
@@ -807,8 +806,8 @@ export async function productCenter(page){
  assert(navigation.section>=navigation.bar,'模块标题不被固定导航遮挡');
  assert.ok(await page.locator('#sales [data-ms-section="2"] [data-ms-breakdown-view="platform"]').isVisible());
  await page.locator('a[href="#dp-ai"]').click();await page.locator('[data-gd-part="tasks"]').click();assert.equal(await page.locator('[data-gd-part="tasks"]').getAttribute('aria-pressed'),'true');
- await page.locator('#pc-person').selectOption('manager');assert.equal((await page.evaluate(()=>departmentSnapshot().scope)).chain,'all');
- await page.reload();await ready(page);assert.equal(await page.locator('#pc-person').inputValue(),'manager');
+ await setProductCenterRole(page,'manager');assert.equal((await page.evaluate(()=>departmentSnapshot().scope)).chain,'all');
+ await page.reload();await ready(page);assert.equal((await page.evaluate(()=>departmentSnapshot().scope)).chain,'all');
  await page.setViewportSize({width:1280,height:768});
  await page.evaluate(()=>window.scrollTo({top:0,behavior:'instant'}));
  const launchGroup=page.locator('.rp-board-group-launch');

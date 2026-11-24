@@ -13,7 +13,7 @@ function pcRestoreModules(){
  for(const {node,home} of pcSharedNodes.values())home.after(node);
  pcMounted=false;dpView.classList.remove('product-center-view','page');
  $('#risk .sectionhead h2').firstChild.textContent='全局高危预警';$('#ai .sectionhead h2').textContent='全局 AI 总诊断';
- document.body.classList.remove('product-center-active','product-center-manager');pcSyncRoleControl();
+ document.body.classList.remove('product-center-active','product-center-manager');
 }
 function pcRenderWorkspace(){
  const refresh=!pcMounted||pcRenderedRole!==dpState.role;
@@ -45,7 +45,7 @@ function pcRenderWorkspace(){
  $('#risk .sectionhead h2').firstChild.textContent='产品中心风险预警';
  if(refresh){pcDirectorNeedsRender=true;renderAll(moduleIds.filter(id=>pcSharedNodes.has(id)))}
  pcPaintPersonnel(management);
- pcTrimScopedModules();pcSyncRoleControl();pcQueueNavigation();
+ pcTrimScopedModules();pcQueueNavigation();
 }
 renderDepartment=function(){
  if(dwActive!=='product'){if(pcMounted)pcRestoreModules();return pcDepartmentRender()}
@@ -72,6 +72,12 @@ dpSwitchView=function(view,...args){
 };
 
 // 共用模块日期使用原处理器；专属模块日期保留原部门状态。
+const pcPreviousRenderSales=renderSales;
+renderSales=function(...args){
+ const result=pcPreviousRenderSales(...args);
+ if(pcIsActive())pcTrimScopedModules();
+ return result;
+};
 const pcRenderLife=renderLife;
 renderLife=function(...args){
  const result=pcRenderLife(...args);
