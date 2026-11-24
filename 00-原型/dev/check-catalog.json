@@ -143,6 +143,14 @@
     "file": "./checks/system-menu-structure.mjs",
     "export": "systemMenuStructure"
   },
+  "roleDashboardPermissions": {
+    "file": "./checks/role-dashboard-permissions.mjs",
+    "export": "roleDashboardPermissions"
+  },
+  "chainMemberships": {
+    "file": "./checks/chain-memberships.mjs",
+    "export": "chainMemberships"
+  },
   "systemDataActions": {
     "file": "./checks/system-data-actions.mjs",
     "export": "systemDataActions"

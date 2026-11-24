@@ -1530,6 +1530,30 @@
       "module": "系统管理共用外壳与路由"
     },
     {
+      "file": "src/modules/system-management/02-role-permissions.js",
+      "module": "角色管理看板权限定义"
+    },
+    {
+      "file": "src/modules/system-management/03-role-permission-tree.js",
+      "module": "角色管理数据权限树"
+    },
+    {
+      "file": "src/modules/system-management/04-role-store.js",
+      "module": "角色管理本地角色数据"
+    },
+    {
+      "file": "src/modules/system-management/05-role-management.js",
+      "module": "系统管理角色管理"
+    },
+    {
+      "file": "src/modules/system-management/06-chain-memberships.js",
+      "module": "系统管理部门链群账号关系"
+    },
+    {
+      "file": "src/modules/system-management/07-user-management.js",
+      "module": "系统管理用户管理与链群配置"
+    },
+    {
       "file": "src/modules/lifecycle-targets/04-navigation.js",
       "module": "系统管理生命周期目标"
     },

@@ -17,7 +17,7 @@ const smMenuGroups=[
  ['目标管理',[
   ['生命周期目标','lt-target-page'],['降本增效','cec-page'],['供应商目标','st-target-page']
  ]],
- ['权限管理',[['用户管理'],['角色管理'],['人员配置'],['白名单']]],
+ ['权限管理',[['用户管理','system-user-page'],['角色管理','system-role-page'],['人员配置'],['白名单']]],
  ['系统配置',[['菜单管理'],['字典管理']]],
  ['系统运维',[['用户操作日志'],['登录日志'],['定时任务']]]
 ];
@@ -31,12 +31,35 @@ function smRenderMenu(){
   return `<a href="${page.external||page.route}" ${action} ${current}>${esc(label)}</a>`;
  };
  smHost.querySelector('.lt-sidebar').innerHTML=smMenuGroups.map(([group,items])=>
-  `<details class="lt-menu-group" ${['业务配置','目标管理'].includes(group)?'open':''}><summary>${esc(group)}<span class="ui-dropdown-icon" aria-hidden="true"></span></summary>${items.map(itemMarkup).join('')}</details>`
+  `<details class="lt-menu-group" ${['业务配置','目标管理'].includes(group)||items.some(([,id])=>pagesById.get(id)?.route===smActiveRoute)?'open':''}><summary>${esc(group)}<span class="ui-dropdown-icon" aria-hidden="true"></span></summary>${items.map(itemMarkup).join('')}</details>`
  ).join('');
 }
 function smRegisterPage(page){
  const pane=document.createElement('section');pane.id=page.id;pane.hidden=true;pane.innerHTML=page.markup;
  smPages.set(page.route,{...page,pane});$('#sm-content').append(pane);smRenderMenu();return pane;
+}
+function smBindTabs(root,tabList,onActivate){
+ const tabs=Array.from(tabList.children).filter(tab=>!tab.disabled);
+ const panels=tabs.map(tab=>root.querySelector('#'+tab.getAttribute('aria-controls')));
+ const activate=tab=>{
+  for(const [index,button] of tabs.entries()){
+   const selected=button===tab;
+   button.setAttribute('aria-selected',String(selected));
+   button.tabIndex=selected?0:-1;
+   panels[index].hidden=!selected;
+  }
+  onActivate?.(tab);
+ };
+ for(const [index,tab] of tabs.entries()){
+  tab.addEventListener('click',()=>activate(tab));
+  tab.addEventListener('keydown',event=>{
+   const destination={ArrowLeft:(index+tabs.length-1)%tabs.length,ArrowRight:(index+1)%tabs.length,Home:0,End:tabs.length-1}[event.key];
+   if(!Number.isInteger(destination))return;
+   event.preventDefault();
+   const next=tabs[destination];
+   activate(next);next.focus();
+  });
+ }
 }
 function smShowPage(route){
  const page=smPages.get(route);if(!page)return;

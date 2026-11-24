@@ -13,11 +13,13 @@ export async function systemMenuStructure(page){
  assert.equal(new URL(page.url()).hash,'#system-business-rules','从前台点击系统管理默认进入规则配置');
  await page.locator('#business-rule-page').waitFor({state:'visible'});
  const menu=page.locator('#lt-system .lt-sidebar');
- assert.deepEqual(await menu.locator('summary').evaluateAll(nodes=>nodes.map(node=>node.firstChild.textContent)),expected.map(([name])=>name));
- const groups=menu.locator('.lt-menu-group');
- for(let i=0;i<expected.length;i++)assert.deepEqual(await groups.nth(i).locator(':scope > a,:scope > .lt-menu-disabled').allTextContents(),expected[i][1]);
- assert.equal(await menu.locator('a[data-system-route]').count(),7);
- assert.equal(await menu.locator('[aria-disabled="true"]').count(),10);
+ const readGroups=()=>menu.locator(':scope > .lt-menu-group').evaluateAll(groups=>groups.map(group=>[
+  group.querySelector('summary').firstChild.textContent,
+  [...group.querySelectorAll(':scope > a,:scope > .lt-menu-disabled')].map(node=>node.textContent)
+ ]));
+ assert.deepEqual(await readGroups(),expected);
+ assert.equal(await menu.locator('a[data-system-route]').count(),9);
+ assert.equal(await menu.locator('[aria-disabled="true"]').count(),8);
  const disabled=menu.locator('.lt-menu-disabled');
  assert((await disabled.evaluateAll(nodes=>nodes.every(node=>!node.hasAttribute('href')&&!node.hasAttribute('data-system-route')))),'置灰项不登记假路由');
  const first=disabled.first();await first.scrollIntoViewIfNeeded();const box=await first.boundingBox(),before=page.url();
@@ -28,6 +30,15 @@ export async function systemMenuStructure(page){
   await menu.getByRole('link',{name:label,exact:true}).click();await page.locator(pane).waitFor({state:'visible'});
   assert.equal(await menu.locator('[aria-current="page"]').innerText(),label);
  }
+ await menu.getByText('权限管理',{exact:true}).click();
+ await menu.getByRole('link',{name:'用户管理',exact:true}).click();
+ await page.locator('#system-user-page').waitFor({state:'visible'});
+ assert.equal(await menu.locator('[aria-current="page"]').innerText(),'用户管理');
+ await menu.getByRole('link',{name:'角色管理',exact:true}).click();
+ await page.locator('#system-role-page').waitFor({state:'visible'});
+ assert.equal(await menu.locator('[aria-current="page"]').innerText(),'角色管理');
+ assert.deepEqual(await readGroups(),expected,'角色管理复用系统管理原有分组和菜单顺序');
+ assert.equal(await menu.locator(':scope > a,:scope > .lt-menu-disabled').count(),0);
  await menu.getByRole('link',{name:'样机提供及时率导入',exact:true}).click();
  const sampleImport=page.locator('#sample-timeliness-import-page');
  assert.equal(new URL(page.url()).hash,'#system-sample-timeliness');
@@ -42,10 +53,10 @@ export async function systemMenuStructure(page){
  for(const width of [1920,390]){
   await page.setViewportSize({width,height:1080});
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'菜单不能撑宽页面');
-  assert.equal(await menu.locator('.lt-menu-disabled').count(),10);
+  assert.equal(await menu.locator('.lt-menu-disabled').count(),8);
  }
  await page.setViewportSize({width:1920,height:1080});
- console.log('通过：五组17菜单顺序、七现用页跳转、待定模板状态、十原有项置灰无跳转及宽窄屏。');
+ console.log('通过：五组17菜单顺序、九个现用页跳转、待定模板状态、八个原有项置灰无跳转及宽窄屏。');
 }
 // 实际滚轮只移动右侧；切页恢复顶部，退出后台恢复文档滚动。
 export async function systemContentScroll(page){

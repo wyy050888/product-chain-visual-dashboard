@@ -3245,6 +3245,30 @@
       "pageEntries"
     ]
   },
+  "roleDashboardPermissions": {
+    "label": "角色管理中的产品链看板权限",
+    "sources": [
+      "src/modules/system-management/01-shell.js",
+      "src/modules/system-management/02-role-permissions.js",
+      "src/modules/system-management/03-role-permission-tree.js",
+      "src/modules/system-management/04-role-store.js",
+      "src/modules/system-management/05-role-management.js"
+    ],
+    "checks": ["roleDashboardPermissions", "systemMenuStructure", "systemContentScroll", "pageEntries"]
+  },
+  "chainMemberships": {
+    "label": "用户管理部门链群配置",
+    "keywords": ["链群配置"],
+    "sources": [
+      "src/modules/system-management/01-shell.js",
+      "src/modules/system-management/04-role-store.js",
+      "src/modules/system-management/05-role-management.js",
+      "src/modules/system-management/06-chain-memberships.js",
+      "src/modules/system-management/07-user-management.js",
+      "styles/55-lifecycle-targets.css"
+    ],
+    "checks": ["chainMemberships", "systemMenuStructure", "roleDashboardPermissions", "systemContentScroll", "pageEntries"]
+  },
   "supplierRevision": {
     "label": "供应商分层与年度准入目标",
     "keywords": [

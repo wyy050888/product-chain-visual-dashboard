@@ -108,3 +108,182 @@ body.lt-system-active .head.portal-header .chain-trigger{border-bottom-color:tra
  #lt-system .lt-sidebar::-webkit-scrollbar{display:none;width:0;height:0}
  html:is(:fullscreen,.dashboard-fullscreen) #lt-system{top:0}
 }
+
+/* 角色管理查询区、表格和操作控件。 */
+#lt-system #system-role-page>.lt-page-head{min-height:57px;height:57px;margin:0 0 20px;padding:0 20px}
+#lt-system #system-role-page .sm-page-title{color:#333;font-size:15px;font-weight:500}
+#lt-system #system-role-page>.lt-panel{flex:0 0 auto;padding:20px}
+#system-role-page .rm-search-view{padding:20px 20px 0;overflow-x:auto}
+#rm-filter{display:grid;grid-template-columns:repeat(2,minmax(136px,1fr)) minmax(106px,.75fr) minmax(310px,1.4fr) auto;gap:12px;align-items:start}
+#rm-filter .rm-search-item{display:flex;align-items:center;min-width:0;height:33px;border:1px solid #e5e5e5;border-radius:4px;color:#888}
+#rm-filter .rm-search-item:hover{border-color:#d1d0d0}
+#rm-filter .rm-search-item:focus-within{border-color:#1966ff}
+#rm-filter .rm-search-item>span{flex:none;padding:0 12px 0 10px;white-space:nowrap}
+#rm-filter .rm-search-item :is(input,select){flex:1;width:0;min-width:0;height:31px;padding:1px 10px;border:0;border-radius:4px;background:transparent;color:#606266;font:inherit;outline:0;box-shadow:none}
+#rm-filter .rm-search-item input::placeholder{color:#a8abb2}
+#rm-filter .rm-search-dates input{padding-inline:6px}
+#rm-filter .rm-search-dates>span[aria-hidden]{padding:0}
+#system-role-page .rm-table-content{padding:20px}
+#system-role-page .rm-list-actions{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+#system-role-page .rm-list-actions>[data-rm-new]{min-width:79px}
+#system-role-page .rm-list-actions>.sm-data-action,.rm-button{display:inline-flex;align-items:center;justify-content:center;gap:4px;min-width:60px;height:33px;padding:8px 15px;border:1px solid #1966ff;border-radius:4px;background:#fff;color:#1966ff;font:inherit;font-weight:500;line-height:15px;white-space:nowrap;cursor:pointer}
+#system-role-page .rm-list-actions>.sm-data-action{min-width:79px}
+#system-role-page .rm-list-actions>.sm-data-action:hover,.rm-button:hover,.rm-button-primary{border-color:#1966ff;background:#1966ff;color:#fff}
+.rm-button-reset{border-color:#dcdfe6;color:#606266}
+.rm-button-primary:hover{background:#4785ff;border-color:#4785ff}
+#rm-list{overflow:auto}
+#rm-list .rm-role-table{width:100%;min-width:710px;table-layout:fixed;border-collapse:collapse;font-size:14px;color:#666}
+#rm-list .rm-role-table :is(th,td){height:41px;padding:8px 12px;border:1px solid #ebeef5;background:#fff;color:#666;line-height:23px;text-align:center;white-space:nowrap;text-overflow:ellipsis;overflow:hidden}
+#rm-list .rm-role-table th{height:40px;color:#333;font-weight:700}
+#rm-list .rm-role-table th:first-child{width:14.25%}
+#rm-list .rm-role-table :is(th,td):last-child{width:170px}
+#rm-list .rm-role-table tbody tr:hover td{background:#f5f7fa}
+.rm-row-actions{display:flex;align-items:center;justify-content:center;gap:10px}
+.rm-row-actions .link{min-height:0;padding:2px;color:#1966ff;font-size:12px;font-weight:500;line-height:13px;white-space:nowrap}
+.rm-more-menu{inset:auto;position-area:bottom span-left;margin:4px 0 0;padding:5px 0;border:1px solid #e4e7ed;border-radius:4px;box-shadow:0 0 12px #0000001f;background:#fff}
+.rm-more-menu .link{display:block;padding:5px 16px}
+.rm-more-menu .link:hover{background:#ecf5ff}
+.rm-status-switch{display:inline-grid;align-items:center;justify-items:start;width:30px;height:16px;padding:1px 2px;border:1px solid #dcdfe6;border-radius:8px;background:#dcdfe6;line-height:1;cursor:pointer;vertical-align:middle}
+.rm-status-switch::after{content:"";width:12px;height:12px;border-radius:50%;background:#fff}
+.rm-status-switch[aria-checked="true"]{justify-items:end;border-color:#13ce66;background:#13ce66}
+#rm-pager .list-pagination{min-height:32px;margin:20px 20px 0 0;padding:0;gap:12px;color:#606266;font-size:13px}
+#rm-pager .list-page-button{border-radius:2px;background:#f0f2f5;color:#606266;font-size:13px}
+#rm-pager .list-page-button.selected{background:#1966ff;color:#fff}
+#rm-pager .list-page-button:disabled{color:#a8abb2}
+
+/* 用户管理沿用后台标题栏、页签和浅色表格。 */
+#system-user-page>.su-head{align-items:flex-start;flex-direction:column;flex-wrap:nowrap;gap:0;height:auto;padding-top:14px}
+#system-user-page>.su-head>.sm-page-tabs{flex:none;min-height:42px;width:100%;height:auto}
+#lt-system #system-user-page .sm-page-tabs [aria-selected="true"]{color:#1677ff;border-bottom-color:#1677ff}
+#lt-system #system-user-page .sm-page-tabs button:disabled{color:#9aa7b7;cursor:not-allowed}
+.su-panel>.tablewrap{overflow:auto}
+.su-table{width:100%;border-collapse:collapse}
+.su-table :is(th,td){padding:9px 12px;border-bottom:1px solid #e7edf5;background:#fff;color:#354d69;text-align:left;vertical-align:middle}
+.su-table thead th{background:#f5f7fb;color:#5b6f89;font-weight:500}
+.su-matrix{min-width:680px;table-layout:fixed}
+.su-matrix :is(th,td):first-child{width:120px}
+.su-members-button{padding:2px 0;color:#1966ff;text-align:left;white-space:normal;overflow-wrap:anywhere}
+.su-members-button[data-su-unassigned]:not(:hover,:focus-visible){color:#607690}
+.rm-role-dialog.su-member-dialog{width:min(520px,calc(100vw - 20px))}
+.su-member-context{margin:0 0 8px;color:#55708b;font-size:13px}
+.su-member-dialog .up-todo-owner-read{min-height:36px;align-items:center;padding:4px 9px;border-color:#d4deeb;border-radius:4px}
+.su-member-dialog .up-todo-owner-caret{opacity:1}
+.rm-role-dialog.su-member-dialog .up-todo-owner-editor [data-people-query]{height:26px;padding:2px 0;border:0;background:transparent;outline:0}
+.su-member-dialog .rm-dialog-body:has([data-people-editor]:not([hidden])){padding-bottom:clamp(132px,calc(100dvh - 260px),236px)}
+
+/* 角色弹窗的标题和操作栏固定，授权表单在中间滚动。 */
+.rm-role-dialog{inset:0;width:min(600px,calc(100vw - 32px));max-width:none;max-height:calc(100dvh - 48px);margin:auto;padding:0;border:1px solid #e0e7f1;border-radius:12px;overflow:hidden;background:#fff;box-shadow:0 20px 70px #17295238;color:#273a54;font:inherit}
+.rm-role-editor{width:min(1000px,calc(100vw - 32px));height:820px}
+.rm-role-dialog[open],.rm-role-dialog>form{display:flex;flex-direction:column;min-height:0}
+.rm-role-editor>form,.rm-role-editor .rm-dialog-body{flex:1}
+.rm-role-dialog::backdrop{background:#17223866}
+.rm-role-dialog>header{display:flex;flex:none;align-items:center;justify-content:space-between;gap:12px;padding:16px 24px;border-bottom:1px solid #e5ebf3}
+.rm-role-dialog>header h3{margin:0;color:#182a42;font-size:var(--type-module);font-weight:var(--weight-heading);line-height:1.4}
+.rm-role-dialog>header .iconbtn{width:32px;height:32px;padding:0;border:0;border-radius:6px;background:#f3f6fb;color:#4c6079;font-size:22px;line-height:1}
+.rm-role-dialog>header .iconbtn:hover{background:#e8eef9;color:#1966ff}
+.rm-dialog-body{min-height:0;overflow:auto;overscroll-behavior:contain;padding:20px 24px;scrollbar-gutter:stable}
+.rm-dialog-body>p:first-child{margin-top:0}
+.rm-editor-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:18px}
+.rm-role-editor .rm-editor-fields{grid-template-columns:1.2fr 1.2fr minmax(80px,.65fr) minmax(146px,1fr)}
+.rm-dialog-field{display:grid;grid-template-columns:minmax(0,1fr);align-content:start;gap:6px;min-width:0}
+.rm-dialog-field>span:first-child{color:#344862;font-size:var(--type-data);font-weight:var(--weight-medium)}
+.rm-required{margin-left:4px;color:#bd3e4a}
+.rm-role-dialog :is(input:not([type="checkbox"]):not([type="radio"]),select,textarea){width:100%;min-width:0;height:36px;padding:1px 9px;border:1px solid #d4deeb;border-radius:6px;background:#fff;color:#213952;font:inherit;font-size:var(--type-data);font-weight:var(--weight-regular)}
+.rm-role-dialog :is(input,textarea,select,button,summary):focus-visible{outline:2px solid #1966ff;outline-offset:2px}
+.rm-role-dialog :is(input,select):disabled{background:#f5f7fa;color:#69798b;cursor:not-allowed}
+.rm-role-dialog input:is([type="radio"],[type="checkbox"]){width:15px;height:15px;min-width:15px;margin:0;accent-color:#1966ff;vertical-align:middle}
+.rm-role-dialog label:has(> input:is([type="checkbox"],[type="radio"])){display:inline-flex;align-items:center;gap:7px;cursor:pointer}
+.rm-role-dialog label:has(> input:disabled){cursor:not-allowed}
+.rm-role-radios,.rm-tree-toolbar{display:flex;align-items:center;flex-wrap:wrap;gap:6px 14px;min-height:36px}
+.rm-role-radios{font-size:var(--type-data)}
+.rm-role-dialog fieldset{margin:0;padding:10px 14px;border:1px solid #dce6f1;border-radius:6px}
+.rm-role-dialog fieldset legend{padding:0 5px;font-weight:var(--weight-heading)}
+.rm-role-dialog footer{display:flex;flex:none;align-items:center;justify-content:space-between;gap:12px;padding:12px 24px;border-top:1px solid #e5ebf3;background:#fff}
+.rm-dialog-actions{display:flex;flex:none;gap:8px;margin-left:auto}
+.rm-dialog-actions>.rm-button{height:36px;min-width:76px;border-radius:6px;font-size:var(--type-data);font-weight:var(--weight-regular)}
+.rm-dialog-error{margin:0;color:#b12c41;font-size:var(--type-data);overflow-wrap:anywhere}
+.rm-dialog-error:empty{display:none}
+
+/* 权限配置的一级页签与看板切换使用不同层级的样式。 */
+.rm-permission-title{margin:0 0 2px;color:#253a55;font-size:var(--type-card);font-weight:var(--weight-heading);line-height:1.5}
+.rm-permission-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px 16px;border-bottom:1px solid #e0e8f2}
+.rm-tree-toolbar{font-size:var(--type-data);color:#425772}
+.rm-menu-tree-controls{display:flex;align-items:center;flex-wrap:wrap;gap:inherit}
+.rm-board-tree-controls{display:none}
+.rm-permission-header:has(#rm-dashboard-tab[aria-selected="true"]) .rm-menu-tree-controls{display:none}
+.rm-permission-header:has(#rm-dashboard-tab[aria-selected="true"]) .rm-board-tree-controls{display:inline-flex}
+.rm-permission-tabs{display:flex;gap:20px}
+.rm-permission-tabs>button{min-height:48px;padding:4px 5px 2px;border:0;border-bottom:2px solid transparent;border-radius:0;background:transparent;color:#455b76;font:inherit;font-size:var(--type-data);font-weight:var(--weight-regular);cursor:pointer}
+.rm-permission-tabs>button:hover,.rm-permission-tabs>button[aria-selected="true"]{color:#1458bf}
+.rm-permission-tabs>button[aria-selected="true"]{border-bottom-color:#1966ff;font-weight:var(--weight-heading)}
+.rm-permission-panel{min-width:0;padding-top:10px}
+.rm-menu-tree{min-width:0;margin-top:4px}
+.rm-permission-field [data-rm-tree-node]>summary{display:flex;align-items:center;gap:8px;min-height:32px;list-style:none;cursor:pointer}
+.rm-permission-field summary::-webkit-details-marker{display:none}
+.rm-permission-field :is(summary,.rm-board-fold)::before{content:"";flex:none;width:7px;height:7px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(-45deg);color:#5b7390}
+.rm-permission-field :is(details[open]>summary,.rm-board-fold[aria-expanded="true"])::before{transform:translateY(-2px) rotate(45deg)}
+.rm-menu-tree summary,.rm-tree-leaf{border-radius:5px;padding:4px 8px;font-size:var(--type-data);overflow-wrap:anywhere}
+.rm-menu-tree summary:hover,.rm-tree-leaf:hover{background:#edf4ff}
+.rm-tree-children{margin-left:8px;padding-left:5px;border-left:1px solid #e0e8f2}
+.rm-tree-leaf{display:flex;align-items:center;min-height:30px;padding-left:23px}
+.rm-board-tabs{display:flex;gap:8px;margin:0 0 12px}
+.rm-board-tabs>button{display:flex;align-items:center;gap:6px;min-height:34px;padding:2px 11px;border:0;border-radius:5px;background:transparent;color:#455b76;font:inherit;font-size:var(--type-data);font-weight:var(--weight-regular);cursor:pointer}
+.rm-board-tabs>button:hover,.rm-board-tabs>button[aria-selected="true"]{color:#1458bf}
+.rm-board-tabs>button[aria-selected="true"]{background:#edf4ff;font-weight:var(--weight-heading)}
+.rm-board-state{color:#687a90;font-size:var(--type-meta);font-weight:var(--weight-regular);white-space:nowrap}
+.rm-board-state.is-granted{color:#276449}
+.rm-board-table{--rm-permission-control-width:232px;--table-body-size:var(--type-data);width:100%;table-layout:fixed;border-collapse:separate;border-spacing:0}
+.rm-board-table :is(th,td){padding:5px 8px;border-bottom:0;background:#fff;color:#344862;text-align:left;vertical-align:middle;white-space:normal;overflow-wrap:anywhere}
+.rm-board-table thead th{height:34px;background:#f4f6f9;color:#546780;font-weight:var(--weight-heading)}
+.rm-board-table thead th:first-child{width:37%}
+.rm-board-table tbody tr{height:43px}
+.rm-board-table tbody th{font-weight:var(--weight-regular)}
+.rm-board-table tbody tr:hover>:is(th,td){background:#fafbfd}
+.rm-board-table tbody tr:not([data-rm-parent]):not(:first-child)>:is(th,td){border-top:1px solid #e8edf4}
+.rm-board-table tbody tr:not([data-rm-parent])>th{font-weight:var(--weight-heading);color:#273a54}
+.rm-board-table tr[hidden]{display:none}
+.rm-board-table tr[data-rm-parent]>th{position:relative;padding-left:22px}
+.rm-board-table tr[data-rm-parent]>th::before{content:"";position:absolute;inset-block:0;left:14px;border-left:1px solid #e0e8f2;pointer-events:none}
+.rm-permission-name{display:flex;align-items:center;gap:4px}
+.rm-permission-name:not(:has(>.rm-board-fold))::before{content:"";flex:0 0 14px}
+.rm-permission-name>label{min-width:0}
+.rm-board-fold{display:grid;place-items:center;flex:0 0 14px;height:24px;padding:0;border:0;border-radius:4px;background:transparent;color:inherit;font:inherit;cursor:pointer}
+.rm-board-fold:hover{color:#145ac5}
+.rm-permission-name>.metric-help{margin:0}
+.rm-role-dialog .rm-board-table :is(.rm-scope-select,.rm-department-trigger){box-sizing:border-box;width:min(100%,var(--rm-permission-control-width));height:32px;padding:0 8px 0 9px;border:1px solid #d4deeb;border-radius:6px;background-color:#fff;color:#213952;font:inherit}
+.rm-dept-fields{display:flex;flex-wrap:wrap;gap:6px 12px}
+.rm-scope-select,.rm-department-trigger{display:flex;align-items:center;gap:8px}
+.rm-scope-label{flex:none;color:#506680}
+.rm-role-dialog .rm-department-picker{width:min(100%,var(--rm-permission-control-width));min-width:0;max-width:none}
+.rm-department-trigger{text-align:left;cursor:pointer}
+.rm-role-dialog .rm-board-table .rm-scope-select>select{appearance:none;flex:1;height:100%;padding:0 18px 0 0;border:0;border-radius:0;background:transparent var(--filter-chevron) right center / 12px no-repeat}
+.rm-role-dialog .rm-board-table .rm-scope-select>select:focus-visible{outline:none}
+.rm-scope-select:has(>select:focus-visible){outline:2px solid #1966ff;outline-offset:2px}
+.rm-role-dialog .rm-board-table :is(.rm-scope-select:has(>select:disabled),.rm-department-trigger:disabled){background-color:#f5f7fa;color:#69798b;cursor:not-allowed}
+.rm-department-trigger .pf-multi-value{padding:0;color:inherit;text-align:left;font-size:inherit}
+.rm-department-trigger .ui-dropdown-icon{flex:none}
+.rm-department-picker:has(:popover-open) .ui-dropdown-icon{background-image:var(--filter-chevron-up)}
+.rm-role-dialog .rm-department-options{position:fixed;inset:auto;margin:0;max-height:330px;overflow:auto}
+.rm-role-dialog .rm-department-options .pf-multi-option{font-size:var(--type-data)}
+.rm-department-options::backdrop{background:transparent}
+.rm-remark-field{margin-top:16px}
+.rm-remark-control{position:relative}
+.rm-role-dialog .rm-remark-control textarea{display:block;width:100%;height:66px;min-height:66px;padding:7px 10px 20px;resize:vertical}
+.rm-remark-control output{position:absolute;right:10px;bottom:3px;background:#fff;color:#526780;font-size:var(--type-meta);pointer-events:none}
+@media(max-width:700px){
+ #lt-system #system-role-page>.lt-panel,#system-role-page .rm-search-view,#system-role-page .rm-table-content{padding:12px}
+ #rm-filter .rm-search-item>span{padding-inline:6px}
+ #rm-pager .list-pagination{margin-right:0}
+ .rm-role-dialog{width:calc(100vw - 20px);max-height:calc(100dvh - 24px)}
+ .rm-role-dialog>header,.rm-role-dialog footer{padding:10px 14px}
+ .rm-dialog-body{padding:12px;scrollbar-gutter:auto}
+ .rm-role-editor .rm-editor-fields{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ .rm-permission-header{gap:0;padding-bottom:6px}
+ .rm-permission-tabs{flex-basis:100%}
+ .rm-permission-tabs>button{min-height:40px}
+ .rm-role-dialog .rm-tree-toolbar{min-height:30px;gap:6px 10px}
+ .rm-board-table :is(th,td){padding-inline:6px}
+ .rm-board-table thead th:first-child{width:40%}
+ .rm-board-table tr[data-rm-parent]>th{padding-left:20px}
+ .rm-board-table tr[data-rm-parent]>th::before{left:12px}
+}

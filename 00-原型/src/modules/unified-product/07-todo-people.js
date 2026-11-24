@@ -4,7 +4,7 @@ function upTodoPeopleInput(value='',task,name='assignee',inline=false,plain=fals
  const id='up-people-'+(++upTodoPeopleSequence);
  return `<div class="up-todo-people" data-people-picker><input type="hidden" ${inline?'data-inline-value':`name="${esc(name)}"`} value="${esc(value)}"><input type="${plain?'text':'search'}" data-people-query role="combobox" aria-label="负责人" aria-autocomplete="list" aria-controls="${id}" aria-expanded="false" autocomplete="off" placeholder="输入姓名搜索" required value="${value?esc(upTodoPersonLabel(value,task)):''}"><div class="up-todo-people-options" id="${id}" role="listbox" popover="manual" hidden></div></div>`;
 }
-function upBindTodoPeople(root,task){
+function upBindTodoPeople(root,task,{people=()=>upTodoAssignable(task),personLabel=name=>upTodoPersonLabel(name,task),bottomBoundary}={}){
  for(const picker of root.querySelectorAll('[data-people-picker]')){
   const value=picker.querySelector('input[type="hidden"]'),input=picker.querySelector('[data-people-query]'),menu=picker.querySelector('[role="listbox"]');
   // 先挂载公共搜索外壳再聚焦，避免异步包装移走正在编辑的输入节点。
@@ -14,21 +14,22 @@ function upBindTodoPeople(root,task){
   picker.upClosePeople=close;
   const choose=person=>{
    if(multiple&&picker.upChoosePerson){picker.upChoosePerson(person);input.focus();input.oninput();return}
-   value.value=person.name;input.value=upTodoPersonLabel(person.name,task);input.setCustomValidity('');close();
+   value.value=person.name;input.value=personLabel(person.name);input.setCustomValidity('');close();
    if(picker.upChoosePerson)picker.upChoosePerson(person);else input.dispatchEvent(new Event('change',{bubbles:true}));input.focus();
   };
   input.oninput=()=>{
    value.value='';input.setCustomValidity(multiple?'':'请选择匹配的负责人');index=-1;
    const query=input.value.trim().toLocaleLowerCase();
    if(!query&&!multiple){close();return}
-   matches=upTodoAssignable(task).filter(p=>![...(!multiple?picker.upSelectedPeople||[]:[]),...(picker.upExcludedPeople||[])].includes(p.name)&&upTodoPersonLabel(p.name,task).toLocaleLowerCase().includes(query));
-   menu.innerHTML=matches.length?matches.map((p,i)=>`<button type="button" role="option" aria-selected="${multiple&&picker.upSelectedPeople?.includes(p.name)?'true':'false'}" id="${menu.id}-${i}" data-person-index="${i}">${multiple?'<span class="up-todo-owner-check" aria-hidden="true">'+(picker.upSelectedPeople?.includes(p.name)?'✓':'')+'</span>':''}${esc(upTodoPersonLabel(p.name,task))}</button>`).join(''):'<div class="up-todo-people-empty">没有匹配人员</div>';
+   matches=people().filter(p=>![...(!multiple?picker.upSelectedPeople||[]:[]),...(picker.upExcludedPeople||[])].includes(p.name)&&personLabel(p.name).toLocaleLowerCase().includes(query));
+   menu.innerHTML=matches.length?matches.map((p,i)=>`<button type="button" role="option" aria-selected="${multiple&&picker.upSelectedPeople?.includes(p.name)?'true':'false'}" id="${menu.id}-${i}" data-person-index="${i}">${multiple?'<span class="up-todo-owner-check" aria-hidden="true">'+(picker.upSelectedPeople?.includes(p.name)?'✓':'')+'</span>':''}${esc(personLabel(p.name))}</button>`).join(''):'<div class="up-todo-people-empty">没有匹配人员</div>';
    menu.hidden=false;
    const rect=input.getBoundingClientRect(),width=Math.min(rect.width,innerWidth-24);
    menu.style.width=width+'px';menu.style.left=Math.max(8,Math.min(rect.left,innerWidth-width-12))+'px';
    menu.style.maxHeight='220px';menu.showPopover();
    // 长事项接近视口底部时向上展开，菜单不能随旧的下方坐标落到屏幕外。
-   const below=Math.max(0,innerHeight-rect.bottom-12),above=Math.max(0,rect.top-12),needed=Math.min(220,menu.scrollHeight+2);
+   const bottom=bottomBoundary?.getBoundingClientRect().bottom??innerHeight;
+   const below=Math.max(0,bottom-rect.bottom-12),above=Math.max(0,rect.top-12),needed=Math.min(220,menu.scrollHeight+2);
    const down=below>=needed||below>=above,height=Math.max(32,Math.min(needed,down?below:above));
    menu.style.maxHeight=height+'px';menu.style.top=(down?rect.bottom+4:Math.max(8,rect.top-height-4))+'px';
    input.setAttribute('aria-expanded','true');

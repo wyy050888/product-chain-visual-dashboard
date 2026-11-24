@@ -16,6 +16,11 @@ function hideMetricTooltip() {
   if(activeMetricHelp?.hasAttribute('data-nsp-assessment-help'))activeMetricHelp.setAttribute('aria-expanded','false');
   activeMetricHelp = null;
   metricTooltip.hidden = true;
+  if(metricTooltip.hasAttribute('popover')){
+    if(metricTooltip.matches(':popover-open'))metricTooltip.hidePopover();
+    metricTooltip.removeAttribute('popover');
+    document.body.append(metricTooltip);
+  }
 }
 function renderBrandShareTooltip(host,name,color,values){
  const append=(parent,tag,text='',className='')=>{
@@ -164,7 +169,14 @@ function showMetricTooltip(help) {
   metricTooltip.toggleAttribute('data-preserve-terms',help.hasAttribute('data-preserve-terms'));
   renderMetricTooltipContent(help);
   if(!help.dataset.metricTextLabel)cleanDemoPresentation(metricTooltip);
+  const dialog=help.closest('dialog[open]');
+  if(dialog&&metricTooltip.parentElement!==dialog){
+    // 原生模态弹窗位于顶层，其内的提示也需要进入顶层。
+    metricTooltip.setAttribute('popover','manual');
+    dialog.append(metricTooltip);
+  }
   metricTooltip.hidden = false;
+  if(dialog&&!metricTooltip.matches(':popover-open'))metricTooltip.showPopover();
   positionMetricTooltip(help);
 }
 function positionMetricTooltip(help){
@@ -249,3 +261,6 @@ document.addEventListener('scroll', event => {
   }else hideMetricTooltip();
 }, true);
 window.addEventListener('resize', hideMetricTooltip);
+document.addEventListener('close',event=>{
+  if(metricTooltip.parentElement===event.target)hideMetricTooltip();
+},true);
