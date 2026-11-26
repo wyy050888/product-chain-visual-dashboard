@@ -16007,7 +16007,8 @@ function nspUnsoldSummary({category=pfControlValue($('#newchain')),season=nspFil
 }
 // 原型档案按简称 ID 明确维护成员；同名或相近型号不会自动合并。
 const nspSeriesBySpu=new Map(nspSeriesSamples.flatMap(series=>series.spuIds.map(id=>[id,series])));
-const nspProjectTypes=['自研','自选','产品迭代','-'];
+const nspProjectTypes=['自研','自选','-'];
+const nspRecognizedProjectTypes=[...nspProjectTypes,'产品迭代'];
 
 function nspSeriesFor(product,cutoff){
  const record=nspSeriesBySpu.get(product.spuId);
@@ -16016,7 +16017,7 @@ function nspSeriesFor(product,cutoff){
   .sort((a,b)=>a.actualLaunch.localeCompare(b.actualLaunch)||a.spuId.localeCompare(b.spuId)):[product];
  const first=members[0]||product;
  return {...first,seriesId:record?.id??first.spuId,shortName:record?.shortName??nspShortNameSamples[first.sourceRow]??first.name,
-  developmentType:record?record.projectType??'-':nspProjectTypes.includes(first.developmentType)?first.developmentType:'-',members};
+  developmentType:record?record.projectType??'-':nspRecognizedProjectTypes.includes(first.developmentType)?first.developmentType:'-',members};
 }
 
 function nspMatchesProduct(product,query){

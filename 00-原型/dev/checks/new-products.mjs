@@ -36,7 +36,7 @@ export async function newProducts(page){
  assert.equal(await page.locator('#new-linked-filter [data-nsp-assessment-entry]').count(),0,'明细筛选区不再重复提供考核入口');
  assert.equal(await page.locator('#newtop [data-nsp-assessment-entry]').innerText(),'查看季度考核');
  assert.equal(await page.locator('#new-linked-filter [data-nsp-choice=grade]').count(),0);
- assert.deepEqual(await page.locator('#nsp-project-tabs button').evaluateAll(nodes=>nodes.map(node=>node.dataset.nspProject)),['all','自研','自选','产品迭代','-']);
+ assert.deepEqual(await page.locator('#nsp-project-tabs button').evaluateAll(nodes=>nodes.map(node=>node.dataset.nspProject)),['all','自研','自选','-']);
  await filterToggle.click();assert.equal(await filterToggle.getAttribute('aria-expanded'),'true');
  const snapshot=()=>page.evaluate(()=>window.dashboardNewProductsSnapshot());
  await page.locator('#time-new [data-time-mode="quarter"]').click();
