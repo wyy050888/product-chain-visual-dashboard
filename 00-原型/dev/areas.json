@@ -3372,13 +3372,16 @@
   },
   "departmentWeeklyReports": {
     "label": "部门诊断周报下载表",
-    "keywords": ["部门诊断", "统计周", "下载周报", "未生成"],
+    "keywords": ["部门诊断", "统计周", "下载周报", "上传周报", "周报变更记录", "未生成"],
     "sources": [
       "src/modules/global-diagnosis/04-weekly-reports.js",
-      "src/modules/global-diagnosis/04-analysis-view.js"
+      "src/modules/global-diagnosis/04-analysis-view.js",
+      "src/modules/product-center/06-reports.js",
+      "src/modules/product-center/06-report-versions.js",
+      "src/modules/product-center/06-report-actions.js"
     ],
     "styles": ["styles/81-diagnosis-analysis.css"],
-    "checks": ["departmentWeeklyReports", "diagnosisRebuild"]
+    "checks": ["departmentWeeklyReports", "productCenterWeeklyReportActions", "diagnosisRebuild"]
   },
   "costUpdater": {
     "label": "降本目标更新人",

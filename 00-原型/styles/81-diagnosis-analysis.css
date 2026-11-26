@@ -79,7 +79,37 @@
 .gd-workspace .gd-weekly-reports tbody th{font-weight:500;color:#465771;background:transparent}
 .gd-workspace .gd-weekly-single-scope table{min-width:0}
 .gd-workspace .gd-weekly-single-scope th:first-child{width:min(190px,65%);white-space:normal}
-.gd-weekly-reports button.link:hover{text-decoration:underline}
+.gd-weekly-reports button[data-gd-weekly-download]:hover{text-decoration:underline}
+.gd-workspace .gd-weekly-with-summary table{min-width:620px;table-layout:fixed}
+.gd-workspace .gd-weekly-with-summary th:first-child{white-space:nowrap}
+.gd-workspace .gd-weekly-with-summary thead th:first-child{width:220px}
+.gd-workspace .gd-weekly-with-summary th:last-child{width:108px}
+.gd-workspace .gd-weekly-with-summary th:nth-child(3){width:39%}
+.gd-workspace .gd-weekly-with-summary .gd-weekly-summary-cell{text-align:left;white-space:normal;overflow-wrap:anywhere}
+.gd-workspace .gd-weekly-with-summary td.gd-weekly-summary-cell{line-height:22px}
+.gd-workspace .gd-weekly-with-summary tbody th{
+ border-bottom:1px solid #f0f2f7;padding-block:12px;
+}
+.gd-weekly-risk-list{margin:0;padding-inline-start:1.2em;list-style:disc}
+.gd-weekly-risk-list li+li{margin-top:2px}
+.pc-weekly-menu button:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
+.pc-weekly-menu{
+ position:fixed;inset:auto;margin:0;width:132px;max-width:calc(100vw - 16px);padding:6px;
+ border:1px solid #dce5f2;border-radius:6px;background:#fff;box-shadow:0 6px 18px #18335624;
+}
+.pc-weekly-menu button{
+ display:block;width:100%;padding:3px 8px;border:0;border-radius:3px;background:#fff;color:#344b69;
+ font:inherit;font-size:13px;line-height:22px;text-align:left;cursor:pointer;
+}
+.pc-weekly-menu button+button{margin-top:2px}
+.pc-weekly-menu button:not(:disabled):is(:hover,:focus-visible){background:#eff6ff;color:var(--blue)}
+.pc-weekly-menu button:disabled{color:var(--muted);cursor:default}
+.gd-task-entry-dialog.pc-weekly-dialog{width:min(560px,calc(100vw - 28px))}
+.pc-weekly-dialog-period{margin:0 0 12px;color:#617795}
+.pc-weekly-file{display:grid;gap:8px;margin-top:16px}
+.pc-weekly-file input{max-width:100%;font:inherit}
+.pc-weekly-history th,.pc-weekly-history td{text-align:left;vertical-align:middle}
+.pc-weekly-history .link{white-space:nowrap}
 
 /* 各分类主表的操作列固定在本表右侧；空结果的跨列单元格不参与固定。 */
 .gd-workspace .gd-table-scroll table:is([data-gd-table],[data-gd-analysis-table]):not([data-gd-analysis-table="missing"])>thead>tr>th:last-child,

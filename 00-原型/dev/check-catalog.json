@@ -179,6 +179,10 @@
     "file": "./checks/department-weekly-reports.mjs",
     "export": "departmentWeeklyReports"
   },
+    "productCenterWeeklyReportActions": {
+      "file": "./checks/product-center-weekly-report-actions.mjs",
+      "export": "productCenterWeeklyReportActions"
+    },
   "taskDateFilters": {
     "file": "./checks/task-date-filters.mjs",
     "export": "taskDateFilters"

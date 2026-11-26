@@ -2300,6 +2300,14 @@
       "module": "产品中心固定部门与类目过滤边界"
     },
     {
+      "file": "src/modules/product-center/06-report-versions.js",
+      "module": "产品中心周报版本存储"
+    },
+    {
+      "file": "src/modules/product-center/06-report-actions.js",
+      "module": "产品中心周报操作与变更记录"
+    },
+    {
       "file": "src/modules/product-center/06-reports.js",
       "module": "产品中心周报专页与共用PDF下载"
     },

@@ -1,6 +1,6 @@
 // 原型档案按简称 ID 明确维护成员；同名或相近型号不会自动合并。
 const nspSeriesBySpu=new Map(nspSeriesSamples.flatMap(series=>series.spuIds.map(id=>[id,series])));
-const nspProjectTypes=['自研','自选','-'];
+const nspProjectTypes=['自研','自选','产品迭代','-'];
 
 function nspSeriesFor(product,cutoff){
  const record=nspSeriesBySpu.get(product.spuId);

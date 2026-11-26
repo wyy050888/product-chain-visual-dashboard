@@ -1,14 +1,36 @@
-// 沿用总看板的统计周，只保留产品中心的周报文件供计数和下载。
+// 沿用总看板的统计周，按产品中心的最新版本显示周报。
 const pcWeeklyRows=gdWeeklyReportRows,pcWeeklyTable=gdWeeklyReportTable;
 const pcWeeklyReportScopes=gdWeeklyReportScopes.filter(([key])=>key==='product');
+// 原始版本的导出时间取自交付 PDF，摘要取自同一份周报。
+const pcWeeklyAiReports={
+ '2026-10-19':{
+  exportedAt:'2026-11-15T16:57:19Z',
+  result:'完成 12 款立项评审（目标 15 款），包装和 UI/UE 流程已签批。',
+  risks:[
+   '立项评审较周目标少 3 款，可能影响后续项目排期。',
+   'A954 有 500 台需返工，首批放行待复验。'
+  ]
+ }
+};
+const pcWeeklySummaryColumns=[
+ ['本周结果',({productSummary})=>productSummary?esc(productSummary.result):''],
+ ['最大风险',({productSummary})=>{
+  const risks=productSummary?.risks?.slice(0,2);
+  return risks?.length?`<ul class="gd-weekly-risk-list">${risks.map(risk=>`<li>${esc(risk)}</li>`).join('')}</ul>`:'';
+ }]
+];
 gdWeeklyReportRows=function(){
  const weeks=pcWeeklyRows();
  if(!pcIsActive())return weeks;
+ pcWeeklyInitVersions();
  return weeks.map(week=>{
-  const file=week.reports.product;
-  return {...week,reports:file?{product:file}:{}};
+  const aiReport=week.reports.product,productVersion=pcWeeklyVersions.get(week.monday)?.[0];
+  const file=productVersion?.name||aiReport;
+  const aiVersion=aiReport?pcWeeklyAiReports[week.monday]:undefined;
+  const productSummary=productVersion?undefined:aiVersion;
+  return {...week,reports:file?{product:file}:{},aiReport,aiReportAt:aiVersion?.exportedAt,productVersion,productSummary};
  });
 };
 gdWeeklyReportTable=function(weeks){
- return pcWeeklyTable(weeks,pcIsActive()?pcWeeklyReportScopes:undefined);
+ return pcIsActive()?pcWeeklyTable(weeks,pcWeeklyReportScopes,pcWeeklySummaryColumns,pcWeeklyActionCell):pcWeeklyTable(weeks);
 };

@@ -91,7 +91,7 @@ function gdCardCounts(data,weeks=gdWeeklyReportRows()){
  const deviations=gdTabs.resource.map(([key,label])=>[label,gdSectionRows(data,'resource',key,gdTableFilters('resource',key)).length]);
  const latestReportWeek=weeks.find(week=>Object.keys(week.reports).length>0);
  const reportCount=latestReportWeek?Object.keys(latestReportWeek.reports).length:0;
- const reportSummary=latestReportWeek?`已生成${latestReportWeek.weekLabel}周报`:'暂无已生成周报';
+ const reportSummary=latestReportWeek?`${latestReportWeek.productVersion?'已上传':'已生成'}${latestReportWeek.weekLabel}周报`:'暂无已生成周报';
  return [
   {key:'coordination',count:work.reduce((n,[,v])=>n+v,0),stats:work},
   {key:'resource',count:deviations.reduce((n,[,v])=>n+v,0),stats:deviations},

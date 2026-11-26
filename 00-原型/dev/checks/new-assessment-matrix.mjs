@@ -20,12 +20,15 @@ export function assessmentMatrixModel(){
  const searchIds=text=>Array.from(box.nspAssessmentSearchData(searchable,text).rows,p=>p.spuId);
  assert.deepEqual(searchIds('取暖器'),['a']);assert.deepEqual(searchIds(' cw-a944 '),['a']);assert.deepEqual(searchIds('q513'),['b']);assert.deepEqual(searchIds('不存在'),[]);
  assert.equal(box.nspAssessmentSearchData(searchable,'  '),searchable);assert.equal(box.nspAssessmentSearchData(searchable,'A944').summary.success,1);assert.equal(searchable.rows.length,3,'搜索不修改原名单');
- const independent=[{...product('research',0,false),developmentType:'自研',projectType:'自选'},{...product('selected',2,true),developmentType:'自选'},{...product('missing',1,false)}];
+ const independent=[{...product('research',0,false),developmentType:'自研',projectType:'自选'},{...product('selected',2,true),developmentType:'自选'},{...product('iteration',1,true),developmentType:'产品迭代'},{...product('missing',1,false)}];
  Object.assign(box,{nspFilters:{},drawerWithPeriod:(_period,fn)=>fn(),bounds:()=>({start:'2026-04-01',cutoff:'2026-05-15'}),nspSuccessPeriod:()=>({start:'2026-04-01',annual:false}),nspCategoryRows:()=>independent,nspFilterRows:(rows,filters)=>rows.filter(row=>filters.developmentType==='all'||(row.developmentType||'-')===filters.developmentType)});
  const query=fs.readFileSync(new URL('../../src/modules/new-products/03-assessment-query.js',import.meta.url),'utf8');vm.runInContext(query.slice(0,query.indexOf('let nspAssessmentCurrent')),box);
  assert.deepEqual(Array.from(box.nspAssessmentData({},null,{developmentType:'自研'}).rows,p=>p.spuId),['research'],'独立SPU属性优先，不按项目类型推断');
  assert.deepEqual(Array.from(box.nspAssessmentData({},null,{developmentType:'自选'}).rows,p=>p.spuId),['selected']);
- assert.equal(box.nspAssessmentData({},null,{developmentType:'all'}).rows.length,3,'缺失类型留在全部，不擅自归类');
+ const iteration=box.nspAssessmentData({},null,{developmentType:'产品迭代'});
+ assert.deepEqual(Array.from(iteration.rows,p=>p.spuId),['iteration']);
+ assert.equal(iteration.summary.success,1);
+ assert.equal(box.nspAssessmentData({},null,{developmentType:'all'}).rows.length,4,'缺失类型留在全部，不擅自归类');
  console.log('通过：四季边界、未来季度、链群汇总/筛选及年度独立结果');
 }
 export async function newAssessmentMatrix(page){
@@ -44,7 +47,7 @@ export async function newAssessmentMatrix(page){
  let border=await divider();assert.equal(border.width,'1px');assert.equal(border.style,'solid');assert(Math.abs(border.height-border.head)<1,'产品链表头框线贯穿两行');
  assert.equal(await page.locator('.nsp-assessment-matrix tbody tr').count(),5);
  assert.equal(await page.locator('#dialog .dialoghead [data-nsp-assess-year],#dialog .dialoghead [data-nsp-assess-kind]').count(),0,'时间控件移出标题栏');
- assert.deepEqual(await page.locator('[data-nsp-assess-development]').allTextContents(),['全部','自研','自选','-']);
+ assert.deepEqual(await page.locator('[data-nsp-assess-development]').allTextContents(),['全部','自研','自选','产品迭代','-']);
  assert(await page.locator('[data-nsp-assessment-controls]').evaluate(el=>{const box=el.getBoundingClientRect(),matrix=el.nextElementSibling.getBoundingClientRect();return box.bottom<matrix.top&&Math.abs(box.left-matrix.left)<1}),'筛选统一在矩阵上方且左侧对齐');
  for(let q=0;q<4;q++)for(const field of ['total','success'])assert.equal(data.matrix.groups[0].summaries[q][field],data.matrix.groups.slice(1).reduce((sum,g)=>sum+g.summaries[q][field],0),'公司与链群合计守恒 '+q+' '+field);
  const originalMatrix=data.matrix,group=data.matrix.groups.slice(1).find(g=>g.summaries[3].success>0);
@@ -61,15 +64,17 @@ export async function newAssessmentMatrix(page){
  await search.fill('不存在的考核产品');assert.equal((await audit()).summary.total,0);assert.equal(await page.locator('[data-nsp-assessment-table] .empty').textContent(),'暂无匹配产品');
  await search.fill('');data=await audit();assert.equal(data.summary.total,originalMatrix.periods[3].summary.total);assert.deepEqual(data.matrix,originalMatrix);await searchNode.dispose();
  if(data.summary.total>10){await page.locator('[data-nsp-assess-page="2"]').first().click();assert.equal((await audit()).page,2)}
- for(const developmentType of ['自研','自选','-']){
+ for(const developmentType of ['自研','自选','产品迭代','-']){
   await page.locator('[data-nsp-assess-development="'+developmentType+'"]').click();data=await audit();assert.equal(data.developmentType,developmentType);assert.equal(data.page,1,'切换开发类型重置明细分页');
   for(let q=0;q<4;q++){
    const expected=originalMatrix.periods[q].members.filter(member=>member.developmentType===developmentType);
-   assert.deepEqual(data.matrix.periods[q].members.map(p=>p.spuId).sort(),expected.map(p=>p.spuId).sort(),'自研/自选同时筛选四季矩阵');
+   assert.deepEqual(data.matrix.periods[q].members.map(p=>p.spuId).sort(),expected.map(p=>p.spuId).sort(),'项目类型同时筛选四季矩阵');
    assert.equal(data.matrix.groups[0].summaries[q].total,expected.length);assert.equal(data.matrix.groups[0].summaries[q].success,expected.filter(p=>p.success).length);
   }
-  assert(data.rows.length>0&&data.rows.every(p=>p.developmentType===developmentType),'下方明细同范围');
-  await openNewProductSpu(page.locator('[data-nsp-assess-product]').first());await page.locator('.up-detail').waitFor();await page.locator('#close').click();assert.equal((await audit()).developmentType,developmentType,'详情返回保留开发类型');
+  const expectedRows=originalMatrix.periods[data.period.value-1].members.filter(member=>member.developmentType===developmentType);
+  assert.deepEqual(data.rows.map(p=>p.spuId).sort(),expectedRows.map(p=>p.spuId).sort(),'下方明细同范围');
+  if(data.rows.length){await openNewProductSpu(page.locator('[data-nsp-assess-product]').first());await page.locator('.up-detail').waitFor();await page.locator('#close').click();assert.equal((await audit()).developmentType,developmentType,'详情返回保留开发类型')}
+  else assert.equal(await page.locator('[data-nsp-assessment-table] .empty').textContent(),'该周期暂无符合条件的考核产品');
   assert.equal(await page.locator('[data-nsp-assess-development="'+developmentType+'"]').getAttribute('aria-pressed'),'true');
  }
  await page.locator('[data-nsp-assess-development="all"]').click();data=await audit();assert.deepEqual(data.matrix,originalMatrix,'恢复全部不改变原始考核结果');
@@ -90,7 +95,7 @@ export async function newAssessmentMatrix(page){
  assert.equal(await page.locator('.nsp-assessment-matrix thead button').count(),0,'年度标题无交互');border=await divider();assert.equal(border.width,'1px');assert(Math.abs(border.height-border.head)<1,'年度表头框线完整');
  const pool=new Set(originalMatrix.periods.flatMap(p=>p.members.map(r=>r.spuId)));assert.deepEqual(data.rows.map(r=>r.spuId).sort(),[...pool].sort(),'年度纳入是四季名单并集');
  const annualPool=data.matrix.periods[0].members;
- for(const developmentType of ['自研','自选','-']){await page.locator('[data-nsp-assess-development="'+developmentType+'"]').click();data=await audit();assert.equal(data.period.mode,'year');assert.deepEqual(data.rows.map(p=>p.spuId).sort(),annualPool.filter(p=>p.developmentType===developmentType).map(p=>p.spuId).sort(),'年度按独立属性筛选');}
+ for(const developmentType of ['自研','自选','产品迭代','-']){await page.locator('[data-nsp-assess-development="'+developmentType+'"]').click();data=await audit();assert.equal(data.period.mode,'year');assert.deepEqual(data.rows.map(p=>p.spuId).sort(),annualPool.filter(p=>p.developmentType===developmentType).map(p=>p.spuId).sort(),'年度按独立属性筛选');}
  await page.locator('[data-nsp-assess-development="all"]').click();
  await page.locator('[data-nsp-assess-kind="quarter"]').click();assert.equal((await audit()).period.value,4);
  await page.locator('[data-nsp-assess-year]').selectOption('2025');assert.equal((await audit()).period.year,2025);assert.equal(await page.locator('.nsp-quarter-group').count(),4);
