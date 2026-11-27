@@ -14,14 +14,20 @@ function ccBindPeriod(host,context,paint){
 function ccMountPeriod(context,paint){const host=document.createElement('span');host.className='cc-period-host';host.innerHTML=ccPeriodControls(context.period);$('#dialogsub').replaceChildren(host);ccBindPeriod(host,context,paint)}
 function ccOpenDepartment(id){ccOpenGroup('department',id)}
 function ccOpenCategory(id){ccOpenGroup('category',id)}
+function ccDashboardGroups(kind){
+ if(kind==='category')return ccCategoryGroups(ccDashboardMetrics());
+ if(!qcIsActive())return ccDepartments;
+ const departments=qcAllowedDepartments('cost');
+ return ccDepartments.filter(group=>departments.includes(group.id));
+}
 function ccOpenGroup(kind,id){
- const groups=kind==='category'?ccCategoryGroups():ccDepartments;
+ const groups=ccDashboardGroups(kind);
  if(!groups.some(group=>group.id===id))return;
  const context={period:{...periodFor('cost')},group:id};
  openModal('降本明细',`<article class="cc-drawer" data-cc-drawer="${kind}" data-cc-group="${esc(id)}" ${kind==='department'?`data-cc-department="${esc(id)}"`:''}><div class="cc-department-table cc-table-scroll"></div></article>`);
  const root=$('.cc-drawer');
  const paint=()=>{
-  const period=context.period,metrics=kind==='category'?(ccCategoryGroups().find(group=>group.id===context.group)?.metrics||[]):ccMetrics.filter(metric=>metric.department===context.group);
+  const period=context.period,metrics=kind==='category'?(ccDashboardGroups(kind).find(group=>group.id===context.group)?.metrics||[]):ccDashboardMetrics().filter(metric=>metric.department===context.group);
   root.dataset.ccGroup=context.group;if(kind==='department')root.dataset.ccDepartment=context.group;
   const byCategory=kind==='category',byProductType=byCategory&&context.group==='product';
   let rows,extraSummary=null;
@@ -46,6 +52,6 @@ const ccPreviousDrawerProfile=drawerProfile;
 drawerProfile=function(body,title){
  const root=body.querySelector(':scope>.cc-drawer:is([data-cc-drawer="department"],[data-cc-drawer="category"])');if(!root)return ccPreviousDrawerProfile(body,title);
  return {root,entries:[...root.children].map(node=>({node,key:'shared'})),
-  tabs:(root.dataset.ccDrawer==='category'?ccCategoryGroups():ccDepartments).map(group=>({key:group.id,label:group.name})),
+  tabs:ccDashboardGroups(root.dataset.ccDrawer).map(group=>({key:group.id,label:group.name})),
   activeKey:root.dataset.ccGroup,onSelect:(key,focus)=>{root.ccSelect(key);if(focus)queueMicrotask(()=>drawerNav.querySelector(`[data-drawer-tab="${key}"]`)?.focus({preventScroll:true}))}};
 };

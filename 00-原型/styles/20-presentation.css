@@ -51,6 +51,7 @@
   overflow-wrap: anywhere;
 }
 .metric-tooltip[hidden] { display: none !important; }
+.metric-tooltip.metric-tooltip-lines { white-space: pre-line; }
 .metric-tooltip[popover] { inset: auto; margin: 0; }
 .sectionhead .titlegroup { gap: 8px; }
 .ai-detail-heading:has(h3.presentation-suppressed) { min-height: 0; }

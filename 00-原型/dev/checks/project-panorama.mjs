@@ -329,8 +329,8 @@ export async function projectPanorama(page){
  await page.setViewportSize({width:1920,height:1080});
  // 同源采购组件使用独立克隆，不能带入主管看板的筛选及新版DOM。
  await page.locator('#chain-menu-trigger').click();await page.locator('#chain-menu').getByRole('menuitem',{name:'采购部',exact:true}).click();
+ await page.locator('#pdp-projecttable tbody tr').first().waitFor({state:'attached',timeout:30000});
  assert.equal(await page.locator('#pb-projects .pp-layout').count(),0);
- assert(await page.locator('#pdp-projecttable tbody tr').count()>0);
  await page.locator('#chain-menu-trigger').click();await page.locator('#chain-menu').getByRole('menuitem',{name:'总看板',exact:true}).click();
  await page.locator('#projects #pp-layout').waitFor({state:'attached',timeout:30000});
  assert.equal(await page.locator('#projects #pp-layout').count(),1);

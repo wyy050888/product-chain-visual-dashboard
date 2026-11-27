@@ -50,7 +50,7 @@ function rmRoleTreeMarkup(role){
  </section>`;
 }
 function rmBoardTreeMarkup(board,access,active){
- const rows=board.modules.flatMap(item=>[rmPermissionRow(board,item,access),...(item.children||[]).map(child=>rmPermissionRow(board,child,access,item))]);
+ const rows=rmBoardModuleEntries(board.modules).map(({item,parents})=>rmPermissionRow(board,item,access,parents));
  return `<div class="rm-board-panel" id="rm-board-${board.id}" role="tabpanel" aria-labelledby="rm-board-tab-${board.id}" data-rm-board="${board.id}"${active?'':' hidden'}>
   <table class="rm-board-table" aria-label="${board.name}权限树">
    <thead><tr><th scope="col">权限项</th><th scope="col">数据范围
@@ -59,12 +59,13 @@ function rmBoardTreeMarkup(board,access,active){
   </table>
  </div>`;
 }
-function rmPermissionRow(board,item,access,parent){
+function rmPermissionRow(board,item,access,parents){
  const help=item.note?rmPermissionHelp(item.name,item.note+'。'):'';
- const fold=item.children?`<button type="button" class="rm-board-fold" data-rm-board-fold="${item.id}" aria-label="${esc(item.name)}" aria-expanded="true" aria-controls="${item.children.map(child=>`rm-${board.id}-row-${child.id}`).join(' ')}"></button>`:'';
+ const fold=item.children?`<button type="button" class="rm-board-fold" data-rm-board-fold="${item.id}" aria-label="${esc(item.name)}" aria-expanded="true" aria-controls="${rmBoardModuleEntries(item.children).map(({item:child})=>`rm-${board.id}-row-${child.id}`).join(' ')}"></button>`:'';
  const toggleLabel=item.type==='brand'?'显示下钻':item.type?item.name+'可见':'全选'+item.name+'模块';
  const toggleKind=item.type?`data-rm-module-toggle="${item.id}"`:'data-rm-group-toggle';
- return `<tr id="rm-${board.id}-row-${item.id}" data-rm-module="${item.id}"${parent?` data-rm-parent="${parent.id}"`:''}>
+ const lineage=parents.length?` data-rm-parent="${parents.at(-1)}" data-rm-ancestors="${parents.join(' ')}" style="--rm-node-depth:${parents.length}"`:'';
+ return `<tr id="rm-${board.id}-row-${item.id}" data-rm-module="${item.id}"${lineage}>
   <th scope="row"><div class="rm-permission-name">${fold}<label><input type="checkbox" ${toggleKind} aria-label="${esc(toggleLabel)}"><span>${esc(item.name)}</span></label>${help}</div></th>
   <td>${rmPermissionSetting(board,item,access)}</td>
  </tr>`;
@@ -74,7 +75,7 @@ function rmPermissionSetting(board,item,access){
  if(item.type==='report'){
   const reports=board.department?rmDepartmentReportNames:rmReportNames;
   const options=reports.map(name=>[name,name==='产品链总周报'?name:name.replace(/周报$/,'')]);
-  return rmDepartmentPicker(board.id+'-reports',label,options,access.reportScope);
+  return rmDepartmentPicker(board.id+'-reports',label,options,access.reportScope,'data-rm-report-scope');
  }
  if(item.type==='department')return rmDepartmentSetting(board,item,access,label);
  if(item.type==='department-picker'){
@@ -129,16 +130,18 @@ function rmSyncDepartmentPicker(picker){
 }
 function rmBindDepartmentPopups(form){
  const body=form.querySelector('.rm-dialog-body');
+ const toolbar=form.querySelector('.rm-permission-header');
  const openPopup=()=>form.querySelector('.rm-department-options:popover-open');
  const position=()=>{
   const popup=openPopup();
   if(!popup)return;
   const anchor=popup.previousElementSibling.getBoundingClientRect();
   const bounds=body.getBoundingClientRect();
-  if(anchor.bottom<bounds.top||anchor.top>bounds.bottom){popup.hidePopover();return}
+  const visibleTop=Math.max(bounds.top,toolbar.getBoundingClientRect().bottom);
+  if(anchor.bottom<=visibleTop||anchor.top>bounds.bottom){popup.hidePopover();return}
   const width=Math.min(Math.max(154,anchor.width),innerWidth-20);
   popup.style.width=width+'px';
-  const below=bounds.bottom-anchor.bottom-8,above=anchor.top-bounds.top-8;
+  const below=bounds.bottom-anchor.bottom-8,above=anchor.top-visibleTop-8;
   const openBelow=below>=popup.scrollHeight+2||below>=above;
   popup.style.maxHeight=Math.min(330,Math.max(10,openBelow?below:above))+'px';
   popup.style.left=Math.max(10,Math.min(anchor.left,innerWidth-width-10))+'px';
@@ -153,8 +156,12 @@ function rmBindDepartmentPopups(form){
   position();
  });
  body.addEventListener('scroll',position);
- const observer=new ResizeObserver(position);
+ const observer=new ResizeObserver(()=>{
+  body.style.scrollPaddingTop=toolbar.offsetHeight+'px';
+  position();
+ });
  observer.observe(body);
+ observer.observe(toolbar);
  form.closest('dialog').addEventListener('close',()=>observer.disconnect(),{once:true});
  form.addEventListener('keydown',event=>{
   if(event.key!=='Escape')return;
@@ -196,7 +203,7 @@ function rmSyncBoardTree(pane,access){
 }
 function rmGroupModuleChecks(pane,toggle){
  const group=toggle.closest('tr').dataset.rmModule;
- return pane.querySelectorAll(`[data-rm-parent="${group}"] [data-rm-module-toggle]`);
+ return pane.querySelectorAll(`[data-rm-ancestors~="${group}"] [data-rm-module-toggle]`);
 }
 function rmSetModuleChecks(pane,access,checks,checked){
  const board=rmBoards.find(item=>item.id===pane.dataset.rmBoard);
@@ -227,7 +234,7 @@ function rmChangeBoardPermission(pane,access,target){
    for(const option of picker.querySelectorAll('[data-rm-picker-option]'))option.checked=target.checked;
   }
   const module=picker.closest('[data-rm-module]').dataset.rmModule;
-  if(module==='weekly-report')access.reportScope=rmSelectedDepartments(picker);
+  if(picker.hasAttribute('data-rm-report-scope'))access.reportScope=rmSelectedDepartments(picker);
   if(picker.closest('[data-rm-dept-editor]')){
    const grants=access.departments[module]||{};
    access.departments[module]=Object.fromEntries(rmSelectedDepartments(picker).map(name=>[name,grants[name]||'chain']));
@@ -252,12 +259,11 @@ function rmSyncMenuChecks(tree,linked){
   parent.indeterminate=linked&&count>0&&count<children.length;
  }
 }
-function rmSetBoardGroupExpanded(button,expanded){
- button.setAttribute('aria-expanded',String(expanded));
- const board=button.closest('[data-rm-board]');
- for(const row of board.querySelectorAll(`[data-rm-parent="${button.dataset.rmBoardFold}"]`)){
-  if(!expanded)row.querySelector(':popover-open')?.hidePopover();
-  row.hidden=!expanded;
+function rmSyncBoardRowVisibility(board){
+ const collapsed=new Set([...board.querySelectorAll('[data-rm-board-fold][aria-expanded="false"]')].map(button=>button.dataset.rmBoardFold));
+ for(const row of board.querySelectorAll('[data-rm-ancestors]')){
+  row.hidden=row.dataset.rmAncestors.split(' ').some(id=>collapsed.has(id));
+  if(row.hidden)row.querySelector(':popover-open')?.hidePopover();
  }
 }
 function rmBindRoleTree(form,role){
@@ -282,7 +288,8 @@ function rmBindRoleTree(form,role){
  tree.addEventListener('click',event=>{
   const fold=event.target.closest('[data-rm-board-fold]');
   if(!fold)return;
-  rmSetBoardGroupExpanded(fold,fold.getAttribute('aria-expanded')==='false');
+  fold.setAttribute('aria-expanded',String(fold.getAttribute('aria-expanded')==='false'));
+  rmSyncBoardRowVisibility(fold.closest('[data-rm-board]'));
   syncBoardExpand();
  });
  tree.addEventListener('change',({target})=>{
@@ -291,7 +298,8 @@ function rmBindRoleTree(form,role){
    return;
   }
   if(target===expandBoard){
-   for(const button of activeGroups())rmSetBoardGroupExpanded(button,target.checked);
+   for(const button of activeGroups())button.setAttribute('aria-expanded',String(target.checked));
+   rmSyncBoardRowVisibility(activeBoard());
    syncBoardExpand();
    return;
   }

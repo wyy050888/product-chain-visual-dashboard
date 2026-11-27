@@ -10,7 +10,7 @@ function ppSampleRiskEvents(source,records){
  return result.map((risk,i)=>ppSampleRiskFields(source,risk,i));
 }
 const ppEventState={range:null,department:'全部'};
-function ppEventDepartment(){return pcIsActive()?ppState.riskDepartment:ppEventState.department}
+function ppEventDepartment(){return ppEventState.department}
 function ppEventRange(){
  const today=dashboardToday();
  return ppEventState.range||{start:today,end:today};
@@ -33,7 +33,7 @@ function ppRiskEvents(rows,range){
  return events;
 }
 function ppEventGroups(rows,range,dimension,department){
- const events=ppRiskEvents(rows,range).filter(e=>ppMatchesRiskDepartment(e.risk,department)),keys=dimension==='type'?Object.keys(ppStages):pfCategories;
+ const events=ppRiskEvents(rows,range).filter(e=>ppMatchesRiskDepartment(e.risk,department)),keys=dimension==='type'?Object.keys(ppStages):ppProjectChains();
  return keys.map(key=>({key,new:events.filter(e=>e.kind==='new'&&e.project[dimension]===key),closed:events.filter(e=>e.kind==='closed'&&e.project[dimension]===key)}));
 }
 window.projectRiskEventsAudit=()=>withPeriod('projects',()=>{

@@ -183,6 +183,14 @@
       "file": "./checks/product-center-weekly-report-actions.mjs",
       "export": "productCenterWeeklyReportActions"
     },
+    "qualityDirector": {
+      "file": "./checks/quality-director.mjs",
+      "export": "qualityDirector"
+    },
+    "qualityPermissions": {
+      "file": "./checks/quality-permissions.mjs",
+      "export": "qualityPermissions"
+    },
   "taskDateFilters": {
     "file": "./checks/task-date-filters.mjs",
     "export": "taskDateFilters"

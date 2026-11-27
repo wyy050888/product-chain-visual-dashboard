@@ -33,6 +33,7 @@ export async function systemDataActions(page){
   }
   await page.setViewportSize({width:1920,height:1080});
  }
- assert.equal(await page.locator('#lt-system .sm-data-action').count(),9,'覆盖后台四组导入/下载及供应商导出按钮');
+ const checkedActions=cases.map(([,pane])=>`${pane} .sm-data-action`).join(',');
+ assert.equal(await page.locator(checkedActions).count(),9,'覆盖后台四组导入/下载及供应商导出按钮');
  console.log('通过：后台四页图标按钮、蓝色导入与白底下载、图标点击导入/下载、宽窄屏布局。');
 }

@@ -67,10 +67,21 @@ function renderMetricEmphasis(target,text,emphasis){
 function renderMetricTooltipContent(help){
  const text=help.dataset.metricRule;
  metricTooltip.replaceChildren();
- metricTooltip.classList.remove('metric-rule-card');
+ metricTooltip.classList.remove('metric-rule-card','metric-tooltip-lines');
  if(help.dataset.metricTextLabel){
   const body=metricRuleCard(metricTooltip,help.dataset.metricTextLabel);
   metricRuleNode(body,'div',help.textContent,'metric-tooltip-text-body');
+  return;
+ }
+ if(help.dataset.metricRuleTitle){
+  const body=metricRuleCard(metricTooltip,help.dataset.metricRuleTitle);
+  const lines=text.split('\n'),orderMarker=/^\d+\. /;
+  if(lines.every(line=>orderMarker.test(line))){
+   const list=metricRuleNode(body,'ol','','metric-rule-list');
+   for(const line of lines)metricRuleNode(list,'li',line.replace(orderMarker,''));
+  }else{
+   for(const line of lines)metricRuleNode(body,'p',line);
+  }
   return;
  }
  if(help.matches('.ip-brand-share-arc')){ipRenderBrandShareTooltip(metricTooltip,help);return}
@@ -96,6 +107,7 @@ function renderMetricTooltipContent(help){
  }
  if(help.dataset.gdTabHelp){gdRenderScopeTooltip(metricTooltip,help);return}
  if(!help.classList.contains('card-metric-help')||!text.startsWith('入榜条件\n')){
+  if(text?.includes('\n• '))metricTooltip.classList.add('metric-tooltip-lines');
   renderMetricEmphasis(metricTooltip,text,help.dataset.metricEmphasis);
   return;
  }

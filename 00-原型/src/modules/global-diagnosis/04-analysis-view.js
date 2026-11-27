@@ -45,19 +45,21 @@ function gdTableControls(data){
  return `<div class="gd-filters gd-redesigned-filters"><div class="gd-filter-toolbar">${gdScopeTabs(data)}<div class="gd-filter-search "><label class="ui-search-field"><input type="search" data-gd-search aria-label="搜索诊断内容" placeholder="${placeholder}" value="${esc(filter.query)}"></label></div>${gdFollowFilterMarkup()}</div><div class="gd-filter-groups gd-panel-navigation gd-has-category${projectType?' gd-has-project-type':''}">${category}${department}${priority}${projectType}</div></div>`;
 }
 let gdRenderedData=null;
+function gdAvailableParts(){return qcIsActive()?gdParts.filter(([key])=>qcCan(qcDiagnosisPermissions[key])):gdParts}
 // 卡片身份保持不变，点击后无需重新创建焦点节点及其全部子树。
 function gdRenderCards(data,counts){
- const host=$('#aigrid');
- if(host.querySelectorAll(':scope>[data-gd-part]').length!==gdParts.length)host.innerHTML=gdParts.map(([key,label])=>`<button type="button" class="gd-card" data-gd-part="${key}" aria-controls="ai-inline-details"><div class="gd-card-head"><h3>${esc(label)}</h3></div><div class="gd-card-number"></div><div class="gd-card-stats"></div></button>`).join('');
+ const host=$('#aigrid'),parts=gdAvailableParts();
+ if([...host.querySelectorAll(':scope>[data-gd-part]')].map(card=>card.dataset.gdPart).join('|')!==parts.map(([key])=>key).join('|'))host.innerHTML=parts.map(([key,label])=>`<button type="button" class="gd-card" data-gd-part="${key}" aria-controls="ai-inline-details"><div class="gd-card-head"><h3>${esc(label)}</h3></div><div class="gd-card-number"></div><div class="gd-card-stats"></div></button>`).join('');
  gdParts.forEach(([key,label],index)=>{
-  const card=host.querySelector('[data-gd-part="'+key+'"]'),active=gdState.part===key;
+  const card=host.querySelector('[data-gd-part="'+key+'"]'),active=gdState.part===key;if(!card)return;
   card.classList.toggle('selected',active);card.setAttribute('aria-pressed',String(active));
   for(const [selector,text] of [['h3',data.partLabels?.[key]||label],['.gd-card-number',String(counts[index].count)]]){const node=card.querySelector(selector);if(node.textContent!==text)node.textContent=text}
   dashboardRenderMarkup(card.querySelector('.gd-card-stats'),counts[index].stats.map(([name,n])=>`<span>${name}${n==null?'':`<b>${n}</b>`}</span>`).join(''));
  });
 }
 function gdRender({reuseData=false}={}){
- if(!gdParts.some(([key])=>key===gdState.part))gdState.part=gdParts[0][0];
+ const parts=gdAvailableParts();if(!parts.length)return;
+ if(!parts.some(([key])=>key===gdState.part))gdState.part=parts[0][0];
  const section=$('#ai');if(!section)return;section.classList.add('gd-workspace');const data=reuseData&&gdRenderedData?gdRenderedData:gdDataset(),weeks=gdWeeklyReportRows(),counts=gdCardCounts(data,weeks),part=gdState.part,tab=gdState.tabs[part];gdRenderedData=data;
  $('#aitime').textContent='业务数据截至 '+DATA_CUTOFF+(data.historyStatus?.failure?' · 更新失败，保留'+data.historyStatus.businessDate+'结果':'')+(data.historyStatus?.storageError?' · '+data.historyStatus.storageError:'');gdMountHeader(section);
  gdRenderCards(data,counts);
@@ -84,11 +86,11 @@ function gdRender({reuseData=false}={}){
  $('#refreshai').onclick=()=>{gdRender();toast('诊断已刷新')};
 }
 const gdPreviousInline=renderInlineAI;
-renderInlineAI=function(){if((dpState.view==='director'||pcIsActive())&&!dxRendering)return gdRender();return gdPreviousInline()};
+renderInlineAI=function(){if((dpState.view==='director'||pcIsActive()||qcIsActive())&&!dxRendering)return gdRender();return gdPreviousInline()};
 renderAI=renderInlineAI;
 
 function gdLedgerControls(data,base,filter){
- const fixed=['产品中心','项目部','品质中心','研发中心','采购部'],others=gdLedgerValues('department').filter(d=>!fixed.includes(d));
+ const fixed=['产品中心','项目部','品质中心','研发中心','采购部'],others=qcIsActive()?[]:gdLedgerValues('department').filter(d=>!fixed.includes(d));
  const departments=gdFilterGroup('所属部门','department',[['all','全部'],...fixed.map(d=>[d,d])],base,filter);
  const otherCount=base.filter(row=>others.includes(row.department)&&gdAnalysisMatches(row,{...filter,department:'all'})).length;
  const otherActive=others.includes(filter.department),other=others.length?'<button type="button" class="gd-filter-option gd-ledger-other '+(otherActive?'active':'')+'" data-gd-other-departments aria-haspopup="dialog" aria-expanded="false" aria-controls="gd-ledger-other-menu"><span class="gd-filter-label">其他</span><span class="gd-filter-count">'+otherCount+'</span><i class="gd-ledger-other-arrow" aria-hidden="true"></i></button><div id="gd-ledger-other-menu" class="gd-ledger-other-menu" role="dialog" popover="auto" aria-label="其他部门">'+gdFilterGroup('其他部门','department',others.map(d=>[d,d]),base,filter)+'</div>':'';

@@ -24,10 +24,10 @@ function nspDeliveryRange({annual,start,end:cutoff}){
  const period=bounds({mode:annual?'year':'quarter',year,value:annual?1:quarter});
  return {...period,cutoff,partial:period.end>cutoff};
 }
-function nspDeliverySummary(assessment=nspSuccessPeriod()){
+function nspDeliverySummary(assessment=nspSuccessPeriod(),source=sampleProjectSource){
  const category=pfControlValue($('#newchain'));
  // 品牌、类目是项目可直接映射字段；不以SPU销量、分级、销售状态反推项目范围。
- const projects=sampleProjectSource.filter(p=>pfIncludes(category,pfCategory(p))&&pfIncludes(nspFilters.brand,p.brand));
+ const projects=source.filter(p=>pfIncludes(category,pfCategory(p))&&pfIncludes(nspFilters.brand,p.brand));
  return {...nspDeliveryAssessment(projects,nspDeliverySamples,nspDeliveryRange(assessment)),label:assessment.label,annual:assessment.annual};
 }
 

@@ -102,9 +102,11 @@ function rmAssignData(snapshot,role){
  scope.onchange=sync;sync();
 }
 function rmAssignUsers(snapshot,role){
- rmShowDialog('分配用户',`<p class="note">${esc(role.name)}</p><fieldset><legend>产品中心人员</legend><div class="inline">
-  ${rmSystemAccounts().map(account=>rmCheckbox(account.name,`name="users" value="${esc(account.id)}"`,rmRoleHasAccount(role,account))).join('')}
- </div></fieldset>`,fields=>rmSaveRole(snapshot,{...role,users:fields.getAll('users')}));
+ const accounts=rmSystemAccounts();
+ const groups=[['product-center','产品中心'],['quality-center',qcDepartment]].map(([id,label])=>`<fieldset><legend>${label}人员</legend><div class="inline">
+  ${accounts.filter(account=>account.id.startsWith(id+':')).map(account=>rmCheckbox(account.name,`name="users" value="${esc(account.id)}"`,rmRoleHasAccount(role,account))).join('')}
+ </div></fieldset>`).join('');
+ rmShowDialog('分配用户',`<p class="note">${esc(role.name)}</p>${groups}`,fields=>rmSaveRole(snapshot,{...role,users:fields.getAll('users')}));
 }
 function rmDeleteRole(snapshot,role){
  rmShowDialog('删除角色',`<p>是否删除本地角色「${esc(role.name)}」？</p>`,()=>rmWriteRoles(snapshot,snapshot.roles.filter(item=>item.id!==role.id)),{submitLabel:'删除'});

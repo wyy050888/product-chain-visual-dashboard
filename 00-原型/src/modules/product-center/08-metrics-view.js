@@ -1,15 +1,15 @@
 function pcMetricHeading([text,description]){return `<th scope="col">${esc(text)}${description?ppHelp(text,description):''}</th>`}
-function pcMetricTable(label,headers,rows,summary=null,renderHeading=pcMetricHeading){
- const cell=value=>`<td>${value===null?'<span class="pc-data-pending">—</span>':esc(value)}</td>`;
- const renderRow=([name,,...values],chainCell)=>`<tr><th scope="row">${esc(name)}</th>${chainCell}${values.map(cell).join('')}</tr>`;
- const groups=pcMetricRowsByChain(rows,row=>row[1]);
+function pcMetricTable(label,headers,rows,summary,renderHeading,renderValue){
+ const metrics=headers.slice(2);
+ const renderRow=(row,chainCell)=>`<tr><th scope="row">${esc(row.name)}</th>${chainCell}${metrics.map(metric=>`<td>${renderValue(row,metric)}</td>`).join('')}</tr>`;
+ const groups=pcMetricRowsByChain(rows,row=>row.chain);
  const body=[...groups].map(([chain,people])=>{
   const chainCell=`<th scope="rowgroup" rowspan="${people.length}">${esc(chain)}</th>`;
   return `<tbody data-pc-metric-chain="${esc(chain)}">${people.map((row,index)=>renderRow(row,index===0?chainCell:'')).join('')}</tbody>`;
  }).join('');
  return `<div class="pc-data-scroll" tabindex="0" role="region" aria-label="${esc(label)}"><table class="pc-data-table" aria-label="${esc(label)}">
   <thead><tr>${headers.map(renderHeading).join('')}</tr></thead>
-  ${summary?`<tbody class="pc-data-total">${renderRow(summary,cell(summary[1]))}</tbody>`:''}
+  ${summary?`<tbody class="pc-data-total">${renderRow(summary,`<td>${esc(summary.chain)}</td>`)}</tbody>`:''}
   ${body||`<tbody><tr><td colspan="${headers.length}" class="empty">暂无匹配记录</td></tr></tbody>`}</table></div>`;
 }
 const pcProjectSlash='<span class="ms-value-divider">/</span>';
@@ -133,11 +133,13 @@ function pcPaintSampleMetrics(group,[key,label,metrics],{rows,summary}){
  const columns=[['name','人员'],['chain','链群'],...metrics];
  const {defaultSort}=pcPersonnelSamples[key];
  const sort=pcPeopleState.sorts[key]??={key:'',direction:'',...defaultSort};
- const display=row=>columns.map(([field,,,format])=>{
+ const display=(row,[field,,,format])=>{
   const value=row[field];
-  if(!Number.isFinite(value))return value;
-  return format==='percent'?fmt(value,1)+'%':fmt(value);
- });
+  if(!Number.isFinite(value))return '<span class="pc-data-pending">—</span>';
+  const text=esc(format==='percent'?fmt(value,1)+'%':fmt(value));
+  if(field!=='archive'||!row.missing?.length)return text;
+  return `<button type="button" class="link" aria-haspopup="dialog" data-pc-archive-person="${esc(row.name)}" data-pc-archive-chain="${esc(row.chain)}">${text}</button>`;
+ };
  const heading=([field,text,description])=>{
   const direction=sort.key!==field?'none':sort.direction==='desc'?'descending':'ascending';
   const button=rpSortHeader(field,text,sort,undefined,defaultSort).replaceAll('恢复榜单排序','恢复默认排序');
@@ -145,9 +147,16 @@ function pcPaintSampleMetrics(group,[key,label,metrics],{rows,summary}){
  };
  const scrollLeft=group.querySelector('.pc-data-scroll')?.scrollLeft??0;
  pcPaintMetricGroup(group,key,pcOrderPersonnelMetricRows(rows,sort),pageRows=>
-  pcMetricTable(label+'人员指标',columns,pageRows.map(display),display(summary),heading));
+  pcMetricTable(label+'人员指标',columns,pageRows,summary,heading,display));
  if(scrollLeft)group.querySelector('.pc-data-scroll').scrollLeft=scrollLeft;
  group.querySelector('.pc-people-content').onclick=event=>{
+  const archive=event.target.closest('[data-pc-archive-person]');
+  if(archive){
+   const {pcArchivePerson:name,pcArchiveChain:chain}=archive.dataset;
+   const row=name==='汇总'?summary:rows.find(row=>row.name===name&&row.chain===chain);
+   if(row?.missing?.length)pcOpenArchiveReview(row,pcPeopleRange());
+   return;
+  }
   const button=event.target.closest('[data-rp-sort]');if(!button)return;
   const field=button.dataset.rpSort;
   rpSortCycle(sort,field,defaultSort);
@@ -203,7 +212,7 @@ function pcPersonnelSection(){
     <button type="button" role="tab" id="pc-people-tab-metrics" data-pc-people-view="metrics" aria-controls="pc-people-metrics">关键指标大盘</button>
    </div>
   </div></div>
-  <div class="module-header-time pc-rating-period">${dateRangeWeekTrigger('pc-rating-week-popover','选择人员评分所在周','data-pc-rating-week')}</div>
+  <div class="module-header-time pc-rating-period"><span class="period-segment"><span class="period-mode-current">周</span></span>${dateRangeWeekTrigger('pc-rating-week-popover','选择人员评分所在周','data-pc-rating-week')}</div>
   <div class="module-header-time pc-people-period"></div></div>
   <div id="pc-people-ratings" class="pc-people-ratings" role="tabpanel" aria-labelledby="pc-people-tab-ratings"></div>
   <div id="pc-people-metrics" role="tabpanel" aria-labelledby="pc-people-tab-metrics">
@@ -242,7 +251,11 @@ function pcPaintPeopleMetrics(panel){
    continue;
   }
   if(key==='projects')pcPaintProjectMetrics(group);
-  else pcPaintSampleMetrics(group,definition,pcPersonnelSampleData(roster??=pcRoster(chain),chain,range??=pcPeopleRange(),pcPersonnelSamples[key]));
+  else{
+   roster??=pcRoster(chain);range??=pcPeopleRange();
+   const data=key==='system'?pcPersonnelArchiveData(roster,chain,range):pcPersonnelSampleData(roster,chain,range,pcPersonnelSamples[key]);
+   pcPaintSampleMetrics(group,definition,data);
+  }
   pcMetricGroupInputs.set(group,inputs);
  }
 }

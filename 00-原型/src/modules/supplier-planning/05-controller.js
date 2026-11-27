@@ -1,4 +1,4 @@
-// 总看板和产品中心共用供应链采购模块及其下钻入口。
+// 供应链采购模块的渲染与下钻入口。
 renderSuppliers=bindRender('suppliers',scpRender);
 function scpRepaint(scope=null){
  const host=$('#suppliergrid'),active=document.activeElement,query=active?.dataset.scpQuery,position=query?active.selectionStart:null;

@@ -3,7 +3,7 @@ function ppDepartmentRiskRecords(project,department){
  return project.ledger.filter(r=>r.status!=='已闭环'&&ppRiskLights.includes(r.light)&&ppMatchesRiskDepartment(r,department));
 }
 function ppDepartmentRiskGroups(rows,dimension,department){
- const keys=dimension==='type'?Object.keys(ppStages):pfCategories;
+ const keys=dimension==='type'?Object.keys(ppStages):ppProjectChains();
  return keys.map(key=>{
   const records=rows.filter(p=>p[dimension]===key).flatMap(p=>ppDepartmentRiskRecords(p,department));
   return {key,red:records.filter(r=>r.light==='红灯').length,yellow:records.filter(r=>r.light==='黄灯').length};
@@ -18,6 +18,7 @@ function ppApplyDepartmentRisk(button){
  const {type,value,ppRiskLight}=button.dataset,lights=ppRiskLight?[ppRiskLight]:['红灯','黄灯'];
  // 名称、柱段和数字共用切换：再次点击同一组合，取消该组合联动的筛选。
  const cancel=ppDepartmentRiskActive(type,value,ppState.riskDepartment,lights);
+ ppState.blockerDepartment='全部';
  ppState[type]=cancel?[]:[value];ppState.department=cancel||ppState.riskDepartment==='全部'?[]:[ppState.riskDepartment];
  ppState.riskLight=cancel?[]:lights;ppState.link=null;ppState.stage=[];ppState.page=1;renderProjects();
 }
@@ -25,9 +26,10 @@ function ppDepartmentRiskRow(group,dimension,department,max){
  const attributes=light=>`data-pp-link="departmentRisk" data-type="${dimension}" data-value="${esc(group.key)}" data-pp-risk-light="${light}" aria-pressed="${ppDepartmentRiskActive(dimension,group.key,department,light?[light]:['红灯','黄灯'])}"`;
  const label=light=>esc(department+' · '+group.key+' · '+light+'风险');
  const selected=['红灯','黄灯',''].some(light=>ppDepartmentRiskActive(dimension,group.key,department,light?[light]:['红灯','黄灯']));
+ const count=(light,tone,value)=>`<button type="button" class="${tone}${value?' pp-count-action':''}" ${attributes(light)} aria-label="${label(light)} ${value}条" ${value?'':'disabled'}>${value}</button>`;
  return `<div class="pp-link pp-dept-risk-row ${selected?'selected':''}"><button type="button" class="pp-bar-label" ${attributes('')} aria-label="${label('红黄灯')}">${esc(group.key)}</button>
  <span class="pp-bar-line"><span class="pp-track">${[['红灯','red',group.red],['黄灯','yellow',group.yellow]].map(([light,tone,count])=>`<button type="button" class="pp-risk-segment pp-${tone}" ${attributes(light)} style="width:${count/max*100}%" title="${label(light)} ${count}条" aria-label="${label(light)} ${count}条" ${count?'':'disabled'}></button>`).join('')}</span>
- <span class="pp-risk-counts"><button type="button" class="red" ${attributes('红灯')} aria-label="${label('红灯')} ${group.red}条">${group.red}</button>${ppRiskCountSeparator}<button type="button" class="orange" ${attributes('黄灯')} aria-label="${label('黄灯')} ${group.yellow}条">${group.yellow}</button></span></span></div>`;
+ <span class="pp-risk-counts">${count('红灯','red',group.red)}${ppRiskCountSeparator}${count('黄灯','orange',group.yellow)}</span></span></div>`;
 }
 // 按与右图相同的风险记录计数；全部只计一条，多部门共责分别计入对应部门。
 function ppDepartmentRiskOptions(rows){

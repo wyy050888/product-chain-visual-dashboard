@@ -14,9 +14,15 @@ const ppRootFamilies=[
  {key:'evidence',title:'验证材料提交不完整',summary:'整改验证报告和相关记录提交不完整，影响复核与闭环。',roots:['验证材料提交不完整']}
 ];
 const ppAnalysisRiskLights=['红灯','黄灯','绿灯'];
-function ppAnalysisRows(){
+function ppAnalysisRows(rows=ppRows()){
  // 灯色筛选不隐藏部门风险分析；其他查询条件继续生效。
- return ppFiltered(ppScope(ppRows()),{...ppState,light:[],link:null,allowedRiskLights:ppAnalysisRiskLights,includeClosedRisks:true});
+ return ppFiltered(ppScope(rows),{...ppState,light:[],link:null,blockerDepartment:'全部',allowedRiskLights:ppAnalysisRiskLights,includeClosedRisks:true});
+}
+function ppAnalysisRowsForDepartments(rows,allowed){
+ return rows.map(project=>({...project,ledger:project.ledger.flatMap(risk=>{
+  const departments=ppDepartmentValues(risk.department).filter(department=>allowed.includes(department));
+  return departments.length?[{...risk,department:departments}]:[];
+ })}));
 }
 // 红灯风险按风险单计数，与项目灯色独立；一单多部门时，各部门分别关联，分母不重复。
 function ppAnalysisRiskShare(rows,department){

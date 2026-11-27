@@ -16,11 +16,15 @@ function gdProjectTaskLinked(project,stage,task,dispatches=[]){
   return sourceKey&&order.sourceKey===sourceKey&&same(order.targetId);
  });
 }
-function gdProjectTaskGaps(project,stages,dispatches=[]){
+function projectRedBlockerTasks(project,stages){
  if(project.projectState!=='进行中'||project.status!=='红灯')return [];
- return stages.flatMap((stage,index)=>stage.light!=='红灯'?[]:(stage.tasks||[])
-  .filter(task=>task.id!=null&&task.light==='红灯'&&!task.done&&!gdProjectTaskLinked(project,stage,task,dispatches))
+ const currentStages=stages??project.stageData??projectControlModel(project).stageData;
+ return currentStages.flatMap((stage,index)=>stage.light!=='红灯'?[]:(stage.tasks||[])
+  .filter(task=>task.light==='红灯'&&!task.done)
   .map(task=>({stage,task,stageId:stage.id??task.si??index})));
+}
+function gdProjectTaskGaps(project,stages,dispatches=[]){
+ return projectRedBlockerTasks(project,stages).filter(({stage,task})=>task.id!=null&&!gdProjectTaskLinked(project,stage,task,dispatches));
 }
 function gdProjectDispatchRows(){
  return Object.entries(projectDispatches).map(([key,order])=>({...order,sourceKey:key.split('|').at(-2)}));

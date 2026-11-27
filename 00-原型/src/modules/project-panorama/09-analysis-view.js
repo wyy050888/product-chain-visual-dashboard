@@ -41,9 +41,10 @@ function renderProjectAnalysisTooltip(container){
 }
 // 保留浅色部门卡片与右侧台账结构，两侧复用同一份部门事实。
 function ppAI(rows){
+ const departments=ppAnalysisDepartments();if(!departments.length)return '';
  const selection=ppAnalysisSelection(rows),{facts,group}=selection,department=facts.department;
  return `<div class="pp-analysis-header"><div class="pp-ai-heading"><h3><span class="ai-logo" aria-hidden="true"><b>AI</b></span> 部门风险根因分析 <span class="metric-help pp-analysis-help" role="button" tabindex="0" aria-label="部门风险根因分析说明" data-metric-rule="${esc(ppAnalysisHelpText())}"></span></h3></div>
- <div class="pp-analysis-tabs" role="tablist" aria-label="风险分析部门">${ppDepartments.map(name=>`<button type="button" role="tab" id="pp-analysis-tab-${ppDepartments.indexOf(name)}" aria-controls="pp-analysis-panel" aria-selected="${department===name}" tabindex="${department===name?0:-1}" data-pp-analysis-department="${name}">${name}</button>`).join('')}</div></div>
+ <div class="pp-analysis-tabs" role="tablist" aria-label="风险分析部门">${departments.map(name=>`<button type="button" role="tab" id="pp-analysis-tab-${ppDepartments.indexOf(name)}" aria-controls="pp-analysis-panel" aria-selected="${department===name}" tabindex="${department===name?0:-1}" data-pp-analysis-department="${name}">${name}</button>`).join('')}</div></div>
  <div id="pp-analysis-panel" class="pp-analysis-layout" role="tabpanel" aria-labelledby="pp-analysis-tab-${ppDepartments.indexOf(department)}">
  <article class="pp-analysis-card" data-analysis-department="${department}"><div class="pp-card-head"><h4>${department}</h4></div>
  <div class="pp-analysis-metrics">${ppAnalysisButton(department,'red','<span>红灯项目</span>',ppAnalysisMetricValue(facts.red.length))}${ppAnalysisButton(department,'yellow','<span>黄灯项目</span>',ppAnalysisMetricValue(facts.yellow.length))}<div class="pp-analysis-share"><span>红灯风险占比</span><strong>${facts.riskShare.rate}</strong></div></div>

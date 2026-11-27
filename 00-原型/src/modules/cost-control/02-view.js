@@ -15,8 +15,13 @@ function ccTable(period,rows,{first='部门',action,summary=null,extraSummary=nu
  return `<table class="cc-table cc-groups-${groups.length}${actualOnly?' cc-actual-only':''}${contextLabel?' cc-with-context':''}"><thead><tr>${headers.map(({html,keys})=>`<th scope="col" data-up-basic ${keys?`aria-sort="${keys.includes(sort.key)?sort.direction==='asc'?'ascending':'descending':'none'}"`:""}>${html}</th>`).join('')}</tr></thead><tbody>${rows.length?rows.map(row=>`<tr data-cc-row="${esc(row.id)}"><td><span class="cc-row-name">${esc(row.name)}</span>${!contextLabel&&row.subtitle?`<small>${esc(row.subtitle)}</small>`:""}</td>${contextLabel?`<td class="cc-context" data-cc-context>${esc(row.subtitle||'—')}</td>`:''}${cells(row.values)}${action?'<td>'+action(row)+'</td>':''}</tr>`).join(''):`<tr><td colspan="${headers.length}" class="empty">暂无符合条件的数据</td></tr>`}</tbody>${summary?`<tfoot>${extraSummary?summaryRow(extraSummary.label,extraSummary.values):''}${summaryRow('合计',summary)}</tfoot>`:''}</table>`;
 }
 function ccSummary(metrics,period,actualOnly=false,includeRow){return Object.fromEntries(ccGroups(period).map(({mode})=>[mode,ccTotals(metrics,period,mode,!actualOnly,includeRow)]))}
+function ccDashboardMetrics(){
+ if(!qcIsActive())return ccMetrics;
+ const departments=qcAllowedDepartments('cost');
+ return ccMetrics.filter(metric=>departments.includes(metric.department));
+}
 function ccRender(){
- const period=periodFor('cost'),groups=ccGroups(period),summary=ccSummary(ccMetrics,period),cards=$('#costcards');
+ const period=periodFor('cost'),groups=ccGroups(period),summary=ccSummary(ccDashboardMetrics(),period),cards=$('#costcards');
  cards.className='costtop cc-cards';cards.style.gridTemplateColumns=`repeat(${groups.length},minmax(0,1fr))`;
  cards.innerHTML=groups.map(({mode,label})=>{
   const v=summary[mode],knownRate=Number.isFinite(v.rate),tone=knownRate?status(v.rate):'muted',width=Math.max(0,Math.min(100,v.rate||0)),progress=ccTimeProgress(period,mode);
@@ -30,7 +35,8 @@ function ccRenderDepartments(period=periodFor('cost')){
  const host=$('#costtable'),scroll=host.querySelector('table')?host.scrollLeft:0,modes=ccGroups(period).map(group=>group.mode);
  const byCategory=ccView==='category',sort=byCategory?ccCategorySort:ccDepartmentSort;
  if(sort.key&&(!modes.some(mode=>sort.key.startsWith(mode+'-'))||byCategory&&!sort.key.endsWith('-actual')))Object.assign(sort,{key:'',direction:''});
- const rows=ccSortedDepartmentRows(byCategory?ccCategoryRows(period):ccRows(period),sort);
+ const metrics=ccDashboardMetrics();
+ const rows=ccSortedDepartmentRows(byCategory?ccCategoryRows(period,metrics):ccRows(period,metrics),sort);
  host.innerHTML=ccTable(period,rows,{first:byCategory?'降本分类':'部门',sort,actualOnly:byCategory,action:row=>`<button type="button" class="link" data-cc-${byCategory?'category':'department'}="${row.id}">查看</button>`});if(scroll)host.scrollLeft=scroll;
  for(const button of $$('#cost [data-cc-view]')){const active=button.dataset.ccView===ccView;button.setAttribute('aria-pressed',String(active));button.classList.toggle('active',active)}
 }

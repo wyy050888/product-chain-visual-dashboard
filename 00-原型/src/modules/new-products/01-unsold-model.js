@@ -37,9 +37,10 @@ function nspCompareUnsoldRows(a,b){
  return a.spuCode.localeCompare(b.spuCode);
 }
 
-function nspUnsoldSummary({category=pfControlValue($('#newchain')),season=nspFilters.season,asOf=nspUnsoldSampleDate}={}){
+function nspUnsoldSummary({category=pfControlValue($('#newchain')),season=nspFilters.season,asOf=nspUnsoldSampleDate,allowedCategories=null}={}){
  const bySpu=new Map();
  for(const product of nspUnsoldSamples){
+  if(allowedCategories&&!allowedCategories.includes(product.category))continue;
   if(!pfIncludes(category,product.category)||!pfIncludes(season,product.season))continue;
   const firstOrderDate=product.firstChannelOrderAt?.slice(0,10);
   if(!(product.stock>0)||(firstOrderDate&&firstOrderDate<=asOf))continue;

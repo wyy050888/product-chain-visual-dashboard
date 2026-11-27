@@ -3224,15 +3224,13 @@
       "权限管理",
       "系统运维",
       "菜单置灰",
-      "规则配置更名",
-      "样机提供及时率导入"
+      "规则配置更名"
     ],
     "sources": [
       "src/modules/system-management/01-shell.js",
       "src/modules/business-rules/03-view.js",
       "src/modules/core-link-config/03-view.js",
-      "src/modules/strategic-supplier-import/03-view.js",
-      "src/modules/product-center/16-sample-timeliness-import.js"
+      "src/modules/strategic-supplier-import/03-view.js"
     ],
     "styles": [
       "styles/55-lifecycle-targets.css"
@@ -3369,6 +3367,22 @@
       "reportMakeup",
       "diagnosisRebuild"
     ]
+  },
+  "qualityDirector": {
+    "label": "品质中心总监与岗位看板",
+    "keywords": ["品质中心看板", "品质整改项目成本收益台账", "岗位指标大盘"],
+    "sources": [
+      "src/modules/quality-center/01-people-data.js",
+      "src/modules/quality-center/02-metric-definitions.js",
+      "src/modules/quality-center/03-people-view.js",
+      "src/modules/quality-center/04-correction-model.js",
+      "src/modules/quality-center/05-correction-view.js",
+      "src/modules/quality-center/06-workspace.js",
+      "src/modules/quality-center/07-shared-scope.js",
+      "src/modules/quality-center/08-access.js"
+    ],
+    "styles": ["styles/quality-center.css"],
+    "checks": ["qualityDirector", "qualityPermissions", "productCenterWeeklyReportActions", "departmentWeeklyReports", "pageEntries"]
   },
   "departmentWeeklyReports": {
     "label": "部门诊断周报下载表",

@@ -29,20 +29,6 @@ function pcRiskProjectRows(rows,asOf){
  });
 }
 const pcRiskInitiationDays=5;
-const pcRiskWorkingDay=date=>![0,6].includes(new Date(date+'T00:00:00Z').getUTCDay());
-function pcRiskWorkdays(from,to,isWorkingDay){
- if(!ppDate(from)||!ppDate(to)||from>=to)return 0;
- let days=0;for(let date=shiftDate(from,1);date<=to;date=shiftDate(date,1))if(isWorkingDay(date))days++;
- return days;
-}
-function pcRiskInitiationWarningStart(target,isWorkingDay){
- let start=target;
- for(let remaining=pcRiskInitiationDays;remaining>0;){
-  start=shiftDate(start,-1);
-  if(isWorkingDay(start))remaining--;
- }
- return start;
-}
 // 提需池按「需求状态」判定，approvedAt 取最终审批通过时间；两处日期均转为业务时区的 ISO 日期。
 // 审批、立项及提需人使用样例；产品经理统一取模板管理的产品链人员配置样例。
 // 云文档只选名称、链群、项目类型、品牌及目标价格和成本齐备的产品行。
@@ -60,7 +46,7 @@ const pcInitiationDemo={
   {id:'DEMO-WPS-06',name:'美的真蒸汽炸烤箱',category:'厨电',type:'自选',brand:'美的',initiatedAt:'2026-11-09',targetCompletionDate:'2026-11-26',oaNo:'',channel:'二类电商'}
  ]
 };
-function pcRiskInitiationRows({demand=[],wps=[],managers={}},asOf,category=null,isWorkingDay=pcRiskWorkingDay){
+function pcRiskInitiationRows({demand=[],wps=[],managers={}},asOf,category=null){
  const bySource=(rows,source)=>rows.flatMap(row=>{
   const fromDemand=source==='demand';
   const date=ppDate(row[fromDemand?'approvedAt':'initiatedAt']?.slice(0,10));
@@ -68,15 +54,15 @@ function pcRiskInitiationRows({demand=[],wps=[],managers={}},asOf,category=null,
   const chain=filterCatalog.normalizeChain(row.category)??row.category;
   if(category!==null&&chain!==category)return [];
   if(fromDemand){
-   if(row.status!=='待立项'||!date||date>asOf)return [];
-  }else if(String(row.oaNo??'').trim()||!riskValidDate(targetDate)||asOf<pcRiskInitiationWarningStart(targetDate,isWorkingDay))return [];
-  const wait=pcRiskWorkdays(targetDate??date,asOf,isWorkingDay);
-  if(fromDemand&&wait<pcRiskInitiationDays)return [];
+   if(row.status!=='待立项'||!riskValidDate(date))return [];
+  }else if(String(row.oaNo??'').trim()||!riskValidDate(targetDate))return [];
+  const elapsed=pcRiskDays(targetDate??date,asOf);
+  if(elapsed<(fromDemand?pcRiskInitiationDays:-pcRiskInitiationDays))return [];
   const type=row.projectType??row.type;
   const projectType=[...pcProjectRiskTypes].find(([key,label])=>key===type||label===type)?.[0];
   const manager=Object.hasOwn(managers,chain)?managers[chain]:'';
-  const daysToTarget=fromDemand?null:pcRiskDays(asOf,targetDate);
-  const remaining=daysToTarget>0?pcRiskWorkdays(shiftDate(asOf,-1),shiftDate(targetDate,-1),isWorkingDay):0;
+  const daysToTarget=fromDemand?null:0-elapsed;
+  const wait=Math.max(0,elapsed),remaining=Math.max(0,daysToTarget);
   return [{...row,category:chain,projectType,date,targetDate,wait,daysToTarget,remaining,source,manager}];
  });
  return [...bySource(demand,'demand'),...bySource(wps,'wps')].sort((a,b)=>{

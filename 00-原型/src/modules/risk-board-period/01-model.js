@@ -22,7 +22,7 @@ function rpDefaultBoardPeriod(kind,date=dashboardSyncDate()){
  return [6,8].includes(kind)?rpReturnPeriod('week',date,date):{mode:'day',year:+date.slice(0,4),value:+date.slice(5,7),start:shiftDate(date,-29),end:date};
 }
 for(const kind of rpTimedBoards)rpBoardPeriods[kind]=rpDefaultBoardPeriod(kind,DATA_CUTOFF);
-function rpUsesBoardPeriods(){return wfDirector()||(typeof pcIsActive==='function'&&pcIsActive())}
+function rpUsesBoardPeriods(){return wfDirector()||pcIsActive()||qcIsActive()}
 function rpBoardPeriod(kind){return !rpUsesBoardPeriods()?periodFor('risk'):[3,4].includes(kind)?rpDefaultBoardPeriod(kind):rpBoardPeriods[kind]||rpDefaultBoardPeriod(kind)}
 function rpWithBoardPeriod(kind,read,period=rpBoardPeriod(kind)){return drawerWithPeriod(period,read)}
 function rpDetailPeriod(kind){

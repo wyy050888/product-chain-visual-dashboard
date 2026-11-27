@@ -4,24 +4,24 @@ import {createContext,runInContext} from 'node:vm';
 import {setProductCenterRole} from './product-center-role-fixture.mjs';
 function verifyInitiationWarningDates(){
  const validDate=value=>/^\d{4}-\d{2}-\d{2}$/.test(value||'')&&Number.isFinite(Date.parse(value))&&new Date(value).toISOString().slice(0,10)===value;
- const context=createContext({riskValidDate:validDate,ppDate:value=>validDate(value)?value:null,
-  shiftDate:(date,days)=>new Date(Date.parse(date)+days*86400000).toISOString().slice(0,10),filterCatalog:{normalizeChain:value=>value}});
+ const context=createContext({riskValidDate:validDate,ppDate:value=>validDate(value)?value:null,filterCatalog:{normalizeChain:value=>value}});
  runInContext(readFileSync(new URL('../../src/modules/product-center/10-risk-model.js',import.meta.url),'utf8'),context);
  const cloud={id:'cloud',category:'环境',initiatedAt:'2026-11-01',targetCompletionDate:'2026-11-30',oaNo:''};
- const rows=(date,wps=[cloud],demand=[],calendar)=>context.pcRiskInitiationRows({wps,demand},date,null,calendar);
- assert.equal(rows('2026-11-22').length,0,'早于预警首日不入榜');
- assert.equal(rows('2026-11-23')[0].remaining,5,'距目标完成时间第 5 个工作日开始预警');
+ const rows=(date,wps=[cloud],demand=[])=>context.pcRiskInitiationRows({wps,demand},date);
+ assert.equal(rows('2026-11-24').length,0,'早于预警首日不入榜');
+ assert.equal(rows('2026-11-25')[0].remaining,5,'距目标完成时间 5 个自然日开始预警');
+ assert.equal(rows('2026-11-28')[0].remaining,2,'剩余天数计入周末');
  assert.equal(rows('2026-11-30')[0].daysToTarget,0,'目标日期仍入榜');
  assert.equal(rows('2026-12-01')[0].wait,1,'逾期未填单号继续入榜');
  assert.equal(rows('2026-12-01',[{...cloud,oaNo:' OA-001 '}]).length,0,'填入 OA 单号后退出');
  assert.equal(rows('2026-12-01',[{...cloud,targetCompletionDate:''},{...cloud,targetCompletionDate:'2026-11-31'}]).length,0,'无有效日期不入榜');
- assert.equal(rows('2026-11-23',[{...cloud,targetCompletionDate:'2026-11-29'}])[0].remaining,5,'目标为周日仍从倒推第 5 个工作日起预警');
- const calendar=date=>date!=='2026-11-23'&&![0,6].includes(new Date(date).getUTCDay());
- assert.equal(rows('2026-11-20',[cloud],[],calendar)[0].remaining,5,'使用提供的工作日历倒推');
+ assert.equal(rows('2026-12-06')[0].wait,6,'延期天数计入周末');
+ assert.equal(rows('2026-11-28',[{...cloud,targetCompletionDate:'2026-12-03'}])[0].remaining,5,'预警首日为周末也入榜');
  const demand={id:'demand',status:'待立项',approvedAt:'2026-11-16'};
- assert.equal(rows('2026-11-22',[],[demand]).length,0,'运营提需保持审批满 5 个工作日才预警');
- assert.deepEqual(Array.from(rows('2026-11-23',[cloud,{...cloud,id:'late',targetCompletionDate:'2026-11-12'},
-  {...cloud,id:'sooner',targetCompletionDate:'2026-11-25'}],[demand]),row=>row.id),['late','demand','sooner','cloud']);
+ assert.equal(rows('2026-11-20',[],[demand]).length,0,'运营提需审批不足 5 天不入榜');
+ assert.equal(rows('2026-11-21',[],[demand])[0].wait,5,'运营提需审批满 5 天，周末也入榜');
+ assert.deepEqual(Array.from(rows('2026-11-25',[cloud,{...cloud,id:'late',targetCompletionDate:'2026-11-12'},
+  {...cloud,id:'sooner',targetCompletionDate:'2026-11-27'}],[demand]),row=>row.id),['late','demand','sooner','cloud']);
 }
 const common=['#ai .gd-card','#sales .ms-summary-card','#new .nsp-layout','#projects .pp-layout','#matrix .matrixlayout','#inventorymetrics>:first-child','#cost .cc-card'];
 async function ready(page){await page.waitForFunction(()=>document.documentElement.dataset.dashboardBoot==='ready');await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))))}
@@ -79,7 +79,8 @@ export async function productCenter(page){
   assert.deepEqual(await styles(page),baseline[width],width+'宽度下相同模块使用同一样式');
   assert.equal(await page.locator('.head #pc-person, .head .pc-role-control').count(),0,'顶栏不显示人员切换');
   assert.equal(await page.locator('#department-view #dp-role,#department-view #dp-scope-chain').count(),0);
-  assert.equal(await page.locator('#department-view>.section').count(),11);
+  assert.equal(await page.locator('#department-view>.section').count(),10);
+  assert.equal(await page.locator('#department-view #suppliers, .pc-navigation-toolbar a[href="#dp-suppliers"]').count(),0);
   assert.deepEqual(await page.locator('#riskrail>.rp-board-group .rp-group-title-text').allTextContents(),['上品计划预警','立项规划预警','品质风险榜']);
   assert.deepEqual(await page.locator('#rp-group-navigation [data-rp-group-jump]').evaluateAll(nodes=>nodes.map(node=>node.dataset.rpGroupJump)),['pc-launch','pc-initiation','0','6','8','1','2']);
   assert.deepEqual(await riskVisuals(page),riskBaseline[width],'品质榜复用总看板样式');
@@ -124,8 +125,14 @@ export async function productCenter(page){
    return fontSize+'/'+fontWeight+'/'+(fontFamily===getComputedStyle(document.body).fontFamily);
   }))]);
   assert.deepEqual(fonts,['14px/400/true'],'风险榜普通字段使用表格正文字体');
-  assert.equal(await page.locator('#ai [data-gd-department],#projects [data-pp-filter="department"]').count(),0);
-  assert.equal(await page.locator('.pp-dept-options:visible,.pp-analysis-tabs:visible').count(),0);
+  assert.equal(await page.locator('#ai [data-gd-department]').count(),0);
+  assert.equal(await page.locator('#projects [data-pp-filter="department"]').count(),1);
+  assert.equal(await page.locator('#projects [data-pp-event-department]').count(),1);
+  assert.ok(await page.locator('.pp-distribution .pp-dept-options').isVisible());
+  assert.ok(await page.locator('.pp-departments .pp-dept-options').isVisible());
+  const analysisTabs=page.locator('#pp-ai').getByRole('tablist',{name:'风险分析部门'});
+  assert.deepEqual(await analysisTabs.getByRole('tab').allTextContents(),['产品中心']);
+  assert(await analysisTabs.getByRole('tab',{name:'产品中心',selected:true}).isVisible(),'单部门页签也应显示为选中');
   assert.equal(await page.locator('#department-view [id]').evaluateAll(nodes=>{const ids=nodes.map(n=>n.id);return ids.length-new Set(ids).size}),0);
   assert.ok(await page.locator('.pc-navigation-toolbar .brc-entry').isVisible(),'复用配置入口');
   assert.ok(await page.locator('[data-pc-action="dashboard-fullscreen"]').isVisible(),'复用全屏入口');
@@ -133,6 +140,7 @@ export async function productCenter(page){
  }
  await page.setViewportSize({width:1920,height:1080});
  assert.deepEqual((await facts(page)).products,original.products);assert.deepEqual((await facts(page)).inventory,original.inventory);
+ assert.deepEqual((await facts(page)).projects,original.projects,'总监项目范围与总看板一致');
  const riskNavigation=page.getByRole('navigation',{name:'风险榜快速定位'});
  await riskNavigation.getByRole('button',{name:'立项规划预警',exact:true}).click();
  assert.equal(await riskNavigation.locator('[aria-current="location"]').getAttribute('data-rp-group-jump'),'pc-initiation');
@@ -165,7 +173,8 @@ export async function productCenter(page){
  await initiationHelp.hover();
  const initiationTooltip=page.locator('#metric-tooltip.metric-tooltip-card');
  assert.deepEqual(await initiationTooltip.locator('.metric-rule-section h4').allTextContents(),['入榜条件','排序规则']);
- assert.match(await initiationTooltip.innerText(),/距立项目标完成时间 5 个工作日起，立项 OA 单号为空即预警，填单号后解除。/);
+ assert.match(await initiationTooltip.innerText(),/最终审批通过后满 5 天/);
+ assert.match(await initiationTooltip.innerText(),/距立项目标完成时间 5 天起，立项 OA 单号为空即预警，填单号后解除。/);
  await page.keyboard.press('Escape');
  const launchCutoff=page.locator('#rp-group-launch .rp-group-caption');
  assert.equal(await launchCutoff.innerText(),'截至 '+dateText(today));
@@ -295,7 +304,8 @@ export async function productCenter(page){
    await page.mouse.move(0,0);
   }else{
    assert.equal(await board.locator('h3').innerText(),'上市资料预警');
-   assert.deepEqual(await cards.locator('[aria-label="延期上市日期"] .rp-metric-text').allTextContents(),rows.slice(0,6).map(row=>row.revised?dateText(row.revised):'--'));
+   const dates=cards.locator('[aria-label="延期上市日期"] .rp-metric-text');
+   assert.deepEqual(await dates.evaluateAll(nodes=>nodes.map(node=>node.firstChild.textContent.trim())),rows.slice(0,6).map(row=>row.revised?dateText(row.revised):'--'));
    assert.deepEqual(await cards.locator('[aria-label="销售渠道"] .rp-metric-text').allTextContents(),rows.slice(0,6).map(row=>row.channel));
   }
   await filter('projectType',first.projectType).click();
@@ -349,14 +359,14 @@ export async function productCenter(page){
  await page.locator('#dialogbody').getByRole('button',{name:'查看请购单',exact:true}).click();
  assert.equal(await page.locator('#toast').textContent(),'跳转请购单详情页');await page.locator('#close').click();
  const initiation=page.locator('[data-rp-board="pc-initiation"]');
- const initiationHeaders=['产品信息','立项日期','目标上市日期','销售渠道','提需人','产品经理'];
+ const initiationHeaders=['产品信息','预计立项日期','目标上市日期','销售渠道','提需人','产品经理'];
  assert.deepEqual(await initiation.getByRole('columnheader').allTextContents(),initiationHeaders);
  const managerByChain={厨电:'刘萱',环境:'张晓阳',清洁:'潘东跃'};
  const initiationManagers=business.initiation.rows.map(row=>managerByChain[row.category]);
  assert.deepEqual(business.initiation.rows.map(row=>row.manager),initiationManagers);
  assert.deepEqual(await initiation.locator('[aria-label="产品经理"] .rp-metric-text').allTextContents(),initiationManagers.slice(0,6));
  const managerHelp=panel=>panel.getByRole('columnheader',{name:/^产品经理/}).getByRole('button',{name:'产品经理说明'});
- const managerHelpText='如需修改，请前往【产品研发-项目管理-模板管理-配置产品链人员】配置链群相关的产品经理';
+ const managerHelpText='来源于运营提需池的产品经理，如需修改，请前往【系统管理-用户管理-链群配置】中配置链群相关的产品中心人员';
  await managerHelp(initiation).hover();
  assert.equal(await page.locator('#metric-tooltip').innerText(),managerHelpText);
  const firstInitiation=initiation.locator('.rp-entry').first();
@@ -397,7 +407,7 @@ export async function productCenter(page){
  assert.equal(await page.locator('#metric-tooltip').innerText(),managerHelpText);
  await page.locator('#dialogbody input[type="search"]').hover();
  await page.locator('#metric-tooltip').waitFor({state:'hidden'});
- assert.equal(await page.locator('#dialogbody .pc-risk-initiation-delay').first().textContent(),`延期 ${business.initiation.rows.find(row=>row.name===initiationMatches[0]).wait} 个工作日`);
+ assert.equal(await page.locator('#dialogbody .pc-risk-initiation-delay').first().textContent(),`延期 ${business.initiation.rows.find(row=>row.name===initiationMatches[0]).wait}天`);
  assert.equal(await page.locator('#dialogbody .rp-list-table .rp-identity-subtitle').first().textContent(),'自选 | 厨电 | 苏泊尔 | 来源：立项云文档');
  await page.locator('#dialogbody').getByRole('button',{name:'查看立项云文档',exact:true}).click();
  assert.match(await page.locator('#toast').textContent(),/打开立项云文档在线地址：待定/);await page.locator('#close').click();
@@ -414,17 +424,27 @@ export async function productCenter(page){
  const reports=page.locator('[data-gd-part="execution"]');assert.equal(await reports.locator('h3').textContent(),'部门诊断');
  await reports.click();
  const weeklyTable=page.locator('#ai').getByRole('table',{name:'部门周报下载表'});
- assert.deepEqual(await weeklyTable.getByRole('columnheader').allTextContents(),['统计周','产品中心']);
+ assert.deepEqual(await weeklyTable.getByRole('columnheader').allTextContents(),['统计周','本周结果','最大风险','产品中心']);
+ const week43=weeklyTable.locator('tbody tr').filter({hasText:'26年第43周（10/19-10/25）'});
+ assert.match(await week43.getByRole('cell').first().textContent(),/完成 12 款立项评审（目标 15 款）/);
+ assert.deepEqual(await week43.getByRole('listitem').allTextContents(),[
+  '立项评审较周目标少 3 款，可能影响后续项目排期。','A954 有 500 台需返工，首批放行待复验。'
+ ]);
+ const summaryStyle=await week43.getByRole('cell').first().evaluate(cell=>{
+  const style=getComputedStyle(cell);
+  return [style.textAlign,style.whiteSpace];
+ });
+ assert.deepEqual(summaryStyle,['left','normal']);
  const week42=weeklyTable.locator('tbody tr').filter({hasText:'26年第42周（10/12-10/18）'});
- assert.equal(await week42.getByRole('cell').textContent(),'未生成');
- assert.equal(await week42.getByRole('button').count(),0);
+ assert.deepEqual(await week42.getByRole('cell').allTextContents().then(cells=>cells.slice(0,2)),['—','—']);
+ assert(await week42.getByRole('button',{name:/周报操作/}).isVisible());
  assert.equal(await reports.locator('.gd-card-number').textContent(),'1','未生成的周不计入已生成周报数');
  const weeklyPager=page.locator('#gd-weekly-pager');
  const weeklySize=weeklyPager.getByRole('combobox',{name:'每页条数'});
  assert.equal(await weeklySize.inputValue(),'10');
  assert.deepEqual(await weeklySize.locator('option').allTextContents(),['10条/页','20条/页','50条/页']);
  await weeklyPager.getByRole('button',{name:'下一页'}).click();
- assert.equal(await weeklyTable.locator('tbody .muted').count(),await weeklyTable.getByRole('rowheader').count());
+ assert.equal(await weeklyTable.getByRole('button',{name:/周报操作/}).count(),await weeklyTable.getByRole('rowheader').count());
  await weeklyPager.getByRole('button',{name:'上一页'}).click();
  const weeklyJump=weeklyPager.getByRole('spinbutton',{name:'跳转页码'});
  await weeklyJump.fill('2');await weeklyJump.press('Enter');
@@ -434,12 +454,14 @@ export async function productCenter(page){
  const weeklyTotal=Number(await weeklyPager.getByRole('navigation').getAttribute('data-list-total'));
  assert.equal(await weeklyTable.getByRole('rowheader').count(),Math.min(20,weeklyTotal));
  await weeklySize.selectOption('10');
- const files=await weeklyTable.locator('[data-gd-weekly-file]').evaluateAll(nodes=>nodes.map(n=>n.dataset.gdWeeklyFile));
- assert.ok(files.length&&files.every(name=>name.startsWith('产品中心')),'仅展示产品中心周报');
  await page.setViewportSize({width:390,height:900});
- assert(await weeklyTable.locator('..').evaluate(scroll=>scroll.scrollWidth<=scroll.clientWidth),'两列周报表适应窄屏');
- const [download]=await Promise.all([page.waitForEvent('download'),weeklyTable.getByRole('button',{name:/下载周报/}).first().click()]);
- assert.equal(download.suggestedFilename(),files[0]);
+ assert(await weeklyTable.locator('..').evaluate(scroll=>{
+  const bounds=scroll.getBoundingClientRect();
+  return scroll.scrollWidth>scroll.clientWidth&&bounds.x>=0&&bounds.right<=window.innerWidth+1;
+ }),'窄屏在周报表内横向滚动');
+ await week43.getByRole('button',{name:/周报操作/}).click();
+ const [download]=await Promise.all([page.waitForEvent('download'),week43.getByRole('menuitem',{name:'下载周报'}).click()]);
+ assert.equal(download.suggestedFilename(),'产品中心第43周周报.pdf');
  await page.setViewportSize({width:1920,height:1080});
  await page.locator('a[href="#dp-management"]').click();
  const people=page.locator('#dp-management');
@@ -573,14 +595,15 @@ export async function productCenter(page){
  assert.equal(await planning.locator('thead [data-rp-sort]').count(),10);
  const planningHelp=planning.locator('thead .metric-help');
  const timelinessHelp=planning.getByRole('button',{name:'上市资料提供及时率说明',exact:true});
+ const timelinessFormula='上市资料提供及时率 = 筛选期内在上市前 60 至 30 天完成上市筹备的项目数 ÷ 筛选期内已完成上市筹备的项目数 × 100%';
  assert.equal(await planningHelp.count(),8);
  assert.deepEqual(await planningHelp.evaluateAll(icons=>icons.map(icon=>icon.dataset.metricRule)),[
   ...Array(5).fill('从产品中心知识库识别提取'),
-  '上市前 60 至 30 天已提供资料的产品数 ÷ 上市产品数',
+  timelinessFormula,
   ...Array(2).fill('从产品中心知识库识别提取')
  ]);
  await timelinessHelp.focus();
- assert.equal(await page.locator('#metric-tooltip').innerText(),'上市前 60 至 30 天已提供资料的产品数 ÷ 上市产品数');
+ assert.equal(await page.locator('#metric-tooltip').innerText(),timelinessFormula);
  await page.keyboard.press('Escape');
  assert.equal(await marketSort.locator('..').getAttribute('aria-sort'),'descending');
  assert.deepEqual(await planningValues(3),[8,5,3,2]);
@@ -596,15 +619,47 @@ export async function productCenter(page){
  assert.deepEqual(await planningTotals.locator(':scope > *').allTextContents(),planningSummary);
  await metricTab('产品档案管理').click();
  const archiveGroup=metrics.getByRole('tabpanel',{name:'产品档案管理',exact:true});
+ const sampleHelp=archiveGroup.getByRole('button',{name:'直播间样机提供及时率说明',exact:true});
+ await sampleHelp.hover();
+ assert.deepEqual((await tooltip.innerText()).split('\n'),[
+  '直播间样机提供及时率 = 及时到样单数 ÷ 考核单数 × 100%',
+  '• 考核范围　按实际到样日期筛选，统计已到样或已验收的特殊展示样机。已取消的单，以及因运营改期或直播延期变更且已留痕的单，予以剔除。',
+  '• 及时判定　实际到样日期 − OA 中最后一次有效承诺的提供日期 ≤ 2 个自然日，计为及时。提前到样也计为及时。'
+ ]);
+ await archiveGroup.getByRole('button',{name:'产品档案更新完成率说明',exact:true}).focus();
+ assert.equal(await tooltip.innerText(),'产品档案更新完成率 = 已完成封样评审且已关联产品档案的项目数 ÷ 已完成封样评审的项目数 × 100%');
+ await page.keyboard.press('Escape');
  const archiveSort=archiveGroup.locator('[data-rp-sort="archive"]');
  const archiveRates=()=>archiveGroup.locator('[data-pc-metric-chain="环境"] tr>td:first-of-type').allTextContents();
  assert.equal(await archiveSort.locator('..').getAttribute('aria-sort'),'descending');
- assert.deepEqual(await archiveRates(),['100.0%','75.0%','71.4%','66.7%']);
+ assert.deepEqual(await archiveRates(),['100.0%','75.0%','66.7%','0.0%']);
  const archiveTotal=archiveGroup.locator('tbody.pc-data-total tr > *');
  assert.deepEqual(await archiveTotal.allTextContents(),['汇总','全部','84.4%','81.8%']);
  assert.equal(await archiveGroup.locator('.pc-data-pending').count(),0);
+ const archiveTrigger=(person,chain)=>archiveGroup.locator(`[data-pc-archive-person="${person}"][data-pc-archive-chain="${chain}"]`);
+ assert.equal(await archiveTrigger('张泽昆','环境').count(),0,'完成率 100% 无下钻入口');
+ const archiveDrawer=page.locator('#dialogbody .pc-archive-drawer');
+ await archiveTrigger('张晓阳','环境').press('Enter');
+ assert.equal(await page.locator('#dialogtitle').innerText(),'未关联产品档案的项目');
+ assert.match(await page.locator('#dialogsub').innerText(),/张晓阳 · 环境.*已完成封样评审 4 个 · 未关联产品档案 1 个/);
+ assert.equal(await archiveDrawer.locator('.nsp-unsold-notice').count(),0);
+ assert.deepEqual((await archiveDrawer.locator('tbody td').allTextContents()).slice(0,4),['创维超净化台扇Q604','环境','张晓阳','26/11/16']);
+ await archiveDrawer.getByRole('button',{name:'查看项目',exact:true}).click();
+ assert.match(await page.locator('#toast').textContent(),/跳转现有项目详情页/);
+ await page.locator('#close').click();
+ await archiveTrigger('刘萱','环境').click();
+ assert.match(await page.locator('#dialogsub').innerText(),/已完成封样评审 1 个 · 未关联产品档案 1 个/);
+ await page.locator('#close').click();
+ assert.equal(await archiveTrigger('刘萱','清洁').count(),0,'同一人员的其他链群独立统计');
+ await archiveTrigger('汇总','全部').click();
+ assert.match(await page.locator('#dialogsub').innerText(),/已完成封样评审 45 个 · 未关联产品档案 7 个/);
+ assert.equal(await archiveDrawer.locator('tbody tr').count(),7);
+ await archiveDrawer.getByRole('searchbox').fill('Q604');
+ assert.equal(await archiveDrawer.locator('tbody tr').count(),1);
+ assert.equal(await archiveDrawer.locator('tbody td').first().innerText(),'创维超净化台扇Q604');
+ await page.locator('#close').click();
  await archiveSort.press('Enter');
- assert.equal((await archiveRates())[0],'66.7%');
+ assert.equal((await archiveRates())[0],'0.0%');
  assert.deepEqual(await archiveTotal.allTextContents(),['汇总','全部','84.4%','81.8%']);
  await archiveSort.click();
  await planningTab.click();
@@ -770,6 +825,7 @@ export async function productCenter(page){
   assert.equal(await edit.count(),0);
   assert.equal(await group.getByRole('columnheader',{name:new RegExp(label)}).count(),1);
   assert.ok(await group.locator('.pc-data-pending').count());
+  if(name==='产品档案管理')assert.equal(await group.locator('[data-pc-archive-person]').count(),0,'无统计数据时无下钻入口');
  }
  await metricTab('产品运营').press('Home');
  assert.equal(await projectTab.getAttribute('aria-selected'),'true');
@@ -783,14 +839,16 @@ export async function productCenter(page){
  await setProductCenterRole(page,'owner');await ready(page);
  const scoped=await facts(page),scope=await page.evaluate(()=>departmentSnapshot().scope);
  assert.equal(scope.chain,'2');
- for(const key of ['products','newProducts','projects','inventory'])assert.deepEqual(scoped[key],original[key].filter(row=>row.chain===2&&(key!=='projects'||row.productDepartment)),key+'保持原事实且只显示环境');
+ for(const key of ['products','newProducts','projects','inventory'])assert.deepEqual(scoped[key],original[key].filter(row=>row.chain===2),key+'保持原事实且只显示授权的环境链群');
  assert.equal(scoped.sales.company.sale,original.sales.chains[2].sale);
  assert.equal(scoped.life.summary.actual,original.life.chains[2].actual);
  const audit=await page.evaluate(()=>globalDiagnosisAudit());
  for(const key of ['work','mismatch','tasks','focus'])assert.ok(audit[key].every(row=>(row.categories||[]).includes('环境')),'AI范围：'+key);
  assert.ok(audit.reports.every(row=>['产品中心','产品部'].includes(row.department)));
  assert.equal(await page.locator('#ai [data-gd-category],#ai [data-gd-department]').count(),0);
- assert.equal(await page.locator('#nsp-category-tabs:visible,#pp-category-tabs:visible,[data-kpm-scope-filter="category"]:visible').count(),0);
+ assert.equal(await page.locator('#nsp-category-tabs:visible,[data-kpm-scope-filter="category"]:visible').count(),0);
+ assert.deepEqual(await page.locator('#pp-category-tabs [data-pp-category-tab]').evaluateAll(tabs=>tabs.map(tab=>tab.dataset.ppCategoryTab)),['all','环境']);
+ assert.equal(await page.locator('#pp-ai').innerText(),'','链主仅获项目进度权限时不展示根因分析');
  assert.equal(await page.locator('#riskrail [data-pc-risk-scope="category"]').count(),0,'产品经理固定链群');
  const ownerRisk=await page.evaluate(()=>productCenterRiskAudit());
  for(const key of ['delayed','unsold','materials'])assert.ok(ownerRisk[key].rows.every(row=>row.category==='环境'));

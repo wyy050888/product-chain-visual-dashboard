@@ -120,6 +120,17 @@ export async function roleDashboardPermissions(page){
  assert.equal(await pickerText(directorProductRisk),'产品中心');
  const directorRating=directorProduct.getByRole('checkbox',{name:'人员评分可见',exact:true});
  assert(await directorRating.isChecked());
+ const permissionTabs=directorEditor.getByRole('tablist',{name:'产品链看板',exact:true});
+ assert.deepEqual(await permissionTabs.getByRole('tab').evaluateAll(tabs=>tabs.map(tab=>tab.getAttribute('aria-label'))),
+  ['总看板','产品中心','品质中心','采购部','供应链中心']);
+ await permissionTabs.getByRole('tab',{name:'采购部',exact:true}).click();
+ const directorBuyer=directorEditor.getByRole('tabpanel',{name:'采购部',exact:true});
+ assert.equal(await pickerText(directorBuyer.getByRole('button',{name:'采购部 · 重点工作清单部门',exact:true})),'采购部');
+ assert.equal(await pickerText(directorBuyer.getByRole('button',{name:'采购部 · 部门风险根因分析部门',exact:true})),'采购部');
+ await permissionTabs.getByRole('tab',{name:'供应链中心',exact:true}).click();
+ const directorSupply=directorEditor.getByRole('tabpanel',{name:'供应链中心',exact:true});
+ assert.deepEqual(await directorSupply.locator('tbody tr:not([data-rm-parent]) label span').allTextContents(),['计划管理部','订单履约部','发货部']);
+ assert.equal(await directorSupply.locator('tbody [data-rm-module-toggle]:checked').count(),9);
  await directorEditor.getByRole('button',{name:'保存',exact:true}).click();
  await directorEditor.waitFor({state:'hidden'});
  await page.evaluate(()=>{
@@ -139,6 +150,7 @@ export async function roleDashboardPermissions(page){
   }
   product.brand=true;
   product.reports=['产品中心周报'];
+  product.scopes['strategic-suppliers']='full';
   total.departments.projects={品质中心:'full',采购部:'chain'};
   product.departments.projects={产品中心:'chain'};
   const owner=roles.find(role=>role.code==='chain-owner').dashboards;
@@ -147,8 +159,12 @@ export async function roleDashboardPermissions(page){
   owner.total.scopes.violation='full';
   owner.product.modules.push('rating');
   owner.product.scopes.rating='none';
+  owner.product.modules.push('sourcing');
+  owner.product.scopes.sourcing='chain';
   delete owner.product.reportScope;
   owner.product.reports=[];
+  delete owner.procurement;
+  delete owner['supply-chain-center'];
   localStorage.setItem(key,JSON.stringify(roles));
  });
  await editDirector.click();
@@ -161,7 +177,20 @@ export async function roleDashboardPermissions(page){
  assert.equal(await pickerText(directorProductReportDept),'产品中心');
  assert.equal(await directorProductProgress.inputValue(),'chain');
  assert.equal(await pickerText(directorProductRisk),'请选择部门');
- await directorEditor.getByRole('button',{name:'取消',exact:true}).click();
+ await directorEditor.getByRole('button',{name:'保存',exact:true}).click();
+ await directorEditor.waitFor({state:'hidden'});
+ const supplierGrants=await page.evaluate(()=>{
+  const roles=JSON.parse(localStorage.getItem('pc-system-roles-v1'));
+  return roles.map(({code,dashboards:{total,product}})=>({
+   code,total:total.modules.includes('strategic-suppliers'),
+   product:product.modules.filter(id=>id==='sourcing'||id==='strategic-suppliers'),
+   scopes:Object.keys(product.scopes).filter(id=>id==='sourcing'||id==='strategic-suppliers')
+  }));
+ });
+ assert.deepEqual(supplierGrants,[
+  {code:'director',total:true,product:[],scopes:[]},
+  {code:'chain-owner',total:false,product:[],scopes:[]}
+ ],'清理产品中心的旧采购授权，总看板授权按原配置读取');
  assert.equal(await owner.getByRole('switch',{name:'链主状态'}).getAttribute('aria-checked'),'true');
  await owner.getByRole('button',{name:'更多',exact:true}).click();
  await owner.getByRole('button',{name:'数据权限',exact:true}).click();
@@ -179,6 +208,27 @@ export async function roleDashboardPermissions(page){
  const menu=dialog.locator('.rm-menu-tree');
  const research=menu.locator('[data-rm-menu="research"]');
  const header=dialog.locator('.rm-permission-header');
+ const assertStickyToolbar=async editor=>{
+  const layout=await editor.evaluate(element=>{
+   const body=element.querySelector('.rm-dialog-body');
+   const toolbar=element.querySelector('.rm-permission-header');
+   const footer=element.querySelector('footer');
+   body.scrollTop=0;
+   const bodyTop=body.getBoundingClientRect().top;
+   const initialTop=toolbar.getBoundingClientRect().top;
+   const footerTop=footer.getBoundingClientRect().top;
+   body.scrollTop=Math.ceil(initialTop-bodyTop)+40;
+   const pinnedTop=toolbar.getBoundingClientRect().top;
+   const tab=toolbar.querySelector('[aria-selected="true"]');
+   const tabBox=tab.getBoundingClientRect();
+   const clickable=tab.contains(document.elementFromPoint(tabBox.left+tabBox.width/2,tabBox.top+tabBox.height/2));
+   const result={scrolls:body.scrollTop>0,initialOffset:initialTop>bodyTop,pinned:Math.abs(pinnedTop-bodyTop)<1,
+    clickable,footerFixed:footerTop===footer.getBoundingClientRect().top};
+   body.scrollTop=0;
+   return result;
+  });
+  assert.deepEqual(layout,{scrolls:true,initialOffset:true,pinned:true,clickable:true,footerFixed:true});
+ };
  assert(await header.getByRole('checkbox',{name:'父子联动',exact:true}).isChecked());
  const selectAll=header.getByRole('checkbox',{name:'全选/清除全选',exact:true});
  assert.equal(await selectAll.evaluate(input=>input.indeterminate),false);
@@ -191,6 +241,8 @@ export async function roleDashboardPermissions(page){
  assert.equal(await dialog.getByRole('tablist',{name:'产品链看板'}).isVisible(),false);
  await research.check();
  assert(await selectAll.evaluate(input=>input.indeterminate));
+ await header.getByRole('checkbox',{name:'展开/折叠全部',exact:true}).check();
+ await assertStickyToolbar(dialog);
  const menuSize=await dialog.boundingBox();
  await menuTab.press('ArrowRight');
  assert.equal(await dashboardTab.getAttribute('aria-selected'),'true');
@@ -198,20 +250,12 @@ export async function roleDashboardPermissions(page){
  assert.equal(await header.getByRole('checkbox',{name:'父子联动',exact:true}).isVisible(),false);
  assert.equal(await menu.isVisible(),false);
  assert.deepEqual(await dialog.boundingBox(),menuSize);
- const drawer=await dialog.evaluate(element=>{
-  const body=element.querySelector('.rm-dialog-body');
-  const footer=element.querySelector('footer');
-  const top=footer.getBoundingClientRect().top;
-  body.scrollTop=160;
-  const fixed=top===footer.getBoundingClientRect().top;
-  const scrolls=body.scrollTop>0;
-  body.scrollTop=0;
-  return {fixed,scrolls};
- });
- assert.deepEqual(drawer,{fixed:true,scrolls:true});
+ await assertStickyToolbar(dialog);
  const total=dialog.locator('[data-rm-board="total"]'),product=dialog.locator('[data-rm-board="product"]');
  assert.equal(await total.locator('tbody > tr:not([data-rm-parent])').count(),10);
- assert.equal(await product.locator('tbody > tr:not([data-rm-parent])').count(),11);
+ assert.equal(await product.locator('tbody > tr:not([data-rm-parent])').count(),10);
+ assert.equal(await total.locator('[data-rm-module="suppliers"],[data-rm-parent="suppliers"]').count(),5);
+ assert.equal(await product.locator('[data-rm-module="suppliers"],[data-rm-parent="suppliers"]').count(),0);
  assert.equal(await total.locator('[data-rm-parent="risk"]').count(),7);
  assert.equal(await product.locator('[data-rm-parent="risk"]').count(),9);
  for(const board of [total,product]){
@@ -299,10 +343,11 @@ export async function roleDashboardPermissions(page){
   button.click();
   const menu=button.nextElementSibling;
   const anchor=button.getBoundingClientRect(),box=menu.getBoundingClientRect(),bounds=body.getBoundingClientRect();
+  const toolbarBottom=body.querySelector('.rm-permission-header').getBoundingClientRect().bottom;
   return {
    open:menu.matches(':popover-open'),
    anchored:Math.abs(anchor.left-box.left)<2&&(Math.abs(anchor.bottom+4-box.top)<2||Math.abs(anchor.top-4-box.bottom)<2),
-   contained:box.top>=bounds.top&&box.bottom<=bounds.bottom,
+   contained:box.top>=Math.max(bounds.top,toolbarBottom)&&box.bottom<=bounds.bottom,
    steady:body.scrollTop===scrollTop&&!document.fullscreenElement
   };
  });
@@ -441,6 +486,35 @@ export async function roleDashboardPermissions(page){
  await lifecycleToggle.check();
  await lifecycle.selectOption('chain');
  await peopleRatingToggle.uncheck();
+ const buyerTab=dialog.getByRole('tab',{name:'采购部',exact:true});
+ const buyer=dialog.getByRole('tabpanel',{name:'采购部',exact:true});
+ await buyerTab.click();
+ const buyerManagement=buyer.getByRole('button',{name:'部门管理',exact:true});
+ const buyerSelection=buyer.getByRole('button',{name:'自选品管理',exact:true});
+ const selectionOverview=buyer.getByRole('checkbox',{name:'全景总览可见',exact:true});
+ assert(await selectionOverview.isChecked());
+ await buyerSelection.click();
+ await buyerManagement.click();
+ await buyerManagement.click();
+ assert.equal(await selectionOverview.isVisible(),false);
+ await buyerSelection.click();
+ await buyer.getByRole('checkbox',{name:'全选部门管理模块',exact:true}).click();
+ assert(await selectionOverview.isChecked());
+ await buyer.getByRole('checkbox',{name:'全选部门管理模块',exact:true}).uncheck();
+ assert.equal(await selectionOverview.isChecked(),false);
+ const buyerReport=buyer.getByRole('button',{name:'采购部 · 部门诊断部门',exact:true});
+ await buyer.getByRole('checkbox',{name:'部门诊断可见',exact:true}).check();
+ assert.equal(await pickerText(buyerReport),'采购部');
+ await buyerReport.click();
+ await buyer.getByRole('group',{name:'采购部 · 部门诊断部门选项',exact:true}).getByRole('checkbox',{name:'品质中心',exact:true}).check();
+ await buyerReport.click();
+ const supplyTab=dialog.getByRole('tab',{name:'供应链中心',exact:true});
+ const supply=dialog.getByRole('tabpanel',{name:'供应链中心',exact:true});
+ await supplyTab.click();
+ const inventoryTurnover=supply.getByRole('checkbox',{name:'库存周转率可见',exact:true});
+ assert.equal(await inventoryTurnover.isChecked(),false);
+ assert.equal(await supply.locator('tbody select,tbody [data-rm-picker-trigger]').count(),0);
+ await inventoryTurnover.check();
  await dialog.getByRole('button',{name:'保存',exact:true}).click();
  await dialog.waitFor({state:'hidden'});
  await page.reload();
@@ -473,6 +547,12 @@ export async function roleDashboardPermissions(page){
  assert.equal(await pickerText(productRisk),'采购部');
  assert.equal(await productProgress.inputValue(),'full');
  await productReport.uncheck();
+ await buyerTab.click();
+ assert.equal(await selectionOverview.isChecked(),false);
+ assert.equal(await pickerText(buyerReport),'品质中心、采购部');
+ await supplyTab.click();
+ assert(await inventoryTurnover.isChecked());
+ assert.equal(await supply.locator('tbody [data-rm-module-toggle]:checked').count(),1);
  await totalTab.click();
  assert.equal(await pickerText(reportDepartments),'产品中心');
  await totalReportToggle.uncheck();
@@ -502,6 +582,7 @@ export async function roleDashboardPermissions(page){
  await master.uncheck();
  assert.equal(await permissions.evaluateAll(inputs=>inputs.filter(input=>input.checked).length),0);
  await create.getByRole('tab',{name:'产品链看板',exact:true}).click();
+ await assertStickyToolbar(create);
  assert(await create.evaluate(element=>{
   const body=element.querySelector('.rm-dialog-body');
   return element.getBoundingClientRect().width<=innerWidth&&body.scrollWidth<=body.clientWidth;
@@ -518,5 +599,5 @@ export async function roleDashboardPermissions(page){
  await create.getByRole('button',{name:'保存',exact:true}).click();
  await list.getByRole('cell',{name:'看板权限验收角色',exact:true}).waitFor();
  await page.setViewportSize({width:1920,height:1080});
- console.log('通过：两张看板完整模块、按部门配置链群、周报独立、品牌下钻联动、保存回显和取消。');
+ console.log('通过：四张看板权限、采购部多层结构、供应链中心独立授权、数据范围及保存回显。');
 }

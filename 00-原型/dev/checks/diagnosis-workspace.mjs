@@ -53,6 +53,7 @@ export function verifyProjectTaskGaps(){
  assert.equal(gaps({...project,projectState:'已完成'}).length,0);
  assert.equal(gaps(project,[{...stage,tasks:[{...task,done:true}]}]).length,0);
  assert.equal(gaps({...project,ledger:[{taskIds:[task.id],action:'已有方案'}]}).length,0,'已关联风险台账排除，不推断没有处理方案');
+ assert.equal(box.projectRedBlockerTasks({...project,ledger:[{taskIds:[task.id]}]},[stage]).length,1,'部门卡点统计覆盖已登记风险的项目任务');
  assert.equal(gaps({...project,ledger:[{taskId:'other',taskNames:[task.name]}]}).length,1,'明确ID优先，不把同名的其它任务风险当成本任务');
  assert.equal(gaps({...project,ledger:[{stage:['验证阶段'],taskNames:[task.name]}]}).length,0,'兼容旧台账阶段和任务名称关联');
  assert.equal(gaps({...project,ledger:[{stage:['其它阶段'],taskNames:[task.name]}]}).length,1);

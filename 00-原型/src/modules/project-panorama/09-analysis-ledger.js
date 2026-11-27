@@ -1,7 +1,14 @@
 // 部门台账完整内嵌，筛选状态不与其他风险入口共享。
 const ppAnalysisState={department:ppDepartments[0],mode:'all',page:1,sort:{key:'deadline',direction:'asc'},filters:{query:'',light:[],rectificationStatus:[],verificationStatus:[]}};
+function ppAnalysisDepartments(){return ppDepartments}
 function ppAnalysisPageSize(){return listPageSize('pp-analysis')}
 function ppAnalysisSelection(rows,department=ppAnalysisState.department,mode=ppAnalysisState.mode){
+ const allowed=ppAnalysisDepartments();
+ if(!allowed.includes(department)){
+  department=ppAnalysisState.department=allowed[0]||'';
+  mode=ppAnalysisState.mode='all';
+  ppAnalysisState.page=1;
+ }
  const facts=ppAnalysisDepartment(rows,department),group=facts.top.find(item=>item.key===mode);
  const light=({red:'红灯',yellow:'黄灯'})[mode];
  const records=group?group.records:light?facts.activeRecords.filter(entry=>entry.project.status===light):facts.records;
@@ -19,7 +26,10 @@ function ppAnalysisLedger(selection){
 function ppAnalysisPager(selection){
  return listPager(ppAnalysisLedgerRows(selection).length,ppAnalysisState.page,ppAnalysisPageSize(),{sizeKey:'pp-analysis',attr:'data-pp-analysis-page'});
 }
-function ppMountAnalysisFilters(){pfMultiMount($('#pp-analysis-filters'))}
+function ppMountAnalysisFilters(){
+ const form=$('#pp-analysis-filters');
+ if(form)pfMultiMount(form);
+}
 function ppQueryAnalysisLedger(reset=false){
  const form=$('#pp-analysis-filters');if(!form)return;
  if(reset){form.reset();form.querySelector('[name="query"]').value='';for(const select of form.querySelectorAll('select[multiple]'))pfControlSet(select,[])}
@@ -28,6 +38,7 @@ function ppQueryAnalysisLedger(reset=false){
  ppAnalysisState.page=1;ppRefreshAnalysisLedger('',true);
 }
 function ppSelectAnalysis(department,mode='all',focus=''){
+ if(!ppAnalysisDepartments().includes(department))return;
  Object.assign(ppAnalysisState,{department,mode,page:1,sort:{key:'deadline',direction:'asc'},filters:ppRiskEmptyFilters()});
  withPeriod('projects',()=>{$('#pp-ai').innerHTML=ppAI(ppAnalysisRows());ppMountAnalysisFilters()});
  if(focus)$('#pp-ai '+focus)?.focus({preventScroll:true});
@@ -55,7 +66,8 @@ document.addEventListener('change',event=>{if(event.target.matches('#pp-analysis
 document.addEventListener('keydown',event=>{
  const tab=event.target.closest('#pp-ai [role="tab"]');if(!tab||!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;
  event.preventDefault();event.stopPropagation();
- const current=ppDepartments.indexOf(tab.dataset.ppAnalysisDepartment),count=ppDepartments.length,index=event.key==='Home'?0:event.key==='End'?count-1:(current+(event.key==='ArrowRight'?1:count-1))%count,name=ppDepartments[index];
+ const departments=ppAnalysisDepartments();
+ const current=departments.indexOf(tab.dataset.ppAnalysisDepartment),count=departments.length,index=event.key==='Home'?0:event.key==='End'?count-1:(current+(event.key==='ArrowRight'?1:count-1))%count,name=departments[index];
  ppSelectAnalysis(name,'all','[data-pp-analysis-department="'+name+'"]');
 });
 window.projectAnalysisAudit=()=>withPeriod('projects',()=>{const selection=ppAnalysisSelection(ppAnalysisRows());return {state:{...ppAnalysisState},pageSize:ppAnalysisPageSize(),...selection,filteredRecords:ppAnalysisLedgerRows(selection)}});

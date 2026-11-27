@@ -3,7 +3,8 @@ const rmRoleStatus=[['enabled','正常'],['disabled','停用']];
 const rmRoleDataScopes=[['all','全部数据权限'],['custom','自定数据权限'],['department','本部门数据权限'],['department-tree','本部门及以下数据权限'],['self','仅本人数据权限']];
 function rmSystemAccounts(){
  const latestWeek=Object.keys(pcPeopleWeeklyReports).sort().at(-1);
- return (pcPeopleWeeklyReports[latestWeek]||[]).map(({name,chains})=>({id:`product-center:${name}`,name,chains}));
+ const product=(pcPeopleWeeklyReports[latestWeek]||[]).map(({name,chains})=>({id:`product-center:${name}`,name,chains}));
+ return [...product,...qcRoster.map(({name})=>({id:`quality-center:${name}`,name,chains:qcMetricChainAssignments.flatMap(([chain,names])=>names.includes(name)?chain.split(' / '):[])}))];
 }
 function rmRoleHasAccount(role,account){
  return (role.users||[]).some(value=>value===account.id||value===account.name);
@@ -24,25 +25,52 @@ function rmReadRoles(){
  try{raw=localStorage.getItem(rmStorageKey);data=JSON.parse(raw)}catch(_){/* 退回演示角色，保存时再校验浏览器存储。 */}
  const roles=Array.isArray(data)?data:rmExampleRoles();
  for(const role of roles){
-  const scopes=role.dashboards?.product?.scopes;
+  role.dashboards??={};
+  const scopes=role.dashboards.product?.scopes;
   if(scopes?.rating==='personnel')scopes.rating='full';
   for(const board of rmBoards){
-   const access=role.dashboards?.[board.id];
-   if(!access)continue;
+   const useExample=(board.id==='procurement'&&['director','chain-owner'].includes(role.code))
+    ||(board.id==='quality'&&role.code==='director')
+    ||(board.id==='supply-chain-center'&&role.code==='director');
+   const access=role.dashboards[board.id]??=(useExample?rmExampleDashboardAccess(board,role.code):rmNewDashboardAccess(board));
    rmMigrateProjectAccess(board,access);
    if(!Array.isArray(access.modules))rmMigrateModuleAccess(board,access);
    if(!Array.isArray(access.reportScope)){
     access.reportScope=access.reports?.length?access.reports:rmDefaultReportScope(board);
     delete access.reports;
    }
-   rmNormalizeChainScopes(board,access);
+   rmNormalizeDashboardAccess(board,access);
   }
  }
  return {raw,roles};
 }
-function rmNormalizeChainScopes(board,access){
+function rmNormalizeDashboardAccess(board,access){
  const modules=new Set(access.modules);
+ if(board.id==='quality'){
+  modules.delete('weekly-upload');
+  delete access.scopes['weekly-upload'];
+  delete access.scopes['weekly-report'];
+  for(const {id,type} of rmAiModules.children){
+   const previous=access.scopes[id];
+   if(type!=='department'||!['full','chain'].includes(previous))continue;
+   access.departments[id]??={[board.department]:previous};
+   delete access.scopes[id];
+  }
+ }
+ // 产品中心的旧采购授权不再计入入口授权状态。
+ if(board.id==='product'){
+  modules.delete(rmSuppliersModule.id);
+  for(const {id} of rmSuppliersModule.children){
+   modules.delete(id);
+   delete access.scopes[id];
+   delete access.departments[id];
+  }
+ }
  for(const item of rmDashboardItems(board)){
+  if(item.defaultDepartments){
+   access.departments[item.id]??=rmDepartmentGrants(item.defaultDepartments);
+   delete access.scopes[item.id];
+  }
   if((item.type==='chain'||item.type==='shared')&&!rmHasModuleScope(item,access)){
    delete access.scopes[item.id];
    modules.delete(item.id);

@@ -5,14 +5,14 @@ document.addEventListener('click',event=>{
  const target=event.target,part=target.closest('[data-gd-part]'),tab=target.closest('[data-gd-tab]'),status=target.closest('[data-gd-status]');
  const weeklyDownload=target.closest('[data-gd-weekly-download]');
  if(weeklyDownload){gdDownloadWeeklyReport(weeklyDownload);return}
- if(part){if(!gdParts.some(([key])=>key===part.dataset.gdPart)||gdState.part===part.dataset.gdPart)return;gdState.part=part.dataset.gdPart;gdRender({reuseData:true});return}
+ if(part){if(!gdAvailableParts().some(([key])=>key===part.dataset.gdPart)||gdState.part===part.dataset.gdPart)return;gdState.part=part.dataset.gdPart;gdRender({reuseData:true});return}
  if(tab){
   const part=gdState.part,key=tab.dataset.gdTab;
   if(!gdTabs[part]?.some(([value])=>value===key)||gdState.tabs[part]===key)return;
   gdState.tabs[part]=key;gdRender({reuseData:true});
   requestAnimationFrame(()=>{if(gdState.part===part&&gdState.tabs[part]===key)$('[data-gd-tab="'+key+'"]')?.focus({preventScroll:true})});return;
  }
- const departments=gdState.part==='tasks'?[...new Set([...upTodoDepartments,...gdLedgerValues('department')])]:upTodoDepartments;
+ const departments=qcIsActive()?qcAllowedDepartments(qcDiagnosisPermissions[gdState.part]):gdState.part==='tasks'?[...new Set([...upTodoDepartments,...gdLedgerValues('department')])]:upTodoDepartments;
  for(const [attribute,field,allowed] of [['category','category',['all',...(gdState.part==='tasks'?gdLedgerChains:pfCategories)]],['department','department',['all',...departments]],['priority','priority',['all',...Object.keys(upTodoPriorities)]],['project-type','projectType',['all',...gdProjectTypes]]]){
   const button=target.closest('[data-gd-'+attribute+']');if(!button)continue;const key=button.getAttribute('data-gd-'+attribute);if(!allowed.includes(key))return;
   gdTableFilters()[field]=key;gdRefreshFilters();$('[data-gd-'+attribute+'="'+key+'"]')?.focus({preventScroll:true});return;

@@ -8,7 +8,11 @@ function smReadChainMemberships(){
   const groups=JSON.parse(raw);
   if(groups&&typeof groups==='object'&&!Array.isArray(groups))return {raw,groups};
  }catch{/* 无法读取的配置回退为空配置或本地样例。 */}
- const groups=raw===null?{产品中心:{环境:rmSystemAccounts().filter(account=>account.chains?.includes('环境')).map(account=>account.id)}}:{};
+ const accounts=raw===null?rmSystemAccounts():[];
+ const groups=raw===null?{
+  产品中心:{环境:accounts.filter(account=>account.id.startsWith('product-center:')&&account.chains?.includes('环境')).map(account=>account.id)},
+  品质中心:Object.fromEntries(smMembershipChains.map(chain=>[chain,accounts.filter(account=>account.id.startsWith('quality-center:')&&account.chains?.includes(['个护','健康'].includes(chain)?'个护&健康':chain)).map(account=>account.id)]))
+ }:{};
  return {raw,groups};
 }
 

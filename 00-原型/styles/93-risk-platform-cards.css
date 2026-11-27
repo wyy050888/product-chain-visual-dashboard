@@ -112,6 +112,10 @@
 #riskrail [data-rp-board="pc-unsold"] .pc-risk-values{
  grid-template-columns:minmax(0,1fr) minmax(0,1.35fr) minmax(0,1fr);
 }
+#riskrail [data-rp-board="pc-materials"] .pc-risk-values{
+ grid-template-columns:minmax(0,1fr) minmax(max-content,1fr) minmax(0,1fr);
+}
+#riskrail .rp-metric-text>.pc-risk-material-delay{display:inline;margin-inline-start:6px;font-size:12px}
 #riskrail .pc-risk-entry:first-child .rp-entry-main>header>.rank{font-weight:600}
 #riskrail .pc-risk-entry .rp-identity-title>.rp-detail-link{margin-inline-start:auto}
 :is(#riskrail,#dialogbody) .pc-risk-identity .rp-identity-subtitle{margin-block-start:4px;word-spacing:4px}
@@ -121,6 +125,9 @@
 #riskrail .pc-risk-entry .pp-delay-days{color:var(--red)}
 @container risk-card (max-width:280px){
  #riskrail .rp-board-group-launch .riskcard .pc-risk-values{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #riskrail .rp-board-group-launch [data-rp-board="pc-materials"] .pc-risk-values{
+  grid-template-columns:minmax(0,1fr) minmax(max-content,1fr);
+ }
 }
 :is(#riskrail,#dialogbody) .pc-risk-blockers{display:block;max-inline-size:100%;padding:0;border:0;background:transparent;color:inherit;font:inherit;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:default}
 :is(#riskrail,#dialogbody) .pc-risk-blockers[aria-describedby~="metric-tooltip"]:hover{cursor:help;text-decoration:underline dotted;text-underline-offset:3px}

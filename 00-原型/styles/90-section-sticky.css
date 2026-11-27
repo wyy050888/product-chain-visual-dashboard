@@ -1,6 +1,7 @@
 /* 总看板和产品中心共用原标题栏，产品中心按模块边界自然释放。 */
 main.page>:is(#risk,#ai,#sales,#new,#projects,#lifecycle,#matrix,#inventory,#suppliers,#cost)[data-module-sticky]:not([hidden]):not([data-module-sticky-ended="true"])>.sectionhead,
-#department-view.product-center-view>[data-module-sticky]:not([hidden])>.sectionhead{
+#department-view.product-center-view>[data-module-sticky]:not([hidden])>.sectionhead,
+#qc-board-director>[data-module-sticky]:not([hidden])>.sectionhead{
  position:sticky;
  top:var(--module-sticky-top,112px);
  z-index:30;

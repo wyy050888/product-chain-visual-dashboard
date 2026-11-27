@@ -14,6 +14,35 @@ function dashboardQueueLayout(target,measure){
 }
 function dashboardMeasureResetScroll(host){if(host.scrollTop)return ()=>{host.scrollTop=0}}
 
+// 遮罩打开时，保留屏外模块的原高度，跳过其内部布局和绘制。
+function dashboardMeasureOffscreen(nodes,paused){
+ const offscreen=[];
+ for(const node of nodes){
+  if(paused.has(node))continue;
+  const rect=node.getBoundingClientRect();
+  if(!rect.height||(rect.bottom>0&&rect.top<window.innerHeight))continue;
+  const css=getComputedStyle(node);
+  const insets=['paddingTop','paddingBottom','borderTopWidth','borderBottomWidth']
+   .reduce((sum,key)=>sum+(parseFloat(css[key])||0),0);
+  offscreen.push({node,contentHeight:Math.max(0,rect.height-insets)});
+ }
+ return ()=>{
+  for(const {node,contentHeight} of offscreen){
+   const style=node.style;
+   paused.set(node,[style.contentVisibility,style.containIntrinsicBlockSize]);
+   style.containIntrinsicBlockSize=contentHeight+'px';
+   style.contentVisibility='hidden';
+  }
+ };
+}
+function dashboardRestoreOffscreen(paused){
+ for(const [node,[visibility,size]] of paused){
+  node.style.contentVisibility=visibility;
+  node.style.containIntrinsicBlockSize=size;
+ }
+ paused.clear();
+}
+
 // 图表输出未变时保留已有SVG、悬浮事件和布局结果；宿主被其他视图重建后仍重新挂载。
 const dashboardRenderedMarkup=new WeakMap();
 function dashboardRenderMarkup(host,markup){

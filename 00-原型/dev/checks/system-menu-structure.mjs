@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 // 覆盖用户确认的菜单结构、现有页面导航和无本地页面的置灰边界。
 export async function systemMenuStructure(page){
  const expected=[
-  ['业务配置',['规则配置','供应商导入','核心链接导入','样机提供及时率导入','产品分类']],
+  ['业务配置',['规则配置','供应商导入','核心链接导入','产品分类']],
   ['目标管理',['生命周期目标','降本增效','供应商目标']],
   ['权限管理',['用户管理','角色管理','人员配置','白名单']],
   ['系统配置',['菜单管理','字典管理']],
@@ -18,14 +18,14 @@ export async function systemMenuStructure(page){
   [...group.querySelectorAll(':scope > a,:scope > .lt-menu-disabled')].map(node=>node.textContent)
  ]));
  assert.deepEqual(await readGroups(),expected);
- assert.equal(await menu.locator('a[data-system-route]').count(),9);
+ assert.equal(await menu.locator('a[data-system-route]').count(),8);
  assert.equal(await menu.locator('[aria-disabled="true"]').count(),8);
  const disabled=menu.locator('.lt-menu-disabled');
  assert((await disabled.evaluateAll(nodes=>nodes.every(node=>!node.hasAttribute('href')&&!node.hasAttribute('data-system-route')))),'置灰项不登记假路由');
  const first=disabled.first();await first.scrollIntoViewIfNeeded();const box=await first.boundingBox(),before=page.url();
  await page.mouse.click(box.x+box.width/2,box.y+box.height/2);assert.equal(page.url(),before);assert(await page.locator('#business-rule-page').isVisible());
  assert.equal(await first.evaluate(node=>getComputedStyle(node).cursor),'not-allowed');
- const destinations=[['规则配置','#business-rule-page'],['供应商导入','#ssi-page'],['核心链接导入','#klc-page'],['样机提供及时率导入','#sample-timeliness-import-page'],['生命周期目标','#lt-target-page'],['降本增效','#cec-page'],['供应商目标','#st-target-page']];
+ const destinations=[['规则配置','#business-rule-page'],['供应商导入','#ssi-page'],['核心链接导入','#klc-page'],['生命周期目标','#lt-target-page'],['降本增效','#cec-page'],['供应商目标','#st-target-page']];
  for(const [label,pane] of destinations){
   await menu.getByRole('link',{name:label,exact:true}).click();await page.locator(pane).waitFor({state:'visible'});
   assert.equal(await menu.locator('[aria-current="page"]').innerText(),label);
@@ -39,12 +39,7 @@ export async function systemMenuStructure(page){
  assert.equal(await menu.locator('[aria-current="page"]').innerText(),'角色管理');
  assert.deepEqual(await readGroups(),expected,'角色管理复用系统管理原有分组和菜单顺序');
  assert.equal(await menu.locator(':scope > a,:scope > .lt-menu-disabled').count(),0);
- await menu.getByRole('link',{name:'样机提供及时率导入',exact:true}).click();
- const sampleImport=page.locator('#sample-timeliness-import-page');
- assert.equal(new URL(page.url()).hash,'#system-sample-timeliness');
- assert(await sampleImport.getByText('导入模板待定',{exact:true}).isVisible());
- assert(await sampleImport.getByRole('button',{name:'导入',exact:true}).isDisabled());
- assert(await sampleImport.getByRole('button',{name:'下载模板'}).isDisabled());
+ assert.equal(await page.locator('#sample-timeliness-import-page').count(),0,'移除样机提供及时率导入页面');
  await page.locator('#lt-system-nav').click();
  await page.locator('#business-rule-page').waitFor({state:'visible'});
  assert.equal(new URL(page.url()).hash,'#system-business-rules','在后台其他页面点击系统管理也进入规则配置');
@@ -56,7 +51,7 @@ export async function systemMenuStructure(page){
   assert.equal(await menu.locator('.lt-menu-disabled').count(),8);
  }
  await page.setViewportSize({width:1920,height:1080});
- console.log('通过：五组17菜单顺序、九个现用页跳转、待定模板状态、八个原有项置灰无跳转及宽窄屏。');
+ console.log('通过：五组16项菜单顺序、八个现用页跳转、八个置灰项无跳转及宽窄屏。');
 }
 // 实际滚轮只移动右侧；切页恢复顶部，退出后台恢复文档滚动。
 export async function systemContentScroll(page){

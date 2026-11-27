@@ -36,8 +36,8 @@ function pcLifecycleTableRow(row,annual,chain,brand){
  return cells.map(value=>`<td>${value}</td>`).join('');
 }
 
-function pcRenderLifecycleBrands(){withPeriod('lifecycle',pcPaintLifecycleBrands)}
-function pcPaintLifecycleBrands(){
+function pcRenderLifecycleBrands(expandedChains=pcExpandedLifeChains){withPeriod('lifecycle',()=>pcPaintLifecycleBrands(expandedChains))}
+function pcPaintLifecycleBrands(expandedChains){
  const table=$('#lifetable table'),head=table?.tHead?.rows[0]?.cells[0],body=table?.tBodies[0];
  if(!head||!body)return;
  const period=periodFor('lifecycle'),annual=period.mode==='year';
@@ -68,7 +68,7 @@ function pcPaintLifecycleBrands(){
    cell.innerHTML=`<button type="button" class="ui-icon-label ui-disclosure pc-life-chain-toggle" data-pc-life-chain="${chain}">${pcLifeChevron}<span>${esc(name)}</span></button>`;
    button=cell.firstElementChild;
   }
-  const expanded=pcExpandedLifeChains.has(chain);
+  const expanded=expandedChains.has(chain);
   button.setAttribute('aria-expanded',String(expanded));
   button.setAttribute('aria-label',`${expanded?'收起':'展开'}${name}品牌`);
   if(expanded)expandedParents.push({parent,chain});
@@ -92,16 +92,20 @@ function pcPaintLifecycleBrands(){
  }
 }
 
-dpView.addEventListener('click',event=>{
- const button=event.target.closest('[data-pc-life-chain],[data-pc-life-brands]');
- if(!button||!pcIsActive())return;
+function pcToggleLifecycleBrands(button,expandedChains=pcExpandedLifeChains){
  const expanded=button.getAttribute('aria-expanded')==='true';
  const controls=button.hasAttribute('data-pc-life-brands')?$$('#lifetable [data-pc-life-chain]'):[button];
  for(const control of controls){
   const chain=Number(control.dataset.pcLifeChain);
-  if(expanded)pcExpandedLifeChains.delete(chain);
-  else pcExpandedLifeChains.add(chain);
+  if(expanded)expandedChains.delete(chain);
+  else expandedChains.add(chain);
  }
- pcRenderLifecycleBrands();
+ pcRenderLifecycleBrands(expandedChains);
+}
+
+dpView.addEventListener('click',event=>{
+ const button=event.target.closest('[data-pc-life-chain],[data-pc-life-brands]');
+ if(!button||!pcIsActive())return;
+ pcToggleLifecycleBrands(button);
  pcQueueNavigation();
 });

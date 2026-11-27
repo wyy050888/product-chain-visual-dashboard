@@ -1,6 +1,7 @@
 // 所有SPU入口统一打开同一详情；店铺和项目继续使用独立业务抽屉。
 function upEntry(record,module,tab='operating',platform='all',extra={}) {
   const p=upIdentity(record); if(!p){toast('该记录缺少有效SPU关联');return}
+  if(module==='new'&&!qcIncludesChain('new',pfCategory(upProduct(p)))||module==='matrix'&&!qcIncludesChain('key-products',pfCategory(upProduct(p))))return;
   const ranking=module==='risk'&&!$('#overlay').hidden&&$('#dialogbody').hasAttribute('data-risk-ranking-kind')?$('#dialogbody').dataset.rankingPeriod:null;
   const period=ranking?JSON.parse(ranking):periodFor(activeModule||module);
   const range=upWindow(period);

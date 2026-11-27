@@ -1,7 +1,7 @@
 // 产品中心只增加展示范围；原始台账与总看板组件保持同一来源。
 let pcMounted=false,pcScopeBypass=0;
 const pcFixedDepartment=upTodoDepartments.includes('产品中心')?'产品中心':'产品部';
-const pcProjectDepartment=ppDepartments.includes('产品中心')?'产品中心':'产品部',pcManagerCategory=filterCatalog.chainByIndex[2],pcManagerChain=2;
+const pcManagerCategory=filterCatalog.chainByIndex[2],pcManagerChain=2;
 function pcProductDepartment(value){return value==='产品中心'||value==='产品部'}
 function pcIsActive(){return pcMounted&&dpState.view==='department'&&dwActive==='product'}
 function pcChain(){return pcIsActive()&&!pcScopeBypass&&dpState.role==='owner'?pcManagerChain:null}

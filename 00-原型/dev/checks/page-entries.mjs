@@ -14,7 +14,7 @@ async function verify(page,view,menu){
  const selector=view==='director'?'#risk':view==='procurement'?'#purchasing-view':view==='quality'?'#quality-department':'#department-view';
  assert.ok(await page.locator(selector).isVisible(),view+'应直接显示对应工作区');
  if(['product','project','research'].includes(view))assert.equal(await page.locator('#department-view').getAttribute('data-department'),view);
- if(view==='quality')assert.match(await page.locator(selector).innerText(),/页面待设计/);
+ if(view==='quality')assert.equal(await page.locator(selector+' [data-qc-board-switch]').textContent(),'总监');
 }
 export async function pageEntries(page){
  const base=page.url();

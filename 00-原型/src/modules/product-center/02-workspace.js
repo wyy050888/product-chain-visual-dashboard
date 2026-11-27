@@ -1,8 +1,8 @@
 // 相同模块移动原DOM，保留ID、监听器及所有当前版本的筛选/抽屉，不复制旧模板。
-const pcSharedIds=['risk','ai','sales','new','projects','lifecycle','matrix','inventory','suppliers','cost'];
-const pcModuleLabels={risk:'风险预警',ai:'AI 总诊断',management:'人员管理',sales:'销售达成',new:'新品专项',projects:'项目进度',lifecycle:'产品生命周期',matrix:'关键产品',inventory:'库存管控',suppliers:'供应链采购',cost:'降本增效'};
+const pcSharedIds=['risk','ai','sales','new','projects','lifecycle','matrix','inventory','cost'];
+const pcModuleLabels={risk:'风险预警',ai:'AI 总诊断',management:'人员管理',sales:'销售达成',new:'新品专项',projects:'项目进度',lifecycle:'产品生命周期',matrix:'关键产品',inventory:'库存管控',cost:'降本增效'};
 const pcModuleOrder=Object.keys(pcModuleLabels);
-let pcRenderedRole='',pcDirectorNeedsRender=false;
+let pcRenderedRole='',pcRenderedProjectScope='',pcDirectorNeedsRender=false;
 const pcSharedNodes=new Map(pcSharedIds.map(id=>{
  const node=$('#'+id),home=document.createComment('product-center-home:'+id);node.before(home);return [id,{node,home}];
 }));
@@ -43,7 +43,10 @@ function pcRenderWorkspace(){
  }
  $('#ai .sectionhead h2').textContent='产品中心 AI 总诊断';
  $('#risk .sectionhead h2').firstChild.textContent='产品中心风险预警';
+ const projectScope=JSON.stringify([ppProjectChains(),ppAnalysisDepartments()]);
  if(refresh){pcDirectorNeedsRender=true;renderAll(moduleIds.filter(id=>pcSharedNodes.has(id)))}
+ else if(projectScope!==pcRenderedProjectScope)renderProjects();
+ pcRenderedProjectScope=projectScope;
  pcPaintPersonnel(management);
  pcTrimScopedModules();pcQueueNavigation();
 }

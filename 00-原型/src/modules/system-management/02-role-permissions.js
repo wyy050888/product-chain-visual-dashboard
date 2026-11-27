@@ -1,10 +1,12 @@
-// 两张看板复用模块定义，授权数据始终按页面独立保存。
+// 各看板复用权限控件，授权数据按看板独立保存。
 const rmDepartmentNames=[...filterCatalog.primaryDepartments,'发货部','计划部'];
 const rmDepartmentReportNames=rmDepartmentNames.map(name=>name+'周报');
 const rmReportNames=['产品链总周报',...rmDepartmentReportNames];
 const rmChainScopes=[['full','全部'],['chain','按用户关联链群']];
 const rmModule=(id,name,type='chain',extra={})=>({id,name,type,...extra});
 const rmGroup=(id,name,children)=>({id,name,children});
+const qcDepartment='品质中心';
+const qcRoles=[['pqm','PQM 品质链主'],['pqe','PQE 质改工程师'],['lab','实验室工程师'],['sqe','SQE 供应商质量工程师'],['system','体系工程师']];
 const rmQualityRankings=[
  rmModule('violation','产品违规榜'),rmModule('returns-worse','退货恶化榜'),rmModule('returns-gap','退货偏差榜'),
  rmModule('store-risk','店铺风险榜','shared')
@@ -21,31 +23,103 @@ const rmAiModules=rmGroup('ai','AI 总诊断',[
 const rmPeopleModule=rmGroup('personnel','人员管理',[
  rmModule('rating','人员评分','shared'),rmModule('people-metrics','关键指标大盘')
 ]);
+const rmProjectProgressModule=rmModule('projects','项目进度','chain',{
+ note:'项目进度按链群授权，部门风险根因分析单独授权',
+ children:[rmModule('project-risk','部门风险根因分析','department-picker',{departmentOptions:()=>ppDepartments.map(name=>[name,name])})]
+});
 const rmCommonModules=[
- rmModule('sales','销售达成'),rmModule('new','新品专项'),
- rmModule('projects','项目进度','chain',{
-  note:'项目进度按链群授权，部门风险根因分析单独授权',
-  children:[rmModule('project-risk','部门风险根因分析','department-picker',{departmentOptions:()=>ppDepartments.map(name=>[name,name])})]
- }),
+ rmModule('sales','销售达成'),rmModule('new','新品专项'),rmProjectProgressModule,
  rmModule('lifecycle','产品全生命周期','chain',{children:[rmModule('brand','品牌下钻','brand')]}),
- rmModule('key-products','关键产品'),rmModule('inventory','库存管控'),
- rmGroup('suppliers','供应链采购',[
-  rmModule('strategic-suppliers','核心战略合作供应商','shared'),
-  rmModule('sourcing','产品寻源预警'),rmModule('category-reserve','类目准入储备'),rmModule('core-materials','核心物料供应商')
+ rmModule('key-products','关键产品'),rmModule('inventory','库存管控')
+];
+const rmSuppliersModule=rmGroup('suppliers','供应链采购',[
+ rmModule('strategic-suppliers','核心战略合作供应商','shared'),
+ rmModule('sourcing','产品寻源预警'),rmModule('category-reserve','类目准入储备'),rmModule('core-materials','核心物料供应商')
+]);
+const rmCostModule=rmModule('cost','降本增效','department-picker',{departmentOptions:()=>ccDepartments.map(({id,name})=>[id,name])});
+const rmQualityModules=[
+ rmGroup('director','总监看板',[
+  rmGroup('risk','风险预警',rmQualityRankings),
+  rmAiModules,
+  rmGroup('personnel','人员管理',[rmPeopleModule.children[0],rmModule('people-metrics','人员指标大盘')]),
+  rmCommonModules.find(item=>item.id==='new'),
+  {...rmProjectProgressModule,children:rmProjectProgressModule.children.map(item=>({...item,defaultDepartments:[qcDepartment]}))},
+  rmModule('cost-benefit','品质整改项目成本收益台账'),
+  rmCommonModules.find(item=>item.id==='lifecycle'),
+  rmCommonModules.find(item=>item.id==='key-products'),
+  {...rmCostModule,defaultDepartments:['quality']}
  ]),
- rmModule('cost','降本增效','department-picker',{departmentOptions:()=>ccDepartments.map(({id,name})=>[id,name])})
+ rmGroup('role-boards','岗位看板',qcRoles.map(([id,label])=>rmModule('board-'+id,label,'shared')))
 ];
 const rmBoards=[
  {id:'total',name:'总看板',modules:[rmGroup('risk','风险预警',[
   ...rmQualityRankings,...rmStockRankings,rmModule('loss','亏损产品榜')
- ]),rmAiModules,...rmCommonModules]},
+ ]),rmAiModules,...rmCommonModules,rmSuppliersModule,rmCostModule]},
  {id:'product',name:'产品中心',department:'产品中心',modules:[rmGroup('risk','风险预警',[
   ...rmProductRankings,...rmQualityRankings,rmModule('loss','亏损产品榜')
- ]),rmAiModules,rmPeopleModule,...rmCommonModules]}
+ ]),rmAiModules,rmPeopleModule,...rmCommonModules,rmCostModule]},
+ {id:'quality',name:qcDepartment,department:qcDepartment,modules:rmQualityModules},
+ {id:'procurement',name:'采购部',department:'采购部',modules:[
+  rmGroup('proc-risk','风险预警',[
+   rmGroup('proc-supplier-warning','供应商预警',[
+    rmModule('proc-supplier-introduction-delay','引入延期预警'),rmModule('proc-supplier-information-missing','供应商信息缺失预警'),
+    rmModule('proc-supplier-qualification-validity','资质有效性预警'),rmModule('proc-supplier-quality','劣质供应商预警'),
+    rmModule('proc-supplier-legal-risk','行政法律风险预警')
+   ]),
+   rmGroup('proc-cost-warning','成本管控预警',[
+    rmModule('proc-cost-over-target','超目标成本预警'),rmModule('proc-cost-over-requirement','超费率标准预警'),
+    rmModule('proc-mold-amortization-complete','模具分摊完毕预警'),rmModule('proc-refurbishment-cost','翻新费用预警'),
+    rmModule('proc-material-large-fluctuation','物料大额波动预警','shared')
+   ]),
+   rmModule('proc-project-delay','项目延期预警'),rmModule('proc-order-delivery','订单交付预警'),
+   rmModule('proc-new-product-high-return','新品高退货率'),rmModule('proc-sales-scale-miss','亏损产品预警'),
+   rmModule('proc-contract-expiry','合同到期预警')
+  ]),
+  rmGroup('proc-ai','AI 总诊断',[
+   rmModule('proc-key-work','重点工作清单','department'),rmModule('proc-deviation','工作偏差预警','department'),
+   rmModule('proc-department-diagnosis','部门诊断','report'),rmModule('proc-tasks','任务清单','department')
+  ]),
+  rmGroup('proc-department','部门管理',[
+   rmModule('proc-staff-rating','人员评分','shared'),
+   rmGroup('proc-department-metrics','关键指标大盘',[
+    rmGroup('proc-supply-chain','供应链采购',[
+     rmModule('proc-strategic-suppliers','核心战略合作供应商','shared'),rmModule('proc-sourcing','产品寻源预警'),
+     rmModule('proc-category-reserve','类目准入储备'),rmModule('proc-core-materials','核心物料供应商')
+    ]),
+    rmGroup('proc-selection','自选品管理',[
+     rmModule('proc-selection-overview','全景总览'),rmModule('proc-selection-analysis','分指标多维分析'),
+     rmModule('proc-selection-new-product','新品指标分析'),rmModule('proc-selection-delay','产品延期榜单'),
+     rmModule('proc-selection-elimination','自选品接需量统计')
+    ]),
+    rmModule('proc-quote','报价管理'),rmModule('proc-contract','合同管理'),rmModule('proc-project-management','项目管理')
+   ])
+  ]),
+  rmGroup('proc-cost-control','成本管控',[
+   rmModule('proc-cost-efficiency','降本增效','department-picker',{departmentOptions:rmCostModule.departmentOptions}),
+   rmModule('proc-mold-fee','模具费'),rmModule('proc-refurbishment-fee','翻新费')
+  ]),
+  {...rmProjectProgressModule,id:'proc-project-progress'},
+  rmModule('proc-lifecycle','产品生命周期'),rmModule('proc-new-product','新品专项'),rmModule('proc-key-product','关键产品')
+ ]},
+ {id:'supply-chain-center',name:'供应链中心',modules:[
+  rmGroup('scc-planning','计划管理部',[
+   rmModule('scc-inventory-turnover','库存周转率','shared'),rmModule('scc-risk-warning','风险预警','shared'),
+   rmModule('scc-stale-products','呆滞产品','shared'),rmModule('scc-refurbished-statistics','翻新机统计','shared'),
+   rmModule('scc-personnel-indicators','人员指标','shared')
+  ]),
+  rmGroup('scc-order-fulfillment','订单履约部',[
+   rmModule('scc-purchase-order-statistics','采购单统计','shared'),rmModule('scc-order-refurbished-statistics','翻新机统计','shared'),
+   rmModule('scc-delivery-timeliness','交付及时率','shared')
+  ]),
+  rmGroup('scc-shipping','发货部',[rmModule('scc-department-indicators','部门指标','shared')])
+ ]}
 ];
 
+function rmBoardModuleEntries(items,parents=[]){
+ return items.flatMap(item=>[{item,parents},...rmBoardModuleEntries(item.children||[],[...parents,item.id])]);
+}
 function rmDashboardItems(board){
- return board.modules.flatMap(item=>[item,...(item.children||[])]).filter(item=>item.type);
+ return rmBoardModuleEntries(board.modules).map(({item})=>item).filter(item=>item.type);
 }
 function rmHasModuleScope(item,access){
  const grants=Object.values(access.departments[item.id]||{});
@@ -58,24 +132,26 @@ function rmDefaultReportScope(board){
  return board.department?[board.department+'周报']:[];
 }
 function rmNewDashboardAccess(board){
- const departments=board.department?Object.fromEntries(rmDashboardItems(board).filter(item=>item.type==='department')
-  .map(item=>[item.id,rmDefaultDepartmentScopes(board)])):{};
+ const departments=Object.fromEntries(rmDashboardItems(board).flatMap(item=>{
+  if(item.type==='department'&&board.department)return [[item.id,rmDefaultDepartmentScopes(board)]];
+  return item.defaultDepartments?[[item.id,rmDepartmentGrants(item.defaultDepartments)]]:[];
+ }));
  return {modules:[],scopes:{},departments,reportScope:rmDefaultReportScope(board)};
 }
 function rmExampleDashboardAccess(board,kind){
  const access=rmNewDashboardAccess(board);
  const director=kind==='director';
- if(!director&&board.id==='total')return access;
+ if(!director&&['total','quality'].includes(board.id))return access;
  const departments=board.department?[board.department]:rmDepartmentNames;
  for(const item of rmDashboardItems(board)){
   if(item.type==='chain')access.scopes[item.id]=director?'full':'chain';
   if(item.type==='department')access.departments[item.id]=Object.fromEntries(departments.map(department=>[department,director?'full':'chain']));
   if(director&&item.type==='department-picker'){
-   const departments=item.id==='project-risk'&&board.department?[board.department]:item.departmentOptions().map(([id])=>id);
+   const departments=item.defaultDepartments||(item.id==='project-risk'&&board.department?[board.department]:item.departmentOptions().map(([id])=>id));
    access.departments[item.id]=rmDepartmentGrants(departments);
   }
   if(director&&item.type==='shared')access.scopes[item.id]='full';
-  const granted=item.type==='brand'?board.id==='product':item.type==='report'?director:rmHasModuleScope(item,access);
+  const granted=item.type==='brand'?(board.id==='product'||board.id==='quality'&&director):item.type==='report'?director:rmHasModuleScope(item,access);
   if(granted)access.modules.push(item.id);
  }
  if(director&&!board.department)access.reportScope=[...rmReportNames];

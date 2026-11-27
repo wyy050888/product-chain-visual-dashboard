@@ -16,35 +16,15 @@ function riskRankingAttach(kind){
  if(pcIsActive()&&!riskRankingBackground.size)dashboardQueueLayout($('#risk'),riskRankingMeasureBackground);
  drawerQueueRefresh();
 }
-// 抽屉打开时保留屏外模块的原高度，跳过这些模块内部的样式和布局计算。
 const riskRankingBackground=new Map();
 function riskRankingMeasureBackground(risk){
  if(!pcIsActive()||$('#overlay').hidden||!$('#dialog').classList.contains('risk-ranking-drawer'))return;
  const sections=risk.parentElement.querySelectorAll(':scope > .section:not(#risk)');
  const boards=risk.querySelectorAll('#riskrail [data-rp-board]');
- const offscreen=[];
- for(const node of [...sections,...boards]){
-  const rect=node.getBoundingClientRect();
-  if(!rect.height||(rect.bottom>0&&rect.top<window.innerHeight))continue;
-  const css=getComputedStyle(node);
-  const insets=['paddingTop','paddingBottom','borderTopWidth','borderBottomWidth'].reduce((sum,key)=>sum+(parseFloat(css[key])||0),0);
-  offscreen.push({node,contentHeight:Math.max(0,rect.height-insets)});
- }
- return ()=>{
-  for(const {node,contentHeight} of offscreen){
-   const style=node.style;
-   riskRankingBackground.set(node,[style.contentVisibility,style.containIntrinsicBlockSize]);
-   style.containIntrinsicBlockSize=contentHeight+'px';
-   style.contentVisibility='hidden';
-  }
- };
+ return dashboardMeasureOffscreen([...sections,...boards],riskRankingBackground);
 }
 function riskRankingResumeBackground(){
- for(const [node,[visibility,size]] of riskRankingBackground){
-  node.style.contentVisibility=visibility;
-  node.style.containIntrinsicBlockSize=size;
- }
- riskRankingBackground.clear();
+ dashboardRestoreOffscreen(riskRankingBackground);
 }
 new MutationObserver(()=>{if($('#overlay').hidden)riskRankingResumeBackground()})
  .observe($('#overlay'),{attributes:true,attributeFilter:['hidden']});

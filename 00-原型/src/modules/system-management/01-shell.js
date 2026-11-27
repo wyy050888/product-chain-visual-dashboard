@@ -12,7 +12,7 @@ function smDataAction(kind,label,attributes=''){
 // 固定菜单结构与页面注册分离；无本地页面的原有菜单仅置灰展示。
 const smMenuGroups=[
  ['业务配置',[
-  ['规则配置','business-rule-page'],['供应商导入','ssi-page'],['核心链接导入','klc-page'],['样机提供及时率导入','sample-timeliness-import-page'],['产品分类']
+  ['规则配置','business-rule-page'],['供应商导入','ssi-page'],['核心链接导入','klc-page'],['产品分类']
  ]],
  ['目标管理',[
   ['生命周期目标','lt-target-page'],['降本增效','cec-page'],['供应商目标','st-target-page']
@@ -70,14 +70,14 @@ function smShowPage(route){
 }
 function smHidePage(){smActiveRoute='';smHost.hidden=true;document.body.classList.remove('lt-system-active');$('#lt-system-nav').removeAttribute('aria-current')}
 function smRestoreView(destination,refreshLifecycle=true){
- if(qualityEntryView)qualityEntryView.hidden=true;
+ const restoredQuality=destination!=='#quality-department'&&qcRestoreWorkspace();
  if(destination==='#quality-department')showQualityEntry();
  else if(destination==='#procurement'||destination.startsWith('#pb-'))pbSwitchView(false);
  else if(destination==='#department'||destination.startsWith('#dp-'))dpSwitchView('department',false);
  else{
   const key=['project','research'].find(k=>destination==='#'+dwProfiles[k].route||destination.startsWith('#'+dwProfiles[k].route+'-'));
   if(key){const module=destination.slice(dwProfiles[key].route.length+2);dwOpen(key,false,dxModuleOrder.includes(module)?module:null)}
-  else{dpSwitchView('director',false);if(refreshLifecycle)renderLife()}
+  else{dpSwitchView('director',false);if(restoredQuality)renderAll(qcSharedIds);else if(refreshLifecycle)renderLife()}
  }
  requestAnimationFrame(()=>{
   if(pcIsActive()&&destination.startsWith('#dp-'))pcScrollToModule(destination.slice(4));

@@ -1,6 +1,7 @@
 // 沿用总看板的统计周，按产品中心的最新版本显示周报。
 const pcWeeklyRows=gdWeeklyReportRows,pcWeeklyTable=gdWeeklyReportTable;
 const pcWeeklyReportScopes=gdWeeklyReportScopes.filter(([key])=>key==='product');
+function pcCanAccessWeeklyScope(scope){return pcIsActive()?scope==='product':qcIsActive()&&qcAccess.reports.some(([key])=>key===scope)}
 // 原始版本的导出时间取自交付 PDF，摘要取自同一份周报。
 const pcWeeklyAiReports={
  '2026-10-19':{
@@ -19,17 +20,20 @@ const pcWeeklySummaryColumns=[
   return risks?.length?`<ul class="gd-weekly-risk-list">${risks.map(risk=>`<li>${esc(risk)}</li>`).join('')}</ul>`:'';
  }]
 ];
+function pcDepartmentWeeklyRows(weeks,scope,aiReports){
+ pcWeeklyInitVersions(scope);
+ const {versions}=pcWeeklyStore(scope);
+ return weeks.map(week=>{
+  const aiReport=week.reports[scope],uploadedVersion=versions.get(week.monday)?.[0];
+  const file=uploadedVersion?.name||aiReport;
+  const aiVersion=aiReport?aiReports[week.monday]:undefined;
+  const productSummary=uploadedVersion?undefined:aiVersion;
+  return {...week,reports:file?{[scope]:file}:{},reportScope:scope,aiReport,aiReportAt:aiVersion?.exportedAt,uploadedVersion,productSummary};
+ });
+}
 gdWeeklyReportRows=function(){
  const weeks=pcWeeklyRows();
- if(!pcIsActive())return weeks;
- pcWeeklyInitVersions();
- return weeks.map(week=>{
-  const aiReport=week.reports.product,productVersion=pcWeeklyVersions.get(week.monday)?.[0];
-  const file=productVersion?.name||aiReport;
-  const aiVersion=aiReport?pcWeeklyAiReports[week.monday]:undefined;
-  const productSummary=productVersion?undefined:aiVersion;
-  return {...week,reports:file?{product:file}:{},aiReport,aiReportAt:aiVersion?.exportedAt,productVersion,productSummary};
- });
+ return pcIsActive()?pcDepartmentWeeklyRows(weeks,'product',pcWeeklyAiReports):weeks;
 };
 gdWeeklyReportTable=function(weeks){
  return pcIsActive()?pcWeeklyTable(weeks,pcWeeklyReportScopes,pcWeeklySummaryColumns,pcWeeklyActionCell):pcWeeklyTable(weeks);

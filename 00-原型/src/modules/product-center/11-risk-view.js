@@ -53,10 +53,9 @@ function pcRiskTaskField(label,value){
  return {label,markup:value?`<button type="button" class="pc-risk-blockers" data-metric-text-label="${label}">${esc(value)}</button>`:'—'};
 }
 function pcRiskInitiationNote(row){
- if(row.source!=='wps')return row.wait?`延期 ${row.wait}天`:'';
- if(row.daysToTarget>0)return row.remaining?`距目标完成还有 ${row.remaining} 个工作日`:'即将到期';
+ if(row.daysToTarget>0)return `距目标完成还有 ${row.remaining} 天`;
  if(row.daysToTarget===0)return '今日到期';
- return row.wait?`延期 ${row.wait} 个工作日`:'已超过目标日期';
+ return row.wait?`延期 ${row.wait}天`:'';
 }
 function pcRiskFields(key,row={},drawer=false){
  const field=(label,value,note='',tone='')=>({label,value,note,tone});
@@ -70,11 +69,11 @@ function pcRiskFields(key,row={},drawer=false){
   }]:[])
  ];
  if(key==='initiation')return [
-  field('立项日期',pcRiskDate(row.date),pcRiskInitiationNote(row),row.source==='wps'&&row.daysToTarget>=0?'orange':'pc-risk-initiation-delay'),
+  field('预计立项日期',pcRiskDate(row.date),pcRiskInitiationNote(row),row.source==='wps'&&row.daysToTarget>=0?'orange':'pc-risk-initiation-delay'),
   field('目标上市日期',pcRiskDate(row.targetLaunchDate)),
   {...field('销售渠道',row.channel),preserveTerms:true},
   field('提需人',row.requester),
-  {...field('产品经理',row.manager),help:ppHelp('产品经理','如需修改，请前往【产品研发-项目管理-模板管理-配置产品链人员】配置链群相关的产品经理')}
+  {...field('产品经理',row.manager),help:ppHelp('产品经理','来源于运营提需池的产品经理，如需修改，请前往【系统管理-用户管理-链群配置】中配置链群相关的产品中心人员')}
  ];
  if(key==='delayed'){
   const planned=field('计划上市日期',pcRiskDate(row.planned));
@@ -86,12 +85,14 @@ function pcRiskFields(key,row={},drawer=false){
    pcRiskTaskField('当前任务',row.blockers)
   ];
  }
+ const revisedDate=field('延期上市日期',drawer||row.revised?pcRiskDate(row.revised):'--');
+ if(!drawer&&row.revised){
+  revisedDate.markup=`${pcRiskText(revisedDate.value)}<small class="pc-risk-material-delay rp-quality-red">延期${esc(row.delay)}天</small>`;
+ }
  return [
   field('计划上市日期',pcRiskDate(row.planned)),
-  ...(drawer?[
-   field('延期上市日期',pcRiskDate(row.revised)),
-   field('延期天数',row.delay>0?row.delay+' 天':'—')
-  ]:[field('延期上市日期',row.revised?pcRiskDate(row.revised):'--',row.revised?'延期'+row.delay+'天':'',row.revised?'rp-quality-red':'')]),
+  revisedDate,
+  ...(drawer?[field('延期天数',row.delay>0?row.delay+' 天':'—')]:[]),
   {...field('销售渠道',row.channel),preserveTerms:true},...manager,
   ...(drawer?[pcRiskTaskField('当前任务',row.currentTask)]:[])
  ];
@@ -132,8 +133,8 @@ function pcRiskCardNotice(key){
    sort:['按距预计上市的天数从少到多。','距上市天数相同时，延期天数从多到少。']
   },
   initiation:{
-   pool:[`运营提需池：最终审批通过后满 ${pcRiskInitiationDays} 个工作日，且截至统计日仍为「待立项」。`,`立项云文档：距立项目标完成时间 ${pcRiskInitiationDays} 个工作日起，立项 OA 单号为空即预警，填单号后解除。`],
-   sort:['待立项及已到目标日期的记录优先，按等待或延期工作日从多到少排列。','尚未到期的记录，按立项目标完成时间从早到晚排列。']
+   pool:[`运营提需池：最终审批通过后满 ${pcRiskInitiationDays} 天，且截至统计日仍为「待立项」。`,`立项云文档：距立项目标完成时间 ${pcRiskInitiationDays} 天起，立项 OA 单号为空即预警，填单号后解除。`],
+   sort:['待立项及已到目标日期的记录优先，按等待或延期天数从多到少排列。','尚未到期的记录，按立项目标完成时间从早到晚排列。']
   }
  };
  const rule=rules[key];

@@ -2336,12 +2336,12 @@
       "module": "产品中心链群产品经理配置"
     },
     {
-      "file": "src/modules/product-center/08-metrics-view.js",
-      "module": "产品中心人员管理周期与指标视图"
+      "file": "src/modules/product-center/18-archive-review.js",
+      "module": "产品中心封样评审汇总与未关联档案抽屉"
     },
     {
-      "file": "src/modules/product-center/16-sample-timeliness-import.js",
-      "module": "业务配置中的直播间样机提供及时率导入入口"
+      "file": "src/modules/product-center/08-metrics-view.js",
+      "module": "产品中心人员管理周期与指标视图"
     },
     {
       "file": "src/modules/product-center/09-brand-plan.js",
@@ -2354,6 +2354,38 @@
     {
       "file": "src/modules/product-center/11-risk-view.js",
       "module": "产品中心专属风险卡片与详情表"
+    },
+    {
+      "file": "src/modules/quality-center/01-people-data.js",
+      "module": "品质中心人员名单及评分依据"
+    },
+    {
+      "file": "src/modules/quality-center/02-metric-definitions.js",
+      "module": "品质中心岗位指标定义及演示值"
+    },
+    {
+      "file": "src/modules/quality-center/03-people-view.js",
+      "module": "品质中心人员评分及岗位指标大盘"
+    },
+    {
+      "file": "src/modules/quality-center/04-correction-model.js",
+      "module": "品质整改项目成本收益演示台账"
+    },
+    {
+      "file": "src/modules/quality-center/05-correction-view.js",
+      "module": "品质整改进度及成本收益明细"
+    },
+    {
+      "file": "src/modules/quality-center/08-access.js",
+      "module": "品质中心角色授权与链群范围"
+    },
+    {
+      "file": "src/modules/quality-center/06-workspace.js",
+      "module": "品质中心总监和岗位看板入口"
+    },
+    {
+      "file": "src/modules/quality-center/07-shared-scope.js",
+      "module": "品质中心共用模块数据与展示范围"
     },
     {
       "file": "src/modules/page-entries/01.js",
@@ -2794,6 +2826,10 @@
     {
       "file": "styles/88-product-center.css",
       "module": "产品中心共用布局与专属卡片"
+    },
+    {
+      "file": "styles/quality-center.css",
+      "module": "品质中心看板、岗位指标及整改台账"
     },
     {
       "file": "styles/81-diagnosis-analysis.css",

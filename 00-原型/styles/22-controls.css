@@ -25,8 +25,9 @@
 .page .tag.green,.dialog .tag.green { background:var(--green-soft); color:var(--green); }
 .page .tag.br-p3,.dialog .tag.br-p3 { background:#f0f3f8; color:#6c7b91; }
 .page .period-segment { background:#edf1f7; border-radius:6px; padding:3px; }
-.page .period-segment button,.dialog .period-segment button { min-height:30px; font-size:13px; padding:4px 12px; border-radius:4px; }
-.page .period-segment button[aria-pressed="true"],.dialog .period-segment button[aria-pressed="true"] { background:#fff; color:#1677ff; box-shadow:0 1px 4px #24334b12; }
+.page .period-segment button,.dialog .period-segment button,.page .period-segment .period-mode-current { min-height:30px; font-size:13px; padding:4px 12px; border-radius:4px; }
+.page .period-segment button[aria-pressed="true"],.dialog .period-segment button[aria-pressed="true"],.page .period-segment .period-mode-current { background:#fff; color:#1677ff; box-shadow:0 1px 4px #24334b12; }
+.page .period-segment .period-mode-current { display:inline-flex; align-items:center; font-weight:var(--weight-heading); }
 .page .tabs { display:flex; align-items:center; gap:4px; flex-wrap:wrap; }
 .page .tabs button,.dialog .tabs button { padding:6px 12px; font-size:13px; min-height:32px; border-radius:5px; color:#72839d; }
 .page .tabs button:hover,.dialog .tabs button:hover { background:#f3f7fd; color:#1677ff; }

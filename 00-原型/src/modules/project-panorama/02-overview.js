@@ -1,4 +1,6 @@
-function ppHelp(label,text){return `<span class="metric-help" role="button" tabindex="0" aria-label="${esc(label)}说明" data-metric-rule="${esc(text)}"></span>`}
+function ppHelp(label,text,{titled=false}={}){
+ return `<span class="metric-help" role="button" tabindex="0" aria-label="${esc(label)}说明" data-metric-rule="${esc(text)}"${titled?` data-metric-rule-title="${esc(label)}"`:''}></span>`;
+}
 function ppLightValues(value){return value==='红黄灯'?['红灯','黄灯']:[value]}
 function ppLightActive(value){
  // 手动勾选红、黄灯与合计覆盖同一批项目。
@@ -18,10 +20,29 @@ function ppChartColumns(dimension,department=false){
 function ppChartDimensionTabs(attribute,extra=''){
  return `<div class="pp-card-tools"><div class="pp-tabs">${[['type','项目类型'],['category','链群']].map(([key,label])=>`<button type="button" ${attribute}="${key}" aria-pressed="${ppState.distribution===key}" class="${ppState.distribution===key?'active':''}">${label}</button>`).join('')}</div>${extra}</div>`;
 }
+const ppBlockerDepartmentHelp=[
+ '1. 全部统计当前筛选范围内的所有进行中项目。',
+ '2. 部门统计项目、任务所在阶段、任务均为红灯的进行中项目，按卡点任务负责人的所属部门归类。',
+ '3. 同一项目在同一部门只计一次，涉及多个卡点部门时分别计入。未维护风险单的项目也计入。'
+].join('\n');
+function ppBlockerDepartmentOptions(ongoing){
+ const counts=new Map();
+ for(const project of ongoing){
+  for(const department of new Set(ppBlockerTasks(project).map(task=>task.department)))counts.set(department,(counts.get(department)||0)+1);
+ }
+ const selected=ppState.blockerDepartment;
+ if(selected!=='全部'&&!counts.has(selected))counts.set(selected,0);
+ const options=[['全部',ongoing.length],...[...counts].sort(([a],[b])=>a.localeCompare(b,'zh-CN'))];
+ return `<div class="pp-blocker-department-controls">${ppHelp('卡点部门统计',ppBlockerDepartmentHelp,{titled:true})}<div class="pp-dept-options" role="group" aria-label="卡点部门">${options.map(([name,count])=>{
+  const scope=name==='全部'?'进行中项目':'卡点项目';
+  return `<button type="button" data-pp-blocker-department="${esc(name)}" aria-pressed="${selected===name}" aria-label="${esc(name)}，${count}个${scope}"><span>${esc(name)}</span><b class="pp-dept-count">${count}</b></button>`;
+ }).join('')}</div></div>`;
+}
 function ppOverview(rows,allRows){
  const ongoing=rows.filter(p=>p.projectState==='进行中'),dimension=ppState.distribution;
- const keys=dimension==='type'?Object.keys(ppStages):pfCategories;
- const groups=keys.map(key=>({key,...ppCounts(ongoing.filter(p=>p[dimension]===key))}));
+ const visible=ongoing.filter(project=>ppMatchesBlockerDepartment(project,ppState.blockerDepartment));
+ const keys=dimension==='type'?Object.keys(ppStages):ppProjectChains();
+ const groups=keys.map(key=>({key,...ppCounts(visible.filter(p=>p[dimension]===key))}));
  const share=(group,count)=>count/Math.max(1,group.red+group.yellow+group.green)*100;
  const groupMarkup=group=>{
   const parts=[['red','red','红灯'],['yellow','orange','黄灯'],['green','green','绿灯']];
@@ -29,9 +50,9 @@ function ppOverview(rows,allRows){
   const counts=parts.map(([key,color,label])=>`<b class="${color}" title="${label}">${group[key]}</b>`).join('');
   const summary=parts.map(([key,,label])=>`${label} ${group[key]}`).join('，');
   return ppLink(dimension,group.key,`<span class="pp-bar-label">${esc(group.key)}</span>`,
-   `<span class="pp-bar-line"><span class="pp-track">${segments}</span><span class="pp-distribution-counts" aria-label="${summary}">${counts}</span></span>`);
+   `<span class="pp-bar-line"><span class="pp-track">${segments}</span><span class="pp-distribution-counts${group.total?' pp-count-action':''}" aria-label="${summary}">${counts}</span></span>`);
  };
- return ` <article class="pp-card pp-distribution"><div class="pp-card-head"><h3>进行中项目分布</h3></div>
+ return ` <article class="pp-card pp-distribution"><div class="pp-card-head"><h3>进行中项目分布</h3>${ppBlockerDepartmentOptions(ongoing)}</div>
  ${ppChartDimensionTabs('data-pp-distribution')}
  <div class="pp-chart-body">${ppChartColumns(dimension)}<div class="pp-bars">${groups.map(groupMarkup).join('')}</div></div></article>
  ${ppDepartmentRiskChart(rows)}${ppRiskEventsTable(allRows)}`;

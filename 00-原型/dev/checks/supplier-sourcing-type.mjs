@@ -104,10 +104,11 @@ export async function supplierSourcingType(page){
  }
  await page.setViewportSize({width:1920,height:1080});
  await checkChainFilters(page);
- await page.goto(new URL('产品中心.html',page.url()).href);
- const productModule=page.locator('#department-view #suppliers'),entry=page.locator('a[href="#dp-suppliers"]');
- await entry.click();
- assert(await productModule.locator('h2').isVisible());
- await checkChainFilters(page);
- console.log('通过：总看板与产品中心的项目名称/采购链主搜索、链群与项目类型筛选、区域独立及宽窄屏布局。');
+ await page.goto(new URL('产品中心.html#dp-suppliers',page.url()).href);
+ await page.locator('.pc-navigation-toolbar').waitFor({state:'visible'});
+ assert.equal(await page.locator('#department-view #suppliers, #dp-suppliers, .pc-navigation-toolbar a[href="#dp-suppliers"]').count(),0);
+ await page.locator('#chain-menu-trigger').click();
+ await page.locator('#chain-menu').getByRole('menuitem',{name:'总看板',exact:true}).click();
+ await page.locator('#suppliers .scp-project-card').waitFor({state:'visible'});
+ console.log('通过：总看板采购筛选与布局、产品中心旧地址回访及返回总看板。');
 }

@@ -55,8 +55,35 @@ function titleProduct(p,{showBrand=true,subtitle,gradeMarkup=''}={}){return `<di
 function spark(i=0){let points=Array.from({length:22},(_,k)=>`${k*10},${25-Math.sin(k*.8+i)*5-k*.5}`).join(' ');return `<svg class="spark" viewBox="0 0 210 32" preserveAspectRatio="none" aria-hidden="true"><polyline points="${points} 210,32 0,32" fill="#eef1ff" stroke="none"/><polyline points="${points}" fill="none" stroke="#8594ff" stroke-width="1.5"/></svg>`}
 function toast(t){$('#toast').textContent=t;$('#toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').hidden=true,Math.min(10000,Math.max(3200,String(t).split('\n').length*900)))}
 function downloadCsv(headers,rows,name){const cell=x=>'"'+String(x??'').replace(/<[^>]*>/g,'').replace(/^[=+@-]/,"'" ).replace(/"/g,'""')+'"';const blob=new Blob(['\ufeff'+[headers,...rows].map(r=>r.map(cell).join(',')).join('\r\n')],{type:'text/csv;charset=utf-8;'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name+'.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
-function openModal(title,body,drawer=false,sub=''){if($('#overlay').hidden)lastFocus=document.activeElement;$('#dialog').classList.toggle('drawer',drawer);$('#dialogtitle').textContent=title;$('#dialogsub').textContent=sub;$('#dialogbody').innerHTML=body;$('#dialogbody').scrollTop=0;$('#dialogactions').innerHTML='<button class="btn small" id="modalclose">关闭</button>';$('#overlay').hidden=false;document.body.style.overflow='hidden';$('#modalclose').onclick=closeModal;$('#close').focus()}
-function closeModal(){$('#overlay').hidden=true;document.body.style.overflow='';lastFocus?.focus()}
+let modalLayoutFrame=0;
+function openModal(title,body,drawer=false,sub=''){
+ const overlay=$('#overlay'),content=$('#dialogbody'),firstOpen=overlay.hidden;
+ if(firstOpen)lastFocus=document.activeElement;
+ $('#dialog').classList.toggle('drawer',drawer);
+ $('#dialogtitle').textContent=title;
+ $('#dialogsub').textContent=sub;
+ content.innerHTML=body;
+ $('#dialogactions').innerHTML='<button class="btn small" id="modalclose">关闭</button>';
+ $('#modalclose').onclick=closeModal;
+ overlay.hidden=false;
+ document.body.style.overflow='hidden';
+ cancelAnimationFrame(modalLayoutFrame);
+ const finishLayout=()=>{
+  modalLayoutFrame=0;
+  if(overlay.hidden)return;
+  content.scrollTop=0;
+  if(!firstOpen||!overlay.contains(document.activeElement))$('#close').focus({preventScroll:true});
+ };
+ // 首次打开时等列表、标签和公共控件写完，再定位滚动与焦点。
+ if(firstOpen)modalLayoutFrame=requestAnimationFrame(finishLayout);
+ else finishLayout();
+}
+function closeModal(){
+ cancelAnimationFrame(modalLayoutFrame);modalLayoutFrame=0;
+ $('#overlay').hidden=true;
+ document.body.style.overflow='';
+ lastFocus?.focus({preventScroll:true});
+}
 
 const riskTitles=['高危品质风险榜','高危劣质店铺榜','高危亏损产品榜','库存风险榜','高危滞销产品榜','高危延期项目榜','高危退货恶化榜'];
 function riskRows(k){if(k===0)return sampleQualityCatalog();if(k===5)return projects().filter(p=>p.delay>config.delay).sort((a,b)=>b.delay-a.delay).map(p=>({...p,value:p.delay+' 天',metric:p.delay,desc:p.stage}));return Array.from({length:8},(_,i)=>{const ci=(i+k)%4,p={id:i,name:k===1?brands[i%5]+['生活电器旗舰店','家电专营店'][i%2]:names[ci][i%6],model:['CL','KT','EN','HC'][ci]+'-'+(101+i),chain:ci,brand:brands[i%5],channel:channels[i%channels.length],owner:people[i%8],metric:0};const f=snapshotFactor();const val=[((18.2-i*1.2)*f).toFixed(1)+'%',(3.2+i*.08+(1-f)*.25).toFixed(2)+' 分',((12.8-i*1.1)*f).toFixed(1)+' 万',Math.round((268-i*23)*f)+' 万',Math.round((156-i*13)*f)+' 万','',((28.6-i*2.1)*f).toFixed(1)+'%'][k];return{...p,...(k===1?{}:sampleSpuIdentity(ci,Math.floor(i/4),false)),value:val,metric:parseFloat(val),desc:[i===0?'平台处罚 · 一票置顶':'高退货 / 差评','违规扣分 / 流量下滑','当月毛利为负','库龄 >90 天且近30天无动销',i<4?'两季品 · 优先处置':'四季品 · 动销不足','','退货率环比增长'][k]}})}

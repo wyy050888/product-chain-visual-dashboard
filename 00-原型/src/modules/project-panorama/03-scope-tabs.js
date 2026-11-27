@@ -36,7 +36,7 @@ function ppTypeTabs(rows){
  return '<span class="pp-scope-label">项目类型</span>'+ppScopeTabMarkup(options,ppState.type,'data-pp-type-tab',value=>value==='all'?candidates.length:candidates.filter(p=>p.type===value).length);
 }
 function ppCategoryTabs(rows){
- const state={...ppState,category:[]},candidates=ppDetailRows(ppScope(rows,state),state),options=[['all','全部'],...pfCategories.map(value=>[value,value])];
+ const state={...ppState,category:[]},candidates=ppDetailRows(ppScope(rows,state),state),options=[['all','全部'],...ppProjectChains().map(value=>[value,value])];
  return '<span class="pp-scope-label">链群</span>'+ppScopeTabMarkup(options,ppState.category,'data-pp-category-tab',value=>value==='all'?candidates.length:candidates.filter(p=>p.category===value).length);
 }
 function ppApplyScopeTab(button,key){

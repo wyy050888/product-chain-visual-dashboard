@@ -63,7 +63,10 @@ function gdAnalysisRows(data,part=gdState.part,tab=gdState.tabs[part]){
  return [];
 }
 
-function gdAnalysisDepartments(row){return row.participants?gdRowDepartments(row):[...new Set([...(row.departments||[]),row.department,...(row.sources||[]).map(s=>s.department)].filter(Boolean))]}
+function gdAnalysisDepartments(row){
+ if(qcIsActive()&&row.participants?.length===0&&row.departments)return row.departments;
+ return row.participants?gdRowDepartments(row):[...new Set([...(row.departments||[]),row.department,...(row.sources||[]).map(s=>s.department)].filter(Boolean))];
+}
 function gdAnalysisMatches(row,filter,ignore=''){
  if(row.task?.gdLedger)return gdLedgerMatches(row.task,filter,ignore);
  const category=row.kind==='report-analysis'||ignore==='category'||!filter.category||filter.category==='all'||(row.categories||[]).includes(filter.category);
@@ -91,7 +94,7 @@ function gdCardCounts(data,weeks=gdWeeklyReportRows()){
  const deviations=gdTabs.resource.map(([key,label])=>[label,gdSectionRows(data,'resource',key,gdTableFilters('resource',key)).length]);
  const latestReportWeek=weeks.find(week=>Object.keys(week.reports).length>0);
  const reportCount=latestReportWeek?Object.keys(latestReportWeek.reports).length:0;
- const reportSummary=latestReportWeek?`${latestReportWeek.productVersion?'已上传':'已生成'}${latestReportWeek.weekLabel}周报`:'暂无已生成周报';
+ const reportSummary=latestReportWeek?`${latestReportWeek.uploadedVersion?'已上传':'已生成'}${latestReportWeek.weekLabel}周报`:'暂无已生成周报';
  return [
   {key:'coordination',count:work.reduce((n,[,v])=>n+v,0),stats:work},
   {key:'resource',count:deviations.reduce((n,[,v])=>n+v,0),stats:deviations},

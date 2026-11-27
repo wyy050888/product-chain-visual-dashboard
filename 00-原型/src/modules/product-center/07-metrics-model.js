@@ -11,7 +11,7 @@ const pcPlanningMetrics=[
  ['market','市场分析报告数量',pcKnowledgeSource],['definition','产品定义报告数量',pcKnowledgeSource],
  ['competitor','竞品样机体验与分析报告数量',pcKnowledgeSource],
  ['materials','产品培训资料数量',pcKnowledgeSource],['launchFiles','产品上市资料数量',pcKnowledgeSource],
- ['timeliness','上市资料提供及时率','上市前 60 至 30 天已提供资料的产品数 ÷ 上市产品数','percent'],
+ ['timeliness','上市资料提供及时率','上市资料提供及时率 = 筛选期内在上市前 60 至 30 天完成上市筹备的项目数 ÷ 筛选期内已完成上市筹备的项目数 × 100%','percent'],
  ['training','销售培训与推广次数',pcKnowledgeSource],['linePlanning','产品线规划',pcKnowledgeSource]
 ];
 const pcOperationsMetrics=[
@@ -20,12 +20,17 @@ const pcOperationsMetrics=[
  ['keyProductMeeting','产品链关键单品前后拉通会议次数',pcKnowledgeSource],
  ['brandMeeting','品牌方前后协同周例会次数',pcKnowledgeSource]
 ];
+const pcSampleTimelinessHelp=[
+ '直播间样机提供及时率 = 及时到样单数 ÷ 考核单数 × 100%',
+ '• 考核范围　按实际到样日期筛选，统计已到样或已验收的特殊展示样机。已取消的单，以及因运营改期或直播延期变更且已留痕的单，予以剔除。',
+ '• 及时判定　实际到样日期 − OA 中最后一次有效承诺的提供日期 ≤ 2 个自然日，计为及时。提前到样也计为及时。'
+].join('\n');
 const pcMetricGroups=[
  ['projects','项目管理',pcProjectMetrics],
  ['planning','竞品分析及产品企划',pcPlanningMetrics],
  ['system','产品档案管理',[
-  ['archive','产品档案更新完成率','已完成封样评审且已关联产品档案的项目数 ÷ 已完成封样评审的项目数','percent'],
-  ['samples','直播间样机提供及时率','人工导入','percent']
+  ['archive','产品档案更新完成率','产品档案更新完成率 = 已完成封样评审且已关联产品档案的项目数 ÷ 已完成封样评审的项目数 × 100%','percent'],
+  ['samples','直播间样机提供及时率',pcSampleTimelinessHelp,'percent']
  ]],
  ['operations','产品运营',pcOperationsMetrics]
 ];
@@ -72,15 +77,15 @@ const pcPlanningSamples=[
 ];
 const pcPlanningCountKeys=pcPlanningMetrics.map(([key])=>key).filter(key=>key!=='timeliness');
 const pcArchiveSamples=[
- {name:'张泽昆',date:'2026-11-09',linked:8,reviews:8,sampleOnTime:5,sampleRequests:6},
- {name:'潘东跃',date:'2026-11-11',linked:9,reviews:10,sampleOnTime:7,sampleRequests:8},
- {name:'侯佳莉',date:'2026-11-10',linked:7,reviews:8,sampleOnTime:5,sampleRequests:5},
- {name:'孟森祥',date:'2026-11-12',linked:4,reviews:5,sampleOnTime:3,sampleRequests:4},
- {name:'张晓阳',date:'2026-11-16',linked:3,reviews:4,sampleOnTime:2,sampleRequests:3},
- {name:'姚栋',date:'2026-11-13',linked:5,reviews:7,sampleOnTime:4,sampleRequests:5},
- {name:'刘萱',date:'2026-11-17',linked:2,reviews:3,sampleOnTime:1,sampleRequests:2},
- {name:'梁勋进',date:'2026-11-18',linked:1,reviews:2,sampleOnTime:1,sampleRequests:1},
- {name:'李亦姮',date:'2026-11-19',linked:0,reviews:2,sampleOnTime:1,sampleRequests:2}
+ {name:'张泽昆',date:'2026-11-09',sampleOnTime:5,sampleRequests:6},
+ {name:'潘东跃',date:'2026-11-11',sampleOnTime:7,sampleRequests:8},
+ {name:'侯佳莉',date:'2026-11-10',sampleOnTime:5,sampleRequests:5},
+ {name:'孟森祥',date:'2026-11-12',sampleOnTime:3,sampleRequests:4},
+ {name:'张晓阳',date:'2026-11-16',sampleOnTime:2,sampleRequests:3},
+ {name:'姚栋',date:'2026-11-13',sampleOnTime:4,sampleRequests:5},
+ {name:'刘萱',date:'2026-11-17',sampleOnTime:1,sampleRequests:2},
+ {name:'梁勋进',date:'2026-11-18',sampleOnTime:1,sampleRequests:1},
+ {name:'李亦姮',date:'2026-11-19',sampleOnTime:1,sampleRequests:2}
 ];
 const pcOperationsSamples=[
  {name:'张泽昆',date:'2026-11-09',successMeeting:3,afterSalesMeeting:2,keyProductMeeting:4,brandMeeting:3},
@@ -95,16 +100,16 @@ const pcOperationsSamples=[
 ];
 const pcPersonnelSamples={
  planning:{records:pcPlanningSamples,totals:pcPlanningTotals,defaultSort:{key:'market',direction:'desc'}},
- system:{records:pcArchiveSamples,totals:pcArchiveTotals,defaultSort:{key:'archive',direction:'desc'}},
+ system:{records:pcArchiveSamples,totals:pcSampleTimelinessTotals,defaultSort:{key:'archive',direction:'desc'}},
  operations:{records:pcOperationsSamples,totals:pcOperationsTotals}
 };
 function pcPlanningTotals(records){
  const sum=key=>records.reduce((total,row)=>total+row[key],0);
  return {...Object.fromEntries(pcPlanningCountKeys.map(key=>[key,sum(key)])),timeliness:msRatio(sum('onTime'),sum('launches'))};
 }
-function pcArchiveTotals(records){
+function pcSampleTimelinessTotals(records){
  const sum=key=>records.reduce((total,row)=>total+row[key],0);
- return {archive:msRatio(sum('linked'),sum('reviews')),samples:msRatio(sum('sampleOnTime'),sum('sampleRequests'))};
+ return {samples:msRatio(sum('sampleOnTime'),sum('sampleRequests'))};
 }
 function pcOperationsTotals(records){
  return Object.fromEntries(pcOperationsMetrics.map(([key])=>[

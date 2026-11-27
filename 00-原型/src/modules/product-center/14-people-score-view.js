@@ -39,14 +39,19 @@ function pcRatingSummaryCards(people,daily){
   ${card('周工作偏差',reported?deviations:'—','',reported?deviationBreakdown:'')}
  </div>`;
 }
-function pcPaintPeopleRatings(section){
- const {week,people}=pcPeopleRatingData();
+const pcPeopleRatingContext={
+ state:pcPeopleRatingState,data:pcPeopleRatingData,pager:'pc-people-ratings-pager',
+ daily:week=>pcDailyReportSummary(week,pcChain()),afterPaint:pcQueueNavigation
+};
+
+function pcPaintPeopleRatings(section,context=pcPeopleRatingContext){
+ const {state,data,daily,pager,afterPaint}=context,{week,people}=data();
  const host=section.querySelector('.pc-people-ratings');
  const heading=['姓名/岗位','人员评分','周重点工作','下周计划','周工作偏差','操作'];
  const unscored=Number.MAX_SAFE_INTEGER;
  people.sort((first,second)=>(first.score??unscored)-(second.score??unscored));
- const page=pcPersonnelPage(people,pcPeopleRatingState.page,'pc-people-ratings-pager');
- pcPeopleRatingState.page=page.current;
+ const page=pcPersonnelPage(people,state.page,pager);
+ state.page=page.current;
  const rows=page.rows.map(person=>[
   `${esc(person.name)}<small>${esc(person.role)}</small>`,pcScoreValue(person.score),
   gdCellPreview(pcWeeklyLines(person.work),heading[2]),
@@ -55,10 +60,10 @@ function pcPaintPeopleRatings(section){
   `<button type="button" class="link" data-pc-rating-person="${esc(person.name)}">查看得分明细</button>`
  ]);
  pcRatingPreviewObserver?.disconnect();
- host.innerHTML=`${pcRatingSummaryCards(people,pcDailyReportSummary(week,pcChain()))}<div class="pc-data-scroll" tabindex="0" role="region" aria-label="人员评分">${table(heading,rows,'pc-data-table pc-rating-table')}</div>${page.pager}`;
- pcBindPersonnelPager(host,'pc-people-ratings-pager',next=>{
-  pcPeopleRatingState.page=next;
-  pcPaintPeopleRatings(section);
+ host.innerHTML=`${pcRatingSummaryCards(people,daily(week))}<div class="pc-data-scroll" tabindex="0" role="region" aria-label="人员评分">${table(heading,rows,'pc-data-table pc-rating-table')}</div>${page.pager}`;
+ pcBindPersonnelPager(host,pager,next=>{
+  state.page=next;
+  pcPaintPeopleRatings(section,context);
  });
  pcRatingPreviewObserver=gdObserveTaskPreviews(host,[...host.querySelectorAll('.gd-task-preview')]);
  host.querySelector('thead th:nth-child(2)').setAttribute('aria-sort','ascending');
@@ -67,8 +72,8 @@ function pcPaintPeopleRatings(section){
  trigger.querySelector('span').textContent=pcRiskDate(start)+' — '+pcRiskDate(end);
  trigger.onclick=()=>{
   openDateWeekPicker(trigger,{start,end},start=>{
-   pcPeopleRatingState.week=start;pcPeopleRatingState.page=1;
-   pcPaintPeopleRatings(section);pcQueueNavigation();
+   state.week=start;state.page=1;
+   pcPaintPeopleRatings(section,context);afterPaint?.();
   },{min:aiCoverageStart,max:dashboardSyncDate});
  };
 }
@@ -93,8 +98,8 @@ function pcScoreDetailTable(details){
  }).join('');
  return `<table><thead><tr>${headers.map(header=>`<th scope="col">${header}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table>`;
 }
-function pcOpenPeopleScore(name){
- const {report,people}=pcPeopleRatingData();
+function pcOpenPeopleScore(name,context=pcPeopleRatingContext){
+ const {report,people}=context.data();
  const person=people.find(row=>row.name===name);
  if(!person)return;
  const light=pcPeopleScoreLight(person.score);

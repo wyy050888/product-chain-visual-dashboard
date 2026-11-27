@@ -8,7 +8,6 @@
 #projects.pp-main .pp-risk-counts>button{padding:1px 2px;border:0;background:transparent;font:inherit;font-size:11px;cursor:pointer}
 #projects.pp-main .pp-risk-count-separator{color:#a8b3c3;white-space:pre}
 #projects.pp-main .pp-dept-risk-row button:focus-visible{outline:2px solid #1677ff;outline-offset:1px}
-#projects.pp-main .pp-risk-counts>button[aria-pressed=true]{background:#e4efff;border-radius:3px}
 
 /* 业务分区以标题和间距组织；图表共用高度，不再逐卡套框。 */
 #projects.pp-main .pp-layout{grid-template-columns:minmax(0,1fr);gap:16px;padding:0 18px}
@@ -37,7 +36,7 @@
 #projects.pp-main #pp-overview .pp-chart-columns-line{display:flex;align-items:center;gap:8px;min-width:0}
 #projects.pp-main #pp-overview .pp-chart-column-bar{flex:1;min-width:0}
 /* 列头只保留小色点，灯色不再铺满文字；数字列仍按原规则着色。 */
-#projects.pp-main #pp-overview .pp-chart-columns .pp-chart-count-head b{display:flex;align-items:center;justify-content:flex-end;gap:2px;font:inherit;font-size:12px;font-weight:400;color:#8190a5;text-align:right}
+#projects.pp-main #pp-overview .pp-chart-columns .pp-chart-count-head b{display:flex;align-items:center;justify-content:center;gap:2px;font:inherit;font-size:12px;font-weight:400;color:#8190a5;text-align:center}
 #projects.pp-main #pp-overview .pp-chart-count-head b::before{content:"";flex:none;width:3px;height:3px;border-radius:50%;background:var(--pp-column-dot);opacity:.65}
 #projects.pp-main #pp-overview .pp-chart-count-head .red{--pp-column-dot:var(--red)}
 #projects.pp-main #pp-overview .pp-chart-count-head .orange{--pp-column-dot:var(--orange-fill)}
@@ -47,13 +46,17 @@
 #projects.pp-main #pp-overview .pp-bar-label{font-size:13px;margin:0;line-height:20px;color:#49617c;white-space:nowrap}
 #projects.pp-main #pp-overview .pp-bar-line{gap:8px;min-width:0}
 #projects.pp-main #pp-overview .pp-track{height:20px;border-radius:4px;background:#f1f4f8}
-#projects.pp-main #pp-overview .pp-distribution .pp-distribution-counts{display:grid;grid-template-columns:repeat(3,var(--pp-chart-count-width));flex:none;min-width:calc(var(--pp-chart-count-width)*3);font-size:13px;line-height:20px;font-variant-numeric:tabular-nums}
-#projects.pp-main #pp-overview .pp-distribution-counts b{text-align:right;font-size:inherit;font-weight:500}
+#projects.pp-main #pp-overview .pp-distribution .pp-distribution-counts{display:grid;grid-template-columns:repeat(3,var(--pp-chart-count-width));align-items:center;flex:none;min-width:calc(var(--pp-chart-count-width)*3);font-size:13px;line-height:20px;font-variant-numeric:tabular-nums}
+#projects.pp-main #pp-overview .pp-distribution-counts b{text-align:center;font-size:inherit;font-weight:500}
 #projects.pp-main #pp-overview .pp-risk-counts{display:grid;grid-template-columns:1fr max-content 1fr;align-items:center;flex:0 0 76px;white-space:nowrap}
 #projects.pp-main #pp-overview .pp-risk-counts>.pp-risk-count-separator{font-size:12px}
-#projects.pp-main #pp-overview .pp-risk-counts>button{padding:0;text-align:right;font-size:13px;line-height:20px;font-weight:500;font-variant-numeric:tabular-nums}
-#projects.pp-main #pp-overview .pp-risk-counts>button.orange{text-align:left}
-#projects.pp-main #pp-overview .pp-risk-counts.pp-chart-count-head .orange{justify-content:flex-start;text-align:left}
+#projects.pp-main #pp-overview .pp-risk-counts>button{padding:0;text-align:center;font-size:13px;line-height:20px;font-weight:500;font-variant-numeric:tabular-nums}
+/* 项目分布按整行联动，风险数字独立联动，两处共用计数高亮。 */
+#projects.pp-main #pp-overview .pp-count-action{min-height:24px;border:0;border-radius:4px;background:transparent;transition:background-color .15s,box-shadow .15s;text-decoration:none;cursor:pointer}
+#projects.pp-main #pp-overview :is(button.pp-count-action:hover,.pp-distribution .pp-link:is(:hover,:focus-visible) .pp-count-action){background:#e1edff;box-shadow:inset 0 0 0 1px #6a9eeb}
+#projects.pp-main #pp-overview :is(button.pp-count-action[aria-pressed=true],.pp-distribution .pp-link[aria-pressed=true] .pp-count-action){background:#cfe2ff;box-shadow:inset 0 0 0 2px #1677ff}
+#projects.pp-main #pp-overview :is(button.pp-count-action[aria-pressed=true],.pp-distribution .pp-link[aria-pressed=true] .pp-count-action b){font-weight:var(--weight-heading)!important}
+#projects.pp-main #pp-overview .pp-risk-counts>button:disabled{opacity:1;cursor:default}
 #projects.pp-main .pp-filters{display:flex;align-items:center;gap:10px;overflow-x:auto;padding:3px 0 8px;margin-bottom:8px}
 #projects.pp-main .pp-filter-row{grid-template-columns:minmax(260px,1.5fr) minmax(210px,1.1fr) minmax(190px,1fr) minmax(140px,.8fr) minmax(150px,.85fr) minmax(190px,1fr);gap:10px;min-width:1190px;flex:1 0 1190px}
 #projects.pp-main .pp-filter-row>.ui-search-field{grid-column:auto}
@@ -126,13 +129,15 @@
 /* 部门按钮和标题同排，窄屏只滚动按钮区。 */
 #projects.pp-main #pp-overview .pp-card-head{height:44px;min-height:44px;flex-wrap:nowrap;gap:12px}
 #projects.pp-main #pp-overview .pp-card-head h3{flex:none}
-#projects.pp-main #pp-overview>.pp-departments{container-type:inline-size}
+#projects.pp-main #pp-overview>:is(.pp-distribution,.pp-departments){container-type:inline-size}
+#projects.pp-main #pp-overview .pp-blocker-department-controls{display:flex;align-items:center;gap:6px;min-width:0}
+#projects.pp-main #pp-overview .pp-blocker-department-controls>.metric-help{margin:0}
 #projects.pp-main #pp-overview .pp-dept-options{display:flex;align-items:center;min-width:0;height:44px;gap:8px;margin:0;padding-inline:2px;overflow-x:auto;scrollbar-width:thin}
 #projects.pp-main #pp-overview .pp-dept-options button{display:flex;align-items:center;justify-content:center;flex:1 0 auto;min-height:36px;padding:0 8px;border:1px solid #dfe6ef;border-radius:8px;background:#fff;color:#52627b;font-size:13px;font-weight:400;line-height:16px;transition:background-color .15s,border-color .15s,color .15s}
-#projects.pp-main #pp-overview .pp-departments .pp-dept-options button{flex-direction:column}
+#projects.pp-main #pp-overview :is(.pp-distribution,.pp-departments) .pp-dept-options button{flex-direction:column}
 @container(min-width:640px){
- #projects.pp-main #pp-overview .pp-departments .pp-dept-options{gap:5px}
- #projects.pp-main #pp-overview .pp-departments .pp-dept-options button{flex-direction:row;gap:4px;padding-inline:5px}
+ #projects.pp-main #pp-overview :is(.pp-distribution,.pp-departments) .pp-dept-options{gap:5px}
+ #projects.pp-main #pp-overview :is(.pp-distribution,.pp-departments) .pp-dept-options button{flex-direction:row;gap:4px;padding-inline:5px}
 }
 #projects.pp-main #pp-overview .pp-dept-options button:hover{background:#f7f9fc;border-color:#bdcce0;color:#344c6b}
 #projects.pp-main #pp-overview .pp-dept-options button[aria-pressed=true]{background:#edf4ff;border-color:#9fc1fa;color:#1765d1;font-weight:500}

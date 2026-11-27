@@ -9,7 +9,7 @@ function ppRiskEventsTable(currentRows){
  const today=dashboardToday(),shortDate=date=>date.slice(date.slice(0,4)===today.slice(0,4)?5:2).replaceAll('-','/');
  const dateLabel=range.start!==range.end?`<span class="pp-event-period-range"><span>${shortDate(range.start)}</span><span>–${shortDate(range.end)}</span></span>`:`<span>${shortDate(range.end)}</span>`;
  const rangeLabel=range.start===range.end?range.end:range.start+' 至 '+range.end;
- const departmentPicker=pcIsActive()?'':`<select data-pp-event-department aria-label="新增与闭环风险责任部门">${['全部',...ppDepartments].map(name=>`<option value="${name}" ${department===name?'selected':''}>${name==='全部'?'全部部门':name}</option>`).join('')}</select>`;
+ const departmentPicker=`<select data-pp-event-department aria-label="新增与闭环风险责任部门">${['全部',...ppDepartments].map(name=>`<option value="${name}" ${department===name?'selected':''}>${name==='全部'?'全部部门':name}</option>`).join('')}</select>`;
  const rows=groups.map(group=>`<tr data-pp-event-group="${esc(group.key)}"><th scope="row">${esc(group.key)}</th>${ppEventCountCell('new',group.new)}${ppEventCountCell('closed',group.closed)}</tr>`).join('');
  return `<article class="pp-card pp-events"><div class="pp-card-head"><h3 id="pp-event-title">新增与闭环风险</h3>
   <button type="button" class="risk-date-trigger" data-pp-event-period aria-label="风险统计日期 ${rangeLabel}" title="${rangeLabel}" aria-haspopup="dialog" aria-expanded="false" aria-controls="pp-event-date-popover">${dateLabel}<svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="4" width="14" height="13" rx="2"/><path d="M6 2v4m8-4v4M3 8h14"/></svg></button></div>

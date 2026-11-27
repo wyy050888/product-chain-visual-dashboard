@@ -5,7 +5,7 @@ function gdSyncTodos(){
  gdTodoRefreshQueued=true;
  queueMicrotask(()=>{
   try{
-   if((dpState.view!=='director'&&!pcIsActive())||dxRendering||!$('#ai')?.classList.contains('gd-workspace'))return;
+   if((dpState.view!=='director'&&!pcIsActive()&&!qcIsActive())||dxRendering||!$('#ai')?.classList.contains('gd-workspace'))return;
    gdRender();
    if(!$('#overlay').hidden&&$('#dialogbody>.gd-generated-dialog')){drawerReplace(gdOpenGeneratedTasks);return}
   }finally{gdTodoRefreshQueued=false}

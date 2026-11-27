@@ -11,7 +11,8 @@ const ppProjectStates=['进行中','已完成','已暂停/取消','未开始'];
 const ppDepartments=['产品中心','品质中心','研发中心','采购部'];
 const ppRiskLights=['红灯','黄灯'];
 const ppProjectLights=['红灯','黄灯','绿灯'];
-const ppState={category:[],type:[],projectState:['进行中'],brand:[],light:[],riskLight:[],stage:[],department:[],query:'',plan:null,actual:null,started:null,page:1,distribution:'type',riskDepartment:'全部',link:null,sort:{key:'plan',direction:'asc'}};
+const ppState={category:[],type:[],projectState:['进行中'],brand:[],light:[],riskLight:[],stage:[],department:[],query:'',plan:null,actual:null,started:null,page:1,distribution:'type',blockerDepartment:'全部',riskDepartment:'全部',link:null,sort:{key:'plan',direction:'asc'}};
+function ppProjectChains(){return pfCategories}
 const ppValues=value=>[...new Set((Array.isArray(value)?value:[value]).filter(v=>v!=null&&v!==''&&v!=='—'))];
 // 只归一明确的部门别名，不从项目经理或任务内容推断责任部门。
 const ppDepartmentValues=value=>ppValues(ppValues(value).map(filterCatalog.normalizeDepartment));
@@ -59,9 +60,22 @@ function ppSelectedRisks(project,state=ppState){
 function ppMatchesRisk(project,state){
  return !(state.riskLight?.length||state.department?.length)||ppSelectedRisks(project,state).length>0;
 }
+const ppBlockerTaskCache=new WeakMap();
+const ppMissingTaskValues=new Set(['','—','-','--','未填写','待补充']);
+function ppBlockerTasks(project){
+ if(!ppBlockerTaskCache.has(project))ppBlockerTaskCache.set(project,projectRedBlockerTasks(project).flatMap(({stage,task})=>{
+  const owner=String(task.owner??'').trim(),department=filterCatalog.normalizeDepartment(task.dept);
+  return ppMissingTaskValues.has(owner)||ppMissingTaskValues.has(department)?[]:[{stage:stage.name,task:task.name,owner,department}];
+ }));
+ return ppBlockerTaskCache.get(project);
+}
+function ppMatchesBlockerDepartment(project,department){
+ return !department||department==='全部'||ppBlockerTasks(project).some(task=>task.department===department);
+}
 function ppFiltered(rows,s=ppState){
  const q=s.query.trim().toLowerCase();
  return rows.filter(p=>pfIncludes(s.brand,p.brand)&&ppMatchesLight(p,s.light)&&(!s.stage.length||s.stage.some(path=>path.type===p.type&&p.stages.includes(path.stage)))&&ppMatchesRisk(p,s)
+  &&ppMatchesBlockerDepartment(p,s.blockerDepartment)
   &&(!q||[p.name,...ppSelectedRisks(p,s).flatMap(r=>[r.rootCause||r.description,r.owner])].some(value=>String(value||'').toLowerCase().includes(q)))
   &&ppMatchesDates(p,s)&&ppLinked(p,s.link))
   .sort((a,b)=>ppCompareProjects(a,b,s.sort));

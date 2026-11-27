@@ -1,23 +1,25 @@
 let pcWeeklyOpenMenu=null;
 
-function pcWeeklyActionCell({monday,label,reports}){
- const available=Boolean(reports.product),menuId='pc-weekly-menu-'+monday;
- return `<button type="button" class="link ui-icon-label" data-pc-weekly-trigger="${monday}" popovertarget="${menuId}" aria-haspopup="menu" aria-expanded="false" aria-controls="${menuId}" aria-label="周报操作 · ${esc(label)}">
+function pcWeeklyActionCell({monday,label,reports},scope,department){
+ const available=Boolean(reports[scope]),menuId=pcWeeklyMenuId(monday,scope);
+ return `<button type="button" class="link ui-icon-label" data-pc-weekly-trigger="${monday}" popovertarget="${menuId}" aria-haspopup="menu" aria-expanded="false" aria-controls="${menuId}" aria-label="周报操作 · ${esc(label)} · ${esc(department)}">
    <span>周报操作</span><i class="ui-dropdown-icon" aria-hidden="true"></i>
   </button>
-  <div id="${menuId}" class="pc-weekly-menu" data-pc-weekly-panel="${monday}" popover="auto" role="menu" aria-label="周报操作">
+  <div id="${menuId}" class="pc-weekly-menu" data-pc-weekly-panel="${monday}" data-pc-weekly-scope="${scope}" popover="auto" role="menu" aria-label="周报操作">
    <button type="button" role="menuitem" data-pc-weekly-action="download" ${available?'':'disabled'}>下载周报</button>
    <button type="button" role="menuitem" data-pc-weekly-action="upload">上传周报</button>
    <button type="button" role="menuitem" data-pc-weekly-action="history">变更记录</button>
   </div>`;
 }
 
-function pcWeeklyTrigger(monday){return document.querySelector(`[data-pc-weekly-trigger="${monday}"]`)}
+function pcWeeklyMenuId(monday,scope){return `pc-weekly-menu-${scope}-${monday}`}
+function pcWeeklyTrigger(menuId){return document.querySelector(`[popovertarget="${menuId}"]`)}
 
-function pcWeeklyPlaceMenu(menu,trigger){
+function pcWeeklyPlaceMenu(menu,trigger,align='end'){
  const anchor=trigger.getBoundingClientRect(),width=document.documentElement.clientWidth;
  const {width:menuWidth,height:menuHeight}=menu.getBoundingClientRect();
- const left=Math.max(8,Math.min(anchor.right-menuWidth,width-menuWidth-8));
+ const anchorLeft=align==='start'?anchor.left:anchor.right-menuWidth;
+ const left=Math.max(8,Math.min(anchorLeft,width-menuWidth-8));
  const top=anchor.bottom+menuHeight+4<=innerHeight-8?anchor.bottom+4:Math.max(8,anchor.top-menuHeight-4);
  Object.assign(menu.style,{left:left+'px',top:top+'px'});
 }
@@ -25,7 +27,7 @@ function pcWeeklyPlaceMenu(menu,trigger){
 document.addEventListener('toggle',event=>{
  const menu=event.target,week=menu.dataset?.pcWeeklyPanel;
  if(!week)return;
- const trigger=pcWeeklyTrigger(week),open=menu.matches(':popover-open');
+ const trigger=pcWeeklyTrigger(menu.id),open=menu.matches(':popover-open');
  trigger?.setAttribute('aria-expanded',String(open));
  if(open&&trigger){
   pcWeeklyOpenMenu=menu;
@@ -36,7 +38,7 @@ document.addEventListener('toggle',event=>{
 
 function pcWeeklyRepositionMenu(){
  if(!pcWeeklyOpenMenu?.matches(':popover-open')){pcWeeklyOpenMenu=null;return}
- const trigger=pcWeeklyTrigger(pcWeeklyOpenMenu.dataset.pcWeeklyPanel);
+ const trigger=pcWeeklyTrigger(pcWeeklyOpenMenu.id);
  if(trigger?.checkVisibility())pcWeeklyPlaceMenu(pcWeeklyOpenMenu,trigger);
  else pcWeeklyOpenMenu.hidePopover();
 }
@@ -46,7 +48,7 @@ window.addEventListener('resize',pcWeeklyRepositionMenu);
 document.addEventListener('keydown',event=>{
  const menu=event.target.closest('[data-pc-weekly-panel]');
  if(!menu?.matches(':popover-open'))return;
- const trigger=pcWeeklyTrigger(menu.dataset.pcWeeklyPanel);
+ const trigger=pcWeeklyTrigger(menu.id);
  if(event.key==='Escape'||event.key==='Tab'){
   if(event.key==='Escape'){event.preventDefault();event.stopPropagation()}
   menu.hidePopover();
@@ -64,9 +66,10 @@ function pcWeeklyDialog(week,title,body,footer){
  const dialog=document.createElement('dialog');
  dialog.className='gd-task-entry-dialog pc-weekly-dialog';
  dialog.setAttribute('aria-labelledby','pc-weekly-dialog-title');
- dialog.innerHTML=`<form><header><h3 id="pc-weekly-dialog-title">${title}</h3><button type="button" class="gd-task-entry-close" data-pc-weekly-close aria-label="关闭${title}">×</button></header><div class="gd-task-entry-body"><p class="pc-weekly-dialog-period">${esc(week.label)}</p>${body}</div><footer>${footer}</footer></form>`;
+ const department=gdWeeklyReportScopes.find(([key])=>key===week.reportScope)?.[1];
+ dialog.innerHTML=`<form><header><h3 id="pc-weekly-dialog-title">${title}</h3><button type="button" class="gd-task-entry-close" data-pc-weekly-close aria-label="关闭${title}">×</button></header><div class="gd-task-entry-body"><p class="pc-weekly-dialog-period">${esc(week.label)} · ${esc(department)}</p>${body}</div><footer>${footer}</footer></form>`;
  dialog.querySelectorAll('[data-pc-weekly-close]').forEach(button=>button.onclick=()=>dialog.close());
- dialog.addEventListener('close',()=>{dialog.remove();pcWeeklyTrigger(week.monday)?.focus({preventScroll:true})},{once:true});
+ dialog.addEventListener('close',()=>{dialog.remove();pcWeeklyTrigger(pcWeeklyMenuId(week.monday,week.reportScope))?.focus({preventScroll:true})},{once:true});
  document.body.append(dialog);
  dialog.showModal();
  return dialog;
@@ -90,13 +93,14 @@ function pcWeeklyOpenUpload(week){
   submit.textContent='上传中…';
   error.hidden=true;
   try{
+   if(!pcCanAccessWeeklyScope(week.reportScope)){dialog.close();return}
    if(!/\.pdf$/i.test(file.name)||await file.slice(0,5).text()!=='%PDF-'){
     error.textContent='请选择有效的 PDF 周报';
     error.hidden=false;
     return;
    }
-   await pcWeeklyAddVersion(week.monday,file);
-   if(pcIsActive())gdRender({reuseData:true});
+   await pcWeeklyAddVersion(week.reportScope,week.monday,file);
+   if(pcCanAccessWeeklyScope(week.reportScope))gdRender({reuseData:true});
    dialog.close();
    toast('周报上传成功');
   }catch{
@@ -114,7 +118,7 @@ const pcWeeklyChangeTime=new Intl.DateTimeFormat('sv-SE',{
  timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'
 });
 function pcWeeklyOpenHistory(week){
- const versions=[...(pcWeeklyVersions.get(week.monday)||[])];
+ const versions=[...(pcWeeklyStore(week.reportScope).versions.get(week.monday)||[])];
  if(week.aiReport)versions.push({id:'ai',actor:'AI生成',at:week.aiReportAt});
  const rows=versions.map(({id,actor,at})=>{
   const time=at?`<time datetime="${esc(at)}">${presentationDateText(pcWeeklyChangeTime.format(new Date(at)))}</time>`:'—';
@@ -125,22 +129,23 @@ function pcWeeklyOpenHistory(week){
  dialog.addEventListener('click',event=>{
   const version=event.target.closest('[data-pc-weekly-version]')?.dataset.pcWeeklyVersion;
   if(version==='ai')gdDownloadWeeklyReportFile(week.monday,week.aiReport);
-  else if(version)pcWeeklyDownloadVersion(Number(version));
+  else if(version)pcWeeklyDownloadVersion(week.reportScope,Number(version));
  });
 }
 
 document.addEventListener('click',async event=>{
  const action=event.target.closest('[data-pc-weekly-action]');
  if(!action||action.disabled)return;
- const menu=action.closest('[data-pc-weekly-panel]'),monday=menu.dataset.pcWeeklyPanel;
+ const menu=action.closest('[data-pc-weekly-panel]'),{pcWeeklyPanel:monday,pcWeeklyScope:scope}=menu.dataset;
  menu.hidePopover();
- pcWeeklyTrigger(monday)?.focus({preventScroll:true});
- await pcWeeklyInitVersions();
- if(!pcIsActive()||gdState.part!=='execution')return;
- const week=gdWeeklyReportRows().find(row=>row.monday===monday);
+ pcWeeklyTrigger(menu.id)?.focus({preventScroll:true});
+ if(!pcCanAccessWeeklyScope(scope))return;
+ await pcWeeklyInitVersions(scope);
+ if(!pcCanAccessWeeklyScope(scope)||gdState.part!=='execution')return;
+ const row=gdWeeklyReportRows().find(row=>row.monday===monday),week=row?.departmentReports?.[scope]||(row?.reportScope===scope?row:null);
  if(!week)return;
  if(action.dataset.pcWeeklyAction==='upload')pcWeeklyOpenUpload(week);
  else if(action.dataset.pcWeeklyAction==='history')pcWeeklyOpenHistory(week);
- else if(week.productVersion)pcWeeklyDownloadVersion(week.productVersion.id);
+ else if(week.uploadedVersion)pcWeeklyDownloadVersion(scope,week.uploadedVersion.id);
  else if(week.aiReport)gdDownloadWeeklyReportFile(week.monday,week.aiReport);
 });

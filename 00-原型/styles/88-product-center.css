@@ -20,6 +20,12 @@
 #pc-people-metrics .pc-data-table thead th{height:44px;padding-block:7px;vertical-align:middle;white-space:nowrap}
 #pc-people-metrics .pc-data-table tbody tr{height:50px}
 #pc-people-metrics .pc-data-table tbody :is(th,td){padding-block:4px;vertical-align:middle;white-space:nowrap}
+#pc-people-metrics .pc-data-table button[data-pc-archive-person]{
+ padding:0;
+ font-size:inherit!important;
+ font-weight:inherit;
+ line-height:inherit;
+}
 #pc-people-metrics .pc-data-table tbody:not(.pc-data-total){--pc-metric-hover-bg:#fafbff}
 #pc-people-metrics .pc-data-table tbody:not(.pc-data-total) :is(tr>:first-child,th[scope="rowgroup"]){background-color:#fff}
 #pc-people-metrics .pc-data-table tbody:not(.pc-data-total) tr:hover{background-color:transparent}
@@ -131,9 +137,9 @@
 #lifetable .pc-life-brand-name>img,#lifetable .pc-life-brand-initial{width:24px;height:24px;flex:none;border-radius:4px}
 #lifetable .pc-life-brand-name>img{object-fit:contain;background:#fff}
 #lifetable .pc-life-brand-initial{display:grid;place-items:center;background:#eaf0f8;color:#4b6280;font-size:12px;font-weight:600}
-/* 部门固定产品中心；产品经理固定环境类。展示字段与业务类型不隐藏。 */
-body.product-center-active :is(.pp-dept-options,.pp-analysis-tabs,.gd-ledger-departments,.gd-rubric-selector:has([data-gd-rubric-dept])){display:none!important}
-body.product-center-manager :is(#nsp-category-tabs,#pp-category-tabs,[data-pp-distribution="category"],[data-pp-dept-dimension="category"]){display:none!important}
+/* AI 诊断固定产品中心，新品专项沿用产品经理视角的链群。 */
+body.product-center-active :is(.gd-ledger-departments,.gd-rubric-selector:has([data-gd-rubric-dept]),#pp-ai:empty){display:none!important}
+body.product-center-manager #nsp-category-tabs{display:none!important}
 /* 数值灯色与总看板一致；其他部门继续沿用原展示规则。 */
 body.product-center-active .number-signal{display:inline-flex;align-items:baseline;justify-content:center;box-sizing:border-box;padding:1px 4px;border:0!important;border-radius:4px;box-shadow:none!important;line-height:inherit;white-space:nowrap;vertical-align:baseline}
 body.product-center-active .number-signal--red{background:#ffe0e6!important;color:#b4233f!important}

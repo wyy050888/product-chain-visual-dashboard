@@ -65,6 +65,10 @@ export async function projectRiskEvents(page){
  await picker.locator('[data-range-date="2026-10-05"]:not(:disabled)').click();
  assert.match(await dateButton.getAttribute('title'),/^(2026-10-01|26\/10\/01) 至 (2026-10-05|26\/10\/05)$/);
  assert(await verifyCounts('2026-10-01','2026-10-05','全部','type')>0);
+ const counts=eventChart.locator('[data-pp-event-count] :is(.red,.orange)');
+ assert(await counts.evaluateAll(nodes=>nodes.every(node=>node.tagName==='SPAN'&&node.tabIndex===-1)),'风险数字仅作展示');
+ await counts.filter({hasText:/^[1-9]\d*$/}).first().click();
+ assert(await page.locator('#overlay').isHidden(),'点击风险数字不打开抽屉');
  await eventChart.locator('[data-pp-event-department]').selectOption('品质中心');
  await verifyCounts('2026-10-01','2026-10-05','品质中心','type');
  assert(await otherNodes.evaluateAll(nodes=>nodes.every(node=>node.eventProbe)),'日期和责任部门只更新风险事件表');

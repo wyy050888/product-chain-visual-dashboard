@@ -6,6 +6,7 @@
 #metric-tooltip.metric-rule-card .metric-rule-body{min-width:0}
 #metric-tooltip.metric-rule-card .metric-rule-body>p{margin:0 0 8px;color:var(--rule-text-color)}
 #metric-tooltip.metric-rule-card .metric-rule-list{list-style:disc;margin:0;padding-left:20px}
+#metric-tooltip.metric-rule-card ol.metric-rule-list{list-style-type:decimal}
 #metric-tooltip.metric-rule-card .metric-rule-list>li{padding:0 0 0 3px;margin:0 0 7px;border:0}
 #metric-tooltip.metric-rule-card .metric-rule-list>li:first-child{padding-top:0;border-top:0}
 #metric-tooltip.metric-rule-card .metric-rule-list>li:last-child{padding-bottom:0;margin-bottom:0}
